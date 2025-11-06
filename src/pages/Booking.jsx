@@ -51,7 +51,7 @@ function Booking() {
           <button 
             onClick={() => setShowNewBooking(!showNewBooking)}
             style={{
-              background: 'white',
+              background: 'rgba(184, 232, 20, 0.2)',
               color: 'var(--primary-green)',
               padding: '8px 16px',
               borderRadius: '6px',
@@ -136,7 +136,7 @@ function Booking() {
                   {booking.participants.map((participant, idx) => (
                     <div key={idx} style={{ 
                       padding: '8px',
-                      background: 'white',
+                      background: 'rgba(184, 232, 20, 0.2)',
                       borderRadius: '4px',
                       marginBottom: '4px',
                       fontSize: '14px'

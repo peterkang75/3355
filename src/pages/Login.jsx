@@ -95,16 +95,18 @@ function Login({ onLogin }) {
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      background: 'linear-gradient(135deg, #2d5f3f 0%, #3a7d54 100%)',
+      background: 'var(--bg-dark)',
       padding: '20px'
     }}>
       <div style={{
-        background: 'white',
+        background: 'var(--card-dark)',
         borderRadius: '16px',
         padding: '40px 30px',
         width: '100%',
         maxWidth: '400px',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+        border: '1px solid var(--border-color)',
+        backdropFilter: 'blur(10px)'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>⛳</div>
@@ -116,7 +118,7 @@ function Login({ onLogin }) {
           }}>
             골프 모임 관리
           </h1>
-          <p style={{ color: '#666', fontSize: '14px' }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: '14px' }}>
             전화번호 끝 6자리로 로그인하세요
           </p>
         </div>
@@ -163,7 +165,7 @@ function Login({ onLogin }) {
             width: '100%',
             marginTop: '12px',
             padding: '14px',
-            background: 'white',
+            background: 'rgba(184, 232, 20, 0.1)',
             color: 'var(--primary-green)',
             border: '2px solid var(--primary-green)',
             borderRadius: '8px',
@@ -179,8 +181,9 @@ function Login({ onLogin }) {
           <div style={{ 
             marginTop: '24px',
             padding: '20px',
-            background: 'var(--bg-green)',
-            borderRadius: '8px'
+            background: 'rgba(0, 0, 0, 0.3)',
+            borderRadius: '8px',
+            border: '1px solid var(--border-color)'
           }}>
             <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
               새 회원 가입
@@ -211,7 +214,7 @@ function Login({ onLogin }) {
               style={{ marginBottom: '12px', width: '100%' }}
             />
             <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#666' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--text-muted)' }}>
                 사진 (본인)
               </label>
               <input
@@ -369,10 +372,11 @@ function Login({ onLogin }) {
           <div style={{ 
             marginTop: '24px', 
             padding: '16px',
-            background: 'var(--bg-green)',
+            background: 'rgba(0, 0, 0, 0.3)',
             borderRadius: '8px',
             fontSize: '13px',
-            color: '#666'
+            color: 'var(--text-muted)',
+            border: '1px solid var(--border-color)'
           }}>
             <p style={{ marginBottom: '8px' }}>💡 테스트 계정:</p>
             <p>관리자: <strong>123456</strong></p>

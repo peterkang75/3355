@@ -54,7 +54,7 @@ function Board() {
           <button 
             onClick={() => setShowNewPost(!showNewPost)}
             style={{
-              background: 'white',
+              background: 'rgba(184, 232, 20, 0.2)',
               color: 'var(--primary-green)',
               padding: '8px 16px',
               borderRadius: '6px',

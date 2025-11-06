@@ -89,10 +89,11 @@ function Dashboard() {
 
           {showNewPost && user.isAdmin && (
             <div style={{ 
-              background: 'var(--bg-green)', 
+              background: 'rgba(0, 0, 0, 0.3)', 
               padding: '16px', 
               borderRadius: '8px',
-              marginBottom: '16px'
+              marginBottom: '16px',
+              border: '1px solid var(--border-color)'
             }}>
               <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: '700' }}>
                 새 공지사항
@@ -118,7 +119,7 @@ function Dashboard() {
           )}
 
           {posts.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#666', background: 'var(--bg-green)', borderRadius: '8px' }}>
+            <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)', background: 'rgba(0, 0, 0, 0.3)', borderRadius: '8px', border: '1px solid var(--border-color)' }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
               <p>아직 공지사항이 없습니다</p>
               {user.isAdmin && (
@@ -131,7 +132,7 @@ function Dashboard() {
             <div>
               {posts.map(post => (
                 <div key={post.id} style={{
-                  background: 'var(--bg-green)',
+                  background: 'rgba(0, 0, 0, 0.2)',
                   padding: '16px',
                   borderRadius: '8px',
                   marginBottom: '12px'
@@ -157,7 +158,7 @@ function Dashboard() {
                     </span>
                   </div>
                   <p style={{ 
-                    color: '#666', 
+                    color: 'var(--text-muted)', 
                     marginBottom: '12px',
                     lineHeight: '1.6',
                     whiteSpace: 'pre-wrap'
@@ -166,7 +167,7 @@ function Dashboard() {
                   </p>
                   <div style={{ 
                     fontSize: '13px', 
-                    color: '#999',
+                    color: 'var(--text-muted)',
                     display: 'flex',
                     justifyContent: 'space-between',
                     marginBottom: '12px'
@@ -178,7 +179,7 @@ function Dashboard() {
                   <button
                     onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
                     style={{
-                      background: 'white',
+                      background: 'rgba(255, 255, 255, 0.05)',
                       color: 'var(--primary-green)',
                       padding: '8px 12px',
                       borderRadius: '6px',
@@ -201,7 +202,7 @@ function Dashboard() {
                             <div 
                               key={comment.id}
                               style={{
-                                background: 'white',
+                                background: 'rgba(255, 255, 255, 0.05)',
                                 padding: '12px',
                                 borderRadius: '8px',
                                 marginBottom: '8px'
@@ -216,7 +217,7 @@ function Dashboard() {
                               </div>
                               <div style={{
                                 fontSize: '12px',
-                                color: '#999',
+                                color: 'var(--text-muted)',
                                 display: 'flex',
                                 justifyContent: 'space-between'
                               }}>
@@ -310,7 +311,7 @@ function Dashboard() {
           </h3>
           <div style={{ 
             padding: '16px',
-            background: 'var(--bg-green)',
+            background: 'rgba(0, 0, 0, 0.2)',
             borderRadius: '8px',
             textAlign: 'center',
             color: '#666'
@@ -330,7 +331,7 @@ function Dashboard() {
           </h3>
           <div style={{ 
             padding: '16px',
-            background: 'var(--bg-green)',
+            background: 'rgba(0, 0, 0, 0.2)',
             borderRadius: '8px',
             textAlign: 'center',
             color: '#666'
@@ -350,7 +351,7 @@ function Dashboard() {
           </h3>
           <div style={{ 
             padding: '16px',
-            background: 'var(--bg-green)',
+            background: 'rgba(0, 0, 0, 0.2)',
             borderRadius: '8px',
             textAlign: 'center',
             color: '#666'
