@@ -22,9 +22,17 @@ function MyPage() {
   });
 
   const handleSaveProfile = () => {
-    updateUser(profileData);
-    setEditMode(false);
-    alert('프로필이 저장되었습니다.');
+    try {
+      updateUser(profileData);
+      setEditMode(false);
+      alert('프로필이 저장되었습니다.');
+    } catch (error) {
+      if (error.name === 'QuotaExceededError') {
+        alert('사진 파일이 너무 큽니다. 더 작은 사진을 선택해주세요.');
+      } else {
+        alert('프로필 저장 중 오류가 발생했습니다.');
+      }
+    }
   };
 
   return (
@@ -188,8 +196,36 @@ function MyPage() {
                       const file = e.target.files?.[0];
                       if (file) {
                         const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setProfileData({ ...profileData, photo: reader.result });
+                        reader.onload = (event) => {
+                          const img = new Image();
+                          img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const MAX_WIDTH = 400;
+                            const MAX_HEIGHT = 400;
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > height) {
+                              if (width > MAX_WIDTH) {
+                                height *= MAX_WIDTH / width;
+                                width = MAX_WIDTH;
+                              }
+                            } else {
+                              if (height > MAX_HEIGHT) {
+                                width *= MAX_HEIGHT / height;
+                                height = MAX_HEIGHT;
+                              }
+                            }
+
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+                            
+                            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                            setProfileData({ ...profileData, photo: compressedDataUrl });
+                          };
+                          img.src = event.target.result;
                         };
                         reader.readAsDataURL(file);
                       }
