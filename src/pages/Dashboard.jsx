@@ -50,7 +50,7 @@ function Dashboard() {
     <div>
       <div className="header">
         <h1>대시보드</h1>
-        <div style={{ fontSize: '14px' }}>{user.name}님</div>
+        <div style={{ fontSize: '14px' }}>환영합니다 {user.nickname || user.name}님</div>
       </div>
 
       <div className="page-content">
