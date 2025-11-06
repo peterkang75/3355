@@ -7,6 +7,7 @@ function Admin() {
   const [activeTab, setActiveTab] = useState('members');
   const [members, setMembers] = useState([]);
   const [showPermissionMenu, setShowPermissionMenu] = useState(null);
+  const [showInactive, setShowInactive] = useState(false);
   const menuRefs = useRef({});
   const [newCourse, setNewCourse] = useState({
     name: '',
@@ -271,10 +272,33 @@ function Admin() {
         {activeTab === 'members' && (
           <div>
             <div className="card">
-              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
-                전체 회원 ({members.length})
-              </h3>
-              {members.map(member => (
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                marginBottom: '16px' 
+              }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
+                  전체 회원 ({showInactive ? members.length : members.filter(m => m.isActive !== false).length})
+                </h3>
+                <button
+                  onClick={() => setShowInactive(!showInactive)}
+                  style={{
+                    padding: '8px 16px',
+                    background: showInactive ? 'var(--primary-green)' : 'white',
+                    color: showInactive ? 'white' : 'var(--primary-green)',
+                    border: `2px solid var(--primary-green)`,
+                    borderRadius: '20px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                >
+                  {showInactive ? '✓ 비활성 회원 포함' : '활성 회원만 보기'}
+                </button>
+              </div>
+              {members.filter(member => showInactive || member.isActive !== false).map(member => (
                 <div 
                   key={member.id}
                   style={{
