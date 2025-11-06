@@ -9,6 +9,11 @@ function Admin() {
     { id: '111111', name: '회원1', phone: '111111', isAdmin: false, handicap: 20, balance: -50000 },
     { id: '222222', name: '회원2', phone: '222222', isAdmin: false, handicap: 15, balance: 0 }
   ]);
+  const [courses, setCourses] = useState([]);
+  const [newCourse, setNewCourse] = useState({
+    name: '',
+    address: ''
+  });
   const [showNewMemberForm, setShowNewMemberForm] = useState(false);
   const [newMember, setNewMember] = useState({
     name: '',
@@ -50,6 +55,21 @@ function Admin() {
       isAdmin: false 
     });
     setShowNewMemberForm(false);
+  };
+
+  const handleAddCourse = () => {
+    if (!newCourse.name) {
+      alert('골프장 이름을 입력해주세요.');
+      return;
+    }
+
+    const course = {
+      id: Date.now(),
+      ...newCourse
+    };
+
+    setCourses([...courses, course]);
+    setNewCourse({ name: '', address: '' });
   };
 
   if (!user.isAdmin) {
@@ -225,13 +245,18 @@ function Admin() {
                   maxLength={6}
                   style={{ marginBottom: '12px' }}
                 />
-                <input
-                  type="text"
-                  placeholder="소속 클럽"
+                <select
                   value={newMember.club}
                   onChange={(e) => setNewMember({ ...newMember, club: e.target.value })}
                   style={{ marginBottom: '12px' }}
-                />
+                >
+                  <option value="">소속 클럽 선택</option>
+                  {courses.map(course => (
+                    <option key={course.id} value={course.name}>
+                      {course.name}
+                    </option>
+                  ))}
+                </select>
                 <input
                   type="number"
                   placeholder="핸디캡"
@@ -358,31 +383,58 @@ function Admin() {
               <input
                 type="text"
                 placeholder="골프장 이름"
+                value={newCourse.name}
+                onChange={(e) => setNewCourse({ ...newCourse, name: e.target.value })}
                 style={{ marginBottom: '12px' }}
               />
               <input
                 type="text"
                 placeholder="주소"
+                value={newCourse.address}
+                onChange={(e) => setNewCourse({ ...newCourse, address: e.target.value })}
                 style={{ marginBottom: '12px' }}
               />
-              <button className="btn-primary">
+              <button className="btn-primary" onClick={handleAddCourse}>
                 골프장 등록
               </button>
             </div>
 
             <div className="card">
               <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
-                등록된 골프장
+                등록된 골프장 ({courses.length})
               </h3>
-              <div style={{ 
-                padding: '16px',
-                background: 'var(--bg-green)',
-                borderRadius: '8px',
-                textAlign: 'center',
-                color: '#666'
-              }}>
-                등록된 골프장이 없습니다
-              </div>
+              {courses.length === 0 ? (
+                <div style={{ 
+                  padding: '16px',
+                  background: 'var(--bg-green)',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  color: '#666'
+                }}>
+                  등록된 골프장이 없습니다
+                </div>
+              ) : (
+                courses.map(course => (
+                  <div 
+                    key={course.id}
+                    style={{
+                      padding: '16px',
+                      background: 'var(--bg-green)',
+                      borderRadius: '8px',
+                      marginBottom: '12px'
+                    }}
+                  >
+                    <div style={{ fontWeight: '700', fontSize: '16px', marginBottom: '4px' }}>
+                      {course.name}
+                    </div>
+                    {course.address && (
+                      <div style={{ fontSize: '14px', color: '#666' }}>
+                        📍 {course.address}
+                      </div>
+                    )}
+                  </div>
+                ))
+              )}
             </div>
           </div>
         )}
