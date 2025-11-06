@@ -48,6 +48,28 @@ function Admin() {
     loadMembers();
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showPermissionMenu !== null) {
+        const menus = document.querySelectorAll('[data-permission-menu]');
+        let clickedInside = false;
+        menus.forEach(menu => {
+          if (menu.contains(event.target)) {
+            clickedInside = true;
+          }
+        });
+        if (!clickedInside) {
+          setShowPermissionMenu(null);
+        }
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showPermissionMenu]);
+
   const handleAddMember = async () => {
     if (!newMember.name || !newMember.phone) {
       alert('이름과 전화번호를 입력해주세요.');
@@ -290,16 +312,21 @@ function Admin() {
                         👤
                       </div>
                     )}
-                    <div style={{ position: 'relative' }}>
+                    <div style={{ position: 'relative' }} data-permission-menu>
                       <button 
                         className="btn-secondary" 
                         style={{ fontSize: '13px', padding: '8px', width: '100px', marginTop: '8px' }}
-                        onClick={() => setShowPermissionMenu(showPermissionMenu === member.id ? null : member.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setShowPermissionMenu(showPermissionMenu === member.id ? null : member.id);
+                        }}
                       >
                         권한 수정
                       </button>
                       {showPermissionMenu === member.id && (
-                        <div style={{
+                        <div 
+                          onClick={(e) => e.stopPropagation()}
+                          style={{
                           position: 'absolute',
                           top: '100%',
                           left: 0,

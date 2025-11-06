@@ -82,10 +82,22 @@ npm run dev
 - 게시판 답글 기능 추가
 - 스코어 입력 화면 완성 (첨부 이미지 디자인 참조)
 - 모바일 네비게이션 구현
+- **Google Sheets 양방향 동기화 완료** ✅
+  - 회원, 게시글, 예약, 회비 데이터 자동 동기화
+  - 백그라운드 동기화로 빠른 앱 로딩
+- **관리자 권한 관리 기능 추가** ✅
+  - 관리자 권한 부여/해제
+  - 회원 비활성화/활성화
+  - 회원 삭제
+  - 구글 시트와 실시간 동기화
+
+## Google Apps Script 설정
+- Script URL: 환경 변수로 관리 (VITE_GOOGLE_SCRIPT_URL)
+- Sheet ID: 1cK-aw6_3O70SxYPZvXkdV0kMsV427IMvElbq5PgXNzE
+- 지원 기능: read, write, update, delete
 
 ## 다음 단계
-- [ ] Google Sheets API 연동
 - [ ] 핸디캡 자동 계산 알고리즘 구현
-- [ ] 데이터 영속성 추가
-- [ ] 회원별 권한 관리 상세 구현
 - [ ] 골프장 데이터베이스 관리
+- [ ] 실시간 알림 기능
+- [ ] 회비 자동 계산 및 리포트
