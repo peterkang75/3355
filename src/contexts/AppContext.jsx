@@ -19,71 +19,16 @@ export function AppProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const loadAllData = async () => {
-      console.log('🔄 구글 시트에서 데이터 로딩 시작...');
-      
-      try {
-        const loadWithTimeout = (promise, name, timeout = 10000) => {
-          return Promise.race([
-            promise,
-            new Promise((_, reject) => 
-              setTimeout(() => {
-                console.log(`⏱️ ${name} 타임아웃`);
-                reject(new Error(`${name} Timeout`));
-              }, timeout)
-            )
-          ]);
-        };
-
-        const results = await Promise.allSettled([
-          loadWithTimeout(googleSheetsService.getAllMembers(), 'Members'),
-          loadWithTimeout(googleSheetsService.getAllPosts(), 'Posts'),
-          loadWithTimeout(googleSheetsService.getAllBookings(), 'Bookings'),
-          loadWithTimeout(googleSheetsService.getAllFees(), 'Fees')
-        ]);
-
-        console.log('📊 Promise.allSettled 완료, 결과 처리 시작');
-        const [membersResult, postsResult, bookingsResult, feesResult] = results;
-
-        if (membersResult.status === 'fulfilled' && membersResult.value && membersResult.value.length > 0) {
-          console.log('✅ 회원 데이터 로드:', membersResult.value.length, '명');
-          localStorage.setItem('golfMembers', JSON.stringify(membersResult.value));
-        } else {
-          console.log('⚠️ 회원 데이터 없음 또는 로드 실패');
-        }
-
-        if (postsResult.status === 'fulfilled' && postsResult.value && postsResult.value.length > 0) {
-          console.log('✅ 게시글 데이터 로드:', postsResult.value.length, '개');
-          setPosts(postsResult.value);
-          localStorage.setItem('golfPosts', JSON.stringify(postsResult.value));
-        }
-
-        if (bookingsResult.status === 'fulfilled' && bookingsResult.value && bookingsResult.value.length > 0) {
-          console.log('✅ 예약 데이터 로드:', bookingsResult.value.length, '개');
-          setBookings(bookingsResult.value);
-          localStorage.setItem('golfBookings', JSON.stringify(bookingsResult.value));
-        }
-
-        if (feesResult.status === 'fulfilled' && feesResult.value && feesResult.value.length > 0) {
-          console.log('✅ 회비 데이터 로드:', feesResult.value.length, '개');
-          setFees(feesResult.value);
-          localStorage.setItem('golfFees', JSON.stringify(feesResult.value));
-        }
-
-        console.log('✅ 데이터 로드 완료!');
-      } catch (error) {
-        console.error('❌ 데이터 로드 실패:', error);
-      }
-
+    const initApp = async () => {
       const savedUser = localStorage.getItem('golfUser');
       const savedPosts = localStorage.getItem('golfPosts');
       const savedBookings = localStorage.getItem('golfBookings');
       const savedFees = localStorage.getItem('golfFees');
       const savedCourses = localStorage.getItem('golfCourses');
 
-      if (!posts.length && savedPosts) setPosts(JSON.parse(savedPosts));
-      if (!bookings.length && savedBookings) setBookings(JSON.parse(savedBookings));
-      if (!fees.length && savedFees) setFees(JSON.parse(savedFees));
+      if (savedPosts) setPosts(JSON.parse(savedPosts));
+      if (savedBookings) setBookings(JSON.parse(savedBookings));
+      if (savedFees) setFees(JSON.parse(savedFees));
       if (savedCourses) setCourses(JSON.parse(savedCourses));
 
       if (savedUser) {
@@ -93,9 +38,47 @@ export function AppProvider({ children }) {
       }
       
       setLoading(false);
+
+      console.log('🔄 백그라운드에서 구글 시트 동기화 시작...');
+      
+      try {
+        const [membersData, postsData, bookingsData, feesData] = await Promise.all([
+          googleSheetsService.getAllMembers().catch(err => { console.error('Members 로드 실패:', err); return []; }),
+          googleSheetsService.getAllPosts().catch(err => { console.error('Posts 로드 실패:', err); return []; }),
+          googleSheetsService.getAllBookings().catch(err => { console.error('Bookings 로드 실패:', err); return []; }),
+          googleSheetsService.getAllFees().catch(err => { console.error('Fees 로드 실패:', err); return []; })
+        ]);
+
+        if (membersData && membersData.length > 0) {
+          console.log('✅ 회원 데이터 동기화:', membersData.length, '명');
+          localStorage.setItem('golfMembers', JSON.stringify(membersData));
+        }
+
+        if (postsData && postsData.length > 0) {
+          console.log('✅ 게시글 데이터 동기화:', postsData.length, '개');
+          setPosts(postsData);
+          localStorage.setItem('golfPosts', JSON.stringify(postsData));
+        }
+
+        if (bookingsData && bookingsData.length > 0) {
+          console.log('✅ 예약 데이터 동기화:', bookingsData.length, '개');
+          setBookings(bookingsData);
+          localStorage.setItem('golfBookings', JSON.stringify(bookingsData));
+        }
+
+        if (feesData && feesData.length > 0) {
+          console.log('✅ 회비 데이터 동기화:', feesData.length, '개');
+          setFees(feesData);
+          localStorage.setItem('golfFees', JSON.stringify(feesData));
+        }
+
+        console.log('✅ 구글 시트 동기화 완료!');
+      } catch (error) {
+        console.error('❌ 구글 시트 동기화 실패:', error);
+      }
     };
 
-    loadAllData();
+    initApp();
   }, []);
 
   const loadUserData = async (userId) => {
