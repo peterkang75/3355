@@ -44,21 +44,21 @@ class GoogleSheetsService {
     }
 
     try {
+      const formData = new FormData();
+      formData.append('sheetName', sheetName);
+      formData.append('values', JSON.stringify(values));
+
       const response = await fetch(this.scriptUrl, {
         method: 'POST',
-        mode: 'no-cors',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          sheetName: sheetName,
-          values: values
-        })
+        body: formData,
+        redirect: 'follow'
       });
-      console.log('Data sent to Google Sheets:', sheetName, values);
+      
+      console.log('✅ Data sent to Google Sheets:', sheetName);
+      console.log('📊 Values:', values);
       return { success: true };
     } catch (error) {
-      console.error('Error appending to Google Sheets:', error);
+      console.error('❌ Error appending to Google Sheets:', error);
       return null;
     }
   }
