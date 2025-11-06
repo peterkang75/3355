@@ -266,20 +266,6 @@ function Dashboard() {
           )}
         </div>
 
-        <div className="card" style={{ 
-          background: 'linear-gradient(135deg, #2d5f3f 0%, #3a7d54 100%)',
-          color: 'white',
-          padding: '24px'
-        }}>
-          <h2 style={{ fontSize: '18px', marginBottom: '16px' }}>환영합니다!</h2>
-          <div style={{ fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>
-            {user.name}
-          </div>
-          <div style={{ fontSize: '14px', opacity: 0.9 }}>
-            전화번호: ***{user.phone}
-          </div>
-        </div>
-
         <div style={{ 
           display: 'grid', 
           gridTemplateColumns: '1fr 1fr',
