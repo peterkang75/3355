@@ -12,8 +12,12 @@ function Admin() {
   const [showNewMemberForm, setShowNewMemberForm] = useState(false);
   const [newMember, setNewMember] = useState({
     name: '',
+    nickname: '',
     phone: '',
+    club: '',
     handicap: 18,
+    memberNumber: '',
+    photo: '',
     isAdmin: false
   });
 
@@ -35,7 +39,16 @@ function Admin() {
     };
 
     setMembers([...members, member]);
-    setNewMember({ name: '', phone: '', handicap: 18, isAdmin: false });
+    setNewMember({ 
+      name: '', 
+      nickname: '', 
+      phone: '', 
+      club: '', 
+      handicap: 18, 
+      memberNumber: '', 
+      photo: '', 
+      isAdmin: false 
+    });
     setShowNewMemberForm(false);
   };
 
@@ -199,10 +212,24 @@ function Admin() {
                 />
                 <input
                   type="text"
+                  placeholder="대화명 (닉네임)"
+                  value={newMember.nickname}
+                  onChange={(e) => setNewMember({ ...newMember, nickname: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <input
+                  type="text"
                   placeholder="전화번호 끝 6자리"
                   value={newMember.phone}
                   onChange={(e) => setNewMember({ ...newMember, phone: e.target.value.replace(/\D/g, '').slice(0, 6) })}
                   maxLength={6}
+                  style={{ marginBottom: '12px' }}
+                />
+                <input
+                  type="text"
+                  placeholder="소속 클럽"
+                  value={newMember.club}
+                  onChange={(e) => setNewMember({ ...newMember, club: e.target.value })}
                   style={{ marginBottom: '12px' }}
                 />
                 <input
@@ -212,6 +239,48 @@ function Admin() {
                   onChange={(e) => setNewMember({ ...newMember, handicap: parseInt(e.target.value) || 0 })}
                   style={{ marginBottom: '12px' }}
                 />
+                <input
+                  type="text"
+                  placeholder="회원번호"
+                  value={newMember.memberNumber}
+                  onChange={(e) => setNewMember({ ...newMember, memberNumber: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#666' }}>
+                    사진 (본인)
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setNewMember({ ...newMember, photo: reader.result });
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    style={{ marginBottom: '8px' }}
+                  />
+                  {newMember.photo && (
+                    <div style={{ marginTop: '8px' }}>
+                      <img 
+                        src={newMember.photo} 
+                        alt="미리보기" 
+                        style={{ 
+                          width: '100px', 
+                          height: '100px', 
+                          objectFit: 'cover', 
+                          borderRadius: '8px',
+                          border: '2px solid var(--border-color)'
+                        }} 
+                      />
+                    </div>
+                  )}
+                </div>
                 <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <input
                     type="checkbox"
