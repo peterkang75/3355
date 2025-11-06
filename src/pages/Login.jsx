@@ -115,7 +115,8 @@ function Login({ onLogin }) {
               width: '120px', 
               height: '120px', 
               marginBottom: '16px',
-              objectFit: 'contain'
+              objectFit: 'cover',
+              borderRadius: '50%'
             }} 
           />
           <h1 style={{ 
