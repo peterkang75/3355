@@ -127,8 +127,14 @@ function Login({ onLogin }) {
           }}>
             3355 골프 클럽
           </h1>
-          <p style={{ color: '#666', fontSize: '14px' }}>
-            전화번호 끝 6자리로 로그인하세요
+          <p style={{ 
+            color: '#2d5f3f', 
+            fontSize: '20px',
+            fontFamily: "'Dancing Script', cursive",
+            fontWeight: '600',
+            fontStyle: 'italic'
+          }}>
+            Love golf, Love people
           </p>
         </div>
 
