@@ -21,7 +21,8 @@ function Admin() {
     phone: '',
     club: '',
     handicap: 18,
-    memberNumber: '',
+    golflinkNumber: '',
+    clubMemberNumber: '',
     photo: '',
     isAdmin: false
   });
@@ -50,7 +51,8 @@ function Admin() {
       phone: '', 
       club: '', 
       handicap: 18, 
-      memberNumber: '', 
+      golflinkNumber: '', 
+      clubMemberNumber: '', 
       photo: '', 
       isAdmin: false 
     });
@@ -266,9 +268,16 @@ function Admin() {
                 />
                 <input
                   type="text"
-                  placeholder="회원번호"
-                  value={newMember.memberNumber}
-                  onChange={(e) => setNewMember({ ...newMember, memberNumber: e.target.value })}
+                  placeholder="Golflink Number"
+                  value={newMember.golflinkNumber}
+                  onChange={(e) => setNewMember({ ...newMember, golflinkNumber: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <input
+                  type="text"
+                  placeholder="클럽 회원번호"
+                  value={newMember.clubMemberNumber}
+                  onChange={(e) => setNewMember({ ...newMember, clubMemberNumber: e.target.value })}
                   style={{ marginBottom: '12px' }}
                 />
                 <div style={{ marginBottom: '12px' }}>
