@@ -209,6 +209,41 @@ function Login({ onLogin }) {
               style={{ marginBottom: '12px', width: '100%' }}
             />
             <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#666' }}>
+                사진 (본인)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setNewMember({ ...newMember, photo: reader.result });
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+                style={{ marginBottom: '8px', width: '100%' }}
+              />
+              {newMember.photo && (
+                <div style={{ marginTop: '8px' }}>
+                  <img 
+                    src={newMember.photo} 
+                    alt="미리보기" 
+                    style={{ 
+                      width: '100px', 
+                      height: '100px', 
+                      objectFit: 'cover', 
+                      borderRadius: '8px',
+                      border: '2px solid var(--border-color)'
+                    }} 
+                  />
+                </div>
+              )}
+            </div>
+            <div style={{ marginBottom: '12px' }}>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
                 성별
               </label>
@@ -308,41 +343,6 @@ function Login({ onLogin }) {
                 />
               </>
             )}
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#666' }}>
-                사진 (본인)
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.onloadend = () => {
-                      setNewMember({ ...newMember, photo: reader.result });
-                    };
-                    reader.readAsDataURL(file);
-                  }
-                }}
-                style={{ marginBottom: '8px', width: '100%' }}
-              />
-              {newMember.photo && (
-                <div style={{ marginTop: '8px' }}>
-                  <img 
-                    src={newMember.photo} 
-                    alt="미리보기" 
-                    style={{ 
-                      width: '100px', 
-                      height: '100px', 
-                      objectFit: 'cover', 
-                      borderRadius: '8px',
-                      border: '2px solid var(--border-color)'
-                    }} 
-                  />
-                </div>
-              )}
-            </div>
             {error && (
               <div className="error" style={{ marginBottom: '12px' }}>
                 {error}
