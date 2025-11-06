@@ -4,7 +4,7 @@ import logoImage from '../assets/logo.jpeg';
 import googleSheetsService from '../services/googleSheets';
 
 function Login({ onLogin }) {
-  const { courses } = useContext(AppContext);
+  const { courses, members, refreshMembers } = useContext(AppContext);
   const [phoneLastSix, setPhoneLastSix] = useState('');
   const [error, setError] = useState('');
   const [showSignup, setShowSignup] = useState(false);
@@ -32,24 +32,22 @@ function Login({ onLogin }) {
       return;
     }
 
-    const mockMembers = [
-      { id: '123456', name: '관리자', phone: '0100123456', isAdmin: true, handicap: 18, balance: 0 },
-      { id: '111111', name: '회원1', phone: '0100111111', isAdmin: false, handicap: 20, balance: -50000 },
-      { id: '222222', name: '회원2', phone: '0100222222', isAdmin: false, handicap: 15, balance: 0 }
-    ];
+    const foundMember = members.find(m => {
+      const memberLastSix = String(m.phone).slice(-6);
+      return memberLastSix === phoneLastSix;
+    });
 
-    const foundMember = mockMembers.find(m => m.id === phoneLastSix);
+    if (!foundMember) {
+      setError('등록되지 않은 전화번호입니다. 회원가입을 먼저 진행해주세요.');
+      return;
+    }
 
-    const mockUser = foundMember || {
-      id: phoneLastSix,
-      phone: '0100' + phoneLastSix,
-      name: '회원',
-      isAdmin: false,
-      handicap: 18,
-      balance: 0
-    };
+    if (foundMember.isActive === false) {
+      setError('비활성화된 계정입니다. 관리자에게 문의하세요.');
+      return;
+    }
 
-    onLogin(mockUser);
+    onLogin(foundMember);
   };
 
   const handleSignup = async () => {
@@ -78,12 +76,18 @@ function Login({ onLogin }) {
     try {
       const result = await googleSheetsService.saveMember(userData);
       console.log('✅ 저장 결과:', result);
+      
+      if (refreshMembers) {
+        await refreshMembers();
+      }
+      
+      alert('회원가입이 완료되었습니다! 전화번호 끝 6자리로 로그인해주세요.');
+      setShowSignup(false);
     } catch (error) {
       console.error('❌ 저장 실패:', error);
+      setError('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+      return;
     }
-    
-    alert('회원가입이 완료되었습니다! 전화번호 끝 6자리로 로그인해주세요.');
-    setShowSignup(false);
     setNewMember({
       name: '',
       nickname: '',

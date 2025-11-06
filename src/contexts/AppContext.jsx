@@ -196,6 +196,23 @@ export function AppProvider({ children }) {
     localStorage.setItem('golfCourses', JSON.stringify(newCourses));
   };
 
+  const refreshMembers = async () => {
+    try {
+      console.log('🔄 회원 데이터 새로고침 중...');
+      const membersData = await googleSheetsService.getAllMembers();
+      if (membersData && membersData.length > 0) {
+        const uniqueMembers = membersData.filter((member, index, self) => 
+          index === self.findIndex((m) => m.id === member.id)
+        );
+        console.log('✅ 회원 데이터 업데이트:', uniqueMembers.length, '명');
+        setMembers(uniqueMembers);
+        localStorage.setItem('golfMembers', JSON.stringify(uniqueMembers));
+      }
+    } catch (error) {
+      console.error('❌ 회원 데이터 새로고침 실패:', error);
+    }
+  };
+
   const value = {
     user,
     members,
@@ -215,7 +232,8 @@ export function AppProvider({ children }) {
     updateBooking,
     addFee,
     payFee,
-    addCourse
+    addCourse,
+    refreshMembers
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
