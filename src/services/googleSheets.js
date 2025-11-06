@@ -198,9 +198,35 @@ class GoogleSheetsService {
       memberData.isActive !== false ? 'TRUE' : 'FALSE'
     ];
 
-    const result = await this.appendRow(SHEETS.MEMBERS, values);
-    console.log('Member saved to Google Sheets:', memberData.name);
-    return result;
+    if (!this.scriptUrl) {
+      console.warn('Google Apps Script URL not configured.');
+      return null;
+    }
+
+    try {
+      const url = `${this.scriptUrl}?action=write&sheetName=${encodeURIComponent(SHEETS.MEMBERS)}`;
+      
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ values: values })
+      });
+      
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        console.log('✅ 회원 저장 완료:', memberData.name);
+        return { success: true };
+      } else {
+        console.error('❌ 회원 저장 실패:', result.message);
+        return null;
+      }
+    } catch (error) {
+      console.error('❌ 회원 저장 오류:', error);
+      return null;
+    }
   }
 
   async updateMember(memberData) {

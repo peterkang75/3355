@@ -283,7 +283,7 @@ function MyPage() {
                   <strong>대화명:</strong> {user?.nickname || '-'}
                 </div>
                 <div style={{ marginBottom: '12px', padding: '12px', background: 'var(--bg-green)', borderRadius: '8px' }}>
-                  <strong>전화번호:</strong> {user?.phone?.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3') || '-'}
+                  <strong>전화번호:</strong> {user?.phone ? String(user.phone).replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3') : '-'}
                 </div>
                 <div style={{ marginBottom: '12px', padding: '12px', background: 'var(--bg-green)', borderRadius: '8px' }}>
                   <strong>성별:</strong> {user?.gender || '-'}
