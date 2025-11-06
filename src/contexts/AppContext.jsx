@@ -19,23 +19,68 @@ export function AppProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const savedUser = localStorage.getItem('golfUser');
-    const savedPosts = localStorage.getItem('golfPosts');
-    const savedBookings = localStorage.getItem('golfBookings');
-    const savedFees = localStorage.getItem('golfFees');
-    const savedCourses = localStorage.getItem('golfCourses');
+    const loadAllData = async () => {
+      console.log('🔄 구글 시트에서 데이터 로딩 시작...');
+      
+      try {
+        const [membersData, postsData, bookingsData, feesData] = await Promise.all([
+          googleSheetsService.getAllMembers(),
+          googleSheetsService.getAllPosts(),
+          googleSheetsService.getAllBookings(),
+          googleSheetsService.getAllFees()
+        ]);
 
-    if (savedPosts) setPosts(JSON.parse(savedPosts));
-    if (savedBookings) setBookings(JSON.parse(savedBookings));
-    if (savedFees) setFees(JSON.parse(savedFees));
-    if (savedCourses) setCourses(JSON.parse(savedCourses));
+        if (membersData && membersData.length > 0) {
+          console.log('✅ 회원 데이터 로드:', membersData.length, '명');
+          localStorage.setItem('golfMembers', JSON.stringify(membersData));
+        }
 
-    if (savedUser) {
-      const userData = JSON.parse(savedUser);
-      setUser(userData);
-      loadUserData(userData.id);
-    }
-    setLoading(false);
+        if (postsData && postsData.length > 0) {
+          console.log('✅ 게시글 데이터 로드:', postsData.length, '개');
+          setPosts(postsData);
+          localStorage.setItem('golfPosts', JSON.stringify(postsData));
+        }
+
+        if (bookingsData && bookingsData.length > 0) {
+          console.log('✅ 예약 데이터 로드:', bookingsData.length, '개');
+          setBookings(bookingsData);
+          localStorage.setItem('golfBookings', JSON.stringify(bookingsData));
+        }
+
+        if (feesData && feesData.length > 0) {
+          console.log('✅ 회비 데이터 로드:', feesData.length, '개');
+          setFees(feesData);
+          localStorage.setItem('golfFees', JSON.stringify(feesData));
+        }
+
+        console.log('✅ 모든 데이터 로드 완료!');
+      } catch (error) {
+        console.error('❌ 데이터 로드 실패:', error);
+        
+        const savedPosts = localStorage.getItem('golfPosts');
+        const savedBookings = localStorage.getItem('golfBookings');
+        const savedFees = localStorage.getItem('golfFees');
+
+        if (savedPosts) setPosts(JSON.parse(savedPosts));
+        if (savedBookings) setBookings(JSON.parse(savedBookings));
+        if (savedFees) setFees(JSON.parse(savedFees));
+      }
+
+      const savedUser = localStorage.getItem('golfUser');
+      const savedCourses = localStorage.getItem('golfCourses');
+
+      if (savedCourses) setCourses(JSON.parse(savedCourses));
+
+      if (savedUser) {
+        const userData = JSON.parse(savedUser);
+        setUser(userData);
+        loadUserData(userData.id);
+      }
+      
+      setLoading(false);
+    };
+
+    loadAllData();
   }, []);
 
   const loadUserData = async (userId) => {

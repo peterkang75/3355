@@ -37,6 +37,34 @@ class GoogleSheetsService {
     }
   }
 
+  async readSheet(sheetName) {
+    if (!this.scriptUrl) {
+      console.warn('Google Apps Script URL not configured.');
+      return null;
+    }
+
+    try {
+      const url = `${this.scriptUrl}?action=read&sheetName=${encodeURIComponent(sheetName)}`;
+      
+      const response = await fetch(url, {
+        method: 'GET'
+      });
+      
+      const result = await response.json();
+      
+      if (result.status === 'success') {
+        console.log('✅ 구글 시트에서 읽기 완료:', sheetName, '행 수:', result.data.length);
+        return result.data;
+      } else {
+        console.error('❌ 구글 시트 읽기 실패:', result.message);
+        return null;
+      }
+    } catch (error) {
+      console.error('❌ 구글 시트 읽기 오류:', error);
+      return null;
+    }
+  }
+
   async appendRow(sheetName, values) {
     if (!this.scriptUrl) {
       console.warn('Google Apps Script URL not configured. Using local storage.');
@@ -44,7 +72,7 @@ class GoogleSheetsService {
     }
 
     try {
-      const url = `${this.scriptUrl}?sheetName=${encodeURIComponent(sheetName)}&values=${encodeURIComponent(JSON.stringify(values))}`;
+      const url = `${this.scriptUrl}?action=write&sheetName=${encodeURIComponent(sheetName)}&values=${encodeURIComponent(JSON.stringify(values))}`;
       
       fetch(url, {
         method: 'GET',
@@ -242,6 +270,91 @@ class GoogleSheetsService {
     const existing = this.getScoresFromLocal(scoreData.userId);
     existing.push(scoreData);
     localStorage.setItem(`golfScores_${scoreData.userId}`, JSON.stringify(existing));
+  }
+
+  async getAllMembers() {
+    const data = await this.readSheet(SHEETS.MEMBERS);
+    if (!data || data.length <= 1) return [];
+    
+    return data.slice(1).map(row => ({
+      id: row[0] || '',
+      name: row[1] || '',
+      phone: row[2] || '',
+      nickname: row[3] || '',
+      gender: row[4] || '',
+      birthYear: row[5] || '',
+      region: row[6] || '',
+      isClubMember: row[7] || '',
+      club: row[8] || '',
+      handicap: row[9] || '',
+      golflinkNumber: row[10] || '',
+      clubMemberNumber: row[11] || '',
+      isAdmin: row[12] === 'TRUE',
+      balance: parseInt(row[13]) || 0,
+      photo: row[14] || ''
+    }));
+  }
+
+  async getAllPosts() {
+    const data = await this.readSheet(SHEETS.POSTS);
+    if (!data || data.length <= 1) return [];
+    
+    return data.slice(1).map(row => ({
+      id: row[0] || '',
+      title: row[1] || '',
+      content: row[2] || '',
+      author: row[3] || '',
+      date: row[4] || '',
+      comments: []
+    }));
+  }
+
+  async getAllBookings() {
+    const data = await this.readSheet(SHEETS.BOOKINGS);
+    if (!data || data.length <= 1) return [];
+    
+    return data.slice(1).map(row => ({
+      id: row[0] || '',
+      courseName: row[1] || '',
+      date: row[2] || '',
+      time: row[3] || '',
+      organizer: row[4] || '',
+      participants: JSON.parse(row[5] || '[]'),
+      status: row[6] || 'pending',
+      notes: row[7] || ''
+    }));
+  }
+
+  async getAllFees() {
+    const data = await this.readSheet(SHEETS.FEES);
+    if (!data || data.length <= 1) return [];
+    
+    return data.slice(1).map(row => ({
+      id: row[0] || '',
+      title: row[1] || '',
+      amount: parseInt(row[2]) || 0,
+      type: row[3] || '',
+      date: row[4] || '',
+      dueDate: row[5] || '',
+      appliesTo: JSON.parse(row[6] || '"all"'),
+      status: row[7] || 'pending',
+      description: row[8] || ''
+    }));
+  }
+
+  async getAllScores() {
+    const data = await this.readSheet(SHEETS.SCORES);
+    if (!data || data.length <= 1) return [];
+    
+    return data.slice(1).map(row => ({
+      userId: row[0] || '',
+      id: row[1] || '',
+      date: row[2] || '',
+      courseName: row[3] || '',
+      totalScore: parseInt(row[4]) || 0,
+      coursePar: parseInt(row[5]) || 72,
+      holes: JSON.parse(row[6] || '[]')
+    }));
   }
 }
 
