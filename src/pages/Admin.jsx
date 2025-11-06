@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
+import googleSheetsService from '../services/googleSheets';
 
 function Admin() {
   const { user, addFee, courses, addCourse } = useApp();
@@ -30,7 +31,7 @@ function Admin() {
     isAdmin: false
   });
 
-  const handleAddMember = () => {
+  const handleAddMember = async () => {
     if (!newMember.name || !newMember.phone) {
       alert('이름과 전화번호를 입력해주세요.');
       return;
@@ -47,6 +48,16 @@ function Admin() {
       ...newMember,
       balance: 0
     };
+
+    console.log('🔵 Admin: 회원 추가 시작');
+    console.log('📤 구글 시트에 저장 시도:', member);
+    
+    try {
+      await googleSheetsService.saveMember(member);
+      console.log('✅ 구글 시트에 저장 완료');
+    } catch (error) {
+      console.error('❌ 구글 시트 저장 실패:', error);
+    }
 
     setMembers([...members, member]);
     setNewMember({ 
@@ -65,6 +76,7 @@ function Admin() {
       isAdmin: false 
     });
     setShowNewMemberForm(false);
+    alert('회원이 추가되었습니다!');
   };
 
   const handleAddCourse = () => {
