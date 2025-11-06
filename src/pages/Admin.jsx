@@ -192,6 +192,9 @@ function Admin() {
                         👤
                       </div>
                     )}
+                    <button className="btn-secondary" style={{ fontSize: '13px', padding: '8px', width: '100px', marginTop: '8px' }}>
+                      권한 수정
+                    </button>
                   </div>
 
                   <div style={{ flex: 1 }}>
@@ -232,7 +235,7 @@ function Admin() {
                       )}
                     </div>
 
-                    <div style={{ fontSize: '13px', marginBottom: '12px', lineHeight: '1.6' }}>
+                    <div style={{ fontSize: '13px', lineHeight: '1.6' }}>
                       <div style={{
                         fontWeight: '700',
                         color: member.balance < 0 ? '#e53e3e' : '#22c55e'
@@ -243,10 +246,6 @@ function Admin() {
                         전화: ***{member.phone}
                       </div>
                     </div>
-
-                    <button className="btn-secondary" style={{ fontSize: '13px', padding: '8px', width: '120px' }}>
-                      권한 수정
-                    </button>
                   </div>
                 </div>
               ))}
