@@ -1,15 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import googleSheetsService from '../services/googleSheets';
 
 function Admin() {
   const { user, addFee, courses, addCourse } = useApp();
   const [activeTab, setActiveTab] = useState('members');
-  const [members, setMembers] = useState([
-    { id: '123456', name: '관리자', phone: '0100123456', isAdmin: true, handicap: 18, balance: 0 },
-    { id: '111111', name: '회원1', phone: '0100111111', isAdmin: false, handicap: 20, balance: -50000 },
-    { id: '222222', name: '회원2', phone: '0100222222', isAdmin: false, handicap: 15, balance: 0 }
-  ]);
+  const [members, setMembers] = useState([]);
   const [newCourse, setNewCourse] = useState({
     name: '',
     address: ''
@@ -30,6 +26,26 @@ function Admin() {
     isClubMember: '',
     isAdmin: false
   });
+
+  useEffect(() => {
+    const loadMembers = () => {
+      const savedMembers = localStorage.getItem('golfMembers');
+      if (savedMembers) {
+        const parsedMembers = JSON.parse(savedMembers);
+        console.log('📥 Admin: localStorage에서 회원 로드:', parsedMembers.length, '명');
+        setMembers(parsedMembers);
+      } else {
+        console.log('⚠️ Admin: localStorage에 회원 데이터 없음');
+        setMembers([
+          { id: '123456', name: '관리자', phone: '0100123456', isAdmin: true, handicap: 18, balance: 0 },
+          { id: '111111', name: '회원1', phone: '0100111111', isAdmin: false, handicap: 20, balance: -50000 },
+          { id: '222222', name: '회원2', phone: '0100222222', isAdmin: false, handicap: 15, balance: 0 }
+        ]);
+      }
+    };
+
+    loadMembers();
+  }, []);
 
   const handleAddMember = async () => {
     if (!newMember.name || !newMember.phone) {
@@ -59,7 +75,11 @@ function Admin() {
       console.error('❌ 구글 시트 저장 실패:', error);
     }
 
-    setMembers([...members, member]);
+    const updatedMembers = [...members, member];
+    setMembers(updatedMembers);
+    localStorage.setItem('golfMembers', JSON.stringify(updatedMembers));
+    console.log('✅ localStorage 업데이트 완료:', updatedMembers.length, '명');
+    
     setNewMember({ 
       name: '', 
       nickname: '', 
@@ -272,7 +292,7 @@ function Admin() {
                         미수금: {member.balance.toLocaleString()}원
                       </div>
                       <div style={{ color: '#666' }}>
-                        전화: {member.phone.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3')}
+                        전화: {String(member.phone).replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3')}
                       </div>
                     </div>
                   </div>

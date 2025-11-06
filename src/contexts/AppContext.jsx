@@ -51,6 +51,7 @@ export function AppProvider({ children }) {
 
         if (membersData && membersData.length > 0) {
           console.log('✅ 회원 데이터 동기화:', membersData.length, '명');
+          console.log('📋 회원 데이터:', membersData);
           localStorage.setItem('golfMembers', JSON.stringify(membersData));
         }
 
