@@ -133,29 +133,55 @@ function MyPage() {
               )}
             </div>
 
-            {profileData.photo && (
-              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-                <img 
-                  src={profileData.photo} 
-                  alt="프로필" 
-                  style={{ 
-                    width: '120px', 
-                    height: '120px', 
-                    objectFit: 'cover', 
+            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+              <div style={{ position: 'relative', display: 'inline-block' }}>
+                {profileData.photo ? (
+                  <img 
+                    src={profileData.photo} 
+                    alt="프로필" 
+                    style={{ 
+                      width: '140px', 
+                      height: '140px', 
+                      objectFit: 'cover', 
+                      borderRadius: '50%',
+                      border: '4px solid var(--primary-green)'
+                    }} 
+                  />
+                ) : (
+                  <div style={{
+                    width: '140px',
+                    height: '140px',
                     borderRadius: '50%',
-                    border: '3px solid var(--primary-green)'
-                  }} 
-                />
+                    border: '4px solid var(--border-color)',
+                    background: 'var(--bg-green)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '60px'
+                  }}>
+                    👤
+                  </div>
+                )}
               </div>
-            )}
-
-            {editMode ? (
-              <>
-                <div style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#666' }}>
-                    사진 변경
+              {editMode && (
+                <div style={{ marginTop: '16px' }}>
+                  <label 
+                    htmlFor="photoUpload"
+                    style={{ 
+                      display: 'inline-block',
+                      padding: '8px 16px',
+                      background: 'var(--light-green)',
+                      color: 'white',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    📷 사진 변경
                   </label>
                   <input
+                    id="photoUpload"
                     type="file"
                     accept="image/*"
                     onChange={(e) => {
@@ -168,8 +194,14 @@ function MyPage() {
                         reader.readAsDataURL(file);
                       }
                     }}
+                    style={{ display: 'none' }}
                   />
                 </div>
+              )}
+            </div>
+
+            {editMode ? (
+              <>
                 <input
                   type="text"
                   placeholder="이름"
