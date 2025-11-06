@@ -39,6 +39,10 @@ function Navigation({ user, onLogout }) {
           <span>관리</span>
         </NavLink>
       )}
+      <button onClick={handleLogout} className="nav-item" style={{ background: 'transparent', border: 'none', cursor: 'pointer' }}>
+        <span className="nav-icon">🚪</span>
+        <span>로그아웃</span>
+      </button>
     </nav>
   );
 }
