@@ -364,15 +364,15 @@ function Admin() {
                       onChange={(e) => setNewMember({ ...newMember, clubMemberNumber: e.target.value })}
                       style={{ marginBottom: '12px' }}
                     />
+                    <input
+                      type="number"
+                      placeholder="핸디"
+                      value={newMember.handicap}
+                      onChange={(e) => setNewMember({ ...newMember, handicap: parseInt(e.target.value) || 0 })}
+                      style={{ marginBottom: '12px' }}
+                    />
                   </>
                 )}
-                <input
-                  type="number"
-                  placeholder="핸디캡"
-                  value={newMember.handicap}
-                  onChange={(e) => setNewMember({ ...newMember, handicap: parseInt(e.target.value) || 0 })}
-                  style={{ marginBottom: '12px' }}
-                />
                 <div style={{ marginBottom: '12px' }}>
                   <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#666' }}>
                     사진 (본인)

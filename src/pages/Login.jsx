@@ -268,15 +268,15 @@ function Login({ onLogin }) {
                   onChange={(e) => setNewMember({ ...newMember, clubMemberNumber: e.target.value })}
                   style={{ marginBottom: '12px', width: '100%' }}
                 />
+                <input
+                  type="number"
+                  placeholder="핸디 (기본값: 18)"
+                  value={newMember.handicap}
+                  onChange={(e) => setNewMember({ ...newMember, handicap: parseInt(e.target.value) || 18 })}
+                  style={{ marginBottom: '12px', width: '100%' }}
+                />
               </>
             )}
-            <input
-              type="number"
-              placeholder="핸디캡 (기본값: 18)"
-              value={newMember.handicap}
-              onChange={(e) => setNewMember({ ...newMember, handicap: parseInt(e.target.value) || 18 })}
-              style={{ marginBottom: '12px', width: '100%' }}
-            />
             <div style={{ marginBottom: '12px' }}>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#666' }}>
                 사진 (본인)
