@@ -53,6 +53,8 @@ function Login({ onLogin }) {
   };
 
   const handleSignup = async () => {
+    console.log('🔵 회원가입 시작');
+    
     if (!newMember.name || !newMember.phone) {
       setError('이름과 전화번호를 입력해주세요.');
       return;
@@ -71,7 +73,14 @@ function Login({ onLogin }) {
       balance: 0
     };
 
-    await googleSheetsService.saveMember(userData);
+    console.log('📤 구글 시트에 저장 시도:', userData);
+    
+    try {
+      const result = await googleSheetsService.saveMember(userData);
+      console.log('✅ 저장 결과:', result);
+    } catch (error) {
+      console.error('❌ 저장 실패:', error);
+    }
     
     alert('회원가입이 완료되었습니다! 전화번호 끝 6자리로 로그인해주세요.');
     setShowSignup(false);
