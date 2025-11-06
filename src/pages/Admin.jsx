@@ -27,6 +27,7 @@ function Admin() {
     gender: '',
     birthYear: '',
     region: '',
+    isClubMember: '',
     isAdmin: false
   });
 
@@ -61,6 +62,7 @@ function Admin() {
       gender: '', 
       birthYear: '', 
       region: '', 
+      isClubMember: '', 
       isAdmin: false 
     });
     setShowNewMemberForm(false);
@@ -320,37 +322,55 @@ function Admin() {
                   onChange={(e) => setNewMember({ ...newMember, region: e.target.value })}
                   style={{ marginBottom: '12px' }}
                 />
-                <select
-                  value={newMember.club}
-                  onChange={(e) => setNewMember({ ...newMember, club: e.target.value })}
-                  style={{ marginBottom: '12px' }}
-                >
-                  <option value="">소속 클럽 선택</option>
-                  {courses.map(course => (
-                    <option key={course.id} value={course.name}>
-                      {course.name}
-                    </option>
-                  ))}
-                </select>
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                    클럽 멤버이신가요?
+                  </label>
+                  <select
+                    value={newMember.isClubMember}
+                    onChange={(e) => setNewMember({ ...newMember, isClubMember: e.target.value })}
+                    style={{ marginBottom: '0' }}
+                  >
+                    <option value="">선택하세요</option>
+                    <option value="yes">예</option>
+                    <option value="no">아니오</option>
+                  </select>
+                </div>
+                {newMember.isClubMember === 'yes' && (
+                  <>
+                    <select
+                      value={newMember.club}
+                      onChange={(e) => setNewMember({ ...newMember, club: e.target.value })}
+                      style={{ marginBottom: '12px' }}
+                    >
+                      <option value="">소속 클럽 선택</option>
+                      {courses.map(course => (
+                        <option key={course.id} value={course.name}>
+                          {course.name}
+                        </option>
+                      ))}
+                    </select>
+                    <input
+                      type="text"
+                      placeholder="Golflink Number"
+                      value={newMember.golflinkNumber}
+                      onChange={(e) => setNewMember({ ...newMember, golflinkNumber: e.target.value })}
+                      style={{ marginBottom: '12px' }}
+                    />
+                    <input
+                      type="text"
+                      placeholder="클럽 회원번호"
+                      value={newMember.clubMemberNumber}
+                      onChange={(e) => setNewMember({ ...newMember, clubMemberNumber: e.target.value })}
+                      style={{ marginBottom: '12px' }}
+                    />
+                  </>
+                )}
                 <input
                   type="number"
                   placeholder="핸디캡"
                   value={newMember.handicap}
                   onChange={(e) => setNewMember({ ...newMember, handicap: parseInt(e.target.value) || 0 })}
-                  style={{ marginBottom: '12px' }}
-                />
-                <input
-                  type="text"
-                  placeholder="Golflink Number"
-                  value={newMember.golflinkNumber}
-                  onChange={(e) => setNewMember({ ...newMember, golflinkNumber: e.target.value })}
-                  style={{ marginBottom: '12px' }}
-                />
-                <input
-                  type="text"
-                  placeholder="클럽 회원번호"
-                  value={newMember.clubMemberNumber}
-                  onChange={(e) => setNewMember({ ...newMember, clubMemberNumber: e.target.value })}
                   style={{ marginBottom: '12px' }}
                 />
                 <div style={{ marginBottom: '12px' }}>
