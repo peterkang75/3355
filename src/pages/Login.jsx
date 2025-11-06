@@ -3,6 +3,20 @@ import React, { useState } from 'react';
 function Login({ onLogin }) {
   const [phoneLastSix, setPhoneLastSix] = useState('');
   const [error, setError] = useState('');
+  const [showSignup, setShowSignup] = useState(false);
+  const [newMember, setNewMember] = useState({
+    name: '',
+    nickname: '',
+    phone: '',
+    gender: '',
+    birthYear: '',
+    region: '',
+    club: '',
+    handicap: 18,
+    golflinkNumber: '',
+    clubMemberNumber: '',
+    photo: ''
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,6 +45,43 @@ function Login({ onLogin }) {
     };
 
     onLogin(mockUser);
+  };
+
+  const handleSignup = () => {
+    if (!newMember.name || !newMember.phone) {
+      setError('이름과 전화번호를 입력해주세요.');
+      return;
+    }
+
+    if (newMember.phone.length !== 10 || !/^\d+$/.test(newMember.phone)) {
+      setError('전화번호 10자리를 정확히 입력해주세요.');
+      return;
+    }
+
+    const lastSixDigits = newMember.phone.slice(-6);
+    const userData = {
+      id: lastSixDigits,
+      ...newMember,
+      isAdmin: false,
+      balance: 0
+    };
+
+    alert('회원가입이 완료되었습니다! 전화번호 끝 6자리로 로그인해주세요.');
+    setShowSignup(false);
+    setNewMember({
+      name: '',
+      nickname: '',
+      phone: '',
+      gender: '',
+      birthYear: '',
+      region: '',
+      club: '',
+      handicap: 18,
+      golflinkNumber: '',
+      clubMemberNumber: '',
+      photo: ''
+    });
+    setPhoneLastSix(lastSixDigits);
   };
 
   return (
@@ -102,18 +153,167 @@ function Login({ onLogin }) {
           </button>
         </form>
 
-        <div style={{ 
-          marginTop: '24px', 
-          padding: '16px',
-          background: 'var(--bg-green)',
-          borderRadius: '8px',
-          fontSize: '13px',
-          color: '#666'
-        }}>
-          <p style={{ marginBottom: '8px' }}>💡 테스트 계정:</p>
-          <p>관리자: <strong>123456</strong></p>
-          <p>일반회원: <strong>아무 6자리 숫자</strong></p>
-        </div>
+        <button 
+          onClick={() => setShowSignup(!showSignup)}
+          style={{
+            width: '100%',
+            marginTop: '12px',
+            padding: '14px',
+            background: 'white',
+            color: 'var(--primary-green)',
+            border: '2px solid var(--primary-green)',
+            borderRadius: '8px',
+            fontSize: '16px',
+            fontWeight: '600',
+            cursor: 'pointer'
+          }}
+        >
+          {showSignup ? '로그인으로 돌아가기' : '회원가입'}
+        </button>
+
+        {showSignup && (
+          <div style={{ 
+            marginTop: '24px',
+            padding: '20px',
+            background: 'var(--bg-green)',
+            borderRadius: '8px'
+          }}>
+            <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
+              새 회원 가입
+            </h3>
+            <input
+              type="text"
+              placeholder="이름"
+              value={newMember.name}
+              onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
+              style={{ marginBottom: '12px', width: '100%' }}
+            />
+            <input
+              type="text"
+              placeholder="대화명 (닉네임)"
+              value={newMember.nickname}
+              onChange={(e) => setNewMember({ ...newMember, nickname: e.target.value })}
+              style={{ marginBottom: '12px', width: '100%' }}
+            />
+            <input
+              type="tel"
+              placeholder="전화번호 (예: 0100 123 456)"
+              value={newMember.phone.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3')}
+              onChange={(e) => {
+                const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                setNewMember({ ...newMember, phone: digits });
+              }}
+              maxLength={12}
+              style={{ marginBottom: '12px', width: '100%' }}
+            />
+            <select
+              value={newMember.gender}
+              onChange={(e) => setNewMember({ ...newMember, gender: e.target.value })}
+              style={{ marginBottom: '12px', width: '100%' }}
+            >
+              <option value="">성별 선택</option>
+              <option value="남">남</option>
+              <option value="여">여</option>
+            </select>
+            <input
+              type="number"
+              placeholder="출생연도 (예: 1990)"
+              value={newMember.birthYear}
+              onChange={(e) => setNewMember({ ...newMember, birthYear: e.target.value })}
+              style={{ marginBottom: '12px', width: '100%' }}
+            />
+            <input
+              type="text"
+              placeholder="사는 지역 (예: 서울, 부산)"
+              value={newMember.region}
+              onChange={(e) => setNewMember({ ...newMember, region: e.target.value })}
+              style={{ marginBottom: '12px', width: '100%' }}
+            />
+            <input
+              type="number"
+              placeholder="핸디캡 (기본값: 18)"
+              value={newMember.handicap}
+              onChange={(e) => setNewMember({ ...newMember, handicap: parseInt(e.target.value) || 18 })}
+              style={{ marginBottom: '12px', width: '100%' }}
+            />
+            <input
+              type="text"
+              placeholder="Golflink Number (선택)"
+              value={newMember.golflinkNumber}
+              onChange={(e) => setNewMember({ ...newMember, golflinkNumber: e.target.value })}
+              style={{ marginBottom: '12px', width: '100%' }}
+            />
+            <input
+              type="text"
+              placeholder="클럽 회원번호 (선택)"
+              value={newMember.clubMemberNumber}
+              onChange={(e) => setNewMember({ ...newMember, clubMemberNumber: e.target.value })}
+              style={{ marginBottom: '12px', width: '100%' }}
+            />
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#666' }}>
+                사진 (본인)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                      setNewMember({ ...newMember, photo: reader.result });
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+                style={{ marginBottom: '8px', width: '100%' }}
+              />
+              {newMember.photo && (
+                <div style={{ marginTop: '8px' }}>
+                  <img 
+                    src={newMember.photo} 
+                    alt="미리보기" 
+                    style={{ 
+                      width: '100px', 
+                      height: '100px', 
+                      objectFit: 'cover', 
+                      borderRadius: '8px',
+                      border: '2px solid var(--border-color)'
+                    }} 
+                  />
+                </div>
+              )}
+            </div>
+            {error && (
+              <div className="error" style={{ marginBottom: '12px' }}>
+                {error}
+              </div>
+            )}
+            <button 
+              onClick={handleSignup}
+              className="btn-primary"
+              style={{ width: '100%' }}
+            >
+              가입하기
+            </button>
+          </div>
+        )}
+
+        {!showSignup && (
+          <div style={{ 
+            marginTop: '24px', 
+            padding: '16px',
+            background: 'var(--bg-green)',
+            borderRadius: '8px',
+            fontSize: '13px',
+            color: '#666'
+          }}>
+            <p style={{ marginBottom: '8px' }}>💡 테스트 계정:</p>
+            <p>관리자: <strong>123456</strong></p>
+            <p>일반회원: <strong>아무 6자리 숫자</strong></p>
+          </div>
+        )}
       </div>
     </div>
   );
