@@ -21,11 +21,19 @@ export function AppProvider({ children }) {
   useEffect(() => {
     const initApp = async () => {
       const savedUser = localStorage.getItem('golfUser');
+      const savedMembers = localStorage.getItem('golfMembers');
       const savedPosts = localStorage.getItem('golfPosts');
       const savedBookings = localStorage.getItem('golfBookings');
       const savedFees = localStorage.getItem('golfFees');
       const savedCourses = localStorage.getItem('golfCourses');
 
+      if (savedMembers) {
+        const parsedMembers = JSON.parse(savedMembers);
+        const uniqueMembers = parsedMembers.filter((member, index, self) => 
+          index === self.findIndex((m) => m.id === member.id)
+        );
+        setMembers(uniqueMembers);
+      }
       if (savedPosts) setPosts(JSON.parse(savedPosts));
       if (savedBookings) setBookings(JSON.parse(savedBookings));
       if (savedFees) setFees(JSON.parse(savedFees));
@@ -50,9 +58,13 @@ export function AppProvider({ children }) {
         ]);
 
         if (membersData && membersData.length > 0) {
-          console.log('✅ 회원 데이터 동기화:', membersData.length, '명');
-          console.log('📋 회원 데이터:', membersData);
-          localStorage.setItem('golfMembers', JSON.stringify(membersData));
+          const uniqueMembers = membersData.filter((member, index, self) => 
+            index === self.findIndex((m) => m.id === member.id)
+          );
+          console.log('✅ 회원 데이터 동기화:', uniqueMembers.length, '명 (중복 제거 전:', membersData.length, ')');
+          console.log('📋 회원 데이터:', uniqueMembers);
+          setMembers(uniqueMembers);
+          localStorage.setItem('golfMembers', JSON.stringify(uniqueMembers));
         }
 
         if (postsData && postsData.length > 0) {

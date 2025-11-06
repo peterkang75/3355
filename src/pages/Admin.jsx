@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../contexts/AppContext';
 import googleSheetsService from '../services/googleSheets';
 
@@ -7,6 +7,7 @@ function Admin() {
   const [activeTab, setActiveTab] = useState('members');
   const [members, setMembers] = useState([]);
   const [showPermissionMenu, setShowPermissionMenu] = useState(null);
+  const menuRefs = useRef({});
   const [newCourse, setNewCourse] = useState({
     name: '',
     address: ''
@@ -33,8 +34,16 @@ function Admin() {
       const savedMembers = localStorage.getItem('golfMembers');
       if (savedMembers) {
         const parsedMembers = JSON.parse(savedMembers);
-        console.log('📥 Admin: localStorage에서 회원 로드:', parsedMembers.length, '명');
-        setMembers(parsedMembers);
+        const uniqueMembers = parsedMembers.filter((member, index, self) => 
+          index === self.findIndex((m) => m.id === member.id)
+        );
+        console.log('📥 Admin: localStorage에서 회원 로드:', uniqueMembers.length, '명 (중복 제거 전:', parsedMembers.length, ')');
+        setMembers(uniqueMembers);
+        
+        if (uniqueMembers.length !== parsedMembers.length) {
+          localStorage.setItem('golfMembers', JSON.stringify(uniqueMembers));
+          console.log('🔧 중복 회원 제거 완료');
+        }
       } else {
         console.log('⚠️ Admin: localStorage에 회원 데이터 없음');
         setMembers([
@@ -50,17 +59,11 @@ function Admin() {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (showPermissionMenu !== null) {
-        const menus = document.querySelectorAll('[data-permission-menu]');
-        let clickedInside = false;
-        menus.forEach(menu => {
-          if (menu.contains(event.target)) {
-            clickedInside = true;
-          }
-        });
-        if (!clickedInside) {
-          setShowPermissionMenu(null);
-        }
+      if (showPermissionMenu === null) return;
+      
+      const clickedRef = menuRefs.current[showPermissionMenu];
+      if (clickedRef && !clickedRef.contains(event.target)) {
+        setShowPermissionMenu(null);
       }
     };
 
@@ -313,7 +316,10 @@ function Admin() {
                         👤
                       </div>
                     )}
-                    <div style={{ position: 'relative' }} data-permission-menu>
+                    <div 
+                      style={{ position: 'relative' }}
+                      ref={(el) => menuRefs.current[member.id] = el}
+                    >
                       <button 
                         className="btn-secondary" 
                         style={{ fontSize: '13px', padding: '8px', width: '100px', marginTop: '8px' }}
