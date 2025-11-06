@@ -70,7 +70,7 @@ function Fees() {
             <div style={{ 
               padding: '40px',
               textAlign: 'center',
-              color: 'var(--text-muted)'
+              color: '#666'
             }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>💰</div>
               <p>아직 회비 내역이 없습니다</p>

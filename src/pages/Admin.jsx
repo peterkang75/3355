@@ -165,7 +165,7 @@ function Admin() {
                   key={member.id}
                   style={{
                     padding: '16px',
-                    background: 'rgba(0, 0, 0, 0.2)',
+                    background: 'var(--bg-green)',
                     borderRadius: '8px',
                     marginBottom: '12px',
                     display: 'flex',
@@ -227,13 +227,13 @@ function Admin() {
                         )}
                       </div>
                       {member.nickname && (
-                        <div style={{ fontSize: '14px', color: 'var(--text-muted)', marginBottom: '4px' }}>
+                        <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>
                           대화명: {member.nickname}
                         </div>
                       )}
                     </div>
 
-                    <div style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '8px', lineHeight: '1.6' }}>
+                    <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', lineHeight: '1.6' }}>
                       <div>핸디: {member.handicap}</div>
                       {member.gender && (
                         <div>성별: {member.gender}</div>
@@ -259,7 +259,7 @@ function Admin() {
                       }}>
                         미수금: {member.balance.toLocaleString()}원
                       </div>
-                      <div style={{ color: 'var(--text-muted)' }}>
+                      <div style={{ color: '#666' }}>
                         전화: {member.phone.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3')}
                       </div>
                     </div>
@@ -299,7 +299,7 @@ function Admin() {
                   style={{ marginBottom: '12px' }}
                 />
                 <div style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--text-muted)' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#666' }}>
                     사진 (본인)
                   </label>
                   <input
@@ -495,10 +495,10 @@ function Admin() {
               </h3>
               <div style={{ 
                 padding: '16px',
-                background: 'rgba(0, 0, 0, 0.2)',
+                background: 'var(--bg-green)',
                 borderRadius: '8px',
                 textAlign: 'center',
-                color: 'var(--text-muted)'
+                color: '#666'
               }}>
                 등록된 지출 항목이 없습니다
               </div>
@@ -538,10 +538,10 @@ function Admin() {
               {courses.length === 0 ? (
                 <div style={{ 
                   padding: '16px',
-                  background: 'rgba(0, 0, 0, 0.2)',
+                  background: 'var(--bg-green)',
                   borderRadius: '8px',
                   textAlign: 'center',
-                  color: 'var(--text-muted)'
+                  color: '#666'
                 }}>
                   등록된 골프장이 없습니다
                 </div>
@@ -551,7 +551,7 @@ function Admin() {
                     key={course.id}
                     style={{
                       padding: '16px',
-                      background: 'rgba(0, 0, 0, 0.2)',
+                      background: 'var(--bg-green)',
                       borderRadius: '8px',
                       marginBottom: '12px'
                     }}
@@ -560,7 +560,7 @@ function Admin() {
                       {course.name}
                     </div>
                     {course.address && (
-                      <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+                      <div style={{ fontSize: '14px', color: '#666' }}>
                         📍 {course.address}
                       </div>
                     )}

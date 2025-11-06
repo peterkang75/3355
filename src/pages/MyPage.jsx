@@ -161,7 +161,7 @@ function MyPage() {
                     height: '140px',
                     borderRadius: '50%',
                     border: '4px solid var(--border-color)',
-                    background: 'rgba(0, 0, 0, 0.2)',
+                    background: 'var(--bg-green)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -276,32 +276,32 @@ function MyPage() {
               </>
             ) : (
               <div style={{ fontSize: '15px', lineHeight: '1.8' }}>
-                <div style={{ marginBottom: '12px', padding: '12px', background: 'rgba(0, 0, 0, 0.2)', borderRadius: '8px' }}>
+                <div style={{ marginBottom: '12px', padding: '12px', background: 'var(--bg-green)', borderRadius: '8px' }}>
                   <strong>이름:</strong> {user?.name || '-'}
                 </div>
-                <div style={{ marginBottom: '12px', padding: '12px', background: 'rgba(0, 0, 0, 0.2)', borderRadius: '8px' }}>
+                <div style={{ marginBottom: '12px', padding: '12px', background: 'var(--bg-green)', borderRadius: '8px' }}>
                   <strong>대화명:</strong> {user?.nickname || '-'}
                 </div>
-                <div style={{ marginBottom: '12px', padding: '12px', background: 'rgba(0, 0, 0, 0.2)', borderRadius: '8px' }}>
+                <div style={{ marginBottom: '12px', padding: '12px', background: 'var(--bg-green)', borderRadius: '8px' }}>
                   <strong>전화번호:</strong> {user?.phone?.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3') || '-'}
                 </div>
-                <div style={{ marginBottom: '12px', padding: '12px', background: 'rgba(0, 0, 0, 0.2)', borderRadius: '8px' }}>
+                <div style={{ marginBottom: '12px', padding: '12px', background: 'var(--bg-green)', borderRadius: '8px' }}>
                   <strong>성별:</strong> {user?.gender || '-'}
                 </div>
-                <div style={{ marginBottom: '12px', padding: '12px', background: 'rgba(0, 0, 0, 0.2)', borderRadius: '8px' }}>
+                <div style={{ marginBottom: '12px', padding: '12px', background: 'var(--bg-green)', borderRadius: '8px' }}>
                   <strong>출생연도:</strong> {user?.birthYear || '-'}
                 </div>
-                <div style={{ marginBottom: '12px', padding: '12px', background: 'rgba(0, 0, 0, 0.2)', borderRadius: '8px' }}>
+                <div style={{ marginBottom: '12px', padding: '12px', background: 'var(--bg-green)', borderRadius: '8px' }}>
                   <strong>지역:</strong> {user?.region || '-'}
                 </div>
-                <div style={{ marginBottom: '12px', padding: '12px', background: 'rgba(0, 0, 0, 0.2)', borderRadius: '8px' }}>
+                <div style={{ marginBottom: '12px', padding: '12px', background: 'var(--bg-green)', borderRadius: '8px' }}>
                   <strong>소속 클럽:</strong> {user?.club || '-'}
                 </div>
-                <div style={{ marginBottom: '12px', padding: '12px', background: 'rgba(0, 0, 0, 0.2)', borderRadius: '8px' }}>
+                <div style={{ marginBottom: '12px', padding: '12px', background: 'var(--bg-green)', borderRadius: '8px' }}>
                   <strong>핸디캡:</strong> {user?.handicap || '-'}
                 </div>
                 {user?.golflinkNumber && (
-                  <div style={{ marginBottom: '12px', padding: '12px', background: 'rgba(0, 0, 0, 0.2)', borderRadius: '8px' }}>
+                  <div style={{ marginBottom: '12px', padding: '12px', background: 'var(--bg-green)', borderRadius: '8px' }}>
                     <strong>Golflink Number:</strong> {user?.golflinkNumber}
                   </div>
                 )}
@@ -314,7 +314,7 @@ function MyPage() {
           <div>
             <div className="card">
               <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>회비 내역</h3>
-              <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '40px 0' }}>
+              <p style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
                 회비 내역 기능은 회비 메뉴에서 확인하실 수 있습니다.
               </p>
               <button 
@@ -342,7 +342,7 @@ function MyPage() {
                       key={index}
                       style={{ 
                         padding: '16px',
-                        background: 'rgba(0, 0, 0, 0.2)',
+                        background: 'var(--bg-green)',
                         borderRadius: '8px',
                         marginBottom: '12px'
                       }}
@@ -350,7 +350,7 @@ function MyPage() {
                       <div style={{ fontWeight: '600', marginBottom: '8px' }}>
                         {score.courseName || '골프장'}
                       </div>
-                      <div style={{ fontSize: '14px', color: 'var(--text-muted)' }}>
+                      <div style={{ fontSize: '14px', color: '#666' }}>
                         <div>날짜: {score.date ? new Date(score.date).toLocaleDateString() : '-'}</div>
                         <div>스코어: {score.score || '-'}</div>
                       </div>
@@ -366,7 +366,7 @@ function MyPage() {
                 </div>
               ) : (
                 <>
-                  <p style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '40px 0' }}>
+                  <p style={{ textAlign: 'center', color: '#666', padding: '40px 0' }}>
                     아직 등록된 경기 기록이 없습니다.
                   </p>
                   <button 
