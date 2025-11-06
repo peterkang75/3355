@@ -17,10 +17,6 @@ function Navigation({ user, onLogout }) {
         <span className="nav-icon">🏠</span>
         <span>홈</span>
       </NavLink>
-      <NavLink to="/board" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
-        <span className="nav-icon">📋</span>
-        <span>게시판</span>
-      </NavLink>
       <NavLink to="/booking" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
         <span className="nav-icon">🏌️</span>
         <span>부킹</span>
