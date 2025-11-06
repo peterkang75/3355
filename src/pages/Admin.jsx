@@ -167,13 +167,14 @@ function Admin() {
       return;
     }
     
+    setShowPermissionMenu(null);
+    
     const updatedMembers = members.filter(m => m.id !== memberId);
     setMembers(updatedMembers);
     localStorage.setItem('golfMembers', JSON.stringify(updatedMembers));
     
     await googleSheetsService.deleteMember(memberId);
     
-    setShowPermissionMenu(null);
     alert('회원이 삭제되었습니다.');
   };
 
