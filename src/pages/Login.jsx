@@ -13,7 +13,7 @@ function Login({ onLogin }) {
     region: '',
     isClubMember: '',
     club: '',
-    handicap: 18,
+    handicap: '',
     golflinkNumber: '',
     clubMemberNumber: '',
     photo: ''
@@ -78,7 +78,7 @@ function Login({ onLogin }) {
       region: '',
       isClubMember: '',
       club: '',
-      handicap: 18,
+      handicap: '',
       golflinkNumber: '',
       clubMemberNumber: '',
       photo: ''
@@ -270,9 +270,9 @@ function Login({ onLogin }) {
                 />
                 <input
                   type="number"
-                  placeholder="핸디 (기본값: 18)"
+                  placeholder="핸디 (선택)"
                   value={newMember.handicap}
-                  onChange={(e) => setNewMember({ ...newMember, handicap: parseInt(e.target.value) || 18 })}
+                  onChange={(e) => setNewMember({ ...newMember, handicap: e.target.value })}
                   style={{ marginBottom: '12px', width: '100%' }}
                 />
               </>

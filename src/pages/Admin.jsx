@@ -20,7 +20,7 @@ function Admin() {
     nickname: '',
     phone: '',
     club: '',
-    handicap: 18,
+    handicap: '',
     golflinkNumber: '',
     clubMemberNumber: '',
     photo: '',
@@ -55,7 +55,7 @@ function Admin() {
       nickname: '', 
       phone: '', 
       club: '', 
-      handicap: 18, 
+      handicap: '', 
       golflinkNumber: '', 
       clubMemberNumber: '', 
       photo: '', 
@@ -368,7 +368,7 @@ function Admin() {
                       type="number"
                       placeholder="핸디"
                       value={newMember.handicap}
-                      onChange={(e) => setNewMember({ ...newMember, handicap: parseInt(e.target.value) || 0 })}
+                      onChange={(e) => setNewMember({ ...newMember, handicap: e.target.value })}
                       style={{ marginBottom: '12px' }}
                     />
                   </>
