@@ -29,6 +29,10 @@ function Navigation({ user, onLogout }) {
         <span className="nav-icon">💰</span>
         <span>회비</span>
       </NavLink>
+      <NavLink to="/mypage" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+        <span className="nav-icon">👤</span>
+        <span>마이페이지</span>
+      </NavLink>
       {user?.isAdmin && (
         <NavLink to="/admin" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
           <span className="nav-icon">⚙️</span>
