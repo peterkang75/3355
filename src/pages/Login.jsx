@@ -13,11 +13,19 @@ function Login({ onLogin }) {
       return;
     }
 
-    const mockUser = {
+    const mockMembers = [
+      { id: '123456', name: '관리자', phone: '0100123456', isAdmin: true, handicap: 18, balance: 0 },
+      { id: '111111', name: '회원1', phone: '0100111111', isAdmin: false, handicap: 20, balance: -50000 },
+      { id: '222222', name: '회원2', phone: '0100222222', isAdmin: false, handicap: 15, balance: 0 }
+    ];
+
+    const foundMember = mockMembers.find(m => m.id === phoneLastSix);
+
+    const mockUser = foundMember || {
       id: phoneLastSix,
-      phone: phoneLastSix,
-      name: phoneLastSix === '123456' ? '관리자' : '회원',
-      isAdmin: phoneLastSix === '123456',
+      phone: '0100' + phoneLastSix,
+      name: '회원',
+      isAdmin: false,
       handicap: 18,
       balance: 0
     };

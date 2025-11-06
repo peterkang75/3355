@@ -5,9 +5,9 @@ function Admin() {
   const { user, addFee } = useApp();
   const [activeTab, setActiveTab] = useState('members');
   const [members, setMembers] = useState([
-    { id: '123456', name: '관리자', phone: '123456', isAdmin: true, handicap: 18, balance: 0 },
-    { id: '111111', name: '회원1', phone: '111111', isAdmin: false, handicap: 20, balance: -50000 },
-    { id: '222222', name: '회원2', phone: '222222', isAdmin: false, handicap: 15, balance: 0 }
+    { id: '123456', name: '관리자', phone: '0100123456', isAdmin: true, handicap: 18, balance: 0 },
+    { id: '111111', name: '회원1', phone: '0100111111', isAdmin: false, handicap: 20, balance: -50000 },
+    { id: '222222', name: '회원2', phone: '0100222222', isAdmin: false, handicap: 15, balance: 0 }
   ]);
   const [courses, setCourses] = useState([]);
   const [newCourse, setNewCourse] = useState({
@@ -36,13 +36,14 @@ function Admin() {
       return;
     }
 
-    if (newMember.phone.length !== 6 || !/^\d+$/.test(newMember.phone)) {
-      alert('전화번호 끝 6자리를 정확히 입력해주세요.');
+    if (newMember.phone.length !== 10 || !/^\d+$/.test(newMember.phone)) {
+      alert('전화번호 10자리를 정확히 입력해주세요.');
       return;
     }
 
+    const lastSixDigits = newMember.phone.slice(-6);
     const member = {
-      id: newMember.phone,
+      id: lastSixDigits,
       ...newMember,
       balance: 0
     };
@@ -258,7 +259,7 @@ function Admin() {
                         미수금: {member.balance.toLocaleString()}원
                       </div>
                       <div style={{ color: '#666' }}>
-                        전화: ***{member.phone}
+                        전화: {member.phone}
                       </div>
                     </div>
                   </div>
@@ -287,10 +288,13 @@ function Admin() {
                 />
                 <input
                   type="text"
-                  placeholder="전화번호 끝 6자리"
+                  placeholder="전화번호 (예: 0100123456)"
                   value={newMember.phone}
-                  onChange={(e) => setNewMember({ ...newMember, phone: e.target.value.replace(/\D/g, '').slice(0, 6) })}
-                  maxLength={6}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                    setNewMember({ ...newMember, phone: digits });
+                  }}
+                  maxLength={10}
                   style={{ marginBottom: '12px' }}
                 />
                 <select
