@@ -3,7 +3,7 @@ import { useApp } from '../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 
 function MyPage() {
-  const { user, updateUser, scores } = useApp();
+  const { user, updateUser, scores, logout } = useApp();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('profile');
   const [editMode, setEditMode] = useState(false);
@@ -313,6 +313,29 @@ function MyPage() {
             </div>
           </div>
         )}
+
+        <div style={{ marginTop: '40px', textAlign: 'center', paddingBottom: '20px' }}>
+          <button
+            onClick={() => {
+              if (window.confirm('로그아웃 하시겠습니까?')) {
+                logout();
+                navigate('/');
+              }
+            }}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: '#dc2626',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              padding: '12px',
+              textDecoration: 'underline'
+            }}
+          >
+            로그아웃
+          </button>
+        </div>
       </div>
     </div>
   );
