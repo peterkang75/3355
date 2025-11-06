@@ -4,11 +4,40 @@ import { useApp } from '../contexts/AppContext';
 function Admin() {
   const { user, addFee } = useApp();
   const [activeTab, setActiveTab] = useState('members');
-  const [members] = useState([
+  const [members, setMembers] = useState([
     { id: '123456', name: '관리자', phone: '123456', isAdmin: true, handicap: 18, balance: 0 },
     { id: '111111', name: '회원1', phone: '111111', isAdmin: false, handicap: 20, balance: -50000 },
     { id: '222222', name: '회원2', phone: '222222', isAdmin: false, handicap: 15, balance: 0 }
   ]);
+  const [showNewMemberForm, setShowNewMemberForm] = useState(false);
+  const [newMember, setNewMember] = useState({
+    name: '',
+    phone: '',
+    handicap: 18,
+    isAdmin: false
+  });
+
+  const handleAddMember = () => {
+    if (!newMember.name || !newMember.phone) {
+      alert('이름과 전화번호를 입력해주세요.');
+      return;
+    }
+
+    if (newMember.phone.length !== 6 || !/^\d+$/.test(newMember.phone)) {
+      alert('전화번호 끝 6자리를 정확히 입력해주세요.');
+      return;
+    }
+
+    const member = {
+      id: newMember.phone,
+      ...newMember,
+      balance: 0
+    };
+
+    setMembers([...members, member]);
+    setNewMember({ name: '', phone: '', handicap: 18, isAdmin: false });
+    setShowNewMemberForm(false);
+  };
 
   if (!user.isAdmin) {
     return (
@@ -156,8 +185,55 @@ function Admin() {
               ))}
             </div>
 
-            <button className="btn-primary">
-              + 새 회원 추가
+            {showNewMemberForm && (
+              <div className="card">
+                <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
+                  새 회원 추가
+                </h3>
+                <input
+                  type="text"
+                  placeholder="이름"
+                  value={newMember.name}
+                  onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <input
+                  type="text"
+                  placeholder="전화번호 끝 6자리"
+                  value={newMember.phone}
+                  onChange={(e) => setNewMember({ ...newMember, phone: e.target.value.replace(/\D/g, '').slice(0, 6) })}
+                  maxLength={6}
+                  style={{ marginBottom: '12px' }}
+                />
+                <input
+                  type="number"
+                  placeholder="핸디캡"
+                  value={newMember.handicap}
+                  onChange={(e) => setNewMember({ ...newMember, handicap: parseInt(e.target.value) || 0 })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <input
+                    type="checkbox"
+                    id="isAdmin"
+                    checked={newMember.isAdmin}
+                    onChange={(e) => setNewMember({ ...newMember, isAdmin: e.target.checked })}
+                  />
+                  <label htmlFor="isAdmin" style={{ fontSize: '14px' }}>관리자 권한 부여</label>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  <button className="btn-outline" onClick={() => setShowNewMemberForm(false)}>
+                    취소
+                  </button>
+                  <button className="btn-primary" onClick={handleAddMember}>
+                    추가
+                  </button>
+                </div>
+              </div>
+            )}
+
+            <button className="btn-primary" onClick={() => setShowNewMemberForm(!showNewMemberForm)}>
+              {showNewMemberForm ? '취소' : '+ 새 회원 추가'}
             </button>
           </div>
         )}
