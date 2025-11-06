@@ -6,6 +6,7 @@ function Admin() {
   const { user, addFee, courses, addCourse } = useApp();
   const [activeTab, setActiveTab] = useState('members');
   const [members, setMembers] = useState([]);
+  const [showPermissionMenu, setShowPermissionMenu] = useState(null);
   const [newCourse, setNewCourse] = useState({
     name: '',
     address: ''
@@ -97,6 +98,61 @@ function Admin() {
     });
     setShowNewMemberForm(false);
     alert('회원이 추가되었습니다!');
+  };
+
+  const handleToggleAdmin = async (memberId) => {
+    const updatedMembers = members.map(m => {
+      if (m.id === memberId) {
+        return { ...m, isAdmin: !m.isAdmin };
+      }
+      return m;
+    });
+    
+    setMembers(updatedMembers);
+    localStorage.setItem('golfMembers', JSON.stringify(updatedMembers));
+    
+    const member = updatedMembers.find(m => m.id === memberId);
+    if (member) {
+      await googleSheetsService.updateMember(member);
+    }
+    
+    setShowPermissionMenu(null);
+    alert(member.isAdmin ? '관리자 권한이 부여되었습니다.' : '관리자 권한이 해제되었습니다.');
+  };
+
+  const handleToggleActive = async (memberId) => {
+    const updatedMembers = members.map(m => {
+      if (m.id === memberId) {
+        return { ...m, isActive: m.isActive === false ? true : false };
+      }
+      return m;
+    });
+    
+    setMembers(updatedMembers);
+    localStorage.setItem('golfMembers', JSON.stringify(updatedMembers));
+    
+    const member = updatedMembers.find(m => m.id === memberId);
+    if (member) {
+      await googleSheetsService.updateMember(member);
+    }
+    
+    setShowPermissionMenu(null);
+    alert(member.isActive === false ? '회원이 비활성화되었습니다.' : '회원이 활성화되었습니다.');
+  };
+
+  const handleDeleteMember = async (memberId) => {
+    if (!confirm('정말로 이 회원을 삭제하시겠습니까?')) {
+      return;
+    }
+    
+    const updatedMembers = members.filter(m => m.id !== memberId);
+    setMembers(updatedMembers);
+    localStorage.setItem('golfMembers', JSON.stringify(updatedMembers));
+    
+    await googleSheetsService.deleteMember(memberId);
+    
+    setShowPermissionMenu(null);
+    alert('회원이 삭제되었습니다.');
   };
 
   const handleAddCourse = () => {
@@ -197,11 +253,13 @@ function Admin() {
                   key={member.id}
                   style={{
                     padding: '16px',
-                    background: 'var(--bg-green)',
+                    background: member.isActive === false ? '#f5f5f5' : 'var(--bg-green)',
                     borderRadius: '8px',
                     marginBottom: '12px',
                     display: 'flex',
-                    gap: '16px'
+                    gap: '16px',
+                    opacity: member.isActive === false ? 0.6 : 1,
+                    position: 'relative'
                   }}
                 >
                   <div style={{ flexShrink: 0 }}>
@@ -232,9 +290,86 @@ function Admin() {
                         👤
                       </div>
                     )}
-                    <button className="btn-secondary" style={{ fontSize: '13px', padding: '8px', width: '100px', marginTop: '8px' }}>
-                      권한 수정
-                    </button>
+                    <div style={{ position: 'relative' }}>
+                      <button 
+                        className="btn-secondary" 
+                        style={{ fontSize: '13px', padding: '8px', width: '100px', marginTop: '8px' }}
+                        onClick={() => setShowPermissionMenu(showPermissionMenu === member.id ? null : member.id)}
+                      >
+                        권한 수정
+                      </button>
+                      {showPermissionMenu === member.id && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '100%',
+                          left: 0,
+                          marginTop: '4px',
+                          background: 'white',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                          zIndex: 1000,
+                          minWidth: '180px',
+                          overflow: 'hidden'
+                        }}>
+                          <button
+                            onClick={() => handleToggleAdmin(member.id)}
+                            style={{
+                              width: '100%',
+                              padding: '12px 16px',
+                              background: 'white',
+                              border: 'none',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              fontSize: '14px',
+                              borderBottom: '1px solid var(--border-color)',
+                              transition: 'background 0.2s'
+                            }}
+                            onMouseEnter={(e) => e.target.style.background = 'var(--bg-green)'}
+                            onMouseLeave={(e) => e.target.style.background = 'white'}
+                          >
+                            {member.isAdmin ? '❌ 관리자 권한 해제' : '✅ 관리자 권한 주기'}
+                          </button>
+                          <button
+                            onClick={() => handleToggleActive(member.id)}
+                            style={{
+                              width: '100%',
+                              padding: '12px 16px',
+                              background: 'white',
+                              border: 'none',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              fontSize: '14px',
+                              borderBottom: '1px solid var(--border-color)',
+                              transition: 'background 0.2s'
+                            }}
+                            onMouseEnter={(e) => e.target.style.background = 'var(--bg-green)'}
+                            onMouseLeave={(e) => e.target.style.background = 'white'}
+                          >
+                            {member.isActive === false ? '🔓 회원 활성화' : '🔒 회원 비활성화'}
+                          </button>
+                          <button
+                            onClick={() => handleDeleteMember(member.id)}
+                            style={{
+                              width: '100%',
+                              padding: '12px 16px',
+                              background: 'white',
+                              border: 'none',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              fontSize: '14px',
+                              color: '#e53e3e',
+                              fontWeight: '600',
+                              transition: 'background 0.2s'
+                            }}
+                            onMouseEnter={(e) => e.target.style.background = '#fee'}
+                            onMouseLeave={(e) => e.target.style.background = 'white'}
+                          >
+                            🗑️ 회원 삭제
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   <div style={{ flex: 1 }}>
@@ -255,6 +390,18 @@ function Admin() {
                             fontSize: '12px'
                           }}>
                             관리자
+                          </span>
+                        )}
+                        {member.isActive === false && (
+                          <span style={{
+                            marginLeft: '8px',
+                            padding: '2px 8px',
+                            background: '#666',
+                            color: 'white',
+                            borderRadius: '4px',
+                            fontSize: '12px'
+                          }}>
+                            비활성
                           </span>
                         )}
                       </div>

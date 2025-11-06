@@ -194,12 +194,79 @@ class GoogleSheetsService {
       memberData.clubMemberNumber || '',
       memberData.isAdmin ? 'TRUE' : 'FALSE',
       memberData.balance || 0,
-      memberData.photo || ''
+      memberData.photo || '',
+      memberData.isActive !== false ? 'TRUE' : 'FALSE'
     ];
 
     const result = await this.appendRow(SHEETS.MEMBERS, values);
     console.log('Member saved to Google Sheets:', memberData.name);
     return result;
+  }
+
+  async updateMember(memberData) {
+    console.log('📝 구글 시트에 회원 정보 업데이트:', memberData.name);
+    const values = [
+      memberData.id,
+      memberData.name || '',
+      memberData.phone || '',
+      memberData.nickname || '',
+      memberData.gender || '',
+      memberData.birthYear || '',
+      memberData.region || '',
+      memberData.isClubMember || '',
+      memberData.club || '',
+      memberData.handicap || '',
+      memberData.golflinkNumber || '',
+      memberData.clubMemberNumber || '',
+      memberData.isAdmin ? 'TRUE' : 'FALSE',
+      memberData.balance || 0,
+      memberData.photo || '',
+      memberData.isActive !== false ? 'TRUE' : 'FALSE'
+    ];
+
+    if (!this.scriptUrl) {
+      console.warn('Google Apps Script URL not configured.');
+      return null;
+    }
+
+    try {
+      const url = `${this.scriptUrl}?action=update&sheetName=${encodeURIComponent(SHEETS.MEMBERS)}&id=${encodeURIComponent(memberData.id)}&values=${encodeURIComponent(JSON.stringify(values))}`;
+      
+      fetch(url, {
+        method: 'GET',
+        mode: 'no-cors'
+      }).catch(() => {});
+      
+      console.log('✅ 구글 시트 업데이트 완료');
+      return { success: true };
+    } catch (error) {
+      console.error('❌ 구글 시트 업데이트 실패:', error);
+      return null;
+    }
+  }
+
+  async deleteMember(memberId) {
+    console.log('🗑️ 구글 시트에서 회원 삭제:', memberId);
+    
+    if (!this.scriptUrl) {
+      console.warn('Google Apps Script URL not configured.');
+      return null;
+    }
+
+    try {
+      const url = `${this.scriptUrl}?action=delete&sheetName=${encodeURIComponent(SHEETS.MEMBERS)}&id=${encodeURIComponent(memberId)}`;
+      
+      fetch(url, {
+        method: 'GET',
+        mode: 'no-cors'
+      }).catch(() => {});
+      
+      console.log('✅ 구글 시트 삭제 완료');
+      return { success: true };
+    } catch (error) {
+      console.error('❌ 구글 시트 삭제 실패:', error);
+      return null;
+    }
   }
 
   async savePost(postData) {
@@ -291,7 +358,8 @@ class GoogleSheetsService {
       clubMemberNumber: row[11] || '',
       isAdmin: row[12] === 'TRUE',
       balance: parseInt(row[13]) || 0,
-      photo: row[14] || ''
+      photo: row[14] || '',
+      isActive: row[15] === 'FALSE' ? false : true
     }));
   }
 
