@@ -44,13 +44,10 @@ class GoogleSheetsService {
     }
 
     try {
-      const formData = new FormData();
-      formData.append('sheetName', sheetName);
-      formData.append('values', JSON.stringify(values));
-
-      const response = await fetch(this.scriptUrl, {
-        method: 'POST',
-        body: formData,
+      const url = `${this.scriptUrl}?sheetName=${encodeURIComponent(sheetName)}&values=${encodeURIComponent(JSON.stringify(values))}`;
+      
+      const response = await fetch(url, {
+        method: 'GET',
         redirect: 'follow'
       });
       
