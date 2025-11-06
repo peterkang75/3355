@@ -259,7 +259,7 @@ function Admin() {
                         미수금: {member.balance.toLocaleString()}원
                       </div>
                       <div style={{ color: '#666' }}>
-                        전화: {member.phone}
+                        전화: {member.phone.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3')}
                       </div>
                     </div>
                   </div>
@@ -287,14 +287,14 @@ function Admin() {
                   style={{ marginBottom: '12px' }}
                 />
                 <input
-                  type="text"
-                  placeholder="전화번호 (예: 0100123456)"
-                  value={newMember.phone}
+                  type="tel"
+                  placeholder="전화번호 (예: 0100 123 456)"
+                  value={newMember.phone.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3')}
                   onChange={(e) => {
                     const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
                     setNewMember({ ...newMember, phone: digits });
                   }}
-                  maxLength={10}
+                  maxLength={12}
                   style={{ marginBottom: '12px' }}
                 />
                 <select
