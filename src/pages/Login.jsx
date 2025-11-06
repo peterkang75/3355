@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
+import { AppContext } from '../contexts/AppContext';
 
 function Login({ onLogin }) {
+  const { courses } = useContext(AppContext);
   const [phoneLastSix, setPhoneLastSix] = useState('');
   const [error, setError] = useState('');
   const [showSignup, setShowSignup] = useState(false);
@@ -313,13 +315,18 @@ function Login({ onLogin }) {
             </div>
             {newMember.isClubMember === 'yes' && (
               <>
-                <input
-                  type="text"
-                  placeholder="소속 클럽 (선택)"
+                <select
                   value={newMember.club}
                   onChange={(e) => setNewMember({ ...newMember, club: e.target.value })}
                   style={{ marginBottom: '12px', width: '100%' }}
-                />
+                >
+                  <option value="">소속 클럽 선택</option>
+                  {courses.map(course => (
+                    <option key={course.id} value={course.name}>
+                      {course.name}
+                    </option>
+                  ))}
+                </select>
                 <input
                   type="text"
                   placeholder="Golflink Number (선택)"

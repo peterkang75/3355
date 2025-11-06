@@ -2,14 +2,13 @@ import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
 
 function Admin() {
-  const { user, addFee } = useApp();
+  const { user, addFee, courses, addCourse } = useApp();
   const [activeTab, setActiveTab] = useState('members');
   const [members, setMembers] = useState([
     { id: '123456', name: '관리자', phone: '0100123456', isAdmin: true, handicap: 18, balance: 0 },
     { id: '111111', name: '회원1', phone: '0100111111', isAdmin: false, handicap: 20, balance: -50000 },
     { id: '222222', name: '회원2', phone: '0100222222', isAdmin: false, handicap: 15, balance: 0 }
   ]);
-  const [courses, setCourses] = useState([]);
   const [newCourse, setNewCourse] = useState({
     name: '',
     address: ''
@@ -79,7 +78,7 @@ function Admin() {
       ...newCourse
     };
 
-    setCourses([...courses, course]);
+    addCourse(course);
     setNewCourse({ name: '', address: '' });
   };
 

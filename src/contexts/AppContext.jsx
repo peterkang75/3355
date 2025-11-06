@@ -2,7 +2,7 @@ import React, { createContext, useState, useContext, useEffect } from 'react';
 import googleSheetsService from '../services/googleSheets';
 import { calculateHandicap } from '../utils/handicap';
 
-const AppContext = createContext();
+export const AppContext = createContext();
 
 export function AppProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -11,6 +11,11 @@ export function AppProvider({ children }) {
   const [bookings, setBookings] = useState([]);
   const [scores, setScores] = useState([]);
   const [fees, setFees] = useState([]);
+  const [courses, setCourses] = useState([
+    { id: 1, name: 'The Australian Golf Club', address: 'Kensington' },
+    { id: 2, name: 'Concord Golf Club', address: 'Concord' },
+    { id: 3, name: 'St Michael\'s Golf Club', address: 'Little Bay' }
+  ]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -18,10 +23,12 @@ export function AppProvider({ children }) {
     const savedPosts = localStorage.getItem('golfPosts');
     const savedBookings = localStorage.getItem('golfBookings');
     const savedFees = localStorage.getItem('golfFees');
+    const savedCourses = localStorage.getItem('golfCourses');
 
     if (savedPosts) setPosts(JSON.parse(savedPosts));
     if (savedBookings) setBookings(JSON.parse(savedBookings));
     if (savedFees) setFees(JSON.parse(savedFees));
+    if (savedCourses) setCourses(JSON.parse(savedCourses));
 
     if (savedUser) {
       const userData = JSON.parse(savedUser);
@@ -124,6 +131,12 @@ export function AppProvider({ children }) {
     }
   };
 
+  const addCourse = (course) => {
+    const newCourses = [...courses, course];
+    setCourses(newCourses);
+    localStorage.setItem('golfCourses', JSON.stringify(newCourses));
+  };
+
   const value = {
     user,
     members,
@@ -131,6 +144,7 @@ export function AppProvider({ children }) {
     bookings,
     scores,
     fees,
+    courses,
     loading,
     login,
     logout,
@@ -141,7 +155,8 @@ export function AppProvider({ children }) {
     addBooking,
     updateBooking,
     addFee,
-    payFee
+    payFee,
+    addCourse
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
