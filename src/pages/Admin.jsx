@@ -24,6 +24,9 @@ function Admin() {
     golflinkNumber: '',
     clubMemberNumber: '',
     photo: '',
+    gender: '',
+    birthYear: '',
+    region: '',
     isAdmin: false
   });
 
@@ -54,6 +57,9 @@ function Admin() {
       golflinkNumber: '', 
       clubMemberNumber: '', 
       photo: '', 
+      gender: '', 
+      birthYear: '', 
+      region: '', 
       isAdmin: false 
     });
     setShowNewMemberForm(false);
@@ -227,6 +233,15 @@ function Admin() {
 
                     <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', lineHeight: '1.6' }}>
                       <div>핸디: {member.handicap}</div>
+                      {member.gender && (
+                        <div>성별: {member.gender}</div>
+                      )}
+                      {member.birthYear && (
+                        <div>출생연도: {member.birthYear}</div>
+                      )}
+                      {member.region && (
+                        <div>지역: {member.region}</div>
+                      )}
                       {member.golflinkNumber && (
                         <div>Golflink Number: {member.golflinkNumber}</div>
                       )}
@@ -276,6 +291,29 @@ function Admin() {
                   value={newMember.phone}
                   onChange={(e) => setNewMember({ ...newMember, phone: e.target.value.replace(/\D/g, '').slice(0, 6) })}
                   maxLength={6}
+                  style={{ marginBottom: '12px' }}
+                />
+                <select
+                  value={newMember.gender}
+                  onChange={(e) => setNewMember({ ...newMember, gender: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                >
+                  <option value="">성별 선택</option>
+                  <option value="남">남</option>
+                  <option value="여">여</option>
+                </select>
+                <input
+                  type="number"
+                  placeholder="출생연도 (예: 1990)"
+                  value={newMember.birthYear}
+                  onChange={(e) => setNewMember({ ...newMember, birthYear: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <input
+                  type="text"
+                  placeholder="사는 지역 (예: 서울, 부산)"
+                  value={newMember.region}
+                  onChange={(e) => setNewMember({ ...newMember, region: e.target.value })}
                   style={{ marginBottom: '12px' }}
                 />
                 <select
