@@ -12,7 +12,6 @@ channel = "stable-24_11"
 run = ["node", "index.js"]
 deploymentTarget = "autoscale"
 ignorePorts = false
-build = ["npm", "run", "build"]
 
 [agent]
 expertMode = true
