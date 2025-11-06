@@ -23,22 +23,26 @@ export function AppProvider({ children }) {
       console.log('🔄 구글 시트에서 데이터 로딩 시작...');
       
       try {
-        const loadWithTimeout = (promise, timeout = 5000) => {
+        const loadWithTimeout = (promise, name, timeout = 10000) => {
           return Promise.race([
             promise,
             new Promise((_, reject) => 
-              setTimeout(() => reject(new Error('Timeout')), timeout)
+              setTimeout(() => {
+                console.log(`⏱️ ${name} 타임아웃`);
+                reject(new Error(`${name} Timeout`));
+              }, timeout)
             )
           ]);
         };
 
         const results = await Promise.allSettled([
-          loadWithTimeout(googleSheetsService.getAllMembers()),
-          loadWithTimeout(googleSheetsService.getAllPosts()),
-          loadWithTimeout(googleSheetsService.getAllBookings()),
-          loadWithTimeout(googleSheetsService.getAllFees())
+          loadWithTimeout(googleSheetsService.getAllMembers(), 'Members'),
+          loadWithTimeout(googleSheetsService.getAllPosts(), 'Posts'),
+          loadWithTimeout(googleSheetsService.getAllBookings(), 'Bookings'),
+          loadWithTimeout(googleSheetsService.getAllFees(), 'Fees')
         ]);
 
+        console.log('📊 Promise.allSettled 완료, 결과 처리 시작');
         const [membersResult, postsResult, bookingsResult, feesResult] = results;
 
         if (membersResult.status === 'fulfilled' && membersResult.value && membersResult.value.length > 0) {
