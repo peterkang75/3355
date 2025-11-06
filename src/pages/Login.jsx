@@ -208,15 +208,33 @@ function Login({ onLogin }) {
               maxLength={12}
               style={{ marginBottom: '12px', width: '100%' }}
             />
-            <select
-              value={newMember.gender}
-              onChange={(e) => setNewMember({ ...newMember, gender: e.target.value })}
-              style={{ marginBottom: '12px', width: '100%' }}
-            >
-              <option value="">성별 선택</option>
-              <option value="남">남</option>
-              <option value="여">여</option>
-            </select>
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                성별
+              </label>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="남"
+                    checked={newMember.gender === '남'}
+                    onChange={(e) => setNewMember({ ...newMember, gender: e.target.value })}
+                  />
+                  <span>남</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="여"
+                    checked={newMember.gender === '여'}
+                    onChange={(e) => setNewMember({ ...newMember, gender: e.target.value })}
+                  />
+                  <span>여</span>
+                </label>
+              </div>
+            </div>
             <input
               type="number"
               placeholder="출생연도 (예: 1990)"
@@ -235,15 +253,28 @@ function Login({ onLogin }) {
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
                 클럽 멤버이신가요?
               </label>
-              <select
-                value={newMember.isClubMember}
-                onChange={(e) => setNewMember({ ...newMember, isClubMember: e.target.value })}
-                style={{ marginBottom: '0', width: '100%' }}
-              >
-                <option value="">선택하세요</option>
-                <option value="yes">예</option>
-                <option value="no">아니오</option>
-              </select>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="isClubMember"
+                    value="yes"
+                    checked={newMember.isClubMember === 'yes'}
+                    onChange={(e) => setNewMember({ ...newMember, isClubMember: e.target.value })}
+                  />
+                  <span>예</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="isClubMember"
+                    value="no"
+                    checked={newMember.isClubMember === 'no'}
+                    onChange={(e) => setNewMember({ ...newMember, isClubMember: e.target.value })}
+                  />
+                  <span>아니오</span>
+                </label>
+              </div>
             </div>
             {newMember.isClubMember === 'yes' && (
               <>
