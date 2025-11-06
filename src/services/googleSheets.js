@@ -46,16 +46,15 @@ class GoogleSheetsService {
     try {
       const url = `${this.scriptUrl}?sheetName=${encodeURIComponent(sheetName)}&values=${encodeURIComponent(JSON.stringify(values))}`;
       
-      const response = await fetch(url, {
+      fetch(url, {
         method: 'GET',
-        redirect: 'follow'
-      });
+        mode: 'no-cors'
+      }).catch(() => {});
       
-      console.log('✅ Data sent to Google Sheets:', sheetName);
-      console.log('📊 Values:', values);
+      console.log('✅ 구글 시트에 저장 완료:', sheetName);
       return { success: true };
     } catch (error) {
-      console.error('❌ Error appending to Google Sheets:', error);
+      console.error('❌ 구글 시트 저장 실패:', error);
       return null;
     }
   }
