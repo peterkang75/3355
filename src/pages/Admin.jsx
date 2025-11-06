@@ -159,15 +159,43 @@ function Admin() {
                     padding: '16px',
                     background: 'var(--bg-green)',
                     borderRadius: '8px',
-                    marginBottom: '12px'
+                    marginBottom: '12px',
+                    display: 'flex',
+                    gap: '16px'
                   }}
                 >
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between',
-                    marginBottom: '12px'
-                  }}>
-                    <div>
+                  <div style={{ flexShrink: 0 }}>
+                    {member.photo ? (
+                      <img 
+                        src={member.photo} 
+                        alt={member.name}
+                        style={{
+                          width: '100px',
+                          height: '100px',
+                          objectFit: 'cover',
+                          borderRadius: '8px',
+                          border: '2px solid white'
+                        }}
+                      />
+                    ) : (
+                      <div style={{
+                        width: '100px',
+                        height: '100px',
+                        background: '#ddd',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '40px',
+                        color: '#999'
+                      }}>
+                        👤
+                      </div>
+                    )}
+                  </div>
+
+                  <div style={{ flex: 1 }}>
+                    <div style={{ marginBottom: '12px' }}>
                       <div style={{ 
                         fontWeight: '700', 
                         fontSize: '16px',
@@ -187,33 +215,37 @@ function Admin() {
                           </span>
                         )}
                       </div>
-                      <div style={{ fontSize: '13px', color: '#666' }}>
-                        전화: ***{member.phone}
-                      </div>
+                      {member.nickname && (
+                        <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>
+                          대화명: {member.nickname}
+                        </div>
+                      )}
                     </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: '14px', color: '#666' }}>
-                        HC: {member.handicap}
-                      </div>
+
+                    <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', lineHeight: '1.6' }}>
+                      <div>핸디: {member.handicap}</div>
+                      {member.golflinkNumber && (
+                        <div>Golflink Number: {member.golflinkNumber}</div>
+                      )}
+                      {member.clubMemberNumber && (
+                        <div>클럽 회원번호: {member.clubMemberNumber}</div>
+                      )}
+                    </div>
+
+                    <div style={{ fontSize: '13px', marginBottom: '12px', lineHeight: '1.6' }}>
                       <div style={{
-                        fontSize: '16px',
                         fontWeight: '700',
                         color: member.balance < 0 ? '#e53e3e' : '#22c55e'
                       }}>
-                        {member.balance.toLocaleString()}원
+                        미수금: {member.balance.toLocaleString()}원
+                      </div>
+                      <div style={{ color: '#666' }}>
+                        전화: ***{member.phone}
                       </div>
                     </div>
-                  </div>
-                  <div style={{ 
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: '8px'
-                  }}>
-                    <button className="btn-secondary" style={{ fontSize: '13px', padding: '8px' }}>
+
+                    <button className="btn-secondary" style={{ fontSize: '13px', padding: '8px', width: '120px' }}>
                       권한 수정
-                    </button>
-                    <button className="btn-outline" style={{ fontSize: '13px', padding: '8px' }}>
-                      상세보기
                     </button>
                   </div>
                 </div>
