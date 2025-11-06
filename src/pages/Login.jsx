@@ -1,5 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { AppContext } from '../contexts/AppContext';
+import logoImage from '../assets/logo.jpeg';
 
 function Login({ onLogin }) {
   const { courses } = useContext(AppContext);
@@ -107,14 +108,23 @@ function Login({ onLogin }) {
         boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⛳</div>
+          <img 
+            src={logoImage} 
+            alt="3355 골프 클럽 로고" 
+            style={{ 
+              width: '120px', 
+              height: '120px', 
+              marginBottom: '16px',
+              objectFit: 'contain'
+            }} 
+          />
           <h1 style={{ 
             fontSize: '24px', 
             color: 'var(--primary-green)',
             marginBottom: '8px',
             fontWeight: '700'
           }}>
-            골프 모임 관리
+            3355 골프 클럽
           </h1>
           <p style={{ color: '#666', fontSize: '14px' }}>
             전화번호 끝 6자리로 로그인하세요
