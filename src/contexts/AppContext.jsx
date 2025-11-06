@@ -85,10 +85,11 @@ export function AppProvider({ children }) {
     return newScore;
   };
 
-  const addPost = (post) => {
+  const addPost = async (post) => {
     const newPosts = [post, ...posts];
     setPosts(newPosts);
     localStorage.setItem('golfPosts', JSON.stringify(newPosts));
+    await googleSheetsService.savePost(post);
   };
 
   const updatePost = (postId, updates) => {
@@ -97,10 +98,11 @@ export function AppProvider({ children }) {
     localStorage.setItem('golfPosts', JSON.stringify(newPosts));
   };
 
-  const addBooking = (booking) => {
+  const addBooking = async (booking) => {
     const newBookings = [booking, ...bookings];
     setBookings(newBookings);
     localStorage.setItem('golfBookings', JSON.stringify(newBookings));
+    await googleSheetsService.saveBooking(booking);
   };
 
   const updateBooking = (bookingId, updates) => {
@@ -109,10 +111,11 @@ export function AppProvider({ children }) {
     localStorage.setItem('golfBookings', JSON.stringify(newBookings));
   };
 
-  const addFee = (fee) => {
+  const addFee = async (fee) => {
     const newFees = [...fees, fee];
     setFees(newFees);
     localStorage.setItem('golfFees', JSON.stringify(newFees));
+    await googleSheetsService.saveFee(fee);
     
     const userFee = fee.appliesTo === 'all' || fee.appliesTo.includes(user.id);
     if (userFee && fee.type === 'income') {

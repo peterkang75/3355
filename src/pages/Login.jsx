@@ -1,6 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { AppContext } from '../contexts/AppContext';
 import logoImage from '../assets/logo.jpeg';
+import googleSheetsService from '../services/googleSheets';
 
 function Login({ onLogin }) {
   const { courses } = useContext(AppContext);
@@ -51,7 +52,7 @@ function Login({ onLogin }) {
     onLogin(mockUser);
   };
 
-  const handleSignup = () => {
+  const handleSignup = async () => {
     if (!newMember.name || !newMember.phone) {
       setError('이름과 전화번호를 입력해주세요.');
       return;
@@ -70,6 +71,8 @@ function Login({ onLogin }) {
       balance: 0
     };
 
+    await googleSheetsService.saveMember(userData);
+    
     alert('회원가입이 완료되었습니다! 전화번호 끝 6자리로 로그인해주세요.');
     setShowSignup(false);
     setNewMember({
@@ -238,8 +241,36 @@ function Login({ onLogin }) {
                   const file = e.target.files?.[0];
                   if (file) {
                     const reader = new FileReader();
-                    reader.onloadend = () => {
-                      setNewMember({ ...newMember, photo: reader.result });
+                    reader.onload = (event) => {
+                      const img = new Image();
+                      img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 400;
+                        const MAX_HEIGHT = 400;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                          if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                          }
+                        } else {
+                          if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                          }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                        setNewMember({ ...newMember, photo: compressedDataUrl });
+                      };
+                      img.src = event.target.result;
                     };
                     reader.readAsDataURL(file);
                   }
