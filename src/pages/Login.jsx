@@ -224,7 +224,7 @@ function Login({ onLogin }) {
             />
             <input
               type="text"
-              placeholder="사는 지역 (예: 서울, 부산)"
+              placeholder="사는 지역 (예: Lidcombe, Ryde)"
               value={newMember.region}
               onChange={(e) => setNewMember({ ...newMember, region: e.target.value })}
               style={{ marginBottom: '12px', width: '100%' }}
