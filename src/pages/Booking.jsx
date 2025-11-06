@@ -7,8 +7,7 @@ function Booking() {
   const [newBooking, setNewBooking] = useState({
     courseName: '',
     date: '',
-    time: '',
-    maxPlayers: 4
+    time: ''
   });
 
   const handleCreateBooking = () => {
@@ -25,7 +24,7 @@ function Booking() {
     };
 
     addBooking(booking);
-    setNewBooking({ courseName: '', date: '', time: '', maxPlayers: 4 });
+    setNewBooking({ courseName: '', date: '', time: '' });
     setShowNewBooking(false);
   };
 
@@ -37,12 +36,10 @@ function Booking() {
       updateBooking(bookingId, {
         participants: booking.participants.filter(p => p.phone !== user.phone)
       });
-    } else if (booking.participants.length < booking.maxPlayers) {
+    } else {
       updateBooking(bookingId, {
         participants: [...booking.participants, { name: user.name, phone: user.phone }]
       });
-    } else {
-      alert('인원이 가득 찼습니다.');
     }
   };
 
@@ -92,19 +89,6 @@ function Booking() {
               onChange={(e) => setNewBooking({ ...newBooking, time: e.target.value })}
               style={{ marginBottom: '12px' }}
             />
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px' }}>
-                최대 인원: {newBooking.maxPlayers}명
-              </label>
-              <input
-                type="range"
-                min="2"
-                max="8"
-                value={newBooking.maxPlayers}
-                onChange={(e) => setNewBooking({ ...newBooking, maxPlayers: parseInt(e.target.value) })}
-                style={{ width: '100%' }}
-              />
-            </div>
             <button onClick={handleCreateBooking} className="btn-primary">
               부킹 생성
             </button>
@@ -124,7 +108,6 @@ function Booking() {
         ) : (
           bookings.map(booking => {
             const isJoined = booking.participants.some(p => p.phone === user.phone);
-            const isFull = booking.participants.length >= booking.maxPlayers;
 
             return (
               <div key={booking.id} className="card">
@@ -146,14 +129,9 @@ function Booking() {
                   <div style={{ 
                     fontSize: '14px', 
                     fontWeight: '600',
-                    marginBottom: '8px',
-                    display: 'flex',
-                    justifyContent: 'space-between'
+                    marginBottom: '8px'
                   }}>
-                    <span>참가자 ({booking.participants.length}/{booking.maxPlayers})</span>
-                    {isFull && (
-                      <span style={{ color: '#e53e3e' }}>마감</span>
-                    )}
+                    <span>참가자 ({booking.participants.length}명)</span>
                   </div>
                   {booking.participants.map((participant, idx) => (
                     <div key={idx} style={{ 
@@ -171,10 +149,8 @@ function Booking() {
                 <button 
                   onClick={() => handleJoinBooking(booking.id)}
                   className={isJoined ? 'btn-outline' : 'btn-primary'}
-                  disabled={!isJoined && isFull}
-                  style={!isJoined && isFull ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
                 >
-                  {isJoined ? '참가 취소' : isFull ? '인원 마감' : '참가하기'}
+                  {isJoined ? '참가 취소' : '참가하기'}
                 </button>
               </div>
             );
