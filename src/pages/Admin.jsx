@@ -29,6 +29,8 @@ function Admin() {
     isClubMember: '',
     isAdmin: false
   });
+  const [editingMember, setEditingMember] = useState(null);
+  const [editMemberData, setEditMemberData] = useState(null);
 
   useEffect(() => {
     if (contextMembers) {
@@ -155,6 +157,58 @@ function Admin() {
       console.error('❌ 회원 삭제 실패:', error);
       alert('회원 삭제 중 오류가 발생했습니다.');
     }
+  };
+
+  const handleEditMember = (member) => {
+    setEditingMember(member.id);
+    setEditMemberData({
+      name: member.name || '',
+      nickname: member.nickname || '',
+      phone: member.phone || '',
+      club: member.club || '',
+      handicap: member.handicap || '',
+      golflinkNumber: member.golflinkNumber || '',
+      clubMemberNumber: member.clubMemberNumber || '',
+      photo: member.photo || '',
+      gender: member.gender || '',
+      birthYear: member.birthYear || '',
+      region: member.region || '',
+      balance: member.balance || 0
+    });
+    setShowPermissionMenu(null);
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editMemberData.name || !editMemberData.phone) {
+      alert('이름과 전화번호를 입력해주세요.');
+      return;
+    }
+
+    if (editMemberData.phone.length !== 10 || !/^\d+$/.test(editMemberData.phone)) {
+      alert('전화번호 10자리를 정확히 입력해주세요.');
+      return;
+    }
+
+    try {
+      await apiService.updateMember(editingMember, editMemberData);
+      console.log('✅ 회원 정보 업데이트 완료');
+      
+      if (refreshMembers) {
+        await refreshMembers();
+      }
+      
+      setEditingMember(null);
+      setEditMemberData(null);
+      alert('회원 정보가 수정되었습니다.');
+    } catch (error) {
+      console.error('❌ 회원 정보 수정 실패:', error);
+      alert('회원 정보 수정 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingMember(null);
+    setEditMemberData(null);
   };
 
   const handleAddCourse = () => {
@@ -346,6 +400,24 @@ function Admin() {
                           overflow: 'hidden'
                         }}>
                           <button
+                            onClick={() => handleEditMember(member)}
+                            style={{
+                              width: '100%',
+                              padding: '12px 16px',
+                              background: 'white',
+                              border: 'none',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              fontSize: '14px',
+                              borderBottom: '1px solid var(--border-color)',
+                              transition: 'background 0.2s'
+                            }}
+                            onMouseEnter={(e) => e.target.style.background = 'var(--bg-green)'}
+                            onMouseLeave={(e) => e.target.style.background = 'white'}
+                          >
+                            ✏️ 회원 정보 수정
+                          </button>
+                          <button
                             onClick={() => handleToggleAdmin(member.id)}
                             style={{
                               width: '100%',
@@ -479,6 +551,145 @@ function Admin() {
                 </div>
               ))}
             </div>
+
+            {editingMember && editMemberData && (
+              <div className="card" style={{ marginTop: '16px' }}>
+                <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
+                  ✏️ 회원 정보 수정
+                </h3>
+                <input
+                  type="text"
+                  placeholder="이름"
+                  value={editMemberData.name}
+                  onChange={(e) => setEditMemberData({ ...editMemberData, name: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <input
+                  type="text"
+                  placeholder="대화명 (닉네임)"
+                  value={editMemberData.nickname}
+                  onChange={(e) => setEditMemberData({ ...editMemberData, nickname: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <input
+                  type="tel"
+                  inputMode="numeric"
+                  placeholder="전화번호 (예: 0100 123 456)"
+                  value={editMemberData.phone.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3')}
+                  onChange={(e) => {
+                    const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                    setEditMemberData({ ...editMemberData, phone: digits });
+                  }}
+                  maxLength={12}
+                  style={{ marginBottom: '12px' }}
+                />
+                <div style={{ marginBottom: '12px' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                    성별
+                  </label>
+                  <div style={{ display: 'flex', gap: '16px' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                      <input
+                        type="radio"
+                        name="edit-gender"
+                        value="남"
+                        checked={editMemberData.gender === '남'}
+                        onChange={(e) => setEditMemberData({ ...editMemberData, gender: e.target.value })}
+                      />
+                      <span>남</span>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                      <input
+                        type="radio"
+                        name="edit-gender"
+                        value="여"
+                        checked={editMemberData.gender === '여'}
+                        onChange={(e) => setEditMemberData({ ...editMemberData, gender: e.target.value })}
+                      />
+                      <span>여</span>
+                    </label>
+                  </div>
+                </div>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="출생연도 (예: 1990)"
+                  value={editMemberData.birthYear}
+                  onChange={(e) => setEditMemberData({ ...editMemberData, birthYear: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <input
+                  type="text"
+                  placeholder="사는 지역 (예: Lidcombe, Ryde)"
+                  value={editMemberData.region}
+                  onChange={(e) => setEditMemberData({ ...editMemberData, region: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <input
+                  type="text"
+                  placeholder="소속 클럽"
+                  value={editMemberData.club}
+                  onChange={(e) => setEditMemberData({ ...editMemberData, club: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="핸디"
+                  value={editMemberData.handicap}
+                  onChange={(e) => setEditMemberData({ ...editMemberData, handicap: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="Golflink Number"
+                  value={editMemberData.golflinkNumber}
+                  onChange={(e) => setEditMemberData({ ...editMemberData, golflinkNumber: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="클럽 회원번호"
+                  value={editMemberData.clubMemberNumber}
+                  onChange={(e) => setEditMemberData({ ...editMemberData, clubMemberNumber: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <input
+                  type="number"
+                  placeholder="미수금"
+                  value={editMemberData.balance}
+                  onChange={(e) => setEditMemberData({ ...editMemberData, balance: Number(e.target.value) })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={handleSaveEdit}
+                    className="btn-primary"
+                    style={{ flex: 1 }}
+                  >
+                    저장
+                  </button>
+                  <button
+                    onClick={handleCancelEdit}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: '#666',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    취소
+                  </button>
+                </div>
+              </div>
+            )}
 
             {showNewMemberForm && (
               <div className="card">
