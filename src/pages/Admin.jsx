@@ -11,7 +11,8 @@ function Admin() {
   const menuRefs = useRef({});
   const [newCourse, setNewCourse] = useState({
     name: '',
-    address: ''
+    address: '',
+    holePars: Array(18).fill(4)
   });
   const [showNewMemberForm, setShowNewMemberForm] = useState(false);
   const [newMember, setNewMember] = useState({
@@ -211,19 +212,39 @@ function Admin() {
     setEditMemberData(null);
   };
 
-  const handleAddCourse = () => {
+  const handleAddCourse = async () => {
     if (!newCourse.name) {
       alert('골프장 이름을 입력해주세요.');
       return;
     }
 
-    const course = {
-      id: Date.now(),
-      ...newCourse
-    };
+    try {
+      const courseData = {
+        name: newCourse.name,
+        address: newCourse.address,
+        holePars: newCourse.holePars
+      };
+      
+      await apiService.createCourse(courseData);
+      alert('골프장이 등록되었습니다.');
+      
+      setNewCourse({ 
+        name: '', 
+        address: '',
+        holePars: Array(18).fill(4)
+      });
+      
+      window.location.reload();
+    } catch (error) {
+      console.error('❌ 골프장 등록 실패:', error);
+      alert('골프장 등록 중 오류가 발생했습니다.');
+    }
+  };
 
-    addCourse(course);
-    setNewCourse({ name: '', address: '' });
+  const handleHoleParChange = (holeIndex, value) => {
+    const newHolePars = [...newCourse.holePars];
+    newHolePars[holeIndex] = parseInt(value) || 3;
+    setNewCourse({ ...newCourse, holePars: newHolePars });
   };
 
   if (!user.isAdmin) {
@@ -1044,8 +1065,71 @@ function Admin() {
                 placeholder="주소"
                 value={newCourse.address}
                 onChange={(e) => setNewCourse({ ...newCourse, address: e.target.value })}
-                style={{ marginBottom: '12px' }}
+                style={{ marginBottom: '16px' }}
               />
+              
+              <div style={{ marginBottom: '16px' }}>
+                <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
+                  각 홀별 PAR 설정
+                </h4>
+                <div style={{ 
+                  display: 'grid', 
+                  gridTemplateColumns: 'repeat(3, 1fr)', 
+                  gap: '12px' 
+                }}>
+                  {newCourse.holePars.map((par, index) => (
+                    <div 
+                      key={index}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        padding: '8px',
+                        background: 'var(--bg-green)',
+                        borderRadius: '6px'
+                      }}
+                    >
+                      <label style={{ 
+                        fontSize: '14px', 
+                        fontWeight: '600',
+                        minWidth: '50px',
+                        color: '#2d5f3f'
+                      }}>
+                        {index + 1}번홀
+                      </label>
+                      <input
+                        type="number"
+                        inputMode="numeric"
+                        value={par}
+                        onChange={(e) => handleHoleParChange(index, e.target.value)}
+                        min="3"
+                        max="6"
+                        style={{
+                          width: '50px',
+                          padding: '6px',
+                          fontSize: '14px',
+                          textAlign: 'center',
+                          border: '2px solid var(--border-color)',
+                          borderRadius: '4px'
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+                <div style={{ 
+                  marginTop: '12px', 
+                  padding: '8px 12px',
+                  background: 'var(--primary-green)',
+                  color: 'white',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  textAlign: 'center'
+                }}>
+                  총 PAR: {newCourse.holePars.reduce((sum, par) => sum + par, 0)}
+                </div>
+              </div>
+
               <button className="btn-primary" onClick={handleAddCourse}>
                 골프장 등록
               </button>
@@ -1080,8 +1164,37 @@ function Admin() {
                       {course.name}
                     </div>
                     {course.address && (
-                      <div style={{ fontSize: '14px', color: '#666' }}>
+                      <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
                         📍 {course.address}
+                      </div>
+                    )}
+                    {course.holePars && (
+                      <div style={{ marginTop: '12px' }}>
+                        <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#2d5f3f' }}>
+                          홀별 PAR (총: {course.holePars.reduce((sum, par) => sum + par, 0)})
+                        </div>
+                        <div style={{ 
+                          display: 'grid', 
+                          gridTemplateColumns: 'repeat(9, 1fr)', 
+                          gap: '4px',
+                          fontSize: '12px'
+                        }}>
+                          {course.holePars.map((par, idx) => (
+                            <div 
+                              key={idx}
+                              style={{
+                                padding: '4px',
+                                background: 'white',
+                                borderRadius: '4px',
+                                textAlign: 'center',
+                                border: '1px solid var(--border-color)'
+                              }}
+                            >
+                              <div style={{ fontSize: '10px', color: '#666' }}>{idx + 1}</div>
+                              <div style={{ fontWeight: '600' }}>{par}</div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     )}
                   </div>

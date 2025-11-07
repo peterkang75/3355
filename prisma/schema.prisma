@@ -98,7 +98,8 @@ model Score {
 }
 
 model Course {
-  id      String @id @default(cuid())
-  name    String @unique
-  address String
+  id       String @id @default(cuid())
+  name     String @unique
+  address  String
+  holePars Json?
 }
