@@ -104,13 +104,8 @@ function Admin() {
   };
 
   const handleToggleAdmin = async (memberId) => {
-    const member = members.find(m => m.id === memberId);
-    if (!member) return;
-    
-    const updatedMember = { ...member, isAdmin: !member.isAdmin };
-    
     try {
-      await apiService.updateMember(member.id, updatedMember);
+      const updatedMember = await apiService.toggleMemberAdmin(memberId);
       
       if (refreshMembers) {
         await refreshMembers();
@@ -125,13 +120,8 @@ function Admin() {
   };
 
   const handleToggleActive = async (memberId) => {
-    const member = members.find(m => m.id === memberId);
-    if (!member) return;
-    
-    const updatedMember = { ...member, isActive: member.isActive === false ? true : false };
-    
     try {
-      await apiService.updateMember(member.id, updatedMember);
+      const updatedMember = await apiService.toggleMemberActive(memberId);
       
       if (refreshMembers) {
         await refreshMembers();

@@ -35,6 +35,22 @@ class ApiService {
     return response.json();
   }
 
+  async toggleMemberAdmin(id) {
+    const response = await fetch(`${API_BASE}/members/${id}/toggle-admin`, {
+      method: 'PATCH'
+    });
+    if (!response.ok) throw new Error('Failed to toggle admin status');
+    return response.json();
+  }
+
+  async toggleMemberActive(id) {
+    const response = await fetch(`${API_BASE}/members/${id}/toggle-active`, {
+      method: 'PATCH'
+    });
+    if (!response.ok) throw new Error('Failed to toggle active status');
+    return response.json();
+  }
+
   async fetchPosts() {
     const response = await fetch(`${API_BASE}/posts`);
     if (!response.ok) throw new Error('Failed to fetch posts');

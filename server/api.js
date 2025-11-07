@@ -52,6 +52,50 @@ router.delete('/members/:id', async (req, res) => {
   }
 });
 
+router.patch('/members/:id/toggle-admin', async (req, res) => {
+  try {
+    const member = await prisma.member.findUnique({
+      where: { id: req.params.id }
+    });
+    
+    if (!member) {
+      return res.status(404).json({ error: 'Member not found' });
+    }
+    
+    const updated = await prisma.member.update({
+      where: { id: req.params.id },
+      data: { isAdmin: !member.isAdmin }
+    });
+    
+    res.json(updated);
+  } catch (error) {
+    console.error('Error toggling admin status:', error);
+    res.status(500).json({ error: 'Failed to toggle admin status' });
+  }
+});
+
+router.patch('/members/:id/toggle-active', async (req, res) => {
+  try {
+    const member = await prisma.member.findUnique({
+      where: { id: req.params.id }
+    });
+    
+    if (!member) {
+      return res.status(404).json({ error: 'Member not found' });
+    }
+    
+    const updated = await prisma.member.update({
+      where: { id: req.params.id },
+      data: { isActive: member.isActive === false ? true : false }
+    });
+    
+    res.json(updated);
+  } catch (error) {
+    console.error('Error toggling active status:', error);
+    res.status(500).json({ error: 'Failed to toggle active status' });
+  }
+});
+
 router.get('/posts', async (req, res) => {
   try {
     const posts = await prisma.post.findMany({
