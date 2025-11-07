@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
+import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
 
 function Booking() {
   const { user, members, bookings, courses, addBooking, updateBooking } = useApp();
+  const navigate = useNavigate();
   const [showNewBooking, setShowNewBooking] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -170,6 +172,16 @@ function Booking() {
     return participant.name;
   };
 
+  const isBookingActive = (booking) => {
+    const bookingDate = new Date(booking.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return bookingDate >= today;
+  };
+
+  const activeBookings = bookings.filter(b => isBookingActive(b)).sort((a, b) => new Date(a.date) - new Date(b.date));
+  const completedBookings = bookings.filter(b => !isBookingActive(b)).sort((a, b) => new Date(b.date) - new Date(a.date));
+
   const renderBookingForm = (data, setData, onSubmit, submitText) => (
     <>
       <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
@@ -304,6 +316,184 @@ function Booking() {
     </>
   );
 
+  const renderBookingListItem = (booking, isActive) => {
+    const participants = parseParticipants(booking.participants);
+    const isJoined = participants.some(p => p.phone === user.phone);
+
+    return (
+      <div key={booking.id} style={{
+        background: 'white',
+        padding: '16px',
+        borderRadius: '8px',
+        marginBottom: '12px',
+        border: '1px solid #e0e0e0',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        gap: '12px'
+      }}>
+        <div style={{ flex: 1 }}>
+          {booking.title && (
+            <div style={{ fontSize: '13px', color: '#2d5f3f', fontWeight: '600', marginBottom: '2px' }}>
+              {booking.title}
+            </div>
+          )}
+          <div style={{ fontSize: '16px', fontWeight: '700', color: '#333', marginBottom: '4px' }}>
+            {booking.courseName}
+          </div>
+          <div style={{ fontSize: '13px', color: '#666' }}>
+            📅 {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
+            {isActive && ` • 참가자 ${participants.length}명`}
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          {isActive && (
+            <>
+              <button
+                onClick={() => handleJoinBooking(booking.id)}
+                style={{
+                  padding: '8px 16px',
+                  background: isJoined ? 'white' : 'var(--primary-green)',
+                  color: isJoined ? 'var(--primary-green)' : 'white',
+                  border: isJoined ? '2px solid var(--primary-green)' : 'none',
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {isJoined ? '참가취소' : '참가하기'}
+              </button>
+              {user.isAdmin && (
+                <div style={{ position: 'relative' }}>
+                  <button
+                    onClick={() => setOpenMenuId(openMenuId === booking.id ? null : booking.id)}
+                    style={{
+                      background: 'transparent',
+                      border: 'none',
+                      fontSize: '20px',
+                      cursor: 'pointer',
+                      padding: '4px 8px',
+                      color: '#666'
+                    }}
+                  >
+                    ⋮
+                  </button>
+                  {openMenuId === booking.id && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '100%',
+                      right: 0,
+                      background: 'white',
+                      border: '1px solid #ddd',
+                      borderRadius: '8px',
+                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                      zIndex: 10,
+                      minWidth: '140px'
+                    }}>
+                      <button
+                        onClick={() => handleToggleAnnounce(booking.id)}
+                        style={{
+                          display: 'block',
+                          width: '100%',
+                          padding: '12px 16px',
+                          textAlign: 'left',
+                          background: 'white',
+                          border: 'none',
+                          fontSize: '14px',
+                          cursor: 'pointer',
+                          borderBottom: '1px solid #eee'
+                        }}
+                      >
+                        {booking.isAnnounced ? '📌 공지 내리기' : '📌 공지 활성화'}
+                      </button>
+                      <button
+                        onClick={() => handleEditBooking(booking)}
+                        style={{
+                          display: 'block',
+                          width: '100%',
+                          padding: '12px 16px',
+                          textAlign: 'left',
+                          background: 'white',
+                          border: 'none',
+                          fontSize: '14px',
+                          cursor: 'pointer',
+                          borderBottom: '1px solid #eee'
+                        }}
+                      >
+                        ✏️ 수정
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleDeleteBooking(booking.id);
+                          setOpenMenuId(null);
+                        }}
+                        style={{
+                          display: 'block',
+                          width: '100%',
+                          padding: '12px 16px',
+                          textAlign: 'left',
+                          background: 'white',
+                          border: 'none',
+                          fontSize: '14px',
+                          cursor: 'pointer',
+                          color: '#e53e3e'
+                        }}
+                      >
+                        🗑️ 삭제
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+          
+          {!isActive && (
+            <>
+              <button
+                onClick={() => navigate('/score')}
+                style={{
+                  padding: '8px 16px',
+                  background: 'var(--primary-green)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                🏌️ 플레이하기
+              </button>
+              {user.isAdmin && (
+                <button
+                  onClick={() => navigate('/score')}
+                  style={{
+                    padding: '8px 16px',
+                    background: '#3a7d54',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  📝 회원 스코어 기록
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div>
       <div className="header">
@@ -354,243 +544,54 @@ function Booking() {
           </div>
         )}
 
-        {bookings.length === 0 ? (
-          <div className="card" style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏌️</div>
-            <p>예정된 라운딩이 없습니다</p>
-            {user.isAdmin && (
-              <p style={{ fontSize: '14px', marginTop: '8px' }}>
-                상단의 라운딩 생성 버튼을 눌러 첫 라운딩을 만드세요
-              </p>
-            )}
-          </div>
-        ) : (
-          bookings.map(booking => {
-            const participants = parseParticipants(booking.participants);
-            const isJoined = participants.some(p => p.phone === user.phone);
+        <div className="card">
+          <h3 style={{ 
+            fontSize: '18px', 
+            fontWeight: '700',
+            marginBottom: '16px',
+            color: 'var(--primary-green)'
+          }}>
+            ⛳ 현재 활성중인 라운딩
+          </h3>
+          {activeBookings.length === 0 ? (
+            <div style={{ 
+              padding: '40px',
+              textAlign: 'center',
+              color: '#666',
+              background: 'var(--bg-green)',
+              borderRadius: '8px'
+            }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏌️</div>
+              <p>예정된 라운딩이 없습니다</p>
+            </div>
+          ) : (
+            activeBookings.map(booking => renderBookingListItem(booking, true))
+          )}
+        </div>
 
-            return (
-              <div key={booking.id} className="card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
-                  <div style={{ flex: 1 }}>
-                    {booking.title && (
-                      <div style={{ fontSize: '14px', color: '#2d5f3f', fontWeight: '600', marginBottom: '4px' }}>
-                        {booking.title}
-                      </div>
-                    )}
-                    <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
-                      {booking.courseName}
-                    </h3>
-                    <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>
-                      📅 {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
-                    </div>
-                    {booking.gatheringTime && (
-                      <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>
-                        🕐 집결시간: {booking.gatheringTime}
-                      </div>
-                    )}
-                    {booking.registrationDeadline && (
-                      <div style={{ fontSize: '13px', color: '#e67e22', fontWeight: '600' }}>
-                        ⏰ 접수마감: {new Date(booking.registrationDeadline).toLocaleDateString('ko-KR')}
-                      </div>
-                    )}
-                  </div>
-                  
-                  {user.isAdmin && (
-                    <div style={{ position: 'relative' }}>
-                      <button
-                        onClick={() => setOpenMenuId(openMenuId === booking.id ? null : booking.id)}
-                        style={{
-                          background: 'transparent',
-                          border: 'none',
-                          fontSize: '20px',
-                          cursor: 'pointer',
-                          padding: '4px 8px',
-                          color: '#666'
-                        }}
-                      >
-                        ⋮
-                      </button>
-                      {openMenuId === booking.id && (
-                        <div style={{
-                          position: 'absolute',
-                          top: '100%',
-                          right: 0,
-                          background: 'white',
-                          border: '1px solid #ddd',
-                          borderRadius: '8px',
-                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
-                          zIndex: 10,
-                          minWidth: '120px'
-                        }}>
-                          <button
-                            onClick={() => handleEditBooking(booking)}
-                            style={{
-                              display: 'block',
-                              width: '100%',
-                              padding: '12px 16px',
-                              textAlign: 'left',
-                              background: 'white',
-                              border: 'none',
-                              fontSize: '14px',
-                              cursor: 'pointer',
-                              borderBottom: '1px solid #eee'
-                            }}
-                          >
-                            ✏️ 수정
-                          </button>
-                          <button
-                            onClick={() => {
-                              handleDeleteBooking(booking.id);
-                              setOpenMenuId(null);
-                            }}
-                            style={{
-                              display: 'block',
-                              width: '100%',
-                              padding: '12px 16px',
-                              textAlign: 'left',
-                              background: 'white',
-                              border: 'none',
-                              fontSize: '14px',
-                              cursor: 'pointer',
-                              color: '#e53e3e'
-                            }}
-                          >
-                            🗑️ 삭제
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
-
-                {(booking.greenFee || booking.cartFee || booking.membershipFee) && (
-                  <div style={{
-                    background: 'var(--bg-green)',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    marginBottom: '12px'
-                  }}>
-                    <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: '#2d5f3f' }}>
-                      💰 비용 안내
-                    </div>
-                    <div style={{ fontSize: '14px', display: 'grid', gap: '4px' }}>
-                      {booking.greenFee && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>그린피</span>
-                          <span style={{ fontWeight: '600' }}>{formatCurrency(booking.greenFee)}</span>
-                        </div>
-                      )}
-                      {booking.cartFee && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>카트비</span>
-                          <span style={{ fontWeight: '600' }}>{formatCurrency(booking.cartFee)}</span>
-                        </div>
-                      )}
-                      {booking.membershipFee && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                          <span>회비</span>
-                          <span style={{ fontWeight: '600' }}>{formatCurrency(booking.membershipFee)}</span>
-                        </div>
-                      )}
-                      <div style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between',
-                        borderTop: '1px solid #d0d0d0',
-                        paddingTop: '4px',
-                        marginTop: '4px',
-                        fontWeight: '700',
-                        color: '#2d5f3f'
-                      }}>
-                        <span>총 금액</span>
-                        <span>{formatCurrency((booking.greenFee || 0) + (booking.cartFee || 0) + (booking.membershipFee || 0))}</span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {(booking.restaurantName || booking.restaurantAddress) && (
-                  <div style={{
-                    background: '#fff5e6',
-                    padding: '12px',
-                    borderRadius: '8px',
-                    marginBottom: '12px',
-                    border: '1px solid #f0d9b5'
-                  }}>
-                    <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '6px', color: '#d68910' }}>
-                      🍽️ 회식 정보
-                    </div>
-                    {booking.restaurantName && (
-                      <div style={{ fontSize: '14px', marginBottom: '4px' }}>
-                        <strong>장소:</strong> {booking.restaurantName}
-                      </div>
-                    )}
-                    {booking.restaurantAddress && (
-                      <div style={{ fontSize: '13px', color: '#666' }}>
-                        📍 {booking.restaurantAddress}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                <div style={{ 
-                  background: 'var(--bg-green)',
-                  padding: '12px',
-                  borderRadius: '8px',
-                  marginBottom: '12px'
-                }}>
-                  <div style={{ 
-                    fontSize: '14px', 
-                    fontWeight: '600',
-                    marginBottom: '8px'
-                  }}>
-                    <span>참가자 ({participants.length}명)</span>
-                  </div>
-                  {participants.map((participant, idx) => (
-                    <div key={idx} style={{ 
-                      padding: '8px',
-                      background: 'white',
-                      borderRadius: '4px',
-                      marginBottom: '4px',
-                      fontSize: '14px'
-                    }}>
-                      {getParticipantDisplayName(participant)}
-                    </div>
-                  ))}
-                </div>
-
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button 
-                    onClick={() => handleJoinBooking(booking.id)}
-                    className={isJoined ? 'btn-outline' : 'btn-primary'}
-                    style={{ flex: 1 }}
-                  >
-                    {isJoined ? '참가 취소' : '참가하기'}
-                  </button>
-                  
-                  {user.isAdmin && (
-                    <button 
-                      onClick={() => handleToggleAnnounce(booking.id)}
-                      style={{
-                        padding: '12px 16px',
-                        background: booking.isAnnounced ? '#f59e0b' : '#3a7d54',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      {booking.isAnnounced ? '📌 공지 내리기' : '📌 공지 활성화'}
-                    </button>
-                  )}
-                </div>
-              </div>
-            );
-          })
-        )}
+        <div className="card">
+          <h3 style={{ 
+            fontSize: '18px', 
+            fontWeight: '700',
+            marginBottom: '16px',
+            color: '#666'
+          }}>
+            ✅ 완료된 라운딩
+          </h3>
+          {completedBookings.length === 0 ? (
+            <div style={{ 
+              padding: '40px',
+              textAlign: 'center',
+              color: '#666',
+              background: 'var(--bg-green)',
+              borderRadius: '8px'
+            }}>
+              <p>완료된 라운딩이 없습니다</p>
+            </div>
+          ) : (
+            completedBookings.map(booking => renderBookingListItem(booking, false))
+          )}
+        </div>
       </div>
     </div>
   );
