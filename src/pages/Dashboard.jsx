@@ -108,6 +108,15 @@ function Dashboard() {
     return diffDays;
   };
 
+  const isRegistrationClosed = (booking) => {
+    if (!booking.registrationDeadline) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const deadline = new Date(booking.registrationDeadline);
+    deadline.setHours(0, 0, 0, 0);
+    return today > deadline;
+  };
+
   const announcedBookings = bookings.filter(b => b.isAnnounced);
 
   return (
@@ -443,52 +452,6 @@ function Dashboard() {
                       </span>
                     </div>
                   )}
-                  
-                  {(booking.greenFee || booking.cartFee || booking.membershipFee) && (
-                    <div style={{
-                      background: 'white',
-                      padding: '10px',
-                      borderRadius: '6px',
-                      marginBottom: '12px',
-                      fontSize: '13px'
-                    }}>
-                      <div style={{ fontWeight: '600', marginBottom: '6px', color: '#2d5f3f' }}>
-                        💰 비용 안내
-                      </div>
-                      <div style={{ display: 'grid', gap: '3px' }}>
-                        {booking.greenFee && (
-                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span>그린피</span>
-                            <span style={{ fontWeight: '600' }}>{formatCurrency(booking.greenFee)}</span>
-                          </div>
-                        )}
-                        {booking.cartFee && (
-                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span>카트비</span>
-                            <span style={{ fontWeight: '600' }}>{formatCurrency(booking.cartFee)}</span>
-                          </div>
-                        )}
-                        {booking.membershipFee && (
-                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                            <span>회비</span>
-                            <span style={{ fontWeight: '600' }}>{formatCurrency(booking.membershipFee)}</span>
-                          </div>
-                        )}
-                        <div style={{ 
-                          display: 'flex', 
-                          justifyContent: 'space-between',
-                          borderTop: '1px solid #d0d0d0',
-                          paddingTop: '3px',
-                          marginTop: '3px',
-                          fontWeight: '700',
-                          color: '#2d5f3f'
-                        }}>
-                          <span>총 금액</span>
-                          <span>{formatCurrency((booking.greenFee || 0) + (booking.cartFee || 0) + (booking.membershipFee || 0))}</span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
 
                   <div style={{ 
                     fontSize: '13px', 
@@ -498,13 +461,23 @@ function Dashboard() {
                     👥 참가자 {participants.length}명
                   </div>
 
-                  <button 
-                    onClick={() => handleJoinBooking(booking.id)}
-                    className={isJoined ? 'btn-outline' : 'btn-primary'}
-                    style={{ width: '100%' }}
-                  >
-                    {isJoined ? '참가 취소' : '참가하기'}
-                  </button>
+                  {isRegistrationClosed(booking) ? (
+                    <button 
+                      onClick={() => navigate('/score')}
+                      className='btn-primary'
+                      style={{ width: '100%' }}
+                    >
+                      🏌️ 플레이하기
+                    </button>
+                  ) : (
+                    <button 
+                      onClick={() => handleJoinBooking(booking.id)}
+                      className={isJoined ? 'btn-outline' : 'btn-primary'}
+                      style={{ width: '100%' }}
+                    >
+                      {isJoined ? '참가 취소' : '참가하기'}
+                    </button>
+                  )}
                 </div>
               );
             })
