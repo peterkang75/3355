@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
+import apiService from '../services/api';
 
 function Booking() {
   const { user, bookings, courses, addBooking, updateBooking } = useApp();
   const [showNewBooking, setShowNewBooking] = useState(false);
+  const [editingBooking, setEditingBooking] = useState(null);
   const [newBooking, setNewBooking] = useState({
     title: '',
     courseName: '',
@@ -17,6 +19,7 @@ function Booking() {
     restaurantName: '',
     restaurantAddress: ''
   });
+  const [editBookingData, setEditBookingData] = useState(null);
 
   const parseParticipants = (participants) => {
     if (!participants || !Array.isArray(participants)) return [];
@@ -61,6 +64,61 @@ function Booking() {
     setShowNewBooking(false);
   };
 
+  const handleEditBooking = (booking) => {
+    setEditingBooking(booking.id);
+    setEditBookingData({
+      title: booking.title || '',
+      courseName: booking.courseName,
+      date: booking.date,
+      time: booking.time,
+      gatheringTime: booking.gatheringTime || '',
+      greenFee: booking.greenFee || '',
+      cartFee: booking.cartFee || '',
+      membershipFee: booking.membershipFee || '',
+      registrationDeadline: booking.registrationDeadline || '',
+      restaurantName: booking.restaurantName || '',
+      restaurantAddress: booking.restaurantAddress || ''
+    });
+  };
+
+  const handleSaveBooking = async () => {
+    if (!editBookingData.courseName || !editBookingData.date || !editBookingData.time) {
+      alert('골프장, 날짜, 시간을 입력해주세요.');
+      return;
+    }
+
+    try {
+      const updatedData = {
+        ...editBookingData,
+        greenFee: parseInt(editBookingData.greenFee) || null,
+        cartFee: parseInt(editBookingData.cartFee) || null,
+        membershipFee: parseInt(editBookingData.membershipFee) || null
+      };
+
+      await updateBooking(editingBooking, updatedData);
+      alert('라운딩 정보가 수정되었습니다.');
+      setEditingBooking(null);
+      setEditBookingData(null);
+    } catch (error) {
+      console.error('라운딩 수정 실패:', error);
+      alert('라운딩 수정 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleDeleteBooking = async (bookingId) => {
+    if (!confirm('정말로 이 라운딩을 삭제하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      await apiService.deleteBooking(bookingId);
+      window.location.reload();
+    } catch (error) {
+      console.error('라운딩 삭제 실패:', error);
+      alert('라운딩 삭제 중 오류가 발생했습니다.');
+    }
+  };
+
   const handleJoinBooking = (bookingId) => {
     const booking = bookings.find(b => b.id === bookingId);
     const participants = parseParticipants(booking.participants);
@@ -91,6 +149,140 @@ function Booking() {
     return `$${parseInt(amount).toLocaleString()}`;
   };
 
+  const renderBookingForm = (data, setData, onSubmit, submitText) => (
+    <>
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+        라운딩 이름
+      </label>
+      <input
+        type="text"
+        placeholder="라운딩 이름 (예: 1월 정기 라운딩)"
+        value={data.title}
+        onChange={(e) => setData({ ...data, title: e.target.value })}
+        style={{ marginBottom: '12px' }}
+      />
+
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+        골프장 *
+      </label>
+      <select
+        value={data.courseName}
+        onChange={(e) => setData({ ...data, courseName: e.target.value })}
+        style={{ marginBottom: '12px' }}
+      >
+        <option value="">골프장 선택</option>
+        {courses.map(course => (
+          <option key={course.id} value={course.name}>
+            {course.name}
+          </option>
+        ))}
+      </select>
+
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+        라운딩 날짜 *
+      </label>
+      <input
+        type="date"
+        value={data.date}
+        onChange={(e) => setData({ ...data, date: e.target.value })}
+        style={{ marginBottom: '12px' }}
+      />
+
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+        라운딩 시간 *
+      </label>
+      <input
+        type="time"
+        value={data.time}
+        onChange={(e) => setData({ ...data, time: e.target.value })}
+        style={{ marginBottom: '12px' }}
+      />
+
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+        집결시간
+      </label>
+      <input
+        type="time"
+        placeholder="집결시간"
+        value={data.gatheringTime}
+        onChange={(e) => setData({ ...data, gatheringTime: e.target.value })}
+        style={{ marginBottom: '12px' }}
+      />
+
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+        그린피
+      </label>
+      <input
+        type="number"
+        inputMode="numeric"
+        placeholder="그린피 금액 ($)"
+        value={data.greenFee}
+        onChange={(e) => setData({ ...data, greenFee: e.target.value })}
+        style={{ marginBottom: '12px' }}
+      />
+
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+        카트비
+      </label>
+      <input
+        type="number"
+        inputMode="numeric"
+        placeholder="카트비 금액 ($)"
+        value={data.cartFee}
+        onChange={(e) => setData({ ...data, cartFee: e.target.value })}
+        style={{ marginBottom: '12px' }}
+      />
+
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+        회비
+      </label>
+      <input
+        type="number"
+        inputMode="numeric"
+        placeholder="회비 금액 ($)"
+        value={data.membershipFee}
+        onChange={(e) => setData({ ...data, membershipFee: e.target.value })}
+        style={{ marginBottom: '12px' }}
+      />
+
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+        접수 마감날짜
+      </label>
+      <input
+        type="date"
+        value={data.registrationDeadline}
+        onChange={(e) => setData({ ...data, registrationDeadline: e.target.value })}
+        style={{ marginBottom: '12px' }}
+      />
+
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+        회식장소
+      </label>
+      <input
+        type="text"
+        placeholder="회식장소 이름"
+        value={data.restaurantName}
+        onChange={(e) => setData({ ...data, restaurantName: e.target.value })}
+        style={{ marginBottom: '12px' }}
+      />
+
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+        회식 주소
+      </label>
+      <input
+        type="text"
+        placeholder="회식장소 주소"
+        value={data.restaurantAddress}
+        onChange={(e) => setData({ ...data, restaurantAddress: e.target.value })}
+        style={{ marginBottom: '16px' }}
+      />
+
+      <button onClick={onSubmit} className="btn-primary">
+        {submitText}
+      </button>
+    </>
+  );
+
   return (
     <div>
       <div className="header">
@@ -118,135 +310,25 @@ function Booking() {
             <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
               새 라운딩 만들기
             </h3>
-            
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
-              라운딩 이름
-            </label>
-            <input
-              type="text"
-              placeholder="라운딩 이름 (예: 1월 정기 라운딩)"
-              value={newBooking.title}
-              onChange={(e) => setNewBooking({ ...newBooking, title: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
+            {renderBookingForm(newBooking, setNewBooking, handleCreateBooking, '라운딩 생성')}
+          </div>
+        )}
 
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
-              골프장 *
-            </label>
-            <select
-              value={newBooking.courseName}
-              onChange={(e) => setNewBooking({ ...newBooking, courseName: e.target.value })}
-              style={{ marginBottom: '12px' }}
+        {editingBooking && editBookingData && (
+          <div className="card" style={{ marginBottom: '16px' }}>
+            <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
+              ✏️ 라운딩 정보 수정
+            </h3>
+            {renderBookingForm(editBookingData, setEditBookingData, handleSaveBooking, '수정 완료')}
+            <button 
+              onClick={() => {
+                setEditingBooking(null);
+                setEditBookingData(null);
+              }}
+              className="btn-outline"
+              style={{ marginTop: '8px' }}
             >
-              <option value="">골프장 선택</option>
-              {courses.map(course => (
-                <option key={course.id} value={course.name}>
-                  {course.name}
-                </option>
-              ))}
-            </select>
-
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
-              라운딩 날짜 *
-            </label>
-            <input
-              type="date"
-              value={newBooking.date}
-              onChange={(e) => setNewBooking({ ...newBooking, date: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
-
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
-              라운딩 시간 *
-            </label>
-            <input
-              type="time"
-              value={newBooking.time}
-              onChange={(e) => setNewBooking({ ...newBooking, time: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
-
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
-              집결시간
-            </label>
-            <input
-              type="time"
-              placeholder="집결시간"
-              value={newBooking.gatheringTime}
-              onChange={(e) => setNewBooking({ ...newBooking, gatheringTime: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
-
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
-              그린피
-            </label>
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="그린피 금액 ($)"
-              value={newBooking.greenFee}
-              onChange={(e) => setNewBooking({ ...newBooking, greenFee: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
-
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
-              카트비
-            </label>
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="카트비 금액 ($)"
-              value={newBooking.cartFee}
-              onChange={(e) => setNewBooking({ ...newBooking, cartFee: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
-
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
-              회비
-            </label>
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="회비 금액 ($)"
-              value={newBooking.membershipFee}
-              onChange={(e) => setNewBooking({ ...newBooking, membershipFee: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
-
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
-              접수 마감날짜
-            </label>
-            <input
-              type="date"
-              value={newBooking.registrationDeadline}
-              onChange={(e) => setNewBooking({ ...newBooking, registrationDeadline: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
-
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
-              회식장소
-            </label>
-            <input
-              type="text"
-              placeholder="회식장소 이름"
-              value={newBooking.restaurantName}
-              onChange={(e) => setNewBooking({ ...newBooking, restaurantName: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
-
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
-              회식 주소
-            </label>
-            <input
-              type="text"
-              placeholder="회식장소 주소"
-              value={newBooking.restaurantAddress}
-              onChange={(e) => setNewBooking({ ...newBooking, restaurantAddress: e.target.value })}
-              style={{ marginBottom: '16px' }}
-            />
-
-            <button onClick={handleCreateBooking} className="btn-primary">
-              라운딩 생성
+              취소
             </button>
           </div>
         )}
@@ -387,12 +469,50 @@ function Booking() {
                   ))}
                 </div>
 
-                <button 
-                  onClick={() => handleJoinBooking(booking.id)}
-                  className={isJoined ? 'btn-outline' : 'btn-primary'}
-                >
-                  {isJoined ? '참가 취소' : '참가하기'}
-                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button 
+                    onClick={() => handleJoinBooking(booking.id)}
+                    className={isJoined ? 'btn-outline' : 'btn-primary'}
+                    style={{ flex: 1 }}
+                  >
+                    {isJoined ? '참가 취소' : '참가하기'}
+                  </button>
+                  
+                  {user.isAdmin && (
+                    <>
+                      <button 
+                        onClick={() => handleEditBooking(booking)}
+                        style={{
+                          padding: '12px 16px',
+                          background: '#3a7d54',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        ✏️ 수정
+                      </button>
+                      <button 
+                        onClick={() => handleDeleteBooking(booking.id)}
+                        style={{
+                          padding: '12px 16px',
+                          background: '#e53e3e',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        🗑️ 삭제
+                      </button>
+                    </>
+                  )}
+                </div>
               </div>
             );
           })
