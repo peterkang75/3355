@@ -476,7 +476,7 @@ function Booking() {
               marginBottom: '16px'
             }}>
               <div style={{ fontWeight: '600', marginBottom: '8px', color: '#2d5f3f' }}>💰 비용 안내</div>
-              <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
+              <div style={{ fontSize: '14px', lineHeight: '1.6', textAlign: 'right' }}>
                 {booking.greenFee && <div>그린피: {formatCurrency(booking.greenFee)}</div>}
                 {booking.cartFee && <div>카트비: {formatCurrency(booking.cartFee)}</div>}
                 {booking.membershipFee && <div>회비: {formatCurrency(booking.membershipFee)}</div>}
@@ -484,7 +484,7 @@ function Booking() {
                   <div style={{ 
                     marginTop: '8px', 
                     paddingTop: '8px', 
-                    borderTop: '2px solid #2d5f3f',
+                    borderTop: '1px solid #2d5f3f',
                     fontWeight: '700',
                     color: '#2d5f3f'
                   }}>
