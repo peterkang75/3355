@@ -115,20 +115,30 @@ npm run db:studio    # Prisma Studio 열기 (GUI 데이터베이스 관리)
 ```
 
 ## 최근 변경사항 (2025-11-07)
-- **PostgreSQL 데이터베이스 전환 완료** ✅
-  - 구글 시트 완전 제거
-  - Prisma ORM 설정 및 마이그레이션 완료
-  - Express API 엔드포인트 구현 (CRUD for all tables)
-  - 프론트엔드 API 서비스 통합
-  - 개발/프로덕션 환경 분리 완료
-  
-- **이전 변경사항**:
-  - 프로젝트 초기 설정
-  - 모든 주요 기능 UI 구현
-  - 게시판 답글 기능 추가
-  - 스코어 입력 화면 완성 (첨부 이미지 디자인 참조)
-  - 모바일 네비게이션 구현
-  - 관리자 권한 관리 기능 추가
+
+### PostgreSQL 마이그레이션 완료 ✅
+- **구글 시트 완전 제거**: 모든 외부 서비스 의존성 제거
+- **Prisma ORM 설정**: 자동 ID 생성 (cuid) 지원
+- **완전한 CRUD API**: 모든 테이블에 대한 생성, 조회, 수정, 삭제 엔드포인트
+- **서버 기반 Toggle 엔드포인트**: Race condition 방지를 위한 서버 측 토글 로직
+  - PATCH /api/members/:id/toggle-admin
+  - PATCH /api/members/:id/toggle-active
+- **AppContext 완전 동기화**: 모든 Admin mutation이 refreshMembers() 호출
+- **단일 진실 소스**: PostgreSQL 데이터베이스가 모든 데이터의 유일한 소스
+
+### 아키텍처 개선
+- **자동 ID 생성**: Prisma cuid()로 충돌 없는 고유 ID 생성
+- **상태 동기화 패턴**: Admin 컴포넌트가 모든 변경 후 AppContext 새로고침
+- **Race Condition 방지**: 서버가 현재 값을 읽고 토글하여 stale state 문제 해결
+- **에러 핸들링**: 모든 API 호출에 try-catch 및 사용자 피드백
+
+### 이전 변경사항
+- 프로젝트 초기 설정
+- 모든 주요 기능 UI 구현
+- 게시판 답글 기능 추가
+- 스코어 입력 화면 완성 (첨부 이미지 디자인 참조)
+- 모바일 네비게이션 구현
+- 관리자 권한 관리 기능 추가
 
 ## API 엔드포인트
 
@@ -137,28 +147,36 @@ npm run db:studio    # Prisma Studio 열기 (GUI 데이터베이스 관리)
 - POST /api/members - 회원 생성
 - PUT /api/members/:id - 회원 정보 수정
 - DELETE /api/members/:id - 회원 삭제
+- **PATCH /api/members/:id/toggle-admin** - 관리자 권한 토글 (서버 측)
+- **PATCH /api/members/:id/toggle-active** - 활성 상태 토글 (서버 측)
 
 ### Posts
 - GET /api/posts - 모든 게시글 조회
 - POST /api/posts - 게시글 생성
 - PUT /api/posts/:id - 게시글 수정
+- DELETE /api/posts/:id - 게시글 삭제
 
 ### Bookings
 - GET /api/bookings - 모든 예약 조회
 - POST /api/bookings - 예약 생성
 - PUT /api/bookings/:id - 예약 수정
+- DELETE /api/bookings/:id - 예약 삭제
 
 ### Fees
 - GET /api/fees - 모든 회비 조회
 - POST /api/fees - 회비 생성
+- DELETE /api/fees/:id - 회비 삭제
 
 ### Scores
+- GET /api/scores - 모든 스코어 조회
 - GET /api/scores/:userId - 사용자별 스코어 조회
 - POST /api/scores - 스코어 생성
+- DELETE /api/scores/:id - 스코어 삭제
 
 ### Courses
 - GET /api/courses - 모든 골프장 조회
 - POST /api/courses - 골프장 생성
+- DELETE /api/courses/:id - 골프장 삭제
 
 ## 환경 변수
 - DATABASE_URL: PostgreSQL 데이터베이스 연결 문자열 (자동 설정)
