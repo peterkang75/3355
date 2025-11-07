@@ -46,17 +46,23 @@ model Post {
 }
 
 model Booking {
-  id           String   @id @default(cuid())
-  courseName   String
-  date         String
-  time         String
-  organizerId  String
-  organizer    Member   @relation(fields: [organizerId], references: [id], onDelete: Cascade)
-  participants String[]
-  status       String   @default("pending")
-  notes        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id                   String   @id @default(cuid())
+  courseName           String
+  date                 String
+  time                 String
+  organizerId          String
+  organizer            Member   @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  participants         String[]
+  status               String   @default("pending")
+  notes                String?
+  greenFee             Int?
+  cartFee              Int?
+  membershipFee        Int?
+  registrationDeadline String?
+  restaurantName       String?
+  restaurantAddress    String?
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
   @@index([organizerId])
   @@index([date])
