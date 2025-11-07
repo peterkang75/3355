@@ -4,6 +4,11 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: hidden;
+  width: 100%;
+}
+
 :root {
   --primary-green: #2d5f3f;
   --secondary-green: #3a7d54;
@@ -21,6 +26,8 @@ body {
   background: var(--bg-green);
   color: var(--text-dark);
   overflow-x: hidden;
+  width: 100%;
+  position: relative;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -31,6 +38,8 @@ body {
   margin: 0 auto;
   background: white;
   box-shadow: 0 0 20px var(--shadow);
+  overflow-x: hidden;
+  position: relative;
 }
 
 .container {

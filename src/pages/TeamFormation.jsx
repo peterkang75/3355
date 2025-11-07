@@ -102,7 +102,8 @@ function TeamFormation() {
     setTouchedElement(e.currentTarget);
     e.currentTarget.style.opacity = '0.3';
     
-    // 페이지 스크롤 방지
+    // 페이지 스크롤 방지 (가로/세로 모두)
+    document.documentElement.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
     
     // 드래그 프리뷰 생성
@@ -159,6 +160,7 @@ function TeamFormation() {
     });
     
     // 페이지 스크롤 복원
+    document.documentElement.style.overflow = '';
     document.body.style.overflow = '';
     
     // 드래그 프리뷰 제거
