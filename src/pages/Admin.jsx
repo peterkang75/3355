@@ -12,7 +12,7 @@ function Admin() {
   const [newCourse, setNewCourse] = useState({
     name: '',
     address: '',
-    holePars: Array(18).fill(4)
+    holePars: Array(18).fill('')
   });
   const [showNewMemberForm, setShowNewMemberForm] = useState(false);
   const [newMember, setNewMember] = useState({
@@ -244,7 +244,7 @@ function Admin() {
       setNewCourse({ 
         name: '', 
         address: '',
-        holePars: Array(18).fill(4)
+        holePars: Array(18).fill('')
       });
       
       if (refreshCourses) {
@@ -258,7 +258,7 @@ function Admin() {
 
   const handleHoleParChange = (holeIndex, value) => {
     const newHolePars = [...newCourse.holePars];
-    newHolePars[holeIndex] = parseInt(value) || 3;
+    newHolePars[holeIndex] = value === '' ? '' : parseInt(value) || '';
     setNewCourse({ ...newCourse, holePars: newHolePars });
   };
 
@@ -1179,6 +1179,7 @@ function Admin() {
                       <input
                         type="number"
                         inputMode="numeric"
+                        placeholder="PAR"
                         value={par}
                         onChange={(e) => handleHoleParChange(index, e.target.value)}
                         min="3"
@@ -1205,7 +1206,7 @@ function Admin() {
                   fontWeight: '600',
                   textAlign: 'center'
                 }}>
-                  총 PAR: {newCourse.holePars.reduce((sum, par) => sum + par, 0)}
+                  총 PAR: {newCourse.holePars.reduce((sum, par) => sum + (parseInt(par) || 0), 0)}
                 </div>
               </div>
 
