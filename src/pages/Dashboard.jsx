@@ -98,6 +98,16 @@ function Dashboard() {
     return participant.name;
   };
 
+  const getDaysUntilDeadline = (deadlineDate) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const deadline = new Date(deadlineDate);
+    deadline.setHours(0, 0, 0, 0);
+    const diffTime = deadline - today;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
   const announcedBookings = bookings.filter(b => b.isAnnounced);
 
   return (
@@ -420,6 +430,17 @@ function Dashboard() {
                   {booking.gatheringTime && (
                     <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
                       🕐 집결시간: {booking.gatheringTime}
+                    </div>
+                  )}
+
+                  {booking.registrationDeadline && (
+                    <div style={{ fontSize: '14px', marginBottom: '8px' }}>
+                      <span style={{ fontWeight: '700', color: '#e53e3e' }}>
+                        🔔 {new Date(booking.registrationDeadline).toLocaleDateString('ko-KR')} 마감
+                      </span>
+                      <span style={{ color: '#666', marginLeft: '8px' }}>
+                        (마감까지 {getDaysUntilDeadline(booking.registrationDeadline)}일 남았습니다)
+                      </span>
                     </div>
                   )}
                   
