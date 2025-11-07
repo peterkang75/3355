@@ -423,8 +423,15 @@ function Dashboard() {
                   background: 'var(--bg-green)',
                   padding: '16px',
                   borderRadius: '8px',
-                  marginBottom: '12px'
-                }}>
+                  marginBottom: '12px',
+                  cursor: 'pointer',
+                  transition: 'transform 0.2s',
+                  position: 'relative'
+                }}
+                onClick={() => navigate('/booking')}
+                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                >
                   {booking.title && (
                     <div style={{ fontSize: '13px', color: '#2d5f3f', fontWeight: '600', marginBottom: '4px' }}>
                       {booking.title}
@@ -466,7 +473,10 @@ function Dashboard() {
 
                   {isRegistrationClosed(booking) ? (
                     <button 
-                      onClick={() => navigate('/score')}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate('/score');
+                      }}
                       className='btn-primary'
                       style={{ width: '100%' }}
                     >
@@ -474,7 +484,10 @@ function Dashboard() {
                     </button>
                   ) : (
                     <button 
-                      onClick={() => handleJoinBooking(booking.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleJoinBooking(booking.id);
+                      }}
                       className={isJoined ? 'btn-outline' : 'btn-primary'}
                       style={{ width: '100%' }}
                     >
