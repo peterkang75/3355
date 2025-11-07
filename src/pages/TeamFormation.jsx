@@ -96,14 +96,19 @@ function TeamFormation() {
   // 터치 이벤트 핸들러
   const handleTouchStart = (e, member, fromTeamIndex, fromSlotIndex) => {
     e.preventDefault();
+    e.stopPropagation();
     setDraggedMember({ member, fromTeamIndex, fromSlotIndex });
     setTouchedElement(e.currentTarget);
     e.currentTarget.style.opacity = '0.5';
+    
+    // 페이지 스크롤 방지
+    document.body.style.overflow = 'hidden';
   };
 
   const handleTouchMove = (e) => {
     if (!draggedMember) return;
     e.preventDefault();
+    e.stopPropagation();
     
     const touch = e.touches[0];
     const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -121,6 +126,7 @@ function TeamFormation() {
   const handleTouchEnd = (e) => {
     if (!draggedMember) return;
     e.preventDefault();
+    e.stopPropagation();
     
     const touch = e.changedTouches[0];
     const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -134,6 +140,9 @@ function TeamFormation() {
     document.querySelectorAll('.drop-zone').forEach(el => {
       el.style.backgroundColor = '';
     });
+    
+    // 페이지 스크롤 복원
+    document.body.style.overflow = '';
     
     if (elementBelow && elementBelow.classList.contains('drop-zone')) {
       const targetType = elementBelow.getAttribute('data-drop-type');
@@ -393,7 +402,11 @@ function TeamFormation() {
                     fontWeight: '600',
                     color: 'var(--primary-green)',
                     userSelect: 'none',
-                    touchAction: 'none'
+                    WebkitUserSelect: 'none',
+                    MozUserSelect: 'none',
+                    msUserSelect: 'none',
+                    touchAction: 'none',
+                    WebkitTouchCallout: 'none'
                   }}
                 >
                   {getParticipantDisplayName(member)}
@@ -441,6 +454,11 @@ function TeamFormation() {
                     fontWeight: '600',
                     cursor: member ? 'grab' : 'default',
                     userSelect: 'none',
+                    WebkitUserSelect: 'none',
+                    MozUserSelect: 'none',
+                    msUserSelect: 'none',
+                    touchAction: member ? 'none' : 'auto',
+                    WebkitTouchCallout: 'none',
                     transition: 'all 0.2s'
                   }}
                   draggable={!!member}
