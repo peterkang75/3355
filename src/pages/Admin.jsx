@@ -85,9 +85,7 @@ function Admin() {
       return;
     }
 
-    const lastSixDigits = newMember.phone.slice(-6);
     const member = {
-      id: lastSixDigits,
       ...newMember,
       balance: 0
     };
@@ -96,34 +94,35 @@ function Admin() {
     console.log('📤 데이터베이스에 저장 시도:', member);
     
     try {
-      await apiService.createMember(member);
-      console.log('✅ 데이터베이스에 저장 완료');
+      const createdMember = await apiService.createMember(member);
+      console.log('✅ 데이터베이스에 저장 완료, 생성된 ID:', createdMember.id);
+      
+      const updatedMembers = [...members, createdMember];
+      setMembers(updatedMembers);
+      localStorage.setItem('golfMembers', JSON.stringify(updatedMembers));
+      console.log('✅ localStorage 업데이트 완료:', updatedMembers.length, '명');
+      
+      setNewMember({ 
+        name: '', 
+        nickname: '', 
+        phone: '', 
+        club: '', 
+        handicap: '', 
+        golflinkNumber: '', 
+        clubMemberNumber: '', 
+        photo: '', 
+        gender: '', 
+        birthYear: '', 
+        region: '', 
+        isClubMember: '', 
+        isAdmin: false 
+      });
+      setShowNewMemberForm(false);
+      alert('회원이 추가되었습니다!');
     } catch (error) {
       console.error('❌ 데이터베이스 저장 실패:', error);
+      alert('회원 추가 중 오류가 발생했습니다. 다시 시도해주세요.');
     }
-
-    const updatedMembers = [...members, member];
-    setMembers(updatedMembers);
-    localStorage.setItem('golfMembers', JSON.stringify(updatedMembers));
-    console.log('✅ localStorage 업데이트 완료:', updatedMembers.length, '명');
-    
-    setNewMember({ 
-      name: '', 
-      nickname: '', 
-      phone: '', 
-      club: '', 
-      handicap: '', 
-      golflinkNumber: '', 
-      clubMemberNumber: '', 
-      photo: '', 
-      gender: '', 
-      birthYear: '', 
-      region: '', 
-      isClubMember: '', 
-      isAdmin: false 
-    });
-    setShowNewMemberForm(false);
-    alert('회원이 추가되었습니다!');
   };
 
   const handleToggleAdmin = async (memberId) => {

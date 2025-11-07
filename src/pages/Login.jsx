@@ -1,10 +1,10 @@
-import React, { useState, useContext } from 'react';
-import { AppContext } from '../contexts/AppContext';
+import React, { useState } from 'react';
+import { useApp } from '../contexts/AppContext';
 import logoImage from '../assets/logo.jpeg';
 import apiService from '../services/api';
 
 function Login({ onLogin }) {
-  const { courses, members, refreshMembers } = useContext(AppContext);
+  const { courses, members, refreshMembers } = useApp();
   const [phoneLastSix, setPhoneLastSix] = useState('');
   const [error, setError] = useState('');
   const [showSignup, setShowSignup] = useState(false);
@@ -63,9 +63,7 @@ function Login({ onLogin }) {
       return;
     }
 
-    const lastSixDigits = newMember.phone.slice(-6);
     const userData = {
-      id: lastSixDigits,
       ...newMember,
       isAdmin: false,
       balance: 0
@@ -102,7 +100,7 @@ function Login({ onLogin }) {
       clubMemberNumber: '',
       photo: ''
     });
-    setPhoneLastSix(lastSixDigits);
+    setPhoneLastSix('');
   };
 
   return (
