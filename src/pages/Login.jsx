@@ -165,6 +165,7 @@ function Login({ onLogin }) {
             </label>
             <input
               type="text"
+              inputMode="numeric"
               value={phoneLastSix}
               onChange={(e) => setPhoneLastSix(e.target.value.replace(/\D/g, '').slice(0, 6))}
               placeholder="예: 123456"
@@ -232,6 +233,7 @@ function Login({ onLogin }) {
             />
             <input
               type="tel"
+              inputMode="numeric"
               placeholder="전화번호 (예: 0100 123 456)"
               value={newMember.phone.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3')}
               onChange={(e) => {
@@ -333,6 +335,7 @@ function Login({ onLogin }) {
             </div>
             <input
               type="number"
+              inputMode="numeric"
               placeholder="출생연도 (예: 1990)"
               value={newMember.birthYear}
               onChange={(e) => setNewMember({ ...newMember, birthYear: e.target.value })}
@@ -388,6 +391,7 @@ function Login({ onLogin }) {
                 </select>
                 <input
                   type="text"
+                  inputMode="numeric"
                   placeholder="Golflink Number (선택)"
                   value={newMember.golflinkNumber}
                   onChange={(e) => setNewMember({ ...newMember, golflinkNumber: e.target.value })}
@@ -395,6 +399,7 @@ function Login({ onLogin }) {
                 />
                 <input
                   type="text"
+                  inputMode="numeric"
                   placeholder="클럽 회원번호 (선택)"
                   value={newMember.clubMemberNumber}
                   onChange={(e) => setNewMember({ ...newMember, clubMemberNumber: e.target.value })}
@@ -402,6 +407,7 @@ function Login({ onLogin }) {
                 />
                 <input
                   type="number"
+                  inputMode="numeric"
                   placeholder="핸디 (선택)"
                   value={newMember.handicap}
                   onChange={(e) => setNewMember({ ...newMember, handicap: e.target.value })}
