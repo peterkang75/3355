@@ -93,6 +93,34 @@ function RoundingManagement() {
 
           <div style={{ display: 'grid', gap: '12px' }}>
             <button
+              onClick={() => navigate(`/participant-management?id=${bookingId}`)}
+              style={{
+                padding: '20px',
+                background: 'var(--bg-green)',
+                border: '2px solid var(--primary-green)',
+                borderRadius: '8px',
+                fontSize: '16px',
+                fontWeight: '600',
+                color: 'var(--primary-green)',
+                cursor: 'pointer',
+                textAlign: 'left',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}
+            >
+              <span style={{ fontSize: '24px' }}>📋</span>
+              <div>
+                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
+                  참가자 관리
+                </div>
+                <div style={{ fontSize: '13px', color: '#666' }}>
+                  참가자 추가/삭제 및 관리
+                </div>
+              </div>
+            </button>
+
+            <button
               onClick={() => navigate(`/team-formation?id=${bookingId}`)}
               style={{
                 padding: '20px',
