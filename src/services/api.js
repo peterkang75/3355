@@ -61,6 +61,14 @@ class ApiService {
     return response.json();
   }
 
+  async deletePost(id) {
+    const response = await fetch(`${API_BASE}/posts/${id}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Failed to delete post');
+    return response.json();
+  }
+
   async fetchBookings() {
     const response = await fetch(`${API_BASE}/bookings`);
     if (!response.ok) throw new Error('Failed to fetch bookings');
@@ -87,6 +95,14 @@ class ApiService {
     return response.json();
   }
 
+  async deleteBooking(id) {
+    const response = await fetch(`${API_BASE}/bookings/${id}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Failed to delete booking');
+    return response.json();
+  }
+
   async fetchFees() {
     const response = await fetch(`${API_BASE}/fees`);
     if (!response.ok) throw new Error('Failed to fetch fees');
@@ -100,6 +116,24 @@ class ApiService {
       body: JSON.stringify(feeData)
     });
     if (!response.ok) throw new Error('Failed to create fee');
+    return response.json();
+  }
+
+  async updateFee(id, feeData) {
+    const response = await fetch(`${API_BASE}/fees/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(feeData)
+    });
+    if (!response.ok) throw new Error('Failed to update fee');
+    return response.json();
+  }
+
+  async deleteFee(id) {
+    const response = await fetch(`${API_BASE}/fees/${id}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Failed to delete fee');
     return response.json();
   }
 
@@ -119,6 +153,24 @@ class ApiService {
     return response.json();
   }
 
+  async updateScore(id, scoreData) {
+    const response = await fetch(`${API_BASE}/scores/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(scoreData)
+    });
+    if (!response.ok) throw new Error('Failed to update score');
+    return response.json();
+  }
+
+  async deleteScore(id) {
+    const response = await fetch(`${API_BASE}/scores/${id}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Failed to delete score');
+    return response.json();
+  }
+
   async fetchCourses() {
     const response = await fetch(`${API_BASE}/courses`);
     if (!response.ok) throw new Error('Failed to fetch courses');
@@ -132,6 +184,24 @@ class ApiService {
       body: JSON.stringify(courseData)
     });
     if (!response.ok) throw new Error('Failed to create course');
+    return response.json();
+  }
+
+  async updateCourse(id, courseData) {
+    const response = await fetch(`${API_BASE}/courses/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(courseData)
+    });
+    if (!response.ok) throw new Error('Failed to update course');
+    return response.json();
+  }
+
+  async deleteCourse(id) {
+    const response = await fetch(`${API_BASE}/courses/${id}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Failed to delete course');
     return response.json();
   }
 }

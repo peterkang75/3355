@@ -92,6 +92,18 @@ router.put('/posts/:id', async (req, res) => {
   }
 });
 
+router.delete('/posts/:id', async (req, res) => {
+  try {
+    await prisma.post.delete({
+      where: { id: req.params.id }
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting post:', error);
+    res.status(500).json({ error: 'Failed to delete post' });
+  }
+});
+
 router.get('/bookings', async (req, res) => {
   try {
     const bookings = await prisma.booking.findMany({
@@ -132,6 +144,18 @@ router.put('/bookings/:id', async (req, res) => {
   }
 });
 
+router.delete('/bookings/:id', async (req, res) => {
+  try {
+    await prisma.booking.delete({
+      where: { id: req.params.id }
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting booking:', error);
+    res.status(500).json({ error: 'Failed to delete booking' });
+  }
+});
+
 router.get('/fees', async (req, res) => {
   try {
     const fees = await prisma.fee.findMany({
@@ -153,6 +177,31 @@ router.post('/fees', async (req, res) => {
   } catch (error) {
     console.error('Error creating fee:', error);
     res.status(500).json({ error: 'Failed to create fee' });
+  }
+});
+
+router.put('/fees/:id', async (req, res) => {
+  try {
+    const fee = await prisma.fee.update({
+      where: { id: req.params.id },
+      data: req.body
+    });
+    res.json(fee);
+  } catch (error) {
+    console.error('Error updating fee:', error);
+    res.status(500).json({ error: 'Failed to update fee' });
+  }
+});
+
+router.delete('/fees/:id', async (req, res) => {
+  try {
+    await prisma.fee.delete({
+      where: { id: req.params.id }
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting fee:', error);
+    res.status(500).json({ error: 'Failed to delete fee' });
   }
 });
 
@@ -181,6 +230,31 @@ router.post('/scores', async (req, res) => {
   }
 });
 
+router.put('/scores/:id', async (req, res) => {
+  try {
+    const score = await prisma.score.update({
+      where: { id: req.params.id },
+      data: req.body
+    });
+    res.json(score);
+  } catch (error) {
+    console.error('Error updating score:', error);
+    res.status(500).json({ error: 'Failed to update score' });
+  }
+});
+
+router.delete('/scores/:id', async (req, res) => {
+  try {
+    await prisma.score.delete({
+      where: { id: req.params.id }
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting score:', error);
+    res.status(500).json({ error: 'Failed to delete score' });
+  }
+});
+
 router.get('/courses', async (req, res) => {
   try {
     const courses = await prisma.course.findMany();
@@ -200,6 +274,31 @@ router.post('/courses', async (req, res) => {
   } catch (error) {
     console.error('Error creating course:', error);
     res.status(500).json({ error: 'Failed to create course' });
+  }
+});
+
+router.put('/courses/:id', async (req, res) => {
+  try {
+    const course = await prisma.course.update({
+      where: { id: req.params.id },
+      data: req.body
+    });
+    res.json(course);
+  } catch (error) {
+    console.error('Error updating course:', error);
+    res.status(500).json({ error: 'Failed to update course' });
+  }
+});
+
+router.delete('/courses/:id', async (req, res) => {
+  try {
+    await prisma.course.delete({
+      where: { id: req.params.id }
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting course:', error);
+    res.status(500).json({ error: 'Failed to delete course' });
   }
 });
 
