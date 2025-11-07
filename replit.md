@@ -25,8 +25,10 @@
 
 ### 4. 라운딩 관리 (구 부킹)
 - 관리자가 라운딩 생성
+- 라운딩 이름 입력 (선택)
 - 골프장 드롭다운 선택 (등록된 골프장 목록)
 - 날짜, 시간 입력
+- 집결시간 입력 (선택)
 - 비용 정보 입력: 그린피, 카트비, 회비
 - 접수 마감날짜 설정
 - 회식 정보: 회식장소, 회식 주소
@@ -78,7 +80,7 @@
 - id, title, content, authorId, createdAt
 
 ### Bookings (라운딩)
-- id, courseName, date, time, organizerId, participants
+- id, title, courseName, date, time, gatheringTime, organizerId, participants
 - greenFee, cartFee, membershipFee (비용 정보)
 - registrationDeadline (접수 마감날짜)
 - restaurantName, restaurantAddress (회식 정보)
@@ -122,6 +124,17 @@ npm run db:studio    # Prisma Studio 열기 (GUI 데이터베이스 관리)
 ```
 
 ## 최근 변경사항 (2025-11-07)
+
+### 모든 금액 달러($) 표시로 변경 ✅
+- **금액 단위 변경**: 모든 금액이 "원"에서 "$"로 변경
+- **적용 범위**: 라운딩 비용, 회비 잔액, 미수금 등 전체 금액 표시
+- **표시 형식**: $1,234 (달러 기호 앞에 표시, 천 단위 구분 쉼표)
+
+### 라운딩 이름 및 집결시간 추가 ✅
+- **라운딩 이름**: 각 라운딩에 별도 이름 지정 가능 (예: "1월 정기 라운딩")
+- **집결시간**: 라운딩 시간과 별도로 집결시간 입력
+- **데이터베이스**: Booking 모델에 title, gatheringTime 필드 추가
+- **UI 배치**: 라운딩 이름은 맨 위, 집결시간은 라운딩 시간 밑에 표시
 
 ### 라운딩(부킹) 기능 대폭 개선 ✅
 - **용어 변경**: "부킹" → "라운딩"으로 전체 변경

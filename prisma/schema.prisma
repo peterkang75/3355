@@ -47,9 +47,11 @@ model Post {
 
 model Booking {
   id                   String   @id @default(cuid())
+  title                String?
   courseName           String
   date                 String
   time                 String
+  gatheringTime        String?
   organizerId          String
   organizer            Member   @relation(fields: [organizerId], references: [id], onDelete: Cascade)
   participants         String[]

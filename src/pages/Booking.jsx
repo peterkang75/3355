@@ -5,9 +5,11 @@ function Booking() {
   const { user, bookings, courses, addBooking, updateBooking } = useApp();
   const [showNewBooking, setShowNewBooking] = useState(false);
   const [newBooking, setNewBooking] = useState({
+    title: '',
     courseName: '',
     date: '',
     time: '',
+    gatheringTime: '',
     greenFee: '',
     cartFee: '',
     membershipFee: '',
@@ -44,9 +46,11 @@ function Booking() {
 
     addBooking(booking);
     setNewBooking({
+      title: '',
       courseName: '',
       date: '',
       time: '',
+      gatheringTime: '',
       greenFee: '',
       cartFee: '',
       membershipFee: '',
@@ -116,6 +120,17 @@ function Booking() {
             </h3>
             
             <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+              라운딩 이름
+            </label>
+            <input
+              type="text"
+              placeholder="라운딩 이름 (예: 1월 정기 라운딩)"
+              value={newBooking.title}
+              onChange={(e) => setNewBooking({ ...newBooking, title: e.target.value })}
+              style={{ marginBottom: '12px' }}
+            />
+
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
               골프장 *
             </label>
             <select
@@ -148,6 +163,17 @@ function Booking() {
               type="time"
               value={newBooking.time}
               onChange={(e) => setNewBooking({ ...newBooking, time: e.target.value })}
+              style={{ marginBottom: '12px' }}
+            />
+
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+              집결시간
+            </label>
+            <input
+              type="time"
+              placeholder="집결시간"
+              value={newBooking.gatheringTime}
+              onChange={(e) => setNewBooking({ ...newBooking, gatheringTime: e.target.value })}
               style={{ marginBottom: '12px' }}
             />
 
@@ -243,12 +269,22 @@ function Booking() {
             return (
               <div key={booking.id} className="card">
                 <div style={{ marginBottom: '16px' }}>
+                  {booking.title && (
+                    <div style={{ fontSize: '14px', color: '#2d5f3f', fontWeight: '600', marginBottom: '4px' }}>
+                      {booking.title}
+                    </div>
+                  )}
                   <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
                     {booking.courseName}
                   </h3>
                   <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>
                     📅 {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
                   </div>
+                  {booking.gatheringTime && (
+                    <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>
+                      🕐 집결시간: {booking.gatheringTime}
+                    </div>
+                  )}
                   {booking.registrationDeadline && (
                     <div style={{ fontSize: '13px', color: '#e67e22', fontWeight: '600' }}>
                       ⏰ 접수마감: {new Date(booking.registrationDeadline).toLocaleDateString('ko-KR')}
