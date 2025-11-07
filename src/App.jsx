@@ -1,5 +1,5 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { useApp } from './contexts/AppContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -10,6 +10,30 @@ import Fees from './pages/Fees';
 import MyPage from './pages/MyPage';
 import Admin from './pages/Admin';
 import Navigation from './components/Navigation';
+
+function AppRoutes({ user, logout }) {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    navigate('/');
+  }, []);
+
+  return (
+    <div className="app">
+      <Routes>
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/board" element={<Board />} />
+        <Route path="/booking" element={<Booking />} />
+        <Route path="/score" element={<ScoreEntry />} />
+        <Route path="/fees" element={<Fees />} />
+        <Route path="/mypage" element={<MyPage />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="*" element={<Navigate to="/" />} />
+      </Routes>
+      <Navigation user={user} onLogout={logout} />
+    </div>
+  );
+}
 
 function App() {
   const { user, loading, login, logout } = useApp();
@@ -24,19 +48,7 @@ function App() {
 
   return (
     <Router>
-      <div className="app">
-        <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/board" element={<Board />} />
-          <Route path="/booking" element={<Booking />} />
-          <Route path="/score" element={<ScoreEntry />} />
-          <Route path="/fees" element={<Fees />} />
-          <Route path="/mypage" element={<MyPage />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-        <Navigation user={user} onLogout={logout} />
-      </div>
+      <AppRoutes user={user} logout={logout} />
     </Router>
   );
 }
