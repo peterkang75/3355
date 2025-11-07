@@ -19,7 +19,7 @@ function Navigation({ user, onLogout }) {
       </NavLink>
       <NavLink to="/booking" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
         <span className="nav-icon">🏌️</span>
-        <span>부킹</span>
+        <span>라운딩</span>
       </NavLink>
       <NavLink to="/score" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
         <span className="nav-icon">📝</span>
