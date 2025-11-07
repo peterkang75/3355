@@ -23,12 +23,16 @@
 - 모든 회원이 댓글 작성 가능
 - 실시간 댓글 알림
 
-### 4. 골프장 부킹 관리
-- 관리자가 골프장 부킹 생성
-- 날짜, 시간, 골프장 정보 입력
+### 4. 라운딩 관리 (구 부킹)
+- 관리자가 라운딩 생성
+- 골프장 드롭다운 선택 (등록된 골프장 목록)
+- 날짜, 시간 입력
+- 비용 정보 입력: 그린피, 카트비, 회비
+- 접수 마감날짜 설정
+- 회식 정보: 회식장소, 회식 주소
 - 회원들이 참가/취소 버튼으로 참여
 - 실시간 참가자 명단 확인
-- 최대 인원 설정 가능
+- 비용 안내 및 총 금액 자동 계산
 
 ### 5. 스코어 입력
 - 홀별 타수 입력 (18홀)
@@ -73,8 +77,11 @@
 ### Posts (게시글)
 - id, title, content, authorId, createdAt
 
-### Bookings (예약)
+### Bookings (라운딩)
 - id, courseName, date, time, organizerId, participants
+- greenFee, cartFee, membershipFee (비용 정보)
+- registrationDeadline (접수 마감날짜)
+- restaurantName, restaurantAddress (회식 정보)
 
 ### Fees (회비)
 - id, title, amount, type, dueDate, appliesTo, status
@@ -115,6 +122,26 @@ npm run db:studio    # Prisma Studio 열기 (GUI 데이터베이스 관리)
 ```
 
 ## 최근 변경사항 (2025-11-07)
+
+### 라운딩(부킹) 기능 대폭 개선 ✅
+- **용어 변경**: "부킹" → "라운딩"으로 전체 변경
+- **골프장 드롭다운**: 등록된 골프장 목록에서 선택 가능
+- **비용 정보 입력**: 그린피, 카트비, 회비 항목 추가
+  - 각 비용 개별 표시
+  - 총 금액 자동 계산 및 표시
+- **접수 마감날짜**: 라운딩 참가 마감일 설정
+- **회식 정보**: 회식장소, 회식 주소 입력 및 표시
+- **데이터베이스 스키마 업데이트**: Booking 모델에 6개 필드 추가
+- **Participants 처리 개선**: JSON 문자열 배열로 안전하게 저장/파싱
+
+### PAR 입력 칸 기본값 제거 ✅
+- 골프장 등록 시 각 홀의 PAR 값에 기본값 없음
+- "PAR" placeholder 표시로 명확한 입력 안내
+
+### 골프장 즉시 삭제 기능 ✅
+- **페이지 새로고침 없이 즉시 반영**: refreshCourses() 함수 추가
+- 골프장 추가/편집/삭제 시 즉시 UI 업데이트
+- window.location.reload() 제거로 부드러운 UX 제공
 
 ### 골프장 홀별 PAR 입력 기능 추가 ✅
 - **각 홀별 PAR 설정**: 1-18번 홀 각각의 PAR 값 입력 가능
@@ -174,11 +201,11 @@ npm run db:studio    # Prisma Studio 열기 (GUI 데이터베이스 관리)
 - PUT /api/posts/:id - 게시글 수정
 - DELETE /api/posts/:id - 게시글 삭제
 
-### Bookings
-- GET /api/bookings - 모든 예약 조회
-- POST /api/bookings - 예약 생성
-- PUT /api/bookings/:id - 예약 수정
-- DELETE /api/bookings/:id - 예약 삭제
+### Bookings (라운딩)
+- GET /api/bookings - 모든 라운딩 조회
+- POST /api/bookings - 라운딩 생성
+- PUT /api/bookings/:id - 라운딩 수정
+- DELETE /api/bookings/:id - 라운딩 삭제
 
 ### Fees
 - GET /api/fees - 모든 회비 조회
