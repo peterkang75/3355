@@ -191,16 +191,26 @@ function TeamFormation() {
     // 드래그 프리뷰 제거
     setDragPreview(null);
     
+    // 드롭 영역을 찾았는지 확인
+    let dropped = false;
+    
     if (elementBelow && elementBelow.classList.contains('drop-zone')) {
       const targetType = elementBelow.getAttribute('data-drop-type');
       
       if (targetType === 'unassigned') {
         handleDropToUnassignedLogic();
+        dropped = true;
       } else if (targetType === 'team') {
         const teamIndex = parseInt(elementBelow.getAttribute('data-team-index'));
         const slotIndex = parseInt(elementBelow.getAttribute('data-slot-index'));
         handleDropToTeamLogic(teamIndex, slotIndex);
+        dropped = true;
       }
+    }
+    
+    // 드롭 영역이 아닌 곳에 떨어뜨린 경우 - 아무것도 하지 않음 (원래 위치 유지)
+    if (!dropped) {
+      console.log('⚠️ 드롭 영역이 아닌 곳에 떨어뜨렸습니다. 원래 위치를 유지합니다.');
     }
     
     setDraggedMember(null);
