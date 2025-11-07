@@ -8,7 +8,7 @@ datasource db {
 }
 
 model Member {
-  id               String   @id
+  id               String   @id @default(cuid())
   name             String
   phone            String   @unique
   nickname         String?
