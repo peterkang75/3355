@@ -16,6 +16,17 @@ function Booking() {
     restaurantAddress: ''
   });
 
+  const parseParticipants = (participants) => {
+    if (!participants || !Array.isArray(participants)) return [];
+    return participants.map(p => {
+      try {
+        return typeof p === 'string' ? JSON.parse(p) : p;
+      } catch {
+        return p;
+      }
+    });
+  };
+
   const handleCreateBooking = () => {
     if (!newBooking.courseName || !newBooking.date || !newBooking.time) {
       alert('골프장, 날짜, 시간을 입력해주세요.');
@@ -23,13 +34,12 @@ function Booking() {
     }
 
     const booking = {
-      id: Date.now(),
       ...newBooking,
-      greenFee: parseInt(newBooking.greenFee) || 0,
-      cartFee: parseInt(newBooking.cartFee) || 0,
-      membershipFee: parseInt(newBooking.membershipFee) || 0,
-      participants: [{ name: user.name, phone: user.phone }],
-      createdBy: user.name
+      organizerId: user.id,
+      greenFee: parseInt(newBooking.greenFee) || null,
+      cartFee: parseInt(newBooking.cartFee) || null,
+      membershipFee: parseInt(newBooking.membershipFee) || null,
+      participants: [JSON.stringify({ name: user.name, phone: user.phone })]
     };
 
     addBooking(booking);
@@ -49,15 +59,25 @@ function Booking() {
 
   const handleJoinBooking = (bookingId) => {
     const booking = bookings.find(b => b.id === bookingId);
-    const alreadyJoined = booking.participants.some(p => p.phone === user.phone);
+    const participants = parseParticipants(booking.participants);
+    const alreadyJoined = participants.some(p => p.phone === user.phone);
     
     if (alreadyJoined) {
+      const updatedParticipants = participants
+        .filter(p => p.phone !== user.phone)
+        .map(p => JSON.stringify(p));
+      
       updateBooking(bookingId, {
-        participants: booking.participants.filter(p => p.phone !== user.phone)
+        participants: updatedParticipants
       });
     } else {
+      const updatedParticipants = [
+        ...participants,
+        { name: user.name, phone: user.phone }
+      ].map(p => JSON.stringify(p));
+      
       updateBooking(bookingId, {
-        participants: [...booking.participants, { name: user.name, phone: user.phone }]
+        participants: updatedParticipants
       });
     }
   };
@@ -217,7 +237,8 @@ function Booking() {
           </div>
         ) : (
           bookings.map(booking => {
-            const isJoined = booking.participants.some(p => p.phone === user.phone);
+            const participants = parseParticipants(booking.participants);
+            const isJoined = participants.some(p => p.phone === user.phone);
 
             return (
               <div key={booking.id} className="card">
@@ -315,9 +336,9 @@ function Booking() {
                     fontWeight: '600',
                     marginBottom: '8px'
                   }}>
-                    <span>참가자 ({booking.participants.length}명)</span>
+                    <span>참가자 ({participants.length}명)</span>
                   </div>
-                  {booking.participants.map((participant, idx) => (
+                  {participants.map((participant, idx) => (
                     <div key={idx} style={{ 
                       padding: '8px',
                       background: 'white',
