@@ -64,6 +64,7 @@ model Booking {
   restaurantName       String?
   restaurantAddress    String?
   isAnnounced          Boolean  @default(false)
+  teams                Json?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
