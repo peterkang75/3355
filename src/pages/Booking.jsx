@@ -476,19 +476,37 @@ function Booking() {
               marginBottom: '16px'
             }}>
               <div style={{ fontWeight: '600', marginBottom: '8px', color: '#2d5f3f' }}>💰 비용 안내</div>
-              <div style={{ fontSize: '14px', lineHeight: '1.6', textAlign: 'right' }}>
-                {booking.greenFee && <div>그린피: {formatCurrency(booking.greenFee)}</div>}
-                {booking.cartFee && <div>카트비: {formatCurrency(booking.cartFee)}</div>}
-                {booking.membershipFee && <div>회비: {formatCurrency(booking.membershipFee)}</div>}
+              <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
+                {booking.greenFee && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <span>그린피</span>
+                    <span>{formatCurrency(booking.greenFee)}</span>
+                  </div>
+                )}
+                {booking.cartFee && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <span>카트비</span>
+                    <span>{formatCurrency(booking.cartFee)}</span>
+                  </div>
+                )}
+                {booking.membershipFee && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <span>회비</span>
+                    <span>{formatCurrency(booking.membershipFee)}</span>
+                  </div>
+                )}
                 {totalFee > 0 && (
                   <div style={{ 
+                    display: 'flex',
+                    justifyContent: 'space-between',
                     marginTop: '8px', 
                     paddingTop: '8px', 
                     borderTop: '1px solid #2d5f3f',
                     fontWeight: '700',
                     color: '#2d5f3f'
                   }}>
-                    총 금액: {formatCurrency(totalFee)}
+                    <span>총 금액</span>
+                    <span>{formatCurrency(totalFee)}</span>
                   </div>
                 )}
               </div>
