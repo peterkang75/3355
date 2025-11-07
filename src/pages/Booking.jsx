@@ -648,7 +648,7 @@ function Booking() {
             </button>
             {user.isAdmin && (
               <button
-                onClick={() => navigate('/score')}
+                onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
                 style={{
                   padding: '8px 16px',
                   background: '#3a7d54',
@@ -661,7 +661,7 @@ function Booking() {
                   whiteSpace: 'nowrap'
                 }}
               >
-                📝 회원 스코어 기록
+                ⚙️ 라운딩 관리
               </button>
             )}
           </>

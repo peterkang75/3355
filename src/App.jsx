@@ -9,6 +9,7 @@ import ScoreEntry from './pages/ScoreEntry';
 import Fees from './pages/Fees';
 import MyPage from './pages/MyPage';
 import Admin from './pages/Admin';
+import RoundingManagement from './pages/RoundingManagement';
 import Navigation from './components/Navigation';
 
 function AppRoutes({ user, logout }) {
@@ -28,6 +29,7 @@ function AppRoutes({ user, logout }) {
         <Route path="/fees" element={<Fees />} />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/rounding-management" element={<RoundingManagement />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       <Navigation user={user} onLogout={logout} />
