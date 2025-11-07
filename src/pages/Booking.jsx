@@ -45,7 +45,7 @@ function Booking() {
       greenFee: parseInt(newBooking.greenFee) || null,
       cartFee: parseInt(newBooking.cartFee) || null,
       membershipFee: parseInt(newBooking.membershipFee) || null,
-      participants: [JSON.stringify({ name: user.name, phone: user.phone })]
+      participants: [JSON.stringify({ name: user.name, nickname: user.nickname, phone: user.phone })]
     };
 
     addBooking(booking);
@@ -147,7 +147,7 @@ function Booking() {
     } else {
       const updatedParticipants = [
         ...participants,
-        { name: user.name, phone: user.phone }
+        { name: user.name, nickname: user.nickname, phone: user.phone }
       ].map(p => JSON.stringify(p));
       
       updateBooking(bookingId, {
@@ -545,7 +545,7 @@ function Booking() {
                       marginBottom: '4px',
                       fontSize: '14px'
                     }}>
-                      {participant.name}
+                      {participant.nickname || participant.name}
                     </div>
                   ))}
                 </div>

@@ -75,7 +75,7 @@ function Dashboard() {
     } else {
       const updatedParticipants = [
         ...participants,
-        { name: user.name, phone: user.phone }
+        { name: user.name, nickname: user.nickname, phone: user.phone }
       ].map(p => JSON.stringify(p));
       
       updateBooking(bookingId, {
