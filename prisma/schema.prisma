@@ -1,0 +1,104 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Member {
+  id               String   @id
+  name             String
+  phone            String   @unique
+  nickname         String?
+  gender           String?
+  birthYear        String?
+  region           String?
+  isClubMember     String?
+  club             String?
+  handicap         String?
+  golflinkNumber   String?
+  clubMemberNumber String?
+  isAdmin          Boolean  @default(false)
+  balance          Int      @default(0)
+  photo            String?
+  isActive         Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  posts    Post[]
+  bookings Booking[]
+  scores   Score[]
+  fees     Fee[]     @relation("MemberFees")
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  authorId  String
+  author    Member   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([authorId])
+}
+
+model Booking {
+  id           String   @id @default(cuid())
+  courseName   String
+  date         String
+  time         String
+  organizerId  String
+  organizer    Member   @relation(fields: [organizerId], references: [id], onDelete: Cascade)
+  participants String[]
+  status       String   @default("pending")
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([organizerId])
+  @@index([date])
+}
+
+model Fee {
+  id          String   @id @default(cuid())
+  title       String
+  amount      Int
+  type        String
+  date        String
+  dueDate     String?
+  appliesTo   String
+  status      String   @default("pending")
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members Member[] @relation("MemberFees")
+
+  @@index([date])
+  @@index([status])
+}
+
+model Score {
+  id         String   @id @default(cuid())
+  userId     String
+  user       Member   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date       String
+  courseName String
+  totalScore Int
+  coursePar  Int      @default(72)
+  holes      String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId])
+  @@index([date])
+}
+
+model Course {
+  id      String @id @default(cuid())
+  name    String @unique
+  address String
+}

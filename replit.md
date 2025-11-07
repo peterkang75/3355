@@ -8,8 +8,8 @@
 
 ### 1. 로그인 시스템
 - 전화번호 끝 6자리로 간단한 로그인
-- 관리자 계정: 123456
-- 일반 회원: 아무 6자리 숫자
+- 데이터베이스 기반 회원 인증
+- 비활성화된 계정 차단 기능
 
 ### 2. 대시보드
 - 개인화된 정보 표시
@@ -58,11 +58,32 @@
 - 지출 항목 관리
 
 ## 기술 스택
-- React 19
-- Vite 7
-- React Router DOM
-- 로컬 스토리지 (현재)
-- 향후: Google Sheets API 연동 예정
+- **Frontend**: React 19, Vite 7, React Router DOM
+- **Backend**: Node.js, Express
+- **Database**: PostgreSQL (Neon-hosted)
+- **ORM**: Prisma
+- **개발 도구**: Concurrently (개발 서버 동시 실행)
+
+## 데이터베이스 구조
+
+### Members (회원)
+- id, name, phone, nickname, gender, birthYear, region
+- club, handicap, isAdmin, balance, photo, isActive
+
+### Posts (게시글)
+- id, title, content, authorId, createdAt
+
+### Bookings (예약)
+- id, courseName, date, time, organizerId, participants
+
+### Fees (회비)
+- id, title, amount, type, dueDate, appliesTo, status
+
+### Scores (스코어)
+- id, userId, date, courseName, totalScore, coursePar, holes
+
+### Courses (골프장)
+- id, name, address
 
 ## 디자인
 - 모바일 최적화
@@ -71,33 +92,80 @@
 - 최대 너비 600px
 
 ## 개발 서버
+
+### 개발 모드
 ```bash
 npm run dev
 ```
-포트 5000에서 실행
+- Vite: 포트 5000 (프론트엔드)
+- Express API: 포트 3001 (백엔드)
+- Vite 프록시를 통해 `/api` 요청이 Express로 전달됨
 
-## 최근 변경사항 (2025-11-06)
-- 프로젝트 초기 설정
-- 모든 주요 기능 UI 구현
-- 게시판 답글 기능 추가
-- 스코어 입력 화면 완성 (첨부 이미지 디자인 참조)
-- 모바일 네비게이션 구현
-- **Google Sheets 양방향 동기화 완료** ✅
-  - 회원, 게시글, 예약, 회비 데이터 자동 동기화
-  - 백그라운드 동기화로 빠른 앱 로딩
-- **관리자 권한 관리 기능 추가** ✅
-  - 관리자 권한 부여/해제
-  - 회원 비활성화/활성화
-  - 회원 삭제
-  - 구글 시트와 실시간 동기화
+### 프로덕션 모드
+```bash
+npm run build
+npm run server
+```
+- Express가 포트 5000에서 빌드된 정적 파일 + API 제공
 
-## Google Apps Script 설정
-- Script URL: 환경 변수로 관리 (VITE_GOOGLE_SCRIPT_URL)
-- Sheet ID: 1cK-aw6_3O70SxYPZvXkdV0kMsV427IMvElbq5PgXNzE
-- 지원 기능: read, write, update, delete
+## 데이터베이스 명령어
+```bash
+npm run db:push      # 스키마 변경사항을 DB에 적용
+npm run db:studio    # Prisma Studio 열기 (GUI 데이터베이스 관리)
+```
+
+## 최근 변경사항 (2025-11-07)
+- **PostgreSQL 데이터베이스 전환 완료** ✅
+  - 구글 시트 완전 제거
+  - Prisma ORM 설정 및 마이그레이션 완료
+  - Express API 엔드포인트 구현 (CRUD for all tables)
+  - 프론트엔드 API 서비스 통합
+  - 개발/프로덕션 환경 분리 완료
+  
+- **이전 변경사항**:
+  - 프로젝트 초기 설정
+  - 모든 주요 기능 UI 구현
+  - 게시판 답글 기능 추가
+  - 스코어 입력 화면 완성 (첨부 이미지 디자인 참조)
+  - 모바일 네비게이션 구현
+  - 관리자 권한 관리 기능 추가
+
+## API 엔드포인트
+
+### Members
+- GET /api/members - 모든 회원 조회
+- POST /api/members - 회원 생성
+- PUT /api/members/:id - 회원 정보 수정
+- DELETE /api/members/:id - 회원 삭제
+
+### Posts
+- GET /api/posts - 모든 게시글 조회
+- POST /api/posts - 게시글 생성
+- PUT /api/posts/:id - 게시글 수정
+
+### Bookings
+- GET /api/bookings - 모든 예약 조회
+- POST /api/bookings - 예약 생성
+- PUT /api/bookings/:id - 예약 수정
+
+### Fees
+- GET /api/fees - 모든 회비 조회
+- POST /api/fees - 회비 생성
+
+### Scores
+- GET /api/scores/:userId - 사용자별 스코어 조회
+- POST /api/scores - 스코어 생성
+
+### Courses
+- GET /api/courses - 모든 골프장 조회
+- POST /api/courses - 골프장 생성
+
+## 환경 변수
+- DATABASE_URL: PostgreSQL 데이터베이스 연결 문자열 (자동 설정)
+- NODE_ENV: production/development
 
 ## 다음 단계
 - [ ] 핸디캡 자동 계산 알고리즘 구현
-- [ ] 골프장 데이터베이스 관리
 - [ ] 실시간 알림 기능
 - [ ] 회비 자동 계산 및 리포트
+- [ ] 이미지 최적화 및 압축

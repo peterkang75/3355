@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../contexts/AppContext';
-import googleSheetsService from '../services/googleSheets';
+import apiService from '../services/api';
 
 function Admin() {
   const { user, addFee, courses, addCourse } = useApp();
@@ -93,13 +93,13 @@ function Admin() {
     };
 
     console.log('🔵 Admin: 회원 추가 시작');
-    console.log('📤 구글 시트에 저장 시도:', member);
+    console.log('📤 데이터베이스에 저장 시도:', member);
     
     try {
-      await googleSheetsService.saveMember(member);
-      console.log('✅ 구글 시트에 저장 완료');
+      await apiService.createMember(member);
+      console.log('✅ 데이터베이스에 저장 완료');
     } catch (error) {
-      console.error('❌ 구글 시트 저장 실패:', error);
+      console.error('❌ 데이터베이스 저장 실패:', error);
     }
 
     const updatedMembers = [...members, member];
@@ -139,7 +139,7 @@ function Admin() {
     
     const member = updatedMembers.find(m => m.id === memberId);
     if (member) {
-      await googleSheetsService.updateMember(member);
+      await apiService.updateMember(member.id, member);
     }
     
     setShowPermissionMenu(null);
@@ -159,7 +159,7 @@ function Admin() {
     
     const member = updatedMembers.find(m => m.id === memberId);
     if (member) {
-      await googleSheetsService.updateMember(member);
+      await apiService.updateMember(member.id, member);
     }
     
     setShowPermissionMenu(null);
@@ -177,7 +177,7 @@ function Admin() {
     setMembers(updatedMembers);
     localStorage.setItem('golfMembers', JSON.stringify(updatedMembers));
     
-    await googleSheetsService.deleteMember(memberId);
+    await apiService.deleteMember(memberId);
     
     alert('회원이 삭제되었습니다.');
   };

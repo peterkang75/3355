@@ -9,7 +9,7 @@ requiredFiles = [".replit", "replit.nix", "package.json", "package-lock.json"]
 channel = "stable-24_11"
 
 [deployment]
-run = ["node", "index.js"]
+run = ["npm", "run", "server"]
 deploymentTarget = "autoscale"
 ignorePorts = false
 build = ["npm", "run", "build"]
@@ -33,25 +33,29 @@ args = "dev"
 name = "dev"
 author = "agent"
 
+[workflows.workflow.metadata]
+outputType = "webview"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
 
-[workflows.workflow.metadata]
-outputType = "webview"
+[[ports]]
+localPort = 3001
+externalPort = 3002
 
 [[ports]]
 localPort = 5000
 externalPort = 80
 
 [[ports]]
-localPort = 5001
-externalPort = 3002
-
-[[ports]]
 localPort = 5002
 externalPort = 3001
+
+[[ports]]
+localPort = 35271
+externalPort = 6000
 
 [[ports]]
 localPort = 37407

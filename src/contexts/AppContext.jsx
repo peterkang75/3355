@@ -1,5 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import googleSheetsService from '../services/googleSheets';
+import apiService from '../services/api';
 import { calculateHandicap } from '../utils/handicap';
 
 export const AppContext = createContext();
@@ -11,83 +11,85 @@ export function AppProvider({ children }) {
   const [bookings, setBookings] = useState([]);
   const [scores, setScores] = useState([]);
   const [fees, setFees] = useState([]);
-  const [courses, setCourses] = useState([
-    { id: 1, name: 'The Australian Golf Club', address: 'Kensington' },
-    { id: 2, name: 'Concord Golf Club', address: 'Concord' },
-    { id: 3, name: 'St Michael\'s Golf Club', address: 'Little Bay' }
-  ]);
+  const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const initApp = async () => {
       const savedUser = localStorage.getItem('golfUser');
-      const savedMembers = localStorage.getItem('golfMembers');
-      const savedPosts = localStorage.getItem('golfPosts');
-      const savedBookings = localStorage.getItem('golfBookings');
-      const savedFees = localStorage.getItem('golfFees');
-      const savedCourses = localStorage.getItem('golfCourses');
-
-      if (savedMembers) {
-        const parsedMembers = JSON.parse(savedMembers);
-        const uniqueMembers = parsedMembers.filter((member, index, self) => 
-          index === self.findIndex((m) => m.id === member.id)
-        );
-        setMembers(uniqueMembers);
-      }
-      if (savedPosts) setPosts(JSON.parse(savedPosts));
-      if (savedBookings) setBookings(JSON.parse(savedBookings));
-      if (savedFees) setFees(JSON.parse(savedFees));
-      if (savedCourses) setCourses(JSON.parse(savedCourses));
 
       if (savedUser) {
         const userData = JSON.parse(savedUser);
         setUser(userData);
-        loadUserData(userData.id);
       }
       
-      setLoading(false);
-
-      console.log('🔄 백그라운드에서 구글 시트 동기화 시작...');
-      
       try {
-        const [membersData, postsData, bookingsData, feesData] = await Promise.all([
-          googleSheetsService.getAllMembers().catch(err => { console.error('Members 로드 실패:', err); return []; }),
-          googleSheetsService.getAllPosts().catch(err => { console.error('Posts 로드 실패:', err); return []; }),
-          googleSheetsService.getAllBookings().catch(err => { console.error('Bookings 로드 실패:', err); return []; }),
-          googleSheetsService.getAllFees().catch(err => { console.error('Fees 로드 실패:', err); return []; })
+        console.log('🔄 데이터베이스에서 데이터 로드 중...');
+        
+        const [membersData, postsData, bookingsData, feesData, coursesData] = await Promise.all([
+          apiService.fetchMembers().catch(err => { console.error('Members 로드 실패:', err); return []; }),
+          apiService.fetchPosts().catch(err => { console.error('Posts 로드 실패:', err); return []; }),
+          apiService.fetchBookings().catch(err => { console.error('Bookings 로드 실패:', err); return []; }),
+          apiService.fetchFees().catch(err => { console.error('Fees 로드 실패:', err); return []; }),
+          apiService.fetchCourses().catch(err => { console.error('Courses 로드 실패:', err); return []; })
         ]);
 
-        if (membersData && membersData.length > 0) {
-          const uniqueMembers = membersData.filter((member, index, self) => 
-            index === self.findIndex((m) => m.id === member.id)
-          );
-          console.log('✅ 회원 데이터 동기화:', uniqueMembers.length, '명 (중복 제거 전:', membersData.length, ')');
-          console.log('📋 회원 데이터:', uniqueMembers);
-          setMembers(uniqueMembers);
-          localStorage.setItem('golfMembers', JSON.stringify(uniqueMembers));
+        if (membersData) {
+          console.log('✅ 회원 데이터 로드:', membersData.length, '명');
+          setMembers(membersData);
+          localStorage.setItem('golfMembers', JSON.stringify(membersData));
         }
 
-        if (postsData && postsData.length > 0) {
-          console.log('✅ 게시글 데이터 동기화:', postsData.length, '개');
+        if (postsData) {
+          console.log('✅ 게시글 데이터 로드:', postsData.length, '개');
           setPosts(postsData);
           localStorage.setItem('golfPosts', JSON.stringify(postsData));
         }
 
-        if (bookingsData && bookingsData.length > 0) {
-          console.log('✅ 예약 데이터 동기화:', bookingsData.length, '개');
+        if (bookingsData) {
+          console.log('✅ 예약 데이터 로드:', bookingsData.length, '개');
           setBookings(bookingsData);
           localStorage.setItem('golfBookings', JSON.stringify(bookingsData));
         }
 
-        if (feesData && feesData.length > 0) {
-          console.log('✅ 회비 데이터 동기화:', feesData.length, '개');
+        if (feesData) {
+          console.log('✅ 회비 데이터 로드:', feesData.length, '개');
           setFees(feesData);
           localStorage.setItem('golfFees', JSON.stringify(feesData));
         }
 
-        console.log('✅ 구글 시트 동기화 완료!');
+        if (coursesData && coursesData.length > 0) {
+          console.log('✅ 골프장 데이터 로드:', coursesData.length, '개');
+          setCourses(coursesData);
+        } else {
+          const defaultCourses = [
+            { name: 'The Australian Golf Club', address: 'Kensington' },
+            { name: 'Concord Golf Club', address: 'Concord' },
+            { name: 'St Michael\'s Golf Club', address: 'Little Bay' }
+          ];
+          
+          for (const course of defaultCourses) {
+            try {
+              await apiService.createCourse(course);
+            } catch (err) {
+              console.error('코스 생성 실패:', err);
+            }
+          }
+          
+          const refreshedCourses = await apiService.fetchCourses();
+          setCourses(refreshedCourses);
+        }
+
+        if (savedUser) {
+          const userData = JSON.parse(savedUser);
+          await loadUserData(userData.id);
+        }
+
+        console.log('✅ 데이터 로드 완료!');
       } catch (error) {
-        console.error('❌ 구글 시트 동기화 실패:', error);
+        console.error('❌ 데이터 로드 실패:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -95,12 +97,19 @@ export function AppProvider({ children }) {
   }, []);
 
   const loadUserData = async (userId) => {
-    const userScores = await googleSheetsService.getScores(userId);
-    setScores(userScores);
-    
-    if (userScores.length > 0) {
-      const handicap = calculateHandicap(userScores);
-      updateUser({ handicap });
+    try {
+      const userScores = await apiService.fetchScores(userId);
+      setScores(userScores);
+      
+      if (userScores.length > 0) {
+        const handicap = calculateHandicap(userScores.map(s => ({
+          ...s,
+          holes: JSON.parse(s.holes)
+        })));
+        updateUser({ handicap });
+      }
+    } catch (error) {
+      console.error('User data load failed:', error);
     }
   };
 
@@ -123,90 +132,113 @@ export function AppProvider({ children }) {
   };
 
   const saveScore = async (scoreData) => {
-    const newScore = {
-      ...scoreData,
-      userId: user.id,
-      id: Date.now().toString(),
-      date: new Date().toISOString()
-    };
-
-    await googleSheetsService.saveScore(newScore);
-    
-    const updatedScores = [...scores, newScore];
-    setScores(updatedScores);
-
-    const newHandicap = calculateHandicap(updatedScores);
-    updateUser({ handicap: newHandicap });
-
-    return newScore;
+    try {
+      const score = await apiService.createScore({
+        ...scoreData,
+        holes: JSON.stringify(scoreData.holes)
+      });
+      
+      const newScores = [...scores, { ...score, holes: JSON.parse(score.holes) }];
+      setScores(newScores);
+      
+      const handicap = calculateHandicap(newScores);
+      updateUser({ handicap });
+      
+      return score;
+    } catch (error) {
+      console.error('Score save failed:', error);
+      throw error;
+    }
   };
 
-  const addPost = async (post) => {
-    const newPosts = [post, ...posts];
-    setPosts(newPosts);
-    localStorage.setItem('golfPosts', JSON.stringify(newPosts));
-    await googleSheetsService.savePost(post);
+  const addPost = async (postData) => {
+    try {
+      const post = await apiService.createPost(postData);
+      setPosts([post, ...posts]);
+      return post;
+    } catch (error) {
+      console.error('Post creation failed:', error);
+      throw error;
+    }
   };
 
-  const updatePost = (postId, updates) => {
-    const newPosts = posts.map(p => p.id === postId ? { ...p, ...updates } : p);
-    setPosts(newPosts);
-    localStorage.setItem('golfPosts', JSON.stringify(newPosts));
+  const updatePost = async (postId, updates) => {
+    try {
+      const post = await apiService.updatePost(postId, updates);
+      setPosts(posts.map(p => p.id === postId ? post : p));
+      return post;
+    } catch (error) {
+      console.error('Post update failed:', error);
+      throw error;
+    }
   };
 
-  const addBooking = async (booking) => {
-    const newBookings = [booking, ...bookings];
-    setBookings(newBookings);
-    localStorage.setItem('golfBookings', JSON.stringify(newBookings));
-    await googleSheetsService.saveBooking(booking);
+  const addBooking = async (bookingData) => {
+    try {
+      const booking = await apiService.createBooking(bookingData);
+      setBookings([booking, ...bookings]);
+      return booking;
+    } catch (error) {
+      console.error('Booking creation failed:', error);
+      throw error;
+    }
   };
 
-  const updateBooking = (bookingId, updates) => {
-    const newBookings = bookings.map(b => b.id === bookingId ? { ...b, ...updates } : b);
-    setBookings(newBookings);
-    localStorage.setItem('golfBookings', JSON.stringify(newBookings));
+  const updateBooking = async (bookingId, updates) => {
+    try {
+      const booking = await apiService.updateBooking(bookingId, updates);
+      setBookings(bookings.map(b => b.id === bookingId ? booking : b));
+      return booking;
+    } catch (error) {
+      console.error('Booking update failed:', error);
+      throw error;
+    }
   };
 
-  const addFee = async (fee) => {
-    const newFees = [...fees, fee];
-    setFees(newFees);
-    localStorage.setItem('golfFees', JSON.stringify(newFees));
-    await googleSheetsService.saveFee(fee);
-    
-    const userFee = fee.appliesTo === 'all' || fee.appliesTo.includes(user.id);
-    if (userFee && fee.type === 'income') {
-      updateUser({ balance: (user.balance || 0) - fee.amount });
+  const addFee = async (feeData) => {
+    try {
+      const fee = await apiService.createFee(feeData);
+      setFees([fee, ...fees]);
+      
+      if (user && (fee.appliesTo === 'all' || fee.appliesTo.includes(user.id))) {
+        if (fee.type === 'income') {
+          updateUser({ balance: (user.balance || 0) - fee.amount });
+        }
+      }
+      
+      return fee;
+    } catch (error) {
+      console.error('Fee creation failed:', error);
+      throw error;
     }
   };
 
   const payFee = (feeId) => {
-    const newFees = fees.map(f => f.id === feeId ? { ...f, status: 'paid' } : f);
-    setFees(newFees);
-    localStorage.setItem('golfFees', JSON.stringify(newFees));
-    
     const fee = fees.find(f => f.id === feeId);
     if (fee && fee.type === 'income') {
       updateUser({ balance: (user.balance || 0) + fee.amount });
     }
   };
 
-  const addCourse = (course) => {
-    const newCourses = [...courses, course];
-    setCourses(newCourses);
-    localStorage.setItem('golfCourses', JSON.stringify(newCourses));
+  const addCourse = async (courseData) => {
+    try {
+      const course = await apiService.createCourse(courseData);
+      setCourses([...courses, course]);
+      return course;
+    } catch (error) {
+      console.error('Course creation failed:', error);
+      throw error;
+    }
   };
 
   const refreshMembers = async () => {
     try {
       console.log('🔄 회원 데이터 새로고침 중...');
-      const membersData = await googleSheetsService.getAllMembers();
-      if (membersData && membersData.length > 0) {
-        const uniqueMembers = membersData.filter((member, index, self) => 
-          index === self.findIndex((m) => m.id === member.id)
-        );
-        console.log('✅ 회원 데이터 업데이트:', uniqueMembers.length, '명');
-        setMembers(uniqueMembers);
-        localStorage.setItem('golfMembers', JSON.stringify(uniqueMembers));
+      const membersData = await apiService.fetchMembers();
+      if (membersData) {
+        console.log('✅ 회원 데이터 업데이트:', membersData.length, '명');
+        setMembers(membersData);
+        localStorage.setItem('golfMembers', JSON.stringify(membersData));
       }
     } catch (error) {
       console.error('❌ 회원 데이터 새로고침 실패:', error);

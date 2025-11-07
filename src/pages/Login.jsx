@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import { AppContext } from '../contexts/AppContext';
 import logoImage from '../assets/logo.jpeg';
-import googleSheetsService from '../services/googleSheets';
+import apiService from '../services/api';
 
 function Login({ onLogin }) {
   const { courses, members, refreshMembers } = useContext(AppContext);
@@ -71,10 +71,10 @@ function Login({ onLogin }) {
       balance: 0
     };
 
-    console.log('📤 구글 시트에 저장 시도:', userData);
+    console.log('📤 데이터베이스에 저장 시도:', userData);
     
     try {
-      const result = await googleSheetsService.saveMember(userData);
+      const result = await apiService.createMember(userData);
       console.log('✅ 저장 결과:', result);
       
       if (refreshMembers) {
