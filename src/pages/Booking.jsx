@@ -179,6 +179,15 @@ function Booking() {
     return bookingDate >= today;
   };
 
+  const isRegistrationClosed = (booking) => {
+    if (!booking.registrationDeadline) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const deadline = new Date(booking.registrationDeadline);
+    deadline.setHours(0, 0, 0, 0);
+    return today > deadline;
+  };
+
   const activeBookings = bookings.filter(b => isBookingActive(b)).sort((a, b) => new Date(a.date) - new Date(b.date));
   const completedBookings = bookings.filter(b => !isBookingActive(b)).sort((a, b) => new Date(b.date) - new Date(a.date));
 
@@ -554,22 +563,41 @@ function Booking() {
             </div>
           </div>
 
-          <button
-            onClick={() => handleJoinBooking(booking.id)}
-            style={{
-              width: '100%',
-              padding: '12px',
-              background: isJoined ? 'white' : 'var(--primary-green)',
-              color: isJoined ? 'var(--primary-green)' : 'white',
-              border: isJoined ? '2px solid var(--primary-green)' : 'none',
-              borderRadius: '6px',
-              fontSize: '16px',
-              fontWeight: '700',
-              cursor: 'pointer'
-            }}
-          >
-            {isJoined ? '참가 취소' : '참가하기'}
-          </button>
+          {isRegistrationClosed(booking) ? (
+            <button
+              onClick={() => navigate('/score')}
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: 'var(--primary-green)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '16px',
+                fontWeight: '700',
+                cursor: 'pointer'
+              }}
+            >
+              🏌️ 플레이하기
+            </button>
+          ) : (
+            <button
+              onClick={() => handleJoinBooking(booking.id)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: isJoined ? 'white' : 'var(--primary-green)',
+                color: isJoined ? 'var(--primary-green)' : 'white',
+                border: isJoined ? '2px solid var(--primary-green)' : 'none',
+                borderRadius: '6px',
+                fontSize: '16px',
+                fontWeight: '700',
+                cursor: 'pointer'
+              }}
+            >
+              {isJoined ? '참가 취소' : '참가하기'}
+            </button>
+          )}
         </div>
       );
     }
