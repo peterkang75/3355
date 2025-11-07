@@ -3,7 +3,7 @@ import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 
 function Booking() {
-  const { user, bookings, courses, addBooking, updateBooking } = useApp();
+  const { user, members, bookings, courses, addBooking, updateBooking } = useApp();
   const [showNewBooking, setShowNewBooking] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -159,6 +159,15 @@ function Booking() {
   const formatCurrency = (amount) => {
     if (!amount) return '$0';
     return `$${parseInt(amount).toLocaleString()}`;
+  };
+
+  const getParticipantDisplayName = (participant) => {
+    if (participant.nickname) return participant.nickname;
+    
+    const member = members.find(m => m.phone === participant.phone);
+    if (member && member.nickname) return member.nickname;
+    
+    return participant.name;
   };
 
   const renderBookingForm = (data, setData, onSubmit, submitText) => (
@@ -545,7 +554,7 @@ function Booking() {
                       marginBottom: '4px',
                       fontSize: '14px'
                     }}>
-                      {participant.nickname || participant.name}
+                      {getParticipantDisplayName(participant)}
                     </div>
                   ))}
                 </div>

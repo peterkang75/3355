@@ -3,7 +3,7 @@ import { useApp } from '../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 
 function Dashboard() {
-  const { user, scores, bookings, posts, addPost, updatePost, updateBooking } = useApp();
+  const { user, members, scores, bookings, posts, addPost, updatePost, updateBooking } = useApp();
   const navigate = useNavigate();
   const [showNewPost, setShowNewPost] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', content: '' });
@@ -87,6 +87,15 @@ function Dashboard() {
   const formatCurrency = (amount) => {
     if (!amount) return '$0';
     return `$${parseInt(amount).toLocaleString()}`;
+  };
+
+  const getParticipantDisplayName = (participant) => {
+    if (participant.nickname) return participant.nickname;
+    
+    const member = members.find(m => m.phone === participant.phone);
+    if (member && member.nickname) return member.nickname;
+    
+    return participant.name;
   };
 
   const announcedBookings = bookings.filter(b => b.isAnnounced);
