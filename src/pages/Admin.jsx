@@ -4,7 +4,7 @@ import apiService from '../services/api';
 
 function Admin() {
   const { user, addFee, courses, addCourse, refreshMembers, members: contextMembers } = useApp();
-  const [activeTab, setActiveTab] = useState('members');
+  const [activeTab, setActiveTab] = useState('menu');
   const [members, setMembers] = useState([]);
   const [showPermissionMenu, setShowPermissionMenu] = useState(null);
   const [showInactive, setShowInactive] = useState(false);
@@ -246,58 +246,155 @@ function Admin() {
     <div>
       <div className="header">
         <h1>관리자</h1>
-      </div>
-
-      <div style={{ 
-        background: 'white',
-        borderBottom: '1px solid var(--border-color)',
-        display: 'flex',
-        position: 'sticky',
-        top: '0',
-        zIndex: 50
-      }}>
-        <button
-          onClick={() => setActiveTab('members')}
-          style={{
-            flex: 1,
-            padding: '16px',
-            background: activeTab === 'members' ? 'var(--primary-green)' : 'transparent',
-            color: activeTab === 'members' ? 'white' : '#666',
-            borderBottom: activeTab === 'members' ? 'none' : '2px solid transparent',
-            fontWeight: activeTab === 'members' ? '600' : '400'
-          }}
-        >
-          회원 관리
-        </button>
-        <button
-          onClick={() => setActiveTab('fees')}
-          style={{
-            flex: 1,
-            padding: '16px',
-            background: activeTab === 'fees' ? 'var(--primary-green)' : 'transparent',
-            color: activeTab === 'fees' ? 'white' : '#666',
-            borderBottom: activeTab === 'fees' ? 'none' : '2px solid transparent',
-            fontWeight: activeTab === 'fees' ? '600' : '400'
-          }}
-        >
-          회비 관리
-        </button>
-        <button
-          onClick={() => setActiveTab('courses')}
-          style={{
-            flex: 1,
-            padding: '16px',
-            background: activeTab === 'courses' ? 'var(--primary-green)' : 'transparent',
-            color: activeTab === 'courses' ? 'white' : '#666',
-            borderBottom: activeTab === 'courses' ? 'none' : '2px solid transparent',
-            fontWeight: activeTab === 'courses' ? '600' : '400'
-          }}
-        >
-          골프장 관리
-        </button>
+        {activeTab !== 'menu' && (
+          <button
+            onClick={() => setActiveTab('menu')}
+            style={{
+              position: 'absolute',
+              left: '16px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              background: 'transparent',
+              border: 'none',
+              fontSize: '24px',
+              cursor: 'pointer',
+              padding: '8px'
+            }}
+          >
+            ←
+          </button>
+        )}
       </div>
 
       <div className="page-content">
+        {activeTab === 'menu' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <button
+              onClick={() => setActiveTab('members')}
+              className="card"
+              style={{
+                padding: '20px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                border: 'none',
+                background: 'white',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ fontSize: '28px' }}>👥</div>
+                <div>
+                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>
+                    회원 관리
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#666' }}>
+                    회원 정보 조회 및 수정
+                  </div>
+                </div>
+              </div>
+              <div style={{ fontSize: '24px', color: '#999' }}>›</div>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('fees')}
+              className="card"
+              style={{
+                padding: '20px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                border: 'none',
+                background: 'white',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ fontSize: '28px' }}>💰</div>
+                <div>
+                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>
+                    회비 관리
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#666' }}>
+                    회비 등록 및 납부 관리
+                  </div>
+                </div>
+              </div>
+              <div style={{ fontSize: '24px', color: '#999' }}>›</div>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('courses')}
+              className="card"
+              style={{
+                padding: '20px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                border: 'none',
+                background: 'white',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ fontSize: '28px' }}>⛳</div>
+                <div>
+                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>
+                    골프장 관리
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#666' }}>
+                    골프장 등록 및 관리
+                  </div>
+                </div>
+              </div>
+              <div style={{ fontSize: '24px', color: '#999' }}>›</div>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('settings')}
+              className="card"
+              style={{
+                padding: '20px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                border: 'none',
+                background: 'white',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ fontSize: '28px' }}>⚙️</div>
+                <div>
+                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>
+                    앱 설정
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#666' }}>
+                    앱 기본 설정 관리
+                  </div>
+                </div>
+              </div>
+              <div style={{ fontSize: '24px', color: '#999' }}>›</div>
+            </button>
+          </div>
+        )}
+
         {activeTab === 'members' && (
           <div>
             <div className="card">
@@ -990,6 +1087,129 @@ function Admin() {
                   </div>
                 ))
               )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <div>
+            <div className="card">
+              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
+                기본 설정
+              </h3>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                  클럽 이름
+                </label>
+                <input
+                  type="text"
+                  placeholder="3355 골프 클럽"
+                  defaultValue="3355 골프 클럽"
+                  style={{ marginBottom: '12px' }}
+                />
+              </div>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                  기본 PAR
+                </label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="72"
+                  defaultValue="72"
+                  style={{ marginBottom: '12px' }}
+                />
+              </div>
+            </div>
+
+            <div className="card">
+              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
+                핸디캡 설정
+              </h3>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    defaultChecked={true}
+                  />
+                  <span style={{ fontSize: '14px' }}>자동 핸디캡 계산 활성화</span>
+                </label>
+              </div>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                  핸디캡 계산 기준 라운드 수
+                </label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="10"
+                  defaultValue="10"
+                  style={{ marginBottom: '12px' }}
+                />
+              </div>
+            </div>
+
+            <div className="card">
+              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
+                알림 설정
+              </h3>
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '8px' }}>
+                  <input
+                    type="checkbox"
+                    defaultChecked={true}
+                  />
+                  <span style={{ fontSize: '14px' }}>새 게시글 알림</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '8px' }}>
+                  <input
+                    type="checkbox"
+                    defaultChecked={true}
+                  />
+                  <span style={{ fontSize: '14px' }}>부킹 변경 알림</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+                  <input
+                    type="checkbox"
+                    defaultChecked={true}
+                  />
+                  <span style={{ fontSize: '14px' }}>회비 납부 알림</span>
+                </label>
+              </div>
+            </div>
+
+            <div className="card">
+              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: '#e53e3e' }}>
+                위험 구역
+              </h3>
+              <button
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: 'white',
+                  color: '#e53e3e',
+                  border: '2px solid #e53e3e',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  marginBottom: '8px'
+                }}
+                onClick={() => {
+                  if (confirm('정말로 모든 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+                    alert('데이터 초기화 기능은 준비 중입니다.');
+                  }
+                }}
+              >
+                🗑️ 모든 데이터 초기화
+              </button>
+            </div>
+
+            <div className="card" style={{ background: 'var(--bg-green)', border: 'none' }}>
+              <div style={{ fontSize: '14px', color: '#666', textAlign: 'center' }}>
+                <div style={{ marginBottom: '8px', fontWeight: '600' }}>3355 골프 클럽</div>
+                <div>버전 1.0.0</div>
+              </div>
             </div>
           </div>
         )}
