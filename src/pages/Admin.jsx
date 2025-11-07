@@ -32,6 +32,10 @@ function Admin() {
   });
   const [editingMember, setEditingMember] = useState(null);
   const [editMemberData, setEditMemberData] = useState(null);
+  const [showCourseMenu, setShowCourseMenu] = useState(null);
+  const [editingCourse, setEditingCourse] = useState(null);
+  const [editCourseData, setEditCourseData] = useState(null);
+  const courseMenuRefs = useRef({});
 
   useEffect(() => {
     if (contextMembers) {
@@ -41,11 +45,20 @@ function Admin() {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (showPermissionMenu === null) return;
+      if (showPermissionMenu === null && showCourseMenu === null) return;
       
-      const clickedRef = menuRefs.current[showPermissionMenu];
-      if (clickedRef && !clickedRef.contains(event.target)) {
-        setShowPermissionMenu(null);
+      if (showPermissionMenu !== null) {
+        const clickedRef = menuRefs.current[showPermissionMenu];
+        if (clickedRef && !clickedRef.contains(event.target)) {
+          setShowPermissionMenu(null);
+        }
+      }
+
+      if (showCourseMenu !== null) {
+        const clickedRef = courseMenuRefs.current[showCourseMenu];
+        if (clickedRef && !clickedRef.contains(event.target)) {
+          setShowCourseMenu(null);
+        }
       }
     };
 
@@ -53,7 +66,7 @@ function Admin() {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showPermissionMenu]);
+  }, [showPermissionMenu, showCourseMenu]);
 
   const handleAddMember = async () => {
     if (!newMember.name || !newMember.phone) {
@@ -245,6 +258,65 @@ function Admin() {
     const newHolePars = [...newCourse.holePars];
     newHolePars[holeIndex] = parseInt(value) || 3;
     setNewCourse({ ...newCourse, holePars: newHolePars });
+  };
+
+  const handleEditCourse = (course) => {
+    setEditingCourse(course.id);
+    setEditCourseData({
+      name: course.name || '',
+      address: course.address || '',
+      holePars: course.holePars || Array(18).fill(4)
+    });
+    setShowCourseMenu(null);
+  };
+
+  const handleSaveCourseEdit = async () => {
+    if (!editCourseData.name) {
+      alert('골프장 이름을 입력해주세요.');
+      return;
+    }
+
+    try {
+      await apiService.updateCourse(editingCourse, editCourseData);
+      alert('골프장 정보가 수정되었습니다.');
+      
+      setEditingCourse(null);
+      setEditCourseData(null);
+      
+      window.location.reload();
+    } catch (error) {
+      console.error('❌ 골프장 정보 수정 실패:', error);
+      alert('골프장 정보 수정 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleCancelCourseEdit = () => {
+    setEditingCourse(null);
+    setEditCourseData(null);
+  };
+
+  const handleDeleteCourse = async (courseId) => {
+    if (!confirm('정말로 이 골프장을 삭제하시겠습니까?')) {
+      return;
+    }
+    
+    setShowCourseMenu(null);
+    
+    try {
+      await apiService.deleteCourse(courseId);
+      alert('골프장이 삭제되었습니다.');
+      
+      window.location.reload();
+    } catch (error) {
+      console.error('❌ 골프장 삭제 실패:', error);
+      alert('골프장 삭제 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleEditCourseHoleParChange = (holeIndex, value) => {
+    const newHolePars = [...editCourseData.holePars];
+    newHolePars[holeIndex] = parseInt(value) || 3;
+    setEditCourseData({ ...editCourseData, holePars: newHolePars });
   };
 
   if (!user.isAdmin) {
@@ -1135,6 +1207,116 @@ function Admin() {
               </button>
             </div>
 
+            {editingCourse && editCourseData && (
+              <div className="card" style={{ marginBottom: '16px' }}>
+                <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
+                  ✏️ 골프장 정보 수정
+                </h3>
+                <input
+                  type="text"
+                  placeholder="골프장 이름"
+                  value={editCourseData.name}
+                  onChange={(e) => setEditCourseData({ ...editCourseData, name: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <input
+                  type="text"
+                  placeholder="주소"
+                  value={editCourseData.address}
+                  onChange={(e) => setEditCourseData({ ...editCourseData, address: e.target.value })}
+                  style={{ marginBottom: '16px' }}
+                />
+                
+                <div style={{ marginBottom: '16px' }}>
+                  <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
+                    각 홀별 PAR 설정
+                  </h4>
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(3, 1fr)', 
+                    gap: '12px' 
+                  }}>
+                    {editCourseData.holePars.map((par, index) => (
+                      <div 
+                        key={index}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '8px',
+                          background: 'var(--bg-green)',
+                          borderRadius: '6px'
+                        }}
+                      >
+                        <label style={{ 
+                          fontSize: '14px', 
+                          fontWeight: '600',
+                          minWidth: '50px',
+                          color: '#2d5f3f'
+                        }}>
+                          {index + 1}번홀
+                        </label>
+                        <input
+                          type="number"
+                          inputMode="numeric"
+                          value={par}
+                          onChange={(e) => handleEditCourseHoleParChange(index, e.target.value)}
+                          min="3"
+                          max="6"
+                          style={{
+                            width: '50px',
+                            padding: '6px',
+                            fontSize: '14px',
+                            textAlign: 'center',
+                            border: '2px solid var(--border-color)',
+                            borderRadius: '4px'
+                          }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div style={{ 
+                    marginTop: '12px', 
+                    padding: '8px 12px',
+                    background: 'var(--primary-green)',
+                    color: 'white',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    textAlign: 'center'
+                  }}>
+                    총 PAR: {editCourseData.holePars.reduce((sum, par) => sum + par, 0)}
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={handleSaveCourseEdit}
+                    className="btn-primary"
+                    style={{ flex: 1 }}
+                  >
+                    저장
+                  </button>
+                  <button
+                    onClick={handleCancelCourseEdit}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: '#666',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    취소
+                  </button>
+                </div>
+              </div>
+            )}
+
             <div className="card">
               <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
                 등록된 골프장 ({courses.length})
@@ -1157,17 +1339,101 @@ function Admin() {
                       padding: '16px',
                       background: 'var(--bg-green)',
                       borderRadius: '8px',
-                      marginBottom: '12px'
+                      marginBottom: '12px',
+                      position: 'relative'
                     }}
                   >
-                    <div style={{ fontWeight: '700', fontSize: '16px', marginBottom: '4px' }}>
-                      {course.name}
-                    </div>
-                    {course.address && (
-                      <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
-                        📍 {course.address}
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontWeight: '700', fontSize: '16px', marginBottom: '4px' }}>
+                          {course.name}
+                        </div>
+                        {course.address && (
+                          <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
+                            📍 {course.address}
+                          </div>
+                        )}
                       </div>
-                    )}
+                      
+                      <div 
+                        ref={(el) => (courseMenuRefs.current[course.id] = el)}
+                        style={{ position: 'relative' }}
+                      >
+                        <button
+                          onClick={() => setShowCourseMenu(showCourseMenu === course.id ? null : course.id)}
+                          style={{
+                            background: 'white',
+                            border: '2px solid var(--border-color)',
+                            borderRadius: '6px',
+                            padding: '4px 8px',
+                            cursor: 'pointer',
+                            fontSize: '18px',
+                            fontWeight: '700',
+                            color: '#666',
+                            lineHeight: '1'
+                          }}
+                        >
+                          ⋮
+                        </button>
+                        
+                        {showCourseMenu === course.id && (
+                          <div
+                            style={{
+                              position: 'absolute',
+                              top: '100%',
+                              right: 0,
+                              marginTop: '4px',
+                              background: 'white',
+                              border: '1px solid var(--border-color)',
+                              borderRadius: '8px',
+                              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                              zIndex: 1000,
+                              minWidth: '150px',
+                              overflow: 'hidden'
+                            }}
+                          >
+                            <button
+                              onClick={() => handleEditCourse(course)}
+                              style={{
+                                width: '100%',
+                                padding: '12px 16px',
+                                background: 'white',
+                                border: 'none',
+                                textAlign: 'left',
+                                cursor: 'pointer',
+                                fontSize: '14px',
+                                borderBottom: '1px solid var(--border-color)',
+                                transition: 'background 0.2s'
+                              }}
+                              onMouseEnter={(e) => e.target.style.background = 'var(--bg-green)'}
+                              onMouseLeave={(e) => e.target.style.background = 'white'}
+                            >
+                              ✏️ 편집
+                            </button>
+                            <button
+                              onClick={() => handleDeleteCourse(course.id)}
+                              style={{
+                                width: '100%',
+                                padding: '12px 16px',
+                                background: 'white',
+                                border: 'none',
+                                textAlign: 'left',
+                                cursor: 'pointer',
+                                fontSize: '14px',
+                                color: '#e53e3e',
+                                fontWeight: '600',
+                                transition: 'background 0.2s'
+                              }}
+                              onMouseEnter={(e) => e.target.style.background = '#fee'}
+                              onMouseLeave={(e) => e.target.style.background = 'white'}
+                            >
+                              🗑️ 삭제
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
                     {course.holePars && (
                       <div style={{ marginTop: '12px' }}>
                         <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#2d5f3f' }}>
