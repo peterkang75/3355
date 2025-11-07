@@ -15,6 +15,8 @@ function TeamFormation() {
   const [draggedMember, setDraggedMember] = useState(null);
   const [touchedElement, setTouchedElement] = useState(null);
   const [dragPreview, setDragPreview] = useState(null);
+  const [snapshotTeams, setSnapshotTeams] = useState(null);
+  const [snapshotUnassigned, setSnapshotUnassigned] = useState(null);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -123,6 +125,11 @@ function TeamFormation() {
   const handleTouchStart = (e, member, fromTeamIndex, fromSlotIndex) => {
     e.preventDefault();
     e.stopPropagation();
+    
+    // 현재 상태 스냅샷 저장 (드롭 실패 시 복원용)
+    setSnapshotTeams(JSON.parse(JSON.stringify(teams)));
+    setSnapshotUnassigned(JSON.parse(JSON.stringify(unassigned)));
+    
     setDraggedMember({ member, fromTeamIndex, fromSlotIndex });
     setTouchedElement(e.currentTarget);
     e.currentTarget.style.opacity = '0.3';
@@ -221,14 +228,21 @@ function TeamFormation() {
       }
     }
     
-    // 드롭 영역이 아닌 곳에 떨어뜨린 경우 - 아무것도 하지 않음 (원래 위치 유지)
+    // 드롭 영역이 아닌 곳에 떨어뜨린 경우 - 스냅샷으로 복원
     if (!dropped) {
-      console.log('⚠️ 드롭 영역이 아닌 곳에 떨어뜨렸습니다. 원래 위치를 유지합니다.');
-      // State를 변경하지 않으므로 원래 위치가 유지됨
+      console.log('⚠️ 드롭 영역이 아닌 곳에 떨어뜨렸습니다. 원래 위치로 복원합니다.');
+      // 스냅샷으로 강제 복원
+      if (snapshotTeams && snapshotUnassigned) {
+        setTeams(snapshotTeams);
+        setUnassigned(snapshotUnassigned);
+        console.log('✅ 원래 상태로 복원 완료');
+      }
     }
     
     setDraggedMember(null);
     setTouchedElement(null);
+    setSnapshotTeams(null);
+    setSnapshotUnassigned(null);
   };
 
   const handleDropToUnassignedLogic = () => {
