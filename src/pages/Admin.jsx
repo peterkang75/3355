@@ -3,7 +3,7 @@ import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 
 function Admin() {
-  const { user, addFee, courses, addCourse } = useApp();
+  const { user, addFee, courses, addCourse, refreshMembers, members: contextMembers } = useApp();
   const [activeTab, setActiveTab] = useState('members');
   const [members, setMembers] = useState([]);
   const [showPermissionMenu, setShowPermissionMenu] = useState(null);
@@ -31,32 +31,10 @@ function Admin() {
   });
 
   useEffect(() => {
-    const loadMembers = () => {
-      const savedMembers = localStorage.getItem('golfMembers');
-      if (savedMembers) {
-        const parsedMembers = JSON.parse(savedMembers);
-        const uniqueMembers = parsedMembers.filter((member, index, self) => 
-          index === self.findIndex((m) => m.id === member.id)
-        );
-        console.log('📥 Admin: localStorage에서 회원 로드:', uniqueMembers.length, '명 (중복 제거 전:', parsedMembers.length, ')');
-        setMembers(uniqueMembers);
-        
-        if (uniqueMembers.length !== parsedMembers.length) {
-          localStorage.setItem('golfMembers', JSON.stringify(uniqueMembers));
-          console.log('🔧 중복 회원 제거 완료');
-        }
-      } else {
-        console.log('⚠️ Admin: localStorage에 회원 데이터 없음');
-        setMembers([
-          { id: '123456', name: '관리자', phone: '0100123456', isAdmin: true, handicap: 18, balance: 0 },
-          { id: '111111', name: '회원1', phone: '0100111111', isAdmin: false, handicap: 20, balance: -50000 },
-          { id: '222222', name: '회원2', phone: '0100222222', isAdmin: false, handicap: 15, balance: 0 }
-        ]);
-      }
-    };
-
-    loadMembers();
-  }, []);
+    if (contextMembers) {
+      setMembers(contextMembers);
+    }
+  }, [contextMembers]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -97,10 +75,10 @@ function Admin() {
       const createdMember = await apiService.createMember(member);
       console.log('✅ 데이터베이스에 저장 완료, 생성된 ID:', createdMember.id);
       
-      const updatedMembers = [...members, createdMember];
-      setMembers(updatedMembers);
-      localStorage.setItem('golfMembers', JSON.stringify(updatedMembers));
-      console.log('✅ localStorage 업데이트 완료:', updatedMembers.length, '명');
+      if (refreshMembers) {
+        await refreshMembers();
+        console.log('✅ AppContext 회원 목록 새로고침 완료');
+      }
       
       setNewMember({ 
         name: '', 
@@ -126,43 +104,45 @@ function Admin() {
   };
 
   const handleToggleAdmin = async (memberId) => {
-    const updatedMembers = members.map(m => {
-      if (m.id === memberId) {
-        return { ...m, isAdmin: !m.isAdmin };
+    const member = members.find(m => m.id === memberId);
+    if (!member) return;
+    
+    const updatedMember = { ...member, isAdmin: !member.isAdmin };
+    
+    try {
+      await apiService.updateMember(member.id, updatedMember);
+      
+      if (refreshMembers) {
+        await refreshMembers();
       }
-      return m;
-    });
-    
-    setMembers(updatedMembers);
-    localStorage.setItem('golfMembers', JSON.stringify(updatedMembers));
-    
-    const member = updatedMembers.find(m => m.id === memberId);
-    if (member) {
-      await apiService.updateMember(member.id, member);
+      
+      setShowPermissionMenu(null);
+      alert(updatedMember.isAdmin ? '관리자 권한이 부여되었습니다.' : '관리자 권한이 해제되었습니다.');
+    } catch (error) {
+      console.error('❌ 권한 변경 실패:', error);
+      alert('권한 변경 중 오류가 발생했습니다.');
     }
-    
-    setShowPermissionMenu(null);
-    alert(member.isAdmin ? '관리자 권한이 부여되었습니다.' : '관리자 권한이 해제되었습니다.');
   };
 
   const handleToggleActive = async (memberId) => {
-    const updatedMembers = members.map(m => {
-      if (m.id === memberId) {
-        return { ...m, isActive: m.isActive === false ? true : false };
+    const member = members.find(m => m.id === memberId);
+    if (!member) return;
+    
+    const updatedMember = { ...member, isActive: member.isActive === false ? true : false };
+    
+    try {
+      await apiService.updateMember(member.id, updatedMember);
+      
+      if (refreshMembers) {
+        await refreshMembers();
       }
-      return m;
-    });
-    
-    setMembers(updatedMembers);
-    localStorage.setItem('golfMembers', JSON.stringify(updatedMembers));
-    
-    const member = updatedMembers.find(m => m.id === memberId);
-    if (member) {
-      await apiService.updateMember(member.id, member);
+      
+      setShowPermissionMenu(null);
+      alert(updatedMember.isActive === false ? '회원이 비활성화되었습니다.' : '회원이 활성화되었습니다.');
+    } catch (error) {
+      console.error('❌ 상태 변경 실패:', error);
+      alert('상태 변경 중 오류가 발생했습니다.');
     }
-    
-    setShowPermissionMenu(null);
-    alert(member.isActive === false ? '회원이 비활성화되었습니다.' : '회원이 활성화되었습니다.');
   };
 
   const handleDeleteMember = async (memberId) => {
@@ -172,13 +152,19 @@ function Admin() {
     
     setShowPermissionMenu(null);
     
-    const updatedMembers = members.filter(m => m.id !== memberId);
-    setMembers(updatedMembers);
-    localStorage.setItem('golfMembers', JSON.stringify(updatedMembers));
-    
-    await apiService.deleteMember(memberId);
-    
-    alert('회원이 삭제되었습니다.');
+    try {
+      await apiService.deleteMember(memberId);
+      console.log('✅ 데이터베이스에서 회원 삭제 완료');
+      
+      if (refreshMembers) {
+        await refreshMembers();
+      }
+      
+      alert('회원이 삭제되었습니다.');
+    } catch (error) {
+      console.error('❌ 회원 삭제 실패:', error);
+      alert('회원 삭제 중 오류가 발생했습니다.');
+    }
   };
 
   const handleAddCourse = () => {
