@@ -448,7 +448,10 @@ function Dashboard() {
                         🔔 {new Date(booking.registrationDeadline).toLocaleDateString('ko-KR')} 마감
                       </span>
                       <span style={{ color: '#666', marginLeft: '8px' }}>
-                        (마감까지 {getDaysUntilDeadline(booking.registrationDeadline)}일 남았습니다)
+                        {getDaysUntilDeadline(booking.registrationDeadline) > 0 
+                          ? `(마감까지 ${getDaysUntilDeadline(booking.registrationDeadline)}일 남았습니다)`
+                          : '(마감완료)'
+                        }
                       </span>
                     </div>
                   )}
