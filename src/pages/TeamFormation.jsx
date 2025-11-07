@@ -14,6 +14,7 @@ function TeamFormation() {
   const [unassigned, setUnassigned] = useState([]);
   const [draggedMember, setDraggedMember] = useState(null);
   const [touchedElement, setTouchedElement] = useState(null);
+  const [dragPreview, setDragPreview] = useState(null);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -99,10 +100,18 @@ function TeamFormation() {
     e.stopPropagation();
     setDraggedMember({ member, fromTeamIndex, fromSlotIndex });
     setTouchedElement(e.currentTarget);
-    e.currentTarget.style.opacity = '0.5';
+    e.currentTarget.style.opacity = '0.3';
     
     // 페이지 스크롤 방지
     document.body.style.overflow = 'hidden';
+    
+    // 드래그 프리뷰 생성
+    const touch = e.touches[0];
+    setDragPreview({
+      text: getParticipantDisplayName(member),
+      x: touch.clientX,
+      y: touch.clientY
+    });
   };
 
   const handleTouchMove = (e) => {
@@ -111,6 +120,14 @@ function TeamFormation() {
     e.stopPropagation();
     
     const touch = e.touches[0];
+    
+    // 드래그 프리뷰 위치 업데이트
+    setDragPreview(prev => prev ? {
+      ...prev,
+      x: touch.clientX,
+      y: touch.clientY
+    } : null);
+    
     const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
     
     // 드롭 가능한 영역 하이라이트
@@ -143,6 +160,9 @@ function TeamFormation() {
     
     // 페이지 스크롤 복원
     document.body.style.overflow = '';
+    
+    // 드래그 프리뷰 제거
+    setDragPreview(null);
     
     if (elementBelow && elementBelow.classList.contains('drop-zone')) {
       const targetType = elementBelow.getAttribute('data-drop-type');
@@ -287,6 +307,28 @@ function TeamFormation() {
 
   return (
     <div>
+      {/* 드래그 프리뷰 */}
+      {dragPreview && (
+        <div style={{
+          position: 'fixed',
+          left: dragPreview.x - 50,
+          top: dragPreview.y - 20,
+          padding: '8px 16px',
+          background: 'var(--primary-green)',
+          color: 'white',
+          borderRadius: '6px',
+          fontSize: '14px',
+          fontWeight: '600',
+          pointerEvents: 'none',
+          zIndex: 9999,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+          transform: 'scale(1.1)',
+          opacity: 0.9
+        }}>
+          {dragPreview.text}
+        </div>
+      )}
+      
       <div className="header">
         <button 
           onClick={() => navigate(`/rounding-management?id=${bookingId}`)}
