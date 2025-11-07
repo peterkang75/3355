@@ -31,21 +31,30 @@ function TeamFormation() {
             const loadedTeams = typeof foundBooking.teams === 'string' 
               ? JSON.parse(foundBooking.teams) 
               : foundBooking.teams;
+            
+            console.log('📋 로드된 조 데이터:', loadedTeams);
+            console.log('👥 참가자 목록:', parsedParticipants);
+            
             setTeams(loadedTeams);
             
-            // 미배정 참가자 계산
+            // 미배정 참가자 계산 (null 멤버 필터링)
             const assignedPhones = loadedTeams.flatMap(team => 
-              team.members.map(m => m.phone)
+              team.members.filter(m => m !== null).map(m => m.phone)
             );
+            console.log('✅ 배정된 전화번호:', assignedPhones);
+            
             const unassignedMembers = parsedParticipants.filter(p => 
               !assignedPhones.includes(p.phone)
             );
+            console.log('📋 미배정 참가자:', unassignedMembers);
+            
             setUnassigned(unassignedMembers);
           } catch (e) {
             console.error('Failed to parse teams:', e);
             initializeTeams(parsedParticipants);
           }
         } else {
+          console.log('🆕 조 데이터 없음 - 초기화');
           initializeTeams(parsedParticipants);
         }
       }
@@ -53,14 +62,30 @@ function TeamFormation() {
   }, [bookingId, bookings]);
 
   const parseParticipants = (participants) => {
-    if (!participants || !Array.isArray(participants)) return [];
-    return participants.map(p => {
+    if (!participants || !Array.isArray(participants)) {
+      console.log('❌ 참가자 데이터가 배열이 아닙니다:', participants);
+      return [];
+    }
+    
+    console.log('🔍 원본 참가자 데이터:', participants);
+    
+    const parsed = participants.map(p => {
       try {
-        return typeof p === 'string' ? JSON.parse(p) : p;
-      } catch {
+        // 이중 인코딩된 경우 두 번 파싱
+        let result = typeof p === 'string' ? JSON.parse(p) : p;
+        if (typeof result === 'string') {
+          result = JSON.parse(result);
+        }
+        console.log('✅ 파싱 성공:', result);
+        return result;
+      } catch (e) {
+        console.log('❌ 파싱 실패:', p, e);
         return p;
       }
     });
+    
+    console.log('📋 파싱된 참가자 최종:', parsed);
+    return parsed;
   };
 
   const initializeTeams = (parsedParticipants) => {
