@@ -194,23 +194,37 @@ function TeamFormation() {
     // 드롭 영역을 찾았는지 확인
     let dropped = false;
     
-    if (elementBelow && elementBelow.classList.contains('drop-zone')) {
-      const targetType = elementBelow.getAttribute('data-drop-type');
+    if (elementBelow) {
+      // drop-zone 클래스를 가진 요소 또는 부모 요소 찾기
+      let dropZone = elementBelow;
+      let depth = 0;
+      while (dropZone && depth < 5) {
+        if (dropZone.classList && dropZone.classList.contains('drop-zone')) {
+          break;
+        }
+        dropZone = dropZone.parentElement;
+        depth++;
+      }
       
-      if (targetType === 'unassigned') {
-        handleDropToUnassignedLogic();
-        dropped = true;
-      } else if (targetType === 'team') {
-        const teamIndex = parseInt(elementBelow.getAttribute('data-team-index'));
-        const slotIndex = parseInt(elementBelow.getAttribute('data-slot-index'));
-        handleDropToTeamLogic(teamIndex, slotIndex);
-        dropped = true;
+      if (dropZone && dropZone.classList && dropZone.classList.contains('drop-zone')) {
+        const targetType = dropZone.getAttribute('data-drop-type');
+        
+        if (targetType === 'unassigned') {
+          handleDropToUnassignedLogic();
+          dropped = true;
+        } else if (targetType === 'team') {
+          const teamIndex = parseInt(dropZone.getAttribute('data-team-index'));
+          const slotIndex = parseInt(dropZone.getAttribute('data-slot-index'));
+          handleDropToTeamLogic(teamIndex, slotIndex);
+          dropped = true;
+        }
       }
     }
     
     // 드롭 영역이 아닌 곳에 떨어뜨린 경우 - 아무것도 하지 않음 (원래 위치 유지)
     if (!dropped) {
       console.log('⚠️ 드롭 영역이 아닌 곳에 떨어뜨렸습니다. 원래 위치를 유지합니다.');
+      // State를 변경하지 않으므로 원래 위치가 유지됨
     }
     
     setDraggedMember(null);
