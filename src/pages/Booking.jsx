@@ -563,41 +563,63 @@ function Booking() {
             </div>
           </div>
 
-          {isRegistrationClosed(booking) ? (
-            <button
-              onClick={() => navigate('/score')}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: 'var(--primary-green)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                fontSize: '16px',
-                fontWeight: '700',
-                cursor: 'pointer'
-              }}
-            >
-              🏌️ 플레이하기
-            </button>
-          ) : (
-            <button
-              onClick={() => handleJoinBooking(booking.id)}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: isJoined ? 'white' : 'var(--primary-green)',
-                color: isJoined ? 'var(--primary-green)' : 'white',
-                border: isJoined ? '2px solid var(--primary-green)' : 'none',
-                borderRadius: '6px',
-                fontSize: '16px',
-                fontWeight: '700',
-                cursor: 'pointer'
-              }}
-            >
-              {isJoined ? '참가 취소' : '참가하기'}
-            </button>
-          )}
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {isRegistrationClosed(booking) ? (
+              <>
+                <button
+                  onClick={() => navigate('/score')}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: 'var(--primary-green)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🏌️ 플레이하기
+                </button>
+                {user.isAdmin && (
+                  <button
+                    onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: '#3a7d54',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    ⚙️ 라운딩 관리
+                  </button>
+                )}
+              </>
+            ) : (
+              <button
+                onClick={() => handleJoinBooking(booking.id)}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: isJoined ? 'white' : 'var(--primary-green)',
+                  color: isJoined ? 'var(--primary-green)' : 'white',
+                  border: isJoined ? '2px solid var(--primary-green)' : 'none',
+                  borderRadius: '6px',
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  cursor: 'pointer'
+                }}
+              >
+                {isJoined ? '참가 취소' : '참가하기'}
+              </button>
+            )}
+          </div>
         </div>
       );
     }
@@ -629,12 +651,28 @@ function Booking() {
         </div>
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <>
+          <button
+            onClick={() => navigate('/score')}
+            style={{
+              padding: '8px 16px',
+              background: 'var(--primary-green)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '13px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              whiteSpace: 'nowrap'
+            }}
+          >
+            🏌️ 플레이하기
+          </button>
+          {user.isAdmin && isRegistrationClosed(booking) && (
             <button
-              onClick={() => navigate('/score')}
+              onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
               style={{
                 padding: '8px 16px',
-                background: 'var(--primary-green)',
+                background: '#3a7d54',
                 color: 'white',
                 border: 'none',
                 borderRadius: '6px',
@@ -644,27 +682,9 @@ function Booking() {
                 whiteSpace: 'nowrap'
               }}
             >
-              🏌️ 플레이하기
+              ⚙️ 라운딩 관리
             </button>
-            {user.isAdmin && (
-              <button
-                onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
-                style={{
-                  padding: '8px 16px',
-                  background: '#3a7d54',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                ⚙️ 라운딩 관리
-              </button>
-            )}
-          </>
+          )}
         </div>
       </div>
     );
