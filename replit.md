@@ -35,7 +35,9 @@
 - 회원들이 참가/취소 버튼으로 참여
 - 실시간 참가자 명단 확인
 - 비용 안내 및 총 금액 자동 계산
-- 관리자 전용 수정/삭제 기능
+- 관리자 전용 수정/삭제 기능 (점 3개 메뉴)
+- 공지 활성화/내리기 기능
+- 공지된 라운딩은 대시보드에 표시되어 즉시 참가 가능
 
 ### 5. 스코어 입력
 - 홀별 타수 입력 (18홀)
@@ -85,6 +87,7 @@
 - greenFee, cartFee, membershipFee (비용 정보)
 - registrationDeadline (접수 마감날짜)
 - restaurantName, restaurantAddress (회식 정보)
+- isAnnounced (공지 여부)
 
 ### Fees (회비)
 - id, title, amount, type, dueDate, appliesTo, status
@@ -125,6 +128,17 @@ npm run db:studio    # Prisma Studio 열기 (GUI 데이터베이스 관리)
 ```
 
 ## 최근 변경사항 (2025-11-07)
+
+### 라운딩 공지 기능 추가 ✅
+- **점 3개 메뉴**: 우측 상단에 드롭다운 메뉴 (수정, 삭제 기능 포함)
+- **공지 활성화/내리기 버튼**: 라운딩을 공지로 활성화하거나 내릴 수 있는 토글 버튼
+  - 공지 활성화 시 버튼이 "공지 내리기"로 변경 (오렌지색)
+  - 공지 내리기 시 버튼이 "공지 활성화"로 변경 (초록색)
+- **대시보드 공지 표시**: 공지된 라운딩이 대시보드에 카드 형태로 표시
+  - 라운딩 정보, 비용 안내, 참가자 수 표시
+  - 즉시 참가하기/참가 취소 버튼 제공
+- **데이터베이스**: Booking 모델에 isAnnounced 필드 추가
+- **API 엔드포인트**: PATCH /api/bookings/:id/toggle-announce
 
 ### 라운딩 수정/삭제 기능 추가 ✅
 - **관리자 전용 버튼**: 각 라운딩 카드에 수정/삭제 버튼 표시 (관리자만 볼 수 있음)
@@ -226,6 +240,7 @@ npm run db:studio    # Prisma Studio 열기 (GUI 데이터베이스 관리)
 - POST /api/bookings - 라운딩 생성
 - PUT /api/bookings/:id - 라운딩 수정
 - DELETE /api/bookings/:id - 라운딩 삭제
+- **PATCH /api/bookings/:id/toggle-announce** - 공지 상태 토글 (서버 측)
 
 ### Fees
 - GET /api/fees - 모든 회비 조회

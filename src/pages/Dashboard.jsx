@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
+import { useNavigate } from 'react-router-dom';
 
 function Dashboard() {
-  const { user, scores, bookings, posts, addPost, updatePost } = useApp();
+  const { user, scores, bookings, posts, addPost, updatePost, updateBooking } = useApp();
+  const navigate = useNavigate();
   const [showNewPost, setShowNewPost] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', content: '' });
   const [expandedPost, setExpandedPost] = useState(null);
@@ -45,6 +47,49 @@ function Dashboard() {
     updatePost(postId, { comments: updatedComments });
     setNewComment('');
   };
+
+  const parseParticipants = (participants) => {
+    if (!participants || !Array.isArray(participants)) return [];
+    return participants.map(p => {
+      try {
+        return typeof p === 'string' ? JSON.parse(p) : p;
+      } catch {
+        return p;
+      }
+    });
+  };
+
+  const handleJoinBooking = (bookingId) => {
+    const booking = bookings.find(b => b.id === bookingId);
+    const participants = parseParticipants(booking.participants);
+    const alreadyJoined = participants.some(p => p.phone === user.phone);
+    
+    if (alreadyJoined) {
+      const updatedParticipants = participants
+        .filter(p => p.phone !== user.phone)
+        .map(p => JSON.stringify(p));
+      
+      updateBooking(bookingId, {
+        participants: updatedParticipants
+      });
+    } else {
+      const updatedParticipants = [
+        ...participants,
+        { name: user.name, phone: user.phone }
+      ].map(p => JSON.stringify(p));
+      
+      updateBooking(bookingId, {
+        participants: updatedParticipants
+      });
+    }
+  };
+
+  const formatCurrency = (amount) => {
+    if (!amount) return '$0';
+    return `$${parseInt(amount).toLocaleString()}`;
+  };
+
+  const announcedBookings = bookings.filter(b => b.isAnnounced);
 
   return (
     <div>
@@ -300,23 +345,140 @@ function Dashboard() {
         </div>
 
         <div className="card">
-          <h3 style={{ 
-            fontSize: '16px', 
-            fontWeight: '700',
-            marginBottom: '12px',
-            color: 'var(--primary-green)'
-          }}>
-            다가오는 부킹
-          </h3>
           <div style={{ 
-            padding: '16px',
-            background: 'var(--bg-green)',
-            borderRadius: '8px',
-            textAlign: 'center',
-            color: '#666'
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            marginBottom: '12px'
           }}>
-            예정된 부킹이 없습니다
+            <h3 style={{ 
+              fontSize: '16px', 
+              fontWeight: '700',
+              color: 'var(--primary-green)'
+            }}>
+              📌 공지된 라운딩
+            </h3>
+            <button 
+              onClick={() => navigate('/booking')}
+              style={{
+                background: 'transparent',
+                color: 'var(--primary-green)',
+                padding: '4px 8px',
+                borderRadius: '4px',
+                fontSize: '13px',
+                fontWeight: '600',
+                border: 'none',
+                cursor: 'pointer',
+                textDecoration: 'underline'
+              }}
+            >
+              전체 보기
+            </button>
           </div>
+          {announcedBookings.length === 0 ? (
+            <div style={{ 
+              padding: '16px',
+              background: 'var(--bg-green)',
+              borderRadius: '8px',
+              textAlign: 'center',
+              color: '#666'
+            }}>
+              공지된 라운딩이 없습니다
+            </div>
+          ) : (
+            announcedBookings.map(booking => {
+              const participants = parseParticipants(booking.participants);
+              const isJoined = participants.some(p => p.phone === user.phone);
+              
+              return (
+                <div key={booking.id} style={{
+                  background: 'var(--bg-green)',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  marginBottom: '12px'
+                }}>
+                  {booking.title && (
+                    <div style={{ fontSize: '13px', color: '#2d5f3f', fontWeight: '600', marginBottom: '4px' }}>
+                      {booking.title}
+                    </div>
+                  )}
+                  <h4 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px' }}>
+                    {booking.courseName}
+                  </h4>
+                  <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>
+                    📅 {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
+                  </div>
+                  {booking.gatheringTime && (
+                    <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
+                      🕐 집결시간: {booking.gatheringTime}
+                    </div>
+                  )}
+                  
+                  {(booking.greenFee || booking.cartFee || booking.membershipFee) && (
+                    <div style={{
+                      background: 'white',
+                      padding: '10px',
+                      borderRadius: '6px',
+                      marginBottom: '12px',
+                      fontSize: '13px'
+                    }}>
+                      <div style={{ fontWeight: '600', marginBottom: '6px', color: '#2d5f3f' }}>
+                        💰 비용 안내
+                      </div>
+                      <div style={{ display: 'grid', gap: '3px' }}>
+                        {booking.greenFee && (
+                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span>그린피</span>
+                            <span style={{ fontWeight: '600' }}>{formatCurrency(booking.greenFee)}</span>
+                          </div>
+                        )}
+                        {booking.cartFee && (
+                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span>카트비</span>
+                            <span style={{ fontWeight: '600' }}>{formatCurrency(booking.cartFee)}</span>
+                          </div>
+                        )}
+                        {booking.membershipFee && (
+                          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <span>회비</span>
+                            <span style={{ fontWeight: '600' }}>{formatCurrency(booking.membershipFee)}</span>
+                          </div>
+                        )}
+                        <div style={{ 
+                          display: 'flex', 
+                          justifyContent: 'space-between',
+                          borderTop: '1px solid #d0d0d0',
+                          paddingTop: '3px',
+                          marginTop: '3px',
+                          fontWeight: '700',
+                          color: '#2d5f3f'
+                        }}>
+                          <span>총 금액</span>
+                          <span>{formatCurrency((booking.greenFee || 0) + (booking.cartFee || 0) + (booking.membershipFee || 0))}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{ 
+                    fontSize: '13px', 
+                    color: '#666',
+                    marginBottom: '12px'
+                  }}>
+                    👥 참가자 {participants.length}명
+                  </div>
+
+                  <button 
+                    onClick={() => handleJoinBooking(booking.id)}
+                    className={isJoined ? 'btn-outline' : 'btn-primary'}
+                    style={{ width: '100%' }}
+                  >
+                    {isJoined ? '참가 취소' : '참가하기'}
+                  </button>
+                </div>
+              );
+            })
+          )}
         </div>
 
         <div className="card">

@@ -119,6 +119,14 @@ class ApiService {
     return response.json();
   }
 
+  async toggleBookingAnnounce(id) {
+    const response = await fetch(`${API_BASE}/bookings/${id}/toggle-announce`, {
+      method: 'PATCH'
+    });
+    if (!response.ok) throw new Error('Failed to toggle booking announce status');
+    return response.json();
+  }
+
   async fetchFees() {
     const response = await fetch(`${API_BASE}/fees`);
     if (!response.ok) throw new Error('Failed to fetch fees');

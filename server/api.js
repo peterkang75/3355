@@ -200,6 +200,29 @@ router.delete('/bookings/:id', async (req, res) => {
   }
 });
 
+router.patch('/bookings/:id/toggle-announce', async (req, res) => {
+  try {
+    const booking = await prisma.booking.findUnique({
+      where: { id: req.params.id }
+    });
+    
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+    
+    const updated = await prisma.booking.update({
+      where: { id: req.params.id },
+      data: { isAnnounced: !booking.isAnnounced },
+      include: { organizer: true }
+    });
+    
+    res.json(updated);
+  } catch (error) {
+    console.error('Error toggling announce status:', error);
+    res.status(500).json({ error: 'Failed to toggle announce status' });
+  }
+});
+
 router.get('/fees', async (req, res) => {
   try {
     const fees = await prisma.fee.findMany({

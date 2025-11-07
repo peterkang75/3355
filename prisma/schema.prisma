@@ -63,6 +63,7 @@ model Booking {
   registrationDeadline String?
   restaurantName       String?
   restaurantAddress    String?
+  isAnnounced          Boolean  @default(false)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 

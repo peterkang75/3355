@@ -6,6 +6,7 @@ function Booking() {
   const { user, bookings, courses, addBooking, updateBooking } = useApp();
   const [showNewBooking, setShowNewBooking] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
+  const [openMenuId, setOpenMenuId] = useState(null);
   const [newBooking, setNewBooking] = useState({
     title: '',
     courseName: '',
@@ -66,6 +67,7 @@ function Booking() {
 
   const handleEditBooking = (booking) => {
     setEditingBooking(booking.id);
+    setOpenMenuId(null);
     setEditBookingData({
       title: booking.title || '',
       courseName: booking.courseName,
@@ -116,6 +118,16 @@ function Booking() {
     } catch (error) {
       console.error('라운딩 삭제 실패:', error);
       alert('라운딩 삭제 중 오류가 발생했습니다.');
+    }
+  };
+
+  const handleToggleAnnounce = async (bookingId) => {
+    try {
+      await apiService.toggleBookingAnnounce(bookingId);
+      window.location.reload();
+    } catch (error) {
+      console.error('공지 상태 변경 실패:', error);
+      alert('공지 상태 변경 중 오류가 발생했습니다.');
     }
   };
 
@@ -350,26 +362,95 @@ function Booking() {
 
             return (
               <div key={booking.id} className="card">
-                <div style={{ marginBottom: '16px' }}>
-                  {booking.title && (
-                    <div style={{ fontSize: '14px', color: '#2d5f3f', fontWeight: '600', marginBottom: '4px' }}>
-                      {booking.title}
-                    </div>
-                  )}
-                  <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
-                    {booking.courseName}
-                  </h3>
-                  <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>
-                    📅 {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
-                  </div>
-                  {booking.gatheringTime && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+                  <div style={{ flex: 1 }}>
+                    {booking.title && (
+                      <div style={{ fontSize: '14px', color: '#2d5f3f', fontWeight: '600', marginBottom: '4px' }}>
+                        {booking.title}
+                      </div>
+                    )}
+                    <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
+                      {booking.courseName}
+                    </h3>
                     <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>
-                      🕐 집결시간: {booking.gatheringTime}
+                      📅 {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
                     </div>
-                  )}
-                  {booking.registrationDeadline && (
-                    <div style={{ fontSize: '13px', color: '#e67e22', fontWeight: '600' }}>
-                      ⏰ 접수마감: {new Date(booking.registrationDeadline).toLocaleDateString('ko-KR')}
+                    {booking.gatheringTime && (
+                      <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>
+                        🕐 집결시간: {booking.gatheringTime}
+                      </div>
+                    )}
+                    {booking.registrationDeadline && (
+                      <div style={{ fontSize: '13px', color: '#e67e22', fontWeight: '600' }}>
+                        ⏰ 접수마감: {new Date(booking.registrationDeadline).toLocaleDateString('ko-KR')}
+                      </div>
+                    )}
+                  </div>
+                  
+                  {user.isAdmin && (
+                    <div style={{ position: 'relative' }}>
+                      <button
+                        onClick={() => setOpenMenuId(openMenuId === booking.id ? null : booking.id)}
+                        style={{
+                          background: 'transparent',
+                          border: 'none',
+                          fontSize: '20px',
+                          cursor: 'pointer',
+                          padding: '4px 8px',
+                          color: '#666'
+                        }}
+                      >
+                        ⋮
+                      </button>
+                      {openMenuId === booking.id && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '100%',
+                          right: 0,
+                          background: 'white',
+                          border: '1px solid #ddd',
+                          borderRadius: '8px',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                          zIndex: 10,
+                          minWidth: '120px'
+                        }}>
+                          <button
+                            onClick={() => handleEditBooking(booking)}
+                            style={{
+                              display: 'block',
+                              width: '100%',
+                              padding: '12px 16px',
+                              textAlign: 'left',
+                              background: 'white',
+                              border: 'none',
+                              fontSize: '14px',
+                              cursor: 'pointer',
+                              borderBottom: '1px solid #eee'
+                            }}
+                          >
+                            ✏️ 수정
+                          </button>
+                          <button
+                            onClick={() => {
+                              handleDeleteBooking(booking.id);
+                              setOpenMenuId(null);
+                            }}
+                            style={{
+                              display: 'block',
+                              width: '100%',
+                              padding: '12px 16px',
+                              textAlign: 'left',
+                              background: 'white',
+                              border: 'none',
+                              fontSize: '14px',
+                              cursor: 'pointer',
+                              color: '#e53e3e'
+                            }}
+                          >
+                            🗑️ 삭제
+                          </button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -479,38 +560,22 @@ function Booking() {
                   </button>
                   
                   {user.isAdmin && (
-                    <>
-                      <button 
-                        onClick={() => handleEditBooking(booking)}
-                        style={{
-                          padding: '12px 16px',
-                          background: '#3a7d54',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '8px',
-                          fontSize: '14px',
-                          fontWeight: '600',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        ✏️ 수정
-                      </button>
-                      <button 
-                        onClick={() => handleDeleteBooking(booking.id)}
-                        style={{
-                          padding: '12px 16px',
-                          background: '#e53e3e',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '8px',
-                          fontSize: '14px',
-                          fontWeight: '600',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        🗑️ 삭제
-                      </button>
-                    </>
+                    <button 
+                      onClick={() => handleToggleAnnounce(booking.id)}
+                      style={{
+                        padding: '12px 16px',
+                        background: booking.isAnnounced ? '#f59e0b' : '#3a7d54',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {booking.isAnnounced ? '📌 공지 내리기' : '📌 공지 활성화'}
+                    </button>
                   )}
                 </div>
               </div>
