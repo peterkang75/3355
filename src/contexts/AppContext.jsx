@@ -245,6 +245,19 @@ export function AppProvider({ children }) {
     }
   };
 
+  const refreshCourses = async () => {
+    try {
+      console.log('🔄 골프장 데이터 새로고침 중...');
+      const coursesData = await apiService.fetchCourses();
+      if (coursesData) {
+        console.log('✅ 골프장 데이터 업데이트:', coursesData.length, '개');
+        setCourses(coursesData);
+      }
+    } catch (error) {
+      console.error('❌ 골프장 데이터 새로고침 실패:', error);
+    }
+  };
+
   const value = {
     user,
     members,
@@ -265,7 +278,8 @@ export function AppProvider({ children }) {
     addFee,
     payFee,
     addCourse,
-    refreshMembers
+    refreshMembers,
+    refreshCourses
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

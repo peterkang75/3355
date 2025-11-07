@@ -3,7 +3,7 @@ import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 
 function Admin() {
-  const { user, addFee, courses, addCourse, refreshMembers, members: contextMembers } = useApp();
+  const { user, addFee, courses, addCourse, refreshMembers, refreshCourses, members: contextMembers } = useApp();
   const [activeTab, setActiveTab] = useState('menu');
   const [members, setMembers] = useState([]);
   const [showPermissionMenu, setShowPermissionMenu] = useState(null);
@@ -247,7 +247,9 @@ function Admin() {
         holePars: Array(18).fill(4)
       });
       
-      window.location.reload();
+      if (refreshCourses) {
+        await refreshCourses();
+      }
     } catch (error) {
       console.error('❌ 골프장 등록 실패:', error);
       alert('골프장 등록 중 오류가 발생했습니다.');
@@ -283,7 +285,9 @@ function Admin() {
       setEditingCourse(null);
       setEditCourseData(null);
       
-      window.location.reload();
+      if (refreshCourses) {
+        await refreshCourses();
+      }
     } catch (error) {
       console.error('❌ 골프장 정보 수정 실패:', error);
       alert('골프장 정보 수정 중 오류가 발생했습니다.');
@@ -304,9 +308,12 @@ function Admin() {
     
     try {
       await apiService.deleteCourse(courseId);
-      alert('골프장이 삭제되었습니다.');
       
-      window.location.reload();
+      if (refreshCourses) {
+        await refreshCourses();
+      }
+      
+      alert('골프장이 삭제되었습니다.');
     } catch (error) {
       console.error('❌ 골프장 삭제 실패:', error);
       alert('골프장 삭제 중 오류가 발생했습니다.');
