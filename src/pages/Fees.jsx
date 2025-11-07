@@ -32,7 +32,7 @@ function Fees() {
             현재 잔액
           </div>
           <div style={{ fontSize: '36px', fontWeight: '700', marginBottom: '16px' }}>
-            {balance.toLocaleString()}원
+            ${balance.toLocaleString()}
           </div>
           <div style={{ 
             display: 'flex', 
@@ -44,13 +44,13 @@ function Fees() {
             <div>
               <div style={{ opacity: 0.9 }}>총 납부</div>
               <div style={{ fontWeight: '600', marginTop: '4px' }}>
-                {totalPaid.toLocaleString()}원
+                ${totalPaid.toLocaleString()}
               </div>
             </div>
             <div style={{ textAlign: 'right' }}>
               <div style={{ opacity: 0.9 }}>미수금</div>
               <div style={{ fontWeight: '600', marginTop: '4px' }}>
-                {Math.abs(balance).toLocaleString()}원
+                ${Math.abs(balance).toLocaleString()}
               </div>
             </div>
           </div>
@@ -106,7 +106,7 @@ function Fees() {
                       marginBottom: '4px'
                     }}>
                       {transaction.type === 'income' ? '-' : '+'}
-                      {transaction.amount.toLocaleString()}원
+                      ${transaction.amount.toLocaleString()}
                     </div>
                     <div style={{
                       fontSize: '12px',

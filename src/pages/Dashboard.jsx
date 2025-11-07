@@ -294,7 +294,7 @@ function Dashboard() {
               fontWeight: '700',
               color: user.balance < 0 ? '#e53e3e' : 'var(--primary-green)'
             }}>
-              {user.balance?.toLocaleString() || 0}원
+              ${user.balance?.toLocaleString() || 0}
             </div>
           </div>
         </div>

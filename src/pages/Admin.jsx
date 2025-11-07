@@ -738,7 +738,7 @@ function Admin() {
                         fontWeight: '700',
                         color: member.balance < 0 ? '#e53e3e' : '#22c55e'
                       }}>
-                        미수금: {member.balance.toLocaleString()}원
+                        미수금: ${member.balance.toLocaleString()}
                       </div>
                       <div style={{ color: '#666' }}>
                         전화: {String(member.phone).replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3')}

@@ -83,8 +83,8 @@ function Booking() {
   };
 
   const formatCurrency = (amount) => {
-    if (!amount) return '0원';
-    return `${parseInt(amount).toLocaleString()}원`;
+    if (!amount) return '$0';
+    return `$${parseInt(amount).toLocaleString()}`;
   };
 
   return (
@@ -157,7 +157,7 @@ function Booking() {
             <input
               type="number"
               inputMode="numeric"
-              placeholder="그린피 금액 (원)"
+              placeholder="그린피 금액 ($)"
               value={newBooking.greenFee}
               onChange={(e) => setNewBooking({ ...newBooking, greenFee: e.target.value })}
               style={{ marginBottom: '12px' }}
@@ -169,7 +169,7 @@ function Booking() {
             <input
               type="number"
               inputMode="numeric"
-              placeholder="카트비 금액 (원)"
+              placeholder="카트비 금액 ($)"
               value={newBooking.cartFee}
               onChange={(e) => setNewBooking({ ...newBooking, cartFee: e.target.value })}
               style={{ marginBottom: '12px' }}
@@ -181,7 +181,7 @@ function Booking() {
             <input
               type="number"
               inputMode="numeric"
-              placeholder="회비 금액 (원)"
+              placeholder="회비 금액 ($)"
               value={newBooking.membershipFee}
               onChange={(e) => setNewBooking({ ...newBooking, membershipFee: e.target.value })}
               style={{ marginBottom: '12px' }}
