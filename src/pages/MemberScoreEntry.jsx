@@ -16,9 +16,21 @@ function MemberScoreEntry() {
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
       const foundBooking = bookings.find(b => b.id === bookingId);
-      setBooking(foundBooking);
       
       if (foundBooking) {
+        let parsedBooking = { ...foundBooking };
+        
+        if (foundBooking.teams && typeof foundBooking.teams === 'string') {
+          try {
+            parsedBooking.teams = JSON.parse(foundBooking.teams);
+          } catch (e) {
+            console.error('Teams 파싱 실패:', e);
+            parsedBooking.teams = null;
+          }
+        }
+        
+        setBooking(parsedBooking);
+        
         const parsedParticipants = parseParticipants(foundBooking.participants);
         setParticipants(parsedParticipants);
         
