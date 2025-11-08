@@ -14,6 +14,7 @@ function MemberDetail() {
   const [scores, setScores] = useState([]);
   const [handicapData, setHandicapData] = useState(null);
   const [showScoreModal, setShowScoreModal] = useState(false);
+  const [editingScoreId, setEditingScoreId] = useState(null);
   const [scoreFormData, setScoreFormData] = useState({
     roundingName: '',
     date: '',
@@ -126,11 +127,18 @@ function MemberDetail() {
     }
 
     try {
-      await apiService.createScore({
-        userId: id,
-        ...scoreFormData,
-        totalScore: parseInt(scoreFormData.totalScore)
-      });
+      if (editingScoreId) {
+        await apiService.updateScore(editingScoreId, {
+          ...scoreFormData,
+          totalScore: parseInt(scoreFormData.totalScore)
+        });
+      } else {
+        await apiService.createScore({
+          userId: id,
+          ...scoreFormData,
+          totalScore: parseInt(scoreFormData.totalScore)
+        });
+      }
       
       setScoreFormData({
         roundingName: '',
@@ -139,6 +147,7 @@ function MemberDetail() {
         totalScore: ''
       });
       setShowScoreModal(false);
+      setEditingScoreId(null);
       
       const updatedScores = await apiService.fetchScores(id);
       setScores(updatedScores || []);
@@ -151,10 +160,45 @@ function MemberDetail() {
       });
       await refreshMembers();
       
-      alert('스코어가 기록되고 핸디캡이 업데이트되었습니다!');
+      alert(editingScoreId ? '스코어가 수정되고 핸디캡이 업데이트되었습니다!' : '스코어가 기록되고 핸디캡이 업데이트되었습니다!');
     } catch (error) {
       console.error('스코어 기록 실패:', error);
       alert('스코어 기록에 실패했습니다.');
+    }
+  };
+
+  const handleEditScore = (score) => {
+    setEditingScoreId(score.id);
+    setScoreFormData({
+      roundingName: score.roundingName || '',
+      date: score.date,
+      courseName: score.courseName,
+      totalScore: String(score.totalScore)
+    });
+    setShowScoreModal(true);
+  };
+
+  const handleDeleteScore = async (scoreId) => {
+    if (!confirm('정말로 이 스코어를 삭제하시겠습니까?')) return;
+
+    try {
+      await apiService.deleteScore(scoreId);
+      
+      const updatedScores = await apiService.fetchScores(id);
+      setScores(updatedScores || []);
+      
+      const validScores = (updatedScores || []).filter(s => s.totalScore && s.totalScore > 0);
+      const calculatedHandicap = calculateHandicap(member, validScores);
+      
+      await apiService.updateMember(id, { 
+        handicap: String(calculatedHandicap.value) 
+      });
+      await refreshMembers();
+      
+      alert('스코어가 삭제되고 핸디캡이 업데이트되었습니다!');
+    } catch (error) {
+      console.error('스코어 삭제 실패:', error);
+      alert('스코어 삭제에 실패했습니다.');
     }
   };
 
@@ -526,7 +570,16 @@ function MemberDetail() {
                       <span>정보 수정</span>
                     </button>
                     <button
-                      onClick={() => setShowScoreModal(true)}
+                      onClick={() => {
+                        setEditingScoreId(null);
+                        setScoreFormData({
+                          roundingName: '',
+                          date: '',
+                          courseName: '',
+                          totalScore: ''
+                        });
+                        setShowScoreModal(true);
+                      }}
                       style={{
                         padding: '12px',
                         background: 'var(--primary-green)',
@@ -800,10 +853,51 @@ function MemberDetail() {
                   </div>
                   <div style={{
                     fontSize: '13px',
-                    color: '#666'
+                    color: '#666',
+                    marginBottom: '8px'
                   }}>
                     {score.courseName} · {new Date(score.date).toLocaleDateString('ko-KR')}
                   </div>
+                  {user?.isAdmin && (
+                    <div style={{
+                      display: 'flex',
+                      gap: '6px',
+                      marginTop: '8px'
+                    }}>
+                      <button
+                        onClick={() => handleEditScore(score)}
+                        style={{
+                          flex: 1,
+                          padding: '6px 12px',
+                          background: 'white',
+                          color: 'var(--primary-green)',
+                          border: '1px solid var(--primary-green)',
+                          borderRadius: '4px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        ✏️ 수정
+                      </button>
+                      <button
+                        onClick={() => handleDeleteScore(score.id)}
+                        style={{
+                          flex: 1,
+                          padding: '6px 12px',
+                          background: 'white',
+                          color: '#e53e3e',
+                          border: '1px solid #e53e3e',
+                          borderRadius: '4px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        🗑️ 삭제
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
@@ -841,10 +935,13 @@ function MemberDetail() {
               marginBottom: '20px' 
             }}>
               <h3 style={{ fontSize: '18px', fontWeight: '700' }}>
-                스코어 기록
+                {editingScoreId ? '스코어 수정' : '스코어 기록'}
               </h3>
               <button
-                onClick={() => setShowScoreModal(false)}
+                onClick={() => {
+                  setShowScoreModal(false);
+                  setEditingScoreId(null);
+                }}
                 style={{
                   background: 'none',
                   border: 'none',
