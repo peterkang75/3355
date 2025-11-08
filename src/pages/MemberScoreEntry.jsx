@@ -16,21 +16,9 @@ function MemberScoreEntry() {
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
       const foundBooking = bookings.find(b => b.id === bookingId);
+      setBooking(foundBooking);
       
       if (foundBooking) {
-        let parsedBooking = { ...foundBooking };
-        
-        if (foundBooking.teams && typeof foundBooking.teams === 'string') {
-          try {
-            parsedBooking.teams = JSON.parse(foundBooking.teams);
-          } catch (e) {
-            console.error('Teams 파싱 실패:', e);
-            parsedBooking.teams = null;
-          }
-        }
-        
-        setBooking(parsedBooking);
-        
         const parsedParticipants = parseParticipants(foundBooking.participants);
         setParticipants(parsedParticipants);
         
@@ -198,22 +186,16 @@ function MemberScoreEntry() {
           </div>
         </div>
 
-        {booking.teams && Array.isArray(booking.teams) && booking.teams.length > 0 ? (
+        {booking.teams && booking.teams.length > 0 ? (
           booking.teams.map((team, teamIndex) => (
             <div key={teamIndex} className="card" style={{ marginBottom: '16px' }}>
               <h3 style={{ 
                 fontSize: '16px', 
                 fontWeight: '700',
                 marginBottom: '16px',
-                color: 'var(--primary-green)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
+                color: 'var(--primary-green)'
               }}>
-                <span>🏌️ {team.name || `${teamIndex + 1}조`}</span>
-                <span style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>
-                  {team.members.length}명
-                </span>
+                🏌️ {team.name}
               </h3>
 
               <div style={{ 
