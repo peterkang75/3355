@@ -7,7 +7,7 @@ import { calculateHandicap } from '../utils/handicap';
 function MemberDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user, refreshMembers, members } = useApp();
+  const { user, refreshMembers, members, courses } = useApp();
   const [member, setMember] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(null);
@@ -872,13 +872,18 @@ function MemberDetail() {
               onChange={(e) => setScoreFormData({ ...scoreFormData, date: e.target.value })}
               style={{ marginBottom: '12px' }}
             />
-            <input
-              type="text"
-              placeholder="골프장 이름"
+            <select
               value={scoreFormData.courseName}
               onChange={(e) => setScoreFormData({ ...scoreFormData, courseName: e.target.value })}
               style={{ marginBottom: '12px' }}
-            />
+            >
+              <option value="">골프장 선택</option>
+              {courses.map((course, index) => (
+                <option key={index} value={course.name}>
+                  {course.name} {course.address && `- ${course.address}`}
+                </option>
+              ))}
+            </select>
             <input
               type="number"
               inputMode="numeric"
