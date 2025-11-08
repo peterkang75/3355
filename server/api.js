@@ -392,4 +392,29 @@ router.delete('/courses/:id', async (req, res) => {
   }
 });
 
+router.get('/settings', async (req, res) => {
+  try {
+    const settings = await prisma.appSettings.findMany();
+    res.json(settings);
+  } catch (error) {
+    console.error('Error fetching settings:', error);
+    res.status(500).json({ error: 'Failed to fetch settings' });
+  }
+});
+
+router.put('/settings/:feature', async (req, res) => {
+  try {
+    const { minRole } = req.body;
+    const setting = await prisma.appSettings.upsert({
+      where: { feature: req.params.feature },
+      update: { minRole },
+      create: { feature: req.params.feature, minRole }
+    });
+    res.json(setting);
+  } catch (error) {
+    console.error('Error updating setting:', error);
+    res.status(500).json({ error: 'Failed to update setting' });
+  }
+});
+
 module.exports = router;

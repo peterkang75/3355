@@ -44,12 +44,72 @@ function Admin() {
     totalScore: ''
   });
   const [memberScores, setMemberScores] = useState([]);
+  const [permissions, setPermissions] = useState({});
+  const [hasChanges, setHasChanges] = useState(false);
+
+  const features = [
+    { id: 'create_rounding', name: '라운딩 생성' },
+    { id: 'edit_rounding', name: '라운딩 수정/삭제' },
+    { id: 'team_formation', name: '조편성' },
+    { id: 'participant_management', name: '참가자 관리' },
+    { id: 'score_entry', name: '스코어 입력' },
+    { id: 'fee_management', name: '회비 관리' },
+    { id: 'course_management', name: '골프장 관리' },
+    { id: 'create_post', name: '게시판 작성' }
+  ];
 
   useEffect(() => {
     if (contextMembers) {
       setMembers(contextMembers);
     }
   }, [contextMembers]);
+
+  useEffect(() => {
+    if (activeTab === 'settings') {
+      loadPermissions();
+    }
+  }, [activeTab]);
+
+  const loadPermissions = async () => {
+    try {
+      const settings = await apiService.fetchSettings();
+      const permissionsObj = {};
+      settings.forEach(setting => {
+        permissionsObj[setting.feature] = setting.minRole;
+      });
+      
+      features.forEach(feature => {
+        if (!permissionsObj[feature.id]) {
+          permissionsObj[feature.id] = 'admin';
+        }
+      });
+      
+      setPermissions(permissionsObj);
+    } catch (error) {
+      console.error('권한 설정 로드 실패:', error);
+    }
+  };
+
+  const handlePermissionChange = (featureId, role) => {
+    setPermissions({
+      ...permissions,
+      [featureId]: role
+    });
+    setHasChanges(true);
+  };
+
+  const handleSavePermissions = async () => {
+    try {
+      for (const [feature, minRole] of Object.entries(permissions)) {
+        await apiService.updateSetting(feature, minRole);
+      }
+      setHasChanges(false);
+      alert('권한 설정이 저장되었습니다!');
+    } catch (error) {
+      console.error('권한 설정 저장 실패:', error);
+      alert('권한 설정 저장에 실패했습니다.');
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -1637,88 +1697,99 @@ function Admin() {
 
         {activeTab === 'settings' && (
           <div>
-            <div className="card">
-              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
-                기본 설정
-              </h3>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                  클럽 이름
-                </label>
-                <input
-                  type="text"
-                  placeholder="3355 골프 클럽"
-                  defaultValue="3355 골프 클럽"
-                  style={{ marginBottom: '12px' }}
-                />
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '20px'
+              }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
+                  기능별 권한 설정
+                </h3>
+                <button
+                  onClick={handleSavePermissions}
+                  disabled={!hasChanges}
+                  style={{
+                    padding: '10px 20px',
+                    background: hasChanges ? 'var(--primary-green)' : '#ccc',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: hasChanges ? 'pointer' : 'not-allowed'
+                  }}
+                >
+                  {hasChanges ? '💾 저장하기' : '✓ 저장됨'}
+                </button>
               </div>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                  기본 PAR
-                </label>
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  placeholder="72"
-                  defaultValue="72"
-                  style={{ marginBottom: '12px' }}
-                />
-              </div>
-            </div>
 
-            <div className="card">
-              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
-                핸디캡 설정
-              </h3>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    defaultChecked={true}
-                  />
-                  <span style={{ fontSize: '14px' }}>자동 핸디캡 계산 활성화</span>
-                </label>
+              <div style={{
+                padding: '12px',
+                background: 'var(--bg-green)',
+                borderRadius: '8px',
+                marginBottom: '20px',
+                fontSize: '13px',
+                color: '#666'
+              }}>
+                💡 각 기능에 대해 최소 권한을 설정할 수 있습니다. 설정한 권한 이상의 역할을 가진 사용자만 해당 기능을 사용할 수 있습니다.
               </div>
-              <div style={{ marginBottom: '16px' }}>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                  핸디캡 계산 기준 라운드 수
-                </label>
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  placeholder="10"
-                  defaultValue="10"
-                  style={{ marginBottom: '12px' }}
-                />
-              </div>
-            </div>
 
-            <div className="card">
-              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
-                알림 설정
-              </h3>
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '8px' }}>
-                  <input
-                    type="checkbox"
-                    defaultChecked={true}
-                  />
-                  <span style={{ fontSize: '14px' }}>새 게시글 알림</span>
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer', marginBottom: '8px' }}>
-                  <input
-                    type="checkbox"
-                    defaultChecked={true}
-                  />
-                  <span style={{ fontSize: '14px' }}>부킹 변경 알림</span>
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-                  <input
-                    type="checkbox"
-                    defaultChecked={true}
-                  />
-                  <span style={{ fontSize: '14px' }}>회비 납부 알림</span>
-                </label>
+              <div style={{ display: 'grid', gap: '12px' }}>
+                {features.map(feature => (
+                  <div
+                    key={feature.id}
+                    style={{
+                      padding: '16px',
+                      background: 'white',
+                      border: '2px solid var(--border-color)',
+                      borderRadius: '8px'
+                    }}
+                  >
+                    <div style={{
+                      fontSize: '15px',
+                      fontWeight: '700',
+                      color: '#2d5f3f',
+                      marginBottom: '12px'
+                    }}>
+                      {feature.name}
+                    </div>
+                    
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                      {['admin', 'operator', 'member'].map(role => {
+                        const roleLabels = {
+                          admin: '👑 관리자',
+                          operator: '⚙️ 운영진',
+                          member: '👤 일반 회원'
+                        };
+                        const isSelected = permissions[feature.id] === role;
+                        
+                        return (
+                          <button
+                            key={role}
+                            onClick={() => handlePermissionChange(feature.id, role)}
+                            style={{
+                              flex: '1',
+                              minWidth: '100px',
+                              padding: '10px 16px',
+                              background: isSelected ? 'var(--primary-green)' : 'white',
+                              color: isSelected ? 'white' : '#666',
+                              border: `2px solid ${isSelected ? 'var(--primary-green)' : 'var(--border-color)'}`,
+                              borderRadius: '6px',
+                              fontSize: '14px',
+                              fontWeight: isSelected ? '700' : '500',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s'
+                            }}
+                          >
+                            {roleLabels[role]}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 

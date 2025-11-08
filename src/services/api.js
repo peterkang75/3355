@@ -238,6 +238,22 @@ class ApiService {
     if (!response.ok) throw new Error('Failed to delete course');
     return response.json();
   }
+
+  async fetchSettings() {
+    const response = await fetch(`${API_BASE}/settings`);
+    if (!response.ok) throw new Error('Failed to fetch settings');
+    return response.json();
+  }
+
+  async updateSetting(feature, minRole) {
+    const response = await fetch(`${API_BASE}/settings/${feature}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ minRole })
+    });
+    if (!response.ok) throw new Error('Failed to update setting');
+    return response.json();
+  }
 }
 
 export default new ApiService();

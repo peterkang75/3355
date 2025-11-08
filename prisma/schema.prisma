@@ -114,3 +114,11 @@ model Course {
   address  String
   holePars Json?
 }
+
+model AppSettings {
+  id        String   @id @default(cuid())
+  feature   String   @unique
+  minRole   String   @default("admin")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
