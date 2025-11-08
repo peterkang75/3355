@@ -16,6 +16,7 @@ function TeamFormation() {
   const [showSelectModal, setShowSelectModal] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [selectedParticipants, setSelectedParticipants] = useState([]);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -104,23 +105,57 @@ function TeamFormation() {
         return;
       }
       setSelectedSlot({ teamIndex, slotIndex });
+      setSelectedParticipants([]);
       setShowSelectModal(true);
     }
   };
 
-  const handleSelectParticipant = (participant) => {
-    if (!selectedSlot) return;
+  const handleToggleParticipant = (participant) => {
+    const isSelected = selectedParticipants.some(p => p.phone === participant.phone);
+    
+    if (isSelected) {
+      setSelectedParticipants(selectedParticipants.filter(p => p.phone !== participant.phone));
+    } else {
+      if (selectedParticipants.length >= 4) {
+        alert('최대 4명까지만 선택할 수 있습니다.');
+        return;
+      }
+      setSelectedParticipants([...selectedParticipants, participant]);
+    }
+  };
+
+  const handleConfirmSelection = () => {
+    if (selectedParticipants.length === 0) {
+      alert('참가자를 선택해주세요.');
+      return;
+    }
 
     const { teamIndex, slotIndex } = selectedSlot;
     const newTeams = [...teams];
-    const newUnassigned = unassigned.filter(p => p.phone !== participant.phone);
+    let currentSlotIndex = slotIndex;
+    let currentTeamIndex = teamIndex;
 
-    newTeams[teamIndex].members[slotIndex] = participant;
+    selectedParticipants.forEach((participant) => {
+      while (currentTeamIndex < newTeams.length) {
+        if (currentSlotIndex < 4 && newTeams[currentTeamIndex].members[currentSlotIndex] === null) {
+          newTeams[currentTeamIndex].members[currentSlotIndex] = participant;
+          currentSlotIndex++;
+          break;
+        } else {
+          currentTeamIndex++;
+          currentSlotIndex = 0;
+        }
+      }
+    });
+
+    const selectedPhones = selectedParticipants.map(p => p.phone);
+    const newUnassigned = unassigned.filter(p => !selectedPhones.includes(p.phone));
 
     setTeams(newTeams);
     setUnassigned(newUnassigned);
     setShowSelectModal(false);
     setSelectedSlot(null);
+    setSelectedParticipants([]);
     setHasUnsavedChanges(true);
   };
 
@@ -384,19 +419,23 @@ function TeamFormation() {
             width: '100%',
             maxWidth: '400px',
             maxHeight: '80vh',
-            overflow: 'auto'
+            display: 'flex',
+            flexDirection: 'column'
           }}>
             <div style={{ 
               display: 'flex', 
               justifyContent: 'space-between', 
               alignItems: 'center',
-              marginBottom: '20px' 
+              marginBottom: '12px' 
             }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '700' }}>참가자 선택</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: '700' }}>
+                참가자 선택 ({selectedParticipants.length}/4)
+              </h3>
               <button
                 onClick={() => {
                   setShowSelectModal(false);
                   setSelectedSlot(null);
+                  setSelectedParticipants([]);
                 }}
                 style={{
                   background: 'transparent',
@@ -410,33 +449,102 @@ function TeamFormation() {
               </button>
             </div>
 
-            {unassigned.length === 0 ? (
-              <p style={{ textAlign: 'center', color: '#999', padding: '32px 0' }}>
-                배정 가능한 참가자가 없습니다.
-              </p>
-            ) : (
-              <div style={{ display: 'grid', gap: '8px' }}>
-                {unassigned.map((participant, index) => (
-                  <button
-                    key={index}
-                    onClick={() => handleSelectParticipant(participant)}
-                    style={{
-                      padding: '16px',
-                      background: 'var(--bg-green)',
-                      border: '2px solid var(--primary-green)',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      textAlign: 'center',
-                      fontSize: '16px',
-                      fontWeight: '600',
-                      color: 'var(--primary-green)'
-                    }}
-                  >
-                    {getParticipantDisplayName(participant)}
-                  </button>
-                ))}
-              </div>
-            )}
+            <p style={{ 
+              fontSize: '13px', 
+              color: '#666', 
+              marginBottom: '16px',
+              textAlign: 'center'
+            }}>
+              최대 4명까지 선택할 수 있습니다
+            </p>
+
+            <div style={{ 
+              flex: 1, 
+              overflow: 'auto', 
+              marginBottom: '16px' 
+            }}>
+              {unassigned.length === 0 ? (
+                <p style={{ textAlign: 'center', color: '#999', padding: '32px 0' }}>
+                  배정 가능한 참가자가 없습니다.
+                </p>
+              ) : (
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  {unassigned.map((participant, index) => {
+                    const isSelected = selectedParticipants.some(p => p.phone === participant.phone);
+                    return (
+                      <button
+                        key={index}
+                        onClick={() => handleToggleParticipant(participant)}
+                        style={{
+                          padding: '16px',
+                          background: isSelected ? 'var(--primary-green)' : 'var(--bg-green)',
+                          border: `2px solid var(--primary-green)`,
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          textAlign: 'center',
+                          fontSize: '16px',
+                          fontWeight: '600',
+                          color: isSelected ? 'white' : 'var(--primary-green)',
+                          transition: 'all 0.2s',
+                          position: 'relative'
+                        }}
+                      >
+                        {isSelected && (
+                          <span style={{ 
+                            position: 'absolute', 
+                            left: '12px', 
+                            fontSize: '18px' 
+                          }}>
+                            ✓
+                          </span>
+                        )}
+                        {getParticipantDisplayName(participant)}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => {
+                  setShowSelectModal(false);
+                  setSelectedSlot(null);
+                  setSelectedParticipants([]);
+                }}
+                style={{
+                  flex: 1,
+                  padding: '14px',
+                  background: 'white',
+                  color: '#666',
+                  border: '2px solid #ddd',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={handleConfirmSelection}
+                disabled={selectedParticipants.length === 0}
+                style={{
+                  flex: 1,
+                  padding: '14px',
+                  background: selectedParticipants.length > 0 ? 'var(--primary-green)' : '#ccc',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: selectedParticipants.length > 0 ? 'pointer' : 'not-allowed'
+                }}
+              >
+                완료
+              </button>
+            </div>
           </div>
         </div>
       )}
