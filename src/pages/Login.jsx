@@ -47,6 +47,11 @@ function Login({ onLogin }) {
       return;
     }
 
+    console.log('🔐 로그인 시도:', foundMember.name);
+    console.log('📋 Member 정보:', JSON.stringify(foundMember, null, 2));
+    
+    localStorage.clear();
+    
     onLogin(foundMember);
   };
 
