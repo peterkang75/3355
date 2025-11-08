@@ -109,9 +109,9 @@ function MyPage() {
     );
   }
 
-  const handicapDisplay = user.golflinkNumber 
-    ? `GA(${user.handicap})` 
-    : `HH(${user.handicap})`;
+  const handicapValue = user.calculatedHandicap ?? user.handicap ?? 18;
+  const handicapType = user.handicapType || (user.golflinkNumber ? 'GA' : 'HH');
+  const handicapExplanation = user.handicapExplanation || '계산 대기 중';
 
   return (
     <div style={{ paddingBottom: '80px' }}>
@@ -231,17 +231,33 @@ function MyPage() {
           </div>
 
           <div style={{
-            display: 'inline-flex',
+            display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
-            gap: '8px',
-            padding: '8px 16px',
-            background: 'var(--bg-green)',
-            borderRadius: '20px',
-            fontSize: '16px',
-            fontWeight: '700',
-            color: 'var(--primary-green)'
+            gap: '8px'
           }}>
-            핸디캡: {handicapDisplay}
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              background: 'var(--bg-green)',
+              borderRadius: '20px',
+              fontSize: '18px',
+              fontWeight: '700',
+              color: 'var(--primary-green)'
+            }}>
+              추천핸디: {handicapType}({handicapValue})
+            </div>
+            <div style={{
+              fontSize: '13px',
+              color: '#888',
+              fontStyle: 'italic',
+              maxWidth: '90%',
+              lineHeight: '1.4'
+            }}>
+              {handicapExplanation}
+            </div>
           </div>
 
           <div style={{

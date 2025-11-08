@@ -111,17 +111,27 @@ export function AppProvider({ children }) {
       const userScores = await apiService.fetchScores(userId);
       setScores(userScores);
       
-      if (userScores.length > 0) {
-        const handicap = calculateHandicap(userScores.map(s => ({
-          ...s,
-          holes: JSON.parse(s.holes)
-        })));
-        setUser(prevUser => {
-          const updatedUser = { ...prevUser, handicap };
+      setUser(prevUser => {
+        if (!prevUser) return null;
+        
+        if (userScores.length > 0) {
+          const handicapData = calculateHandicap(prevUser, userScores.map(s => ({
+            ...s,
+            holes: s.holes ? JSON.parse(s.holes) : []
+          })));
+          
+          const updatedUser = { 
+            ...prevUser, 
+            calculatedHandicap: handicapData.value,
+            handicapType: handicapData.type,
+            handicapExplanation: handicapData.explanation
+          };
           localStorage.setItem('golfUser', JSON.stringify(updatedUser));
           return updatedUser;
-        });
-      }
+        }
+        
+        return prevUser;
+      });
     } catch (error) {
       console.error('User data load failed:', error);
     }
@@ -158,8 +168,19 @@ export function AppProvider({ children }) {
       const newScores = [...scores, { ...score, holes: JSON.parse(score.holes) }];
       setScores(newScores);
       
-      const handicap = calculateHandicap(newScores);
-      updateUser({ handicap });
+      setUser(prevUser => {
+        if (!prevUser) return null;
+        
+        const handicapData = calculateHandicap(prevUser, newScores);
+        const updatedUser = { 
+          ...prevUser, 
+          calculatedHandicap: handicapData.value,
+          handicapType: handicapData.type,
+          handicapExplanation: handicapData.explanation
+        };
+        localStorage.setItem('golfUser', JSON.stringify(updatedUser));
+        return updatedUser;
+      });
       
       return score;
     } catch (error) {

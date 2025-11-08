@@ -346,16 +346,26 @@ function Dashboard() {
           marginBottom: '16px'
         }}>
           <div className="card" style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
-              현재 핸디캡
+            <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>
+              추천핸디
             </div>
             <div style={{ 
-              fontSize: '32px', 
+              fontSize: '28px', 
               fontWeight: '700',
               color: 'var(--primary-green)'
             }}>
-              {user.handicap || 0}
+              {user.handicapType || 'HH'}({user.calculatedHandicap ?? user.handicap ?? 18})
             </div>
+            {user.handicapExplanation && (
+              <div style={{ 
+                fontSize: '11px', 
+                color: '#999',
+                marginTop: '4px',
+                fontStyle: 'italic'
+              }}>
+                {user.handicapExplanation}
+              </div>
+            )}
           </div>
 
           <div className="card" style={{ textAlign: 'center' }}>
