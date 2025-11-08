@@ -12,12 +12,9 @@ function TeamFormation() {
   const [participants, setParticipants] = useState([]);
   const [teams, setTeams] = useState([]);
   const [unassigned, setUnassigned] = useState([]);
-  const [draggedMember, setDraggedMember] = useState(null);
-  const [touchedElement, setTouchedElement] = useState(null);
-  const [dragPreview, setDragPreview] = useState(null);
-  const [snapshotTeams, setSnapshotTeams] = useState(null);
-  const [snapshotUnassigned, setSnapshotUnassigned] = useState(null);
   const [hasInitialized, setHasInitialized] = useState(false);
+  const [showSelectModal, setShowSelectModal] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState(null);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -28,28 +25,21 @@ function TeamFormation() {
         const parsedParticipants = parseParticipants(foundBooking.participants);
         setParticipants(parsedParticipants);
         
-        // 조 편성 데이터 로드 또는 초기화 (한 번만)
         if (foundBooking.teams) {
           try {
             const loadedTeams = typeof foundBooking.teams === 'string' 
               ? JSON.parse(foundBooking.teams) 
               : foundBooking.teams;
             
-            console.log('📋 로드된 조 데이터:', loadedTeams);
-            console.log('👥 참가자 목록:', parsedParticipants);
-            
             setTeams(loadedTeams);
             
-            // 미배정 참가자 계산 (null 멤버 필터링)
             const assignedPhones = loadedTeams.flatMap(team => 
               team.members.filter(m => m !== null).map(m => m.phone)
             );
-            console.log('✅ 배정된 전화번호:', assignedPhones);
             
             const unassignedMembers = parsedParticipants.filter(p => 
               !assignedPhones.includes(p.phone)
             );
-            console.log('📋 미배정 참가자:', unassignedMembers);
             
             setUnassigned(unassignedMembers);
           } catch (e) {
@@ -57,7 +47,6 @@ function TeamFormation() {
             initializeTeams(parsedParticipants);
           }
         } else {
-          console.log('🆕 조 데이터 없음 - 초기화 (최초 1회)');
           initializeTeams(parsedParticipants);
         }
         
@@ -68,28 +57,21 @@ function TeamFormation() {
 
   const parseParticipants = (participants) => {
     if (!participants || !Array.isArray(participants)) {
-      console.log('❌ 참가자 데이터가 배열이 아닙니다:', participants);
       return [];
     }
     
-    console.log('🔍 원본 참가자 데이터:', participants);
-    
     const parsed = participants.map(p => {
       try {
-        // 이중 인코딩된 경우 두 번 파싱
         let result = typeof p === 'string' ? JSON.parse(p) : p;
         if (typeof result === 'string') {
           result = JSON.parse(result);
         }
-        console.log('✅ 파싱 성공:', result);
         return result;
       } catch (e) {
-        console.log('❌ 파싱 실패:', p, e);
         return p;
       }
     });
     
-    console.log('📋 파싱된 참가자 최종:', parsed);
     return parsed;
   };
 
@@ -110,200 +92,45 @@ function TeamFormation() {
     return participant.nickname || participant.name;
   };
 
-  const handleDragStart = (e, member, fromTeamIndex, fromSlotIndex) => {
-    setDraggedMember({ member, fromTeamIndex, fromSlotIndex });
-    if (e.dataTransfer) {
-      e.dataTransfer.effectAllowed = 'move';
-    }
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    if (e.dataTransfer) {
-      e.dataTransfer.dropEffect = 'move';
-    }
-  };
-
-  // 터치 이벤트 핸들러
-  const handleTouchStart = (e, member, fromTeamIndex, fromSlotIndex) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    // 현재 상태 스냅샷 저장 (드롭 실패 시 복원용)
-    setSnapshotTeams(JSON.parse(JSON.stringify(teams)));
-    setSnapshotUnassigned(JSON.parse(JSON.stringify(unassigned)));
-    
-    setDraggedMember({ member, fromTeamIndex, fromSlotIndex });
-    setTouchedElement(e.currentTarget);
-    e.currentTarget.style.opacity = '0.3';
-    
-    // 페이지 스크롤 방지 (가로/세로 모두)
-    document.documentElement.style.overflow = 'hidden';
-    document.body.style.overflow = 'hidden';
-    
-    // 드래그 프리뷰 생성
-    const touch = e.touches[0];
-    setDragPreview({
-      text: getParticipantDisplayName(member),
-      x: touch.clientX,
-      y: touch.clientY
-    });
-  };
-
-  const handleTouchMove = (e) => {
-    if (!draggedMember) return;
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const touch = e.touches[0];
-    
-    // 드래그 프리뷰 위치 업데이트
-    setDragPreview(prev => prev ? {
-      ...prev,
-      x: touch.clientX,
-      y: touch.clientY
-    } : null);
-    
-    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-    
-    // 드롭 가능한 영역 하이라이트
-    document.querySelectorAll('.drop-zone').forEach(el => {
-      el.style.backgroundColor = '';
-    });
-    
-    if (elementBelow && elementBelow.classList.contains('drop-zone')) {
-      elementBelow.style.backgroundColor = 'rgba(45, 95, 63, 0.1)';
-    }
-  };
-
-  const handleTouchEnd = (e) => {
-    if (!draggedMember) return;
-    e.preventDefault();
-    e.stopPropagation();
-    
-    const touch = e.changedTouches[0];
-    const elementBelow = document.elementFromPoint(touch.clientX, touch.clientY);
-    
-    // 원래 스타일 복원
-    if (touchedElement) {
-      touchedElement.style.opacity = '1';
-    }
-    
-    // 드롭 가능한 영역 하이라이트 제거
-    document.querySelectorAll('.drop-zone').forEach(el => {
-      el.style.backgroundColor = '';
-    });
-    
-    // 페이지 스크롤 복원
-    document.documentElement.style.overflow = '';
-    document.body.style.overflow = '';
-    
-    // 드래그 프리뷰 제거
-    setDragPreview(null);
-    
-    // 드롭 영역을 찾았는지 확인
-    let dropped = false;
-    
-    if (elementBelow) {
-      // drop-zone 클래스를 가진 요소 또는 부모 요소 찾기
-      let dropZone = elementBelow;
-      let depth = 0;
-      while (dropZone && depth < 5) {
-        if (dropZone.classList && dropZone.classList.contains('drop-zone')) {
-          break;
-        }
-        dropZone = dropZone.parentElement;
-        depth++;
-      }
-      
-      if (dropZone && dropZone.classList && dropZone.classList.contains('drop-zone')) {
-        const targetType = dropZone.getAttribute('data-drop-type');
-        
-        if (targetType === 'unassigned') {
-          handleDropToUnassignedLogic();
-          dropped = true;
-        } else if (targetType === 'team') {
-          const teamIndex = parseInt(dropZone.getAttribute('data-team-index'));
-          const slotIndex = parseInt(dropZone.getAttribute('data-slot-index'));
-          handleDropToTeamLogic(teamIndex, slotIndex);
-          dropped = true;
-        }
-      }
-    }
-    
-    // 드롭 영역이 아닌 곳에 떨어뜨린 경우 - 스냅샷으로 복원
-    if (!dropped) {
-      console.log('⚠️ 드롭 영역이 아닌 곳에 떨어뜨렸습니다. 원래 위치로 복원합니다.');
-      // 스냅샷으로 강제 복원
-      if (snapshotTeams && snapshotUnassigned) {
-        setTeams(snapshotTeams);
-        setUnassigned(snapshotUnassigned);
-        console.log('✅ 원래 상태로 복원 완료');
-      }
-    }
-    
-    setDraggedMember(null);
-    setTouchedElement(null);
-    setSnapshotTeams(null);
-    setSnapshotUnassigned(null);
-  };
-
-  const handleDropToUnassignedLogic = () => {
-    if (!draggedMember) return;
-
-    const { member, fromTeamIndex, fromSlotIndex } = draggedMember;
-    
-    if (fromTeamIndex !== -1) {
-      const newTeams = [...teams];
-      newTeams[fromTeamIndex].members[fromSlotIndex] = null;
-      setTeams(newTeams);
-      
-      const newUnassigned = [...unassigned];
-      if (!newUnassigned.find(m => m.phone === member.phone)) {
-        newUnassigned.push(member);
-      }
-      setUnassigned(newUnassigned);
-    }
-  };
-
-  const handleDropToTeamLogic = (toTeamIndex, toSlotIndex) => {
-    if (!draggedMember) return;
-
-    const newTeams = [...teams];
-    const newUnassigned = [...unassigned];
-    const { member, fromTeamIndex, fromSlotIndex } = draggedMember;
-
-    if (fromTeamIndex === -1) {
-      const unassignedIndex = newUnassigned.findIndex(m => m.phone === member.phone);
-      if (unassignedIndex !== -1) {
-        newUnassigned.splice(unassignedIndex, 1);
+  const handleSlotClick = (teamIndex, slotIndex, currentMember) => {
+    if (currentMember) {
+      if (confirm(`${getParticipantDisplayName(currentMember)}을(를) 미배정으로 이동하시겠습니까?`)) {
+        handleRemoveParticipant(teamIndex, slotIndex);
       }
     } else {
-      newTeams[fromTeamIndex].members[fromSlotIndex] = null;
+      if (unassigned.length === 0) {
+        alert('배정 가능한 참가자가 없습니다.');
+        return;
+      }
+      setSelectedSlot({ teamIndex, slotIndex });
+      setShowSelectModal(true);
     }
+  };
 
-    const existingMember = newTeams[toTeamIndex].members[toSlotIndex];
-    if (existingMember) {
-      newUnassigned.push(existingMember);
-    }
-    newTeams[toTeamIndex].members[toSlotIndex] = member;
+  const handleSelectParticipant = (participant) => {
+    if (!selectedSlot) return;
+
+    const { teamIndex, slotIndex } = selectedSlot;
+    const newTeams = [...teams];
+    const newUnassigned = unassigned.filter(p => p.phone !== participant.phone);
+
+    newTeams[teamIndex].members[slotIndex] = participant;
 
     setTeams(newTeams);
     setUnassigned(newUnassigned);
+    setShowSelectModal(false);
+    setSelectedSlot(null);
   };
 
-  const handleDropToTeam = (e, toTeamIndex, toSlotIndex) => {
-    e.preventDefault();
-    if (!draggedMember) return;
-    handleDropToTeamLogic(toTeamIndex, toSlotIndex);
-    setDraggedMember(null);
-  };
-
-  const handleDropToUnassigned = (e) => {
-    e.preventDefault();
-    if (!draggedMember) return;
-    handleDropToUnassignedLogic();
-    setDraggedMember(null);
+  const handleRemoveParticipant = (teamIndex, slotIndex) => {
+    const newTeams = [...teams];
+    const member = newTeams[teamIndex].members[slotIndex];
+    
+    if (member) {
+      newTeams[teamIndex].members[slotIndex] = null;
+      setTeams(newTeams);
+      setUnassigned([...unassigned, member]);
+    }
   };
 
   const handleSaveTeams = async () => {
@@ -321,14 +148,12 @@ function TeamFormation() {
   const handleAutoAssign = () => {
     const allMembers = [...unassigned];
     
-    // 기존 조에서 배정된 멤버들도 수집
     teams.forEach(team => {
       team.members.forEach(member => {
         if (member) allMembers.push(member);
       });
     });
 
-    // 섞기
     const shuffled = [...allMembers].sort(() => Math.random() - 0.5);
     
     const numTeams = Math.ceil(shuffled.length / 4);
@@ -375,28 +200,6 @@ function TeamFormation() {
 
   return (
     <div>
-      {/* 드래그 프리뷰 */}
-      {dragPreview && (
-        <div style={{
-          position: 'fixed',
-          left: dragPreview.x - 50,
-          top: dragPreview.y - 20,
-          padding: '8px 16px',
-          background: 'var(--primary-green)',
-          color: 'white',
-          borderRadius: '6px',
-          fontSize: '14px',
-          fontWeight: '600',
-          pointerEvents: 'none',
-          zIndex: 9999,
-          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-          transform: 'scale(1.1)',
-          opacity: 0.9
-        }}>
-          {dragPreview.text}
-        </div>
-      )}
-      
       <div className="header">
         <button 
           onClick={() => navigate(`/rounding-management?id=${bookingId}`)}
@@ -415,7 +218,6 @@ function TeamFormation() {
       </div>
 
       <div className="page-content">
-        {/* 라운딩 정보 */}
         <div className="card" style={{ marginBottom: '16px' }}>
           <div style={{ 
             background: 'var(--bg-green)',
@@ -439,7 +241,6 @@ function TeamFormation() {
           </div>
         </div>
 
-        {/* 액션 버튼 */}
         <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
           <button
             onClick={handleAutoAssign}
@@ -457,7 +258,6 @@ function TeamFormation() {
           </button>
         </div>
 
-        {/* 미배정 참가자 */}
         <div className="card" style={{ marginBottom: '16px' }}>
           <h3 style={{ 
             fontSize: '16px', 
@@ -467,23 +267,16 @@ function TeamFormation() {
           }}>
             📋 미배정 참가자 ({unassigned.length}명)
           </h3>
-          <div 
-            className="drop-zone"
-            data-drop-type="unassigned"
-            onDragOver={handleDragOver}
-            onDrop={handleDropToUnassigned}
-            style={{
-              minHeight: '80px',
-              background: '#f5f5f5',
-              borderRadius: '8px',
-              padding: '12px',
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '8px',
-              border: '2px dashed #ddd',
-              transition: 'background-color 0.2s'
-            }}
-          >
+          <div style={{
+            minHeight: '60px',
+            background: '#f5f5f5',
+            borderRadius: '8px',
+            padding: '12px',
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '8px',
+            border: '2px dashed #ddd'
+          }}>
             {unassigned.length === 0 ? (
               <div style={{ 
                 width: '100%', 
@@ -497,26 +290,14 @@ function TeamFormation() {
               unassigned.map((member, index) => (
                 <div
                   key={index}
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, member, -1, -1)}
-                  onTouchStart={(e) => handleTouchStart(e, member, -1, -1)}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
                   style={{
                     padding: '8px 16px',
                     background: 'white',
                     borderRadius: '6px',
                     border: '2px solid var(--primary-green)',
-                    cursor: 'grab',
                     fontSize: '14px',
                     fontWeight: '600',
-                    color: 'var(--primary-green)',
-                    userSelect: 'none',
-                    WebkitUserSelect: 'none',
-                    MozUserSelect: 'none',
-                    msUserSelect: 'none',
-                    touchAction: 'none',
-                    WebkitTouchCallout: 'none'
+                    color: 'var(--primary-green)'
                   }}
                 >
                   {getParticipantDisplayName(member)}
@@ -526,7 +307,6 @@ function TeamFormation() {
           </div>
         </div>
 
-        {/* 조 목록 */}
         {teams.map((team, teamIndex) => (
           <div key={teamIndex} className="card" style={{ marginBottom: '16px' }}>
             <h3 style={{ 
@@ -543,14 +323,9 @@ function TeamFormation() {
               gap: '12px'
             }}>
               {team.members.map((member, slotIndex) => (
-                <div
+                <button
                   key={slotIndex}
-                  className="drop-zone"
-                  data-drop-type="team"
-                  data-team-index={teamIndex}
-                  data-slot-index={slotIndex}
-                  onDragOver={handleDragOver}
-                  onDrop={(e) => handleDropToTeam(e, teamIndex, slotIndex)}
+                  onClick={() => handleSlotClick(teamIndex, slotIndex, member)}
                   style={{
                     minHeight: '60px',
                     background: member ? 'var(--primary-green)' : '#f5f5f5',
@@ -562,28 +337,95 @@ function TeamFormation() {
                     justifyContent: 'center',
                     fontSize: '15px',
                     fontWeight: '600',
-                    cursor: member ? 'grab' : 'default',
-                    userSelect: 'none',
-                    WebkitUserSelect: 'none',
-                    MozUserSelect: 'none',
-                    msUserSelect: 'none',
-                    touchAction: member ? 'none' : 'auto',
-                    WebkitTouchCallout: 'none',
+                    cursor: 'pointer',
                     transition: 'all 0.2s'
                   }}
-                  draggable={!!member}
-                  onDragStart={member ? (e) => handleDragStart(e, member, teamIndex, slotIndex) : undefined}
-                  onTouchStart={member ? (e) => handleTouchStart(e, member, teamIndex, slotIndex) : undefined}
-                  onTouchMove={member ? handleTouchMove : undefined}
-                  onTouchEnd={member ? handleTouchEnd : undefined}
                 >
-                  {member ? getParticipantDisplayName(member) : '빈 자리'}
-                </div>
+                  {member ? getParticipantDisplayName(member) : '+ 추가'}
+                </button>
               ))}
             </div>
           </div>
         ))}
       </div>
+
+      {showSelectModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '16px'
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '24px',
+            width: '100%',
+            maxWidth: '400px',
+            maxHeight: '80vh',
+            overflow: 'auto'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              marginBottom: '20px' 
+            }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700' }}>참가자 선택</h3>
+              <button
+                onClick={() => {
+                  setShowSelectModal(false);
+                  setSelectedSlot(null);
+                }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#666'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            {unassigned.length === 0 ? (
+              <p style={{ textAlign: 'center', color: '#999', padding: '32px 0' }}>
+                배정 가능한 참가자가 없습니다.
+              </p>
+            ) : (
+              <div style={{ display: 'grid', gap: '8px' }}>
+                {unassigned.map((participant, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSelectParticipant(participant)}
+                    style={{
+                      padding: '16px',
+                      background: 'var(--bg-green)',
+                      border: '2px solid var(--primary-green)',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      textAlign: 'center',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      color: 'var(--primary-green)'
+                    }}
+                  >
+                    {getParticipantDisplayName(participant)}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
