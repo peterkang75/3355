@@ -270,46 +270,35 @@ function MemberDetail() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '6px',
-            padding: '12px',
+            gap: '8px',
+            padding: '16px 12px',
             background: '#f8f9fa',
             borderRadius: '12px',
             width: '90%',
             margin: '0 auto'
           }}>
             <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              width: '100%',
-              fontSize: '15px',
-              color: '#333'
+              fontSize: '28px',
+              fontWeight: '700',
+              color: 'var(--primary-green)',
+              textAlign: 'center'
             }}>
-              <span style={{ fontWeight: '600' }}>핸디:</span>
-              <span style={{ fontWeight: '700', color: 'var(--primary-green)' }}>
-                {member.handicap || handicapValue}
-              </span>
+              핸디: {member.handicap || handicapValue}
             </div>
             <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              width: '100%',
-              fontSize: '15px',
-              color: '#333'
+              fontSize: '13px',
+              color: '#666',
+              textAlign: 'center'
             }}>
-              <span style={{ fontWeight: '600' }}>추천핸디:</span>
-              <span style={{ fontWeight: '700', color: 'var(--light-green)' }}>
-                {handicapValue}
-              </span>
+              추천핸디: {handicapValue}
             </div>
             <div style={{
-              fontSize: '12px',
+              fontSize: '13px',
               color: '#888',
               fontStyle: 'italic',
-              width: '100%',
+              textAlign: 'center',
               lineHeight: '1.4',
-              marginTop: '4px',
-              paddingTop: '8px',
-              borderTop: '1px solid #e0e0e0'
+              marginTop: '4px'
             }}>
               {handicapExplanation}
             </div>
