@@ -32,14 +32,20 @@ function ParticipantManagement() {
   }, [bookingId, bookings]);
 
   useEffect(() => {
-    if (members.length > 0 && participants.length >= 0) {
-      const participantPhones = participants.map(p => p.phone);
-      const available = members.filter(m => !participantPhones.includes(m.phone));
-      setAvailableMembers(available);
+    if (members.length > 0) {
+      setAvailableMembers(members);
     }
-  }, [members, participants]);
+  }, [members]);
+
+  const isParticipant = (memberPhone) => {
+    return participants.some(p => p.phone === memberPhone);
+  };
 
   const handleAddParticipant = async (member) => {
+    if (isParticipant(member.phone)) {
+      return;
+    }
+
     try {
       const newParticipant = {
         name: member.name,
@@ -69,7 +75,6 @@ function ParticipantManagement() {
         const result = await response.json();
         console.log('✅ 참가자 추가 성공:', result);
         await refreshBookings();
-        setShowAddModal(false);
       } else {
         const errorData = await response.text();
         console.error('❌ 서버 오류:', errorData);
@@ -303,31 +308,58 @@ function ParticipantManagement() {
 
             {availableMembers.length === 0 ? (
               <p style={{ textAlign: 'center', color: '#999', padding: '32px 0' }}>
-                추가할 수 있는 회원이 없습니다.
+                회원이 없습니다.
               </p>
             ) : (
               <div style={{ display: 'grid', gap: '8px' }}>
-                {availableMembers.map(member => (
-                  <button
-                    key={member.id}
-                    onClick={() => handleAddParticipant(member)}
-                    style={{
-                      padding: '16px',
-                      background: 'var(--bg-green)',
-                      border: '2px solid var(--primary-green)',
-                      borderRadius: '8px',
-                      cursor: 'pointer',
-                      textAlign: 'left'
-                    }}
-                  >
-                    <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '4px', color: 'var(--primary-green)' }}>
-                      {member.nickname}
-                    </div>
-                    <div style={{ fontSize: '13px', color: '#666' }}>
-                      {member.name}
-                    </div>
-                  </button>
-                ))}
+                {availableMembers.map(member => {
+                  const alreadyAdded = isParticipant(member.phone);
+                  return (
+                    <button
+                      key={member.id}
+                      onClick={() => handleAddParticipant(member)}
+                      disabled={alreadyAdded}
+                      style={{
+                        padding: '16px',
+                        background: alreadyAdded ? '#f5f5f5' : 'var(--bg-green)',
+                        border: `2px solid ${alreadyAdded ? '#ccc' : 'var(--primary-green)'}`,
+                        borderRadius: '8px',
+                        cursor: alreadyAdded ? 'not-allowed' : 'pointer',
+                        textAlign: 'left',
+                        opacity: alreadyAdded ? 0.6 : 1,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <div>
+                        <div style={{ 
+                          fontSize: '16px', 
+                          fontWeight: '600', 
+                          marginBottom: '4px', 
+                          color: alreadyAdded ? '#999' : 'var(--primary-green)' 
+                        }}>
+                          {member.nickname}
+                        </div>
+                        <div style={{ fontSize: '13px', color: '#666' }}>
+                          {member.name}
+                        </div>
+                      </div>
+                      {alreadyAdded && (
+                        <span style={{
+                          fontSize: '13px',
+                          fontWeight: '600',
+                          color: '#999',
+                          background: '#e0e0e0',
+                          padding: '4px 12px',
+                          borderRadius: '12px'
+                        }}>
+                          추가됨
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
