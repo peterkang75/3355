@@ -116,7 +116,11 @@ export function AppProvider({ children }) {
           ...s,
           holes: JSON.parse(s.holes)
         })));
-        updateUser({ handicap });
+        setUser(prevUser => {
+          const updatedUser = { ...prevUser, handicap };
+          localStorage.setItem('golfUser', JSON.stringify(updatedUser));
+          return updatedUser;
+        });
       }
     } catch (error) {
       console.error('User data load failed:', error);
@@ -124,6 +128,7 @@ export function AppProvider({ children }) {
   };
 
   const login = (userData) => {
+    console.log('🔑 Login 함수 - userData:', userData);
     setUser(userData);
     localStorage.setItem('golfUser', JSON.stringify(userData));
     loadUserData(userData.id);
@@ -136,9 +141,11 @@ export function AppProvider({ children }) {
   };
 
   const updateUser = (updates) => {
-    const updatedUser = { ...user, ...updates };
-    setUser(updatedUser);
-    localStorage.setItem('golfUser', JSON.stringify(updatedUser));
+    setUser(prevUser => {
+      const updatedUser = { ...prevUser, ...updates };
+      localStorage.setItem('golfUser', JSON.stringify(updatedUser));
+      return updatedUser;
+    });
   };
 
   const saveScore = async (scoreData) => {
