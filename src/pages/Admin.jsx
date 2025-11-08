@@ -43,6 +43,7 @@ function Admin() {
     courseName: '',
     totalScore: ''
   });
+  const [memberScores, setMemberScores] = useState([]);
 
   useEffect(() => {
     if (contextMembers) {
@@ -333,7 +334,7 @@ function Admin() {
     setEditCourseData({ ...editCourseData, holePars: newHolePars });
   };
 
-  const handleOpenScoreModal = (member) => {
+  const handleOpenScoreModal = async (member) => {
     setShowScoreModal(member.id);
     setScoreFormData({
       roundingName: '',
@@ -341,6 +342,14 @@ function Admin() {
       courseName: '',
       totalScore: ''
     });
+    
+    try {
+      const scores = await apiService.fetchScores(member.id);
+      setMemberScores(scores);
+    } catch (error) {
+      console.error('스코어 조회 실패:', error);
+      setMemberScores([]);
+    }
   };
 
   const handleCloseScoreModal = () => {
@@ -351,6 +360,7 @@ function Admin() {
       courseName: '',
       totalScore: ''
     });
+    setMemberScores([]);
   };
 
   const handleSaveScore = async () => {
@@ -379,7 +389,16 @@ function Admin() {
 
       await apiService.createScore(scoreData);
       alert(`${member.nickname || member.name}의 스코어가 저장되었습니다!`);
-      handleCloseScoreModal();
+      
+      setScoreFormData({
+        roundingName: '',
+        date: '',
+        courseName: '',
+        totalScore: ''
+      });
+      
+      const updatedScores = await apiService.fetchScores(member.id);
+      setMemberScores(updatedScores);
     } catch (error) {
       console.error('스코어 저장 실패:', error);
       alert('스코어 저장 중 오류가 발생했습니다.');
@@ -1844,7 +1863,7 @@ function Admin() {
               </div>
             </div>
 
-            <div style={{ marginTop: '24px', display: 'flex', gap: '8px' }}>
+            <div style={{ marginTop: '24px', display: 'flex', gap: '8px', marginBottom: '24px' }}>
               <button
                 onClick={handleCloseScoreModal}
                 style={{
@@ -1869,6 +1888,56 @@ function Admin() {
                 저장하기
               </button>
             </div>
+
+            {memberScores.length > 0 && (
+              <div style={{
+                borderTop: '2px solid #e0e0e0',
+                paddingTop: '20px'
+              }}>
+                <h4 style={{
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  color: '#2d5f3f',
+                  marginBottom: '16px'
+                }}>
+                  📊 입력된 스코어 ({memberScores.length}개)
+                </h4>
+                <div style={{ display: 'grid', gap: '12px', maxHeight: '300px', overflow: 'auto' }}>
+                  {memberScores.sort((a, b) => new Date(b.date) - new Date(a.date)).map((score, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        padding: '12px',
+                        background: 'var(--bg-green)',
+                        borderRadius: '8px',
+                        border: '2px solid #e0e0e0'
+                      }}
+                    >
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: '4px'
+                      }}>
+                        <div style={{ fontWeight: '700', fontSize: '15px', color: '#2d5f3f' }}>
+                          {score.courseName}
+                        </div>
+                        <div style={{
+                          fontSize: '18px',
+                          fontWeight: '700',
+                          color: 'var(--primary-green)'
+                        }}>
+                          {score.totalScore}타
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '13px', color: '#666' }}>
+                        📅 {new Date(score.date).toLocaleDateString('ko-KR')}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
