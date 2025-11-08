@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
+import { calculateHandicap } from '../utils/handicap';
 
 function MemberDetail() {
   const { id } = useParams();
@@ -11,6 +12,7 @@ function MemberDetail() {
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(null);
   const [scores, setScores] = useState([]);
+  const [handicapData, setHandicapData] = useState(null);
   const [showScoreModal, setShowScoreModal] = useState(false);
   const [scoreFormData, setScoreFormData] = useState({
     roundingName: '',
@@ -28,6 +30,14 @@ function MemberDetail() {
       loadScores();
     }
   }, [member]);
+
+  useEffect(() => {
+    if (member && scores.length >= 0) {
+      const validScores = scores.filter(s => s.totalScore && s.totalScore > 0);
+      const calculatedHandicap = calculateHandicap(member, validScores);
+      setHandicapData(calculatedHandicap);
+    }
+  }, [member, scores]);
 
   const loadMemberData = () => {
     const foundMember = members.find(m => m.id === id);
@@ -149,9 +159,9 @@ function MemberDetail() {
     );
   }
 
-  const handicapDisplay = member.golflinkNumber 
-    ? `GA(${member.handicap})` 
-    : `HH(${member.handicap})`;
+  const handicapValue = handicapData?.value ?? member.handicap ?? 18;
+  const handicapType = handicapData?.type || (member.golflinkNumber ? 'GA' : 'HH');
+  const handicapExplanation = handicapData?.explanation || '계산 대기 중';
 
   const isAdmin = user.role === 'admin' || user.isAdmin;
 
@@ -246,17 +256,34 @@ function MemberDetail() {
           </div>
 
           <div style={{
-            display: 'inline-flex',
+            display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
-            gap: '8px',
-            padding: '8px 16px',
-            background: 'var(--bg-green)',
-            borderRadius: '20px',
-            fontSize: '16px',
-            fontWeight: '700',
-            color: 'var(--primary-green)'
+            gap: '8px'
           }}>
-            핸디캡: {handicapDisplay}
+            <div style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              background: 'var(--bg-green)',
+              borderRadius: '20px',
+              fontSize: '18px',
+              fontWeight: '700',
+              color: 'var(--primary-green)'
+            }}>
+              추천핸디: {handicapType}({handicapValue})
+            </div>
+            <div style={{
+              fontSize: '13px',
+              color: '#888',
+              fontStyle: 'italic',
+              maxWidth: '90%',
+              lineHeight: '1.4',
+              textAlign: 'center'
+            }}>
+              {handicapExplanation}
+            </div>
           </div>
 
           <div style={{
