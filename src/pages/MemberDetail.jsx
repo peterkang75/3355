@@ -127,7 +127,7 @@ function MemberDetail() {
 
     try {
       await apiService.createScore({
-        memberId: id,
+        userId: id,
         ...scoreFormData,
         totalScore: parseInt(scoreFormData.totalScore)
       });
