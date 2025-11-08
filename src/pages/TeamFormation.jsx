@@ -17,17 +17,18 @@ function TeamFormation() {
   const [dragPreview, setDragPreview] = useState(null);
   const [snapshotTeams, setSnapshotTeams] = useState(null);
   const [snapshotUnassigned, setSnapshotUnassigned] = useState(null);
+  const [hasInitialized, setHasInitialized] = useState(false);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
       const foundBooking = bookings.find(b => b.id === bookingId);
       setBooking(foundBooking);
       
-      if (foundBooking) {
+      if (foundBooking && !hasInitialized) {
         const parsedParticipants = parseParticipants(foundBooking.participants);
         setParticipants(parsedParticipants);
         
-        // 조 편성 데이터 로드 또는 초기화
+        // 조 편성 데이터 로드 또는 초기화 (한 번만)
         if (foundBooking.teams) {
           try {
             const loadedTeams = typeof foundBooking.teams === 'string' 
@@ -56,12 +57,14 @@ function TeamFormation() {
             initializeTeams(parsedParticipants);
           }
         } else {
-          console.log('🆕 조 데이터 없음 - 초기화');
+          console.log('🆕 조 데이터 없음 - 초기화 (최초 1회)');
           initializeTeams(parsedParticipants);
         }
+        
+        setHasInitialized(true);
       }
     }
-  }, [bookingId, bookings]);
+  }, [bookingId, bookings, hasInitialized]);
 
   const parseParticipants = (participants) => {
     if (!participants || !Array.isArray(participants)) {
