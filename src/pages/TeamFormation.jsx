@@ -15,6 +15,7 @@ function TeamFormation() {
   const [hasInitialized, setHasInitialized] = useState(false);
   const [showSelectModal, setShowSelectModal] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -120,6 +121,7 @@ function TeamFormation() {
     setUnassigned(newUnassigned);
     setShowSelectModal(false);
     setSelectedSlot(null);
+    setHasUnsavedChanges(true);
   };
 
   const handleRemoveParticipant = (teamIndex, slotIndex) => {
@@ -130,6 +132,7 @@ function TeamFormation() {
       newTeams[teamIndex].members[slotIndex] = null;
       setTeams(newTeams);
       setUnassigned([...unassigned, member]);
+      setHasUnsavedChanges(true);
     }
   };
 
@@ -138,6 +141,7 @@ function TeamFormation() {
       await apiService.updateBooking(bookingId, {
         teams: JSON.stringify(teams)
       });
+      setHasUnsavedChanges(false);
       alert('조편성이 저장되었습니다!');
     } catch (error) {
       console.error('Failed to save teams:', error);
@@ -172,6 +176,7 @@ function TeamFormation() {
 
     setTeams(newTeams);
     setUnassigned([]);
+    setHasUnsavedChanges(true);
   };
 
   if (!user?.isAdmin) {
@@ -251,10 +256,19 @@ function TeamFormation() {
           </button>
           <button
             onClick={handleSaveTeams}
-            className="btn-primary"
-            style={{ flex: 1 }}
+            style={{ 
+              flex: 1,
+              padding: '12px 24px',
+              background: hasUnsavedChanges ? '#dc3545' : 'var(--primary-green)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
           >
-            💾 저장하기
+            {hasUnsavedChanges ? '❌ 저장안됨' : '✅ 저장됨'}
           </button>
         </div>
 
