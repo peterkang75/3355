@@ -672,298 +672,98 @@ function Admin() {
                   {showInactive ? '✓ 비활성 회원 포함' : '활성 회원만 보기'}
                 </button>
               </div>
-              {members.filter(member => showInactive || member.isActive !== false).map(member => (
-                <div 
-                  key={member.id}
-                  style={{
-                    padding: '16px',
-                    background: member.isActive === false ? '#f5f5f5' : 'var(--bg-green)',
-                    borderRadius: '8px',
-                    marginBottom: '12px',
-                    display: 'flex',
-                    gap: '16px',
-                    opacity: member.isActive === false ? 0.6 : 1,
-                    position: 'relative'
-                  }}
-                >
-                  <div style={{ flexShrink: 0 }}>
-                    {member.photo ? (
-                      <img 
-                        src={member.photo} 
-                        alt={member.name}
-                        style={{
-                          width: '100px',
-                          height: '100px',
-                          objectFit: 'cover',
-                          borderRadius: '8px',
-                          border: '2px solid white'
-                        }}
-                      />
-                    ) : (
-                      <div style={{
-                        width: '100px',
-                        height: '100px',
-                        background: '#ddd',
-                        borderRadius: '8px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '40px',
-                        color: '#999'
-                      }}>
-                        👤
-                      </div>
-                    )}
-                    <div 
-                      style={{ position: 'relative' }}
-                      ref={(el) => menuRefs.current[member.id] = el}
-                    >
-                      {(user.role === 'admin' || user.isAdmin) && (
-                        <button 
-                          className="btn-secondary" 
-                          style={{ fontSize: '13px', padding: '8px', width: '100px', marginTop: '8px' }}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setShowPermissionMenu(showPermissionMenu === member.id ? null : member.id);
-                          }}
-                        >
-                          권한 수정
-                        </button>
-                      )}
-                      <button 
-                        className="btn-primary" 
-                        style={{ fontSize: '13px', padding: '8px', width: '100px', marginTop: '8px' }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenScoreModal(member);
-                        }}
-                      >
-                        스코어 기록
-                      </button>
-                      {showPermissionMenu === member.id && (
-                        <div 
-                          onClick={(e) => e.stopPropagation()}
+              {members.filter(member => showInactive || member.isActive !== false).map(member => {
+                const handicapDisplay = member.golflinkNumber 
+                  ? `GA(${member.handicap})` 
+                  : `HH(${member.handicap})`;
+                
+                return (
+                  <div 
+                    key={member.id}
+                    onClick={() => window.location.href = `#/member/${member.id}`}
+                    style={{
+                      padding: '12px',
+                      background: member.isActive === false ? '#f5f5f5' : 'white',
+                      borderRadius: '8px',
+                      marginBottom: '8px',
+                      display: 'flex',
+                      gap: '12px',
+                      alignItems: 'center',
+                      opacity: member.isActive === false ? 0.6 : 1,
+                      cursor: 'pointer',
+                      border: '1px solid var(--border-color)',
+                      transition: 'all 0.2s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = 'var(--bg-green)';
+                      e.currentTarget.style.transform = 'translateX(4px)';
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = member.isActive === false ? '#f5f5f5' : 'white';
+                      e.currentTarget.style.transform = 'translateX(0)';
+                    }}
+                  >
+                    <div style={{ flexShrink: 0 }}>
+                      {member.photo ? (
+                        <img 
+                          src={member.photo} 
+                          alt={member.name}
                           style={{
-                          position: 'absolute',
-                          top: '100%',
-                          left: 0,
-                          marginTop: '4px',
-                          background: 'white',
-                          border: '1px solid var(--border-color)',
-                          borderRadius: '8px',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                          zIndex: 1000,
-                          minWidth: '180px',
-                          overflow: 'hidden'
+                            width: '60px',
+                            height: '60px',
+                            objectFit: 'cover',
+                            borderRadius: '50%',
+                            border: '2px solid var(--border-color)'
+                          }}
+                        />
+                      ) : (
+                        <div style={{
+                          width: '60px',
+                          height: '60px',
+                          background: '#ddd',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '28px',
+                          color: '#999',
+                          border: '2px solid var(--border-color)'
                         }}>
-                          <button
-                            onClick={() => handleEditMember(member)}
-                            style={{
-                              width: '100%',
-                              padding: '12px 16px',
-                              background: 'white',
-                              border: 'none',
-                              textAlign: 'left',
-                              cursor: 'pointer',
-                              fontSize: '14px',
-                              borderBottom: '1px solid var(--border-color)',
-                              transition: 'background 0.2s'
-                            }}
-                            onMouseEnter={(e) => e.target.style.background = 'var(--bg-green)'}
-                            onMouseLeave={(e) => e.target.style.background = 'white'}
-                          >
-                            ✏️ 회원 정보 수정
-                          </button>
-                          <button
-                            onClick={() => handleChangeRole(member.id, 'admin')}
-                            disabled={member.role === 'admin'}
-                            style={{
-                              width: '100%',
-                              padding: '12px 16px',
-                              background: member.role === 'admin' ? 'var(--bg-green)' : 'white',
-                              border: 'none',
-                              textAlign: 'left',
-                              cursor: member.role === 'admin' ? 'default' : 'pointer',
-                              fontSize: '14px',
-                              borderBottom: '1px solid var(--border-color)',
-                              transition: 'background 0.2s',
-                              fontWeight: member.role === 'admin' ? '700' : '400',
-                              color: member.role === 'admin' ? 'var(--primary-green)' : '#000'
-                            }}
-                            onMouseEnter={(e) => member.role !== 'admin' && (e.target.style.background = 'var(--bg-green)')}
-                            onMouseLeave={(e) => member.role !== 'admin' && (e.target.style.background = 'white')}
-                          >
-                            👑 관리자 {member.role === 'admin' && '✓'}
-                          </button>
-                          <button
-                            onClick={() => handleChangeRole(member.id, 'operator')}
-                            disabled={member.role === 'operator'}
-                            style={{
-                              width: '100%',
-                              padding: '12px 16px',
-                              background: member.role === 'operator' ? 'var(--bg-green)' : 'white',
-                              border: 'none',
-                              textAlign: 'left',
-                              cursor: member.role === 'operator' ? 'default' : 'pointer',
-                              fontSize: '14px',
-                              borderBottom: '1px solid var(--border-color)',
-                              transition: 'background 0.2s',
-                              fontWeight: member.role === 'operator' ? '700' : '400',
-                              color: member.role === 'operator' ? 'var(--primary-green)' : '#000'
-                            }}
-                            onMouseEnter={(e) => member.role !== 'operator' && (e.target.style.background = 'var(--bg-green)')}
-                            onMouseLeave={(e) => member.role !== 'operator' && (e.target.style.background = 'white')}
-                          >
-                            ⚙️ 운영진 {member.role === 'operator' && '✓'}
-                          </button>
-                          <button
-                            onClick={() => handleChangeRole(member.id, 'member')}
-                            disabled={member.role === 'member' || !member.role}
-                            style={{
-                              width: '100%',
-                              padding: '12px 16px',
-                              background: (member.role === 'member' || !member.role) ? 'var(--bg-green)' : 'white',
-                              border: 'none',
-                              textAlign: 'left',
-                              cursor: (member.role === 'member' || !member.role) ? 'default' : 'pointer',
-                              fontSize: '14px',
-                              borderBottom: '1px solid var(--border-color)',
-                              transition: 'background 0.2s',
-                              fontWeight: (member.role === 'member' || !member.role) ? '700' : '400',
-                              color: (member.role === 'member' || !member.role) ? 'var(--primary-green)' : '#000'
-                            }}
-                            onMouseEnter={(e) => member.role !== 'member' && member.role && (e.target.style.background = 'var(--bg-green)')}
-                            onMouseLeave={(e) => member.role !== 'member' && member.role && (e.target.style.background = 'white')}
-                          >
-                            👤 일반 회원 {(member.role === 'member' || !member.role) && '✓'}
-                          </button>
-                          <button
-                            onClick={() => handleToggleActive(member.id)}
-                            style={{
-                              width: '100%',
-                              padding: '12px 16px',
-                              background: 'white',
-                              border: 'none',
-                              textAlign: 'left',
-                              cursor: 'pointer',
-                              fontSize: '14px',
-                              borderBottom: '1px solid var(--border-color)',
-                              transition: 'background 0.2s'
-                            }}
-                            onMouseEnter={(e) => e.target.style.background = 'var(--bg-green)'}
-                            onMouseLeave={(e) => e.target.style.background = 'white'}
-                          >
-                            {member.isActive === false ? '🔓 회원 활성화' : '🔒 회원 비활성화'}
-                          </button>
-                          <button
-                            onClick={() => handleDeleteMember(member.id)}
-                            style={{
-                              width: '100%',
-                              padding: '12px 16px',
-                              background: 'white',
-                              border: 'none',
-                              textAlign: 'left',
-                              cursor: 'pointer',
-                              fontSize: '14px',
-                              color: '#e53e3e',
-                              fontWeight: '600',
-                              transition: 'background 0.2s'
-                            }}
-                            onMouseEnter={(e) => e.target.style.background = '#fee'}
-                            onMouseLeave={(e) => e.target.style.background = 'white'}
-                          >
-                            🗑️ 회원 삭제
-                          </button>
+                          👤
                         </div>
                       )}
                     </div>
-                  </div>
 
-                  <div style={{ flex: 1 }}>
-                    <div style={{ marginBottom: '12px' }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ 
                         fontWeight: '700', 
                         fontSize: '16px',
-                        marginBottom: '4px'
+                        marginBottom: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
                       }}>
+                        <span style={{ color: '#2d5f3f' }}>{member.nickname || member.name}</span>
+                        {member.role === 'admin' && <span style={{ fontSize: '14px' }}>👑</span>}
+                        {member.role === 'operator' && <span style={{ fontSize: '14px' }}>⚙️</span>}
+                      </div>
+                      <div style={{ fontSize: '13px', color: '#666' }}>
                         {member.name}
-                        {member.role === 'admin' && (
-                          <span style={{
-                            marginLeft: '8px',
-                            padding: '2px 8px',
-                            background: '#d4af37',
-                            color: 'white',
-                            borderRadius: '4px',
-                            fontSize: '12px'
-                          }}>
-                            👑 관리자
-                          </span>
-                        )}
-                        {member.role === 'operator' && (
-                          <span style={{
-                            marginLeft: '8px',
-                            padding: '2px 8px',
-                            background: 'var(--primary-green)',
-                            color: 'white',
-                            borderRadius: '4px',
-                            fontSize: '12px'
-                          }}>
-                            ⚙️ 운영진
-                          </span>
-                        )}
-                        {member.isActive === false && (
-                          <span style={{
-                            marginLeft: '8px',
-                            padding: '2px 8px',
-                            background: '#666',
-                            color: 'white',
-                            borderRadius: '4px',
-                            fontSize: '12px'
-                          }}>
-                            비활성
-                          </span>
-                        )}
                       </div>
-                      {member.nickname && (
-                        <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>
-                          대화명: {member.nickname}
-                        </div>
-                      )}
                     </div>
 
-                    <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', lineHeight: '1.6' }}>
-                      <div>핸디: {member.handicap}</div>
-                      {member.gender && (
-                        <div>성별: {member.gender}</div>
-                      )}
-                      {member.birthYear && (
-                        <div>출생연도: {member.birthYear}</div>
-                      )}
-                      {member.region && (
-                        <div>지역: {member.region}</div>
-                      )}
-                      {member.golflinkNumber && (
-                        <div>Golflink Number: {member.golflinkNumber}</div>
-                      )}
-                      {member.clubMemberNumber && (
-                        <div>클럽 회원번호: {member.clubMemberNumber}</div>
-                      )}
-                    </div>
-
-                    <div style={{ fontSize: '13px', lineHeight: '1.6' }}>
-                      <div style={{
-                        fontWeight: '700',
-                        color: member.balance < 0 ? '#e53e3e' : '#22c55e'
-                      }}>
-                        미수금: ${member.balance.toLocaleString()}
-                      </div>
-                      <div style={{ color: '#666' }}>
-                        전화: {String(member.phone).replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3')}
-                      </div>
+                    <div style={{
+                      fontSize: '15px',
+                      fontWeight: '700',
+                      color: 'var(--primary-green)',
+                      textAlign: 'right',
+                      flexShrink: 0
+                    }}>
+                      {handicapDisplay}
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
             {editingMember && editMemberData && (
