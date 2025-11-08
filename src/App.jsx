@@ -13,6 +13,7 @@ import RoundingManagement from './pages/RoundingManagement';
 import TeamFormation from './pages/TeamFormation';
 import ParticipantManagement from './pages/ParticipantManagement';
 import MemberScoreEntry from './pages/MemberScoreEntry';
+import MemberDetail from './pages/MemberDetail';
 import Navigation from './components/Navigation';
 
 function AppRoutes({ user, logout }) {
@@ -32,6 +33,7 @@ function AppRoutes({ user, logout }) {
         <Route path="/fees" element={<Fees />} />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/member/:id" element={<MemberDetail />} />
         <Route path="/rounding-management" element={<RoundingManagement />} />
         <Route path="/team-formation" element={<TeamFormation />} />
         <Route path="/participant-management" element={<ParticipantManagement />} />

@@ -417,4 +417,37 @@ router.put('/settings/:feature', async (req, res) => {
   }
 });
 
+router.get('/scores/:memberId', async (req, res) => {
+  try {
+    const scores = await prisma.score.findMany({
+      where: { userId: req.params.memberId },
+      orderBy: { date: 'desc' }
+    });
+    res.json(scores);
+  } catch (error) {
+    console.error('Error fetching scores:', error);
+    res.status(500).json({ error: 'Failed to fetch scores' });
+  }
+});
+
+router.post('/scores', async (req, res) => {
+  try {
+    const { memberId, roundingName, date, courseName, totalScore } = req.body;
+    const score = await prisma.score.create({
+      data: {
+        userId: memberId,
+        roundingName,
+        date,
+        courseName,
+        totalScore,
+        holes: ''
+      }
+    });
+    res.json(score);
+  } catch (error) {
+    console.error('Error creating score:', error);
+    res.status(500).json({ error: 'Failed to create score' });
+  }
+});
+
 module.exports = router;

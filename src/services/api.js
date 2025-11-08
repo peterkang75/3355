@@ -254,6 +254,22 @@ class ApiService {
     if (!response.ok) throw new Error('Failed to update setting');
     return response.json();
   }
+
+  async fetchScores(memberId) {
+    const response = await fetch(`${API_BASE}/scores/${memberId}`);
+    if (!response.ok) throw new Error('Failed to fetch scores');
+    return response.json();
+  }
+
+  async createScore(scoreData) {
+    const response = await fetch(`${API_BASE}/scores`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(scoreData)
+    });
+    if (!response.ok) throw new Error('Failed to create score');
+    return response.json();
+  }
 }
 
 export default new ApiService();

@@ -93,16 +93,17 @@ model Fee {
 }
 
 model Score {
-  id         String   @id @default(cuid())
-  userId     String
-  user       Member   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  date       String
-  courseName String
-  totalScore Int
-  coursePar  Int      @default(72)
-  holes      String
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id           String   @id @default(cuid())
+  userId       String
+  user         Member   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  roundingName String?
+  date         String
+  courseName   String
+  totalScore   Int
+  coursePar    Int      @default(72)
+  holes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([userId])
   @@index([date])
