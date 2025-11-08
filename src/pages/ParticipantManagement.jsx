@@ -49,31 +49,11 @@ function ParticipantManagement() {
 
       const updatedParticipants = [...participants, newParticipant];
       
-      const response = await fetch(`/api/bookings/${bookingId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          participants: updatedParticipants.map(p => JSON.stringify(p))
-        })
+      console.log('🔵 참가자 추가 시도:', {
+        bookingId,
+        newParticipant,
+        updatedParticipants
       });
-
-      if (response.ok) {
-        await refreshBookings();
-        setShowAddModal(false);
-      } else {
-        alert('참가자 추가에 실패했습니다.');
-      }
-    } catch (error) {
-      console.error('참가자 추가 오류:', error);
-      alert('참가자 추가 중 오류가 발생했습니다.');
-    }
-  };
-
-  const handleRemoveParticipant = async (phoneToRemove) => {
-    if (!confirm('이 참가자를 삭제하시겠습니까?')) return;
-
-    try {
-      const updatedParticipants = participants.filter(p => p.phone !== phoneToRemove);
       
       const response = await fetch(`/api/bookings/${bookingId}`, {
         method: 'PUT',
@@ -83,14 +63,58 @@ function ParticipantManagement() {
         })
       });
 
+      console.log('📡 응답 상태:', response.status);
+
       if (response.ok) {
+        const result = await response.json();
+        console.log('✅ 참가자 추가 성공:', result);
         await refreshBookings();
+        setShowAddModal(false);
       } else {
-        alert('참가자 삭제에 실패했습니다.');
+        const errorData = await response.text();
+        console.error('❌ 서버 오류:', errorData);
+        alert(`참가자 추가에 실패했습니다: ${errorData}`);
       }
     } catch (error) {
-      console.error('참가자 삭제 오류:', error);
-      alert('참가자 삭제 중 오류가 발생했습니다.');
+      console.error('❌ 참가자 추가 오류:', error.message, error);
+      alert(`참가자 추가 중 오류가 발생했습니다: ${error.message}`);
+    }
+  };
+
+  const handleRemoveParticipant = async (phoneToRemove) => {
+    if (!confirm('이 참가자를 삭제하시겠습니까?')) return;
+
+    try {
+      const updatedParticipants = participants.filter(p => p.phone !== phoneToRemove);
+      
+      console.log('🔵 참가자 삭제 시도:', {
+        bookingId,
+        phoneToRemove,
+        updatedParticipants
+      });
+      
+      const response = await fetch(`/api/bookings/${bookingId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          participants: updatedParticipants.map(p => JSON.stringify(p))
+        })
+      });
+
+      console.log('📡 응답 상태:', response.status);
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ 참가자 삭제 성공:', result);
+        await refreshBookings();
+      } else {
+        const errorData = await response.text();
+        console.error('❌ 서버 오류:', errorData);
+        alert(`참가자 삭제에 실패했습니다: ${errorData}`);
+      }
+    } catch (error) {
+      console.error('❌ 참가자 삭제 오류:', error.message, error);
+      alert(`참가자 삭제 중 오류가 발생했습니다: ${error.message}`);
     }
   };
 
