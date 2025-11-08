@@ -1726,42 +1726,46 @@ function Admin() {
               </div>
 
               <div style={{
-                padding: '12px',
+                padding: '10px 12px',
                 background: 'var(--bg-green)',
-                borderRadius: '8px',
-                marginBottom: '20px',
-                fontSize: '13px',
+                borderRadius: '6px',
+                marginBottom: '16px',
+                fontSize: '12px',
                 color: '#666'
               }}>
-                💡 각 기능에 대해 최소 권한을 설정할 수 있습니다. 설정한 권한 이상의 역할을 가진 사용자만 해당 기능을 사용할 수 있습니다.
+                💡 각 기능의 최소 권한을 설정하세요
               </div>
 
-              <div style={{ display: 'grid', gap: '12px' }}>
+              <div style={{ display: 'grid', gap: '8px' }}>
                 {features.map(feature => (
                   <div
                     key={feature.id}
                     style={{
-                      padding: '16px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '10px 12px',
                       background: 'white',
-                      border: '2px solid var(--border-color)',
-                      borderRadius: '8px'
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '6px'
                     }}
                   >
                     <div style={{
-                      fontSize: '15px',
-                      fontWeight: '700',
+                      fontSize: '14px',
+                      fontWeight: '600',
                       color: '#2d5f3f',
-                      marginBottom: '12px'
+                      flex: '0 0 auto',
+                      marginRight: '12px'
                     }}>
                       {feature.name}
                     </div>
                     
-                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', gap: '4px' }}>
                       {['admin', 'operator', 'member'].map(role => {
                         const roleLabels = {
-                          admin: '👑 관리자',
-                          operator: '⚙️ 운영진',
-                          member: '👤 일반 회원'
+                          admin: '👑',
+                          operator: '⚙️',
+                          member: '👤'
                         };
                         const isSelected = permissions[feature.id] === role;
                         
@@ -1769,18 +1773,17 @@ function Admin() {
                           <button
                             key={role}
                             onClick={() => handlePermissionChange(feature.id, role)}
+                            title={role === 'admin' ? '관리자' : role === 'operator' ? '운영진' : '일반 회원'}
                             style={{
-                              flex: '1',
-                              minWidth: '100px',
-                              padding: '10px 16px',
+                              padding: '6px 10px',
                               background: isSelected ? 'var(--primary-green)' : 'white',
                               color: isSelected ? 'white' : '#666',
-                              border: `2px solid ${isSelected ? 'var(--primary-green)' : 'var(--border-color)'}`,
-                              borderRadius: '6px',
-                              fontSize: '14px',
-                              fontWeight: isSelected ? '700' : '500',
+                              border: `1.5px solid ${isSelected ? 'var(--primary-green)' : '#ddd'}`,
+                              borderRadius: '4px',
+                              fontSize: '16px',
                               cursor: 'pointer',
-                              transition: 'all 0.2s'
+                              transition: 'all 0.15s',
+                              minWidth: '36px'
                             }}
                           >
                             {roleLabels[role]}
