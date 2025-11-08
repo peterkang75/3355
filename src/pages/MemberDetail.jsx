@@ -400,98 +400,193 @@ function MemberDetail() {
               <>
                 <div className="card" style={{ marginBottom: '16px' }}>
                   <h3 style={{ 
-                    fontSize: '16px', 
-                    fontWeight: '700',
-                    marginBottom: '16px',
-                    color: '#2d5f3f'
+                    fontSize: '14px', 
+                    fontWeight: '600',
+                    marginBottom: '12px',
+                    color: '#666',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
                   }}>
                     권한 관리
                   </h3>
                   
-                  <div style={{ display: 'grid', gap: '8px' }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    gap: '8px',
+                    justifyContent: 'space-between'
+                  }}>
                     <button
                       onClick={() => handleChangeRole('admin')}
                       disabled={member.role === 'admin'}
-                      className="btn-secondary"
                       style={{
-                        background: member.role === 'admin' ? 'var(--primary-green)' : 'white',
-                        color: member.role === 'admin' ? 'white' : '#000',
-                        opacity: member.role === 'admin' ? 1 : 0.7
+                        flex: 1,
+                        padding: '10px 8px',
+                        background: member.role === 'admin' ? 'var(--primary-green)' : '#f5f5f5',
+                        color: member.role === 'admin' ? 'white' : '#666',
+                        border: member.role === 'admin' ? 'none' : '1px solid #e0e0e0',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: member.role === 'admin' ? 'default' : 'pointer',
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '4px'
                       }}
                     >
-                      👑 관리자 {member.role === 'admin' && '✓'}
+                      <span style={{ fontSize: '18px' }}>👑</span>
+                      <span>관리자</span>
                     </button>
                     <button
                       onClick={() => handleChangeRole('operator')}
                       disabled={member.role === 'operator'}
-                      className="btn-secondary"
                       style={{
-                        background: member.role === 'operator' ? 'var(--primary-green)' : 'white',
-                        color: member.role === 'operator' ? 'white' : '#000',
-                        opacity: member.role === 'operator' ? 1 : 0.7
+                        flex: 1,
+                        padding: '10px 8px',
+                        background: member.role === 'operator' ? 'var(--primary-green)' : '#f5f5f5',
+                        color: member.role === 'operator' ? 'white' : '#666',
+                        border: member.role === 'operator' ? 'none' : '1px solid #e0e0e0',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: member.role === 'operator' ? 'default' : 'pointer',
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '4px'
                       }}
                     >
-                      ⚙️ 운영진 {member.role === 'operator' && '✓'}
+                      <span style={{ fontSize: '18px' }}>⚙️</span>
+                      <span>운영진</span>
                     </button>
                     <button
                       onClick={() => handleChangeRole('member')}
                       disabled={member.role === 'member' || !member.role}
-                      className="btn-secondary"
                       style={{
-                        background: (member.role === 'member' || !member.role) ? 'var(--primary-green)' : 'white',
-                        color: (member.role === 'member' || !member.role) ? 'white' : '#000',
-                        opacity: (member.role === 'member' || !member.role) ? 1 : 0.7
+                        flex: 1,
+                        padding: '10px 8px',
+                        background: (member.role === 'member' || !member.role) ? 'var(--primary-green)' : '#f5f5f5',
+                        color: (member.role === 'member' || !member.role) ? 'white' : '#666',
+                        border: (member.role === 'member' || !member.role) ? 'none' : '1px solid #e0e0e0',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: (member.role === 'member' || !member.role) ? 'default' : 'pointer',
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '4px'
                       }}
                     >
-                      👤 일반 회원 {(member.role === 'member' || !member.role) && '✓'}
+                      <span style={{ fontSize: '18px' }}>👤</span>
+                      <span>일반</span>
                     </button>
                   </div>
                 </div>
 
                 <div className="card" style={{ marginBottom: '16px' }}>
                   <h3 style={{ 
-                    fontSize: '16px', 
-                    fontWeight: '700',
-                    marginBottom: '16px',
-                    color: '#2d5f3f'
+                    fontSize: '14px', 
+                    fontWeight: '600',
+                    marginBottom: '12px',
+                    color: '#666',
+                    textTransform: 'uppercase',
+                    letterSpacing: '0.5px'
                   }}>
                     관리 기능
                   </h3>
                   
-                  <div style={{ display: 'grid', gap: '8px' }}>
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '8px'
+                  }}>
                     <button
                       onClick={() => setIsEditing(true)}
-                      className="btn-primary"
+                      style={{
+                        padding: '12px',
+                        background: 'var(--primary-green)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '4px',
+                        transition: 'all 0.2s'
+                      }}
                     >
-                      ✏️ 회원 정보 수정
+                      <span style={{ fontSize: '20px' }}>✏️</span>
+                      <span>정보 수정</span>
                     </button>
                     <button
                       onClick={() => setShowScoreModal(true)}
-                      className="btn-primary"
+                      style={{
+                        padding: '12px',
+                        background: 'var(--primary-green)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '4px',
+                        transition: 'all 0.2s'
+                      }}
                     >
-                      📊 스코어 기록
+                      <span style={{ fontSize: '20px' }}>📊</span>
+                      <span>스코어 기록</span>
                     </button>
                     <button
                       onClick={handleToggleActive}
-                      className="btn-secondary"
+                      style={{
+                        padding: '12px',
+                        background: '#f5f5f5',
+                        color: '#666',
+                        border: '1px solid #e0e0e0',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '4px',
+                        transition: 'all 0.2s'
+                      }}
                     >
-                      {member.isActive === false ? '🔓 회원 활성화' : '🔒 회원 비활성화'}
+                      <span style={{ fontSize: '20px' }}>{member.isActive === false ? '🔓' : '🔒'}</span>
+                      <span>{member.isActive === false ? '활성화' : '비활성화'}</span>
                     </button>
                     <button
                       onClick={handleDelete}
                       style={{
-                        width: '100%',
                         padding: '12px',
-                        background: 'white',
+                        background: '#fff5f5',
                         color: '#e53e3e',
-                        border: '2px solid #e53e3e',
-                        borderRadius: '8px',
-                        fontSize: '16px',
+                        border: '1px solid #fecaca',
+                        borderRadius: '6px',
+                        fontSize: '13px',
                         fontWeight: '600',
-                        cursor: 'pointer'
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '4px',
+                        transition: 'all 0.2s'
                       }}
                     >
-                      🗑️ 회원 삭제
+                      <span style={{ fontSize: '20px' }}>🗑️</span>
+                      <span>회원 삭제</span>
                     </button>
                   </div>
                 </div>
