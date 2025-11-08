@@ -345,23 +345,31 @@ function Dashboard() {
           gap: '12px',
           marginBottom: '16px'
         }}>
-          <div className="card" style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>
-              추천핸디
+          <div className="card" style={{ 
+            textAlign: 'center',
+            padding: '16px 12px'
+          }}>
+            <div style={{ 
+              fontSize: '24px', 
+              fontWeight: '700',
+              color: 'var(--primary-green)',
+              marginBottom: '8px'
+            }}>
+              핸디: {user.handicap ?? user.calculatedHandicap ?? 18}
             </div>
             <div style={{ 
-              fontSize: '28px', 
-              fontWeight: '700',
-              color: 'var(--primary-green)'
+              fontSize: '13px', 
+              color: '#666',
+              marginBottom: '4px'
             }}>
-              {user.handicapType || 'HH'}({user.calculatedHandicap ?? user.handicap ?? 18})
+              추천핸디: {user.calculatedHandicap ?? user.handicap ?? 18}
             </div>
             {user.handicapExplanation && (
               <div style={{ 
-                fontSize: '11px', 
-                color: '#999',
-                marginTop: '4px',
-                fontStyle: 'italic'
+                fontSize: '13px', 
+                color: '#888',
+                fontStyle: 'italic',
+                lineHeight: '1.4'
               }}>
                 {user.handicapExplanation}
               </div>
