@@ -186,52 +186,120 @@ function MemberScoreEntry() {
           </div>
         </div>
 
-        <div className="card" style={{ marginBottom: '16px' }}>
-          <h3 style={{ 
-            fontSize: '16px', 
-            fontWeight: '700',
-            marginBottom: '16px',
-            color: 'var(--primary-green)'
-          }}>
-            📝 참가자별 총 타수 입력
-          </h3>
-
-          <div style={{ display: 'grid', gap: '16px' }}>
-            {participants.map((participant, index) => (
-              <div key={index} style={{
-                padding: '16px',
-                background: 'var(--bg-green)',
-                borderRadius: '8px',
-                border: '2px solid #e0e0e0'
+        {booking.teams && booking.teams.length > 0 ? (
+          booking.teams.map((team, teamIndex) => (
+            <div key={teamIndex} className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ 
+                fontSize: '16px', 
+                fontWeight: '700',
+                marginBottom: '16px',
+                color: 'var(--primary-green)'
               }}>
-                <label style={{
-                  display: 'block',
-                  fontSize: '15px',
-                  fontWeight: '700',
-                  color: '#2d5f3f',
-                  marginBottom: '8px'
-                }}>
-                  {getParticipantDisplayName(participant)}
-                </label>
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  placeholder="총 타수 입력 (예: 85)"
-                  value={scores[participant.phone] || ''}
-                  onChange={(e) => handleScoreChange(participant.phone, e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    fontSize: '16px',
-                    border: '2px solid #ddd',
-                    borderRadius: '6px',
-                    boxSizing: 'border-box'
-                  }}
-                />
+                🏌️ {team.name}
+              </h3>
+
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(2, 1fr)', 
+                gap: '12px' 
+              }}>
+                {team.members.map((memberPhone, index) => {
+                  const participant = participants.find(p => p.phone === memberPhone);
+                  if (!participant) return null;
+                  
+                  return (
+                    <div key={index} style={{
+                      padding: '12px',
+                      background: 'var(--bg-green)',
+                      borderRadius: '8px',
+                      border: '2px solid #e0e0e0'
+                    }}>
+                      <label style={{
+                        display: 'block',
+                        fontSize: '14px',
+                        fontWeight: '700',
+                        color: '#2d5f3f',
+                        marginBottom: '8px'
+                      }}>
+                        {getParticipantDisplayName(participant)}
+                      </label>
+                      <input
+                        type="number"
+                        inputMode="numeric"
+                        placeholder="타수"
+                        value={scores[participant.phone] || ''}
+                        onChange={(e) => handleScoreChange(participant.phone, e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          fontSize: '16px',
+                          border: '2px solid #ddd',
+                          borderRadius: '6px',
+                          boxSizing: 'border-box',
+                          fontWeight: '700',
+                          textAlign: 'center'
+                        }}
+                      />
+                    </div>
+                  );
+                })}
               </div>
-            ))}
+            </div>
+          ))
+        ) : (
+          <div className="card" style={{ marginBottom: '16px' }}>
+            <h3 style={{ 
+              fontSize: '16px', 
+              fontWeight: '700',
+              marginBottom: '16px',
+              color: 'var(--primary-green)'
+            }}>
+              📝 참가자별 총 타수 입력
+            </h3>
+
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(2, 1fr)', 
+              gap: '12px' 
+            }}>
+              {participants.map((participant, index) => (
+                <div key={index} style={{
+                  padding: '12px',
+                  background: 'var(--bg-green)',
+                  borderRadius: '8px',
+                  border: '2px solid #e0e0e0'
+                }}>
+                  <label style={{
+                    display: 'block',
+                    fontSize: '14px',
+                    fontWeight: '700',
+                    color: '#2d5f3f',
+                    marginBottom: '8px'
+                  }}>
+                    {getParticipantDisplayName(participant)}
+                  </label>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    placeholder="타수"
+                    value={scores[participant.phone] || ''}
+                    onChange={(e) => handleScoreChange(participant.phone, e.target.value)}
+                    style={{
+                      width: '100%',
+                      padding: '10px',
+                      fontSize: '16px',
+                      border: '2px solid #ddd',
+                      borderRadius: '6px',
+                      boxSizing: 'border-box',
+                      fontWeight: '700',
+                      textAlign: 'center'
+                    }}
+                  />
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <button
           onClick={handleSaveScores}
