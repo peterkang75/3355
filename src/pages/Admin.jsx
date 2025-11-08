@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 
 function Admin() {
+  const navigate = useNavigate();
   const { user, addFee, courses, addCourse, refreshMembers, refreshCourses, members: contextMembers } = useApp();
   const [activeTab, setActiveTab] = useState('menu');
   const [members, setMembers] = useState([]);
@@ -680,7 +682,7 @@ function Admin() {
                 return (
                   <div 
                     key={member.id}
-                    onClick={() => window.location.href = `#/member/${member.id}`}
+                    onClick={() => navigate(`/member/${member.id}`)}
                     style={{
                       padding: '12px',
                       background: member.isActive === false ? '#f5f5f5' : 'white',
