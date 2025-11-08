@@ -21,6 +21,7 @@ model Member {
   golflinkNumber   String?
   clubMemberNumber String?
   isAdmin          Boolean  @default(false)
+  role             String   @default("member")
   balance          Int      @default(0)
   photo            String?
   isActive         Boolean  @default(true)

@@ -51,6 +51,16 @@ class ApiService {
     return response.json();
   }
 
+  async updateMemberRole(id, role) {
+    const response = await fetch(`${API_BASE}/members/${id}/role`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role })
+    });
+    if (!response.ok) throw new Error('Failed to update member role');
+    return response.json();
+  }
+
   async fetchPosts() {
     const response = await fetch(`${API_BASE}/posts`);
     if (!response.ok) throw new Error('Failed to fetch posts');

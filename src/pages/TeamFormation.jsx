@@ -214,12 +214,12 @@ function TeamFormation() {
     setHasUnsavedChanges(true);
   };
 
-  if (!user?.isAdmin) {
+  if (user?.role !== 'admin' && user?.role !== 'operator') {
     return (
       <div className="page-content">
         <div className="card">
           <p style={{ textAlign: 'center', color: '#666' }}>
-            관리자만 접근할 수 있습니다.
+            관리자 또는 운영진만 접근할 수 있습니다.
           </p>
         </div>
       </div>

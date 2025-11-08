@@ -272,6 +272,10 @@ export function AppProvider({ children }) {
     }
   };
 
+  const isAdmin = () => user?.role === 'admin';
+  const isOperator = () => user?.role === 'operator' || user?.role === 'admin';
+  const isMember = () => user?.role === 'member';
+
   const value = {
     user,
     members,
@@ -294,7 +298,10 @@ export function AppProvider({ children }) {
     addCourse,
     refreshMembers,
     refreshCourses,
-    refreshBookings
+    refreshBookings,
+    isAdmin,
+    isOperator,
+    isMember
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -127,16 +127,23 @@ function Admin() {
     }
   };
 
-  const handleToggleAdmin = async (memberId) => {
+  const handleChangeRole = async (memberId, newRole) => {
     try {
-      const updatedMember = await apiService.toggleMemberAdmin(memberId);
+      await apiService.updateMemberRole(memberId, newRole);
       
       if (refreshMembers) {
         await refreshMembers();
       }
       
       setShowPermissionMenu(null);
-      alert(updatedMember.isAdmin ? '관리자 권한이 부여되었습니다.' : '관리자 권한이 해제되었습니다.');
+      
+      const roleNames = {
+        admin: '관리자',
+        operator: '운영진',
+        member: '일반 회원'
+      };
+      
+      alert(`권한이 "${roleNames[newRole]}"(으)로 변경되었습니다.`);
     } catch (error) {
       console.error('❌ 권한 변경 실패:', error);
       alert('권한 변경 중 오류가 발생했습니다.');
@@ -405,7 +412,7 @@ function Admin() {
     }
   };
 
-  if (!user.isAdmin) {
+  if (user.role !== 'admin' && user.role !== 'operator') {
     return (
       <div>
         <div className="header">
@@ -414,7 +421,7 @@ function Admin() {
         <div className="page-content">
           <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔒</div>
-            <p>관리자 권한이 필요합니다</p>
+            <p>관리자 또는 운영진 권한이 필요합니다</p>
           </div>
         </div>
       </div>
@@ -649,16 +656,18 @@ function Admin() {
                       style={{ position: 'relative' }}
                       ref={(el) => menuRefs.current[member.id] = el}
                     >
-                      <button 
-                        className="btn-secondary" 
-                        style={{ fontSize: '13px', padding: '8px', width: '100px', marginTop: '8px' }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setShowPermissionMenu(showPermissionMenu === member.id ? null : member.id);
-                        }}
-                      >
-                        권한 수정
-                      </button>
+                      {user.role === 'admin' && (
+                        <button 
+                          className="btn-secondary" 
+                          style={{ fontSize: '13px', padding: '8px', width: '100px', marginTop: '8px' }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setShowPermissionMenu(showPermissionMenu === member.id ? null : member.id);
+                          }}
+                        >
+                          권한 수정
+                        </button>
+                      )}
                       <button 
                         className="btn-primary" 
                         style={{ fontSize: '13px', padding: '8px', width: '100px', marginTop: '8px' }}
@@ -704,22 +713,67 @@ function Admin() {
                             ✏️ 회원 정보 수정
                           </button>
                           <button
-                            onClick={() => handleToggleAdmin(member.id)}
+                            onClick={() => handleChangeRole(member.id, 'admin')}
+                            disabled={member.role === 'admin'}
                             style={{
                               width: '100%',
                               padding: '12px 16px',
-                              background: 'white',
+                              background: member.role === 'admin' ? 'var(--bg-green)' : 'white',
                               border: 'none',
                               textAlign: 'left',
-                              cursor: 'pointer',
+                              cursor: member.role === 'admin' ? 'default' : 'pointer',
                               fontSize: '14px',
                               borderBottom: '1px solid var(--border-color)',
-                              transition: 'background 0.2s'
+                              transition: 'background 0.2s',
+                              fontWeight: member.role === 'admin' ? '700' : '400',
+                              color: member.role === 'admin' ? 'var(--primary-green)' : '#000'
                             }}
-                            onMouseEnter={(e) => e.target.style.background = 'var(--bg-green)'}
-                            onMouseLeave={(e) => e.target.style.background = 'white'}
+                            onMouseEnter={(e) => member.role !== 'admin' && (e.target.style.background = 'var(--bg-green)')}
+                            onMouseLeave={(e) => member.role !== 'admin' && (e.target.style.background = 'white')}
                           >
-                            {member.isAdmin ? '❌ 관리자 권한 해제' : '✅ 관리자 권한 주기'}
+                            👑 관리자 {member.role === 'admin' && '✓'}
+                          </button>
+                          <button
+                            onClick={() => handleChangeRole(member.id, 'operator')}
+                            disabled={member.role === 'operator'}
+                            style={{
+                              width: '100%',
+                              padding: '12px 16px',
+                              background: member.role === 'operator' ? 'var(--bg-green)' : 'white',
+                              border: 'none',
+                              textAlign: 'left',
+                              cursor: member.role === 'operator' ? 'default' : 'pointer',
+                              fontSize: '14px',
+                              borderBottom: '1px solid var(--border-color)',
+                              transition: 'background 0.2s',
+                              fontWeight: member.role === 'operator' ? '700' : '400',
+                              color: member.role === 'operator' ? 'var(--primary-green)' : '#000'
+                            }}
+                            onMouseEnter={(e) => member.role !== 'operator' && (e.target.style.background = 'var(--bg-green)')}
+                            onMouseLeave={(e) => member.role !== 'operator' && (e.target.style.background = 'white')}
+                          >
+                            ⚙️ 운영진 {member.role === 'operator' && '✓'}
+                          </button>
+                          <button
+                            onClick={() => handleChangeRole(member.id, 'member')}
+                            disabled={member.role === 'member' || !member.role}
+                            style={{
+                              width: '100%',
+                              padding: '12px 16px',
+                              background: (member.role === 'member' || !member.role) ? 'var(--bg-green)' : 'white',
+                              border: 'none',
+                              textAlign: 'left',
+                              cursor: (member.role === 'member' || !member.role) ? 'default' : 'pointer',
+                              fontSize: '14px',
+                              borderBottom: '1px solid var(--border-color)',
+                              transition: 'background 0.2s',
+                              fontWeight: (member.role === 'member' || !member.role) ? '700' : '400',
+                              color: (member.role === 'member' || !member.role) ? 'var(--primary-green)' : '#000'
+                            }}
+                            onMouseEnter={(e) => member.role !== 'member' && member.role && (e.target.style.background = 'var(--bg-green)')}
+                            onMouseLeave={(e) => member.role !== 'member' && member.role && (e.target.style.background = 'white')}
+                          >
+                            👤 일반 회원 {(member.role === 'member' || !member.role) && '✓'}
                           </button>
                           <button
                             onClick={() => handleToggleActive(member.id)}
@@ -771,7 +825,19 @@ function Admin() {
                         marginBottom: '4px'
                       }}>
                         {member.name}
-                        {member.isAdmin && (
+                        {member.role === 'admin' && (
+                          <span style={{
+                            marginLeft: '8px',
+                            padding: '2px 8px',
+                            background: '#d4af37',
+                            color: 'white',
+                            borderRadius: '4px',
+                            fontSize: '12px'
+                          }}>
+                            👑 관리자
+                          </span>
+                        )}
+                        {member.role === 'operator' && (
                           <span style={{
                             marginLeft: '8px',
                             padding: '2px 8px',
@@ -780,7 +846,7 @@ function Admin() {
                             borderRadius: '4px',
                             fontSize: '12px'
                           }}>
-                            관리자
+                            ⚙️ 운영진
                           </span>
                         )}
                         {member.isActive === false && (

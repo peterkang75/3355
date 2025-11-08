@@ -96,6 +96,29 @@ router.patch('/members/:id/toggle-active', async (req, res) => {
   }
 });
 
+router.patch('/members/:id/role', async (req, res) => {
+  try {
+    const { role } = req.body;
+    
+    if (!['admin', 'operator', 'member'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role' });
+    }
+    
+    const updated = await prisma.member.update({
+      where: { id: req.params.id },
+      data: { 
+        role,
+        isAdmin: role === 'admin'
+      }
+    });
+    
+    res.json(updated);
+  } catch (error) {
+    console.error('Error updating member role:', error);
+    res.status(500).json({ error: 'Failed to update member role' });
+  }
+});
+
 router.get('/posts', async (req, res) => {
   try {
     const posts = await prisma.post.findMany({
