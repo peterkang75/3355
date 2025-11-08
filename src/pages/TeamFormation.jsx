@@ -214,7 +214,9 @@ function TeamFormation() {
     setHasUnsavedChanges(true);
   };
 
-  if (user?.role !== 'admin' && user?.role !== 'operator') {
+  const hasAdminAccess = user?.role === 'admin' || user?.role === 'operator' || user?.isAdmin;
+  
+  if (!hasAdminAccess) {
     return (
       <div className="page-content">
         <div className="card">

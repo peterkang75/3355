@@ -412,7 +412,9 @@ function Admin() {
     }
   };
 
-  if (user.role !== 'admin' && user.role !== 'operator') {
+  const hasAdminAccess = user.role === 'admin' || user.role === 'operator' || user.isAdmin;
+  
+  if (!hasAdminAccess) {
     return (
       <div>
         <div className="header">
@@ -656,7 +658,7 @@ function Admin() {
                       style={{ position: 'relative' }}
                       ref={(el) => menuRefs.current[member.id] = el}
                     >
-                      {user.role === 'admin' && (
+                      {(user.role === 'admin' || user.isAdmin) && (
                         <button 
                           className="btn-secondary" 
                           style={{ fontSize: '13px', padding: '8px', width: '100px', marginTop: '8px' }}
