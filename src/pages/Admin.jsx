@@ -36,6 +36,13 @@ function Admin() {
   const [editingCourse, setEditingCourse] = useState(null);
   const [editCourseData, setEditCourseData] = useState(null);
   const courseMenuRefs = useRef({});
+  const [showScoreModal, setShowScoreModal] = useState(null);
+  const [scoreFormData, setScoreFormData] = useState({
+    roundingName: '',
+    date: '',
+    courseName: '',
+    totalScore: ''
+  });
 
   useEffect(() => {
     if (contextMembers) {
@@ -326,6 +333,59 @@ function Admin() {
     setEditCourseData({ ...editCourseData, holePars: newHolePars });
   };
 
+  const handleOpenScoreModal = (member) => {
+    setShowScoreModal(member.id);
+    setScoreFormData({
+      roundingName: '',
+      date: '',
+      courseName: '',
+      totalScore: ''
+    });
+  };
+
+  const handleCloseScoreModal = () => {
+    setShowScoreModal(null);
+    setScoreFormData({
+      roundingName: '',
+      date: '',
+      courseName: '',
+      totalScore: ''
+    });
+  };
+
+  const handleSaveScore = async () => {
+    const member = members.find(m => m.id === showScoreModal);
+    
+    if (!scoreFormData.date || !scoreFormData.courseName || !scoreFormData.totalScore) {
+      alert('날짜, 골프장, 총 타수를 모두 입력해주세요.');
+      return;
+    }
+
+    const totalScore = parseInt(scoreFormData.totalScore);
+    if (isNaN(totalScore) || totalScore <= 0) {
+      alert('총 타수는 유효한 숫자여야 합니다.');
+      return;
+    }
+
+    try {
+      const scoreData = {
+        userId: member.id,
+        date: scoreFormData.date,
+        courseName: scoreFormData.courseName,
+        totalScore: totalScore,
+        coursePar: 72,
+        holes: JSON.stringify([])
+      };
+
+      await apiService.createScore(scoreData);
+      alert(`${member.nickname || member.name}의 스코어가 저장되었습니다!`);
+      handleCloseScoreModal();
+    } catch (error) {
+      console.error('스코어 저장 실패:', error);
+      alert('스코어 저장 중 오류가 발생했습니다.');
+    }
+  };
+
   if (!user.isAdmin) {
     return (
       <div>
@@ -579,6 +639,16 @@ function Admin() {
                         }}
                       >
                         권한 수정
+                      </button>
+                      <button 
+                        className="btn-primary" 
+                        style={{ fontSize: '13px', padding: '8px', width: '100px', marginTop: '8px' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenScoreModal(member);
+                        }}
+                      >
+                        스코어 기록
                       </button>
                       {showPermissionMenu === member.id && (
                         <div 
@@ -1601,6 +1671,207 @@ function Admin() {
           </div>
         )}
       </div>
+
+      {showScoreModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 2000,
+          padding: '16px'
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '24px',
+            width: '100%',
+            maxWidth: '400px',
+            maxHeight: '90vh',
+            overflow: 'auto'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              marginBottom: '20px' 
+            }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700' }}>
+                스코어 기록
+              </h3>
+              <button
+                onClick={handleCloseScoreModal}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: '#666'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{
+                fontSize: '15px',
+                fontWeight: '700',
+                color: '#2d5f3f',
+                marginBottom: '12px',
+                padding: '12px',
+                background: 'var(--bg-green)',
+                borderRadius: '6px'
+              }}>
+                {members.find(m => m.id === showScoreModal)?.nickname || 
+                 members.find(m => m.id === showScoreModal)?.name}
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gap: '16px' }}>
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#2d5f3f',
+                  marginBottom: '8px'
+                }}>
+                  라운딩 이름 (선택)
+                </label>
+                <input
+                  type="text"
+                  placeholder="예: 1월 정기 라운딩"
+                  value={scoreFormData.roundingName}
+                  onChange={(e) => setScoreFormData({ ...scoreFormData, roundingName: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    fontSize: '14px',
+                    border: '2px solid #ddd',
+                    borderRadius: '6px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#2d5f3f',
+                  marginBottom: '8px'
+                }}>
+                  날짜 *
+                </label>
+                <input
+                  type="date"
+                  value={scoreFormData.date}
+                  onChange={(e) => setScoreFormData({ ...scoreFormData, date: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    fontSize: '14px',
+                    border: '2px solid #ddd',
+                    borderRadius: '6px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#2d5f3f',
+                  marginBottom: '8px'
+                }}>
+                  골프장 *
+                </label>
+                <select
+                  value={scoreFormData.courseName}
+                  onChange={(e) => setScoreFormData({ ...scoreFormData, courseName: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    fontSize: '14px',
+                    border: '2px solid #ddd',
+                    borderRadius: '6px',
+                    boxSizing: 'border-box'
+                  }}
+                >
+                  <option value="">골프장 선택</option>
+                  {courses.map(course => (
+                    <option key={course.id} value={course.name}>
+                      {course.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{
+                  display: 'block',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  color: '#2d5f3f',
+                  marginBottom: '8px'
+                }}>
+                  총 타수 *
+                </label>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="예: 85"
+                  value={scoreFormData.totalScore}
+                  onChange={(e) => setScoreFormData({ ...scoreFormData, totalScore: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    fontSize: '14px',
+                    border: '2px solid #ddd',
+                    borderRadius: '6px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+            </div>
+
+            <div style={{ marginTop: '24px', display: 'flex', gap: '8px' }}>
+              <button
+                onClick={handleCloseScoreModal}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'white',
+                  color: '#666',
+                  border: '2px solid #ddd',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={handleSaveScore}
+                className="btn-primary"
+                style={{ flex: 1 }}
+              >
+                저장하기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
