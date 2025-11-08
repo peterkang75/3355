@@ -239,6 +239,15 @@ export function AppProvider({ children }) {
         console.log('✅ 회원 데이터 업데이트:', membersData.length, '명');
         setMembers(membersData);
         localStorage.setItem('golfMembers', JSON.stringify(membersData));
+        
+        if (user) {
+          const updatedUser = membersData.find(m => m.id === user.id);
+          if (updatedUser) {
+            console.log('✅ 로그인한 사용자 정보 업데이트:', updatedUser.name);
+            setUser(updatedUser);
+            localStorage.setItem('golfUser', JSON.stringify(updatedUser));
+          }
+        }
       }
     } catch (error) {
       console.error('❌ 회원 데이터 새로고침 실패:', error);
