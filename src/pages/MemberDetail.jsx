@@ -49,7 +49,20 @@ function MemberDetail() {
 
   const handleSave = async () => {
     try {
-      await apiService.updateMember(id, editData);
+      const updateData = {
+        name: editData.name,
+        nickname: editData.nickname,
+        phone: editData.phone,
+        club: editData.club,
+        handicap: editData.handicap,
+        golflinkNumber: editData.golflinkNumber,
+        clubMemberNumber: editData.clubMemberNumber,
+        photo: editData.photo,
+        gender: editData.gender,
+        birthYear: editData.birthYear,
+        region: editData.region
+      };
+      await apiService.updateMember(id, updateData);
       await refreshMembers();
       setIsEditing(false);
       alert('회원 정보가 수정되었습니다!');
@@ -75,7 +88,7 @@ function MemberDetail() {
 
   const handleChangeRole = async (newRole) => {
     try {
-      await apiService.updateMember(id, { ...member, role: newRole });
+      await apiService.updateMember(id, { role: newRole });
       await refreshMembers();
       alert('권한이 변경되었습니다!');
     } catch (error) {
@@ -86,12 +99,10 @@ function MemberDetail() {
 
   const handleToggleActive = async () => {
     try {
-      await apiService.updateMember(id, { 
-        ...member, 
-        isActive: member.isActive === false ? true : false 
-      });
+      const newActiveState = member.isActive === false ? true : false;
+      await apiService.updateMember(id, { isActive: newActiveState });
       await refreshMembers();
-      alert(member.isActive === false ? '회원이 활성화되었습니다!' : '회원이 비활성화되었습니다!');
+      alert(newActiveState ? '회원이 활성화되었습니다!' : '회원이 비활성화되었습니다!');
     } catch (error) {
       console.error('활성화 상태 변경 실패:', error);
       alert('활성화 상태 변경에 실패했습니다.');
