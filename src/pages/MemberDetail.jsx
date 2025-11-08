@@ -139,8 +139,19 @@ function MemberDetail() {
         totalScore: ''
       });
       setShowScoreModal(false);
-      loadScores();
-      alert('스코어가 기록되었습니다!');
+      
+      const updatedScores = await apiService.fetchScores(id);
+      setScores(updatedScores || []);
+      
+      const validScores = (updatedScores || []).filter(s => s.totalScore && s.totalScore > 0);
+      const calculatedHandicap = calculateHandicap(member, validScores);
+      
+      await apiService.updateMember(id, { 
+        handicap: String(calculatedHandicap.value) 
+      });
+      await refreshMembers();
+      
+      alert('스코어가 기록되고 핸디캡이 업데이트되었습니다!');
     } catch (error) {
       console.error('스코어 기록 실패:', error);
       alert('스코어 기록에 실패했습니다.');
@@ -250,7 +261,7 @@ function MemberDetail() {
           <div style={{ 
             fontSize: '16px', 
             color: '#666',
-            marginBottom: '12px'
+            marginBottom: '16px'
           }}>
             {member.name}
           </div>
@@ -259,28 +270,46 @@ function MemberDetail() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '8px'
+            gap: '6px',
+            padding: '12px',
+            background: '#f8f9fa',
+            borderRadius: '12px',
+            width: '90%',
+            margin: '0 auto'
           }}>
             <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 16px',
-              background: 'var(--bg-green)',
-              borderRadius: '20px',
-              fontSize: '18px',
-              fontWeight: '700',
-              color: 'var(--primary-green)'
+              display: 'flex',
+              justifyContent: 'space-between',
+              width: '100%',
+              fontSize: '15px',
+              color: '#333'
             }}>
-              추천핸디: {handicapType}({handicapValue})
+              <span style={{ fontWeight: '600' }}>핸디:</span>
+              <span style={{ fontWeight: '700', color: 'var(--primary-green)' }}>
+                {member.handicap || handicapValue}
+              </span>
             </div>
             <div style={{
-              fontSize: '13px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              width: '100%',
+              fontSize: '15px',
+              color: '#333'
+            }}>
+              <span style={{ fontWeight: '600' }}>추천핸디:</span>
+              <span style={{ fontWeight: '700', color: 'var(--light-green)' }}>
+                {handicapValue}
+              </span>
+            </div>
+            <div style={{
+              fontSize: '12px',
               color: '#888',
               fontStyle: 'italic',
-              maxWidth: '90%',
+              width: '100%',
               lineHeight: '1.4',
-              textAlign: 'center'
+              marginTop: '4px',
+              paddingTop: '8px',
+              borderTop: '1px solid #e0e0e0'
             }}>
               {handicapExplanation}
             </div>
