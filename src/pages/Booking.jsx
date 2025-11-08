@@ -549,16 +549,15 @@ function Booking() {
             }}>
               👥 참가자 ({participants.length}명)
             </div>
-            <div style={{ display: 'grid', gap: '4px' }}>
+            <div style={{ 
+              fontSize: '14px',
+              lineHeight: '1.6'
+            }}>
               {participants.map((participant, idx) => (
-                <div key={idx} style={{ 
-                  padding: '8px',
-                  background: 'white',
-                  borderRadius: '4px',
-                  fontSize: '14px'
-                }}>
+                <span key={idx}>
                   {getParticipantDisplayName(participant)}
-                </div>
+                  {idx < participants.length - 1 && ', '}
+                </span>
               ))}
             </div>
           </div>
