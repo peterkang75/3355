@@ -258,6 +258,20 @@ export function AppProvider({ children }) {
     }
   };
 
+  const refreshBookings = async () => {
+    try {
+      console.log('🔄 예약 데이터 새로고침 중...');
+      const bookingsData = await apiService.fetchBookings();
+      if (bookingsData) {
+        console.log('✅ 예약 데이터 업데이트:', bookingsData.length, '개');
+        setBookings(bookingsData);
+        localStorage.setItem('golfBookings', JSON.stringify(bookingsData));
+      }
+    } catch (error) {
+      console.error('❌ 예약 데이터 새로고침 실패:', error);
+    }
+  };
+
   const value = {
     user,
     members,
@@ -279,7 +293,8 @@ export function AppProvider({ children }) {
     payFee,
     addCourse,
     refreshMembers,
-    refreshCourses
+    refreshCourses,
+    refreshBookings
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
