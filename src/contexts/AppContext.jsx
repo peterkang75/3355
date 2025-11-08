@@ -17,9 +17,11 @@ export function AppProvider({ children }) {
   useEffect(() => {
     const initApp = async () => {
       const savedUser = localStorage.getItem('golfUser');
+      let savedUserId = null;
 
       if (savedUser) {
         const userData = JSON.parse(savedUser);
+        savedUserId = userData.id;
         setUser(userData);
       }
       
@@ -38,6 +40,15 @@ export function AppProvider({ children }) {
           console.log('✅ 회원 데이터 로드:', membersData.length, '명');
           setMembers(membersData);
           localStorage.setItem('golfMembers', JSON.stringify(membersData));
+          
+          if (savedUserId) {
+            const currentUser = membersData.find(m => m.id === savedUserId);
+            if (currentUser) {
+              console.log('✅ 로그인한 사용자 정보 업데이트:', currentUser.name);
+              setUser(currentUser);
+              localStorage.setItem('golfUser', JSON.stringify(currentUser));
+            }
+          }
         }
 
         if (postsData) {
@@ -80,9 +91,8 @@ export function AppProvider({ children }) {
           setCourses(refreshedCourses);
         }
 
-        if (savedUser) {
-          const userData = JSON.parse(savedUser);
-          await loadUserData(userData.id);
+        if (savedUserId) {
+          await loadUserData(savedUserId);
         }
 
         console.log('✅ 데이터 로드 완료!');
