@@ -11,7 +11,12 @@ function MyPage() {
   const [scores, setScores] = useState([]);
 
   useEffect(() => {
+    console.log('👤 MyPage - user 객체:', user);
     if (user) {
+      console.log('📋 User ID:', user.id);
+      console.log('📋 User Name:', user.name);
+      console.log('📋 User Phone:', user.phone);
+      console.log('📋 User 전체:', JSON.stringify(user, null, 2));
       setEditData(user);
       loadScores();
     }
@@ -299,7 +304,7 @@ function MyPage() {
               </div>
               
               <div style={{ display: 'grid', gap: '12px' }}>
-                <InfoRow label="전화번호" value={String(user.phone).replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3')} />
+                <InfoRow label="전화번호" value={user.phone ? String(user.phone).replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3') : '-'} />
                 <InfoRow label="성별" value={user.gender || '-'} />
                 <InfoRow label="출생연도" value={user.birthYear || '-'} />
                 <InfoRow label="지역" value={user.region || '-'} />
