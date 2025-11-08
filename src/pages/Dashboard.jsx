@@ -355,16 +355,16 @@ function Dashboard() {
               color: 'var(--primary-green)',
               marginBottom: '8px'
             }}>
-              핸디: {user.handicap ?? user.calculatedHandicap ?? 18}
+              핸디: {user?.handicap ?? user?.calculatedHandicap ?? 18}
             </div>
             <div style={{ 
               fontSize: '13px', 
               color: '#666',
               marginBottom: '4px'
             }}>
-              추천핸디: {user.calculatedHandicap ?? user.handicap ?? 18}
+              추천핸디: {user?.calculatedHandicap ?? user?.handicap ?? 18}
             </div>
-            {user.handicapExplanation && (
+            {user?.handicapExplanation && (
               <div style={{ 
                 fontSize: '13px', 
                 color: '#888',
