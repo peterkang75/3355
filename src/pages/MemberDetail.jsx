@@ -15,6 +15,7 @@ function MemberDetail() {
   const [handicapData, setHandicapData] = useState(null);
   const [showScoreModal, setShowScoreModal] = useState(false);
   const [editingScoreId, setEditingScoreId] = useState(null);
+  const [openMenuId, setOpenMenuId] = useState(null);
   const [scoreFormData, setScoreFormData] = useState({
     roundingName: '',
     date: '',
@@ -827,7 +828,8 @@ function MemberDetail() {
                     padding: '12px',
                     background: 'var(--bg-green)',
                     borderRadius: '6px',
-                    border: '1px solid var(--border-color)'
+                    border: '1px solid var(--border-color)',
+                    position: 'relative'
                   }}
                 >
                   <div style={{
@@ -839,65 +841,115 @@ function MemberDetail() {
                     <div style={{
                       fontSize: '15px',
                       fontWeight: '700',
-                      color: '#2d5f3f'
+                      color: '#2d5f3f',
+                      flex: 1
                     }}>
                       {score.roundingName}
                     </div>
                     <div style={{
                       fontSize: '18px',
                       fontWeight: '700',
-                      color: 'var(--primary-green)'
+                      color: 'var(--primary-green)',
+                      marginRight: user?.isAdmin ? '8px' : '0'
                     }}>
                       {score.totalScore}
                     </div>
+                    {user?.isAdmin && (
+                      <div style={{ position: 'relative' }}>
+                        <button
+                          onClick={() => setOpenMenuId(openMenuId === score.id ? null : score.id)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            fontSize: '20px',
+                            cursor: 'pointer',
+                            padding: '4px 8px',
+                            color: '#666',
+                            lineHeight: '1'
+                          }}
+                        >
+                          ⋮
+                        </button>
+                        {openMenuId === score.id && (
+                          <>
+                            <div
+                              onClick={() => setOpenMenuId(null)}
+                              style={{
+                                position: 'fixed',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                zIndex: 99
+                              }}
+                            />
+                            <div
+                              style={{
+                                position: 'absolute',
+                                top: '100%',
+                                right: 0,
+                                marginTop: '4px',
+                                background: 'white',
+                                borderRadius: '6px',
+                                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                                overflow: 'hidden',
+                                zIndex: 100,
+                                minWidth: '120px'
+                              }}
+                            >
+                              <button
+                                onClick={() => {
+                                  handleEditScore(score);
+                                  setOpenMenuId(null);
+                                }}
+                                style={{
+                                  width: '100%',
+                                  padding: '10px 16px',
+                                  background: 'white',
+                                  border: 'none',
+                                  textAlign: 'left',
+                                  fontSize: '14px',
+                                  cursor: 'pointer',
+                                  color: '#333',
+                                  borderBottom: '1px solid #f0f0f0'
+                                }}
+                                onMouseEnter={(e) => e.target.style.background = '#f5f5f5'}
+                                onMouseLeave={(e) => e.target.style.background = 'white'}
+                              >
+                                ✏️ 수정
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setOpenMenuId(null);
+                                  handleDeleteScore(score.id);
+                                }}
+                                style={{
+                                  width: '100%',
+                                  padding: '10px 16px',
+                                  background: 'white',
+                                  border: 'none',
+                                  textAlign: 'left',
+                                  fontSize: '14px',
+                                  cursor: 'pointer',
+                                  color: '#e53e3e'
+                                }}
+                                onMouseEnter={(e) => e.target.style.background = '#fff5f5'}
+                                onMouseLeave={(e) => e.target.style.background = 'white'}
+                              >
+                                🗑️ 삭제
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div style={{
                     fontSize: '13px',
-                    color: '#666',
-                    marginBottom: '8px'
+                    color: '#666'
                   }}>
                     {score.courseName} · {new Date(score.date).toLocaleDateString('ko-KR')}
                   </div>
-                  {user?.isAdmin && (
-                    <div style={{
-                      display: 'flex',
-                      gap: '6px',
-                      marginTop: '8px'
-                    }}>
-                      <button
-                        onClick={() => handleEditScore(score)}
-                        style={{
-                          flex: 1,
-                          padding: '6px 12px',
-                          background: 'white',
-                          color: 'var(--primary-green)',
-                          border: '1px solid var(--primary-green)',
-                          borderRadius: '4px',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        ✏️ 수정
-                      </button>
-                      <button
-                        onClick={() => handleDeleteScore(score.id)}
-                        style={{
-                          flex: 1,
-                          padding: '6px 12px',
-                          background: 'white',
-                          color: '#e53e3e',
-                          border: '1px solid #e53e3e',
-                          borderRadius: '4px',
-                          fontSize: '12px',
-                          fontWeight: '600',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        🗑️ 삭제
-                      </button>
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
