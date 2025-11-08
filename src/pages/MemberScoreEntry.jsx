@@ -193,9 +193,15 @@ function MemberScoreEntry() {
                 fontSize: '16px', 
                 fontWeight: '700',
                 marginBottom: '16px',
-                color: 'var(--primary-green)'
+                color: 'var(--primary-green)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
               }}>
-                🏌️ {team.name}
+                <span>🏌️ {team.name || `${teamIndex + 1}조`}</span>
+                <span style={{ fontSize: '14px', color: '#666', fontWeight: '500' }}>
+                  {team.members.length}명
+                </span>
               </h3>
 
               <div style={{ 
