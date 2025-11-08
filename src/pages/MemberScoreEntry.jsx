@@ -186,7 +186,7 @@ function MemberScoreEntry() {
           </div>
         </div>
 
-        {booking.teams && booking.teams.length > 0 ? (
+        {booking.teams && Array.isArray(booking.teams) && booking.teams.length > 0 ? (
           booking.teams.map((team, teamIndex) => (
             <div key={teamIndex} className="card" style={{ marginBottom: '16px' }}>
               <h3 style={{ 
