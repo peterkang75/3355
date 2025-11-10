@@ -30,6 +30,11 @@ html {
   --success-bg: #efe;
   --success-text: #3c3;
   --success-border: #cfc;
+  
+  --accent-terracotta: #C77D58;
+  --accent-olive: #7A8450;
+  --accent-sand: #D4A574;
+  --accent-slate: #6B7F5E;
 }
 
 body {

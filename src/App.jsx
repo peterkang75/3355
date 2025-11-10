@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'r
 import { useApp } from './contexts/AppContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import DashboardSample from './pages/DashboardSample';
 import Board from './pages/Board';
 import Booking from './pages/Booking';
 import ScoreEntry from './pages/ScoreEntry';
@@ -28,6 +29,7 @@ function AppRoutes({ user, logout }) {
     <div className="app">
       <Routes>
         <Route path="/" element={<Dashboard />} />
+        <Route path="/dashboard-sample" element={<DashboardSample />} />
         <Route path="/board" element={<Board />} />
         <Route path="/booking" element={<Booking />} />
         <Route path="/score" element={<ScoreEntry />} />
