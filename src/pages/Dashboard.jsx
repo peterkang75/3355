@@ -149,7 +149,7 @@ function Dashboard() {
               <button 
                 onClick={() => setShowNewPost(!showNewPost)}
                 style={{
-                  background: 'linear-gradient(135deg, var(--accent-bright-green) 0%, var(--accent-mid-green) 100%)',
+                  background: '#488C16',
                   color: 'var(--text-light)',
                   padding: '8px 16px',
                   borderRadius: '6px',
@@ -529,7 +529,7 @@ function Dashboard() {
                       className='btn-primary'
                       style={{ 
                         width: '100%',
-                        background: 'linear-gradient(135deg, var(--accent-olive) 0%, var(--accent-dark-olive) 100%)'
+                        background: '#488C16'
                       }}
                     >
                       ⛳ 플레이하기
@@ -543,7 +543,7 @@ function Dashboard() {
                       className={isJoined ? 'btn-outline' : 'btn-primary'}
                       style={{ 
                         width: '100%',
-                        background: isJoined ? 'transparent' : 'linear-gradient(135deg, var(--accent-olive) 0%, var(--accent-dark-olive) 100%)',
+                        background: isJoined ? 'transparent' : '#488C16',
                         borderColor: 'var(--accent-olive)',
                         color: isJoined ? 'var(--accent-olive)' : 'var(--text-light)'
                       }}
