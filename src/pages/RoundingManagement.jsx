@@ -21,7 +21,7 @@ function RoundingManagement() {
   if (!hasAdminAccess) {
     return (
       <div className="page-content" style={{ background: '#F2F2EB' }}>
-        <div className="card" style={{ background: '#98A68A' }}>
+        <div className="card" style={{ background: '#F2F2EB', border: '2px solid #98A68A' }}>
           <p style={{ textAlign: 'center', color: '#010D00' }}>
             관리자 또는 운영진만 접근할 수 있습니다.
           </p>
@@ -33,7 +33,7 @@ function RoundingManagement() {
   if (!booking) {
     return (
       <div className="page-content" style={{ background: '#F2F2EB' }}>
-        <div className="card" style={{ background: '#98A68A' }}>
+        <div className="card" style={{ background: '#F2F2EB', border: '2px solid #98A68A' }}>
           <p style={{ textAlign: 'center', color: '#010D00' }}>
             라운딩을 찾을 수 없습니다.
           </p>
@@ -62,7 +62,7 @@ function RoundingManagement() {
       </div>
 
       <div className="page-content" style={{ background: '#F2F2EB' }}>
-        <div className="card" style={{ marginBottom: '16px', background: '#98A68A' }}>
+        <div className="card" style={{ marginBottom: '16px', background: '#F2F2EB', border: '2px solid #98A68A' }}>
           <div style={{ 
             background: '#F2F2EB',
             padding: '16px',
@@ -83,7 +83,7 @@ function RoundingManagement() {
           </div>
         </div>
 
-        <div className="card" style={{ background: '#98A68A' }}>
+        <div className="card" style={{ background: '#F2F2EB', border: '2px solid #98A68A' }}>
           <h3 style={{ 
             fontSize: '16px', 
             fontWeight: '700',
