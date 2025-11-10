@@ -39,7 +39,7 @@ body {
   max-width: 600px;
   margin: 0 auto;
   background: white;
-  box-shadow: 0 0 20px var(--shadow);
+  box-shadow: none;
   overflow-x: hidden;
   position: relative;
 }
@@ -146,7 +146,7 @@ input:focus, textarea:focus, select:focus {
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2px 8px var(--shadow);
+  box-shadow: none;
 }
 
 .header h1 {
