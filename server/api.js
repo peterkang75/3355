@@ -379,6 +379,38 @@ router.delete('/scores/:id', async (req, res) => {
   }
 });
 
+router.delete('/scores/booking/:date/:courseName', async (req, res) => {
+  try {
+    const { date, courseName } = req.params;
+    
+    await prisma.score.deleteMany({
+      where: { 
+        date: decodeURIComponent(date),
+        courseName: decodeURIComponent(courseName)
+      }
+    });
+    
+    const booking = await prisma.booking.findFirst({
+      where: {
+        date: decodeURIComponent(date),
+        courseName: decodeURIComponent(courseName)
+      }
+    });
+    
+    if (booking) {
+      await prisma.booking.update({
+        where: { id: booking.id },
+        data: { dailyHandicaps: null }
+      });
+    }
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting booking scores:', error);
+    res.status(500).json({ error: 'Failed to delete booking scores' });
+  }
+});
+
 router.get('/courses', async (req, res) => {
   try {
     const courses = await prisma.course.findMany();

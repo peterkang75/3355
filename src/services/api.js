@@ -221,6 +221,14 @@ class ApiService {
     return response.json();
   }
 
+  async deleteBookingScores(date, courseName) {
+    const response = await fetch(`${API_BASE}/scores/booking/${encodeURIComponent(date)}/${encodeURIComponent(courseName)}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Failed to delete booking scores');
+    return response.json();
+  }
+
   async fetchCourses() {
     const response = await fetch(`${API_BASE}/courses`);
     if (!response.ok) throw new Error('Failed to fetch courses');
