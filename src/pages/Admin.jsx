@@ -1600,7 +1600,7 @@ function Admin() {
                       border: '1px solid var(--border-color)',
                       borderRadius: '6px',
                       fontSize: '14px',
-                      width: '100px'
+                      width: '80px'
                     }}
                   />
                   <select
@@ -1614,7 +1614,7 @@ function Admin() {
                       border: '1px solid var(--border-color)',
                       borderRadius: '6px',
                       fontSize: '14px',
-                      flex: '0 0 auto'
+                      width: '80px'
                     }}
                   >
                     <option value="below">이하</option>
@@ -1709,7 +1709,7 @@ function Admin() {
                       border: '1px solid var(--border-color)',
                       borderRadius: '6px',
                       fontSize: '14px',
-                      width: '100px'
+                      width: '80px'
                     }}
                   />
                   <select
@@ -1723,7 +1723,7 @@ function Admin() {
                       border: '1px solid var(--border-color)',
                       borderRadius: '6px',
                       fontSize: '14px',
-                      flex: '0 0 auto'
+                      width: '80px'
                     }}
                   >
                     <option value="below">이하</option>
