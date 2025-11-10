@@ -121,13 +121,17 @@ function Dashboard() {
 
   return (
     <div>
-      <div className="header">
+      <div className="header" style={{
+        background: 'linear-gradient(135deg, var(--primary-green) 0%, var(--accent-olive) 100%)'
+      }}>
         <h1>대시보드</h1>
         <div style={{ fontSize: '14px' }}>환영합니다 {user.nickname || user.name}님</div>
       </div>
 
       <div className="page-content">
-        <div className="card">
+        <div className="card" style={{
+          borderLeft: '4px solid var(--primary-green)'
+        }}>
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
@@ -145,7 +149,7 @@ function Dashboard() {
               <button 
                 onClick={() => setShowNewPost(!showNewPost)}
                 style={{
-                  background: 'var(--primary-green)',
+                  background: 'linear-gradient(135deg, var(--primary-green) 0%, var(--accent-olive) 100%)',
                   color: 'var(--text-light)',
                   padding: '8px 16px',
                   borderRadius: '6px',
@@ -349,12 +353,20 @@ function Dashboard() {
         }}>
           <div className="card" style={{ 
             textAlign: 'center',
-            padding: '16px 12px'
+            padding: '16px 12px',
+            borderLeft: '4px solid var(--accent-olive)',
+            background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(122, 132, 80, 0.05) 100%)'
           }}>
+            <div style={{ 
+              fontSize: '32px',
+              marginBottom: '8px'
+            }}>
+              ⛳
+            </div>
             <div style={{ 
               fontSize: '24px', 
               fontWeight: '700',
-              color: 'var(--primary-green)',
+              color: 'var(--accent-olive)',
               marginBottom: '8px'
             }}>
               핸디: {user?.handicap ?? user?.calculatedHandicap ?? 18}
@@ -378,21 +390,33 @@ function Dashboard() {
             )}
           </div>
 
-          <div className="card" style={{ textAlign: 'center' }}>
+          <div className="card" style={{ 
+            textAlign: 'center',
+            borderLeft: '4px solid var(--accent-terracotta)',
+            background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(199, 125, 88, 0.05) 100%)'
+          }}>
+            <div style={{ 
+              fontSize: '32px',
+              marginBottom: '8px'
+            }}>
+              💰
+            </div>
             <div style={{ fontSize: '14px', opacity: 0.7, marginBottom: '8px' }}>
               회비 잔액
             </div>
             <div style={{ 
               fontSize: '32px', 
               fontWeight: '700',
-              color: user.balance < 0 ? 'var(--alert-red)' : 'var(--primary-green)'
+              color: user.balance < 0 ? 'var(--alert-red)' : 'var(--accent-terracotta)'
             }}>
               ${user.balance?.toLocaleString() || 0}
             </div>
           </div>
         </div>
 
-        <div className="card">
+        <div className="card" style={{
+          borderLeft: '4px solid var(--accent-slate)'
+        }}>
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
@@ -402,15 +426,19 @@ function Dashboard() {
             <h3 style={{ 
               fontSize: '16px', 
               fontWeight: '700',
-              color: 'var(--primary-green)'
+              color: 'var(--accent-slate)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}>
-              ◈ 공지된 라운딩
+              <span style={{ fontSize: '20px' }}>🏌️</span>
+              공지된 라운딩
             </h3>
             <button 
               onClick={() => navigate('/booking')}
               style={{
                 background: 'transparent',
-                color: 'var(--primary-green)',
+                color: 'var(--accent-slate)',
                 padding: '4px 8px',
                 borderRadius: '4px',
                 fontSize: '13px',
@@ -426,7 +454,7 @@ function Dashboard() {
           {announcedBookings.length === 0 ? (
             <div style={{ 
               padding: '16px',
-              background: 'var(--bg-green)',
+              background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(107, 127, 94, 0.05) 100%)',
               borderRadius: '8px',
               textAlign: 'center',
               opacity: 0.7
@@ -440,21 +468,21 @@ function Dashboard() {
               
               return (
                 <div key={booking.id} style={{
-                  background: 'var(--bg-green)',
+                  background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(107, 127, 94, 0.05) 100%)',
                   padding: '16px',
                   borderRadius: '8px',
                   marginBottom: '12px',
                   cursor: 'pointer',
                   transition: 'transform 0.2s',
                   position: 'relative',
-                  borderBottom: '1px solid var(--border-color)'
+                  borderBottom: '1px solid var(--accent-slate)'
                 }}
                 onClick={() => navigate('/booking')}
                 onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 >
                   {booking.title && (
-                    <div style={{ fontSize: '13px', color: 'var(--primary-green)', fontWeight: '600', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--accent-slate)', fontWeight: '600', marginBottom: '4px' }}>
                       {booking.title}
                     </div>
                   )}
@@ -499,7 +527,10 @@ function Dashboard() {
                         navigate('/score');
                       }}
                       className='btn-primary'
-                      style={{ width: '100%' }}
+                      style={{ 
+                        width: '100%',
+                        background: 'linear-gradient(135deg, var(--accent-slate) 0%, var(--accent-olive) 100%)'
+                      }}
                     >
                       ⛳ 플레이하기
                     </button>
@@ -510,7 +541,12 @@ function Dashboard() {
                         handleJoinBooking(booking.id);
                       }}
                       className={isJoined ? 'btn-outline' : 'btn-primary'}
-                      style={{ width: '100%' }}
+                      style={{ 
+                        width: '100%',
+                        background: isJoined ? 'transparent' : 'linear-gradient(135deg, var(--accent-slate) 0%, var(--accent-olive) 100%)',
+                        borderColor: 'var(--accent-slate)',
+                        color: isJoined ? 'var(--accent-slate)' : 'var(--text-light)'
+                      }}
                     >
                       {isJoined ? '참가 취소' : '참가하기'}
                     </button>
@@ -521,18 +557,24 @@ function Dashboard() {
           )}
         </div>
 
-        <div className="card">
+        <div className="card" style={{
+          borderLeft: '4px solid var(--accent-sand)'
+        }}>
           <h3 style={{ 
             fontSize: '16px', 
             fontWeight: '700',
             marginBottom: '12px',
-            color: 'var(--primary-green)'
+            color: 'var(--accent-sand)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
           }}>
+            <span style={{ fontSize: '20px' }}>📊</span>
             최근 스코어
           </h3>
           <div style={{ 
             padding: '16px',
-            background: 'var(--bg-green)',
+            background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(212, 165, 116, 0.05) 100%)',
             borderRadius: '8px',
             textAlign: 'center',
             opacity: 0.7
@@ -541,18 +583,24 @@ function Dashboard() {
           </div>
         </div>
 
-        <div className="card">
+        <div className="card" style={{
+          borderLeft: '4px solid var(--accent-terracotta)'
+        }}>
           <h3 style={{ 
             fontSize: '16px', 
             fontWeight: '700',
             marginBottom: '12px',
-            color: 'var(--primary-green)'
+            color: 'var(--accent-terracotta)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px'
           }}>
+            <span style={{ fontSize: '20px' }}>💳</span>
             회비 납부 내역
           </h3>
           <div style={{ 
             padding: '16px',
-            background: 'var(--bg-green)',
+            background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(199, 125, 88, 0.05) 100%)',
             borderRadius: '8px',
             textAlign: 'center',
             opacity: 0.7
