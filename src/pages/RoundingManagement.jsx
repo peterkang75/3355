@@ -78,7 +78,7 @@ function RoundingManagement() {
               {booking.courseName}
             </h3>
             <div style={{ fontSize: '14px', color: '#666' }}>
-              📅 {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
+              {new Date(booking.date).toLocaleDateString('ko-KR')} • {booking.time}
             </div>
           </div>
         </div>
@@ -99,8 +99,9 @@ function RoundingManagement() {
               style={{
                 padding: '20px',
                 background: 'var(--bg-green)',
-                border: '2px solid var(--primary-green)',
-                borderRadius: '8px',
+                border: 'none',
+                borderBottom: '1px solid var(--border-color)',
+                borderRadius: '0',
                 fontSize: '16px',
                 fontWeight: '600',
                 color: 'var(--primary-green)',
@@ -111,7 +112,7 @@ function RoundingManagement() {
                 gap: '12px'
               }}
             >
-              <span style={{ fontSize: '24px' }}>📋</span>
+              <span style={{ fontSize: '24px' }}>•</span>
               <div>
                 <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
                   참가자 관리
@@ -127,8 +128,9 @@ function RoundingManagement() {
               style={{
                 padding: '20px',
                 background: 'var(--bg-green)',
-                border: '2px solid var(--primary-green)',
-                borderRadius: '8px',
+                border: 'none',
+                borderBottom: '1px solid var(--border-color)',
+                borderRadius: '0',
                 fontSize: '16px',
                 fontWeight: '600',
                 color: 'var(--primary-green)',
@@ -139,7 +141,7 @@ function RoundingManagement() {
                 gap: '12px'
               }}
             >
-              <span style={{ fontSize: '24px' }}>👥</span>
+              <span style={{ fontSize: '24px' }}>•</span>
               <div>
                 <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
                   조편성하기
@@ -155,8 +157,9 @@ function RoundingManagement() {
               style={{
                 padding: '20px',
                 background: 'var(--bg-green)',
-                border: '2px solid var(--primary-green)',
-                borderRadius: '8px',
+                border: 'none',
+                borderBottom: '1px solid var(--border-color)',
+                borderRadius: '0',
                 fontSize: '16px',
                 fontWeight: '600',
                 color: 'var(--primary-green)',
@@ -167,9 +170,7 @@ function RoundingManagement() {
                 gap: '12px'
               }}
             >
-              <span style={{ fontSize: '24px' }}>
-                {booking.dailyHandicaps ? '🏆' : '📝'}
-              </span>
+              <span style={{ fontSize: '24px' }}>•</span>
               <div>
                 <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
                   {booking.dailyHandicaps ? '결과보기' : '회원 스코어 입력'}
@@ -187,8 +188,9 @@ function RoundingManagement() {
               style={{
                 padding: '20px',
                 background: 'var(--bg-green)',
-                border: '2px solid var(--primary-green)',
-                borderRadius: '8px',
+                border: 'none',
+                borderBottom: '1px solid var(--border-color)',
+                borderRadius: '0',
                 fontSize: '16px',
                 fontWeight: '600',
                 color: 'var(--primary-green)',
@@ -199,7 +201,7 @@ function RoundingManagement() {
                 gap: '12px'
               }}
             >
-              <span style={{ fontSize: '24px' }}>📊</span>
+              <span style={{ fontSize: '24px' }}>•</span>
               <div>
                 <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
                   그레이드 설정

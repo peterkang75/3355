@@ -103,7 +103,7 @@ function ScoreEntry() {
             padding: '8px 16px'
           }}
         >
-          Menu ☰
+          Menu ≡
         </button>
       </div>
 
@@ -114,7 +114,7 @@ function ScoreEntry() {
         color: 'white'
       }}>
         <div style={{
-          border: '2px solid white',
+          borderBottom: '1px solid rgba(255,255,255,0.3)',
           borderRadius: '8px',
           padding: '12px 16px',
           minWidth: '140px'
@@ -135,7 +135,7 @@ function ScoreEntry() {
         </div>
 
         <div style={{
-          border: '2px solid white',
+          borderBottom: '1px solid rgba(255,255,255,0.3)',
           borderRadius: '8px',
           padding: '12px 16px',
           minWidth: '140px',
@@ -166,7 +166,7 @@ function ScoreEntry() {
         </div>
 
         <div style={{
-          background: 'white',
+          background: 'var(--bg-card)',
           padding: '32px 16px'
         }}>
           <div style={{

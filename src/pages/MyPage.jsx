@@ -118,7 +118,7 @@ function MyPage() {
       <div style={{
         position: 'sticky',
         top: 0,
-        background: 'white',
+        background: 'var(--bg-card)',
         borderBottom: '1px solid var(--border-color)',
         zIndex: 100,
         padding: '16px',
@@ -163,7 +163,6 @@ function MyPage() {
                   height: '120px',
                   objectFit: 'cover',
                   borderRadius: '50%',
-                  border: '3px solid var(--primary-green)',
                   margin: '0 auto'
                 }}
               />
@@ -178,10 +177,9 @@ function MyPage() {
                 justifyContent: 'center',
                 fontSize: '60px',
                 color: '#999',
-                border: '3px solid var(--primary-green)',
                 margin: '0 auto'
               }}>
-                👤
+                •
               </div>
             )}
           </div>
@@ -201,7 +199,7 @@ function MyPage() {
                   cursor: 'pointer'
                 }}
               >
-                📷 사진 변경
+                ○ 사진 변경
               </label>
               <input
                 id="photoUpload"
@@ -275,7 +273,7 @@ function MyPage() {
                 fontSize: '12px',
                 fontWeight: '600'
               }}>
-                👑 관리자
+                ★ 관리자
               </span>
             )}
             {user.role === 'operator' && (
@@ -287,7 +285,7 @@ function MyPage() {
                 fontSize: '12px',
                 fontWeight: '600'
               }}>
-                ⚙️ 운영진
+                ⚙ 운영진
               </span>
             )}
           </div>
@@ -315,7 +313,7 @@ function MyPage() {
                   className="btn-secondary"
                   style={{ padding: '6px 12px', fontSize: '14px' }}
                 >
-                  ✏️ 수정
+                  ✎ 수정
                 </button>
               </div>
               
@@ -469,7 +467,7 @@ function MyPage() {
                 className="btn-primary"
                 style={{ flex: 1 }}
               >
-                💾 저장
+                ✓ 저장
               </button>
               <button
                 onClick={() => {
@@ -479,7 +477,7 @@ function MyPage() {
                 className="btn-secondary"
                 style={{ flex: 1 }}
               >
-                ✕ 취소
+                × 취소
               </button>
             </div>
           </div>
@@ -527,7 +525,7 @@ function MyPage() {
                     padding: '12px',
                     background: 'var(--bg-green)',
                     borderRadius: '6px',
-                    border: '1px solid var(--border-color)'
+                    borderBottom: '1px solid var(--border-color)'
                   }}
                 >
                   <div style={{

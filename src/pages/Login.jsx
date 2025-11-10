@@ -119,12 +119,11 @@ function Login({ onLogin }) {
       padding: '20px'
     }}>
       <div style={{
-        background: 'white',
+        background: 'var(--bg-card)',
         borderRadius: '16px',
         padding: '40px 30px',
         width: '100%',
-        maxWidth: '400px',
-        boxShadow: '0 8px 32px rgba(0,0,0,0.1)'
+        maxWidth: '400px'
       }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <img 
@@ -202,7 +201,7 @@ function Login({ onLogin }) {
             padding: '14px',
             background: 'white',
             color: 'var(--primary-green)',
-            border: '2px solid var(--primary-green)',
+            borderBottom: '1px solid var(--primary-green)',
             borderRadius: '8px',
             fontSize: '16px',
             fontWeight: '600',
@@ -305,7 +304,7 @@ function Login({ onLogin }) {
                       height: '100px', 
                       objectFit: 'cover', 
                       borderRadius: '8px',
-                      border: '2px solid var(--border-color)'
+                      borderBottom: '1px solid var(--border-color)'
                     }} 
                   />
                 </div>
@@ -444,7 +443,7 @@ function Login({ onLogin }) {
             fontSize: '13px',
             color: '#666'
           }}>
-            <p style={{ marginBottom: '8px' }}>💡 테스트 계정:</p>
+            <p style={{ marginBottom: '8px' }}>ⓘ 테스트 계정:</p>
             <p>관리자: <strong>123456</strong></p>
             <p>일반회원: <strong>아무 6자리 숫자</strong></p>
           </div>

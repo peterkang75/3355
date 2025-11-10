@@ -95,7 +95,7 @@ function Board() {
 
         {posts.length === 0 ? (
           <div className="card" style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>✎</div>
             <p>아직 공지사항이 없습니다</p>
             {user.isAdmin && (
               <p style={{ fontSize: '14px', marginTop: '8px' }}>
@@ -158,7 +158,7 @@ function Board() {
                   marginBottom: expandedPost === post.id ? '12px' : '0'
                 }}
               >
-                💬 댓글 {post.comments.length > 0 ? `(${post.comments.length})` : '달기'}
+                ◈ 댓글 {post.comments.length > 0 ? `(${post.comments.length})` : '달기'}
               </button>
 
               {expandedPost === post.id && (

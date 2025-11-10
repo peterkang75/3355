@@ -113,7 +113,7 @@ function GradeSettings() {
               {booking.courseName}
             </h3>
             <div style={{ fontSize: '14px', color: '#666' }}>
-              📅 {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
+              ◆ {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
             </div>
           </div>
 
@@ -125,14 +125,14 @@ function GradeSettings() {
             fontSize: '13px',
             color: '#666'
           }}>
-            💡 이 라운딩에 적용할 핸디캡 그레이드 기준을 설정하세요
+            ※ 이 라운딩에 적용할 핸디캡 그레이드 기준을 설정하세요
           </div>
 
           {/* Grade A */}
           <div style={{
             padding: '16px',
-            background: 'white',
-            border: '2px solid var(--border-color)',
+            background: 'var(--bg-card)',
+            borderBottom: '1px solid var(--border-color)',
             borderRadius: '8px',
             marginBottom: '12px'
           }}>
@@ -142,7 +142,7 @@ function GradeSettings() {
               marginBottom: '12px',
               color: '#2d5f3f'
             }}>
-              🏆 그레이드 A
+              ▲ 그레이드 A
             </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
               <input
@@ -154,7 +154,6 @@ function GradeSettings() {
                 })}
                 style={{
                   padding: '10px',
-                  border: '1px solid var(--border-color)',
                   borderRadius: '6px',
                   fontSize: '14px',
                   width: '80px'
@@ -168,7 +167,6 @@ function GradeSettings() {
                 })}
                 style={{
                   padding: '10px',
-                  border: '1px solid var(--border-color)',
                   borderRadius: '6px',
                   fontSize: '14px',
                   width: '80px'
@@ -183,8 +181,8 @@ function GradeSettings() {
           {/* Grade B */}
           <div style={{
             padding: '16px',
-            background: 'white',
-            border: '2px solid var(--border-color)',
+            background: 'var(--bg-card)',
+            borderBottom: '1px solid var(--border-color)',
             borderRadius: '8px',
             marginBottom: '12px'
           }}>
@@ -194,7 +192,7 @@ function GradeSettings() {
               marginBottom: '12px',
               color: '#2d5f3f'
             }}>
-              🥈 그레이드 B
+              ▲ 그레이드 B
             </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -240,8 +238,8 @@ function GradeSettings() {
           {/* Grade C */}
           <div style={{
             padding: '16px',
-            background: 'white',
-            border: '2px solid var(--border-color)',
+            background: 'var(--bg-card)',
+            borderBottom: '1px solid var(--border-color)',
             borderRadius: '8px',
             marginBottom: '20px'
           }}>
@@ -251,7 +249,7 @@ function GradeSettings() {
               marginBottom: '12px',
               color: '#2d5f3f'
             }}>
-              🥉 그레이드 C
+              ▲ 그레이드 C
             </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
               <input
@@ -263,7 +261,6 @@ function GradeSettings() {
                 })}
                 style={{
                   padding: '10px',
-                  border: '1px solid var(--border-color)',
                   borderRadius: '6px',
                   fontSize: '14px',
                   width: '80px'
@@ -277,7 +274,6 @@ function GradeSettings() {
                 })}
                 style={{
                   padding: '10px',
-                  border: '1px solid var(--border-color)',
                   borderRadius: '6px',
                   fontSize: '14px',
                   width: '80px'
@@ -295,7 +291,7 @@ function GradeSettings() {
             className="btn-primary"
             style={{ width: '100%' }}
           >
-            {isSaving ? '저장 중...' : '💾 저장하기'}
+            {isSaving ? '저장 중...' : '■ 저장하기'}
           </button>
         </div>
       </div>

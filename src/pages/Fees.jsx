@@ -72,7 +72,7 @@ function Fees() {
               textAlign: 'center',
               color: '#666'
             }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>💰</div>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>$</div>
               <p>아직 회비 내역이 없습니다</p>
             </div>
           ) : (
@@ -83,6 +83,7 @@ function Fees() {
                   style={{
                     padding: '16px',
                     background: 'var(--bg-green)',
+                    borderBottom: '1px solid var(--border-color)',
                     borderRadius: '8px',
                     marginBottom: '8px',
                     display: 'flex',
@@ -127,7 +128,7 @@ function Fees() {
 
         <div className="card" style={{ background: 'var(--bg-green)', padding: '16px' }}>
           <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
-            💡 납부 안내
+            ⓘ 납부 안내
           </div>
           <p style={{ fontSize: '13px', lineHeight: '1.6', color: '#666' }}>
             회비 납부는 관리자에게 문의해주세요. 

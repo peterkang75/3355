@@ -333,11 +333,11 @@ function Booking() {
     if (isActive) {
       return (
         <div key={booking.id} style={{
-          background: 'white',
+          background: 'var(--bg-card)',
           padding: '20px',
           borderRadius: '8px',
           marginBottom: '16px',
-          border: '1px solid #e0e0e0'
+          borderBottom: '1px solid var(--border-color)'
         }}>
           <div style={{ 
             display: 'flex', 
@@ -352,7 +352,7 @@ function Booking() {
                 </h3>
               )}
               <div style={{ fontSize: '16px', fontWeight: '600', color: '#333', marginBottom: '4px' }}>
-                🏌️ {booking.courseName}
+                ⛳ {booking.courseName}
               </div>
             </div>
             {user.isAdmin && (
@@ -375,10 +375,8 @@ function Booking() {
                     position: 'absolute',
                     top: '100%',
                     right: 0,
-                    background: 'white',
-                    border: '1px solid #ddd',
+                    background: 'var(--bg-card)',
                     borderRadius: '8px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                     zIndex: 10,
                     minWidth: '140px'
                   }}>
@@ -389,14 +387,14 @@ function Booking() {
                         width: '100%',
                         padding: '12px 16px',
                         textAlign: 'left',
-                        background: 'white',
+                        background: 'transparent',
                         border: 'none',
                         fontSize: '14px',
                         cursor: 'pointer',
-                        borderBottom: '1px solid #eee'
+                        borderBottom: '1px solid var(--border-color)'
                       }}
                     >
-                      {booking.isAnnounced ? '📌 공지 내리기' : '📌 공지 활성화'}
+                      {booking.isAnnounced ? '★ 공지 내리기' : '★ 공지 활성화'}
                     </button>
                     <button
                       onClick={() => handleEditBooking(booking)}
@@ -405,14 +403,14 @@ function Booking() {
                         width: '100%',
                         padding: '12px 16px',
                         textAlign: 'left',
-                        background: 'white',
+                        background: 'transparent',
                         border: 'none',
                         fontSize: '14px',
                         cursor: 'pointer',
-                        borderBottom: '1px solid #eee'
+                        borderBottom: '1px solid var(--border-color)'
                       }}
                     >
-                      ✏️ 수정
+                      ✎ 수정
                     </button>
                     <button
                       onClick={() => {
@@ -424,14 +422,14 @@ function Booking() {
                         width: '100%',
                         padding: '12px 16px',
                         textAlign: 'left',
-                        background: 'white',
+                        background: 'transparent',
                         border: 'none',
                         fontSize: '14px',
                         cursor: 'pointer',
                         color: '#e53e3e'
                       }}
                     >
-                      🗑️ 삭제
+                      × 삭제
                     </button>
                   </div>
                 )}
@@ -448,9 +446,11 @@ function Booking() {
             <div style={{ 
               display: 'flex',
               alignItems: 'center',
-              gap: '8px'
+              gap: '8px',
+              paddingBottom: '8px',
+              borderBottom: '1px solid var(--border-color)'
             }}>
-              <span style={{ fontWeight: '600', color: '#2d5f3f' }}>📅 라운딩 날짜:</span>
+              <span style={{ fontWeight: '600', color: '#2d5f3f' }}>◷ 라운딩 날짜:</span>
               <span>{new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}</span>
             </div>
 
@@ -458,9 +458,11 @@ function Booking() {
               <div style={{ 
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '8px',
+                paddingBottom: '8px',
+                borderBottom: '1px solid var(--border-color)'
               }}>
-                <span style={{ fontWeight: '600', color: '#2d5f3f' }}>⏰ 집결시간:</span>
+                <span style={{ fontWeight: '600', color: '#2d5f3f' }}>⏲ 집결시간:</span>
                 <span>{booking.gatheringTime}</span>
               </div>
             )}
@@ -469,9 +471,11 @@ function Booking() {
               <div style={{ 
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '8px',
+                paddingBottom: '8px',
+                borderBottom: '1px solid var(--border-color)'
               }}>
-                <span style={{ fontWeight: '600', color: '#2d5f3f' }}>🔔 접수 마감:</span>
+                <span style={{ fontWeight: '600', color: '#2d5f3f' }}>◔ 접수 마감:</span>
                 <span>{new Date(booking.registrationDeadline).toLocaleDateString('ko-KR')}</span>
               </div>
             )}
@@ -484,7 +488,7 @@ function Booking() {
               borderRadius: '6px',
               marginBottom: '16px'
             }}>
-              <div style={{ fontWeight: '600', marginBottom: '8px', color: '#2d5f3f' }}>💰 비용 안내</div>
+              <div style={{ fontWeight: '600', marginBottom: '8px', color: '#2d5f3f' }}>$ 비용 안내</div>
               <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
                 {booking.greenFee && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
@@ -530,7 +534,7 @@ function Booking() {
               marginBottom: '16px',
               fontSize: '14px'
             }}>
-              <div style={{ fontWeight: '600', marginBottom: '4px', color: '#e65100' }}>🍽️ 회식 정보</div>
+              <div style={{ fontWeight: '600', marginBottom: '4px', color: '#e65100' }}>⚑ 회식 정보</div>
               {booking.restaurantName && <div>{booking.restaurantName}</div>}
               {booking.restaurantAddress && <div style={{ color: '#666', fontSize: '13px' }}>{booking.restaurantAddress}</div>}
             </div>
@@ -547,7 +551,7 @@ function Booking() {
               marginBottom: '8px',
               color: '#2d5f3f'
             }}>
-              👥 참가자 ({participants.length}명)
+              ⚲ 참가자 ({participants.length}명)
             </div>
             <div style={{ 
               fontSize: '14px',
@@ -581,7 +585,7 @@ function Booking() {
                     cursor: 'pointer'
                   }}
                 >
-                  {booking.dailyHandicaps ? '🏆 결과보기' : '🏌️ 플레이하기'}
+                  {booking.dailyHandicaps ? '▲ 결과보기' : '⛳ 플레이하기'}
                 </button>
                 {user.isAdmin && (
                   <button
@@ -598,7 +602,7 @@ function Booking() {
                       cursor: 'pointer'
                     }}
                   >
-                    ⚙️ 라운딩 관리
+                    ◉ 라운딩 관리
                   </button>
                 )}
               </>
@@ -608,9 +612,10 @@ function Booking() {
                 style={{
                   width: '100%',
                   padding: '12px',
-                  background: isJoined ? 'white' : 'var(--primary-green)',
+                  background: isJoined ? 'var(--bg-card)' : 'var(--primary-green)',
                   color: isJoined ? 'var(--primary-green)' : 'white',
-                  border: isJoined ? '2px solid var(--primary-green)' : 'none',
+                  border: 'none',
+                  borderBottom: isJoined ? '2px solid var(--primary-green)' : 'none',
                   borderRadius: '6px',
                   fontSize: '16px',
                   fontWeight: '700',
@@ -627,11 +632,11 @@ function Booking() {
 
     return (
       <div key={booking.id} style={{
-        background: 'white',
+        background: 'var(--bg-card)',
         padding: '16px',
         borderRadius: '8px',
         marginBottom: '12px',
-        border: '1px solid #e0e0e0',
+        borderBottom: '1px solid var(--border-color)',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -647,7 +652,7 @@ function Booking() {
             {booking.courseName}
           </div>
           <div style={{ fontSize: '13px', color: '#666' }}>
-            📅 {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
+            ◷ {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
           </div>
         </div>
 
@@ -668,7 +673,7 @@ function Booking() {
               whiteSpace: 'nowrap'
             }}
           >
-            {booking.dailyHandicaps ? '🏆 결과보기' : '🏌️ 플레이하기'}
+            {booking.dailyHandicaps ? '▲ 결과보기' : '⛳ 플레이하기'}
           </button>
           {user.isAdmin && isRegistrationClosed(booking) && (
             <button
@@ -685,7 +690,7 @@ function Booking() {
                 whiteSpace: 'nowrap'
               }}
             >
-              ⚙️ 라운딩 관리
+              ◉ 라운딩 관리
             </button>
           )}
         </div>
@@ -727,7 +732,7 @@ function Booking() {
         {editingBooking && editBookingData && (
           <div className="card" style={{ marginBottom: '16px' }}>
             <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
-              ✏️ 라운딩 정보 수정
+              ✎ 라운딩 정보 수정
             </h3>
             {renderBookingForm(editBookingData, setEditBookingData, handleSaveBooking, '수정 완료')}
             <button 
@@ -760,7 +765,7 @@ function Booking() {
               background: 'var(--bg-green)',
               borderRadius: '8px'
             }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏌️</div>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>⛳</div>
               <p>예정된 라운딩이 없습니다</p>
             </div>
           ) : (
@@ -775,7 +780,7 @@ function Booking() {
             marginBottom: '16px',
             color: '#666'
           }}>
-            ✅ 완료된 라운딩
+            ✓ 완료된 라운딩
           </h3>
           {completedBookings.length === 0 ? (
             <div style={{ 

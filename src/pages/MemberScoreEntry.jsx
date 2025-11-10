@@ -313,10 +313,10 @@ function MemberScoreEntry() {
               {booking.courseName}
             </h3>
             <div style={{ fontSize: '14px', color: '#666' }}>
-              📅 {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
+              ◆ {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
             </div>
             <div style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>
-              👥 총 {participants.length}명
+              ● 총 {participants.length}명
             </div>
           </div>
         </div>
@@ -332,7 +332,7 @@ function MemberScoreEntry() {
                   marginBottom: '16px',
                   color: 'var(--primary-green)'
                 }}>
-                  🏌️ {team.teamNumber}조
+                  ▪ {team.teamNumber}조
                 </h3>
 
                 <div style={{ 
@@ -350,8 +350,7 @@ function MemberScoreEntry() {
                       <div key={index} style={{
                         padding: '12px',
                         background: 'var(--bg-green)',
-                        borderRadius: '8px',
-                        border: '2px solid #e0e0e0'
+                        borderRadius: '8px'
                       }}>
                         <label style={{
                           display: 'block',
@@ -372,7 +371,6 @@ function MemberScoreEntry() {
                             width: '100%',
                             padding: '10px',
                             fontSize: '16px',
-                            border: '2px solid #ddd',
                             borderRadius: '6px',
                             boxSizing: 'border-box',
                             fontWeight: '700',
@@ -393,7 +391,7 @@ function MemberScoreEntry() {
               marginBottom: '16px',
               color: 'var(--primary-green)'
             }}>
-              📝 참가자별 총 타수 입력
+              ▪ 참가자별 총 타수 입력
             </h3>
 
             <div style={{ 
@@ -405,8 +403,7 @@ function MemberScoreEntry() {
                 <div key={index} style={{
                   padding: '12px',
                   background: 'var(--bg-green)',
-                  borderRadius: '8px',
-                  border: '2px solid #e0e0e0'
+                  borderRadius: '8px'
                 }}>
                   <label style={{
                     display: 'block',
@@ -427,7 +424,6 @@ function MemberScoreEntry() {
                       width: '100%',
                       padding: '10px',
                       fontSize: '16px',
-                      border: '2px solid #ddd',
                       borderRadius: '6px',
                       boxSizing: 'border-box',
                       fontWeight: '700',
@@ -452,7 +448,7 @@ function MemberScoreEntry() {
               cursor: saving ? 'not-allowed' : 'pointer'
             }}
           >
-            {saving ? '저장 중...' : '💾 저장하기'}
+            {saving ? '저장 중...' : '■ 저장하기'}
           </button>
         )}
 
@@ -465,7 +461,7 @@ function MemberScoreEntry() {
               color: 'var(--primary-green)',
               textAlign: 'center'
             }}>
-              🏆 라운딩 결과
+              ★ 라운딩 결과
             </h3>
 
             {leaderboard.gradeA.length > 0 && (
@@ -479,7 +475,7 @@ function MemberScoreEntry() {
                   background: 'var(--bg-green)',
                   borderRadius: '6px'
                 }}>
-                  🏆 그레이드 A
+                  ▲ 그레이드 A
                 </div>
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ 
@@ -489,33 +485,33 @@ function MemberScoreEntry() {
                   }}>
                     <thead>
                       <tr style={{ background: '#f5f5f5' }}>
-                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #ddd', fontWeight: '700' }}>순위</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'left', borderBottom: '2px solid #ddd', fontWeight: '700' }}>이름</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #ddd', fontWeight: '700' }}>데일리 핸디</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #ddd', fontWeight: '700' }}>총타수</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #ddd', fontWeight: '700' }}>오버/언더</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #ddd', fontWeight: '700' }}>스코어</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>순위</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>이름</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>데일리 핸디</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>총타수</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>오버/언더</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>스코어</th>
                       </tr>
                     </thead>
                     <tbody>
                       {leaderboard.gradeA.map((player, index) => (
-                        <tr key={index} style={{ background: index % 2 === 0 ? 'white' : '#fafafa' }}>
-                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid #eee' }}>
-                            {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                        <tr key={index} style={{ background: index % 2 === 0 ? 'var(--bg-card)' : '#fafafa' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
+                            {index === 0 ? '1' : index === 1 ? '2' : index === 2 ? '3' : index + 1}
                           </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'left', borderBottom: '1px solid #eee', fontWeight: '600' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'left', borderBottom: '1px solid var(--border-color)', fontWeight: '600' }}>
                             {player.nickname}
                           </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {player.dailyHandicap}
                           </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {player.totalScore}
                           </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {player.overUnder > 0 ? `+${player.overUnder}` : player.overUnder}
                           </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid #eee', fontWeight: '700', color: '#2d5f3f' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700', color: '#2d5f3f' }}>
                             {player.finalScore > 0 ? `+${player.finalScore}` : player.finalScore}
                           </td>
                         </tr>
@@ -537,7 +533,7 @@ function MemberScoreEntry() {
                   background: 'var(--bg-green)',
                   borderRadius: '6px'
                 }}>
-                  🥈 그레이드 B
+                  ▲ 그레이드 B
                 </div>
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ 
@@ -547,33 +543,33 @@ function MemberScoreEntry() {
                   }}>
                     <thead>
                       <tr style={{ background: '#f5f5f5' }}>
-                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #ddd', fontWeight: '700' }}>순위</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'left', borderBottom: '2px solid #ddd', fontWeight: '700' }}>이름</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #ddd', fontWeight: '700' }}>데일리 핸디</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #ddd', fontWeight: '700' }}>총타수</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #ddd', fontWeight: '700' }}>오버/언더</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #ddd', fontWeight: '700' }}>스코어</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>순위</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>이름</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>데일리 핸디</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>총타수</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>오버/언더</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>스코어</th>
                       </tr>
                     </thead>
                     <tbody>
                       {leaderboard.gradeB.map((player, index) => (
-                        <tr key={index} style={{ background: index % 2 === 0 ? 'white' : '#fafafa' }}>
-                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid #eee' }}>
-                            {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                        <tr key={index} style={{ background: index % 2 === 0 ? 'var(--bg-card)' : '#fafafa' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
+                            {index === 0 ? '1' : index === 1 ? '2' : index === 2 ? '3' : index + 1}
                           </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'left', borderBottom: '1px solid #eee', fontWeight: '600' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'left', borderBottom: '1px solid var(--border-color)', fontWeight: '600' }}>
                             {player.nickname}
                           </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {player.dailyHandicap}
                           </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {player.totalScore}
                           </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {player.overUnder > 0 ? `+${player.overUnder}` : player.overUnder}
                           </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid #eee', fontWeight: '700', color: '#2d5f3f' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700', color: '#2d5f3f' }}>
                             {player.finalScore > 0 ? `+${player.finalScore}` : player.finalScore}
                           </td>
                         </tr>
@@ -595,7 +591,7 @@ function MemberScoreEntry() {
                   background: 'var(--bg-green)',
                   borderRadius: '6px'
                 }}>
-                  🥉 그레이드 C
+                  ▲ 그레이드 C
                 </div>
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ 
@@ -605,33 +601,33 @@ function MemberScoreEntry() {
                   }}>
                     <thead>
                       <tr style={{ background: '#f5f5f5' }}>
-                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #ddd', fontWeight: '700' }}>순위</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'left', borderBottom: '2px solid #ddd', fontWeight: '700' }}>이름</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #ddd', fontWeight: '700' }}>데일리 핸디</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #ddd', fontWeight: '700' }}>총타수</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #ddd', fontWeight: '700' }}>오버/언더</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '2px solid #ddd', fontWeight: '700' }}>스코어</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>순위</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>이름</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>데일리 핸디</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>총타수</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>오버/언더</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>스코어</th>
                       </tr>
                     </thead>
                     <tbody>
                       {leaderboard.gradeC.map((player, index) => (
-                        <tr key={index} style={{ background: index % 2 === 0 ? 'white' : '#fafafa' }}>
-                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid #eee' }}>
-                            {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                        <tr key={index} style={{ background: index % 2 === 0 ? 'var(--bg-card)' : '#fafafa' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
+                            {index === 0 ? '1' : index === 1 ? '2' : index === 2 ? '3' : index + 1}
                           </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'left', borderBottom: '1px solid #eee', fontWeight: '600' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'left', borderBottom: '1px solid var(--border-color)', fontWeight: '600' }}>
                             {player.nickname}
                           </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {player.dailyHandicap}
                           </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {player.totalScore}
                           </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid #eee' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {player.overUnder > 0 ? `+${player.overUnder}` : player.overUnder}
                           </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid #eee', fontWeight: '700', color: '#2d5f3f' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700', color: '#2d5f3f' }}>
                             {player.finalScore > 0 ? `+${player.finalScore}` : player.finalScore}
                           </td>
                         </tr>
@@ -652,7 +648,7 @@ function MemberScoreEntry() {
                   borderColor: '#666'
                 }}
               >
-                📝 다시 입력하기
+                ◀ 다시 입력하기
               </button>
               <button
                 onClick={handleDeleteAllScores}
@@ -663,7 +659,7 @@ function MemberScoreEntry() {
                   borderColor: '#e53e3e'
                 }}
               >
-                🗑️ 결과 모두 지우기
+                × 결과 모두 지우기
               </button>
             </div>
           </div>

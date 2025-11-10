@@ -484,7 +484,7 @@ function Admin() {
         </div>
         <div className="page-content">
           <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔒</div>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>◆</div>
             <p>관리자 또는 운영진 권한이 필요합니다</p>
           </div>
         </div>
@@ -529,15 +529,15 @@ function Admin() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                border: 'none',
-                background: 'white',
-                transition: 'all 0.2s'
+                background: 'var(--bg-card)',
+                transition: 'all 0.2s',
+                borderBottom: '1px solid var(--border-color)'
               }}
               onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-card)'}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ fontSize: '28px' }}>👥</div>
+                <div style={{ fontSize: '28px' }}>≡</div>
                 <div>
                   <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>
                     회원 관리
@@ -560,15 +560,15 @@ function Admin() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                border: 'none',
-                background: 'white',
-                transition: 'all 0.2s'
+                background: 'var(--bg-card)',
+                transition: 'all 0.2s',
+                borderBottom: '1px solid var(--border-color)'
               }}
               onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-card)'}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ fontSize: '28px' }}>💰</div>
+                <div style={{ fontSize: '28px' }}>$</div>
                 <div>
                   <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>
                     회비 관리
@@ -591,15 +591,15 @@ function Admin() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                border: 'none',
-                background: 'white',
-                transition: 'all 0.2s'
+                background: 'var(--bg-card)',
+                transition: 'all 0.2s',
+                borderBottom: '1px solid var(--border-color)'
               }}
               onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-card)'}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ fontSize: '28px' }}>⛳</div>
+                <div style={{ fontSize: '28px' }}>⚑</div>
                 <div>
                   <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>
                     골프장 관리
@@ -622,15 +622,15 @@ function Admin() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                border: 'none',
-                background: 'white',
-                transition: 'all 0.2s'
+                background: 'var(--bg-card)',
+                transition: 'all 0.2s',
+                borderBottom: '1px solid var(--border-color)'
               }}
               onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-card)'}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ fontSize: '28px' }}>⚙️</div>
+                <div style={{ fontSize: '28px' }}>⚙</div>
                 <div>
                   <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>
                     앱 설정
@@ -661,9 +661,8 @@ function Admin() {
                   onClick={() => setShowInactive(!showInactive)}
                   style={{
                     padding: '8px 16px',
-                    background: showInactive ? 'var(--primary-green)' : 'white',
+                    background: showInactive ? 'var(--primary-green)' : 'var(--bg-card)',
                     color: showInactive ? 'white' : 'var(--primary-green)',
-                    border: `2px solid var(--primary-green)`,
                     borderRadius: '20px',
                     fontSize: '13px',
                     fontWeight: '600',
@@ -685,7 +684,7 @@ function Admin() {
                     onClick={() => navigate(`/member/${member.id}`)}
                     style={{
                       padding: '12px',
-                      background: member.isActive === false ? '#f5f5f5' : 'white',
+                      background: member.isActive === false ? '#f5f5f5' : 'var(--bg-card)',
                       borderRadius: '8px',
                       marginBottom: '8px',
                       display: 'flex',
@@ -693,7 +692,7 @@ function Admin() {
                       alignItems: 'center',
                       opacity: member.isActive === false ? 0.6 : 1,
                       cursor: 'pointer',
-                      border: '1px solid var(--border-color)',
+                      borderBottom: '1px solid var(--border-color)',
                       transition: 'all 0.2s'
                     }}
                     onMouseEnter={(e) => {
@@ -701,7 +700,7 @@ function Admin() {
                       e.currentTarget.style.transform = 'translateX(4px)';
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = member.isActive === false ? '#f5f5f5' : 'white';
+                      e.currentTarget.style.background = member.isActive === false ? '#f5f5f5' : 'var(--bg-card)';
                       e.currentTarget.style.transform = 'translateX(0)';
                     }}
                   >
@@ -728,10 +727,9 @@ function Admin() {
                           alignItems: 'center',
                           justifyContent: 'center',
                           fontSize: '28px',
-                          color: '#999',
-                          border: '2px solid var(--border-color)'
+                          color: '#999'
                         }}>
-                          👤
+                          •
                         </div>
                       )}
                     </div>
@@ -746,8 +744,8 @@ function Admin() {
                         gap: '6px'
                       }}>
                         <span style={{ color: '#2d5f3f' }}>{member.nickname || member.name}</span>
-                        {member.role === 'admin' && <span style={{ fontSize: '14px' }}>👑</span>}
-                        {member.role === 'operator' && <span style={{ fontSize: '14px' }}>⚙️</span>}
+                        {member.role === 'admin' && <span style={{ fontSize: '14px' }}>★</span>}
+                        {member.role === 'operator' && <span style={{ fontSize: '14px' }}>⚙</span>}
                       </div>
                       <div style={{ fontSize: '13px', color: '#666' }}>
                         {member.name}
@@ -771,7 +769,7 @@ function Admin() {
             {editingMember && editMemberData && (
               <div className="card" style={{ marginTop: '16px' }}>
                 <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
-                  ✏️ 회원 정보 수정
+                  ✎ 회원 정보 수정
                 </h3>
                 <input
                   type="text"
@@ -1237,7 +1235,7 @@ function Admin() {
             {editingCourse && editCourseData && (
               <div className="card" style={{ marginBottom: '16px' }}>
                 <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
-                  ✏️ 골프장 정보 수정
+                  ✎ 골프장 정보 수정
                 </h3>
                 <input
                   type="text"
@@ -1377,7 +1375,7 @@ function Admin() {
                         </div>
                         {course.address && (
                           <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
-                            📍 {course.address}
+                            • {course.address}
                           </div>
                         )}
                       </div>
@@ -1389,8 +1387,7 @@ function Admin() {
                         <button
                           onClick={() => setShowCourseMenu(showCourseMenu === course.id ? null : course.id)}
                           style={{
-                            background: 'white',
-                            border: '2px solid var(--border-color)',
+                            background: 'var(--bg-card)',
                             borderRadius: '6px',
                             padding: '4px 8px',
                             cursor: 'pointer',
@@ -1410,10 +1407,8 @@ function Admin() {
                               top: '100%',
                               right: 0,
                               marginTop: '4px',
-                              background: 'white',
-                              border: '1px solid var(--border-color)',
+                              background: 'var(--bg-card)',
                               borderRadius: '8px',
-                              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                               zIndex: 1000,
                               minWidth: '150px',
                               overflow: 'hidden'
@@ -1424,7 +1419,7 @@ function Admin() {
                               style={{
                                 width: '100%',
                                 padding: '12px 16px',
-                                background: 'white',
+                                background: 'var(--bg-card)',
                                 border: 'none',
                                 textAlign: 'left',
                                 cursor: 'pointer',
@@ -1433,16 +1428,16 @@ function Admin() {
                                 transition: 'background 0.2s'
                               }}
                               onMouseEnter={(e) => e.target.style.background = 'var(--bg-green)'}
-                              onMouseLeave={(e) => e.target.style.background = 'white'}
+                              onMouseLeave={(e) => e.target.style.background = 'var(--bg-card)'}
                             >
-                              ✏️ 편집
+                              ✎ 편집
                             </button>
                             <button
                               onClick={() => handleDeleteCourse(course.id)}
                               style={{
                                 width: '100%',
                                 padding: '12px 16px',
-                                background: 'white',
+                                background: 'var(--bg-card)',
                                 border: 'none',
                                 textAlign: 'left',
                                 cursor: 'pointer',
@@ -1452,9 +1447,9 @@ function Admin() {
                                 transition: 'background 0.2s'
                               }}
                               onMouseEnter={(e) => e.target.style.background = '#fee'}
-                              onMouseLeave={(e) => e.target.style.background = 'white'}
+                              onMouseLeave={(e) => e.target.style.background = 'var(--bg-card)'}
                             >
-                              🗑️ 삭제
+                              × 삭제
                             </button>
                           </div>
                         )}
@@ -1523,7 +1518,7 @@ function Admin() {
                     cursor: hasChanges ? 'pointer' : 'not-allowed'
                   }}
                 >
-                  {hasChanges ? '💾 저장하기' : '✓ 저장됨'}
+                  {hasChanges ? '✓ 저장하기' : '✓ 저장됨'}
                 </button>
               </div>
 
@@ -1535,7 +1530,7 @@ function Admin() {
                 fontSize: '12px',
                 color: '#666'
               }}>
-                💡 각 기능의 최소 권한을 설정하세요
+                • 각 기능의 최소 권한을 설정하세요
               </div>
 
               <div style={{ display: 'grid', gap: '8px' }}>
@@ -1547,8 +1542,8 @@ function Admin() {
                       justifyContent: 'space-between',
                       alignItems: 'center',
                       padding: '10px 12px',
-                      background: 'white',
-                      border: '1px solid var(--border-color)',
+                      background: 'var(--bg-card)',
+                      borderBottom: '1px solid var(--border-color)',
                       borderRadius: '6px'
                     }}
                   >
@@ -1565,9 +1560,9 @@ function Admin() {
                     <div style={{ display: 'flex', gap: '4px' }}>
                       {['admin', 'operator', 'member'].map(role => {
                         const roleLabels = {
-                          admin: '👑',
-                          operator: '⚙️',
-                          member: '👤'
+                          admin: '★',
+                          operator: '⚙',
+                          member: '•'
                         };
                         const isSelected = permissions[feature.id] === role;
                         
@@ -1578,9 +1573,8 @@ function Admin() {
                             title={role === 'admin' ? '관리자' : role === 'operator' ? '운영진' : '일반 회원'}
                             style={{
                               padding: '6px 10px',
-                              background: isSelected ? 'var(--primary-green)' : 'white',
+                              background: isSelected ? 'var(--primary-green)' : 'var(--bg-card)',
                               color: isSelected ? 'white' : '#666',
-                              border: `1.5px solid ${isSelected ? 'var(--primary-green)' : '#ddd'}`,
                               borderRadius: '4px',
                               fontSize: '16px',
                               cursor: 'pointer',
@@ -1606,9 +1600,8 @@ function Admin() {
                 style={{
                   width: '100%',
                   padding: '12px',
-                  background: 'white',
+                  background: 'var(--bg-card)',
                   color: '#e53e3e',
-                  border: '2px solid #e53e3e',
                   borderRadius: '8px',
                   fontSize: '16px',
                   fontWeight: '600',
@@ -1621,7 +1614,7 @@ function Admin() {
                   }
                 }}
               >
-                🗑️ 모든 데이터 초기화
+                × 모든 데이터 초기화
               </button>
             </div>
 
@@ -1650,7 +1643,7 @@ function Admin() {
           padding: '16px'
         }}>
           <div style={{
-            background: 'white',
+            background: 'var(--bg-card)',
             borderRadius: '12px',
             padding: '24px',
             width: '100%',

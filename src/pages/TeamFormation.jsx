@@ -275,10 +275,10 @@ function TeamFormation() {
               {booking.courseName}
             </h3>
             <div style={{ fontSize: '14px', color: '#666' }}>
-              📅 {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
+              {new Date(booking.date).toLocaleDateString('ko-KR')} • {booking.time}
             </div>
             <div style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>
-              👥 총 {participants.length}명
+              총 {participants.length}명
             </div>
           </div>
         </div>
@@ -289,7 +289,7 @@ function TeamFormation() {
             className="btn-outline"
             style={{ flex: 1 }}
           >
-            🎲 자동 배정
+            ⚡ 자동 배정
           </button>
           <button
             onClick={handleSaveTeams}
@@ -305,7 +305,7 @@ function TeamFormation() {
               cursor: 'pointer'
             }}
           >
-            {hasUnsavedChanges ? '❌ 저장안됨' : '✅ 저장됨'}
+            {hasUnsavedChanges ? '× 저장안됨' : '✓ 저장됨'}
           </button>
         </div>
 
@@ -316,7 +316,7 @@ function TeamFormation() {
             marginBottom: '12px',
             color: 'var(--primary-green)'
           }}>
-            📋 미배정 참가자 ({unassigned.length}명)
+            미배정 참가자 ({unassigned.length}명)
           </h3>
           <div style={{
             minHeight: '60px',
@@ -326,7 +326,7 @@ function TeamFormation() {
             display: 'flex',
             flexWrap: 'wrap',
             gap: '8px',
-            border: '2px dashed #ddd'
+            border: 'none'
           }}>
             {unassigned.length === 0 ? (
               <div style={{ 
@@ -343,9 +343,10 @@ function TeamFormation() {
                   key={index}
                   style={{
                     padding: '8px 16px',
-                    background: 'white',
+                    background: 'var(--bg-card)',
                     borderRadius: '6px',
-                    border: '2px solid var(--primary-green)',
+                    border: 'none',
+                    borderBottom: '1px solid var(--border-color)',
                     fontSize: '14px',
                     fontWeight: '600',
                     color: 'var(--primary-green)'
@@ -382,7 +383,8 @@ function TeamFormation() {
                     background: member ? 'var(--primary-green)' : '#f5f5f5',
                     color: member ? 'white' : '#999',
                     borderRadius: '8px',
-                    border: member ? 'none' : '2px dashed #ddd',
+                    border: 'none',
+                    borderBottom: '1px solid var(--border-color)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -415,7 +417,7 @@ function TeamFormation() {
           padding: '16px'
         }}>
           <div style={{
-            background: 'white',
+            background: 'var(--bg-card)',
             borderRadius: '12px',
             padding: '24px',
             width: '100%',
@@ -480,8 +482,9 @@ function TeamFormation() {
                         style={{
                           padding: '16px',
                           background: isSelected ? 'var(--primary-green)' : 'var(--bg-green)',
-                          border: `2px solid var(--primary-green)`,
-                          borderRadius: '8px',
+                          border: 'none',
+                          borderBottom: '1px solid var(--border-color)',
+                          borderRadius: '0',
                           cursor: 'pointer',
                           textAlign: 'center',
                           fontSize: '16px',
@@ -518,9 +521,9 @@ function TeamFormation() {
                 style={{
                   flex: 1,
                   padding: '14px',
-                  background: 'white',
+                  background: 'var(--bg-card)',
                   color: '#666',
-                  border: '2px solid #ddd',
+                  border: 'none',
                   borderRadius: '8px',
                   fontSize: '16px',
                   fontWeight: '600',

@@ -139,7 +139,7 @@ function Dashboard() {
               fontWeight: '700',
               color: 'var(--primary-green)'
             }}>
-              📋 게시판
+              ✎ 게시판
             </h3>
             {user.isAdmin && (
               <button 
@@ -192,7 +192,7 @@ function Dashboard() {
 
           {posts.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px', color: '#666', background: 'var(--bg-green)', borderRadius: '8px' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>📋</div>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>✎</div>
               <p>아직 공지사항이 없습니다</p>
               {user.isAdmin && (
                 <p style={{ fontSize: '14px', marginTop: '8px' }}>
@@ -207,7 +207,8 @@ function Dashboard() {
                   background: 'var(--bg-green)',
                   padding: '16px',
                   borderRadius: '8px',
-                  marginBottom: '12px'
+                  marginBottom: '12px',
+                  borderBottom: '1px solid var(--border-color)'
                 }}>
                   <div style={{ 
                     display: 'flex', 
@@ -251,7 +252,7 @@ function Dashboard() {
                   <button
                     onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
                     style={{
-                      background: 'white',
+                      background: 'var(--bg-card)',
                       color: 'var(--primary-green)',
                       padding: '8px 12px',
                       borderRadius: '6px',
@@ -263,7 +264,7 @@ function Dashboard() {
                       cursor: 'pointer'
                     }}
                   >
-                    💬 댓글 {post.comments?.length > 0 ? `(${post.comments.length})` : '달기'}
+                    ◈ 댓글 {post.comments?.length > 0 ? `(${post.comments.length})` : '달기'}
                   </button>
 
                   {expandedPost === post.id && (
@@ -274,10 +275,11 @@ function Dashboard() {
                             <div 
                               key={comment.id}
                               style={{
-                                background: 'white',
+                                background: 'var(--bg-card)',
                                 padding: '12px',
                                 borderRadius: '8px',
-                                marginBottom: '8px'
+                                marginBottom: '8px',
+                                borderBottom: '1px solid var(--border-color)'
                               }}
                             >
                               <div style={{ 
@@ -402,7 +404,7 @@ function Dashboard() {
               fontWeight: '700',
               color: 'var(--primary-green)'
             }}>
-              📌 공지된 라운딩
+              ◈ 공지된 라운딩
             </h3>
             <button 
               onClick={() => navigate('/booking')}
@@ -444,7 +446,8 @@ function Dashboard() {
                   marginBottom: '12px',
                   cursor: 'pointer',
                   transition: 'transform 0.2s',
-                  position: 'relative'
+                  position: 'relative',
+                  borderBottom: '1px solid var(--border-color)'
                 }}
                 onClick={() => navigate('/booking')}
                 onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
@@ -459,18 +462,18 @@ function Dashboard() {
                     {booking.courseName}
                   </h4>
                   <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>
-                    📅 {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
+                    ◷ {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
                   </div>
                   {booking.gatheringTime && (
                     <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
-                      🕐 집결시간: {booking.gatheringTime}
+                      ◷ 집결시간: {booking.gatheringTime}
                     </div>
                   )}
 
                   {booking.registrationDeadline && (
                     <div style={{ fontSize: '14px', marginBottom: '8px' }}>
                       <span style={{ fontWeight: '700', color: '#e53e3e' }}>
-                        🔔 {new Date(booking.registrationDeadline).toLocaleDateString('ko-KR')} 마감
+                        ◈ {new Date(booking.registrationDeadline).toLocaleDateString('ko-KR')} 마감
                       </span>
                       <span style={{ color: '#666', marginLeft: '8px' }}>
                         {getDaysUntilDeadline(booking.registrationDeadline) > 0 
@@ -486,7 +489,7 @@ function Dashboard() {
                     color: '#666',
                     marginBottom: '12px'
                   }}>
-                    👥 참가자 {participants.length}명
+                    ◈ 참가자 {participants.length}명
                   </div>
 
                   {isRegistrationClosed(booking) ? (
@@ -498,7 +501,7 @@ function Dashboard() {
                       className='btn-primary'
                       style={{ width: '100%' }}
                     >
-                      🏌️ 플레이하기
+                      ⛳ 플레이하기
                     </button>
                   ) : (
                     <button 

@@ -185,7 +185,7 @@ function ParticipantManagement() {
               {booking.courseName}
             </h3>
             <div style={{ fontSize: '14px', color: '#666' }}>
-              📅 {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
+              {new Date(booking.date).toLocaleDateString('ko-KR')} • {booking.time}
             </div>
           </div>
 
@@ -230,8 +230,9 @@ function ParticipantManagement() {
                     alignItems: 'center',
                     padding: '16px',
                     background: 'var(--bg-green)',
-                    borderRadius: '8px',
-                    border: '1px solid #e0e0e0'
+                    borderRadius: '0',
+                    border: 'none',
+                    borderBottom: '1px solid var(--border-color)'
                   }}
                 >
                   <div>
@@ -279,7 +280,7 @@ function ParticipantManagement() {
           padding: '16px'
         }}>
           <div style={{
-            background: 'white',
+            background: 'var(--bg-card)',
             borderRadius: '12px',
             padding: '24px',
             width: '100%',
@@ -324,8 +325,9 @@ function ParticipantManagement() {
                       style={{
                         padding: '16px',
                         background: alreadyAdded ? '#f5f5f5' : 'var(--bg-green)',
-                        border: `2px solid ${alreadyAdded ? '#ccc' : 'var(--primary-green)'}`,
-                        borderRadius: '8px',
+                        border: 'none',
+                        borderBottom: '1px solid var(--border-color)',
+                        borderRadius: '0',
                         cursor: alreadyAdded ? 'not-allowed' : 'pointer',
                         textAlign: 'left',
                         opacity: alreadyAdded ? 0.6 : 1,

@@ -271,7 +271,6 @@ function MemberDetail() {
                   height: '120px',
                   objectFit: 'cover',
                   borderRadius: '50%',
-                  border: '3px solid var(--primary-green)',
                   margin: '0 auto'
                 }}
               />
@@ -286,10 +285,9 @@ function MemberDetail() {
                 justifyContent: 'center',
                 fontSize: '60px',
                 color: '#999',
-                border: '3px solid var(--primary-green)',
                 margin: '0 auto'
               }}>
-                👤
+                ●
               </div>
             )}
           </div>
@@ -364,7 +362,7 @@ function MemberDetail() {
                 fontSize: '12px',
                 fontWeight: '600'
               }}>
-                👑 관리자
+                ★ 관리자
               </span>
             )}
             {member.role === 'operator' && (
@@ -376,7 +374,7 @@ function MemberDetail() {
                 fontSize: '12px',
                 fontWeight: '600'
               }}>
-                ⚙️ 운영진
+                ◆ 운영진
               </span>
             )}
             {member.isActive === false && (
@@ -468,7 +466,6 @@ function MemberDetail() {
                         padding: '10px 8px',
                         background: member.role === 'admin' ? 'var(--primary-green)' : '#f5f5f5',
                         color: member.role === 'admin' ? 'white' : '#666',
-                        border: member.role === 'admin' ? 'none' : '1px solid #e0e0e0',
                         borderRadius: '6px',
                         fontSize: '13px',
                         fontWeight: '600',
@@ -480,7 +477,7 @@ function MemberDetail() {
                         gap: '4px'
                       }}
                     >
-                      <span style={{ fontSize: '18px' }}>👑</span>
+                      <span style={{ fontSize: '18px' }}>★</span>
                       <span>관리자</span>
                     </button>
                     <button
@@ -491,7 +488,6 @@ function MemberDetail() {
                         padding: '10px 8px',
                         background: member.role === 'operator' ? 'var(--primary-green)' : '#f5f5f5',
                         color: member.role === 'operator' ? 'white' : '#666',
-                        border: member.role === 'operator' ? 'none' : '1px solid #e0e0e0',
                         borderRadius: '6px',
                         fontSize: '13px',
                         fontWeight: '600',
@@ -503,7 +499,7 @@ function MemberDetail() {
                         gap: '4px'
                       }}
                     >
-                      <span style={{ fontSize: '18px' }}>⚙️</span>
+                      <span style={{ fontSize: '18px' }}>◆</span>
                       <span>운영진</span>
                     </button>
                     <button
@@ -514,7 +510,6 @@ function MemberDetail() {
                         padding: '10px 8px',
                         background: (member.role === 'member' || !member.role) ? 'var(--primary-green)' : '#f5f5f5',
                         color: (member.role === 'member' || !member.role) ? 'white' : '#666',
-                        border: (member.role === 'member' || !member.role) ? 'none' : '1px solid #e0e0e0',
                         borderRadius: '6px',
                         fontSize: '13px',
                         fontWeight: '600',
@@ -526,7 +521,7 @@ function MemberDetail() {
                         gap: '4px'
                       }}
                     >
-                      <span style={{ fontSize: '18px' }}>👤</span>
+                      <span style={{ fontSize: '18px' }}>●</span>
                       <span>일반</span>
                     </button>
                   </div>
@@ -567,7 +562,7 @@ function MemberDetail() {
                         transition: 'all 0.2s'
                       }}
                     >
-                      <span style={{ fontSize: '20px' }}>✏️</span>
+                      <span style={{ fontSize: '20px' }}>▪</span>
                       <span>정보 수정</span>
                     </button>
                     <button
@@ -597,7 +592,7 @@ function MemberDetail() {
                         transition: 'all 0.2s'
                       }}
                     >
-                      <span style={{ fontSize: '20px' }}>📊</span>
+                      <span style={{ fontSize: '20px' }}>◆</span>
                       <span>스코어 기록</span>
                     </button>
                     <button
@@ -606,7 +601,6 @@ function MemberDetail() {
                         padding: '12px',
                         background: '#f5f5f5',
                         color: '#666',
-                        border: '1px solid #e0e0e0',
                         borderRadius: '6px',
                         fontSize: '13px',
                         fontWeight: '600',
@@ -618,7 +612,7 @@ function MemberDetail() {
                         transition: 'all 0.2s'
                       }}
                     >
-                      <span style={{ fontSize: '20px' }}>{member.isActive === false ? '🔓' : '🔒'}</span>
+                      <span style={{ fontSize: '20px' }}>{member.isActive === false ? '○' : '●'}</span>
                       <span>{member.isActive === false ? '활성화' : '비활성화'}</span>
                     </button>
                     <button
@@ -627,7 +621,6 @@ function MemberDetail() {
                         padding: '12px',
                         background: '#fff5f5',
                         color: '#e53e3e',
-                        border: '1px solid #fecaca',
                         borderRadius: '6px',
                         fontSize: '13px',
                         fontWeight: '600',
@@ -639,7 +632,7 @@ function MemberDetail() {
                         transition: 'all 0.2s'
                       }}
                     >
-                      <span style={{ fontSize: '20px' }}>🗑️</span>
+                      <span style={{ fontSize: '20px' }}>×</span>
                       <span>회원 삭제</span>
                     </button>
                   </div>
@@ -770,7 +763,7 @@ function MemberDetail() {
                 className="btn-primary"
                 style={{ flex: 1 }}
               >
-                💾 저장
+                ■ 저장
               </button>
               <button
                 onClick={() => {
@@ -780,7 +773,7 @@ function MemberDetail() {
                 className="btn-secondary"
                 style={{ flex: 1 }}
               >
-                ✕ 취소
+                × 취소
               </button>
             </div>
           </div>
@@ -828,7 +821,7 @@ function MemberDetail() {
                     padding: '12px',
                     background: 'var(--bg-green)',
                     borderRadius: '6px',
-                    border: '1px solid var(--border-color)',
+                    borderBottom: '1px solid var(--border-color)',
                     position: 'relative'
                   }}
                 >
@@ -889,9 +882,8 @@ function MemberDetail() {
                                 top: '100%',
                                 right: 0,
                                 marginTop: '4px',
-                                background: 'white',
+                                background: 'var(--bg-card)',
                                 borderRadius: '6px',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
                                 overflow: 'hidden',
                                 zIndex: 100,
                                 minWidth: '120px'
@@ -905,18 +897,18 @@ function MemberDetail() {
                                 style={{
                                   width: '100%',
                                   padding: '10px 16px',
-                                  background: 'white',
+                                  background: 'var(--bg-card)',
                                   border: 'none',
                                   textAlign: 'left',
                                   fontSize: '14px',
                                   cursor: 'pointer',
                                   color: '#333',
-                                  borderBottom: '1px solid #f0f0f0'
+                                  borderBottom: '1px solid var(--border-color)'
                                 }}
                                 onMouseEnter={(e) => e.target.style.background = '#f5f5f5'}
-                                onMouseLeave={(e) => e.target.style.background = 'white'}
+                                onMouseLeave={(e) => e.target.style.background = 'var(--bg-card)'}
                               >
-                                ✏️ 수정
+                                ▪ 수정
                               </button>
                               <button
                                 onClick={() => {
@@ -926,7 +918,7 @@ function MemberDetail() {
                                 style={{
                                   width: '100%',
                                   padding: '10px 16px',
-                                  background: 'white',
+                                  background: 'var(--bg-card)',
                                   border: 'none',
                                   textAlign: 'left',
                                   fontSize: '14px',
@@ -934,9 +926,9 @@ function MemberDetail() {
                                   color: '#e53e3e'
                                 }}
                                 onMouseEnter={(e) => e.target.style.background = '#fff5f5'}
-                                onMouseLeave={(e) => e.target.style.background = 'white'}
+                                onMouseLeave={(e) => e.target.style.background = 'var(--bg-card)'}
                               >
-                                🗑️ 삭제
+                                × 삭제
                               </button>
                             </div>
                           </>
@@ -972,7 +964,7 @@ function MemberDetail() {
           padding: '16px'
         }}>
           <div style={{
-            background: 'white',
+            background: 'var(--bg-card)',
             borderRadius: '12px',
             padding: '24px',
             width: '100%',
@@ -1047,7 +1039,7 @@ function MemberDetail() {
               className="btn-primary"
               style={{ width: '100%' }}
             >
-              📊 스코어 저장
+              ◆ 스코어 저장
             </button>
           </div>
         </div>
