@@ -263,7 +263,7 @@ function MemberScoreEntry() {
           </div>
         </div>
 
-        {(() => {
+        {!leaderboard && (() => {
           const teams = parseTeams(booking.teams);
           return teams && teams.length > 0 ? (
             teams.map((team, teamIndex) => (
@@ -383,18 +383,20 @@ function MemberScoreEntry() {
           );
         })()}
 
-        <button
-          onClick={handleSaveScores}
-          disabled={saving}
-          className="btn-primary"
-          style={{
-            width: '100%',
-            opacity: saving ? 0.6 : 1,
-            cursor: saving ? 'not-allowed' : 'pointer'
-          }}
-        >
-          {saving ? '저장 중...' : '💾 저장하기'}
-        </button>
+        {!leaderboard && (
+          <button
+            onClick={handleSaveScores}
+            disabled={saving}
+            className="btn-primary"
+            style={{
+              width: '100%',
+              opacity: saving ? 0.6 : 1,
+              cursor: saving ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {saving ? '저장 중...' : '💾 저장하기'}
+          </button>
+        )}
 
         {leaderboard && (
           <div className="card" style={{ marginTop: '20px' }}>
@@ -581,6 +583,19 @@ function MemberScoreEntry() {
                 </div>
               </div>
             )}
+            
+            <button
+              onClick={() => setLeaderboard(null)}
+              className="btn-primary"
+              style={{
+                width: '100%',
+                marginTop: '20px',
+                background: '#666',
+                borderColor: '#666'
+              }}
+            >
+              📝 다시 입력하기
+            </button>
           </div>
         )}
       </div>
