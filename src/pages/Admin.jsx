@@ -1588,6 +1588,21 @@ function Admin() {
                   🏆 그레이드 A
                 </div>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <input
+                    type="number"
+                    value={gradeSettings.gradeA.value}
+                    onChange={(e) => setGradeSettings({
+                      ...gradeSettings,
+                      gradeA: { ...gradeSettings.gradeA, value: parseInt(e.target.value) || 0 }
+                    })}
+                    style={{
+                      padding: '10px',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      width: '100px'
+                    }}
+                  />
                   <select
                     value={gradeSettings.gradeA.type}
                     onChange={(e) => setGradeSettings({
@@ -1605,24 +1620,6 @@ function Admin() {
                     <option value="below">이하</option>
                     <option value="above">이상</option>
                   </select>
-                  <input
-                    type="number"
-                    value={gradeSettings.gradeA.value}
-                    onChange={(e) => setGradeSettings({
-                      ...gradeSettings,
-                      gradeA: { ...gradeSettings.gradeA, value: parseInt(e.target.value) || 0 }
-                    })}
-                    style={{
-                      padding: '10px',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      width: '100px'
-                    }}
-                  />
-                  <span style={{ fontSize: '14px', color: '#666' }}>
-                    핸디 {gradeSettings.gradeA.value} {gradeSettings.gradeA.type === 'below' ? '이하' : '이상'}
-                  </span>
                 </div>
               </div>
 
@@ -1700,6 +1697,21 @@ function Admin() {
                   🥉 그레이드 C
                 </div>
                 <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <input
+                    type="number"
+                    value={gradeSettings.gradeC.value}
+                    onChange={(e) => setGradeSettings({
+                      ...gradeSettings,
+                      gradeC: { ...gradeSettings.gradeC, value: parseInt(e.target.value) || 0 }
+                    })}
+                    style={{
+                      padding: '10px',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      width: '100px'
+                    }}
+                  />
                   <select
                     value={gradeSettings.gradeC.type}
                     onChange={(e) => setGradeSettings({
@@ -1717,24 +1729,6 @@ function Admin() {
                     <option value="below">이하</option>
                     <option value="above">이상</option>
                   </select>
-                  <input
-                    type="number"
-                    value={gradeSettings.gradeC.value}
-                    onChange={(e) => setGradeSettings({
-                      ...gradeSettings,
-                      gradeC: { ...gradeSettings.gradeC, value: parseInt(e.target.value) || 0 }
-                    })}
-                    style={{
-                      padding: '10px',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '6px',
-                      fontSize: '14px',
-                      width: '100px'
-                    }}
-                  />
-                  <span style={{ fontSize: '14px', color: '#666' }}>
-                    핸디 {gradeSettings.gradeC.value} {gradeSettings.gradeC.type === 'below' ? '이하' : '이상'}
-                  </span>
                 </div>
               </div>
 
