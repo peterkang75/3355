@@ -312,6 +312,23 @@ router.delete('/fees/:id', async (req, res) => {
   }
 });
 
+router.get('/scores/booking/:date/:courseName', async (req, res) => {
+  try {
+    const { date, courseName } = req.params;
+    const scores = await prisma.score.findMany({
+      where: { 
+        date: decodeURIComponent(date),
+        courseName: decodeURIComponent(courseName)
+      },
+      include: { user: true }
+    });
+    res.json(scores);
+  } catch (error) {
+    console.error('Error fetching booking scores:', error);
+    res.status(500).json({ error: 'Failed to fetch booking scores' });
+  }
+});
+
 router.get('/scores/:userId', async (req, res) => {
   try {
     const scores = await prisma.score.findMany({

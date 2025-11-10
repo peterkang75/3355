@@ -187,6 +187,12 @@ class ApiService {
     return response.json();
   }
 
+  async fetchBookingScores(date, courseName) {
+    const response = await fetch(`${API_BASE}/scores/booking/${encodeURIComponent(date)}/${encodeURIComponent(courseName)}`);
+    if (!response.ok) throw new Error('Failed to fetch booking scores');
+    return response.json();
+  }
+
   async createScore(scoreData) {
     const response = await fetch(`${API_BASE}/scores`, {
       method: 'POST',

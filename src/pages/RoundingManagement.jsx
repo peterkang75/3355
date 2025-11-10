@@ -167,13 +167,17 @@ function RoundingManagement() {
                 gap: '12px'
               }}
             >
-              <span style={{ fontSize: '24px' }}>📝</span>
+              <span style={{ fontSize: '24px' }}>
+                {booking.dailyHandicaps ? '🏆' : '📝'}
+              </span>
               <div>
                 <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
-                  회원 스코어 입력
+                  {booking.dailyHandicaps ? '결과보기' : '회원 스코어 입력'}
                 </div>
                 <div style={{ fontSize: '13px', color: '#666' }}>
-                  참가자들의 스코어를 입력합니다
+                  {booking.dailyHandicaps 
+                    ? '라운딩 결과 및 순위를 확인합니다' 
+                    : '참가자들의 스코어를 입력합니다'}
                 </div>
               </div>
             </button>

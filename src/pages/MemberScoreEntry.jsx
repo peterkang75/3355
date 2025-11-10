@@ -28,9 +28,38 @@ function MemberScoreEntry() {
           initialScores[p.phone] = '';
         });
         setScores(initialScores);
+        
+        if (foundBooking.dailyHandicaps) {
+          loadExistingScores(foundBooking);
+        }
       }
     }
   }, [bookingId, bookings]);
+
+  const loadExistingScores = async (booking) => {
+    try {
+      const bookingScores = await apiService.fetchBookingScores(booking.date, booking.courseName);
+      
+      if (bookingScores && bookingScores.length > 0) {
+        const dailyHandicaps = typeof booking.dailyHandicaps === 'string' 
+          ? JSON.parse(booking.dailyHandicaps) 
+          : booking.dailyHandicaps;
+        const gradeSettings = typeof booking.gradeSettings === 'string'
+          ? JSON.parse(booking.gradeSettings)
+          : booking.gradeSettings;
+        
+        const scoresToSave = bookingScores.map(score => ({
+          userId: score.userId,
+          totalScore: score.totalScore
+        }));
+        
+        const leaderboardData = calculateLeaderboard(scoresToSave, dailyHandicaps, gradeSettings);
+        setLeaderboard(leaderboardData);
+      }
+    } catch (error) {
+      console.error('기존 스코어 로드 실패:', error);
+    }
+  };
 
   const parseParticipants = (participants) => {
     if (!participants || !Array.isArray(participants)) return [];

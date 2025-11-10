@@ -566,7 +566,9 @@ function Booking() {
             {isRegistrationClosed(booking) ? (
               <>
                 <button
-                  onClick={() => navigate('/score')}
+                  onClick={() => booking.dailyHandicaps 
+                    ? navigate(`/member-score-entry?id=${booking.id}`) 
+                    : navigate('/score')}
                   style={{
                     flex: 1,
                     padding: '12px',
@@ -579,7 +581,7 @@ function Booking() {
                     cursor: 'pointer'
                   }}
                 >
-                  🏌️ 플레이하기
+                  {booking.dailyHandicaps ? '🏆 결과보기' : '🏌️ 플레이하기'}
                 </button>
                 {user.isAdmin && (
                   <button
@@ -651,7 +653,9 @@ function Booking() {
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <button
-            onClick={() => navigate('/score')}
+            onClick={() => booking.dailyHandicaps 
+              ? navigate(`/member-score-entry?id=${booking.id}`) 
+              : navigate('/score')}
             style={{
               padding: '8px 16px',
               background: 'var(--primary-green)',
@@ -664,7 +668,7 @@ function Booking() {
               whiteSpace: 'nowrap'
             }}
           >
-            🏌️ 플레이하기
+            {booking.dailyHandicaps ? '🏆 결과보기' : '🏌️ 플레이하기'}
           </button>
           {user.isAdmin && isRegistrationClosed(booking) && (
             <button
