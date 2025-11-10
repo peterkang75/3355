@@ -122,7 +122,7 @@ function DashboardSample() {
   return (
     <div>
       <div className="header" style={{
-        background: 'linear-gradient(135deg, var(--primary-green) 0%, var(--accent-olive) 100%)'
+        background: 'linear-gradient(135deg, var(--accent-bright-green) 0%, var(--accent-mid-green) 100%)'
       }}>
         <h1>대시보드</h1>
         <div style={{ fontSize: '14px' }}>환영합니다 {user.nickname || user.name}님</div>
@@ -130,7 +130,7 @@ function DashboardSample() {
 
       <div className="page-content">
         <div className="card" style={{
-          borderLeft: '4px solid var(--primary-green)'
+          borderLeft: '4px solid var(--accent-bright-green)'
         }}>
           <div style={{ 
             display: 'flex', 
@@ -141,7 +141,7 @@ function DashboardSample() {
             <h3 style={{ 
               fontSize: '18px', 
               fontWeight: '700',
-              color: 'var(--primary-green)'
+              color: 'var(--accent-bright-green)'
             }}>
               ✎ 게시판
             </h3>
@@ -149,7 +149,7 @@ function DashboardSample() {
               <button 
                 onClick={() => setShowNewPost(!showNewPost)}
                 style={{
-                  background: 'linear-gradient(135deg, var(--primary-green) 0%, var(--accent-olive) 100%)',
+                  background: 'linear-gradient(135deg, var(--accent-bright-green) 0%, var(--accent-mid-green) 100%)',
                   color: 'var(--text-light)',
                   padding: '8px 16px',
                   borderRadius: '6px',
@@ -354,8 +354,8 @@ function DashboardSample() {
           <div className="card" style={{ 
             textAlign: 'center',
             padding: '16px 12px',
-            borderLeft: '4px solid var(--accent-olive)',
-            background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(122, 132, 80, 0.05) 100%)'
+            borderLeft: '4px solid var(--accent-mid-green)',
+            background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(63, 115, 25, 0.05) 100%)'
           }}>
             <div style={{ 
               fontSize: '32px',
@@ -366,7 +366,7 @@ function DashboardSample() {
             <div style={{ 
               fontSize: '24px', 
               fontWeight: '700',
-              color: 'var(--accent-olive)',
+              color: 'var(--accent-mid-green)',
               marginBottom: '8px'
             }}>
               핸디: {user?.handicap ?? user?.calculatedHandicap ?? 18}
@@ -392,8 +392,8 @@ function DashboardSample() {
 
           <div className="card" style={{ 
             textAlign: 'center',
-            borderLeft: '4px solid var(--accent-terracotta)',
-            background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(199, 125, 88, 0.05) 100%)'
+            borderLeft: '4px solid var(--accent-gold)',
+            background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(242, 163, 65, 0.05) 100%)'
           }}>
             <div style={{ 
               fontSize: '32px',
@@ -407,7 +407,7 @@ function DashboardSample() {
             <div style={{ 
               fontSize: '32px', 
               fontWeight: '700',
-              color: user.balance < 0 ? 'var(--alert-red)' : 'var(--accent-terracotta)'
+              color: user.balance < 0 ? 'var(--alert-red)' : 'var(--accent-gold)'
             }}>
               ${user.balance?.toLocaleString() || 0}
             </div>
@@ -415,7 +415,7 @@ function DashboardSample() {
         </div>
 
         <div className="card" style={{
-          borderLeft: '4px solid var(--accent-slate)'
+          borderLeft: '4px solid var(--accent-olive)'
         }}>
           <div style={{ 
             display: 'flex', 
@@ -426,7 +426,7 @@ function DashboardSample() {
             <h3 style={{ 
               fontSize: '16px', 
               fontWeight: '700',
-              color: 'var(--accent-slate)',
+              color: 'var(--accent-olive)',
               display: 'flex',
               alignItems: 'center',
               gap: '8px'
@@ -438,7 +438,7 @@ function DashboardSample() {
               onClick={() => navigate('/booking')}
               style={{
                 background: 'transparent',
-                color: 'var(--accent-slate)',
+                color: 'var(--accent-olive)',
                 padding: '4px 8px',
                 borderRadius: '4px',
                 fontSize: '13px',
@@ -454,7 +454,7 @@ function DashboardSample() {
           {announcedBookings.length === 0 ? (
             <div style={{ 
               padding: '16px',
-              background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(107, 127, 94, 0.05) 100%)',
+              background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(76, 89, 29, 0.05) 100%)',
               borderRadius: '8px',
               textAlign: 'center',
               opacity: 0.7
@@ -468,21 +468,21 @@ function DashboardSample() {
               
               return (
                 <div key={booking.id} style={{
-                  background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(107, 127, 94, 0.05) 100%)',
+                  background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(76, 89, 29, 0.05) 100%)',
                   padding: '16px',
                   borderRadius: '8px',
                   marginBottom: '12px',
                   cursor: 'pointer',
                   transition: 'transform 0.2s',
                   position: 'relative',
-                  borderBottom: '1px solid var(--accent-slate)'
+                  borderBottom: '1px solid var(--accent-olive)'
                 }}
                 onClick={() => navigate('/booking')}
                 onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 >
                   {booking.title && (
-                    <div style={{ fontSize: '13px', color: 'var(--accent-slate)', fontWeight: '600', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--accent-olive)', fontWeight: '600', marginBottom: '4px' }}>
                       {booking.title}
                     </div>
                   )}
@@ -529,7 +529,7 @@ function DashboardSample() {
                       className='btn-primary'
                       style={{ 
                         width: '100%',
-                        background: 'linear-gradient(135deg, var(--accent-slate) 0%, var(--accent-olive) 100%)'
+                        background: 'linear-gradient(135deg, var(--accent-olive) 0%, var(--accent-dark-olive) 100%)'
                       }}
                     >
                       ⛳ 플레이하기
@@ -543,9 +543,9 @@ function DashboardSample() {
                       className={isJoined ? 'btn-outline' : 'btn-primary'}
                       style={{ 
                         width: '100%',
-                        background: isJoined ? 'transparent' : 'linear-gradient(135deg, var(--accent-slate) 0%, var(--accent-olive) 100%)',
-                        borderColor: 'var(--accent-slate)',
-                        color: isJoined ? 'var(--accent-slate)' : 'var(--text-light)'
+                        background: isJoined ? 'transparent' : 'linear-gradient(135deg, var(--accent-olive) 0%, var(--accent-dark-olive) 100%)',
+                        borderColor: 'var(--accent-olive)',
+                        color: isJoined ? 'var(--accent-olive)' : 'var(--text-light)'
                       }}
                     >
                       {isJoined ? '참가 취소' : '참가하기'}
@@ -558,13 +558,13 @@ function DashboardSample() {
         </div>
 
         <div className="card" style={{
-          borderLeft: '4px solid var(--accent-sand)'
+          borderLeft: '4px solid var(--accent-dark-olive)'
         }}>
           <h3 style={{ 
             fontSize: '16px', 
             fontWeight: '700',
             marginBottom: '12px',
-            color: 'var(--accent-sand)',
+            color: 'var(--accent-dark-olive)',
             display: 'flex',
             alignItems: 'center',
             gap: '8px'
@@ -574,7 +574,7 @@ function DashboardSample() {
           </h3>
           <div style={{ 
             padding: '16px',
-            background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(212, 165, 116, 0.05) 100%)',
+            background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(59, 64, 26, 0.05) 100%)',
             borderRadius: '8px',
             textAlign: 'center',
             opacity: 0.7
@@ -584,13 +584,13 @@ function DashboardSample() {
         </div>
 
         <div className="card" style={{
-          borderLeft: '4px solid var(--accent-terracotta)'
+          borderLeft: '4px solid var(--accent-gold)'
         }}>
           <h3 style={{ 
             fontSize: '16px', 
             fontWeight: '700',
             marginBottom: '12px',
-            color: 'var(--accent-terracotta)',
+            color: 'var(--accent-gold)',
             display: 'flex',
             alignItems: 'center',
             gap: '8px'
@@ -600,7 +600,7 @@ function DashboardSample() {
           </h3>
           <div style={{ 
             padding: '16px',
-            background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(199, 125, 88, 0.05) 100%)',
+            background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(242, 163, 65, 0.05) 100%)',
             borderRadius: '8px',
             textAlign: 'center',
             opacity: 0.7
