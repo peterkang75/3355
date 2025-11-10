@@ -137,6 +137,16 @@ class ApiService {
     return response.json();
   }
 
+  async updateBookingGradeSettings(id, gradeSettings) {
+    const response = await fetch(`${API_BASE}/bookings/${id}/grade-settings`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ gradeSettings })
+    });
+    if (!response.ok) throw new Error('Failed to update booking grade settings');
+    return response.json();
+  }
+
   async fetchFees() {
     const response = await fetch(`${API_BASE}/fees`);
     if (!response.ok) throw new Error('Failed to fetch fees');

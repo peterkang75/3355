@@ -13,6 +13,7 @@ import RoundingManagement from './pages/RoundingManagement';
 import TeamFormation from './pages/TeamFormation';
 import ParticipantManagement from './pages/ParticipantManagement';
 import MemberScoreEntry from './pages/MemberScoreEntry';
+import GradeSettings from './pages/GradeSettings';
 import MemberDetail from './pages/MemberDetail';
 import Navigation from './components/Navigation';
 
@@ -38,6 +39,7 @@ function AppRoutes({ user, logout }) {
         <Route path="/team-formation" element={<TeamFormation />} />
         <Route path="/participant-management" element={<ParticipantManagement />} />
         <Route path="/member-score-entry" element={<MemberScoreEntry />} />
+        <Route path="/grade-settings" element={<GradeSettings />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       <Navigation user={user} onLogout={logout} />

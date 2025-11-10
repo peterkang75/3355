@@ -177,6 +177,34 @@ function RoundingManagement() {
                 </div>
               </div>
             </button>
+
+            <button
+              onClick={() => navigate(`/grade-settings?id=${bookingId}`)}
+              style={{
+                padding: '20px',
+                background: 'var(--bg-green)',
+                border: '2px solid var(--primary-green)',
+                borderRadius: '8px',
+                fontSize: '16px',
+                fontWeight: '600',
+                color: 'var(--primary-green)',
+                cursor: 'pointer',
+                textAlign: 'left',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}
+            >
+              <span style={{ fontSize: '24px' }}>📊</span>
+              <div>
+                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
+                  그레이드 설정
+                </div>
+                <div style={{ fontSize: '13px', color: '#666' }}>
+                  이 라운딩의 핸디캡 그레이드 기준 설정
+                </div>
+              </div>
+            </button>
           </div>
         </div>
       </div>

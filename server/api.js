@@ -246,6 +246,23 @@ router.patch('/bookings/:id/toggle-announce', async (req, res) => {
   }
 });
 
+router.patch('/bookings/:id/grade-settings', async (req, res) => {
+  try {
+    const { gradeSettings } = req.body;
+    
+    const updated = await prisma.booking.update({
+      where: { id: req.params.id },
+      data: { gradeSettings },
+      include: { organizer: true }
+    });
+    
+    res.json(updated);
+  } catch (error) {
+    console.error('Error updating grade settings:', error);
+    res.status(500).json({ error: 'Failed to update grade settings' });
+  }
+});
+
 router.get('/fees', async (req, res) => {
   try {
     const fees = await prisma.fee.findMany({
