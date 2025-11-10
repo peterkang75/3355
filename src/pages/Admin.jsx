@@ -48,6 +48,11 @@ function Admin() {
   const [memberScores, setMemberScores] = useState([]);
   const [permissions, setPermissions] = useState({});
   const [hasChanges, setHasChanges] = useState(false);
+  const [gradeSettings, setGradeSettings] = useState({
+    gradeA: { type: 'below', value: 10 },
+    gradeB: { min: 11, max: 22 },
+    gradeC: { type: 'above', value: 23 }
+  });
 
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
@@ -70,7 +75,27 @@ function Admin() {
     if (activeTab === 'settings') {
       loadPermissions();
     }
+    if (activeTab === 'scores') {
+      loadGradeSettings();
+    }
   }, [activeTab]);
+
+  const loadGradeSettings = async () => {
+    try {
+      const settings = await apiService.fetchSettings();
+      const gradeSetting = settings.find(s => s.feature === 'grade_settings');
+      if (gradeSetting && gradeSetting.minRole) {
+        try {
+          const parsedSettings = JSON.parse(gradeSetting.minRole);
+          setGradeSettings(parsedSettings);
+        } catch (e) {
+          console.error('그레이드 설정 파싱 실패:', e);
+        }
+      }
+    } catch (error) {
+      console.error('그레이드 설정 로드 실패:', error);
+    }
+  };
 
   const loadPermissions = async () => {
     try {
@@ -606,6 +631,37 @@ function Admin() {
                   </div>
                   <div style={{ fontSize: '14px', color: '#666' }}>
                     골프장 등록 및 관리
+                  </div>
+                </div>
+              </div>
+              <div style={{ fontSize: '24px', color: '#999' }}>›</div>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('scores')}
+              className="card"
+              style={{
+                padding: '20px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                border: 'none',
+                background: 'white',
+                transition: 'all 0.2s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'white'}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ fontSize: '28px' }}>📊</div>
+                <div>
+                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>
+                    스코어 관리
+                  </div>
+                  <div style={{ fontSize: '14px', color: '#666' }}>
+                    그레이드 설정 및 관리
                   </div>
                 </div>
               </div>
@@ -1493,6 +1549,210 @@ function Admin() {
                   </div>
                 ))
               )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'scores' && (
+          <div>
+            <div className="card">
+              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '20px', color: '#2d5f3f' }}>
+                그레이드 설정
+              </h3>
+              
+              <div style={{
+                padding: '12px',
+                background: 'var(--bg-green)',
+                borderRadius: '6px',
+                marginBottom: '20px',
+                fontSize: '13px',
+                color: '#666'
+              }}>
+                💡 회원들의 핸디캡에 따라 그레이드를 분류할 기준을 설정하세요
+              </div>
+
+              {/* Grade A */}
+              <div style={{
+                padding: '16px',
+                background: 'white',
+                border: '2px solid var(--border-color)',
+                borderRadius: '8px',
+                marginBottom: '12px'
+              }}>
+                <div style={{ 
+                  fontSize: '16px', 
+                  fontWeight: '700', 
+                  marginBottom: '12px',
+                  color: '#2d5f3f'
+                }}>
+                  🏆 그레이드 A
+                </div>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <select
+                    value={gradeSettings.gradeA.type}
+                    onChange={(e) => setGradeSettings({
+                      ...gradeSettings,
+                      gradeA: { ...gradeSettings.gradeA, type: e.target.value }
+                    })}
+                    style={{
+                      padding: '10px',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      flex: '0 0 auto'
+                    }}
+                  >
+                    <option value="below">이하</option>
+                    <option value="above">이상</option>
+                  </select>
+                  <input
+                    type="number"
+                    value={gradeSettings.gradeA.value}
+                    onChange={(e) => setGradeSettings({
+                      ...gradeSettings,
+                      gradeA: { ...gradeSettings.gradeA, value: parseInt(e.target.value) || 0 }
+                    })}
+                    style={{
+                      padding: '10px',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      width: '100px'
+                    }}
+                  />
+                  <span style={{ fontSize: '14px', color: '#666' }}>
+                    핸디 {gradeSettings.gradeA.value} {gradeSettings.gradeA.type === 'below' ? '이하' : '이상'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Grade B */}
+              <div style={{
+                padding: '16px',
+                background: 'white',
+                border: '2px solid var(--border-color)',
+                borderRadius: '8px',
+                marginBottom: '12px'
+              }}>
+                <div style={{ 
+                  fontSize: '16px', 
+                  fontWeight: '700', 
+                  marginBottom: '12px',
+                  color: '#2d5f3f'
+                }}>
+                  🥈 그레이드 B
+                </div>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ fontSize: '14px', color: '#666' }}>핸디</span>
+                    <input
+                      type="number"
+                      value={gradeSettings.gradeB.min}
+                      onChange={(e) => setGradeSettings({
+                        ...gradeSettings,
+                        gradeB: { ...gradeSettings.gradeB, min: parseInt(e.target.value) || 0 }
+                      })}
+                      style={{
+                        padding: '10px',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        width: '80px'
+                      }}
+                    />
+                    <span style={{ fontSize: '14px', color: '#666' }}>부터</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <input
+                      type="number"
+                      value={gradeSettings.gradeB.max}
+                      onChange={(e) => setGradeSettings({
+                        ...gradeSettings,
+                        gradeB: { ...gradeSettings.gradeB, max: parseInt(e.target.value) || 0 }
+                      })}
+                      style={{
+                        padding: '10px',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        width: '80px'
+                      }}
+                    />
+                    <span style={{ fontSize: '14px', color: '#666' }}>까지</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Grade C */}
+              <div style={{
+                padding: '16px',
+                background: 'white',
+                border: '2px solid var(--border-color)',
+                borderRadius: '8px',
+                marginBottom: '20px'
+              }}>
+                <div style={{ 
+                  fontSize: '16px', 
+                  fontWeight: '700', 
+                  marginBottom: '12px',
+                  color: '#2d5f3f'
+                }}>
+                  🥉 그레이드 C
+                </div>
+                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                  <select
+                    value={gradeSettings.gradeC.type}
+                    onChange={(e) => setGradeSettings({
+                      ...gradeSettings,
+                      gradeC: { ...gradeSettings.gradeC, type: e.target.value }
+                    })}
+                    style={{
+                      padding: '10px',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      flex: '0 0 auto'
+                    }}
+                  >
+                    <option value="below">이하</option>
+                    <option value="above">이상</option>
+                  </select>
+                  <input
+                    type="number"
+                    value={gradeSettings.gradeC.value}
+                    onChange={(e) => setGradeSettings({
+                      ...gradeSettings,
+                      gradeC: { ...gradeSettings.gradeC, value: parseInt(e.target.value) || 0 }
+                    })}
+                    style={{
+                      padding: '10px',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      width: '100px'
+                    }}
+                  />
+                  <span style={{ fontSize: '14px', color: '#666' }}>
+                    핸디 {gradeSettings.gradeC.value} {gradeSettings.gradeC.type === 'below' ? '이하' : '이상'}
+                  </span>
+                </div>
+              </div>
+
+              <button
+                onClick={async () => {
+                  try {
+                    await apiService.updateSetting('grade_settings', JSON.stringify(gradeSettings));
+                    alert('그레이드 설정이 저장되었습니다!');
+                  } catch (error) {
+                    console.error('그레이드 설정 저장 실패:', error);
+                    alert('그레이드 설정 저장에 실패했습니다.');
+                  }
+                }}
+                className="btn-primary"
+                style={{ width: '100%' }}
+              >
+                💾 저장하기
+              </button>
             </div>
           </div>
         )}
