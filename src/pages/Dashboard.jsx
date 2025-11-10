@@ -130,7 +130,7 @@ function Dashboard() {
 
       <div className="page-content">
         <div className="card" style={{
-          borderLeft: '2px solid var(--accent-bright-green)'
+          borderLeft: '3px solid var(--accent-bright-green)'
         }}>
           <div style={{ 
             display: 'flex', 
@@ -354,7 +354,7 @@ function Dashboard() {
           <div className="card" style={{ 
             textAlign: 'center',
             padding: '16px 12px',
-            borderLeft: '2px solid var(--accent-mid-green)',
+            borderLeft: '3px solid var(--accent-mid-green)',
             background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(63, 115, 25, 0.05) 100%)'
           }}>
             <div style={{ 
@@ -392,7 +392,7 @@ function Dashboard() {
 
           <div className="card" style={{ 
             textAlign: 'center',
-            borderLeft: '2px solid var(--accent-gold)',
+            borderLeft: '3px solid var(--accent-gold)',
             background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(242, 163, 65, 0.05) 100%)'
           }}>
             <div style={{ 
@@ -415,7 +415,7 @@ function Dashboard() {
         </div>
 
         <div className="card" style={{
-          borderLeft: '2px solid var(--accent-olive)'
+          borderLeft: '3px solid var(--accent-olive)'
         }}>
           <div style={{ 
             display: 'flex', 
@@ -558,7 +558,7 @@ function Dashboard() {
         </div>
 
         <div className="card" style={{
-          borderLeft: '2px solid var(--accent-dark-olive)'
+          borderLeft: '3px solid var(--accent-dark-olive)'
         }}>
           <h3 style={{ 
             fontSize: '16px', 
@@ -584,7 +584,7 @@ function Dashboard() {
         </div>
 
         <div className="card" style={{
-          borderLeft: '2px solid var(--accent-gold)'
+          borderLeft: '3px solid var(--accent-gold)'
         }}>
           <h3 style={{ 
             fontSize: '16px', 
