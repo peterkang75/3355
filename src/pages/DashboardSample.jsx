@@ -130,7 +130,7 @@ function DashboardSample() {
 
       <div className="page-content">
         <div className="card" style={{
-          borderLeft: '4px solid var(--accent-bright-green)'
+          borderLeft: '3px solid var(--accent-bright-green)'
         }}>
           <div style={{ 
             display: 'flex', 
@@ -149,7 +149,7 @@ function DashboardSample() {
               <button 
                 onClick={() => setShowNewPost(!showNewPost)}
                 style={{
-                  background: 'linear-gradient(135deg, var(--accent-bright-green) 0%, var(--accent-mid-green) 100%)',
+                  background: '#488C16',
                   color: 'var(--text-light)',
                   padding: '8px 16px',
                   borderRadius: '6px',
@@ -354,7 +354,7 @@ function DashboardSample() {
           <div className="card" style={{ 
             textAlign: 'center',
             padding: '16px 12px',
-            borderLeft: '4px solid var(--accent-mid-green)',
+            borderLeft: '3px solid var(--accent-mid-green)',
             background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(63, 115, 25, 0.05) 100%)'
           }}>
             <div style={{ 
@@ -392,7 +392,7 @@ function DashboardSample() {
 
           <div className="card" style={{ 
             textAlign: 'center',
-            borderLeft: '4px solid var(--accent-gold)',
+            borderLeft: '3px solid var(--accent-gold)',
             background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(242, 163, 65, 0.05) 100%)'
           }}>
             <div style={{ 
@@ -415,7 +415,7 @@ function DashboardSample() {
         </div>
 
         <div className="card" style={{
-          borderLeft: '4px solid var(--accent-olive)'
+          borderLeft: '3px solid var(--accent-olive)'
         }}>
           <div style={{ 
             display: 'flex', 
@@ -529,7 +529,7 @@ function DashboardSample() {
                       className='btn-primary'
                       style={{ 
                         width: '100%',
-                        background: 'linear-gradient(135deg, var(--accent-olive) 0%, var(--accent-dark-olive) 100%)'
+                        background: '#488C16'
                       }}
                     >
                       ⛳ 플레이하기
@@ -543,7 +543,7 @@ function DashboardSample() {
                       className={isJoined ? 'btn-outline' : 'btn-primary'}
                       style={{ 
                         width: '100%',
-                        background: isJoined ? 'transparent' : 'linear-gradient(135deg, var(--accent-olive) 0%, var(--accent-dark-olive) 100%)',
+                        background: isJoined ? 'transparent' : '#488C16',
                         borderColor: 'var(--accent-olive)',
                         color: isJoined ? 'var(--accent-olive)' : 'var(--text-light)'
                       }}
@@ -558,7 +558,7 @@ function DashboardSample() {
         </div>
 
         <div className="card" style={{
-          borderLeft: '4px solid var(--accent-dark-olive)'
+          borderLeft: '3px solid var(--accent-dark-olive)'
         }}>
           <h3 style={{ 
             fontSize: '16px', 
@@ -584,7 +584,7 @@ function DashboardSample() {
         </div>
 
         <div className="card" style={{
-          borderLeft: '4px solid var(--accent-gold)'
+          borderLeft: '3px solid var(--accent-gold)'
         }}>
           <h3 style={{ 
             fontSize: '16px', 
