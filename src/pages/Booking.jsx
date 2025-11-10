@@ -193,7 +193,7 @@ function Booking() {
 
   const renderBookingForm = (data, setData, onSubmit, submitText) => (
     <>
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
         라운딩 이름
       </label>
       <input
@@ -204,7 +204,7 @@ function Booking() {
         style={{ marginBottom: '12px' }}
       />
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
         골프장 *
       </label>
       <select
@@ -220,7 +220,7 @@ function Booking() {
         ))}
       </select>
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
         라운딩 날짜 *
       </label>
       <input
@@ -230,7 +230,7 @@ function Booking() {
         style={{ marginBottom: '12px' }}
       />
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
         라운딩 시간 *
       </label>
       <input
@@ -240,7 +240,7 @@ function Booking() {
         style={{ marginBottom: '12px' }}
       />
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
         집결시간
       </label>
       <input
@@ -251,7 +251,7 @@ function Booking() {
         style={{ marginBottom: '12px' }}
       />
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
         그린피
       </label>
       <input
@@ -263,7 +263,7 @@ function Booking() {
         style={{ marginBottom: '12px' }}
       />
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
         카트비
       </label>
       <input
@@ -275,7 +275,7 @@ function Booking() {
         style={{ marginBottom: '12px' }}
       />
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
         회비
       </label>
       <input
@@ -287,7 +287,7 @@ function Booking() {
         style={{ marginBottom: '12px' }}
       />
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
         접수 마감날짜
       </label>
       <input
@@ -297,7 +297,7 @@ function Booking() {
         style={{ marginBottom: '12px' }}
       />
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
         회식장소
       </label>
       <input
@@ -308,7 +308,7 @@ function Booking() {
         style={{ marginBottom: '12px' }}
       />
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: '#2d5f3f' }}>
+      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
         회식 주소
       </label>
       <input
@@ -347,7 +347,7 @@ function Booking() {
           }}>
             <div style={{ flex: 1 }}>
               {booking.title && (
-                <h3 style={{ fontSize: '18px', fontWeight: '700', color: '#2d5f3f', marginBottom: '8px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)', marginBottom: '8px' }}>
                   {booking.title}
                 </h3>
               )}
@@ -365,7 +365,7 @@ function Booking() {
                     fontSize: '20px',
                     cursor: 'pointer',
                     padding: '4px 8px',
-                    color: '#666'
+                    opacity: 0.7
                   }}
                 >
                   ⋮
@@ -426,7 +426,7 @@ function Booking() {
                         border: 'none',
                         fontSize: '14px',
                         cursor: 'pointer',
-                        color: '#e53e3e'
+                        color: 'var(--alert-red)'
                       }}
                     >
                       × 삭제
@@ -450,7 +450,7 @@ function Booking() {
               paddingBottom: '8px',
               borderBottom: '1px solid var(--border-color)'
             }}>
-              <span style={{ fontWeight: '600', color: '#2d5f3f' }}>◷ 라운딩 날짜:</span>
+              <span style={{ fontWeight: '600', color: 'var(--primary-green)' }}>◷ 라운딩 날짜:</span>
               <span>{new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}</span>
             </div>
 
@@ -462,7 +462,7 @@ function Booking() {
                 paddingBottom: '8px',
                 borderBottom: '1px solid var(--border-color)'
               }}>
-                <span style={{ fontWeight: '600', color: '#2d5f3f' }}>⏲ 집결시간:</span>
+                <span style={{ fontWeight: '600', color: 'var(--primary-green)' }}>⏲ 집결시간:</span>
                 <span>{booking.gatheringTime}</span>
               </div>
             )}
@@ -475,7 +475,7 @@ function Booking() {
                 paddingBottom: '8px',
                 borderBottom: '1px solid var(--border-color)'
               }}>
-                <span style={{ fontWeight: '600', color: '#2d5f3f' }}>◔ 접수 마감:</span>
+                <span style={{ fontWeight: '600', color: 'var(--primary-green)' }}>◔ 접수 마감:</span>
                 <span>{new Date(booking.registrationDeadline).toLocaleDateString('ko-KR')}</span>
               </div>
             )}
@@ -488,7 +488,7 @@ function Booking() {
               borderRadius: '6px',
               marginBottom: '16px'
             }}>
-              <div style={{ fontWeight: '600', marginBottom: '8px', color: '#2d5f3f' }}>$ 비용 안내</div>
+              <div style={{ fontWeight: '600', marginBottom: '8px', color: 'var(--primary-green)' }}>$ 비용 안내</div>
               <div style={{ fontSize: '14px', lineHeight: '1.6' }}>
                 {booking.greenFee && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
@@ -514,9 +514,9 @@ function Booking() {
                     justifyContent: 'space-between',
                     marginTop: '8px', 
                     paddingTop: '8px', 
-                    borderTop: '1px solid #2d5f3f',
+                    borderTop: '1px solid var(--primary-green)',
                     fontWeight: '700',
-                    color: '#2d5f3f'
+                    color: 'var(--primary-green)'
                   }}>
                     <span>총 금액</span>
                     <span>{formatCurrency(totalFee)}</span>
@@ -536,7 +536,7 @@ function Booking() {
             }}>
               <div style={{ fontWeight: '600', marginBottom: '4px', color: '#e65100' }}>⚑ 회식 정보</div>
               {booking.restaurantName && <div>{booking.restaurantName}</div>}
-              {booking.restaurantAddress && <div style={{ color: '#666', fontSize: '13px' }}>{booking.restaurantAddress}</div>}
+              {booking.restaurantAddress && <div style={{ opacity: 0.7, fontSize: '13px' }}>{booking.restaurantAddress}</div>}
             </div>
           )}
 
@@ -549,7 +549,7 @@ function Booking() {
             <div style={{ 
               fontWeight: '600',
               marginBottom: '8px',
-              color: '#2d5f3f'
+              color: 'var(--primary-green)'
             }}>
               ⚲ 참가자 ({participants.length}명)
             </div>
@@ -577,7 +577,7 @@ function Booking() {
                     flex: 1,
                     padding: '12px',
                     background: 'var(--primary-green)',
-                    color: 'white',
+                    color: 'var(--text-light)',
                     border: 'none',
                     borderRadius: '6px',
                     fontSize: '16px',
@@ -593,8 +593,8 @@ function Booking() {
                     style={{
                       flex: 1,
                       padding: '12px',
-                      background: '#3a7d54',
-                      color: 'white',
+                      background: 'var(--primary-green)',
+                      color: 'var(--text-light)',
                       border: 'none',
                       borderRadius: '6px',
                       fontSize: '16px',
@@ -613,7 +613,7 @@ function Booking() {
                   width: '100%',
                   padding: '12px',
                   background: isJoined ? 'var(--bg-card)' : 'var(--primary-green)',
-                  color: isJoined ? 'var(--primary-green)' : 'white',
+                  color: isJoined ? 'var(--primary-green)' : 'var(--text-light)',
                   border: 'none',
                   borderBottom: isJoined ? '2px solid var(--primary-green)' : 'none',
                   borderRadius: '6px',
@@ -644,14 +644,14 @@ function Booking() {
       }}>
         <div style={{ flex: 1 }}>
           {booking.title && (
-            <div style={{ fontSize: '13px', color: '#2d5f3f', fontWeight: '600', marginBottom: '2px' }}>
+            <div style={{ fontSize: '13px', color: 'var(--primary-green)', fontWeight: '600', marginBottom: '2px' }}>
               {booking.title}
             </div>
           )}
           <div style={{ fontSize: '16px', fontWeight: '700', color: '#333', marginBottom: '4px' }}>
             {booking.courseName}
           </div>
-          <div style={{ fontSize: '13px', color: '#666' }}>
+          <div style={{ fontSize: '13px', opacity: 0.7 }}>
             ◷ {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
           </div>
         </div>
@@ -664,7 +664,7 @@ function Booking() {
             style={{
               padding: '8px 16px',
               background: 'var(--primary-green)',
-              color: 'white',
+              color: 'var(--text-light)',
               border: 'none',
               borderRadius: '6px',
               fontSize: '13px',
@@ -680,8 +680,8 @@ function Booking() {
               onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
               style={{
                 padding: '8px 16px',
-                background: '#3a7d54',
-                color: 'white',
+                background: 'var(--primary-green)',
+                color: 'var(--text-light)',
                 border: 'none',
                 borderRadius: '6px',
                 fontSize: '13px',
@@ -706,7 +706,7 @@ function Booking() {
           <button 
             onClick={() => setShowNewBooking(!showNewBooking)}
             style={{
-              background: 'white',
+              background: 'var(--text-light)',
               color: 'var(--primary-green)',
               padding: '8px 16px',
               borderRadius: '6px',
@@ -761,7 +761,7 @@ function Booking() {
             <div style={{ 
               padding: '40px',
               textAlign: 'center',
-              color: '#666',
+              opacity: 0.7,
               background: 'var(--bg-green)',
               borderRadius: '8px'
             }}>
@@ -778,7 +778,7 @@ function Booking() {
             fontSize: '18px', 
             fontWeight: '700',
             marginBottom: '16px',
-            color: '#666'
+            opacity: 0.7
           }}>
             ✓ 완료된 라운딩
           </h3>
@@ -786,7 +786,7 @@ function Booking() {
             <div style={{ 
               padding: '40px',
               textAlign: 'center',
-              color: '#666',
+              opacity: 0.7,
               background: 'var(--bg-green)',
               borderRadius: '8px'
             }}>

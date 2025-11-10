@@ -57,7 +57,7 @@ function GradeSettings() {
     return (
       <div className="page-content">
         <div className="card">
-          <p style={{ textAlign: 'center', color: '#666' }}>
+          <p style={{ textAlign: 'center', opacity: 0.7 }}>
             관리자 또는 운영진만 접근할 수 있습니다.
           </p>
         </div>
@@ -69,7 +69,7 @@ function GradeSettings() {
     return (
       <div className="page-content">
         <div className="card">
-          <p style={{ textAlign: 'center', color: '#666' }}>
+          <p style={{ textAlign: 'center', opacity: 0.7 }}>
             라운딩을 찾을 수 없습니다.
           </p>
         </div>
@@ -85,7 +85,7 @@ function GradeSettings() {
           style={{
             background: 'transparent',
             border: 'none',
-            color: 'white',
+            color: 'var(--text-light)',
             fontSize: '20px',
             cursor: 'pointer',
             padding: '0 8px'
@@ -99,31 +99,30 @@ function GradeSettings() {
       <div className="page-content">
         <div className="card">
           <div style={{ 
-            background: 'var(--bg-green)',
             padding: '16px',
             borderRadius: '8px',
             marginBottom: '16px'
           }}>
             {booking.title && (
-              <div style={{ fontSize: '13px', color: '#2d5f3f', fontWeight: '600', marginBottom: '4px' }}>
+              <div style={{ fontSize: '13px', color: 'var(--primary-green)', fontWeight: '600', marginBottom: '4px' }}>
                 {booking.title}
               </div>
             )}
             <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
               {booking.courseName}
             </h3>
-            <div style={{ fontSize: '14px', color: '#666' }}>
+            <div style={{ fontSize: '14px', opacity: 0.7 }}>
               ◆ {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
             </div>
           </div>
 
           <div style={{
             padding: '12px',
-            background: 'var(--bg-green)',
+            border: '1px solid var(--border-color)',
             borderRadius: '6px',
             marginBottom: '20px',
             fontSize: '13px',
-            color: '#666'
+            opacity: 0.7
           }}>
             ※ 이 라운딩에 적용할 핸디캡 그레이드 기준을 설정하세요
           </div>
@@ -131,8 +130,7 @@ function GradeSettings() {
           {/* Grade A */}
           <div style={{
             padding: '16px',
-            background: 'var(--bg-card)',
-            borderBottom: '1px solid var(--border-color)',
+            border: '1px solid var(--border-color)',
             borderRadius: '8px',
             marginBottom: '12px'
           }}>
@@ -140,7 +138,7 @@ function GradeSettings() {
               fontSize: '16px', 
               fontWeight: '700', 
               marginBottom: '12px',
-              color: '#2d5f3f'
+              color: 'var(--primary-green)'
             }}>
               ▲ 그레이드 A
             </div>
@@ -181,8 +179,7 @@ function GradeSettings() {
           {/* Grade B */}
           <div style={{
             padding: '16px',
-            background: 'var(--bg-card)',
-            borderBottom: '1px solid var(--border-color)',
+            border: '1px solid var(--border-color)',
             borderRadius: '8px',
             marginBottom: '12px'
           }}>
@@ -190,13 +187,13 @@ function GradeSettings() {
               fontSize: '16px', 
               fontWeight: '700', 
               marginBottom: '12px',
-              color: '#2d5f3f'
+              color: 'var(--primary-green)'
             }}>
               ▲ 그레이드 B
             </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '14px', color: '#666' }}>핸디</span>
+                <span style={{ fontSize: '14px', opacity: 0.7 }}>핸디</span>
                 <input
                   type="number"
                   value={gradeSettings.gradeB.min}
@@ -212,7 +209,7 @@ function GradeSettings() {
                     width: '80px'
                   }}
                 />
-                <span style={{ fontSize: '14px', color: '#666' }}>부터</span>
+                <span style={{ fontSize: '14px', opacity: 0.7 }}>부터</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <input
@@ -230,7 +227,7 @@ function GradeSettings() {
                     width: '80px'
                   }}
                 />
-                <span style={{ fontSize: '14px', color: '#666' }}>까지</span>
+                <span style={{ fontSize: '14px', opacity: 0.7 }}>까지</span>
               </div>
             </div>
           </div>
@@ -238,8 +235,7 @@ function GradeSettings() {
           {/* Grade C */}
           <div style={{
             padding: '16px',
-            background: 'var(--bg-card)',
-            borderBottom: '1px solid var(--border-color)',
+            border: '1px solid var(--border-color)',
             borderRadius: '8px',
             marginBottom: '20px'
           }}>
@@ -247,7 +243,7 @@ function GradeSettings() {
               fontSize: '16px', 
               fontWeight: '700', 
               marginBottom: '12px',
-              color: '#2d5f3f'
+              color: 'var(--primary-green)'
             }}>
               ▲ 그레이드 C
             </div>

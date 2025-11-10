@@ -146,7 +146,7 @@ function Dashboard() {
                 onClick={() => setShowNewPost(!showNewPost)}
                 style={{
                   background: 'var(--primary-green)',
-                  color: 'white',
+                  color: 'var(--text-light)',
                   padding: '8px 16px',
                   borderRadius: '6px',
                   fontSize: '14px',
@@ -191,7 +191,7 @@ function Dashboard() {
           )}
 
           {posts.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px', color: '#666', background: 'var(--bg-green)', borderRadius: '8px' }}>
+            <div style={{ textAlign: 'center', padding: '40px', opacity: 0.7, background: 'var(--bg-green)', borderRadius: '8px' }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>✎</div>
               <p>아직 공지사항이 없습니다</p>
               {user.isAdmin && (
@@ -221,7 +221,7 @@ function Dashboard() {
                     </h4>
                     <span style={{
                       background: 'var(--primary-green)',
-                      color: 'white',
+                      color: 'var(--text-light)',
                       padding: '4px 8px',
                       borderRadius: '4px',
                       fontSize: '12px',
@@ -231,7 +231,7 @@ function Dashboard() {
                     </span>
                   </div>
                   <p style={{ 
-                    color: '#666', 
+                    opacity: 0.7,
                     marginBottom: '12px',
                     lineHeight: '1.6',
                     whiteSpace: 'pre-wrap'
@@ -240,7 +240,7 @@ function Dashboard() {
                   </p>
                   <div style={{ 
                     fontSize: '13px', 
-                    color: '#999',
+                    opacity: 0.7,
                     display: 'flex',
                     justifyContent: 'space-between',
                     marginBottom: '12px'
@@ -291,7 +291,7 @@ function Dashboard() {
                               </div>
                               <div style={{
                                 fontSize: '12px',
-                                color: '#999',
+                                opacity: 0.7,
                                 display: 'flex',
                                 justifyContent: 'space-between'
                               }}>
@@ -320,7 +320,7 @@ function Dashboard() {
                           onClick={() => handleAddComment(post.id)}
                           style={{
                             background: 'var(--primary-green)',
-                            color: 'white',
+                            color: 'var(--text-light)',
                             padding: '12px 20px',
                             borderRadius: '8px',
                             fontSize: '14px',
@@ -361,7 +361,7 @@ function Dashboard() {
             </div>
             <div style={{ 
               fontSize: '13px', 
-              color: '#666',
+              opacity: 0.7,
               marginBottom: '4px'
             }}>
               추천핸디: {user?.calculatedHandicap ?? user?.handicap ?? 18}
@@ -369,7 +369,7 @@ function Dashboard() {
             {user?.handicapExplanation && (
               <div style={{ 
                 fontSize: '13px', 
-                color: '#888',
+                opacity: 0.7,
                 fontStyle: 'italic',
                 lineHeight: '1.4'
               }}>
@@ -379,13 +379,13 @@ function Dashboard() {
           </div>
 
           <div className="card" style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
+            <div style={{ fontSize: '14px', opacity: 0.7, marginBottom: '8px' }}>
               회비 잔액
             </div>
             <div style={{ 
               fontSize: '32px', 
               fontWeight: '700',
-              color: user.balance < 0 ? '#e53e3e' : 'var(--primary-green)'
+              color: user.balance < 0 ? 'var(--alert-red)' : 'var(--primary-green)'
             }}>
               ${user.balance?.toLocaleString() || 0}
             </div>
@@ -429,7 +429,7 @@ function Dashboard() {
               background: 'var(--bg-green)',
               borderRadius: '8px',
               textAlign: 'center',
-              color: '#666'
+              opacity: 0.7
             }}>
               공지된 라운딩이 없습니다
             </div>
@@ -454,28 +454,28 @@ function Dashboard() {
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 >
                   {booking.title && (
-                    <div style={{ fontSize: '13px', color: '#2d5f3f', fontWeight: '600', marginBottom: '4px' }}>
+                    <div style={{ fontSize: '13px', color: 'var(--primary-green)', fontWeight: '600', marginBottom: '4px' }}>
                       {booking.title}
                     </div>
                   )}
                   <h4 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px' }}>
                     {booking.courseName}
                   </h4>
-                  <div style={{ fontSize: '14px', color: '#666', marginBottom: '4px' }}>
+                  <div style={{ fontSize: '14px', opacity: 0.7, marginBottom: '4px' }}>
                     ◷ {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
                   </div>
                   {booking.gatheringTime && (
-                    <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
+                    <div style={{ fontSize: '14px', opacity: 0.7, marginBottom: '8px' }}>
                       ◷ 집결시간: {booking.gatheringTime}
                     </div>
                   )}
 
                   {booking.registrationDeadline && (
                     <div style={{ fontSize: '14px', marginBottom: '8px' }}>
-                      <span style={{ fontWeight: '700', color: '#e53e3e' }}>
+                      <span style={{ fontWeight: '700', color: 'var(--alert-red)' }}>
                         ◈ {new Date(booking.registrationDeadline).toLocaleDateString('ko-KR')} 마감
                       </span>
-                      <span style={{ color: '#666', marginLeft: '8px' }}>
+                      <span style={{ opacity: 0.7, marginLeft: '8px' }}>
                         {getDaysUntilDeadline(booking.registrationDeadline) > 0 
                           ? `(마감까지 ${getDaysUntilDeadline(booking.registrationDeadline)}일 남았습니다)`
                           : '(마감완료)'
@@ -486,7 +486,7 @@ function Dashboard() {
 
                   <div style={{ 
                     fontSize: '13px', 
-                    color: '#666',
+                    opacity: 0.7,
                     marginBottom: '12px'
                   }}>
                     ◈ 참가자 {participants.length}명
@@ -535,7 +535,7 @@ function Dashboard() {
             background: 'var(--bg-green)',
             borderRadius: '8px',
             textAlign: 'center',
-            color: '#666'
+            opacity: 0.7
           }}>
             기록된 스코어가 없습니다
           </div>
@@ -555,7 +555,7 @@ function Dashboard() {
             background: 'var(--bg-green)',
             borderRadius: '8px',
             textAlign: 'center',
-            color: '#666'
+            opacity: 0.7
           }}>
             납부 내역이 없습니다
           </div>

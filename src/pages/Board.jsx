@@ -54,7 +54,7 @@ function Board() {
           <button 
             onClick={() => setShowNewPost(!showNewPost)}
             style={{
-              background: 'white',
+              background: 'var(--text-light)',
               color: 'var(--primary-green)',
               padding: '8px 16px',
               borderRadius: '6px',
@@ -94,7 +94,7 @@ function Board() {
         )}
 
         {posts.length === 0 ? (
-          <div className="card" style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+          <div className="card" style={{ textAlign: 'center', padding: '40px', opacity: 0.7 }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>✎</div>
             <p>아직 공지사항이 없습니다</p>
             {user.isAdmin && (
@@ -117,7 +117,7 @@ function Board() {
                 </h3>
                 <span style={{
                   background: 'var(--primary-green)',
-                  color: 'white',
+                  color: 'var(--text-light)',
                   padding: '4px 8px',
                   borderRadius: '4px',
                   fontSize: '12px',
@@ -127,7 +127,7 @@ function Board() {
                 </span>
               </div>
               <p style={{ 
-                color: '#666', 
+                opacity: 0.7,
                 marginBottom: '12px',
                 lineHeight: '1.6',
                 whiteSpace: 'pre-wrap'
@@ -136,7 +136,7 @@ function Board() {
               </p>
               <div style={{ 
                 fontSize: '13px', 
-                color: '#999',
+                opacity: 0.7,
                 display: 'flex',
                 justifyContent: 'space-between',
                 marginBottom: '12px'
@@ -184,7 +184,7 @@ function Board() {
                           </div>
                           <div style={{
                             fontSize: '12px',
-                            color: '#999',
+                            opacity: 0.7,
                             display: 'flex',
                             justifyContent: 'space-between'
                           }}>
@@ -213,7 +213,7 @@ function Board() {
                       onClick={() => handleAddComment(post.id)}
                       style={{
                         background: 'var(--primary-green)',
-                        color: 'white',
+                        color: 'var(--text-light)',
                         padding: '12px 20px',
                         borderRadius: '8px',
                         fontSize: '14px',

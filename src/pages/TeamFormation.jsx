@@ -220,7 +220,7 @@ function TeamFormation() {
     return (
       <div className="page-content">
         <div className="card">
-          <p style={{ textAlign: 'center', color: '#666' }}>
+          <p style={{ textAlign: 'center', opacity: 0.7 }}>
             관리자 또는 운영진만 접근할 수 있습니다.
           </p>
         </div>
@@ -232,7 +232,7 @@ function TeamFormation() {
     return (
       <div className="page-content">
         <div className="card">
-          <p style={{ textAlign: 'center', color: '#666' }}>
+          <p style={{ textAlign: 'center', opacity: 0.7 }}>
             라운딩을 찾을 수 없습니다.
           </p>
         </div>
@@ -248,7 +248,7 @@ function TeamFormation() {
           style={{
             background: 'transparent',
             border: 'none',
-            color: 'white',
+            color: 'var(--text-light)',
             fontSize: '20px',
             cursor: 'pointer',
             padding: '0 8px'
@@ -262,22 +262,21 @@ function TeamFormation() {
       <div className="page-content">
         <div className="card" style={{ marginBottom: '16px' }}>
           <div style={{ 
-            background: 'var(--bg-green)',
             padding: '16px',
             borderRadius: '8px'
           }}>
             {booking.title && (
-              <div style={{ fontSize: '13px', color: '#2d5f3f', fontWeight: '600', marginBottom: '4px' }}>
+              <div style={{ fontSize: '13px', color: 'var(--primary-green)', fontWeight: '600', marginBottom: '4px' }}>
                 {booking.title}
               </div>
             )}
             <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
               {booking.courseName}
             </h3>
-            <div style={{ fontSize: '14px', color: '#666' }}>
+            <div style={{ fontSize: '14px', opacity: 0.7 }}>
               {new Date(booking.date).toLocaleDateString('ko-KR')} • {booking.time}
             </div>
-            <div style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>
+            <div style={{ fontSize: '14px', opacity: 0.7, marginTop: '4px' }}>
               총 {participants.length}명
             </div>
           </div>
@@ -296,8 +295,8 @@ function TeamFormation() {
             style={{ 
               flex: 1,
               padding: '12px 24px',
-              background: hasUnsavedChanges ? '#dc3545' : 'var(--primary-green)',
-              color: 'white',
+              background: hasUnsavedChanges ? 'var(--alert-red)' : 'var(--primary-green)',
+              color: 'var(--text-light)',
               border: 'none',
               borderRadius: '8px',
               fontSize: '16px',
@@ -320,19 +319,18 @@ function TeamFormation() {
           </h3>
           <div style={{
             minHeight: '60px',
-            background: '#f5f5f5',
             borderRadius: '8px',
             padding: '12px',
             display: 'flex',
             flexWrap: 'wrap',
             gap: '8px',
-            border: 'none'
+            border: '2px solid var(--border-color)'
           }}>
             {unassigned.length === 0 ? (
               <div style={{ 
                 width: '100%', 
                 textAlign: 'center', 
-                color: '#999',
+                opacity: 0.7,
                 padding: '20px 0'
               }}>
                 모든 참가자가 배정되었습니다
@@ -343,10 +341,8 @@ function TeamFormation() {
                   key={index}
                   style={{
                     padding: '8px 16px',
-                    background: 'var(--bg-card)',
                     borderRadius: '6px',
-                    border: 'none',
-                    borderBottom: '1px solid var(--border-color)',
+                    border: '2px solid var(--border-color)',
                     fontSize: '14px',
                     fontWeight: '600',
                     color: 'var(--primary-green)'
@@ -365,7 +361,7 @@ function TeamFormation() {
               fontSize: '16px', 
               fontWeight: '700',
               marginBottom: '12px',
-              color: '#2d5f3f'
+              color: 'var(--primary-green)'
             }}>
               {team.teamNumber}조
             </h3>
@@ -380,11 +376,11 @@ function TeamFormation() {
                   onClick={() => handleSlotClick(teamIndex, slotIndex, member)}
                   style={{
                     minHeight: '60px',
-                    background: member ? 'var(--primary-green)' : '#f5f5f5',
-                    color: member ? 'white' : '#999',
+                    background: member ? 'var(--primary-green)' : 'var(--bg-card)',
+                    color: member ? 'var(--text-light)' : 'var(--text-dark)',
                     borderRadius: '8px',
-                    border: 'none',
-                    borderBottom: '1px solid var(--border-color)',
+                    border: '2px solid var(--border-color)',
+                    opacity: member ? 1 : 0.7,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
@@ -418,6 +414,7 @@ function TeamFormation() {
         }}>
           <div style={{
             background: 'var(--bg-card)',
+            border: '2px solid var(--border-color)',
             borderRadius: '12px',
             padding: '24px',
             width: '100%',
@@ -446,7 +443,7 @@ function TeamFormation() {
                   border: 'none',
                   fontSize: '24px',
                   cursor: 'pointer',
-                  color: '#666'
+                  opacity: 0.7
                 }}
               >
                 ×
@@ -455,7 +452,7 @@ function TeamFormation() {
 
             <p style={{ 
               fontSize: '13px', 
-              color: '#666', 
+              opacity: 0.7,
               marginBottom: '16px',
               textAlign: 'center'
             }}>
@@ -468,7 +465,7 @@ function TeamFormation() {
               marginBottom: '16px' 
             }}>
               {unassigned.length === 0 ? (
-                <p style={{ textAlign: 'center', color: '#999', padding: '32px 0' }}>
+                <p style={{ textAlign: 'center', opacity: 0.7, padding: '32px 0' }}>
                   배정 가능한 참가자가 없습니다.
                 </p>
               ) : (
@@ -481,10 +478,9 @@ function TeamFormation() {
                         onClick={() => handleToggleParticipant(participant)}
                         style={{
                           padding: '16px',
-                          background: isSelected ? 'var(--primary-green)' : 'var(--bg-green)',
-                          border: 'none',
-                          borderBottom: '1px solid var(--border-color)',
-                          borderRadius: '0',
+                          background: isSelected ? 'var(--primary-green)' : 'var(--bg-card)',
+                          border: '2px solid var(--border-color)',
+                          borderRadius: '8px',
                           cursor: 'pointer',
                           textAlign: 'center',
                           fontSize: '16px',
@@ -522,8 +518,8 @@ function TeamFormation() {
                   flex: 1,
                   padding: '14px',
                   background: 'var(--bg-card)',
-                  color: '#666',
-                  border: 'none',
+                  opacity: 0.7,
+                  border: '2px solid var(--border-color)',
                   borderRadius: '8px',
                   fontSize: '16px',
                   fontWeight: '600',
@@ -539,7 +535,7 @@ function TeamFormation() {
                   flex: 1,
                   padding: '14px',
                   background: selectedParticipants.length > 0 ? 'var(--primary-green)' : '#ccc',
-                  color: 'white',
+                  color: 'var(--text-light)',
                   border: 'none',
                   borderRadius: '8px',
                   fontSize: '16px',

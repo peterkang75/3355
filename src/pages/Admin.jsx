@@ -508,7 +508,8 @@ function Admin() {
               border: 'none',
               fontSize: '24px',
               cursor: 'pointer',
-              padding: '8px'
+              padding: '8px',
+              color: 'var(--text-light)'
             }}
           >
             ←
@@ -529,7 +530,6 @@ function Admin() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                background: 'var(--bg-card)',
                 transition: 'all 0.2s',
                 borderBottom: '1px solid var(--border-color)'
               }}
@@ -537,17 +537,17 @@ function Admin() {
               onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-card)'}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ fontSize: '28px' }}>≡</div>
+                <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>≡</div>
                 <div>
-                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>
+                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: 'var(--text-dark)' }}>
                     회원 관리
                   </div>
-                  <div style={{ fontSize: '14px', color: '#666' }}>
+                  <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
                     회원 정보 조회 및 수정
                   </div>
                 </div>
               </div>
-              <div style={{ fontSize: '24px', color: '#999' }}>›</div>
+              <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.7 }}>›</div>
             </button>
 
             <button
@@ -560,7 +560,6 @@ function Admin() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                background: 'var(--bg-card)',
                 transition: 'all 0.2s',
                 borderBottom: '1px solid var(--border-color)'
               }}
@@ -568,17 +567,17 @@ function Admin() {
               onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-card)'}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ fontSize: '28px' }}>$</div>
+                <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>$</div>
                 <div>
-                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>
+                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: 'var(--text-dark)' }}>
                     회비 관리
                   </div>
-                  <div style={{ fontSize: '14px', color: '#666' }}>
+                  <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
                     회비 등록 및 납부 관리
                   </div>
                 </div>
               </div>
-              <div style={{ fontSize: '24px', color: '#999' }}>›</div>
+              <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.7 }}>›</div>
             </button>
 
             <button
@@ -591,7 +590,6 @@ function Admin() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                background: 'var(--bg-card)',
                 transition: 'all 0.2s',
                 borderBottom: '1px solid var(--border-color)'
               }}
@@ -599,17 +597,17 @@ function Admin() {
               onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-card)'}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ fontSize: '28px' }}>⚑</div>
+                <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>⚑</div>
                 <div>
-                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>
+                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: 'var(--text-dark)' }}>
                     골프장 관리
                   </div>
-                  <div style={{ fontSize: '14px', color: '#666' }}>
+                  <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
                     골프장 등록 및 관리
                   </div>
                 </div>
               </div>
-              <div style={{ fontSize: '24px', color: '#999' }}>›</div>
+              <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.7 }}>›</div>
             </button>
 
             <button
@@ -622,7 +620,6 @@ function Admin() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
-                background: 'var(--bg-card)',
                 transition: 'all 0.2s',
                 borderBottom: '1px solid var(--border-color)'
               }}
@@ -630,17 +627,17 @@ function Admin() {
               onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-card)'}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ fontSize: '28px' }}>⚙</div>
+                <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>⚙</div>
                 <div>
-                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>
+                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: 'var(--text-dark)' }}>
                     앱 설정
                   </div>
-                  <div style={{ fontSize: '14px', color: '#666' }}>
+                  <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
                     앱 기본 설정 관리
                   </div>
                 </div>
               </div>
-              <div style={{ fontSize: '24px', color: '#999' }}>›</div>
+              <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.7 }}>›</div>
             </button>
           </div>
         )}
@@ -727,7 +724,7 @@ function Admin() {
                           alignItems: 'center',
                           justifyContent: 'center',
                           fontSize: '28px',
-                          color: '#999'
+                          color: 'var(--text-dark)', opacity: 0.7
                         }}>
                           •
                         </div>
@@ -743,11 +740,11 @@ function Admin() {
                         alignItems: 'center',
                         gap: '6px'
                       }}>
-                        <span style={{ color: '#2d5f3f' }}>{member.nickname || member.name}</span>
+                        <span style={{ color: 'var(--primary-green)' }}>{member.nickname || member.name}</span>
                         {member.role === 'admin' && <span style={{ fontSize: '14px' }}>★</span>}
                         {member.role === 'operator' && <span style={{ fontSize: '14px' }}>⚙</span>}
                       </div>
-                      <div style={{ fontSize: '13px', color: '#666' }}>
+                      <div style={{ fontSize: '13px', color: 'var(--text-dark)', opacity: 0.7 }}>
                         {member.name}
                       </div>
                     </div>
@@ -890,8 +887,8 @@ function Admin() {
                     style={{
                       flex: 1,
                       padding: '12px',
-                      background: '#666',
-                      color: 'white',
+                      background: 'var(--primary-green)',
+                      color: 'var(--text-light)',
                       border: 'none',
                       borderRadius: '8px',
                       fontSize: '16px',
@@ -936,7 +933,7 @@ function Admin() {
                   style={{ marginBottom: '12px' }}
                 />
                 <div style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#666' }}>
+                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
                     사진 (본인)
                   </label>
                   <input
@@ -1135,7 +1132,7 @@ function Admin() {
                 background: 'var(--bg-green)',
                 borderRadius: '8px',
                 textAlign: 'center',
-                color: '#666'
+                color: 'var(--text-dark)', opacity: 0.7
               }}>
                 등록된 지출 항목이 없습니다
               </div>
@@ -1189,7 +1186,7 @@ function Admin() {
                         fontSize: '14px', 
                         fontWeight: '600',
                         minWidth: '50px',
-                        color: '#2d5f3f'
+                        color: 'var(--primary-green)'
                       }}>
                         {index + 1}번홀
                       </label>
@@ -1217,7 +1214,7 @@ function Admin() {
                   marginTop: '12px', 
                   padding: '8px 12px',
                   background: 'var(--primary-green)',
-                  color: 'white',
+                  color: 'var(--text-light)',
                   borderRadius: '6px',
                   fontSize: '14px',
                   fontWeight: '600',
@@ -1277,7 +1274,7 @@ function Admin() {
                           fontSize: '14px', 
                           fontWeight: '600',
                           minWidth: '50px',
-                          color: '#2d5f3f'
+                          color: 'var(--primary-green)'
                         }}>
                           {index + 1}번홀
                         </label>
@@ -1304,7 +1301,7 @@ function Admin() {
                     marginTop: '12px', 
                     padding: '8px 12px',
                     background: 'var(--primary-green)',
-                    color: 'white',
+                    color: 'var(--text-light)',
                     borderRadius: '6px',
                     fontSize: '14px',
                     fontWeight: '600',
@@ -1327,8 +1324,8 @@ function Admin() {
                     style={{
                       flex: 1,
                       padding: '12px',
-                      background: '#666',
-                      color: 'white',
+                      background: 'var(--primary-green)',
+                      color: 'var(--text-light)',
                       border: 'none',
                       borderRadius: '8px',
                       fontSize: '16px',
@@ -1352,7 +1349,7 @@ function Admin() {
                   background: 'var(--bg-green)',
                   borderRadius: '8px',
                   textAlign: 'center',
-                  color: '#666'
+                  color: 'var(--text-dark)', opacity: 0.7
                 }}>
                   등록된 골프장이 없습니다
                 </div>
@@ -1374,7 +1371,7 @@ function Admin() {
                           {course.name}
                         </div>
                         {course.address && (
-                          <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
+                          <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7, marginBottom: '8px' }}>
                             • {course.address}
                           </div>
                         )}
@@ -1393,7 +1390,7 @@ function Admin() {
                             cursor: 'pointer',
                             fontSize: '18px',
                             fontWeight: '700',
-                            color: '#666',
+                            color: 'var(--text-dark)', opacity: 0.7,
                             lineHeight: '1'
                           }}
                         >
@@ -1442,7 +1439,7 @@ function Admin() {
                                 textAlign: 'left',
                                 cursor: 'pointer',
                                 fontSize: '14px',
-                                color: '#e53e3e',
+                                color: 'var(--alert-red)',
                                 fontWeight: '600',
                                 transition: 'background 0.2s'
                               }}
@@ -1458,7 +1455,7 @@ function Admin() {
 
                     {course.holePars && (
                       <div style={{ marginTop: '12px' }}>
-                        <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: '#2d5f3f' }}>
+                        <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: 'var(--primary-green)' }}>
                           홀별 PAR (총: {course.holePars.reduce((sum, par) => sum + par, 0)})
                         </div>
                         <div style={{ 
@@ -1472,13 +1469,13 @@ function Admin() {
                               key={idx}
                               style={{
                                 padding: '4px',
-                                background: 'white',
+                                background: 'var(--text-light)',
                                 borderRadius: '4px',
                                 textAlign: 'center',
                                 border: '1px solid var(--border-color)'
                               }}
                             >
-                              <div style={{ fontSize: '10px', color: '#666' }}>{idx + 1}</div>
+                              <div style={{ fontSize: '10px', color: 'var(--text-dark)', opacity: 0.7 }}>{idx + 1}</div>
                               <div style={{ fontWeight: '600' }}>{par}</div>
                             </div>
                           ))}
@@ -1510,7 +1507,7 @@ function Admin() {
                   style={{
                     padding: '10px 20px',
                     background: hasChanges ? 'var(--primary-green)' : '#ccc',
-                    color: 'white',
+                    color: 'var(--text-light)',
                     border: 'none',
                     borderRadius: '8px',
                     fontSize: '14px',
@@ -1528,7 +1525,7 @@ function Admin() {
                 borderRadius: '6px',
                 marginBottom: '16px',
                 fontSize: '12px',
-                color: '#666'
+                color: 'var(--text-dark)', opacity: 0.7
               }}>
                 • 각 기능의 최소 권한을 설정하세요
               </div>
@@ -1550,7 +1547,7 @@ function Admin() {
                     <div style={{
                       fontSize: '14px',
                       fontWeight: '600',
-                      color: '#2d5f3f',
+                      color: 'var(--primary-green)',
                       flex: '0 0 auto',
                       marginRight: '12px'
                     }}>
@@ -1574,7 +1571,7 @@ function Admin() {
                             style={{
                               padding: '6px 10px',
                               background: isSelected ? 'var(--primary-green)' : 'var(--bg-card)',
-                              color: isSelected ? 'white' : '#666',
+                              color: isSelected ? 'white' : 'var(--text-dark)',
                               borderRadius: '4px',
                               fontSize: '16px',
                               cursor: 'pointer',
@@ -1593,7 +1590,7 @@ function Admin() {
             </div>
 
             <div className="card">
-              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: '#e53e3e' }}>
+              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--alert-red)' }}>
                 위험 구역
               </h3>
               <button
@@ -1601,7 +1598,7 @@ function Admin() {
                   width: '100%',
                   padding: '12px',
                   background: 'var(--bg-card)',
-                  color: '#e53e3e',
+                  color: 'var(--alert-red)',
                   borderRadius: '8px',
                   fontSize: '16px',
                   fontWeight: '600',
@@ -1619,7 +1616,7 @@ function Admin() {
             </div>
 
             <div className="card" style={{ background: 'var(--bg-green)', border: 'none' }}>
-              <div style={{ fontSize: '14px', color: '#666', textAlign: 'center' }}>
+              <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7, textAlign: 'center' }}>
                 <div style={{ marginBottom: '8px', fontWeight: '600' }}>3355 골프 클럽</div>
                 <div>버전 1.0.0</div>
               </div>
@@ -1667,7 +1664,7 @@ function Admin() {
                   border: 'none',
                   fontSize: '24px',
                   cursor: 'pointer',
-                  color: '#666'
+                  color: 'var(--text-dark)', opacity: 0.7
                 }}
               >
                 ×
@@ -1678,7 +1675,7 @@ function Admin() {
               <div style={{
                 fontSize: '15px',
                 fontWeight: '700',
-                color: '#2d5f3f',
+                color: 'var(--primary-green)',
                 marginBottom: '12px',
                 padding: '12px',
                 background: 'var(--bg-green)',
@@ -1695,7 +1692,7 @@ function Admin() {
                   display: 'block',
                   fontSize: '14px',
                   fontWeight: '600',
-                  color: '#2d5f3f',
+                  color: 'var(--primary-green)',
                   marginBottom: '8px'
                 }}>
                   라운딩 이름 (선택)
@@ -1721,7 +1718,7 @@ function Admin() {
                   display: 'block',
                   fontSize: '14px',
                   fontWeight: '600',
-                  color: '#2d5f3f',
+                  color: 'var(--primary-green)',
                   marginBottom: '8px'
                 }}>
                   날짜 *
@@ -1746,7 +1743,7 @@ function Admin() {
                   display: 'block',
                   fontSize: '14px',
                   fontWeight: '600',
-                  color: '#2d5f3f',
+                  color: 'var(--primary-green)',
                   marginBottom: '8px'
                 }}>
                   골프장 *
@@ -1777,7 +1774,7 @@ function Admin() {
                   display: 'block',
                   fontSize: '14px',
                   fontWeight: '600',
-                  color: '#2d5f3f',
+                  color: 'var(--primary-green)',
                   marginBottom: '8px'
                 }}>
                   총 타수 *
@@ -1806,8 +1803,8 @@ function Admin() {
                 style={{
                   flex: 1,
                   padding: '12px',
-                  background: 'white',
-                  color: '#666',
+                  background: 'var(--text-light)',
+                  color: 'var(--text-dark)', opacity: 0.7,
                   border: '2px solid #ddd',
                   borderRadius: '8px',
                   fontSize: '16px',
@@ -1834,7 +1831,7 @@ function Admin() {
                 <h4 style={{
                   fontSize: '16px',
                   fontWeight: '700',
-                  color: '#2d5f3f',
+                  color: 'var(--primary-green)',
                   marginBottom: '16px'
                 }}>
                   📊 입력된 스코어 ({memberScores.length}개)
@@ -1856,7 +1853,7 @@ function Admin() {
                         alignItems: 'center',
                         marginBottom: '4px'
                       }}>
-                        <div style={{ fontWeight: '700', fontSize: '15px', color: '#2d5f3f' }}>
+                        <div style={{ fontWeight: '700', fontSize: '15px', color: 'var(--primary-green)' }}>
                           {score.courseName}
                         </div>
                         <div style={{
@@ -1867,7 +1864,7 @@ function Admin() {
                           {score.totalScore}타
                         </div>
                       </div>
-                      <div style={{ fontSize: '13px', color: '#666' }}>
+                      <div style={{ fontSize: '13px', color: 'var(--text-dark)', opacity: 0.7 }}>
                         📅 {new Date(score.date).toLocaleDateString('ko-KR')}
                       </div>
                     </div>

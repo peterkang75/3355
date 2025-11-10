@@ -20,9 +20,9 @@ function RoundingManagement() {
   
   if (!hasAdminAccess) {
     return (
-      <div className="page-content" style={{ background: '#F2F2EB' }}>
-        <div className="card" style={{ background: '#F2F2EB', border: '2px solid #98A68A' }}>
-          <p style={{ textAlign: 'center', color: '#010D00' }}>
+      <div className="page-content">
+        <div className="card">
+          <p style={{ textAlign: 'center' }}>
             관리자 또는 운영진만 접근할 수 있습니다.
           </p>
         </div>
@@ -32,9 +32,9 @@ function RoundingManagement() {
 
   if (!booking) {
     return (
-      <div className="page-content" style={{ background: '#F2F2EB' }}>
-        <div className="card" style={{ background: '#F2F2EB', border: '2px solid #98A68A' }}>
-          <p style={{ textAlign: 'center', color: '#010D00' }}>
+      <div className="page-content">
+        <div className="card">
+          <p style={{ textAlign: 'center' }}>
             라운딩을 찾을 수 없습니다.
           </p>
         </div>
@@ -44,13 +44,13 @@ function RoundingManagement() {
 
   return (
     <div>
-      <div className="header" style={{ background: '#254011' }}>
+      <div className="header">
         <button 
           onClick={() => navigate('/booking')}
           style={{
             background: 'transparent',
             border: 'none',
-            color: 'white',
+            color: 'var(--text-light)',
             fontSize: '20px',
             cursor: 'pointer',
             padding: '0 8px'
@@ -61,34 +61,33 @@ function RoundingManagement() {
         <h1>라운딩 관리</h1>
       </div>
 
-      <div className="page-content" style={{ background: '#F2F2EB' }}>
-        <div className="card" style={{ marginBottom: '16px', background: '#F2F2EB', border: '2px solid #98A68A' }}>
+      <div className="page-content">
+        <div className="card" style={{ marginBottom: '16px' }}>
           <div style={{ 
-            background: '#F2F2EB',
             padding: '16px',
             borderRadius: '8px',
             marginBottom: '16px'
           }}>
             {booking.title && (
-              <div style={{ fontSize: '13px', color: '#254011', fontWeight: '600', marginBottom: '4px' }}>
+              <div style={{ fontSize: '13px', color: 'var(--primary-green)', fontWeight: '600', marginBottom: '4px' }}>
                 {booking.title}
               </div>
             )}
-            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px', color: '#010D00' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
               {booking.courseName}
             </h3>
-            <div style={{ fontSize: '14px', color: '#010D00' }}>
+            <div style={{ fontSize: '14px' }}>
               {new Date(booking.date).toLocaleDateString('ko-KR')} • {booking.time}
             </div>
           </div>
         </div>
 
-        <div className="card" style={{ background: '#F2F2EB', border: '2px solid #98A68A' }}>
+        <div className="card">
           <h3 style={{ 
             fontSize: '16px', 
             fontWeight: '700',
             marginBottom: '16px',
-            color: '#254011'
+            color: 'var(--primary-green)'
           }}>
             관리 메뉴
           </h3>
@@ -98,13 +97,12 @@ function RoundingManagement() {
               onClick={() => navigate(`/participant-management?id=${bookingId}`)}
               style={{
                 padding: '20px',
-                background: '#F2F2EB',
                 border: 'none',
-                borderBottom: '1px solid rgba(1, 13, 0, 0.1)',
+                borderBottom: '1px solid var(--border-color)',
                 borderRadius: '0',
                 fontSize: '16px',
                 fontWeight: '600',
-                color: '#254011',
+                color: 'var(--primary-green)',
                 cursor: 'pointer',
                 textAlign: 'left',
                 display: 'flex',
@@ -112,12 +110,12 @@ function RoundingManagement() {
                 gap: '12px'
               }}
             >
-              <span style={{ fontSize: '24px', color: '#254011' }}>•</span>
+              <span style={{ fontSize: '24px', color: 'var(--primary-green)' }}>•</span>
               <div>
-                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px', color: '#010D00' }}>
+                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
                   참가자 관리
                 </div>
-                <div style={{ fontSize: '13px', color: '#010D00', opacity: 0.7 }}>
+                <div style={{ fontSize: '13px', opacity: 0.7 }}>
                   참가자 추가/삭제 및 관리
                 </div>
               </div>
@@ -127,13 +125,12 @@ function RoundingManagement() {
               onClick={() => navigate(`/team-formation?id=${bookingId}`)}
               style={{
                 padding: '20px',
-                background: '#F2F2EB',
                 border: 'none',
-                borderBottom: '1px solid rgba(1, 13, 0, 0.1)',
+                borderBottom: '1px solid var(--border-color)',
                 borderRadius: '0',
                 fontSize: '16px',
                 fontWeight: '600',
-                color: '#254011',
+                color: 'var(--primary-green)',
                 cursor: 'pointer',
                 textAlign: 'left',
                 display: 'flex',
@@ -141,12 +138,12 @@ function RoundingManagement() {
                 gap: '12px'
               }}
             >
-              <span style={{ fontSize: '24px', color: '#254011' }}>•</span>
+              <span style={{ fontSize: '24px', color: 'var(--primary-green)' }}>•</span>
               <div>
-                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px', color: '#010D00' }}>
+                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
                   조편성하기
                 </div>
-                <div style={{ fontSize: '13px', color: '#010D00', opacity: 0.7 }}>
+                <div style={{ fontSize: '13px', opacity: 0.7 }}>
                   참가자들을 팀으로 편성합니다
                 </div>
               </div>
@@ -156,13 +153,12 @@ function RoundingManagement() {
               onClick={() => navigate(`/member-score-entry?id=${bookingId}`)}
               style={{
                 padding: '20px',
-                background: '#F2F2EB',
                 border: 'none',
-                borderBottom: '1px solid rgba(1, 13, 0, 0.1)',
+                borderBottom: '1px solid var(--border-color)',
                 borderRadius: '0',
                 fontSize: '16px',
                 fontWeight: '600',
-                color: '#254011',
+                color: 'var(--primary-green)',
                 cursor: 'pointer',
                 textAlign: 'left',
                 display: 'flex',
@@ -170,12 +166,12 @@ function RoundingManagement() {
                 gap: '12px'
               }}
             >
-              <span style={{ fontSize: '24px', color: '#254011' }}>•</span>
+              <span style={{ fontSize: '24px', color: 'var(--primary-green)' }}>•</span>
               <div>
-                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px', color: '#010D00' }}>
+                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
                   {booking.dailyHandicaps ? '결과보기' : '회원 스코어 입력'}
                 </div>
-                <div style={{ fontSize: '13px', color: '#010D00', opacity: 0.7 }}>
+                <div style={{ fontSize: '13px', opacity: 0.7 }}>
                   {booking.dailyHandicaps 
                     ? '라운딩 결과 및 순위를 확인합니다' 
                     : '참가자들의 스코어를 입력합니다'}
@@ -187,13 +183,12 @@ function RoundingManagement() {
               onClick={() => navigate(`/grade-settings?id=${bookingId}`)}
               style={{
                 padding: '20px',
-                background: '#F2F2EB',
                 border: 'none',
-                borderBottom: '1px solid rgba(1, 13, 0, 0.1)',
+                borderBottom: '1px solid var(--border-color)',
                 borderRadius: '0',
                 fontSize: '16px',
                 fontWeight: '600',
-                color: '#254011',
+                color: 'var(--primary-green)',
                 cursor: 'pointer',
                 textAlign: 'left',
                 display: 'flex',
@@ -201,12 +196,12 @@ function RoundingManagement() {
                 gap: '12px'
               }}
             >
-              <span style={{ fontSize: '24px', color: '#254011' }}>•</span>
+              <span style={{ fontSize: '24px', color: 'var(--primary-green)' }}>•</span>
               <div>
-                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px', color: '#010D00' }}>
+                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
                   그레이드 설정
                 </div>
-                <div style={{ fontSize: '13px', color: '#010D00', opacity: 0.7 }}>
+                <div style={{ fontSize: '13px', opacity: 0.7 }}>
                   이 라운딩의 핸디캡 그레이드 기준 설정
                 </div>
               </div>

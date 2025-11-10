@@ -258,7 +258,7 @@ function MemberScoreEntry() {
     return (
       <div className="page-content">
         <div className="card">
-          <p style={{ textAlign: 'center', color: '#666' }}>
+          <p style={{ textAlign: 'center', opacity: 0.7 }}>
             관리자 또는 운영진만 접근할 수 있습니다.
           </p>
         </div>
@@ -270,7 +270,7 @@ function MemberScoreEntry() {
     return (
       <div className="page-content">
         <div className="card">
-          <p style={{ textAlign: 'center', color: '#666' }}>
+          <p style={{ textAlign: 'center', opacity: 0.7 }}>
             라운딩을 찾을 수 없습니다.
           </p>
         </div>
@@ -286,7 +286,7 @@ function MemberScoreEntry() {
           style={{
             background: 'transparent',
             border: 'none',
-            color: 'white',
+            color: 'var(--text-light)',
             fontSize: '20px',
             cursor: 'pointer',
             padding: '0 8px'
@@ -300,22 +300,21 @@ function MemberScoreEntry() {
       <div className="page-content">
         <div className="card" style={{ marginBottom: '16px' }}>
           <div style={{ 
-            background: 'var(--bg-green)',
             padding: '16px',
             borderRadius: '8px'
           }}>
             {booking.title && (
-              <div style={{ fontSize: '13px', color: '#2d5f3f', fontWeight: '600', marginBottom: '4px' }}>
+              <div style={{ fontSize: '13px', color: 'var(--primary-green)', fontWeight: '600', marginBottom: '4px' }}>
                 {booking.title}
               </div>
             )}
             <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
               {booking.courseName}
             </h3>
-            <div style={{ fontSize: '14px', color: '#666' }}>
+            <div style={{ fontSize: '14px', opacity: 0.7 }}>
               ◆ {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
             </div>
-            <div style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>
+            <div style={{ fontSize: '14px', opacity: 0.7, marginTop: '4px' }}>
               ● 총 {participants.length}명
             </div>
           </div>
@@ -349,14 +348,14 @@ function MemberScoreEntry() {
                     return (
                       <div key={index} style={{
                         padding: '12px',
-                        background: 'var(--bg-green)',
+                        border: '1px solid var(--border-color)',
                         borderRadius: '8px'
                       }}>
                         <label style={{
                           display: 'block',
                           fontSize: '14px',
                           fontWeight: '700',
-                          color: '#2d5f3f',
+                          color: 'var(--primary-green)',
                           marginBottom: '8px'
                         }}>
                           {getParticipantDisplayName(participant)}
@@ -402,14 +401,14 @@ function MemberScoreEntry() {
               {participants.map((participant, index) => (
                 <div key={index} style={{
                   padding: '12px',
-                  background: 'var(--bg-green)',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '8px'
                 }}>
                   <label style={{
                     display: 'block',
                     fontSize: '14px',
                     fontWeight: '700',
-                    color: '#2d5f3f',
+                    color: 'var(--primary-green)',
                     marginBottom: '8px'
                   }}>
                     {getParticipantDisplayName(participant)}
@@ -469,10 +468,10 @@ function MemberScoreEntry() {
                 <div style={{
                   fontSize: '16px',
                   fontWeight: '700',
-                  color: '#2d5f3f',
+                  color: 'var(--primary-green)',
                   marginBottom: '12px',
                   padding: '8px 12px',
-                  background: 'var(--bg-green)',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '6px'
                 }}>
                   ▲ 그레이드 A
@@ -495,7 +494,7 @@ function MemberScoreEntry() {
                     </thead>
                     <tbody>
                       {leaderboard.gradeA.map((player, index) => (
-                        <tr key={index} style={{ background: index % 2 === 0 ? 'var(--bg-card)' : '#fafafa' }}>
+                        <tr key={index} style={{ background: index % 2 === 0 ? 'var(--bg-card)' : 'var(--text-light)' }}>
                           <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {index === 0 ? '1' : index === 1 ? '2' : index === 2 ? '3' : index + 1}
                           </td>
@@ -511,7 +510,7 @@ function MemberScoreEntry() {
                           <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {player.overUnder > 0 ? `+${player.overUnder}` : player.overUnder}
                           </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700', color: '#2d5f3f' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700', color: 'var(--primary-green)' }}>
                             {player.finalScore > 0 ? `+${player.finalScore}` : player.finalScore}
                           </td>
                         </tr>
@@ -527,10 +526,10 @@ function MemberScoreEntry() {
                 <div style={{
                   fontSize: '16px',
                   fontWeight: '700',
-                  color: '#2d5f3f',
+                  color: 'var(--primary-green)',
                   marginBottom: '12px',
                   padding: '8px 12px',
-                  background: 'var(--bg-green)',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '6px'
                 }}>
                   ▲ 그레이드 B
@@ -553,7 +552,7 @@ function MemberScoreEntry() {
                     </thead>
                     <tbody>
                       {leaderboard.gradeB.map((player, index) => (
-                        <tr key={index} style={{ background: index % 2 === 0 ? 'var(--bg-card)' : '#fafafa' }}>
+                        <tr key={index} style={{ background: index % 2 === 0 ? 'var(--bg-card)' : 'var(--text-light)' }}>
                           <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {index === 0 ? '1' : index === 1 ? '2' : index === 2 ? '3' : index + 1}
                           </td>
@@ -569,7 +568,7 @@ function MemberScoreEntry() {
                           <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {player.overUnder > 0 ? `+${player.overUnder}` : player.overUnder}
                           </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700', color: '#2d5f3f' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700', color: 'var(--primary-green)' }}>
                             {player.finalScore > 0 ? `+${player.finalScore}` : player.finalScore}
                           </td>
                         </tr>
@@ -585,10 +584,10 @@ function MemberScoreEntry() {
                 <div style={{
                   fontSize: '16px',
                   fontWeight: '700',
-                  color: '#2d5f3f',
+                  color: 'var(--primary-green)',
                   marginBottom: '12px',
                   padding: '8px 12px',
-                  background: 'var(--bg-green)',
+                  border: '1px solid var(--border-color)',
                   borderRadius: '6px'
                 }}>
                   ▲ 그레이드 C
@@ -611,7 +610,7 @@ function MemberScoreEntry() {
                     </thead>
                     <tbody>
                       {leaderboard.gradeC.map((player, index) => (
-                        <tr key={index} style={{ background: index % 2 === 0 ? 'var(--bg-card)' : '#fafafa' }}>
+                        <tr key={index} style={{ background: index % 2 === 0 ? 'var(--bg-card)' : 'var(--text-light)' }}>
                           <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {index === 0 ? '1' : index === 1 ? '2' : index === 2 ? '3' : index + 1}
                           </td>
@@ -627,7 +626,7 @@ function MemberScoreEntry() {
                           <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {player.overUnder > 0 ? `+${player.overUnder}` : player.overUnder}
                           </td>
-                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700', color: '#2d5f3f' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700', color: 'var(--primary-green)' }}>
                             {player.finalScore > 0 ? `+${player.finalScore}` : player.finalScore}
                           </td>
                         </tr>
@@ -655,8 +654,8 @@ function MemberScoreEntry() {
                 className="btn-primary"
                 style={{
                   flex: 1,
-                  background: '#e53e3e',
-                  borderColor: '#e53e3e'
+                  background: 'var(--alert-red)',
+                  borderColor: 'var(--alert-red)'
                 }}
               >
                 × 결과 모두 지우기

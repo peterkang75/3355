@@ -69,24 +69,16 @@ function ScoreEntry() {
 
   return (
     <div style={{ 
-      background: '#1a2e3a',
       minHeight: '100vh',
       paddingBottom: '80px'
     }}>
-      <div style={{
-        background: '#1a2e3a',
-        color: 'white',
-        padding: '16px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center'
-      }}>
+      <div className="header">
         <button 
           onClick={prevHole}
           disabled={currentHole === 1}
           style={{
             background: 'transparent',
-            color: 'white',
+            color: 'var(--text-light)',
             fontSize: '16px',
             padding: '8px 16px',
             opacity: currentHole === 1 ? 0.3 : 1
@@ -98,7 +90,7 @@ function ScoreEntry() {
           onClick={saveRound}
           style={{
             background: 'transparent',
-            color: 'white',
+            color: 'var(--text-light)',
             fontSize: '16px',
             padding: '8px 16px'
           }}
@@ -110,16 +102,15 @@ function ScoreEntry() {
       <div style={{
         padding: '16px',
         display: 'flex',
-        justifyContent: 'space-between',
-        color: 'white'
+        justifyContent: 'space-between'
       }}>
         <div style={{
-          borderBottom: '1px solid rgba(255,255,255,0.3)',
+          borderBottom: '2px solid var(--border-color)',
           borderRadius: '8px',
           padding: '12px 16px',
           minWidth: '140px'
         }}>
-          <div style={{ fontSize: '12px', marginBottom: '4px' }}>ROUND TIME</div>
+          <div style={{ fontSize: '12px', marginBottom: '4px', opacity: 0.7 }}>ROUND TIME</div>
           <div style={{ fontSize: '20px', fontWeight: '600' }}>{elapsedTime()}</div>
         </div>
 
@@ -130,18 +121,18 @@ function ScoreEntry() {
           flexDirection: 'column',
           alignItems: 'center'
         }}>
-          <div style={{ fontSize: '14px', fontWeight: '400' }}>HOLE</div>
+          <div style={{ fontSize: '14px', fontWeight: '400', opacity: 0.7 }}>HOLE</div>
           {currentHole}
         </div>
 
         <div style={{
-          borderBottom: '1px solid rgba(255,255,255,0.3)',
+          borderBottom: '2px solid var(--border-color)',
           borderRadius: '8px',
           padding: '12px 16px',
           minWidth: '140px',
           textAlign: 'right'
         }}>
-          <div style={{ fontSize: '12px', marginBottom: '4px' }}>TO MID</div>
+          <div style={{ fontSize: '12px', marginBottom: '4px', opacity: 0.7 }}>TO MID</div>
           <div style={{ fontSize: '20px', fontWeight: '600' }}>
             {[360, 380, 165, 510, 385, 390, 175, 525, 410, 395, 495, 155, 370, 405, 520, 145, 400, 425][currentHole - 1]}m
           </div>
@@ -150,15 +141,15 @@ function ScoreEntry() {
 
       <div style={{
         margin: '16px',
-        background: '#5a8ba8',
+        border: '2px solid var(--border-color)',
         borderRadius: '12px',
         overflow: 'hidden'
       }}>
         <div style={{
-          background: '#5a8ba8',
+          background: 'var(--primary-green)',
           padding: '16px',
           textAlign: 'center',
-          color: 'white',
+          color: 'var(--text-light)',
           fontSize: '18px',
           fontWeight: '600'
         }}>
@@ -166,7 +157,6 @@ function ScoreEntry() {
         </div>
 
         <div style={{
-          background: 'var(--bg-card)',
           padding: '32px 16px'
         }}>
           <div style={{
@@ -184,7 +174,8 @@ function ScoreEntry() {
                 height: '80px',
                 borderRadius: '12px',
                 fontSize: '40px',
-                color: '#666',
+                color: 'var(--text-dark)',
+                opacity: 0.7,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -203,7 +194,8 @@ function ScoreEntry() {
               </div>
               <div style={{
                 fontSize: '14px',
-                color: points === 0 ? '#666' : points > 0 ? '#e53e3e' : '#22c55e',
+                color: points === 0 ? 'var(--text-dark)' : points > 0 ? 'var(--alert-red)' : 'var(--success-green)',
+                opacity: points === 0 ? 0.7 : 1,
                 fontWeight: '600'
               }}>
                 {points > 0 ? '+' : ''}{points} points
@@ -218,7 +210,8 @@ function ScoreEntry() {
                 height: '80px',
                 borderRadius: '12px',
                 fontSize: '40px',
-                color: '#666',
+                color: 'var(--text-dark)',
+                opacity: 0.7,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -234,8 +227,8 @@ function ScoreEntry() {
             gap: '8px'
           }}>
             <div style={{
-              background: '#0066ff',
-              color: 'white',
+              background: 'var(--primary-green)',
+              color: 'var(--text-light)',
               padding: '16px 8px',
               borderRadius: '8px',
               textAlign: 'center'
@@ -250,15 +243,15 @@ function ScoreEntry() {
               borderRadius: '8px',
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: '12px', marginBottom: '4px' }}>SHOTS</div>
+              <div style={{ fontSize: '12px', marginBottom: '4px', opacity: 0.7 }}>SHOTS</div>
               <div style={{ fontSize: '32px', fontWeight: '700' }}>{currentScore.shots}</div>
             </div>
 
             <button
               onClick={togglePickUp}
               style={{
-                background: currentScore.pickUp ? '#22c55e' : '#f5f5f5',
-                color: currentScore.pickUp ? 'white' : '#000',
+                background: currentScore.pickUp ? 'var(--success-green)' : '#f5f5f5',
+                color: currentScore.pickUp ? 'var(--text-light)' : 'var(--text-dark)',
                 padding: '16px 8px',
                 borderRadius: '8px',
                 textAlign: 'center'
@@ -276,7 +269,7 @@ function ScoreEntry() {
               borderRadius: '8px',
               textAlign: 'center'
             }}>
-              <div style={{ fontSize: '12px', marginBottom: '4px' }}>TOTAL</div>
+              <div style={{ fontSize: '12px', marginBottom: '4px', opacity: 0.7 }}>TOTAL</div>
               <div style={{ fontSize: '32px', fontWeight: '700' }}>{totalShots}</div>
             </div>
           </div>
@@ -289,7 +282,7 @@ function ScoreEntry() {
             onClick={nextHole}
             style={{
               background: 'var(--primary-green)',
-              color: 'white',
+              color: 'var(--text-light)',
               padding: '16px',
               borderRadius: '12px',
               fontSize: '18px',
@@ -307,8 +300,8 @@ function ScoreEntry() {
           <button 
             onClick={saveRound}
             style={{
-              background: '#22c55e',
-              color: 'white',
+              background: 'var(--primary-green)',
+              color: 'var(--text-light)',
               padding: '16px',
               borderRadius: '12px',
               fontSize: '18px',

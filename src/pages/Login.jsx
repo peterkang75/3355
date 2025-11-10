@@ -115,11 +115,12 @@ function Login({ onLogin }) {
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      background: 'linear-gradient(135deg, #2d5f3f 0%, #3a7d54 100%)',
+      background: 'var(--bg-card)',
       padding: '20px'
     }}>
       <div style={{
         background: 'var(--bg-card)',
+        border: '2px solid var(--border-color)',
         borderRadius: '16px',
         padding: '40px 30px',
         width: '100%',
@@ -146,7 +147,7 @@ function Login({ onLogin }) {
             3355 골프 클럽
           </h1>
           <p style={{ 
-            color: '#2d5f3f', 
+            color: 'var(--primary-green)', 
             fontSize: '20px',
             fontFamily: "'Dancing Script', cursive",
             fontWeight: '600',
@@ -162,8 +163,7 @@ function Login({ onLogin }) {
               display: 'block', 
               marginBottom: '8px',
               fontSize: '14px',
-              fontWeight: '600',
-              color: 'var(--text-dark)'
+              fontWeight: '600'
             }}>
               전화번호 끝 6자리
             </label>
@@ -215,7 +215,8 @@ function Login({ onLogin }) {
           <div style={{ 
             marginTop: '24px',
             padding: '20px',
-            background: 'var(--bg-green)',
+            background: 'var(--bg-card)',
+            border: '2px solid var(--border-color)',
             borderRadius: '8px'
           }}>
             <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
@@ -248,7 +249,7 @@ function Login({ onLogin }) {
               style={{ marginBottom: '12px', width: '100%' }}
             />
             <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#666' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', opacity: 0.7 }}>
                 사진 (본인)
               </label>
               <input
@@ -304,7 +305,7 @@ function Login({ onLogin }) {
                       height: '100px', 
                       objectFit: 'cover', 
                       borderRadius: '8px',
-                      borderBottom: '1px solid var(--border-color)'
+                      border: '1px solid var(--border-color)'
                     }} 
                   />
                 </div>
@@ -438,10 +439,11 @@ function Login({ onLogin }) {
           <div style={{ 
             marginTop: '24px', 
             padding: '16px',
-            background: 'var(--bg-green)',
+            background: 'var(--bg-card)',
+            border: '2px solid var(--border-color)',
             borderRadius: '8px',
             fontSize: '13px',
-            color: '#666'
+            opacity: 0.7
           }}>
             <p style={{ marginBottom: '8px' }}>ⓘ 테스트 계정:</p>
             <p>관리자: <strong>123456</strong></p>

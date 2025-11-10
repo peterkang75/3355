@@ -102,7 +102,8 @@ function MyPage() {
       <div style={{ 
         padding: '20px', 
         textAlign: 'center',
-        color: '#666'
+        color: 'var(--text-dark)',
+        opacity: 0.7
       }}>
         로그인 정보를 불러오는 중...
       </div>
@@ -115,17 +116,7 @@ function MyPage() {
 
   return (
     <div style={{ paddingBottom: '80px' }}>
-      <div style={{
-        position: 'sticky',
-        top: 0,
-        background: 'var(--bg-card)',
-        borderBottom: '1px solid var(--border-color)',
-        zIndex: 100,
-        padding: '16px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
+      <div className="header">
         <button
           onClick={() => navigate('/dashboard')}
           style={{
@@ -134,14 +125,12 @@ function MyPage() {
             fontSize: '24px',
             cursor: 'pointer',
             padding: '8px',
-            color: 'var(--primary-green)'
+            color: 'var(--text-light)'
           }}
         >
           ←
         </button>
         <h1 style={{ 
-          fontSize: '20px', 
-          fontWeight: '700',
           margin: 0,
           flex: 1,
           textAlign: 'center'
@@ -151,7 +140,7 @@ function MyPage() {
         <div style={{ width: '40px' }}></div>
       </div>
 
-      <div style={{ padding: '16px' }}>
+      <div className="page-content">
         <div className="card" style={{ marginBottom: '16px', textAlign: 'center' }}>
           <div style={{ marginBottom: '16px' }}>
             {(isEditing ? editData.photo : user.photo) ? (
@@ -192,7 +181,7 @@ function MyPage() {
                   display: 'inline-block',
                   padding: '8px 16px',
                   background: 'var(--light-green)',
-                  color: 'white',
+                  color: 'var(--text-light)',
                   borderRadius: '8px',
                   fontSize: '14px',
                   fontWeight: '600',
@@ -215,14 +204,15 @@ function MyPage() {
             fontSize: '24px', 
             fontWeight: '700',
             marginBottom: '8px',
-            color: '#2d5f3f'
+            color: 'var(--primary-green)'
           }}>
             {user.nickname || user.name}
           </h2>
           
           <div style={{ 
             fontSize: '16px', 
-            color: '#666',
+            color: 'var(--text-dark)',
+            opacity: 0.7,
             marginBottom: '12px'
           }}>
             {user.name}
@@ -249,7 +239,8 @@ function MyPage() {
             </div>
             <div style={{
               fontSize: '13px',
-              color: '#888',
+              color: 'var(--text-dark)',
+              opacity: 0.7,
               fontStyle: 'italic',
               maxWidth: '90%',
               lineHeight: '1.4'
@@ -268,7 +259,7 @@ function MyPage() {
               <span style={{
                 padding: '4px 12px',
                 background: '#d4af37',
-                color: 'white',
+                color: 'var(--text-light)',
                 borderRadius: '12px',
                 fontSize: '12px',
                 fontWeight: '600'
@@ -280,7 +271,7 @@ function MyPage() {
               <span style={{
                 padding: '4px 12px',
                 background: 'var(--primary-green)',
-                color: 'white',
+                color: 'var(--text-light)',
                 borderRadius: '12px',
                 fontSize: '12px',
                 fontWeight: '600'
@@ -304,7 +295,7 @@ function MyPage() {
                   fontSize: '16px', 
                   fontWeight: '700',
                   margin: 0,
-                  color: '#2d5f3f'
+                  color: 'var(--primary-green)'
                 }}>
                   기본 정보
                 </h3>
@@ -333,7 +324,7 @@ function MyPage() {
                 fontSize: '16px', 
                 fontWeight: '700',
                 marginBottom: '16px',
-                color: '#2d5f3f'
+                color: 'var(--primary-green)'
               }}>
                 회비 정보
               </h3>
@@ -341,7 +332,7 @@ function MyPage() {
               <div style={{
                 fontSize: '20px',
                 fontWeight: '700',
-                color: user.balance < 0 ? '#e53e3e' : '#22c55e',
+                color: user.balance < 0 ? 'var(--alert-red)' : 'var(--success-green)',
                 textAlign: 'center',
                 padding: '16px',
                 background: user.balance < 0 ? '#fee' : '#efe',
@@ -357,7 +348,7 @@ function MyPage() {
               fontSize: '16px', 
               fontWeight: '700',
               marginBottom: '16px',
-              color: '#2d5f3f'
+              color: 'var(--primary-green)'
             }}>
               프로필 정보 수정
             </h3>
@@ -494,13 +485,14 @@ function MyPage() {
               fontSize: '16px', 
               fontWeight: '700',
               margin: 0,
-              color: '#2d5f3f'
+              color: 'var(--primary-green)'
             }}>
               스코어 히스토리
             </h3>
             <span style={{
               fontSize: '14px',
-              color: '#666',
+              color: 'var(--text-dark)',
+              opacity: 0.7,
               fontWeight: '600'
             }}>
               총 {scores.length}라운드
@@ -511,7 +503,8 @@ function MyPage() {
             <div style={{
               padding: '40px 20px',
               textAlign: 'center',
-              color: '#999',
+              color: 'var(--text-dark)',
+              opacity: 0.7,
               fontSize: '14px'
             }}>
               아직 기록된 스코어가 없습니다.
@@ -537,7 +530,7 @@ function MyPage() {
                     <div style={{
                       fontSize: '15px',
                       fontWeight: '700',
-                      color: '#2d5f3f'
+                      color: 'var(--primary-green)'
                     }}>
                       {score.roundingName}
                     </div>
@@ -551,7 +544,8 @@ function MyPage() {
                   </div>
                   <div style={{
                     fontSize: '13px',
-                    color: '#666'
+                    color: 'var(--text-dark)',
+                    opacity: 0.7
                   }}>
                     {score.courseName} · {new Date(score.date).toLocaleDateString('ko-KR')}
                   </div>
@@ -572,7 +566,7 @@ function MyPage() {
             style={{
               background: 'transparent',
               border: 'none',
-              color: '#dc2626',
+              color: 'var(--alert-red)',
               fontSize: '16px',
               fontWeight: '600',
               cursor: 'pointer',
@@ -600,7 +594,8 @@ function InfoRow({ label, value }) {
     }}>
       <span style={{ 
         fontSize: '14px', 
-        color: '#666',
+        color: 'var(--text-dark)',
+        opacity: 0.7,
         fontWeight: '600'
       }}>
         {label}
@@ -608,7 +603,7 @@ function InfoRow({ label, value }) {
       <span style={{ 
         fontSize: '14px', 
         fontWeight: '600',
-        color: '#2d5f3f'
+        color: 'var(--primary-green)'
       }}>
         {value}
       </span>

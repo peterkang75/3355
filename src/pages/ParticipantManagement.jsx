@@ -129,7 +129,7 @@ function ParticipantManagement() {
     return (
       <div className="page-content">
         <div className="card">
-          <p style={{ textAlign: 'center', color: '#666' }}>
+          <p style={{ textAlign: 'center', opacity: 0.7 }}>
             관리자 또는 운영진만 접근할 수 있습니다.
           </p>
         </div>
@@ -141,7 +141,7 @@ function ParticipantManagement() {
     return (
       <div className="page-content">
         <div className="card">
-          <p style={{ textAlign: 'center', color: '#666' }}>
+          <p style={{ textAlign: 'center', opacity: 0.7 }}>
             라운딩을 찾을 수 없습니다.
           </p>
         </div>
@@ -157,7 +157,7 @@ function ParticipantManagement() {
           style={{
             background: 'transparent',
             border: 'none',
-            color: 'white',
+            color: 'var(--text-light)',
             fontSize: '20px',
             cursor: 'pointer',
             padding: '0 8px'
@@ -171,20 +171,19 @@ function ParticipantManagement() {
       <div className="page-content">
         <div className="card" style={{ marginBottom: '16px' }}>
           <div style={{ 
-            background: 'var(--bg-green)',
             padding: '16px',
             borderRadius: '8px',
             marginBottom: '16px'
           }}>
             {booking.title && (
-              <div style={{ fontSize: '13px', color: '#2d5f3f', fontWeight: '600', marginBottom: '4px' }}>
+              <div style={{ fontSize: '13px', color: 'var(--primary-green)', fontWeight: '600', marginBottom: '4px' }}>
                 {booking.title}
               </div>
             )}
             <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
               {booking.courseName}
             </h3>
-            <div style={{ fontSize: '14px', color: '#666' }}>
+            <div style={{ fontSize: '14px', opacity: 0.7 }}>
               {new Date(booking.date).toLocaleDateString('ko-KR')} • {booking.time}
             </div>
           </div>
@@ -203,7 +202,7 @@ function ParticipantManagement() {
               style={{
                 padding: '8px 16px',
                 background: 'var(--primary-green)',
-                color: 'white',
+                color: 'var(--text-light)',
                 border: 'none',
                 borderRadius: '6px',
                 fontSize: '14px',
@@ -216,7 +215,7 @@ function ParticipantManagement() {
           </div>
 
           {participants.length === 0 ? (
-            <p style={{ textAlign: 'center', color: '#999', padding: '32px 0' }}>
+            <p style={{ textAlign: 'center', opacity: 0.7, padding: '32px 0' }}>
               참가자가 없습니다. 참가자를 추가해주세요.
             </p>
           ) : (
@@ -229,17 +228,15 @@ function ParticipantManagement() {
                     justifyContent: 'space-between',
                     alignItems: 'center',
                     padding: '16px',
-                    background: 'var(--bg-green)',
-                    borderRadius: '0',
-                    border: 'none',
-                    borderBottom: '1px solid var(--border-color)'
+                    borderRadius: '8px',
+                    border: '2px solid var(--border-color)'
                   }}
                 >
                   <div>
                     <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '4px' }}>
                       {participant.nickname}
                     </div>
-                    <div style={{ fontSize: '13px', color: '#666' }}>
+                    <div style={{ fontSize: '13px', opacity: 0.7 }}>
                       {participant.name}
                     </div>
                   </div>
@@ -247,8 +244,8 @@ function ParticipantManagement() {
                     onClick={() => handleRemoveParticipant(participant.phone)}
                     style={{
                       padding: '6px 12px',
-                      background: '#dc3545',
-                      color: 'white',
+                      background: 'var(--alert-red)',
+                      color: 'var(--text-light)',
                       border: 'none',
                       borderRadius: '6px',
                       fontSize: '13px',
@@ -281,6 +278,7 @@ function ParticipantManagement() {
         }}>
           <div style={{
             background: 'var(--bg-card)',
+            border: '2px solid var(--border-color)',
             borderRadius: '12px',
             padding: '24px',
             width: '100%',
@@ -302,7 +300,7 @@ function ParticipantManagement() {
                   border: 'none',
                   fontSize: '24px',
                   cursor: 'pointer',
-                  color: '#666'
+                  opacity: 0.7
                 }}
               >
                 ×
@@ -310,7 +308,7 @@ function ParticipantManagement() {
             </div>
 
             {availableMembers.length === 0 ? (
-              <p style={{ textAlign: 'center', color: '#999', padding: '32px 0' }}>
+              <p style={{ textAlign: 'center', opacity: 0.7, padding: '32px 0' }}>
                 회원이 없습니다.
               </p>
             ) : (
@@ -324,10 +322,9 @@ function ParticipantManagement() {
                       disabled={alreadyAdded}
                       style={{
                         padding: '16px',
-                        background: alreadyAdded ? '#f5f5f5' : 'var(--bg-green)',
-                        border: 'none',
-                        borderBottom: '1px solid var(--border-color)',
-                        borderRadius: '0',
+                        background: 'var(--bg-card)',
+                        border: '2px solid var(--border-color)',
+                        borderRadius: '8px',
                         cursor: alreadyAdded ? 'not-allowed' : 'pointer',
                         textAlign: 'left',
                         opacity: alreadyAdded ? 0.6 : 1,
@@ -341,11 +338,11 @@ function ParticipantManagement() {
                           fontSize: '16px', 
                           fontWeight: '600', 
                           marginBottom: '4px', 
-                          color: alreadyAdded ? '#999' : 'var(--primary-green)' 
+                          color: alreadyAdded ? 'var(--text-dark)' : 'var(--primary-green)' 
                         }}>
                           {member.nickname}
                         </div>
-                        <div style={{ fontSize: '13px', color: '#666' }}>
+                        <div style={{ fontSize: '13px', opacity: 0.7 }}>
                           {member.name}
                         </div>
                       </div>
@@ -353,8 +350,8 @@ function ParticipantManagement() {
                         <span style={{
                           fontSize: '13px',
                           fontWeight: '600',
-                          color: '#999',
-                          background: '#e0e0e0',
+                          opacity: 0.7,
+                          background: 'var(--border-color)',
                           padding: '4px 12px',
                           borderRadius: '12px'
                         }}>

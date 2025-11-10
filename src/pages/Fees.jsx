@@ -23,9 +23,10 @@ function Fees() {
       <div className="page-content">
         <div className="card" style={{
           background: balance < 0 
-            ? 'linear-gradient(135deg, #e53e3e 0%, #dc2626 100%)'
-            : 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
-          color: 'white',
+            ? 'linear-gradient(135deg, var(--alert-red) 0%, var(--alert-red) 100%)'
+            : 'linear-gradient(135deg, var(--success-green) 0%, var(--success-green) 100%)',
+          border: '2px solid var(--border-color)',
+          color: 'var(--text-light)',
           padding: '24px'
         }}>
           <div style={{ fontSize: '14px', marginBottom: '8px', opacity: 0.9 }}>
@@ -70,7 +71,7 @@ function Fees() {
             <div style={{ 
               padding: '40px',
               textAlign: 'center',
-              color: '#666'
+              opacity: 0.7
             }}>
               <div style={{ fontSize: '48px', marginBottom: '16px' }}>$</div>
               <p>아직 회비 내역이 없습니다</p>
@@ -82,7 +83,6 @@ function Fees() {
                   key={transaction.id}
                   style={{
                     padding: '16px',
-                    background: 'var(--bg-green)',
                     borderBottom: '1px solid var(--border-color)',
                     borderRadius: '8px',
                     marginBottom: '8px',
@@ -95,7 +95,7 @@ function Fees() {
                     <div style={{ fontWeight: '600', marginBottom: '4px' }}>
                       {transaction.title}
                     </div>
-                    <div style={{ fontSize: '13px', color: '#666' }}>
+                    <div style={{ fontSize: '13px', opacity: 0.7 }}>
                       {new Date(transaction.date).toLocaleDateString('ko-KR')}
                     </div>
                   </div>
@@ -103,7 +103,7 @@ function Fees() {
                     <div style={{
                       fontSize: '18px',
                       fontWeight: '700',
-                      color: transaction.type === 'income' ? '#e53e3e' : '#22c55e',
+                      color: transaction.type === 'income' ? 'var(--alert-red)' : 'var(--success-green)',
                       marginBottom: '4px'
                     }}>
                       {transaction.type === 'income' ? '-' : '+'}
@@ -113,8 +113,8 @@ function Fees() {
                       fontSize: '12px',
                       padding: '2px 8px',
                       borderRadius: '4px',
-                      background: transaction.status === 'paid' ? '#22c55e' : '#e53e3e',
-                      color: 'white',
+                      background: transaction.status === 'paid' ? 'var(--success-green)' : 'var(--alert-red)',
+                      color: 'var(--text-light)',
                       display: 'inline-block'
                     }}>
                       {transaction.status === 'paid' ? '납부완료' : '미납'}
@@ -126,11 +126,11 @@ function Fees() {
           )}
         </div>
 
-        <div className="card" style={{ background: 'var(--bg-green)', padding: '16px' }}>
-          <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
+        <div className="card" style={{ padding: '16px' }}>
+          <div style={{ fontSize: '14px', opacity: 0.7, marginBottom: '8px' }}>
             ⓘ 납부 안내
           </div>
-          <p style={{ fontSize: '13px', lineHeight: '1.6', color: '#666' }}>
+          <p style={{ fontSize: '13px', lineHeight: '1.6', opacity: 0.7 }}>
             회비 납부는 관리자에게 문의해주세요. 
             납부 완료 후 관리자가 처리하면 자동으로 잔액에 반영됩니다.
           </p>

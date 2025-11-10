@@ -208,7 +208,7 @@ function MemberDetail() {
       <div style={{ 
         padding: '20px', 
         textAlign: 'center',
-        color: '#666'
+        opacity: 0.7
       }}>
         회원 정보를 불러오는 중...
       </div>
@@ -226,7 +226,7 @@ function MemberDetail() {
       <div style={{
         position: 'sticky',
         top: 0,
-        background: 'white',
+        background: 'var(--text-light)',
         borderBottom: '1px solid var(--border-color)',
         zIndex: 100,
         padding: '16px',
@@ -259,7 +259,7 @@ function MemberDetail() {
         <div style={{ width: '40px' }}></div>
       </div>
 
-      <div style={{ padding: '16px' }}>
+      <div className="page-content">
         <div className="card" style={{ marginBottom: '16px', textAlign: 'center' }}>
           <div style={{ marginBottom: '16px' }}>
             {member.photo ? (
@@ -296,14 +296,14 @@ function MemberDetail() {
             fontSize: '24px', 
             fontWeight: '700',
             marginBottom: '8px',
-            color: '#2d5f3f'
+            color: 'var(--primary-green)'
           }}>
             {member.nickname || member.name}
           </h2>
           
           <div style={{ 
             fontSize: '16px', 
-            color: '#666',
+            opacity: 0.7,
             marginBottom: '16px'
           }}>
             {member.name}
@@ -315,7 +315,7 @@ function MemberDetail() {
             alignItems: 'center',
             gap: '8px',
             padding: '16px 12px',
-            background: '#f8f9fa',
+            border: '1px solid var(--border-color)',
             borderRadius: '12px',
             width: '90%',
             margin: '0 auto'
@@ -330,14 +330,14 @@ function MemberDetail() {
             </div>
             <div style={{
               fontSize: '13px',
-              color: '#666',
+              opacity: 0.7,
               textAlign: 'center'
             }}>
               추천핸디: {handicapValue}
             </div>
             <div style={{
               fontSize: '13px',
-              color: '#888',
+              opacity: 0.7,
               fontStyle: 'italic',
               textAlign: 'center',
               lineHeight: '1.4',
@@ -357,7 +357,7 @@ function MemberDetail() {
               <span style={{
                 padding: '4px 12px',
                 background: '#d4af37',
-                color: 'white',
+                color: 'var(--text-light)',
                 borderRadius: '12px',
                 fontSize: '12px',
                 fontWeight: '600'
@@ -369,7 +369,7 @@ function MemberDetail() {
               <span style={{
                 padding: '4px 12px',
                 background: 'var(--primary-green)',
-                color: 'white',
+                color: 'var(--text-light)',
                 borderRadius: '12px',
                 fontSize: '12px',
                 fontWeight: '600'
@@ -381,7 +381,7 @@ function MemberDetail() {
               <span style={{
                 padding: '4px 12px',
                 background: '#666',
-                color: 'white',
+                color: 'var(--text-light)',
                 borderRadius: '12px',
                 fontSize: '12px',
                 fontWeight: '600'
@@ -399,7 +399,7 @@ function MemberDetail() {
                 fontSize: '16px', 
                 fontWeight: '700',
                 marginBottom: '16px',
-                color: '#2d5f3f'
+                color: 'var(--primary-green)'
               }}>
                 기본 정보
               </h3>
@@ -421,7 +421,7 @@ function MemberDetail() {
                 fontSize: '16px', 
                 fontWeight: '700',
                 marginBottom: '16px',
-                color: '#2d5f3f'
+                color: 'var(--primary-green)'
               }}>
                 회비 정보
               </h3>
@@ -429,7 +429,7 @@ function MemberDetail() {
               <div style={{
                 fontSize: '20px',
                 fontWeight: '700',
-                color: member.balance < 0 ? '#e53e3e' : '#22c55e',
+                color: member.balance < 0 ? 'var(--alert-red)' : 'var(--success-green)',
                 textAlign: 'center',
                 padding: '16px',
                 background: member.balance < 0 ? '#fee' : '#efe',
@@ -446,7 +446,7 @@ function MemberDetail() {
                     fontSize: '14px', 
                     fontWeight: '600',
                     marginBottom: '12px',
-                    color: '#666',
+                    opacity: 0.7,
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px'
                   }}>
@@ -465,7 +465,7 @@ function MemberDetail() {
                         flex: 1,
                         padding: '10px 8px',
                         background: member.role === 'admin' ? 'var(--primary-green)' : '#f5f5f5',
-                        color: member.role === 'admin' ? 'white' : '#666',
+                        color: member.role === 'admin' ? 'var(--text-light)' : 'var(--text-dark)',
                         borderRadius: '6px',
                         fontSize: '13px',
                         fontWeight: '600',
@@ -487,7 +487,7 @@ function MemberDetail() {
                         flex: 1,
                         padding: '10px 8px',
                         background: member.role === 'operator' ? 'var(--primary-green)' : '#f5f5f5',
-                        color: member.role === 'operator' ? 'white' : '#666',
+                        color: member.role === 'operator' ? 'var(--text-light)' : 'var(--text-dark)',
                         borderRadius: '6px',
                         fontSize: '13px',
                         fontWeight: '600',
@@ -509,7 +509,7 @@ function MemberDetail() {
                         flex: 1,
                         padding: '10px 8px',
                         background: (member.role === 'member' || !member.role) ? 'var(--primary-green)' : '#f5f5f5',
-                        color: (member.role === 'member' || !member.role) ? 'white' : '#666',
+                        color: (member.role === 'member' || !member.role) ? 'var(--text-light)' : 'var(--text-dark)',
                         borderRadius: '6px',
                         fontSize: '13px',
                         fontWeight: '600',
@@ -532,7 +532,7 @@ function MemberDetail() {
                     fontSize: '14px', 
                     fontWeight: '600',
                     marginBottom: '12px',
-                    color: '#666',
+                    opacity: 0.7,
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px'
                   }}>
@@ -549,7 +549,7 @@ function MemberDetail() {
                       style={{
                         padding: '12px',
                         background: 'var(--primary-green)',
-                        color: 'white',
+                        color: 'var(--text-light)',
                         border: 'none',
                         borderRadius: '6px',
                         fontSize: '13px',
@@ -579,7 +579,7 @@ function MemberDetail() {
                       style={{
                         padding: '12px',
                         background: 'var(--primary-green)',
-                        color: 'white',
+                        color: 'var(--text-light)',
                         border: 'none',
                         borderRadius: '6px',
                         fontSize: '13px',
@@ -620,7 +620,7 @@ function MemberDetail() {
                       style={{
                         padding: '12px',
                         background: '#fff5f5',
-                        color: '#e53e3e',
+                        color: 'var(--alert-red)',
                         borderRadius: '6px',
                         fontSize: '13px',
                         fontWeight: '600',
@@ -646,7 +646,7 @@ function MemberDetail() {
               fontSize: '16px', 
               fontWeight: '700',
               marginBottom: '16px',
-              color: '#2d5f3f'
+              color: 'var(--primary-green)'
             }}>
               회원 정보 수정
             </h3>
@@ -790,13 +790,13 @@ function MemberDetail() {
               fontSize: '16px', 
               fontWeight: '700',
               margin: 0,
-              color: '#2d5f3f'
+              color: 'var(--primary-green)'
             }}>
               스코어 히스토리
             </h3>
             <span style={{
               fontSize: '14px',
-              color: '#666',
+              opacity: 0.7,
               fontWeight: '600'
             }}>
               총 {scores.length}라운드
@@ -819,9 +819,9 @@ function MemberDetail() {
                   key={index}
                   style={{
                     padding: '12px',
-                    background: 'var(--bg-green)',
+                    border: '1px solid var(--border-color)',
                     borderRadius: '6px',
-                    borderBottom: '1px solid var(--border-color)',
+                    marginBottom: '8px',
                     position: 'relative'
                   }}
                 >
@@ -834,7 +834,7 @@ function MemberDetail() {
                     <div style={{
                       fontSize: '15px',
                       fontWeight: '700',
-                      color: '#2d5f3f',
+                      color: 'var(--primary-green)',
                       flex: 1
                     }}>
                       {score.roundingName}
@@ -857,7 +857,7 @@ function MemberDetail() {
                             fontSize: '20px',
                             cursor: 'pointer',
                             padding: '4px 8px',
-                            color: '#666',
+                            opacity: 0.7,
                             lineHeight: '1'
                           }}
                         >
@@ -883,6 +883,7 @@ function MemberDetail() {
                                 right: 0,
                                 marginTop: '4px',
                                 background: 'var(--bg-card)',
+                                border: '2px solid var(--border-color)',
                                 borderRadius: '6px',
                                 overflow: 'hidden',
                                 zIndex: 100,
@@ -902,10 +903,9 @@ function MemberDetail() {
                                   textAlign: 'left',
                                   fontSize: '14px',
                                   cursor: 'pointer',
-                                  color: '#333',
                                   borderBottom: '1px solid var(--border-color)'
                                 }}
-                                onMouseEnter={(e) => e.target.style.background = '#f5f5f5'}
+                                onMouseEnter={(e) => e.target.style.background = 'white'}
                                 onMouseLeave={(e) => e.target.style.background = 'var(--bg-card)'}
                               >
                                 ▪ 수정
@@ -923,7 +923,7 @@ function MemberDetail() {
                                   textAlign: 'left',
                                   fontSize: '14px',
                                   cursor: 'pointer',
-                                  color: '#e53e3e'
+                                  color: 'var(--alert-red)'
                                 }}
                                 onMouseEnter={(e) => e.target.style.background = '#fff5f5'}
                                 onMouseLeave={(e) => e.target.style.background = 'var(--bg-card)'}
@@ -938,7 +938,7 @@ function MemberDetail() {
                   </div>
                   <div style={{
                     fontSize: '13px',
-                    color: '#666'
+                    opacity: 0.7
                   }}>
                     {score.courseName} · {new Date(score.date).toLocaleDateString('ko-KR')}
                   </div>
@@ -965,6 +965,7 @@ function MemberDetail() {
         }}>
           <div style={{
             background: 'var(--bg-card)',
+            border: '2px solid var(--border-color)',
             borderRadius: '12px',
             padding: '24px',
             width: '100%',
@@ -992,7 +993,7 @@ function MemberDetail() {
                   fontSize: '24px',
                   cursor: 'pointer',
                   padding: '0',
-                  color: '#999'
+                  opacity: 0.7
                 }}
               >
                 ✕
@@ -1057,7 +1058,7 @@ function InfoRow({ label, value }) {
       padding: '10px 0',
       borderBottom: '1px solid var(--border-color)'
     }}>
-      <span style={{ fontSize: '14px', color: '#666' }}>{label}</span>
+      <span style={{ fontSize: '14px', opacity: 0.7 }}>{label}</span>
       <span style={{ fontSize: '14px', fontWeight: '600' }}>{value}</span>
     </div>
   );
