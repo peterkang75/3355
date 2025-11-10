@@ -155,6 +155,35 @@ function MemberScoreEntry() {
     return { gradeA, gradeB, gradeC };
   };
 
+  const handleDeleteAllScores = async () => {
+    if (!window.confirm('정말 모든 스코어를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+      return;
+    }
+
+    setSaving(true);
+    
+    try {
+      await apiService.deleteBookingScores(booking.date, booking.courseName);
+      
+      alert('모든 스코어가 삭제되었습니다.');
+      
+      setLeaderboard(null);
+      
+      const initialScores = {};
+      participants.forEach(p => {
+        initialScores[p.phone] = '';
+      });
+      setScores(initialScores);
+      
+      window.location.reload();
+    } catch (error) {
+      console.error('스코어 삭제 실패:', error);
+      alert('스코어 삭제에 실패했습니다.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const handleSaveScores = async () => {
     setSaving(true);
     
@@ -613,18 +642,30 @@ function MemberScoreEntry() {
               </div>
             )}
             
-            <button
-              onClick={() => setLeaderboard(null)}
-              className="btn-primary"
-              style={{
-                width: '100%',
-                marginTop: '20px',
-                background: '#666',
-                borderColor: '#666'
-              }}
-            >
-              📝 다시 입력하기
-            </button>
+            <div style={{ display: 'flex', gap: '12px', marginTop: '20px' }}>
+              <button
+                onClick={() => setLeaderboard(null)}
+                className="btn-primary"
+                style={{
+                  flex: 1,
+                  background: '#666',
+                  borderColor: '#666'
+                }}
+              >
+                📝 다시 입력하기
+              </button>
+              <button
+                onClick={handleDeleteAllScores}
+                className="btn-primary"
+                style={{
+                  flex: 1,
+                  background: '#e53e3e',
+                  borderColor: '#e53e3e'
+                }}
+              >
+                🗑️ 결과 모두 지우기
+              </button>
+            </div>
           </div>
         )}
       </div>
