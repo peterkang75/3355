@@ -90,8 +90,13 @@ function TeamFormation() {
   const getParticipantDisplayName = (participant) => {
     if (!participant) return '';
     const member = members.find(m => m.phone === participant.phone);
-    if (member && member.nickname) return member.nickname;
-    return participant.nickname || participant.name;
+    const nickname = (member && member.nickname) ? member.nickname : (participant.nickname || participant.name);
+    
+    if (booking?.type === '컴페티션' && member?.clubMemberNumber) {
+      return `${nickname} (${member.clubMemberNumber})`;
+    }
+    
+    return nickname;
   };
 
   const handleSlotClick = (teamIndex, slotIndex, currentMember) => {
