@@ -674,6 +674,42 @@ function Booking() {
                   </button>
                 )}
               </>
+            ) : booking.courseName === '스트라스필드 골프클럽' && user.isAdmin ? (
+              <>
+                <button
+                  onClick={() => handleJoinBooking(booking.id)}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: isJoined ? 'var(--bg-card)' : 'var(--primary-green)',
+                    color: isJoined ? 'var(--primary-green)' : 'var(--text-light)',
+                    border: 'none',
+                    borderBottom: isJoined ? '2px solid var(--primary-green)' : 'none',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {isJoined ? '참가 취소' : '참가하기'}
+                </button>
+                <button
+                  onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: 'var(--primary-green)',
+                    color: 'var(--text-light)',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                >
+                  ◉ 라운딩 관리
+                </button>
+              </>
             ) : (
               <button
                 onClick={() => handleJoinBooking(booking.id)}
