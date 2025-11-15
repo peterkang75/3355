@@ -674,7 +674,7 @@ function Booking() {
                   </button>
                 )}
               </>
-            ) : booking.courseName === '스트라스필드 골프클럽' && (user.isAdmin || user.role === '운영진') ? (
+            ) : (booking.courseName === '스트라스필드 골프클럽' || booking.courseName === '스트라컴') && (user.isAdmin || user.role === '운영진') ? (
               <>
                 <button
                   onClick={() => handleJoinBooking(booking.id)}
