@@ -21,6 +21,7 @@ function Navigation({ user, onLogout }) {
         <span className="nav-icon">⛳</span>
         <span>라운딩</span>
       </NavLink>
+      {/* TODO: 다음 버전에 활성화
       <NavLink to="/score" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
         <span className="nav-icon">✎</span>
         <span>스코어</span>
@@ -29,6 +30,7 @@ function Navigation({ user, onLogout }) {
         <span className="nav-icon">$</span>
         <span>회비</span>
       </NavLink>
+      */}
       <NavLink to="/mypage" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
         <span className="nav-icon">⚲</span>
         <span>마이</span>
