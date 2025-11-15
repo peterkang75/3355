@@ -32,10 +32,16 @@ function ParticipantManagement() {
   }, [bookingId, bookings]);
 
   useEffect(() => {
-    if (members.length > 0) {
-      setAvailableMembers(members);
+    if (members.length > 0 && booking) {
+      if (booking.type === '컴페티션') {
+        const clubMembers = members.filter(m => m.club === booking.courseName);
+        const nonClubMembers = members.filter(m => m.club !== booking.courseName);
+        setAvailableMembers([...clubMembers, ...nonClubMembers]);
+      } else {
+        setAvailableMembers(members);
+      }
     }
-  }, [members]);
+  }, [members, booking]);
 
   const isParticipant = (memberPhone) => {
     return participants.some(p => p.phone === memberPhone);
@@ -313,52 +319,88 @@ function ParticipantManagement() {
               </p>
             ) : (
               <div style={{ display: 'grid', gap: '8px' }}>
-                {availableMembers.map(member => {
-                  const alreadyAdded = isParticipant(member.phone);
-                  return (
-                    <button
-                      key={member.id}
-                      onClick={() => handleAddParticipant(member)}
-                      disabled={alreadyAdded}
-                      style={{
-                        padding: '16px',
-                        background: 'var(--bg-card)',
-                        border: '2px solid var(--border-color)',
-                        borderRadius: '8px',
-                        cursor: alreadyAdded ? 'not-allowed' : 'pointer',
-                        textAlign: 'left',
-                        opacity: alreadyAdded ? 0.6 : 1,
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <div>
-                        <div style={{ 
-                          fontSize: '16px', 
-                          fontWeight: '600', 
-                          marginBottom: '4px', 
-                          color: alreadyAdded ? 'var(--text-dark)' : 'var(--primary-green)' 
-                        }}>
-                          {member.nickname}
-                        </div>
-                        <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                          {member.name}
-                        </div>
+                {booking?.type === '컴페티션' && (
+                  <>
+                    {members.filter(m => m.club === booking.courseName).length > 0 && (
+                      <div style={{
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        color: 'var(--primary-green)',
+                        padding: '8px 0 4px 0',
+                        borderBottom: '2px solid var(--primary-green)'
+                      }}>
+                        {booking.courseName} 회원
                       </div>
-                      {alreadyAdded && (
-                        <span style={{
+                    )}
+                  </>
+                )}
+                {availableMembers.map((member, index) => {
+                  const alreadyAdded = isParticipant(member.phone);
+                  const isClubMember = booking?.type === '컴페티션' && member.club === booking.courseName;
+                  const prevMember = index > 0 ? availableMembers[index - 1] : null;
+                  const showDivider = booking?.type === '컴페티션' && 
+                    prevMember && 
+                    prevMember.club === booking.courseName && 
+                    member.club !== booking.courseName;
+                  
+                  return (
+                    <React.Fragment key={member.id}>
+                      {showDivider && (
+                        <div style={{
                           fontSize: '13px',
                           fontWeight: '600',
+                          color: 'var(--text-dark)',
                           opacity: 0.7,
-                          background: 'var(--border-color)',
-                          padding: '4px 12px',
-                          borderRadius: '12px'
+                          padding: '12px 0 4px 0',
+                          marginTop: '8px',
+                          borderBottom: '1px solid var(--border-color)'
                         }}>
-                          추가됨
-                        </span>
+                          비회원
+                        </div>
                       )}
-                    </button>
+                      <button
+                        onClick={() => handleAddParticipant(member)}
+                        disabled={alreadyAdded}
+                        style={{
+                          padding: '16px',
+                          background: 'var(--bg-card)',
+                          border: '2px solid var(--border-color)',
+                          borderRadius: '8px',
+                          cursor: alreadyAdded ? 'not-allowed' : 'pointer',
+                          textAlign: 'left',
+                          opacity: alreadyAdded ? 0.6 : 1,
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <div>
+                          <div style={{ 
+                            fontSize: '16px', 
+                            fontWeight: '600', 
+                            marginBottom: '4px', 
+                            color: alreadyAdded ? 'var(--text-dark)' : 'var(--primary-green)' 
+                          }}>
+                            {member.nickname}
+                          </div>
+                          <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                            {member.name}
+                          </div>
+                        </div>
+                        {alreadyAdded && (
+                          <span style={{
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            opacity: 0.7,
+                            background: 'var(--border-color)',
+                            padding: '4px 12px',
+                            borderRadius: '12px'
+                          }}>
+                            추가됨
+                          </span>
+                        )}
+                      </button>
+                    </React.Fragment>
                   );
                 })}
               </div>
