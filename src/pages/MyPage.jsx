@@ -17,8 +17,7 @@ function MyPage() {
       console.log('📋 User Name:', user.name);
       console.log('📋 User Phone:', user.phone);
       console.log('📋 User 전체:', JSON.stringify(user, null, 2));
-      const isMember = user.club || user.golflinkNumber || user.clubMemberNumber ? 'yes' : 'no';
-      setEditData({ ...user, isMember });
+      setEditData({ ...user, isMember: 'no' });
       loadScores();
     }
   }, [user]);
