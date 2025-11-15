@@ -54,7 +54,7 @@ function Booking() {
       : newBooking.title;
     
     const finalCourseName = bookingType === '스트라컴' 
-      ? '스트라컴' 
+      ? '스트라스필드 골프클럽' 
       : newBooking.courseName;
 
     const booking = {
