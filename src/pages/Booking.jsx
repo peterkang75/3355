@@ -743,7 +743,7 @@ function Booking() {
           >
             {booking.dailyHandicaps ? '▲ 결과보기' : '⛳ 플레이하기'}
           </button>
-          {user.isAdmin && isRegistrationClosed(booking) && (
+          {user.isAdmin && (
             <button
               onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
               style={{
