@@ -226,43 +226,50 @@ function ParticipantManagement() {
             </p>
           ) : (
             <div style={{ display: 'grid', gap: '8px' }}>
-              {participants.map((participant, index) => (
-                <div
-                  key={index}
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    padding: '16px',
-                    borderRadius: '8px',
-                    border: '2px solid var(--border-color)'
-                  }}
-                >
-                  <div>
-                    <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '4px' }}>
-                      {participant.nickname}
-                    </div>
-                    <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                      {participant.name}
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => handleRemoveParticipant(participant.phone)}
+              {participants.map((participant, index) => {
+                const memberInfo = members.find(m => m.phone === participant.phone);
+                const handicapText = booking?.type === '컴페티션' && memberInfo ? 
+                  (memberInfo.gaHandy ? ` (GA: ${memberInfo.gaHandy})` : 
+                   memberInfo.houseHandy ? ` (HH: ${memberInfo.houseHandy})` : '') : '';
+                
+                return (
+                  <div
+                    key={index}
                     style={{
-                      padding: '6px 12px',
-                      background: 'var(--alert-red)',
-                      color: 'var(--text-light)',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '13px',
-                      fontWeight: '600',
-                      cursor: 'pointer'
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '16px',
+                      borderRadius: '8px',
+                      border: '2px solid var(--border-color)'
                     }}
                   >
-                    삭제
-                  </button>
-                </div>
-              ))}
+                    <div>
+                      <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '4px' }}>
+                        {participant.nickname}{handicapText}
+                      </div>
+                      <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                        {participant.name}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleRemoveParticipant(participant.phone)}
+                      style={{
+                        padding: '6px 12px',
+                        background: 'var(--alert-red)',
+                        color: 'var(--text-light)',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      삭제
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
