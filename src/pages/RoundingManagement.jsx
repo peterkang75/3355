@@ -1,22 +1,81 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
+import apiService from '../services/api';
 
 function RoundingManagement() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const bookingId = searchParams.get('id');
-  const { user, bookings } = useApp();
+  const { user, bookings, refreshBookings } = useApp();
   const [booking, setBooking] = useState(null);
+  const [showMenu, setShowMenu] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState(null);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
       const foundBooking = bookings.find(b => b.id === bookingId);
       setBooking(foundBooking);
+      if (foundBooking && !editData) {
+        setEditData({
+          title: foundBooking.title || '',
+          courseName: foundBooking.courseName,
+          date: foundBooking.date,
+          time: foundBooking.time,
+          gatheringTime: foundBooking.gatheringTime || '',
+          greenFee: foundBooking.greenFee || '',
+          cartFee: foundBooking.cartFee || '',
+          membershipFee: foundBooking.membershipFee || '',
+          registrationDeadline: foundBooking.registrationDeadline || '',
+          restaurantName: foundBooking.restaurantName || '',
+          restaurantAddress: foundBooking.restaurantAddress || ''
+        });
+      }
     }
   }, [bookingId, bookings]);
 
   const hasAdminAccess = user?.role === '관리자' || user?.role === '방장' || user?.role === '운영진' || user?.role === '클럽운영진' || user?.isAdmin;
+
+  const handleDeleteBooking = async () => {
+    if (!confirm('정말로 이 라운딩을 삭제하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      await apiService.deleteBooking(bookingId);
+      alert('라운딩이 삭제되었습니다.');
+      navigate('/booking');
+    } catch (error) {
+      console.error('라운딩 삭제 실패:', error);
+      alert('라운딩 삭제에 실패했습니다.');
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editData.courseName || !editData.date || !editData.time) {
+      alert('골프장, 날짜, 시간을 입력해주세요.');
+      return;
+    }
+
+    try {
+      const updatedData = {
+        ...editData,
+        greenFee: parseInt(editData.greenFee) || null,
+        cartFee: parseInt(editData.cartFee) || null,
+        membershipFee: parseInt(editData.membershipFee) || null
+      };
+
+      await apiService.updateBooking(bookingId, updatedData);
+      await refreshBookings();
+      setIsEditing(false);
+      setShowMenu(false);
+      alert('라운딩이 수정되었습니다.');
+    } catch (error) {
+      console.error('라운딩 수정 실패:', error);
+      alert('라운딩 수정에 실패했습니다.');
+    }
+  };
   
   if (!hasAdminAccess) {
     return (
@@ -66,21 +125,217 @@ function RoundingManagement() {
           <div style={{ 
             padding: '16px',
             borderRadius: '8px',
-            marginBottom: '16px'
+            marginBottom: '16px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start'
           }}>
-            {booking.title && (
-              <div style={{ fontSize: '13px', color: 'var(--primary-green)', fontWeight: '600', marginBottom: '4px' }}>
-                {booking.title}
+            <div style={{ flex: 1 }}>
+              {booking.title && (
+                <div style={{ 
+                  fontSize: '14px', 
+                  fontWeight: '700',
+                  color: booking.type === '컴페티션' ? 'white' : '#333',
+                  background: booking.type === '컴페티션' ? '#1a3d47' : '#ff8c42',
+                  padding: '6px 10px',
+                  borderRadius: '6px',
+                  marginBottom: '8px',
+                  display: 'inline-block'
+                }}>
+                  {booking.title}
+                </div>
+              )}
+              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
+                {booking.courseName}
+              </h3>
+              <div style={{ fontSize: '14px' }}>
+                {new Date(booking.date).toLocaleDateString('ko-KR')} • {booking.time}
               </div>
-            )}
-            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
-              {booking.courseName}
-            </h3>
-            <div style={{ fontSize: '14px' }}>
-              {new Date(booking.date).toLocaleDateString('ko-KR')} • {booking.time}
+            </div>
+            
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={() => setShowMenu(!showMenu)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  padding: '4px 8px',
+                  opacity: 0.7
+                }}
+              >
+                ⋮
+              </button>
+              {showMenu && (
+                <div style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  background: 'var(--bg-card)',
+                  borderRadius: '8px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                  zIndex: 10,
+                  minWidth: '140px'
+                }}>
+                  <button
+                    onClick={() => {
+                      setIsEditing(true);
+                      setShowMenu(false);
+                    }}
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '12px 16px',
+                      textAlign: 'left',
+                      background: 'transparent',
+                      border: 'none',
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      borderBottom: '1px solid var(--border-color)'
+                    }}
+                  >
+                    ✏️ 라운딩 수정
+                  </button>
+                  <button
+                    onClick={handleDeleteBooking}
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '12px 16px',
+                      textAlign: 'left',
+                      background: 'transparent',
+                      border: 'none',
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      color: 'var(--alert-red)'
+                    }}
+                  >
+                    🗑️ 라운딩 삭제
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
+
+        {isEditing && (
+          <div className="card" style={{ marginBottom: '16px' }}>
+            <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px', color: 'var(--primary-green)' }}>
+              라운딩 수정
+            </h3>
+            
+            <input
+              className="input-field"
+              type="text"
+              placeholder="라운딩 이름 (선택)"
+              value={editData.title}
+              onChange={(e) => setEditData({ ...editData, title: e.target.value })}
+              style={{ marginBottom: '16px' }}
+            />
+
+            <input
+              className="input-field"
+              type="text"
+              placeholder="골프장"
+              value={editData.courseName}
+              onChange={(e) => setEditData({ ...editData, courseName: e.target.value })}
+              style={{ marginBottom: '16px' }}
+            />
+
+            <input
+              className="input-field"
+              type="date"
+              value={editData.date}
+              onChange={(e) => setEditData({ ...editData, date: e.target.value })}
+              style={{ marginBottom: '16px' }}
+            />
+
+            <input
+              className="input-field"
+              type="time"
+              value={editData.time}
+              onChange={(e) => setEditData({ ...editData, time: e.target.value })}
+              style={{ marginBottom: '16px' }}
+            />
+
+            <input
+              className="input-field"
+              type="time"
+              placeholder="집결시간 (선택)"
+              value={editData.gatheringTime}
+              onChange={(e) => setEditData({ ...editData, gatheringTime: e.target.value })}
+              style={{ marginBottom: '16px' }}
+            />
+
+            <input
+              className="input-field"
+              type="number"
+              placeholder="그린피"
+              value={editData.greenFee}
+              onChange={(e) => setEditData({ ...editData, greenFee: e.target.value })}
+              style={{ marginBottom: '16px' }}
+            />
+
+            <input
+              className="input-field"
+              type="number"
+              placeholder="카트비"
+              value={editData.cartFee}
+              onChange={(e) => setEditData({ ...editData, cartFee: e.target.value })}
+              style={{ marginBottom: '16px' }}
+            />
+
+            <input
+              className="input-field"
+              type="number"
+              placeholder="회원권비"
+              value={editData.membershipFee}
+              onChange={(e) => setEditData({ ...editData, membershipFee: e.target.value })}
+              style={{ marginBottom: '16px' }}
+            />
+
+            <input
+              className="input-field"
+              type="date"
+              placeholder="접수 마감일"
+              value={editData.registrationDeadline}
+              onChange={(e) => setEditData({ ...editData, registrationDeadline: e.target.value })}
+              style={{ marginBottom: '16px' }}
+            />
+
+            <input
+              className="input-field"
+              type="text"
+              placeholder="회식장소 (선택)"
+              value={editData.restaurantName}
+              onChange={(e) => setEditData({ ...editData, restaurantName: e.target.value })}
+              style={{ marginBottom: '16px' }}
+            />
+
+            <input
+              className="input-field"
+              type="text"
+              placeholder="회식장소 주소"
+              value={editData.restaurantAddress}
+              onChange={(e) => setEditData({ ...editData, restaurantAddress: e.target.value })}
+              style={{ marginBottom: '16px' }}
+            />
+
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button onClick={handleSaveEdit} className="btn-primary" style={{ flex: 1 }}>
+                ✓ 저장
+              </button>
+              <button 
+                onClick={() => setIsEditing(false)} 
+                className="btn-secondary" 
+                style={{ flex: 1 }}
+              >
+                취소
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="card">
           <h3 style={{ 
