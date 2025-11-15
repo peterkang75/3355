@@ -693,7 +693,7 @@ function Booking() {
                     opacity: isJoined ? 0.6 : 1
                   }}
                 >
-                  참가하기
+                  {isJoined ? '참가중' : '참가하기'}
                 </button>
                 <button
                   onClick={isJoined ? () => handleJoinBooking(booking.id) : null}
@@ -746,7 +746,7 @@ function Booking() {
                     opacity: isJoined ? 0.6 : 1
                   }}
                 >
-                  참가하기
+                  {isJoined ? '참가중' : '참가하기'}
                 </button>
                 <button
                   onClick={isJoined ? () => handleJoinBooking(booking.id) : null}
