@@ -17,7 +17,8 @@ function MyPage() {
       console.log('📋 User Name:', user.name);
       console.log('📋 User Phone:', user.phone);
       console.log('📋 User 전체:', JSON.stringify(user, null, 2));
-      setEditData(user);
+      const isMember = user.club || user.golflinkNumber || user.clubMemberNumber ? 'yes' : 'no';
+      setEditData({ ...user, isMember });
       loadScores();
     }
   }, [user]);
@@ -313,9 +314,14 @@ function MyPage() {
                 <InfoRow label="성별" value={user.gender || '-'} />
                 <InfoRow label="출생연도" value={user.birthYear || '-'} />
                 <InfoRow label="지역" value={user.region || '-'} />
-                <InfoRow label="클럽" value={user.club || '-'} />
-                <InfoRow label="Golflink 번호" value={user.golflinkNumber || '-'} />
-                <InfoRow label="클럽 회원번호" value={user.clubMemberNumber || '-'} />
+                {(user.club || user.golflinkNumber || user.clubMemberNumber) && (
+                  <>
+                    <InfoRow label="클럽" value={user.club || '-'} />
+                    <InfoRow label="GA Handy" value={user.handicap || '-'} />
+                    <InfoRow label="Golflink 번호" value={user.golflinkNumber || '-'} />
+                    <InfoRow label="클럽 회원번호" value={user.clubMemberNumber || '-'} />
+                  </>
+                )}
               </div>
             </div>
 
@@ -422,40 +428,79 @@ function MyPage() {
               onChange={(e) => setEditData({ ...editData, region: e.target.value })}
               style={{ marginBottom: '12px' }}
             />
-            <select
-              value={editData.club || ''}
-              onChange={(e) => setEditData({ ...editData, club: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            >
-              <option value="">소속 클럽 선택</option>
-              {courses.map(course => (
-                <option key={course.id} value={course.name}>
-                  {course.name}
-                </option>
-              ))}
-            </select>
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="핸디캡"
-              value={editData.handicap || ''}
-              onChange={(e) => setEditData({ ...editData, handicap: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
-            <input
-              type="text"
-              placeholder="Golflink 번호"
-              value={editData.golflinkNumber || ''}
-              onChange={(e) => setEditData({ ...editData, golflinkNumber: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
-            <input
-              type="text"
-              placeholder="클럽 회원번호"
-              value={editData.clubMemberNumber || ''}
-              onChange={(e) => setEditData({ ...editData, clubMemberNumber: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
+            
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                클럽 멤버십니까?
+              </label>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <input
+                    type="radio"
+                    name="isMember"
+                    value="yes"
+                    checked={editData.isMember === 'yes'}
+                    onChange={(e) => setEditData({ ...editData, isMember: e.target.value })}
+                  />
+                  <span>예</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <input
+                    type="radio"
+                    name="isMember"
+                    value="no"
+                    checked={editData.isMember === 'no'}
+                    onChange={(e) => setEditData({ 
+                      ...editData, 
+                      isMember: e.target.value,
+                      club: '',
+                      golflinkNumber: '',
+                      clubMemberNumber: ''
+                    })}
+                  />
+                  <span>아니오</span>
+                </label>
+              </div>
+            </div>
+
+            {editData.isMember === 'yes' && (
+              <>
+                <select
+                  value={editData.club || ''}
+                  onChange={(e) => setEditData({ ...editData, club: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                >
+                  <option value="">소속 클럽 선택</option>
+                  {courses.map(course => (
+                    <option key={course.id} value={course.name}>
+                      {course.name}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="GA Handy"
+                  value={editData.handicap || ''}
+                  onChange={(e) => setEditData({ ...editData, handicap: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <input
+                  type="text"
+                  placeholder="Golflink 번호"
+                  value={editData.golflinkNumber || ''}
+                  onChange={(e) => setEditData({ ...editData, golflinkNumber: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <input
+                  type="text"
+                  placeholder="클럽 회원번호"
+                  value={editData.clubMemberNumber || ''}
+                  onChange={(e) => setEditData({ ...editData, clubMemberNumber: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+              </>
+            )}
 
             <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
               <button
