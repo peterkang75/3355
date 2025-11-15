@@ -406,13 +406,7 @@ function Booking() {
 
     if (isActive) {
       return (
-        <div key={booking.id} style={{
-          background: 'var(--bg-card)',
-          padding: '20px',
-          borderRadius: '8px',
-          marginBottom: '16px',
-          borderBottom: '1px solid var(--border-color)'
-        }}>
+        <div key={booking.id} className="card">
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
@@ -822,54 +816,49 @@ function Booking() {
           </div>
         )}
 
-        <div className="card">
-          <h3 style={{ 
-            fontSize: '18px', 
-            fontWeight: '700',
-            marginBottom: '16px',
-            color: 'var(--primary-green)'
-          }}>
-            ⛳ 현재 활성중인 라운딩
-          </h3>
-          {activeBookings.length === 0 ? (
-            <div style={{ 
-              padding: '40px',
-              textAlign: 'center',
-              opacity: 0.7,
-              background: 'var(--bg-green)',
-              borderRadius: '8px'
-            }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>⛳</div>
-              <p>예정된 라운딩이 없습니다</p>
-            </div>
-          ) : (
-            activeBookings.map(booking => renderBookingListItem(booking, true))
-          )}
-        </div>
-
-        <div className="card">
-          <h3 style={{ 
-            fontSize: '18px', 
-            fontWeight: '700',
-            marginBottom: '16px',
+        <h3 style={{ 
+          fontSize: '18px', 
+          fontWeight: '700',
+          marginBottom: '16px',
+          marginLeft: '16px',
+          color: 'var(--primary-green)'
+        }}>
+          ⛳ 현재 활성중인 라운딩
+        </h3>
+        {activeBookings.length === 0 ? (
+          <div className="card" style={{ 
+            padding: '40px',
+            textAlign: 'center',
             opacity: 0.7
           }}>
-            ✓ 완료된 라운딩
-          </h3>
-          {completedBookings.length === 0 ? (
-            <div style={{ 
-              padding: '40px',
-              textAlign: 'center',
-              opacity: 0.7,
-              background: 'var(--bg-green)',
-              borderRadius: '8px'
-            }}>
-              <p>완료된 라운딩이 없습니다</p>
-            </div>
-          ) : (
-            completedBookings.map(booking => renderBookingListItem(booking, false))
-          )}
-        </div>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>⛳</div>
+            <p>예정된 라운딩이 없습니다</p>
+          </div>
+        ) : (
+          activeBookings.map(booking => renderBookingListItem(booking, true))
+        )}
+
+        <h3 style={{ 
+          fontSize: '18px', 
+          fontWeight: '700',
+          marginBottom: '16px',
+          marginLeft: '16px',
+          marginTop: '24px',
+          opacity: 0.7
+        }}>
+          ✓ 완료된 라운딩
+        </h3>
+        {completedBookings.length === 0 ? (
+          <div className="card" style={{ 
+            padding: '40px',
+            textAlign: 'center',
+            opacity: 0.7
+          }}>
+            <p>완료된 라운딩이 없습니다</p>
+          </div>
+        ) : (
+          completedBookings.map(booking => renderBookingListItem(booking, false))
+        )}
       </div>
     </div>
   );
