@@ -1592,9 +1592,9 @@ function Admin() {
                             key={role}
                             onClick={() => handlePermissionChange(feature.id, role)}
                             style={{
-                              height: '28px',
+                              height: '18px',
                               background: isActive ? 'var(--primary-green)' : '#f0f0f0',
-                              borderRadius: '4px',
+                              borderRadius: '3px',
                               cursor: 'pointer',
                               transition: 'all 0.15s',
                               border: '1px solid var(--border-color)'
