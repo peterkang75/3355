@@ -100,6 +100,12 @@ function TeamFormation() {
   };
 
   const handleSlotClick = (teamIndex, slotIndex, currentMember) => {
+    const hasAdminAccess = user?.role === 'admin' || user?.role === 'operator' || user?.isAdmin;
+    
+    if (!hasAdminAccess) {
+      return;
+    }
+    
     if (currentMember) {
       if (confirm(`${getParticipantDisplayName(currentMember)}을(를) 미배정으로 이동하시겠습니까?`)) {
         handleRemoveParticipant(teamIndex, slotIndex);
@@ -220,18 +226,6 @@ function TeamFormation() {
   };
 
   const hasAdminAccess = user?.role === 'admin' || user?.role === 'operator' || user?.isAdmin;
-  
-  if (!hasAdminAccess) {
-    return (
-      <div className="page-content">
-        <div className="card">
-          <p style={{ textAlign: 'center', opacity: 0.7 }}>
-            관리자 또는 운영진만 접근할 수 있습니다.
-          </p>
-        </div>
-      </div>
-    );
-  }
 
   if (!booking) {
     return (
@@ -249,7 +243,7 @@ function TeamFormation() {
     <div>
       <div className="header">
         <button 
-          onClick={() => navigate(`/rounding-management?id=${bookingId}`)}
+          onClick={() => hasAdminAccess ? navigate(`/rounding-management?id=${bookingId}`) : navigate('/booking')}
           style={{
             background: 'transparent',
             border: 'none',
@@ -287,31 +281,33 @@ function TeamFormation() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-          <button
-            onClick={handleAutoAssign}
-            className="btn-outline"
-            style={{ flex: 1 }}
-          >
-            ⚡ 자동 배정
-          </button>
-          <button
-            onClick={handleSaveTeams}
-            style={{ 
-              flex: 1,
-              padding: '12px 24px',
-              background: hasUnsavedChanges ? 'var(--alert-red)' : 'var(--primary-green)',
-              color: 'var(--text-light)',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer'
-            }}
-          >
-            {hasUnsavedChanges ? '× 저장안됨' : '✓ 저장됨'}
-          </button>
-        </div>
+        {hasAdminAccess && (
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+            <button
+              onClick={handleAutoAssign}
+              className="btn-outline"
+              style={{ flex: 1 }}
+            >
+              ⚡ 자동 배정
+            </button>
+            <button
+              onClick={handleSaveTeams}
+              style={{ 
+                flex: 1,
+                padding: '12px 24px',
+                background: hasUnsavedChanges ? 'var(--alert-red)' : 'var(--primary-green)',
+                color: 'var(--text-light)',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              {hasUnsavedChanges ? '× 저장안됨' : '✓ 저장됨'}
+            </button>
+          </div>
+        )}
 
         <div className="card" style={{ marginBottom: '16px' }}>
           <h3 style={{ 
