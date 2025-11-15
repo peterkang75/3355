@@ -219,7 +219,7 @@ function MemberDetail() {
   const handicapType = handicapData?.type || (member.golflinkNumber ? 'GA' : 'HH');
   const handicapExplanation = handicapData?.explanation || '계산 대기 중';
 
-  const isAdmin = user.role === 'admin' || user.isAdmin;
+  const isAdmin = user.role === '관리자' || user.role === '방장' || user.role === '운영진' || user.role === '클럽운영진' || user.isAdmin;
 
   return (
     <div style={{ paddingBottom: '80px' }}>
@@ -353,7 +353,7 @@ function MemberDetail() {
             gap: '8px',
             marginTop: '16px'
           }}>
-            {member.role === 'admin' && (
+            {member.role === '관리자' && (
               <span style={{
                 padding: '4px 12px',
                 background: '#d4af37',
@@ -365,16 +365,40 @@ function MemberDetail() {
                 ★ 관리자
               </span>
             )}
-            {member.role === 'operator' && (
+            {member.role === '방장' && (
+              <span style={{
+                padding: '4px 12px',
+                background: 'var(--accent-gold)',
+                color: 'var(--text-light)',
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: '600'
+              }}>
+                👑 방장
+              </span>
+            )}
+            {member.role === '운영진' && (
               <span style={{
                 padding: '4px 12px',
                 background: 'var(--primary-green)',
                 color: 'var(--text-light)',
-                borderRadius: '12px',
-                fontSize: '12px',
+                borderRadius: '8px',
+                fontSize: '13px',
                 fontWeight: '600'
               }}>
-                ◆ 운영진
+                ⚙ 운영진
+              </span>
+            )}
+            {member.role === '클럽운영진' && (
+              <span style={{
+                padding: '4px 12px',
+                background: 'var(--accent-dark-olive)',
+                color: 'var(--text-light)',
+                borderRadius: '8px',
+                fontSize: '13px',
+                fontWeight: '600'
+              }}>
+                🏌 클럽운영진
               </span>
             )}
             {member.isActive === false && (
@@ -454,22 +478,21 @@ function MemberDetail() {
                   </h3>
                   
                   <div style={{ 
-                    display: 'flex', 
-                    gap: '8px',
-                    justifyContent: 'space-between'
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: '8px'
                   }}>
                     <button
-                      onClick={() => handleChangeRole('admin')}
-                      disabled={member.role === 'admin'}
+                      onClick={() => handleChangeRole('관리자')}
+                      disabled={member.role === '관리자'}
                       style={{
-                        flex: 1,
                         padding: '10px 8px',
-                        background: member.role === 'admin' ? 'var(--primary-green)' : '#f5f5f5',
-                        color: member.role === 'admin' ? 'var(--text-light)' : 'var(--text-dark)',
+                        background: member.role === '관리자' ? 'var(--primary-green)' : '#f5f5f5',
+                        color: member.role === '관리자' ? 'var(--text-light)' : 'var(--text-dark)',
                         borderRadius: '6px',
                         fontSize: '13px',
                         fontWeight: '600',
-                        cursor: member.role === 'admin' ? 'default' : 'pointer',
+                        cursor: member.role === '관리자' ? 'default' : 'pointer',
                         transition: 'all 0.2s',
                         display: 'flex',
                         flexDirection: 'column',
@@ -481,17 +504,16 @@ function MemberDetail() {
                       <span>관리자</span>
                     </button>
                     <button
-                      onClick={() => handleChangeRole('operator')}
-                      disabled={member.role === 'operator'}
+                      onClick={() => handleChangeRole('방장')}
+                      disabled={member.role === '방장'}
                       style={{
-                        flex: 1,
                         padding: '10px 8px',
-                        background: member.role === 'operator' ? 'var(--primary-green)' : '#f5f5f5',
-                        color: member.role === 'operator' ? 'var(--text-light)' : 'var(--text-dark)',
+                        background: member.role === '방장' ? 'var(--primary-green)' : '#f5f5f5',
+                        color: member.role === '방장' ? 'var(--text-light)' : 'var(--text-dark)',
                         borderRadius: '6px',
                         fontSize: '13px',
                         fontWeight: '600',
-                        cursor: member.role === 'operator' ? 'default' : 'pointer',
+                        cursor: member.role === '방장' ? 'default' : 'pointer',
                         transition: 'all 0.2s',
                         display: 'flex',
                         flexDirection: 'column',
@@ -499,21 +521,41 @@ function MemberDetail() {
                         gap: '4px'
                       }}
                     >
-                      <span style={{ fontSize: '18px' }}>◆</span>
+                      <span style={{ fontSize: '18px' }}>👑</span>
+                      <span>방장</span>
+                    </button>
+                    <button
+                      onClick={() => handleChangeRole('운영진')}
+                      disabled={member.role === '운영진'}
+                      style={{
+                        padding: '10px 8px',
+                        background: member.role === '운영진' ? 'var(--primary-green)' : '#f5f5f5',
+                        color: member.role === '운영진' ? 'var(--text-light)' : 'var(--text-dark)',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: member.role === '운영진' ? 'default' : 'pointer',
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      <span style={{ fontSize: '18px' }}>⚙</span>
                       <span>운영진</span>
                     </button>
                     <button
-                      onClick={() => handleChangeRole('member')}
-                      disabled={member.role === 'member' || !member.role}
+                      onClick={() => handleChangeRole('클럽운영진')}
+                      disabled={member.role === '클럽운영진'}
                       style={{
-                        flex: 1,
                         padding: '10px 8px',
-                        background: (member.role === 'member' || !member.role) ? 'var(--primary-green)' : '#f5f5f5',
-                        color: (member.role === 'member' || !member.role) ? 'var(--text-light)' : 'var(--text-dark)',
+                        background: member.role === '클럽운영진' ? 'var(--primary-green)' : '#f5f5f5',
+                        color: member.role === '클럽운영진' ? 'var(--text-light)' : 'var(--text-dark)',
                         borderRadius: '6px',
                         fontSize: '13px',
                         fontWeight: '600',
-                        cursor: (member.role === 'member' || !member.role) ? 'default' : 'pointer',
+                        cursor: member.role === '클럽운영진' ? 'default' : 'pointer',
                         transition: 'all 0.2s',
                         display: 'flex',
                         flexDirection: 'column',
@@ -521,8 +563,30 @@ function MemberDetail() {
                         gap: '4px'
                       }}
                     >
+                      <span style={{ fontSize: '18px' }}>🏌</span>
+                      <span>클럽<br/>운영진</span>
+                    </button>
+                    <button
+                      onClick={() => handleChangeRole('회원')}
+                      disabled={member.role === '회원' || !member.role}
+                      style={{
+                        padding: '10px 8px',
+                        background: (member.role === '회원' || !member.role) ? 'var(--primary-green)' : '#f5f5f5',
+                        color: (member.role === '회원' || !member.role) ? 'var(--text-light)' : 'var(--text-dark)',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: (member.role === '회원' || !member.role) ? 'default' : 'pointer',
+                        transition: 'all 0.2s',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '4px',
+                        gridColumn: 'span 2'
+                      }}
+                    >
                       <span style={{ fontSize: '18px' }}>●</span>
-                      <span>일반</span>
+                      <span>회원</span>
                     </button>
                   </div>
                 </div>

@@ -319,9 +319,9 @@ export function AppProvider({ children }) {
     }
   };
 
-  const isAdmin = () => user?.role === 'admin';
-  const isOperator = () => user?.role === 'operator' || user?.role === 'admin';
-  const isMember = () => user?.role === 'member';
+  const isAdmin = () => user?.role === '관리자';
+  const isOperator = () => user?.role === '운영진' || user?.role === '관리자' || user?.role === '방장' || user?.role === '클럽운영진';
+  const isMember = () => user?.role === '회원';
 
   const value = {
     user,

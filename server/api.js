@@ -100,7 +100,7 @@ router.patch('/members/:id/role', async (req, res) => {
   try {
     const { role } = req.body;
     
-    if (!['admin', 'operator', 'member'].includes(role)) {
+    if (!['관리자', '방장', '운영진', '클럽운영진', '회원'].includes(role)) {
       return res.status(400).json({ error: 'Invalid role' });
     }
     
@@ -108,7 +108,7 @@ router.patch('/members/:id/role', async (req, res) => {
       where: { id: req.params.id },
       data: { 
         role,
-        isAdmin: role === 'admin'
+        isAdmin: role === '관리자'
       }
     });
     

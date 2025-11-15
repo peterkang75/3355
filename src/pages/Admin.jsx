@@ -82,7 +82,7 @@ function Admin() {
       
       features.forEach(feature => {
         if (!permissionsObj[feature.id]) {
-          permissionsObj[feature.id] = 'admin';
+          permissionsObj[feature.id] = '관리자';
         }
       });
       
@@ -200,9 +200,11 @@ function Admin() {
       setShowPermissionMenu(null);
       
       const roleNames = {
-        admin: '관리자',
-        operator: '운영진',
-        member: '일반 회원'
+        '관리자': '관리자',
+        '방장': '방장',
+        '운영진': '운영진',
+        '클럽운영진': '클럽운영진',
+        '회원': '회원'
       };
       
       alert(`권한이 "${roleNames[newRole]}"(으)로 변경되었습니다.`);
@@ -474,7 +476,7 @@ function Admin() {
     }
   };
 
-  const hasAdminAccess = user.role === 'admin' || user.role === 'operator' || user.isAdmin;
+  const hasAdminAccess = user.role === '관리자' || user.role === '방장' || user.role === '운영진' || user.role === '클럽운영진' || user.isAdmin;
   
   if (!hasAdminAccess) {
     return (
@@ -741,8 +743,10 @@ function Admin() {
                         gap: '6px'
                       }}>
                         <span style={{ color: 'var(--primary-green)' }}>{member.nickname || member.name}</span>
-                        {member.role === 'admin' && <span style={{ fontSize: '14px' }}>★</span>}
-                        {member.role === 'operator' && <span style={{ fontSize: '14px' }}>⚙</span>}
+                        {member.role === '관리자' && <span style={{ fontSize: '14px' }}>★</span>}
+                        {member.role === '방장' && <span style={{ fontSize: '14px' }}>👑</span>}
+                        {member.role === '운영진' && <span style={{ fontSize: '14px' }}>⚙</span>}
+                        {member.role === '클럽운영진' && <span style={{ fontSize: '14px' }}>🏌</span>}
                       </div>
                       <div style={{ fontSize: '13px', color: 'var(--text-dark)', opacity: 0.7 }}>
                         {member.name}
@@ -1523,11 +1527,35 @@ function Admin() {
                 padding: '10px 12px',
                 background: 'var(--bg-green)',
                 borderRadius: '6px',
-                marginBottom: '16px',
+                marginBottom: '12px',
                 fontSize: '12px',
                 color: 'var(--text-dark)', opacity: 0.7
               }}>
-                • 각 기능의 최소 권한을 설정하세요
+                • 각 기능의 최소 권한을 설정하세요<br/>
+                • 클럽운영진은 자신의 클럽 컴페티션만 관리할 수 있습니다
+              </div>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '1fr auto',
+                gap: '8px',
+                padding: '8px 12px',
+                background: 'var(--bg-card)',
+                borderRadius: '6px',
+                marginBottom: '8px',
+                fontSize: '12px',
+                fontWeight: '600',
+                color: 'var(--primary-green)',
+                borderBottom: '2px solid var(--primary-green)'
+              }}>
+                <div>기능</div>
+                <div style={{ display: 'flex', gap: '4px' }}>
+                  <span style={{ width: '36px', textAlign: 'center' }} title="관리자">★</span>
+                  <span style={{ width: '36px', textAlign: 'center' }} title="방장">👑</span>
+                  <span style={{ width: '36px', textAlign: 'center' }} title="운영진">⚙</span>
+                  <span style={{ width: '36px', textAlign: 'center' }} title="클럽운영진">🏌</span>
+                  <span style={{ width: '36px', textAlign: 'center' }} title="회원">●</span>
+                </div>
               </div>
 
               <div style={{ display: 'grid', gap: '8px' }}>
@@ -1554,12 +1582,14 @@ function Admin() {
                       {feature.name}
                     </div>
                     
-                    <div style={{ display: 'flex', gap: '4px' }}>
-                      {['admin', 'operator', 'member'].map(role => {
+                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                      {['관리자', '방장', '운영진', '클럽운영진', '회원'].map(role => {
                         const roleLabels = {
-                          admin: '★',
-                          operator: '⚙',
-                          member: '•'
+                          '관리자': '★',
+                          '방장': '👑',
+                          '운영진': '⚙',
+                          '클럽운영진': '🏌',
+                          '회원': '•'
                         };
                         const isSelected = permissions[feature.id] === role;
                         
@@ -1567,7 +1597,7 @@ function Admin() {
                           <button
                             key={role}
                             onClick={() => handlePermissionChange(feature.id, role)}
-                            title={role === 'admin' ? '관리자' : role === 'operator' ? '운영진' : '일반 회원'}
+                            title={role}
                             style={{
                               padding: '6px 10px',
                               background: isSelected ? 'var(--primary-green)' : 'var(--bg-card)',

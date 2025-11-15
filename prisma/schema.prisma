@@ -18,10 +18,12 @@ model Member {
   isClubMember     String?
   club             String?
   handicap         String?
+  gaHandy          String?
+  houseHandy       String?
   golflinkNumber   String?
   clubMemberNumber String?
   isAdmin          Boolean  @default(false)
-  role             String   @default("member")
+  role             String   @default("회원")
   balance          Int      @default(0)
   photo            String?
   isActive         Boolean  @default(true)
@@ -122,7 +124,8 @@ model Course {
 model AppSettings {
   id        String   @id @default(cuid())
   feature   String   @unique
-  minRole   String   @default("admin")
+  minRole   String   @default("관리자")
+  enabled   Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

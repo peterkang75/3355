@@ -16,7 +16,7 @@ function RoundingManagement() {
     }
   }, [bookingId, bookings]);
 
-  const hasAdminAccess = user?.role === 'admin' || user?.role === 'operator' || user?.isAdmin;
+  const hasAdminAccess = user?.role === '관리자' || user?.role === '방장' || user?.role === '운영진' || user?.role === '클럽운영진' || user?.isAdmin;
   
   if (!hasAdminAccess) {
     return (

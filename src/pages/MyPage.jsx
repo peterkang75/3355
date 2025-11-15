@@ -255,7 +255,7 @@ function MyPage() {
             gap: '8px',
             marginTop: '16px'
           }}>
-            {user.role === 'admin' && (
+            {user.role === '관리자' && (
               <span style={{
                 padding: '4px 12px',
                 background: '#d4af37',
@@ -267,7 +267,19 @@ function MyPage() {
                 ★ 관리자
               </span>
             )}
-            {user.role === 'operator' && (
+            {user.role === '방장' && (
+              <span style={{
+                padding: '4px 12px',
+                background: 'var(--accent-gold)',
+                color: 'var(--text-light)',
+                borderRadius: '12px',
+                fontSize: '12px',
+                fontWeight: '600'
+              }}>
+                👑 방장
+              </span>
+            )}
+            {user.role === '운영진' && (
               <span style={{
                 padding: '4px 12px',
                 background: 'var(--primary-green)',
@@ -277,6 +289,18 @@ function MyPage() {
                 fontWeight: '600'
               }}>
                 ⚙ 운영진
+              </span>
+            )}
+            {user.role === '클럽운영진' && (
+              <span style={{
+                padding: '4px 12px',
+                background: 'var(--accent-dark-olive)',
+                color: 'var(--text-light)',
+                borderRadius: '12px',
+                fontSize: '12px',
+                fontWeight: '600'
+              }}>
+                🏌 클럽운영진
               </span>
             )}
           </div>
