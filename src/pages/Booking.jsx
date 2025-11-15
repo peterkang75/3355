@@ -444,11 +444,11 @@ function Booking() {
             <div style={{ flex: 1 }}>
               {booking.title && (
                 <h3 style={{ 
-                  fontSize: '18px', 
+                  fontSize: '14px', 
                   fontWeight: '700', 
                   color: booking.type === '컴페티션' ? 'white' : '#333', 
                   background: booking.type === '컴페티션' ? '#1a3d47' : '#ff8c42',
-                  padding: '8px 12px',
+                  padding: '6px 10px',
                   borderRadius: '6px',
                   marginBottom: '8px',
                   display: 'inline-block'
