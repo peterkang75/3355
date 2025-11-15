@@ -9,6 +9,7 @@ function Booking() {
   const [showNewBooking, setShowNewBooking] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
+  const [bookingType, setBookingType] = useState('정기모임');
   const [newBooking, setNewBooking] = useState({
     title: '',
     courseName: '',
@@ -36,13 +37,30 @@ function Booking() {
   };
 
   const handleCreateBooking = () => {
-    if (!newBooking.courseName || !newBooking.date || !newBooking.time) {
-      alert('골프장, 날짜, 시간을 입력해주세요.');
-      return;
+    if (bookingType === '정기모임') {
+      if (!newBooking.courseName || !newBooking.date || !newBooking.time) {
+        alert('골프장, 날짜, 시간을 입력해주세요.');
+        return;
+      }
+    } else {
+      if (!newBooking.date) {
+        alert('날짜를 입력해주세요.');
+        return;
+      }
     }
+
+    const finalTitle = bookingType === '스트라컴' 
+      ? `스트라컴[${newBooking.date}]`
+      : newBooking.title;
+    
+    const finalCourseName = bookingType === '스트라컴' 
+      ? '스트라컴' 
+      : newBooking.courseName;
 
     const booking = {
       ...newBooking,
+      title: finalTitle,
+      courseName: finalCourseName,
       organizerId: user.id,
       greenFee: parseInt(newBooking.greenFee) || null,
       cartFee: parseInt(newBooking.cartFee) || null,
@@ -64,6 +82,7 @@ function Booking() {
       restaurantName: '',
       restaurantAddress: ''
     });
+    setBookingType('정기모임');
     setShowNewBooking(false);
   };
 
@@ -191,139 +210,194 @@ function Booking() {
   const activeBookings = bookings.filter(b => isBookingActive(b)).sort((a, b) => new Date(a.date) - new Date(b.date));
   const completedBookings = bookings.filter(b => !isBookingActive(b)).sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  const renderBookingForm = (data, setData, onSubmit, submitText) => (
-    <>
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
-        라운딩 이름
-      </label>
-      <input
-        type="text"
-        placeholder="라운딩 이름 (예: 1월 정기 라운딩)"
-        value={data.title}
-        onChange={(e) => setData({ ...data, title: e.target.value })}
-        style={{ marginBottom: '12px' }}
-      />
+  const renderBookingForm = (data, setData, onSubmit, submitText, isNewBooking = false) => {
+    const isStrikeCom = isNewBooking && bookingType === '스트라컴';
+    
+    return (
+      <>
+        {isNewBooking && (
+          <>
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
+              라운딩 종류 *
+            </label>
+            <select
+              value={bookingType}
+              onChange={(e) => setBookingType(e.target.value)}
+              style={{ marginBottom: '16px' }}
+            >
+              <option value="정기모임">정기모임</option>
+              <option value="스트라컴">스트라컴</option>
+            </select>
+          </>
+        )}
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
-        골프장 *
-      </label>
-      <select
-        value={data.courseName}
-        onChange={(e) => setData({ ...data, courseName: e.target.value })}
-        style={{ marginBottom: '12px' }}
-      >
-        <option value="">골프장 선택</option>
-        {courses.map(course => (
-          <option key={course.id} value={course.name}>
-            {course.name}
-          </option>
-        ))}
-      </select>
+        {isStrikeCom && (
+          <div style={{ 
+            marginBottom: '16px', 
+            padding: '12px', 
+            background: 'var(--bg-green)', 
+            borderRadius: '6px',
+            fontSize: '14px',
+            color: 'var(--text-gray)'
+          }}>
+            라운딩 이름: <strong>스트라컴[{data.date || '날짜 선택'}]</strong>
+          </div>
+        )}
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
-        라운딩 날짜 *
-      </label>
-      <input
-        type="date"
-        value={data.date}
-        onChange={(e) => setData({ ...data, date: e.target.value })}
-        style={{ marginBottom: '12px' }}
-      />
+        {isStrikeCom && (
+          <>
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
+              라운딩 날짜 *
+            </label>
+            <input
+              type="date"
+              value={data.date}
+              onChange={(e) => setData({ ...data, date: e.target.value })}
+              style={{ marginBottom: '12px' }}
+            />
+          </>
+        )}
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
-        라운딩 시간 *
-      </label>
-      <input
-        type="time"
-        value={data.time}
-        onChange={(e) => setData({ ...data, time: e.target.value })}
-        style={{ marginBottom: '12px' }}
-      />
+        {!isStrikeCom && (
+          <>
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
+              라운딩 이름
+            </label>
+            <input
+              type="text"
+              placeholder="라운딩 이름 (예: 1월 정기 라운딩)"
+              value={data.title}
+              onChange={(e) => setData({ ...data, title: e.target.value })}
+              style={{ marginBottom: '12px' }}
+            />
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
-        집결시간
-      </label>
-      <input
-        type="time"
-        placeholder="집결시간"
-        value={data.gatheringTime}
-        onChange={(e) => setData({ ...data, gatheringTime: e.target.value })}
-        style={{ marginBottom: '12px' }}
-      />
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
+              골프장 *
+            </label>
+            <select
+              value={data.courseName}
+              onChange={(e) => setData({ ...data, courseName: e.target.value })}
+              style={{ marginBottom: '12px' }}
+            >
+              <option value="">골프장 선택</option>
+              {courses.map(course => (
+                <option key={course.id} value={course.name}>
+                  {course.name}
+                </option>
+              ))}
+            </select>
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
-        그린피
-      </label>
-      <input
-        type="number"
-        inputMode="numeric"
-        placeholder="그린피 금액 ($)"
-        value={data.greenFee}
-        onChange={(e) => setData({ ...data, greenFee: e.target.value })}
-        style={{ marginBottom: '12px' }}
-      />
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
+              라운딩 날짜 *
+            </label>
+            <input
+              type="date"
+              value={data.date}
+              onChange={(e) => setData({ ...data, date: e.target.value })}
+              style={{ marginBottom: '12px' }}
+            />
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
-        카트비
-      </label>
-      <input
-        type="number"
-        inputMode="numeric"
-        placeholder="카트비 금액 ($)"
-        value={data.cartFee}
-        onChange={(e) => setData({ ...data, cartFee: e.target.value })}
-        style={{ marginBottom: '12px' }}
-      />
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
+              라운딩 시간 *
+            </label>
+            <input
+              type="time"
+              value={data.time}
+              onChange={(e) => setData({ ...data, time: e.target.value })}
+              style={{ marginBottom: '12px' }}
+            />
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
-        회비
-      </label>
-      <input
-        type="number"
-        inputMode="numeric"
-        placeholder="회비 금액 ($)"
-        value={data.membershipFee}
-        onChange={(e) => setData({ ...data, membershipFee: e.target.value })}
-        style={{ marginBottom: '12px' }}
-      />
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
+              집결시간
+            </label>
+            <input
+              type="time"
+              placeholder="집결시간"
+              value={data.gatheringTime}
+              onChange={(e) => setData({ ...data, gatheringTime: e.target.value })}
+              style={{ marginBottom: '12px' }}
+            />
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
-        접수 마감날짜
-      </label>
-      <input
-        type="date"
-        value={data.registrationDeadline}
-        onChange={(e) => setData({ ...data, registrationDeadline: e.target.value })}
-        style={{ marginBottom: '12px' }}
-      />
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
+              그린피
+            </label>
+            <input
+              type="number"
+              inputMode="numeric"
+              placeholder="그린피 금액 ($)"
+              value={data.greenFee}
+              onChange={(e) => setData({ ...data, greenFee: e.target.value })}
+              style={{ marginBottom: '12px' }}
+            />
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
-        회식장소
-      </label>
-      <input
-        type="text"
-        placeholder="회식장소 이름"
-        value={data.restaurantName}
-        onChange={(e) => setData({ ...data, restaurantName: e.target.value })}
-        style={{ marginBottom: '12px' }}
-      />
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
+              카트비
+            </label>
+            <input
+              type="number"
+              inputMode="numeric"
+              placeholder="카트비 금액 ($)"
+              value={data.cartFee}
+              onChange={(e) => setData({ ...data, cartFee: e.target.value })}
+              style={{ marginBottom: '12px' }}
+            />
 
-      <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
-        회식 주소
-      </label>
-      <input
-        type="text"
-        placeholder="회식장소 주소"
-        value={data.restaurantAddress}
-        onChange={(e) => setData({ ...data, restaurantAddress: e.target.value })}
-        style={{ marginBottom: '16px' }}
-      />
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
+              회비
+            </label>
+            <input
+              type="number"
+              inputMode="numeric"
+              placeholder="회비 금액 ($)"
+              value={data.membershipFee}
+              onChange={(e) => setData({ ...data, membershipFee: e.target.value })}
+              style={{ marginBottom: '12px' }}
+            />
+          </>
+        )}
 
-      <button onClick={onSubmit} className="btn-primary">
-        {submitText}
-      </button>
-    </>
-  );
+        <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
+          접수 마감날짜
+        </label>
+        <input
+          type="date"
+          value={data.registrationDeadline}
+          onChange={(e) => setData({ ...data, registrationDeadline: e.target.value })}
+          style={{ marginBottom: '12px' }}
+        />
+
+        {!isStrikeCom && (
+          <>
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
+              회식장소
+            </label>
+            <input
+              type="text"
+              placeholder="회식장소 이름"
+              value={data.restaurantName}
+              onChange={(e) => setData({ ...data, restaurantName: e.target.value })}
+              style={{ marginBottom: '12px' }}
+            />
+
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
+              회식 주소
+            </label>
+            <input
+              type="text"
+              placeholder="회식장소 주소"
+              value={data.restaurantAddress}
+              onChange={(e) => setData({ ...data, restaurantAddress: e.target.value })}
+              style={{ marginBottom: '16px' }}
+            />
+          </>
+        )}
+
+        <button onClick={onSubmit} className="btn-primary">
+          {submitText}
+        </button>
+      </>
+    );
+  };
 
   const renderBookingListItem = (booking, isActive) => {
     const participants = parseParticipants(booking.participants);
@@ -725,7 +799,7 @@ function Booking() {
             <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
               새 라운딩 만들기
             </h3>
-            {renderBookingForm(newBooking, setNewBooking, handleCreateBooking, '라운딩 생성')}
+            {renderBookingForm(newBooking, setNewBooking, handleCreateBooking, '라운딩 생성', true)}
           </div>
         )}
 
@@ -734,7 +808,7 @@ function Booking() {
             <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
               ✎ 라운딩 정보 수정
             </h3>
-            {renderBookingForm(editBookingData, setEditBookingData, handleSaveBooking, '수정 완료')}
+            {renderBookingForm(editBookingData, setEditBookingData, handleSaveBooking, '수정 완료', false)}
             <button 
               onClick={() => {
                 setEditingBooking(null);
