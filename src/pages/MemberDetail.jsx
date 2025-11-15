@@ -676,13 +676,18 @@ function MemberDetail() {
               }}
               style={{ marginBottom: '12px' }}
             />
-            <input
-              type="text"
-              placeholder="클럽"
+            <select
               value={editData.club || ''}
               onChange={(e) => setEditData({ ...editData, club: e.target.value })}
               style={{ marginBottom: '12px' }}
-            />
+            >
+              <option value="">소속 클럽 선택</option>
+              {courses.map(course => (
+                <option key={course.id} value={course.name}>
+                  {course.name}
+                </option>
+              ))}
+            </select>
             <input
               type="number"
               inputMode="numeric"
