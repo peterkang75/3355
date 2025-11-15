@@ -120,8 +120,16 @@ function Dashboard() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
+  const canViewBooking = (booking) => {
+    if (booking.type === '컴페티션') {
+      return user.club === booking.courseName;
+    }
+    return true;
+  };
+  
   const announcedBookings = bookings.filter(b => {
     if (!b.isAnnounced) return false;
+    if (!canViewBooking(b)) return false;
     const bookingDate = new Date(b.date);
     bookingDate.setHours(0, 0, 0, 0);
     return bookingDate >= today;

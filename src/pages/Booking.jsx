@@ -43,24 +43,25 @@ function Booking() {
         return;
       }
     } else {
-      if (!newBooking.date) {
-        alert('날짜를 입력해주세요.');
+      if (!newBooking.courseName || !newBooking.date || !newBooking.time) {
+        alert('골프장, 날짜, 시간을 입력해주세요.');
         return;
       }
     }
 
-    const finalTitle = bookingType === '스트라컴' 
-      ? `스트라컴[${newBooking.date}]`
-      : newBooking.title;
+    let finalTitle = newBooking.title;
     
-    const finalCourseName = bookingType === '스트라컴' 
-      ? 'Strathfield Golf Club' 
-      : newBooking.courseName;
+    if (bookingType === '컴페티션') {
+      const dateObj = new Date(newBooking.date);
+      const day = String(dateObj.getDate()).padStart(2, '0');
+      const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+      finalTitle = `${newBooking.courseName} 컴페티션 ${day}/${month}`;
+    }
 
     const booking = {
       ...newBooking,
       title: finalTitle,
-      courseName: finalCourseName,
+      type: bookingType,
       organizerId: user.id,
       greenFee: parseInt(newBooking.greenFee) || null,
       cartFee: parseInt(newBooking.cartFee) || null,
@@ -207,8 +208,15 @@ function Booking() {
     return today > deadline;
   };
 
-  const activeBookings = bookings.filter(b => isBookingActive(b)).sort((a, b) => new Date(a.date) - new Date(b.date));
-  const completedBookings = bookings.filter(b => !isBookingActive(b)).sort((a, b) => new Date(b.date) - new Date(a.date));
+  const canViewBooking = (booking) => {
+    if (booking.type === '컴페티션') {
+      return user.club === booking.courseName;
+    }
+    return true;
+  };
+
+  const activeBookings = bookings.filter(b => isBookingActive(b) && canViewBooking(b)).sort((a, b) => new Date(a.date) - new Date(b.date));
+  const completedBookings = bookings.filter(b => !isBookingActive(b) && canViewBooking(b)).sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const renderBookingForm = (data, setData, onSubmit, submitText, isNewBooking = false) => {
     const isStrikeCom = isNewBooking && bookingType === '스트라컴';
@@ -226,14 +234,12 @@ function Booking() {
               style={{ marginBottom: '16px' }}
             >
               <option value="정기모임">정기모임</option>
-              {user?.club === 'Strathfield Golf Club' && (
-                <option value="스트라컴">스트라컴</option>
-              )}
+              <option value="컴페티션">컴페티션</option>
             </select>
           </>
         )}
 
-        {isStrikeCom && (
+        {isNewBooking && bookingType === '컴페티션' && (
           <div style={{ 
             marginBottom: '16px', 
             padding: '12px', 
@@ -242,25 +248,35 @@ function Booking() {
             fontSize: '14px',
             color: 'var(--text-gray)'
           }}>
-            라운딩 이름: <strong>스트라컴[{data.date || '날짜 선택'}]</strong>
+            {data.courseName && data.date ? (
+              <>
+                라운딩 이름: <strong>{data.courseName} 컴페티션 {new Date(data.date).getDate().toString().padStart(2, '0')}/{(new Date(data.date).getMonth() + 1).toString().padStart(2, '0')}</strong>
+              </>
+            ) : (
+              '골프장과 날짜를 선택하면 라운딩 이름이 자동 생성됩니다.'
+            )}
           </div>
         )}
 
-        {isStrikeCom && (
+        {bookingType === '컴페티션' ? (
           <>
             <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
-              라운딩 날짜 *
+              골프장 * (컴페티션)
             </label>
-            <input
-              type="date"
-              value={data.date}
-              onChange={(e) => setData({ ...data, date: e.target.value })}
+            <select
+              value={data.courseName}
+              onChange={(e) => setData({ ...data, courseName: e.target.value })}
               style={{ marginBottom: '12px' }}
-            />
+            >
+              <option value="">골프장 선택</option>
+              {courses.map(course => (
+                <option key={course.id} value={course.name}>
+                  {course.name}
+                </option>
+              ))}
+            </select>
           </>
-        )}
-
-        {!isStrikeCom && (
+        ) : (
           <>
             <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
               라운딩 이름
@@ -676,7 +692,7 @@ function Booking() {
                   </button>
                 )}
               </>
-            ) : (booking.courseName === 'Strathfield Golf Club' || booking.courseName === '스트라스필드 골프클럽' || booking.courseName === '스트라컴') && (user.isAdmin || user.role === '운영진') ? (
+            ) : (booking.type === '컴페티션' && (user.isAdmin || user.role === '운영진')) ? (
               <>
                 <button
                   onClick={isJoined ? null : () => handleJoinBooking(booking.id)}

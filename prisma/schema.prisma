@@ -49,6 +49,7 @@ model Post {
 model Booking {
   id                   String   @id @default(cuid())
   title                String?
+  type                 String   @default("정기모임")
   courseName           String
   date                 String
   time                 String
