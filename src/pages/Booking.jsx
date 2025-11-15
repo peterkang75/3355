@@ -54,7 +54,7 @@ function Booking() {
       : newBooking.title;
     
     const finalCourseName = bookingType === '스트라컴' 
-      ? '스트라스필드 골프클럽' 
+      ? 'Strathfield Golf Club' 
       : newBooking.courseName;
 
     const booking = {
@@ -674,7 +674,7 @@ function Booking() {
                   </button>
                 )}
               </>
-            ) : (booking.courseName === '스트라스필드 골프클럽' || booking.courseName === '스트라컴') && (user.isAdmin || user.role === '운영진') ? (
+            ) : (booking.courseName === 'Strathfield Golf Club' || booking.courseName === '스트라스필드 골프클럽' || booking.courseName === '스트라컴') && (user.isAdmin || user.role === '운영진') ? (
               <>
                 <button
                   onClick={() => handleJoinBooking(booking.id)}
