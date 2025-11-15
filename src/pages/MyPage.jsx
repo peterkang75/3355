@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
 
 function MyPage() {
-  const { user, logout, refreshMembers } = useApp();
+  const { user, logout, refreshMembers, courses } = useApp();
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(user || {});
@@ -422,13 +422,18 @@ function MyPage() {
               onChange={(e) => setEditData({ ...editData, region: e.target.value })}
               style={{ marginBottom: '12px' }}
             />
-            <input
-              type="text"
-              placeholder="클럽"
+            <select
               value={editData.club || ''}
               onChange={(e) => setEditData({ ...editData, club: e.target.value })}
               style={{ marginBottom: '12px' }}
-            />
+            >
+              <option value="">소속 클럽 선택</option>
+              {courses.map(course => (
+                <option key={course.id} value={course.name}>
+                  {course.name}
+                </option>
+              ))}
+            </select>
             <input
               type="number"
               inputMode="numeric"
