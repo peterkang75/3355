@@ -360,7 +360,7 @@ function Booking() {
           접수 마감날짜
         </label>
         <input
-          type="date"
+          type="datetime-local"
           value={data.registrationDeadline}
           onChange={(e) => setData({ ...data, registrationDeadline: e.target.value })}
           style={{ marginBottom: '12px' }}
