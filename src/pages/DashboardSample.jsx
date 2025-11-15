@@ -117,7 +117,15 @@ function DashboardSample() {
     return today > deadline;
   };
 
-  const announcedBookings = bookings.filter(b => b.isAnnounced);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const announcedBookings = bookings.filter(b => {
+    if (!b.isAnnounced) return false;
+    const bookingDate = new Date(b.date);
+    bookingDate.setHours(0, 0, 0, 0);
+    return bookingDate >= today;
+  });
 
   return (
     <div>
