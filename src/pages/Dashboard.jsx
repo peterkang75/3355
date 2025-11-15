@@ -59,6 +59,16 @@ function Dashboard() {
     });
   };
 
+  const hasTeams = (booking) => {
+    if (!booking.teams) return false;
+    try {
+      const teams = typeof booking.teams === 'string' ? JSON.parse(booking.teams) : booking.teams;
+      return teams && teams.length > 0;
+    } catch {
+      return false;
+    }
+  };
+
   const handleJoinBooking = (bookingId) => {
     const booking = bookings.find(b => b.id === bookingId);
     const participants = parseParticipants(booking.participants);
@@ -536,7 +546,21 @@ function Dashboard() {
                     ◈ 참가자 {participants.length}명
                   </div>
 
-                  {isRegistrationClosed(booking) ? (
+                  {hasTeams(booking) ? (
+                    <button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigate(`/team-formation?id=${booking.id}`);
+                      }}
+                      className='btn-primary'
+                      style={{ 
+                        width: '100%',
+                        background: '#488C16'
+                      }}
+                    >
+                      📋 조편성 보기
+                    </button>
+                  ) : isRegistrationClosed(booking) ? (
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();

@@ -36,6 +36,16 @@ function Booking() {
     });
   };
 
+  const hasTeams = (booking) => {
+    if (!booking.teams) return false;
+    try {
+      const teams = typeof booking.teams === 'string' ? JSON.parse(booking.teams) : booking.teams;
+      return teams && teams.length > 0;
+    } catch {
+      return false;
+    }
+  };
+
   const handleCreateBooking = () => {
     if (bookingType === '정기모임') {
       if (!newBooking.courseName || !newBooking.date || !newBooking.time) {
@@ -694,40 +704,61 @@ function Booking() {
               </>
             ) : (booking.type === '컴페티션' && (user.isAdmin || user.role === '운영진')) ? (
               <>
-                <button
-                  onClick={isJoined ? null : () => handleJoinBooking(booking.id)}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: isJoined ? '#e0e0e0' : 'var(--primary-green)',
-                    color: isJoined ? '#999' : 'var(--text-light)',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontSize: '16px',
-                    fontWeight: '700',
-                    cursor: isJoined ? 'default' : 'pointer',
-                    opacity: isJoined ? 0.6 : 1
-                  }}
-                >
-                  {isJoined ? '참가중' : '참가하기'}
-                </button>
-                <button
-                  onClick={isJoined ? () => handleJoinBooking(booking.id) : null}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: isJoined ? 'var(--alert-red)' : '#e0e0e0',
-                    color: isJoined ? 'var(--text-light)' : '#999',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontSize: '16px',
-                    fontWeight: '700',
-                    cursor: isJoined ? 'pointer' : 'default',
-                    opacity: isJoined ? 1 : 0.6
-                  }}
-                >
-                  취소하기
-                </button>
+                {hasTeams(booking) ? (
+                  <button
+                    onClick={() => navigate(`/team-formation?id=${booking.id}`)}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: 'var(--primary-green)',
+                      color: 'var(--text-light)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    📋 조편성 보기
+                  </button>
+                ) : (
+                  <>
+                    <button
+                      onClick={isJoined ? null : () => handleJoinBooking(booking.id)}
+                      style={{
+                        flex: 1,
+                        padding: '12px',
+                        background: isJoined ? '#e0e0e0' : 'var(--primary-green)',
+                        color: isJoined ? '#999' : 'var(--text-light)',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '16px',
+                        fontWeight: '700',
+                        cursor: isJoined ? 'default' : 'pointer',
+                        opacity: isJoined ? 0.6 : 1
+                      }}
+                    >
+                      {isJoined ? '참가중' : '참가하기'}
+                    </button>
+                    <button
+                      onClick={isJoined ? () => handleJoinBooking(booking.id) : null}
+                      style={{
+                        flex: 1,
+                        padding: '12px',
+                        background: isJoined ? 'var(--alert-red)' : '#e0e0e0',
+                        color: isJoined ? 'var(--text-light)' : '#999',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '16px',
+                        fontWeight: '700',
+                        cursor: isJoined ? 'pointer' : 'default',
+                        opacity: isJoined ? 1 : 0.6
+                      }}
+                    >
+                      취소하기
+                    </button>
+                  </>
+                )}
                 <button
                   onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
                   style={{
@@ -745,6 +776,23 @@ function Booking() {
                   ◉ 라운딩 관리
                 </button>
               </>
+            ) : hasTeams(booking) ? (
+              <button
+                onClick={() => navigate(`/team-formation?id=${booking.id}`)}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'var(--primary-green)',
+                  color: 'var(--text-light)',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  cursor: 'pointer'
+                }}
+              >
+                📋 조편성 보기
+              </button>
             ) : (
               <>
                 <button
