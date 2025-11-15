@@ -679,22 +679,40 @@ function Booking() {
             ) : (booking.courseName === 'Strathfield Golf Club' || booking.courseName === '스트라스필드 골프클럽' || booking.courseName === '스트라컴') && (user.isAdmin || user.role === '운영진') ? (
               <>
                 <button
-                  onClick={() => handleJoinBooking(booking.id)}
+                  onClick={isJoined ? null : () => handleJoinBooking(booking.id)}
                   style={{
                     flex: 1,
                     padding: '12px',
-                    background: isJoined ? 'var(--bg-card)' : 'var(--primary-green)',
-                    color: isJoined ? 'var(--primary-green)' : 'var(--text-light)',
+                    background: isJoined ? '#e0e0e0' : 'var(--primary-green)',
+                    color: isJoined ? '#999' : 'var(--text-light)',
                     border: 'none',
-                    borderBottom: isJoined ? '2px solid var(--primary-green)' : 'none',
                     borderRadius: '6px',
                     fontSize: '16px',
                     fontWeight: '700',
-                    cursor: 'pointer'
+                    cursor: isJoined ? 'default' : 'pointer',
+                    opacity: isJoined ? 0.6 : 1
                   }}
                 >
-                  {isJoined ? '참가 취소' : '참가하기'}
+                  {isJoined ? '참가중' : '참가하기'}
                 </button>
+                {isJoined && (
+                  <button
+                    onClick={() => handleJoinBooking(booking.id)}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: 'var(--alert-red)',
+                      color: 'var(--text-light)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    취소하기
+                  </button>
+                )}
                 <button
                   onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
                   style={{
@@ -713,23 +731,43 @@ function Booking() {
                 </button>
               </>
             ) : (
-              <button
-                onClick={() => handleJoinBooking(booking.id)}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  background: isJoined ? 'var(--bg-card)' : 'var(--primary-green)',
-                  color: isJoined ? 'var(--primary-green)' : 'var(--text-light)',
-                  border: 'none',
-                  borderBottom: isJoined ? '2px solid var(--primary-green)' : 'none',
-                  borderRadius: '6px',
-                  fontSize: '16px',
-                  fontWeight: '700',
-                  cursor: 'pointer'
-                }}
-              >
-                {isJoined ? '참가 취소' : '참가하기'}
-              </button>
+              <>
+                <button
+                  onClick={isJoined ? null : () => handleJoinBooking(booking.id)}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: isJoined ? '#e0e0e0' : 'var(--primary-green)',
+                    color: isJoined ? '#999' : 'var(--text-light)',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    cursor: isJoined ? 'default' : 'pointer',
+                    opacity: isJoined ? 0.6 : 1
+                  }}
+                >
+                  {isJoined ? '참가중' : '참가하기'}
+                </button>
+                {isJoined && (
+                  <button
+                    onClick={() => handleJoinBooking(booking.id)}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: 'var(--alert-red)',
+                      color: 'var(--text-light)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    취소하기
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>
