@@ -228,9 +228,8 @@ function ParticipantManagement() {
             <div style={{ display: 'grid', gap: '8px' }}>
               {participants.map((participant, index) => {
                 const memberInfo = members.find(m => m.phone === participant.phone);
-                const handicapText = booking?.type === '컴페티션' && memberInfo ? 
-                  (memberInfo.gaHandy ? ` (GA: ${memberInfo.gaHandy})` : 
-                   memberInfo.houseHandy ? ` (HH: ${memberInfo.houseHandy})` : '') : '';
+                const memberNumberText = booking?.type === '컴페티션' && memberInfo?.clubMemberNumber ? 
+                  ` (${memberInfo.clubMemberNumber})` : '';
                 
                 return (
                   <div
@@ -246,7 +245,7 @@ function ParticipantManagement() {
                   >
                     <div>
                       <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '4px' }}>
-                        {participant.nickname}{handicapText}
+                        {participant.nickname}{memberNumberText}
                       </div>
                       <div style={{ fontSize: '13px', opacity: 0.7 }}>
                         {participant.name}
