@@ -524,7 +524,9 @@ function DashboardSample() {
                     <button 
                       onClick={(e) => {
                         e.stopPropagation();
-                        navigate('/score');
+                        booking.dailyHandicaps 
+                          ? navigate(`/member-score-entry?id=${booking.id}`) 
+                          : navigate('/score');
                       }}
                       className='btn-primary'
                       style={{ 
@@ -532,7 +534,7 @@ function DashboardSample() {
                         background: '#488C16'
                       }}
                     >
-                      ⛳ 플레이하기
+                      {booking.dailyHandicaps ? '▲ 결과보기' : '⛳ 플레이하기'}
                     </button>
                   ) : (
                     <button 
