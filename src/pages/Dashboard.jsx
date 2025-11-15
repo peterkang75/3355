@@ -508,7 +508,16 @@ function Dashboard() {
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 >
                   {booking.title && (
-                    <div style={{ fontSize: '13px', color: 'var(--accent-olive)', fontWeight: '600', marginBottom: '4px' }}>
+                    <div style={{ 
+                      fontSize: '13px', 
+                      color: booking.type === '컴페티션' ? 'white' : 'var(--accent-olive)', 
+                      background: booking.type === '컴페티션' ? '#1a3d47' : 'transparent',
+                      padding: booking.type === '컴페티션' ? '6px 10px' : '0',
+                      borderRadius: booking.type === '컴페티션' ? '4px' : '0',
+                      fontWeight: '600', 
+                      marginBottom: '4px',
+                      display: 'inline-block'
+                    }}>
                       {booking.title}
                     </div>
                   )}

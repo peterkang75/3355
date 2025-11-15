@@ -65,7 +65,7 @@ function Booking() {
       const dateObj = new Date(newBooking.date);
       const day = String(dateObj.getDate()).padStart(2, '0');
       const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-      finalTitle = `${newBooking.courseName} 컴페티션 ${day}/${month}`;
+      finalTitle = `클럽 컴페티션 [${month}월 ${day}일]`;
     }
 
     const booking = {
@@ -443,7 +443,16 @@ function Booking() {
           }}>
             <div style={{ flex: 1 }}>
               {booking.title && (
-                <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)', marginBottom: '8px' }}>
+                <h3 style={{ 
+                  fontSize: '18px', 
+                  fontWeight: '700', 
+                  color: booking.type === '컴페티션' ? 'white' : 'var(--primary-green)', 
+                  background: booking.type === '컴페티션' ? '#1a3d47' : 'transparent',
+                  padding: booking.type === '컴페티션' ? '8px 12px' : '0',
+                  borderRadius: booking.type === '컴페티션' ? '6px' : '0',
+                  marginBottom: '8px',
+                  display: 'inline-block'
+                }}>
                   {booking.title}
                 </h3>
               )}
