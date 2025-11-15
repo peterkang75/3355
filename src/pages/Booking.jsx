@@ -394,7 +394,7 @@ function Booking() {
           style={{ marginBottom: '12px' }}
         />
 
-        {!isStrikeCom && (
+        {!(isNewBooking && bookingType === '컴페티션') && (
           <>
             <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
               회식장소
