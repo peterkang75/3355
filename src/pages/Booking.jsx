@@ -226,7 +226,9 @@ function Booking() {
               style={{ marginBottom: '16px' }}
             >
               <option value="정기모임">정기모임</option>
-              <option value="스트라컴">스트라컴</option>
+              {user?.club === 'Strathfield Golf Club' && (
+                <option value="스트라컴">스트라컴</option>
+              )}
             </select>
           </>
         )}
