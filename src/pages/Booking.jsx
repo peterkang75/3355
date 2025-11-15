@@ -693,26 +693,25 @@ function Booking() {
                     opacity: isJoined ? 0.6 : 1
                   }}
                 >
-                  {isJoined ? '참가중' : '참가하기'}
+                  참가하기
                 </button>
-                {isJoined && (
-                  <button
-                    onClick={() => handleJoinBooking(booking.id)}
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      background: 'var(--alert-red)',
-                      color: 'var(--text-light)',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '16px',
-                      fontWeight: '700',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    취소하기
-                  </button>
-                )}
+                <button
+                  onClick={isJoined ? () => handleJoinBooking(booking.id) : null}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: isJoined ? 'var(--alert-red)' : '#e0e0e0',
+                    color: isJoined ? 'var(--text-light)' : '#999',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    cursor: isJoined ? 'pointer' : 'default',
+                    opacity: isJoined ? 1 : 0.6
+                  }}
+                >
+                  취소하기
+                </button>
                 <button
                   onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
                   style={{
@@ -747,26 +746,25 @@ function Booking() {
                     opacity: isJoined ? 0.6 : 1
                   }}
                 >
-                  {isJoined ? '참가중' : '참가하기'}
+                  참가하기
                 </button>
-                {isJoined && (
-                  <button
-                    onClick={() => handleJoinBooking(booking.id)}
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      background: 'var(--alert-red)',
-                      color: 'var(--text-light)',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '16px',
-                      fontWeight: '700',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    취소하기
-                  </button>
-                )}
+                <button
+                  onClick={isJoined ? () => handleJoinBooking(booking.id) : null}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: isJoined ? 'var(--alert-red)' : '#e0e0e0',
+                    color: isJoined ? 'var(--text-light)' : '#999',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    cursor: isJoined ? 'pointer' : 'default',
+                    opacity: isJoined ? 1 : 0.6
+                  }}
+                >
+                  취소하기
+                </button>
               </>
             )}
           </div>
