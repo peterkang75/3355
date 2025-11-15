@@ -446,10 +446,10 @@ function Booking() {
                 <h3 style={{ 
                   fontSize: '18px', 
                   fontWeight: '700', 
-                  color: booking.type === '컴페티션' ? 'white' : 'var(--primary-green)', 
-                  background: booking.type === '컴페티션' ? '#1a3d47' : 'transparent',
-                  padding: booking.type === '컴페티션' ? '8px 12px' : '0',
-                  borderRadius: booking.type === '컴페티션' ? '6px' : '0',
+                  color: booking.type === '컴페티션' ? 'white' : '#333', 
+                  background: booking.type === '컴페티션' ? '#1a3d47' : '#ff8c42',
+                  padding: '8px 12px',
+                  borderRadius: '6px',
                   marginBottom: '8px',
                   display: 'inline-block'
                 }}>

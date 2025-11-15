@@ -510,10 +510,10 @@ function Dashboard() {
                   {booking.title && (
                     <div style={{ 
                       fontSize: '13px', 
-                      color: booking.type === '컴페티션' ? 'white' : 'var(--accent-olive)', 
-                      background: booking.type === '컴페티션' ? '#1a3d47' : 'transparent',
-                      padding: booking.type === '컴페티션' ? '6px 10px' : '0',
-                      borderRadius: booking.type === '컴페티션' ? '4px' : '0',
+                      color: booking.type === '컴페티션' ? 'white' : '#333', 
+                      background: booking.type === '컴페티션' ? '#1a3d47' : '#ff8c42',
+                      padding: '6px 10px',
+                      borderRadius: '4px',
                       fontWeight: '600', 
                       marginBottom: '4px',
                       display: 'inline-block'
