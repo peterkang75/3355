@@ -1537,85 +1537,75 @@ function Admin() {
 
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: '1fr auto',
+                gridTemplateColumns: '140px repeat(5, 1fr)',
                 gap: '8px',
                 padding: '8px 12px',
                 background: 'var(--bg-card)',
                 borderRadius: '6px',
                 marginBottom: '8px',
-                fontSize: '12px',
+                fontSize: '11px',
                 fontWeight: '600',
                 color: 'var(--primary-green)',
                 borderBottom: '2px solid var(--primary-green)'
               }}>
-                <div>기능</div>
-                <div style={{ display: 'flex', gap: '4px' }}>
-                  <span style={{ width: '36px', textAlign: 'center' }} title="관리자">★</span>
-                  <span style={{ width: '36px', textAlign: 'center' }} title="방장">👑</span>
-                  <span style={{ width: '36px', textAlign: 'center' }} title="운영진">⚙</span>
-                  <span style={{ width: '36px', textAlign: 'center' }} title="클럽운영진">🏌</span>
-                  <span style={{ width: '36px', textAlign: 'center' }} title="회원">●</span>
-                </div>
+                <div style={{ textAlign: 'left' }}>기능</div>
+                <div style={{ textAlign: 'center' }}>관리자</div>
+                <div style={{ textAlign: 'center' }}>방장</div>
+                <div style={{ textAlign: 'center' }}>운영진</div>
+                <div style={{ textAlign: 'center' }}>클럽운영진</div>
+                <div style={{ textAlign: 'center' }}>회원</div>
               </div>
 
               <div style={{ display: 'grid', gap: '8px' }}>
-                {features.map(feature => (
-                  <div
-                    key={feature.id}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '10px 12px',
-                      background: 'var(--bg-card)',
-                      borderBottom: '1px solid var(--border-color)',
-                      borderRadius: '6px'
-                    }}
-                  >
-                    <div style={{
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      color: 'var(--primary-green)',
-                      flex: '0 0 auto',
-                      marginRight: '12px'
-                    }}>
-                      {feature.name}
-                    </div>
-                    
-                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                      {['관리자', '방장', '운영진', '클럽운영진', '회원'].map(role => {
-                        const roleLabels = {
-                          '관리자': '★',
-                          '방장': '👑',
-                          '운영진': '⚙',
-                          '클럽운영진': '🏌',
-                          '회원': '•'
-                        };
-                        const isSelected = permissions[feature.id] === role;
+                {features.map(feature => {
+                  const roles = ['관리자', '방장', '운영진', '클럽운영진', '회원'];
+                  const selectedRole = permissions[feature.id] || '관리자';
+                  const selectedIndex = roles.indexOf(selectedRole);
+                  
+                  return (
+                    <div
+                      key={feature.id}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '140px repeat(5, 1fr)',
+                        gap: '8px',
+                        alignItems: 'center',
+                        padding: '10px 12px',
+                        background: 'var(--bg-card)',
+                        borderBottom: '1px solid var(--border-color)',
+                        borderRadius: '6px'
+                      }}
+                    >
+                      <div style={{
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        color: 'var(--primary-green)'
+                      }}>
+                        {feature.name}
+                      </div>
+                      
+                      {roles.map((role, index) => {
+                        const isActive = index <= selectedIndex;
                         
                         return (
-                          <button
+                          <div
                             key={role}
                             onClick={() => handlePermissionChange(feature.id, role)}
-                            title={role}
                             style={{
-                              padding: '6px 10px',
-                              background: isSelected ? 'var(--primary-green)' : 'var(--bg-card)',
-                              color: isSelected ? 'white' : 'var(--text-dark)',
+                              height: '28px',
+                              background: isActive ? 'var(--primary-green)' : '#f0f0f0',
                               borderRadius: '4px',
-                              fontSize: '16px',
                               cursor: 'pointer',
                               transition: 'all 0.15s',
-                              minWidth: '36px'
+                              border: '1px solid var(--border-color)'
                             }}
-                          >
-                            {roleLabels[role]}
-                          </button>
+                            title={`${role}로 설정`}
+                          />
                         );
                       })}
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
