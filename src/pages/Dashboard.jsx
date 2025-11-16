@@ -347,12 +347,13 @@ function Dashboard() {
                               </div>
                               <div style={{
                                 fontSize: '12px',
-                                opacity: 0.7,
-                                display: 'flex',
-                                justifyContent: 'space-between'
+                                opacity: 0.7
                               }}>
-                                <span>{typeof comment.author === 'string' ? comment.author : (comment.author?.nickname || comment.author?.name || '알 수 없음')}</span>
-                                <span>{comment.date || new Date(comment.createdAt).toLocaleDateString('ko-KR')}</span>
+                                <span>
+                                  {comment.date || new Date(comment.createdAt).toLocaleDateString('ko-KR')}
+                                  {' by '}
+                                  {typeof comment.author === 'string' ? comment.author : (comment.author?.nickname || comment.author?.name || '알 수 없음')}
+                                </span>
                               </div>
                             </div>
                           ))}
