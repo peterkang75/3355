@@ -3,12 +3,14 @@ import { useApp } from '../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 
 function Dashboard() {
-  const { user, members, scores, bookings, posts, addPost, updatePost, updateBooking } = useApp();
+  const { user, members, scores, bookings, posts, addPost, updatePost, deletePost, updateBooking } = useApp();
   const navigate = useNavigate();
   const [showNewPost, setShowNewPost] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', content: '' });
   const [expandedPost, setExpandedPost] = useState(null);
   const [newComment, setNewComment] = useState('');
+  const [openMenuPostId, setOpenMenuPostId] = useState(null);
+  const [editingPost, setEditingPost] = useState(null);
 
   const handleCreatePost = () => {
     if (!newPost.title || !newPost.content) {
@@ -43,6 +45,40 @@ function Dashboard() {
 
     updatePost(postId, { comments: updatedComments });
     setNewComment('');
+  };
+
+  const handleDeletePost = async (postId) => {
+    if (window.confirm('이 게시글을 삭제하시겠습니까?')) {
+      try {
+        await deletePost(postId);
+        setOpenMenuPostId(null);
+        setExpandedPost(null);
+      } catch (error) {
+        alert('게시글 삭제에 실패했습니다.');
+      }
+    }
+  };
+
+  const handleEditPost = (post) => {
+    setEditingPost({ id: post.id, title: post.title, content: post.content });
+    setOpenMenuPostId(null);
+  };
+
+  const handleUpdatePost = async () => {
+    if (!editingPost.title || !editingPost.content) {
+      alert('제목과 내용을 입력해주세요.');
+      return;
+    }
+
+    try {
+      await updatePost(editingPost.id, {
+        title: editingPost.title,
+        content: editingPost.content
+      });
+      setEditingPost(null);
+    } catch (error) {
+      alert('게시글 수정에 실패했습니다.');
+    }
   };
 
   const parseParticipants = (participants) => {
@@ -229,6 +265,46 @@ function Dashboard() {
             </div>
           ) : (
             <div>
+              {editingPost && (
+                <div style={{
+                  background: 'var(--bg-green)',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  marginBottom: '12px'
+                }}>
+                  <h3 style={{ marginBottom: '12px', fontSize: '16px' }}>게시글 수정</h3>
+                  <input
+                    type="text"
+                    placeholder="제목"
+                    value={editingPost.title}
+                    onChange={(e) => setEditingPost({ ...editingPost, title: e.target.value })}
+                    style={{ marginBottom: '12px', width: '100%' }}
+                  />
+                  <textarea
+                    placeholder="내용"
+                    value={editingPost.content}
+                    onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
+                    rows={6}
+                    style={{ marginBottom: '12px', resize: 'vertical', width: '100%' }}
+                  />
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button onClick={handleUpdatePost} className="btn-primary">
+                      수정 완료
+                    </button>
+                    <button onClick={() => setEditingPost(null)} style={{
+                      background: '#ccc',
+                      color: '#333',
+                      border: 'none',
+                      padding: '12px 20px',
+                      borderRadius: '8px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}>
+                      취소
+                    </button>
+                  </div>
+                </div>
+              )}
               {posts.slice(0, 5).map((post, index) => (
                 <div key={post.id}>
                   <div style={{
@@ -236,7 +312,8 @@ function Dashboard() {
                     padding: '12px',
                     borderRadius: '8px',
                     cursor: 'pointer',
-                    transition: 'background 0.2s'
+                    transition: 'background 0.2s',
+                    position: 'relative'
                   }}
                   onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
                   >
@@ -252,7 +329,7 @@ function Dashboard() {
                     }}>
                       •
                     </span>
-                    <div style={{ flex: 1 }}>
+                    <div style={{ flex: 1, paddingRight: '30px' }}>
                       <h4 style={{ 
                         fontSize: '15px', 
                         fontWeight: '600',
@@ -301,6 +378,80 @@ function Dashboard() {
                         )}
                       </div>
                     </div>
+                    {(user.isAdmin || post.authorId === user.id) && (
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuPostId(openMenuPostId === post.id ? null : post.id);
+                        }}
+                        style={{
+                          position: 'absolute',
+                          top: '8px',
+                          right: '8px',
+                          cursor: 'pointer',
+                          padding: '4px 8px',
+                          fontSize: '18px',
+                          fontWeight: 'bold',
+                          lineHeight: '1',
+                          userSelect: 'none'
+                        }}
+                      >
+                        ⋮
+                        {openMenuPostId === post.id && (
+                          <div
+                            style={{
+                              position: 'absolute',
+                              top: '100%',
+                              right: 0,
+                              background: 'white',
+                              border: '1px solid #ddd',
+                              borderRadius: '8px',
+                              boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                              marginTop: '4px',
+                              minWidth: '100px',
+                              zIndex: 10,
+                              overflow: 'hidden'
+                            }}
+                          >
+                            <div
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleEditPost(post);
+                              }}
+                              style={{
+                                padding: '12px 16px',
+                                cursor: 'pointer',
+                                background: 'white',
+                                borderBottom: '1px solid #eee',
+                                fontSize: '14px',
+                                color: '#333'
+                              }}
+                              onMouseEnter={(e) => e.target.style.background = '#f5f5f5'}
+                              onMouseLeave={(e) => e.target.style.background = 'white'}
+                            >
+                              수정
+                            </div>
+                            <div
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeletePost(post.id);
+                              }}
+                              style={{
+                                padding: '12px 16px',
+                                cursor: 'pointer',
+                                background: 'white',
+                                fontSize: '14px',
+                                color: '#d9534f'
+                              }}
+                              onMouseEnter={(e) => e.target.style.background = '#f5f5f5'}
+                              onMouseLeave={(e) => e.target.style.background = 'white'}
+                            >
+                              삭제
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {expandedPost === post.id && (

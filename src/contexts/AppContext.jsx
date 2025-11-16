@@ -211,6 +211,16 @@ export function AppProvider({ children }) {
     }
   };
 
+  const deletePost = async (postId) => {
+    try {
+      await apiService.deletePost(postId);
+      setPosts(posts.filter(p => p.id !== postId));
+    } catch (error) {
+      console.error('Post deletion failed:', error);
+      throw error;
+    }
+  };
+
   const addBooking = async (bookingData) => {
     try {
       const booking = await apiService.createBooking(bookingData);
@@ -338,6 +348,7 @@ export function AppProvider({ children }) {
     saveScore,
     addPost,
     updatePost,
+    deletePost,
     addBooking,
     updateBooking,
     addFee,
