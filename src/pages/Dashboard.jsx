@@ -755,37 +755,37 @@ function Dashboard() {
         }}>
           <div className="card" style={{ 
             textAlign: 'center',
-            padding: '16px 12px',
+            padding: '8px',
             borderLeft: '3px solid var(--accent-mid-green)',
             background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(63, 115, 25, 0.05) 100%)'
           }}>
             <div style={{ 
-              fontSize: '32px',
-              marginBottom: '8px'
+              fontSize: '20px',
+              marginBottom: '4px'
             }}>
               ⛳
             </div>
             <div style={{ 
-              fontSize: '24px', 
+              fontSize: '16px', 
               fontWeight: '700',
               color: 'var(--accent-mid-green)',
-              marginBottom: '8px'
+              marginBottom: '4px'
             }}>
               핸디: {user?.handicap ?? user?.calculatedHandicap ?? 18}
             </div>
             <div style={{ 
-              fontSize: '13px', 
+              fontSize: '11px', 
               opacity: 0.7,
-              marginBottom: '4px'
+              marginBottom: '2px'
             }}>
               추천핸디: {user?.calculatedHandicap ?? user?.handicap ?? 18}
             </div>
             {user?.handicapExplanation && (
               <div style={{ 
-                fontSize: '13px', 
+                fontSize: '10px', 
                 opacity: 0.7,
                 fontStyle: 'italic',
-                lineHeight: '1.4'
+                lineHeight: '1.3'
               }}>
                 {user.handicapExplanation}
               </div>
@@ -794,20 +794,21 @@ function Dashboard() {
 
           <div className="card" style={{ 
             textAlign: 'center',
+            padding: '8px',
             borderLeft: '3px solid var(--accent-gold)',
             background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(242, 163, 65, 0.05) 100%)'
           }}>
             <div style={{ 
-              fontSize: '32px',
-              marginBottom: '8px'
+              fontSize: '20px',
+              marginBottom: '4px'
             }}>
               💰
             </div>
-            <div style={{ fontSize: '14px', opacity: 0.7, marginBottom: '8px' }}>
+            <div style={{ fontSize: '11px', opacity: 0.7, marginBottom: '4px' }}>
               회비 잔액
             </div>
             <div style={{ 
-              fontSize: '32px', 
+              fontSize: '20px', 
               fontWeight: '700',
               color: user.balance < 0 ? 'var(--alert-red)' : 'var(--accent-gold)'
             }}>
