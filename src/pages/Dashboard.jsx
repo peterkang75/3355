@@ -17,12 +17,9 @@ function Dashboard() {
     }
 
     const post = {
-      id: Date.now(),
       title: newPost.title,
       content: newPost.content,
-      author: user.name,
-      date: new Date().toLocaleDateString('ko-KR'),
-      comments: []
+      authorId: user.id
     };
 
     addPost(post);
