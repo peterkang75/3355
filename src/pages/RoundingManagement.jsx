@@ -76,6 +76,18 @@ function RoundingManagement() {
       alert('라운딩 수정에 실패했습니다.');
     }
   };
+
+  const handleToggleAnnounce = async () => {
+    try {
+      await apiService.toggleBookingAnnounce(bookingId);
+      await refreshBookings();
+      setShowMenu(false);
+      alert(booking.isAnnounced ? '공지가 해제되었습니다.' : '공지가 활성화되었습니다.');
+    } catch (error) {
+      console.error('공지 상태 변경 실패:', error);
+      alert('공지 상태 변경에 실패했습니다.');
+    }
+  };
   
   if (!hasAdminAccess) {
     return (
@@ -221,6 +233,22 @@ function RoundingManagement() {
                   zIndex: 10,
                   minWidth: '140px'
                 }}>
+                  <button
+                    onClick={handleToggleAnnounce}
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '12px 16px',
+                      textAlign: 'left',
+                      background: 'transparent',
+                      border: 'none',
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      borderBottom: '1px solid var(--border-color)'
+                    }}
+                  >
+                    {booking.isAnnounced ? '★ 공지 내리기' : '★ 공지 활성화'}
+                  </button>
                   <button
                     onClick={() => {
                       setIsEditing(true);
