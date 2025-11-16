@@ -347,7 +347,8 @@ function Dashboard() {
                               </div>
                               <div style={{
                                 fontSize: '12px',
-                                opacity: 0.7
+                                opacity: 0.7,
+                                textAlign: 'right'
                               }}>
                                 <span>
                                   {comment.date || new Date(comment.createdAt).toLocaleDateString('ko-KR')}
