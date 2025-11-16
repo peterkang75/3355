@@ -738,7 +738,7 @@ function Dashboard() {
                     <div style={{
                       height: '1px',
                       background: 'rgba(0, 0, 0, 0.1)',
-                      margin: '6px 0'
+                      margin: '5px 0'
                     }} />
                   )}
                 </div>
