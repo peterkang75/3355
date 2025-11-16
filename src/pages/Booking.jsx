@@ -1038,23 +1038,6 @@ function Booking() {
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, marginLeft: '12px' }}>
           <h1>라운딩</h1>
-          {user.isAdmin && (
-            <button 
-              onClick={() => setShowNewBooking(!showNewBooking)}
-              style={{
-                background: 'var(--primary-green)',
-                color: 'var(--text-light)',
-                padding: '6px 12px',
-                borderRadius: '6px',
-                fontSize: '13px',
-                fontWeight: '600',
-                border: 'none',
-                cursor: 'pointer'
-              }}
-            >
-              {showNewBooking ? '취소' : '생성'}
-            </button>
-          )}
         </div>
         <div 
           style={{ 
@@ -1128,15 +1111,40 @@ function Booking() {
           </div>
         )}
 
-        <h3 style={{ 
-          fontSize: '18px', 
-          fontWeight: '700',
+        <div style={{ 
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
           marginBottom: '16px',
           marginLeft: '16px',
-          color: 'var(--primary-green)'
+          marginRight: '16px'
         }}>
-          ⛳ 현재 활성중인 라운딩
-        </h3>
+          <h3 style={{ 
+            fontSize: '18px', 
+            fontWeight: '700',
+            color: 'var(--primary-green)',
+            margin: 0
+          }}>
+            ⛳ 현재 활성중인 라운딩
+          </h3>
+          {user.isAdmin && (
+            <button 
+              onClick={() => setShowNewBooking(!showNewBooking)}
+              style={{
+                background: 'var(--primary-green)',
+                color: 'var(--text-light)',
+                padding: '8px 16px',
+                borderRadius: '6px',
+                fontSize: '13px',
+                fontWeight: '600',
+                border: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              {showNewBooking ? '취소' : '라운딩 생성하기'}
+            </button>
+          )}
+        </div>
         {activeBookings.length === 0 ? (
           <div className="card" style={{ 
             padding: '40px',
