@@ -165,7 +165,15 @@ function Booking() {
 
   const handleToggleNumberRental = async (bookingId) => {
     try {
+      const booking = bookings.find(b => b.id === bookingId);
+      const isCurrentlyRenting = booking.numberRentals && booking.numberRentals.includes(user.phone);
+      
       await apiService.toggleNumberRental(bookingId, user.phone);
+      
+      if (!isCurrentlyRenting) {
+        alert('번호 빌려주셔서 감사드려용~');
+      }
+      
       window.location.reload();
     } catch (error) {
       console.error('번호대여 상태 변경 실패:', error);
