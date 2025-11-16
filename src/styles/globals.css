@@ -10,9 +10,9 @@ html {
 }
 
 :root {
-  --primary-green: #488C16;
-  --secondary-green: #3F7319;
-  --light-green: #488C16;
+  --primary-green: #214001;
+  --secondary-green: #214001;
+  --light-green: #214001;
   --bg-green: #F2F2EB;
   --bg-card: #F2F2EB;
   --dark-bg: #3B401A;
@@ -31,8 +31,8 @@ html {
   --success-text: #3c3;
   --success-border: #cfc;
   
-  --accent-bright-green: #488C16;
-  --accent-mid-green: #3F7319;
+  --accent-bright-green: #214001;
+  --accent-mid-green: #214001;
   --accent-olive: #4C591D;
   --accent-dark-olive: #3B401A;
   --accent-gold: #F2A341;
