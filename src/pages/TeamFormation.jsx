@@ -365,10 +365,10 @@ function TeamFormation() {
                       padding: '8px 16px',
                       borderRadius: '6px',
                       border: isRenting ? 'none' : '2px solid var(--border-color)',
-                      background: isRenting ? '#fff8dc' : 'transparent',
+                      background: isRenting ? '#E6AA68' : 'transparent',
                       fontSize: '14px',
                       fontWeight: '600',
-                      color: isRenting ? '#333' : 'var(--primary-green)'
+                      color: isRenting ? '#fff' : 'var(--primary-green)'
                     }}
                   >
                     {getParticipantDisplayName(member)}
@@ -402,8 +402,8 @@ function TeamFormation() {
                     onClick={() => handleSlotClick(teamIndex, slotIndex, member)}
                     style={{
                       minHeight: '60px',
-                      background: member ? (isRenting ? '#fff8dc' : 'var(--primary-green)') : 'var(--bg-card)',
-                      color: member ? (isRenting ? '#333' : 'var(--text-light)') : 'var(--text-dark)',
+                      background: member ? (isRenting ? '#E6AA68' : 'var(--primary-green)') : 'var(--bg-card)',
+                      color: member ? (isRenting ? '#fff' : 'var(--text-light)') : 'var(--text-dark)',
                       borderRadius: '8px',
                       border: '2px solid var(--border-color)',
                       opacity: member ? 1 : 0.7,

@@ -723,7 +723,8 @@ function Booking() {
                 return (
                   <span key={idx}>
                     <span style={{ 
-                      background: isRenting && !isParticipating ? '#fff8dc' : 'transparent',
+                      background: isRenting && !isParticipating ? '#E6AA68' : 'transparent',
+                      color: isRenting && !isParticipating ? '#fff' : 'inherit',
                       padding: isRenting && !isParticipating ? '2px 6px' : '0',
                       borderRadius: isRenting && !isParticipating ? '4px' : '0'
                     }}>
@@ -838,8 +839,8 @@ function Booking() {
                         style={{
                           flex: 1,
                           padding: '12px',
-                          background: isRentalLoading === booking.id ? '#ccc' : (isRenting ? '#fff8dc' : '#ffd700'),
-                          color: '#333',
+                          background: isRentalLoading === booking.id ? '#ccc' : '#E6AA68',
+                          color: '#fff',
                           border: 'none',
                           borderRadius: '6px',
                           fontSize: '16px',
@@ -930,8 +931,8 @@ function Booking() {
                     style={{
                       flex: 1,
                       padding: '12px',
-                      background: isRentalLoading === booking.id ? '#ccc' : (isRenting ? '#fff8dc' : '#ffd700'),
-                      color: '#333',
+                      background: isRentalLoading === booking.id ? '#ccc' : '#E6AA68',
+                      color: '#fff',
                       border: 'none',
                       borderRadius: '6px',
                       fontSize: '16px',
