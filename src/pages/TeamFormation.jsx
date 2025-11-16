@@ -371,7 +371,12 @@ function TeamFormation() {
                       color: isRenting ? '#fff' : 'var(--primary-green)'
                     }}
                   >
-                    {getParticipantDisplayName(member)}
+                    <div>{getParticipantDisplayName(member)}</div>
+                    {isRenting && (
+                      <div style={{ fontSize: '11px', opacity: 0.8, fontWeight: '400', marginTop: '2px' }}>
+                        번호대여자
+                      </div>
+                    )}
                   </div>
                 );
               })
@@ -408,15 +413,26 @@ function TeamFormation() {
                       border: '2px solid var(--border-color)',
                       opacity: member ? 1 : 0.7,
                       display: 'flex',
+                      flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: '15px',
                       fontWeight: '600',
                       cursor: 'pointer',
-                      transition: 'all 0.2s'
+                      transition: 'all 0.2s',
+                      gap: '2px'
                     }}
                   >
-                    {member ? getParticipantDisplayName(member) : '+ 추가'}
+                    {member ? (
+                      <>
+                        <div>{getParticipantDisplayName(member)}</div>
+                        {isRenting && (
+                          <div style={{ fontSize: '11px', opacity: 0.8, fontWeight: '400' }}>
+                            번호대여자
+                          </div>
+                        )}
+                      </>
+                    ) : '+ 추가'}
                   </button>
                 );
               })}
@@ -528,7 +544,11 @@ function TeamFormation() {
                           fontWeight: '600',
                           color: textColor,
                           transition: 'all 0.2s',
-                          position: 'relative'
+                          position: 'relative',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          alignItems: 'center',
+                          gap: '2px'
                         }}
                       >
                         {isSelected && (
@@ -540,7 +560,12 @@ function TeamFormation() {
                             ✓
                           </span>
                         )}
-                        {getParticipantDisplayName(participant)}
+                        <div>{getParticipantDisplayName(participant)}</div>
+                        {isRenting && (
+                          <div style={{ fontSize: '11px', opacity: 0.8, fontWeight: '400' }}>
+                            번호대여자
+                          </div>
+                        )}
                       </button>
                     );
                   })}
