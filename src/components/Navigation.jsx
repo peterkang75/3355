@@ -1,5 +1,6 @@
 import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
+import golfIcon from '../assets/golf-icon.png';
 
 function Navigation({ user, onLogout }) {
   const navigate = useNavigate();
@@ -18,7 +19,9 @@ function Navigation({ user, onLogout }) {
         <span>홈</span>
       </NavLink>
       <NavLink to="/booking" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
-        <span className="nav-icon">⛳</span>
+        <span className="nav-icon">
+          <img src={golfIcon} alt="라운딩" style={{ width: '24px', height: '24px' }} />
+        </span>
         <span>라운딩</span>
       </NavLink>
       {/* TODO: 다음 버전에 활성화
