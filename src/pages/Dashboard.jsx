@@ -1024,35 +1024,9 @@ function Dashboard() {
                     }}
                   >
                     {isRegistrationClosed(booking) ? (
-                      <>
-                        {hasTeams(booking) && (
-                          <button
-                            onClick={() => navigate(`/team-formation?id=${booking.id}`)}
-                            style={{
-                              flex: 1,
-                              padding: '12px',
-                              background: '#214001',
-                              color: 'var(--text-light)',
-                              border: 'none',
-                              borderRadius: '6px',
-                              fontSize: '14px',
-                              fontWeight: '700',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            📋 조편성 보기
-                          </button>
-                        )}
+                      hasTeams(booking) && (
                         <button
-                          onClick={() => {
-                            if (booking.dailyHandicaps) {
-                              navigate(`/member-score-entry?id=${booking.id}`);
-                            } else if (hasUserScore(booking)) {
-                              navigate('/score');
-                            } else {
-                              navigate('/score');
-                            }
-                          }}
+                          onClick={() => navigate(`/team-formation?id=${booking.id}`)}
                           style={{
                             flex: 1,
                             padding: '12px',
@@ -1065,27 +1039,9 @@ function Dashboard() {
                             cursor: 'pointer'
                           }}
                         >
-                          {booking.dailyHandicaps ? '▲ 결과보기' : hasUserScore(booking) ? '📊 스코어보기' : '⛳ 플레이하기'}
+                          📋 조편성 보기
                         </button>
-                        {user.isAdmin && (
-                          <button
-                            onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
-                            style={{
-                              flex: 1,
-                              padding: '12px',
-                              background: '#214001',
-                              color: 'var(--text-light)',
-                              border: 'none',
-                              borderRadius: '6px',
-                              fontSize: '14px',
-                              fontWeight: '700',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            ◉ 라운딩 관리
-                          </button>
-                        )}
-                      </>
+                      )
                     ) : (booking.type === '컴페티션' && (user.isAdmin || user.role === '운영진')) ? (
                       <>
                         {hasTeams(booking) ? (
