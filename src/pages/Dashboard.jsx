@@ -37,7 +37,7 @@ function Dashboard() {
     const updatedComments = [...(post.comments || []), {
       id: Date.now(),
       content: newComment,
-      author: user.name,
+      author: user.nickname || user.name,
       date: new Date().toLocaleDateString('ko-KR')
     }];
 
@@ -351,7 +351,7 @@ function Dashboard() {
                                 display: 'flex',
                                 justifyContent: 'space-between'
                               }}>
-                                <span>{typeof comment.author === 'string' ? comment.author : comment.author?.name || '알 수 없음'}</span>
+                                <span>{typeof comment.author === 'string' ? comment.author : (comment.author?.nickname || comment.author?.name || '알 수 없음')}</span>
                                 <span>{comment.date || new Date(comment.createdAt).toLocaleDateString('ko-KR')}</span>
                               </div>
                             </div>
