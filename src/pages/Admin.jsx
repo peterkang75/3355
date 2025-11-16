@@ -48,6 +48,8 @@ function Admin() {
   const [memberScores, setMemberScores] = useState([]);
   const [permissions, setPermissions] = useState({});
   const [hasChanges, setHasChanges] = useState(false);
+  const [approvalRequired, setApprovalRequired] = useState(false);
+  const [approvalPermission, setApprovalPermission] = useState('관리자');
 
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
@@ -57,7 +59,8 @@ function Admin() {
     { id: 'score_entry', name: '스코어 입력' },
     { id: 'fee_management', name: '회비 관리' },
     { id: 'course_management', name: '골프장 관리' },
-    { id: 'create_post', name: '게시판 작성' }
+    { id: 'create_post', name: '게시판 작성' },
+    { id: 'member_approval', name: '회원 승인' }
   ];
 
   useEffect(() => {
@@ -78,6 +81,12 @@ function Admin() {
       const permissionsObj = {};
       settings.forEach(setting => {
         permissionsObj[setting.feature] = setting.minRole;
+        if (setting.feature === 'memberApprovalRequired') {
+          setApprovalRequired(setting.enabled || false);
+        }
+        if (setting.feature === 'member_approval') {
+          setApprovalPermission(setting.minRole || '관리자');
+        }
       });
       
       features.forEach(feature => {
@@ -103,14 +112,20 @@ function Admin() {
   const handleSavePermissions = async () => {
     try {
       for (const [feature, minRole] of Object.entries(permissions)) {
-        await apiService.updateSetting(feature, minRole);
+        await apiService.updateSetting(feature, { minRole });
       }
+      await apiService.updateSetting('memberApprovalRequired', { enabled: approvalRequired });
       setHasChanges(false);
       alert('권한 설정이 저장되었습니다!');
     } catch (error) {
       console.error('권한 설정 저장 실패:', error);
       alert('권한 설정 저장에 실패했습니다.');
     }
+  };
+
+  const handleApprovalToggle = () => {
+    setApprovalRequired(!approvalRequired);
+    setHasChanges(true);
   };
 
   useEffect(() => {
@@ -646,6 +661,120 @@ function Admin() {
 
         {activeTab === 'members' && (
           <div>
+            {members.filter(m => m.approvalStatus === 'pending').length > 0 && (
+              <div className="card" style={{ marginBottom: '16px', background: '#FFF3E0', border: '2px solid #FF9800' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', color: '#FF9800' }}>
+                  승인 대기 중 ({members.filter(m => m.approvalStatus === 'pending').length})
+                </h3>
+                {members.filter(m => m.approvalStatus === 'pending').map(member => (
+                  <div
+                    key={member.id}
+                    style={{
+                      padding: '12px',
+                      background: 'white',
+                      borderRadius: '8px',
+                      marginBottom: '8px',
+                      display: 'flex',
+                      gap: '12px',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <div style={{ flexShrink: 0 }}>
+                      {member.photo ? (
+                        <img 
+                          src={member.photo} 
+                          alt={member.name}
+                          style={{
+                            width: '60px',
+                            height: '60px',
+                            objectFit: 'cover',
+                            borderRadius: '50%',
+                            border: '2px solid var(--border-color)'
+                          }}
+                        />
+                      ) : (
+                        <div style={{
+                          width: '60px',
+                          height: '60px',
+                          background: '#ddd',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '28px',
+                          color: 'var(--text-dark)', opacity: 0.7
+                        }}>
+                          •
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
+                        {member.name} {member.nickname && `(${member.nickname})`}
+                      </div>
+                      <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                        전화번호: {member.phone}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        onClick={async () => {
+                          if (confirm(`${member.name} 회원을 승인하시겠습니까?`)) {
+                            try {
+                              await apiService.approveMember(member.id);
+                              await refreshMembers();
+                              alert('승인되었습니다!');
+                            } catch (error) {
+                              console.error('승인 실패:', error);
+                              alert('승인에 실패했습니다.');
+                            }
+                          }
+                        }}
+                        style={{
+                          padding: '8px 16px',
+                          background: 'var(--primary-green)',
+                          color: 'white',
+                          borderRadius: '6px',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          border: 'none'
+                        }}
+                      >
+                        승인
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (confirm(`${member.name} 회원을 거부하시겠습니까?`)) {
+                            try {
+                              await apiService.rejectMember(member.id);
+                              await refreshMembers();
+                              alert('거부되었습니다.');
+                            } catch (error) {
+                              console.error('거부 실패:', error);
+                              alert('거부에 실패했습니다.');
+                            }
+                          }
+                        }}
+                        style={{
+                          padding: '8px 16px',
+                          background: '#BF4E30',
+                          color: 'white',
+                          borderRadius: '6px',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          border: 'none'
+                        }}
+                      >
+                        거부
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+            
             <div className="card">
               <div style={{ 
                 display: 'flex', 
@@ -1495,6 +1624,52 @@ function Admin() {
 
         {activeTab === 'settings' && (
           <div>
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
+                앱 설정
+              </h3>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '16px',
+                background: 'var(--bg-green)',
+                borderRadius: '8px'
+              }}>
+                <div>
+                  <div style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
+                    회원가입 승인 필요
+                  </div>
+                  <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                    새 회원 가입 시 운영진의 승인이 필요합니다
+                  </div>
+                </div>
+                <div
+                  onClick={handleApprovalToggle}
+                  style={{
+                    width: '60px',
+                    height: '32px',
+                    background: approvalRequired ? 'var(--primary-green)' : '#ccc',
+                    borderRadius: '16px',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    transition: 'background 0.3s'
+                  }}
+                >
+                  <div style={{
+                    width: '28px',
+                    height: '28px',
+                    background: 'white',
+                    borderRadius: '50%',
+                    position: 'absolute',
+                    top: '2px',
+                    left: approvalRequired ? '30px' : '2px',
+                    transition: 'left 0.3s'
+                  }} />
+                </div>
+              </div>
+            </div>
+
             <div className="card" style={{ marginBottom: '16px' }}>
               <div style={{
                 display: 'flex',
