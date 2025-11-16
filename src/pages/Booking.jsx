@@ -764,35 +764,35 @@ function Booking() {
                 ) : (
                   <>
                     <button
-                      onClick={(isJoined || isRenting) ? null : () => handleJoinBooking(booking.id)}
+                      onClick={isJoined ? null : () => handleJoinBooking(booking.id)}
                       style={{
                         flex: 1,
                         padding: '12px',
-                        background: (isJoined || isRenting) ? '#e0e0e0' : 'var(--primary-green)',
-                        color: (isJoined || isRenting) ? '#999' : 'var(--text-light)',
+                        background: isJoined ? '#e0e0e0' : 'var(--primary-green)',
+                        color: isJoined ? '#999' : 'var(--text-light)',
                         border: 'none',
                         borderRadius: '6px',
                         fontSize: '16px',
                         fontWeight: '700',
-                        cursor: (isJoined || isRenting) ? 'default' : 'pointer',
-                        opacity: (isJoined || isRenting) ? 0.6 : 1
+                        cursor: isJoined ? 'default' : 'pointer',
+                        opacity: isJoined ? 0.6 : 1
                       }}
                     >
                       {isJoined ? '참가중' : '참가하기'}
                     </button>
                     <button
-                      onClick={(isJoined && !isRenting) ? () => handleJoinBooking(booking.id) : null}
+                      onClick={isJoined ? () => handleJoinBooking(booking.id) : null}
                       style={{
                         flex: 1,
                         padding: '12px',
-                        background: (isJoined && !isRenting) ? 'var(--alert-red)' : '#e0e0e0',
-                        color: (isJoined && !isRenting) ? 'var(--text-light)' : '#999',
+                        background: isJoined ? 'var(--alert-red)' : '#e0e0e0',
+                        color: isJoined ? 'var(--text-light)' : '#999',
                         border: 'none',
                         borderRadius: '6px',
                         fontSize: '16px',
                         fontWeight: '700',
-                        cursor: (isJoined && !isRenting) ? 'pointer' : 'default',
-                        opacity: (isJoined && !isRenting) ? 1 : 0.6
+                        cursor: isJoined ? 'pointer' : 'default',
+                        opacity: isJoined ? 1 : 0.6
                       }}
                     >
                       취소하기
@@ -856,35 +856,35 @@ function Booking() {
             ) : (
               <>
                 <button
-                  onClick={(isJoined || isRenting) ? null : () => handleJoinBooking(booking.id)}
+                  onClick={isJoined ? null : () => handleJoinBooking(booking.id)}
                   style={{
                     flex: 1,
                     padding: '12px',
-                    background: (isJoined || isRenting) ? '#e0e0e0' : 'var(--primary-green)',
-                    color: (isJoined || isRenting) ? '#999' : 'var(--text-light)',
+                    background: isJoined ? '#e0e0e0' : 'var(--primary-green)',
+                    color: isJoined ? '#999' : 'var(--text-light)',
                     border: 'none',
                     borderRadius: '6px',
                     fontSize: '16px',
                     fontWeight: '700',
-                    cursor: (isJoined || isRenting) ? 'default' : 'pointer',
-                    opacity: (isJoined || isRenting) ? 0.6 : 1
+                    cursor: isJoined ? 'default' : 'pointer',
+                    opacity: isJoined ? 0.6 : 1
                   }}
                 >
                   {isJoined ? '참가중' : '참가하기'}
                 </button>
                 <button
-                  onClick={(isJoined && !isRenting) ? () => handleJoinBooking(booking.id) : null}
+                  onClick={isJoined ? () => handleJoinBooking(booking.id) : null}
                   style={{
                     flex: 1,
                     padding: '12px',
-                    background: (isJoined && !isRenting) ? 'var(--alert-red)' : '#e0e0e0',
-                    color: (isJoined && !isRenting) ? 'var(--text-light)' : '#999',
+                    background: isJoined ? 'var(--alert-red)' : '#e0e0e0',
+                    color: isJoined ? 'var(--text-light)' : '#999',
                     border: 'none',
                     borderRadius: '6px',
                     fontSize: '16px',
                     fontWeight: '700',
-                    cursor: (isJoined && !isRenting) ? 'pointer' : 'default',
-                    opacity: (isJoined && !isRenting) ? 1 : 0.6
+                    cursor: isJoined ? 'pointer' : 'default',
+                    opacity: isJoined ? 1 : 0.6
                   }}
                 >
                   취소하기
