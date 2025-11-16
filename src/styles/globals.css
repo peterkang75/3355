@@ -152,8 +152,8 @@ input:focus, textarea:focus, select:focus {
 }
 
 .header {
-  background: var(--text-light);
-  color: var(--text-dark);
+  background: #193C40;
+  color: var(--text-light);
   padding: 16px;
   display: flex;
   align-items: center;

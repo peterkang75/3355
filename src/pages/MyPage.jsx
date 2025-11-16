@@ -125,7 +125,7 @@ function MyPage() {
             fontSize: '20px',
             cursor: 'pointer',
             padding: '0',
-            color: 'var(--text-dark)',
+            color: 'var(--text-light)',
             minWidth: '24px'
           }}
         >

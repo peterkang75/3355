@@ -22,7 +22,7 @@ function About() {
             fontSize: '20px',
             cursor: 'pointer',
             padding: '0',
-            color: 'var(--text-dark)',
+            color: 'var(--text-light)',
             minWidth: '24px'
           }}
         >
@@ -38,7 +38,7 @@ function About() {
           }}
           onClick={() => navigate('/mypage')}
         >
-          <div style={{ fontSize: '14px', fontWeight: '500' }}>
+          <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-light)' }}>
             환영합니다 {user.nickname || user.name}님
           </div>
           <div style={{
