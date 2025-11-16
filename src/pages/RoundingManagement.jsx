@@ -110,9 +110,10 @@ function RoundingManagement() {
             background: 'none',
             border: 'none',
             fontSize: '20px',
+            fontWeight: '700',
             cursor: 'pointer',
             padding: '0',
-            color: 'var(--text-dark)',
+            color: 'var(--text-light)',
             minWidth: '24px'
           }}
         >

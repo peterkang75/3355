@@ -165,6 +165,7 @@ function ParticipantManagement() {
             border: 'none',
             color: 'var(--text-light)',
             fontSize: '20px',
+            fontWeight: '700',
             cursor: 'pointer',
             padding: '0 8px'
           }}

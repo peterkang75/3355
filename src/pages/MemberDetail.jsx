@@ -239,7 +239,8 @@ function MemberDetail() {
           style={{
             background: 'none',
             border: 'none',
-            fontSize: '24px',
+            fontSize: '20px',
+            fontWeight: '700',
             cursor: 'pointer',
             padding: '8px',
             color: 'var(--primary-green)'
