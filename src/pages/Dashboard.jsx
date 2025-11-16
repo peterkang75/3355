@@ -264,9 +264,9 @@ function Dashboard() {
             fontSize: '14px',
             border: '2px solid var(--border-color)'
           }}>
-            {user.profileImage ? (
+            {user.photo ? (
               <img 
-                src={user.profileImage} 
+                src={user.photo} 
                 alt="프로필" 
                 style={{ 
                   width: '100%', 
