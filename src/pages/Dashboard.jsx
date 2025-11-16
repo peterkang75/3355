@@ -303,7 +303,7 @@ function Dashboard() {
               <button 
                 onClick={() => setShowNewPost(!showNewPost)}
                 style={{
-                  background: '#488C16',
+                  background: '#214001',
                   color: 'var(--text-light)',
                   padding: '8px 16px',
                   borderRadius: '6px',
@@ -994,7 +994,7 @@ function Dashboard() {
                       className='btn-primary'
                       style={{ 
                         width: '100%',
-                        background: '#488C16'
+                        background: '#214001'
                       }}
                     >
                       📋 조편성 보기
@@ -1010,7 +1010,7 @@ function Dashboard() {
                       className='btn-primary'
                       style={{ 
                         width: '100%',
-                        background: '#488C16'
+                        background: '#214001'
                       }}
                     >
                       {booking.dailyHandicaps ? '▲ 결과보기' : '⛳ 플레이하기'}
@@ -1024,7 +1024,7 @@ function Dashboard() {
                       className={isJoined ? 'btn-outline' : 'btn-primary'}
                       style={{ 
                         width: '100%',
-                        background: isJoined ? 'transparent' : '#488C16',
+                        background: isJoined ? 'transparent' : '#214001',
                         borderColor: 'var(--accent-olive)',
                         color: isJoined ? 'var(--accent-olive)' : 'var(--text-light)'
                       }}
