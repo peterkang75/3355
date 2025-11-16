@@ -52,9 +52,9 @@ function Booking() {
         alert('골프장, 날짜, 시간을 입력해주세요.');
         return;
       }
-    } else {
-      if (!newBooking.courseName || !newBooking.date || !newBooking.time) {
-        alert('골프장, 날짜, 시간을 입력해주세요.');
+    } else if (bookingType === '컴페티션') {
+      if (!newBooking.courseName || !newBooking.date) {
+        alert('골프장과 날짜를 입력해주세요.');
         return;
       }
     }
