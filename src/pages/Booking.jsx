@@ -1141,7 +1141,7 @@ function Booking() {
                 cursor: 'pointer'
               }}
             >
-              {showNewBooking ? '취소' : '라운딩 생성하기'}
+              {showNewBooking ? '취소' : '+ 라운딩 생성하기'}
             </button>
           )}
         </div>
