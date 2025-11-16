@@ -256,19 +256,34 @@ function Dashboard() {
                     }}>
                       {post.title}
                     </h4>
-                    {post.comments && post.comments.length > 0 && (
-                      <div style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        fontSize: '13px',
-                        color: 'var(--primary-green)',
-                        fontWeight: '600'
-                      }}>
-                        <span>💬</span>
-                        <span>{post.comments.length}</span>
-                      </div>
-                    )}
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      fontSize: '12px',
+                      opacity: 0.7,
+                      flexShrink: 0
+                    }}>
+                      <span>
+                        {new Date(post.createdAt).toLocaleDateString('ko-KR', { 
+                          month: 'short', 
+                          day: 'numeric' 
+                        })}
+                      </span>
+                      {post.comments && post.comments.length > 0 && (
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '4px',
+                          color: 'var(--primary-green)',
+                          fontWeight: '600',
+                          opacity: 1
+                        }}>
+                          <span>💬</span>
+                          <span>{post.comments.length}</span>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {expandedPost === post.id && (
