@@ -706,13 +706,13 @@ function Booking() {
 
           {(booking.restaurantName || booking.restaurantAddress) && (
             <div style={{
-              background: '#F29472',
+              background: '#FFD449',
               padding: '12px',
               borderRadius: '6px',
               marginBottom: '16px',
               fontSize: '14px'
             }}>
-              <div style={{ fontWeight: '600', marginBottom: '4px', color: '#e65100' }}>⚑ 회식 정보</div>
+              <div style={{ fontWeight: '600', marginBottom: '4px', color: '#8B6914' }}>⚑ 회식 정보</div>
               {booking.restaurantName && <div>{booking.restaurantName}</div>}
               {booking.restaurantAddress && <div style={{ opacity: 0.7, fontSize: '13px' }}>{booking.restaurantAddress}</div>}
             </div>
