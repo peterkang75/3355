@@ -465,6 +465,26 @@ function Booking() {
     const participants = parseParticipants(booking.participants);
     const isJoined = participants.some(p => p.phone === user.phone);
     const totalFee = (parseInt(booking.greenFee) || 0) + (parseInt(booking.cartFee) || 0) + (parseInt(booking.membershipFee) || 0);
+    
+    // 번호대여자 정보 가져오기
+    const rentalMembers = (booking.numberRentals || []).map(phone => {
+      const member = members.find(m => m.phone === phone);
+      return member ? {
+        name: member.name,
+        nickname: member.nickname,
+        phone: member.phone
+      } : null;
+    }).filter(m => m !== null);
+    
+    // 참가자 + 번호대여자 합치기 (중복 제거)
+    const allParticipants = [...participants];
+    rentalMembers.forEach(rental => {
+      if (!allParticipants.some(p => p.phone === rental.phone)) {
+        allParticipants.push(rental);
+      }
+    });
+    
+    const totalParticipants = allParticipants.length;
     const isRenting = booking.numberRentals && booking.numberRentals.includes(user.phone);
 
     if (isActive) {
@@ -691,18 +711,28 @@ function Booking() {
               marginBottom: '8px',
               color: 'var(--primary-green)'
             }}>
-              ⚲ 참가자 ({participants.length}명)
+              ⚲ 참가자 ({totalParticipants}명)
             </div>
             <div style={{ 
               fontSize: '14px',
               lineHeight: '1.6'
             }}>
-              {participants.map((participant, idx) => (
-                <span key={idx}>
-                  {getParticipantDisplayName(participant)}
-                  {idx < participants.length - 1 && ', '}
-                </span>
-              ))}
+              {allParticipants.map((participant, idx) => {
+                const isRenting = booking.numberRentals && booking.numberRentals.includes(participant.phone);
+                const isParticipating = participants.some(p => p.phone === participant.phone);
+                return (
+                  <span key={idx}>
+                    <span style={{ 
+                      background: isRenting && !isParticipating ? '#fff8dc' : 'transparent',
+                      padding: isRenting && !isParticipating ? '2px 6px' : '0',
+                      borderRadius: isRenting && !isParticipating ? '4px' : '0'
+                    }}>
+                      {getParticipantDisplayName(participant)}
+                    </span>
+                    {idx < allParticipants.length - 1 && ', '}
+                  </span>
+                );
+              })}
             </div>
           </div>
 
