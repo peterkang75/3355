@@ -271,6 +271,24 @@ function ParticipantManagement() {
               })}
             </div>
           )}
+
+          <button
+            onClick={() => navigate(`/team-formation?id=${bookingId}`)}
+            style={{
+              width: '100%',
+              padding: '12px',
+              background: 'var(--primary-green)',
+              color: 'var(--text-light)',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '15px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              marginTop: '16px'
+            }}
+          >
+            📋 조편성하기
+          </button>
         </div>
       </div>
 
