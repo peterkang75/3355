@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
 
 function Booking() {
-  const { user, members, bookings, courses, addBooking, updateBooking } = useApp();
+  const { user, members, bookings, courses, addBooking, updateBooking, refreshBookings } = useApp();
   const navigate = useNavigate();
   const [showNewBooking, setShowNewBooking] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
@@ -169,12 +169,11 @@ function Booking() {
       const isCurrentlyRenting = booking.numberRentals && booking.numberRentals.includes(user.phone);
       
       await apiService.toggleNumberRental(bookingId, user.phone);
+      await refreshBookings();
       
       if (!isCurrentlyRenting) {
         alert('번호 빌려주셔서 감사드려용~');
       }
-      
-      window.location.reload();
     } catch (error) {
       console.error('번호대여 상태 변경 실패:', error);
       alert('번호대여 상태 변경 중 오류가 발생했습니다.');
