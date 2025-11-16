@@ -246,6 +246,42 @@ router.patch('/bookings/:id/toggle-announce', async (req, res) => {
   }
 });
 
+router.patch('/bookings/:id/toggle-number-rental', async (req, res) => {
+  try {
+    const { userPhone } = req.body;
+    
+    if (!userPhone) {
+      return res.status(400).json({ error: 'User phone is required' });
+    }
+    
+    const booking = await prisma.booking.findUnique({
+      where: { id: req.params.id }
+    });
+    
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+    
+    const currentRentals = booking.numberRentals || [];
+    const isRenting = currentRentals.includes(userPhone);
+    
+    const updatedRentals = isRenting
+      ? currentRentals.filter(phone => phone !== userPhone)
+      : [...currentRentals, userPhone];
+    
+    const updated = await prisma.booking.update({
+      where: { id: req.params.id },
+      data: { numberRentals: updatedRentals },
+      include: { organizer: true }
+    });
+    
+    res.json(updated);
+  } catch (error) {
+    console.error('Error toggling number rental:', error);
+    res.status(500).json({ error: 'Failed to toggle number rental' });
+  }
+});
+
 router.patch('/bookings/:id/grade-settings', async (req, res) => {
   try {
     const { gradeSettings } = req.body;

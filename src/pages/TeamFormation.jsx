@@ -337,21 +337,25 @@ function TeamFormation() {
                 모든 참가자가 배정되었습니다
               </div>
             ) : (
-              unassigned.map((member, index) => (
-                <div
-                  key={index}
-                  style={{
-                    padding: '8px 16px',
-                    borderRadius: '6px',
-                    border: '2px solid var(--border-color)',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    color: 'var(--primary-green)'
-                  }}
-                >
-                  {getParticipantDisplayName(member)}
-                </div>
-              ))
+              unassigned.map((member, index) => {
+                const isRenting = booking?.numberRentals && booking.numberRentals.includes(member.phone);
+                return (
+                  <div
+                    key={index}
+                    style={{
+                      padding: '8px 16px',
+                      borderRadius: '6px',
+                      border: isRenting ? '2px solid #ff8c00' : '2px solid var(--border-color)',
+                      background: isRenting ? '#ffd700' : 'transparent',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      color: isRenting ? '#333' : 'var(--primary-green)'
+                    }}
+                  >
+                    {getParticipantDisplayName(member)}
+                  </div>
+                );
+              })
             )}
           </div>
         </div>
@@ -371,29 +375,32 @@ function TeamFormation() {
               gridTemplateColumns: 'repeat(2, 1fr)',
               gap: '12px'
             }}>
-              {team.members.map((member, slotIndex) => (
-                <button
-                  key={slotIndex}
-                  onClick={() => handleSlotClick(teamIndex, slotIndex, member)}
-                  style={{
-                    minHeight: '60px',
-                    background: member ? 'var(--primary-green)' : 'var(--bg-card)',
-                    color: member ? 'var(--text-light)' : 'var(--text-dark)',
-                    borderRadius: '8px',
-                    border: '2px solid var(--border-color)',
-                    opacity: member ? 1 : 0.7,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '15px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  {member ? getParticipantDisplayName(member) : '+ 추가'}
-                </button>
-              ))}
+              {team.members.map((member, slotIndex) => {
+                const isRenting = member && booking?.numberRentals && booking.numberRentals.includes(member.phone);
+                return (
+                  <button
+                    key={slotIndex}
+                    onClick={() => handleSlotClick(teamIndex, slotIndex, member)}
+                    style={{
+                      minHeight: '60px',
+                      background: member ? (isRenting ? '#ffd700' : 'var(--primary-green)') : 'var(--bg-card)',
+                      color: member ? (isRenting ? '#333' : 'var(--text-light)') : 'var(--text-dark)',
+                      borderRadius: '8px',
+                      border: isRenting ? '2px solid #ff8c00' : '2px solid var(--border-color)',
+                      opacity: member ? 1 : 0.7,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '15px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {member ? getParticipantDisplayName(member) : '+ 추가'}
+                  </button>
+                );
+              })}
             </div>
           </div>
         ))}

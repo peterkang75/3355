@@ -59,6 +59,7 @@ model Booking {
   organizerId          String
   organizer            Member   @relation(fields: [organizerId], references: [id], onDelete: Cascade)
   participants         String[]
+  numberRentals        String[] @default([])
   status               String   @default("pending")
   notes                String?
   greenFee             Int?

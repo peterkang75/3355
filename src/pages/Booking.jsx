@@ -163,6 +163,16 @@ function Booking() {
     }
   };
 
+  const handleToggleNumberRental = async (bookingId) => {
+    try {
+      await apiService.toggleNumberRental(bookingId, user.phone);
+      window.location.reload();
+    } catch (error) {
+      console.error('번호대여 상태 변경 실패:', error);
+      alert('번호대여 상태 변경 중 오류가 발생했습니다.');
+    }
+  };
+
   const handleJoinBooking = (bookingId) => {
     const booking = bookings.find(b => b.id === bookingId);
     const participants = parseParticipants(booking.participants);
@@ -441,6 +451,7 @@ function Booking() {
     const participants = parseParticipants(booking.participants);
     const isJoined = participants.some(p => p.phone === user.phone);
     const totalFee = (parseInt(booking.greenFee) || 0) + (parseInt(booking.cartFee) || 0) + (parseInt(booking.membershipFee) || 0);
+    const isRenting = booking.numberRentals && booking.numberRentals.includes(user.phone);
 
     if (isActive) {
       return (
@@ -776,6 +787,24 @@ function Booking() {
                     >
                       취소하기
                     </button>
+                    {booking.type === '컴페티션' && (
+                      <button
+                        onClick={() => handleToggleNumberRental(booking.id)}
+                        style={{
+                          flex: 1,
+                          padding: '12px',
+                          background: isRenting ? '#ffd700' : '#fff8dc',
+                          color: '#333',
+                          border: isRenting ? '2px solid #ff8c00' : '1px solid #ffd700',
+                          borderRadius: '6px',
+                          fontSize: '16px',
+                          fontWeight: '700',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        {isRenting ? '✓ 번호대여중' : '번호대여'}
+                      </button>
+                    )}
                   </>
                 )}
                 <button
@@ -848,6 +877,24 @@ function Booking() {
                 >
                   취소하기
                 </button>
+                {booking.type === '컴페티션' && (
+                  <button
+                    onClick={() => handleToggleNumberRental(booking.id)}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: isRenting ? '#ffd700' : '#fff8dc',
+                      color: '#333',
+                      border: isRenting ? '2px solid #ff8c00' : '1px solid #ffd700',
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {isRenting ? '✓ 번호대여중' : '번호대여'}
+                  </button>
+                )}
               </>
             )}
           </div>

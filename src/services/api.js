@@ -137,6 +137,16 @@ class ApiService {
     return response.json();
   }
 
+  async toggleNumberRental(id, userPhone) {
+    const response = await fetch(`${API_BASE}/bookings/${id}/toggle-number-rental`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userPhone })
+    });
+    if (!response.ok) throw new Error('Failed to toggle number rental');
+    return response.json();
+  }
+
   async updateBookingGradeSettings(id, gradeSettings) {
     const response = await fetch(`${API_BASE}/bookings/${id}/grade-settings`, {
       method: 'PATCH',
