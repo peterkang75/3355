@@ -11,6 +11,8 @@ function Dashboard() {
   const [newComment, setNewComment] = useState('');
   const [openMenuPostId, setOpenMenuPostId] = useState(null);
   const [editingPost, setEditingPost] = useState(null);
+  const [openMenuCommentId, setOpenMenuCommentId] = useState(null);
+  const [editingComment, setEditingComment] = useState(null);
 
   const handleCreatePost = () => {
     if (!newPost.title || !newPost.content) {
@@ -78,6 +80,46 @@ function Dashboard() {
       setEditingPost(null);
     } catch (error) {
       alert('게시글 수정에 실패했습니다.');
+    }
+  };
+
+  const handleEditComment = (postId, comment) => {
+    setEditingComment({ postId, commentId: comment.id, content: comment.content });
+    setOpenMenuCommentId(null);
+  };
+
+  const handleUpdateComment = async () => {
+    if (!editingComment.content.trim()) {
+      alert('댓글 내용을 입력해주세요.');
+      return;
+    }
+
+    try {
+      const post = posts.find(p => p.id === editingComment.postId);
+      const updatedComments = post.comments.map(c => 
+        c.id === editingComment.commentId 
+          ? { ...c, content: editingComment.content }
+          : c
+      );
+      
+      await updatePost(editingComment.postId, { comments: updatedComments });
+      setEditingComment(null);
+    } catch (error) {
+      alert('댓글 수정에 실패했습니다.');
+    }
+  };
+
+  const handleDeleteComment = async (postId, commentId) => {
+    if (window.confirm('이 댓글을 삭제하시겠습니까?')) {
+      try {
+        const post = posts.find(p => p.id === postId);
+        const updatedComments = post.comments.filter(c => c.id !== commentId);
+        
+        await updatePost(postId, { comments: updatedComments });
+        setOpenMenuCommentId(null);
+      } catch (error) {
+        alert('댓글 삭제에 실패했습니다.');
+      }
     }
   };
 
@@ -478,37 +520,179 @@ function Dashboard() {
 
                       {post.comments?.length > 0 && (
                         <div style={{ marginBottom: '12px' }}>
-                          {post.comments.map(comment => (
-                            <div 
-                              key={comment.id}
-                              style={{
-                                background: '#FFF9E6',
-                                padding: '12px',
-                                borderRadius: '8px',
-                                marginBottom: '8px',
-                                borderBottom: '1px solid var(--border-color)'
-                              }}
-                            >
-                              <div style={{ 
-                                fontSize: '14px',
-                                marginBottom: '8px',
-                                lineHeight: '1.5'
-                              }}>
-                                {comment.content}
+                          {post.comments.map(comment => {
+                            const commentAuthor = typeof comment.author === 'string' ? comment.author : (comment.author?.nickname || comment.author?.name);
+                            const isCommentOwner = user.isAdmin || commentAuthor === (user.nickname || user.name);
+                            const isEditingThisComment = editingComment?.commentId === comment.id;
+
+                            if (isEditingThisComment) {
+                              return (
+                                <div 
+                                  key={comment.id}
+                                  style={{
+                                    background: '#FFF9E6',
+                                    padding: '12px',
+                                    borderRadius: '8px',
+                                    marginBottom: '8px',
+                                    borderBottom: '1px solid var(--border-color)'
+                                  }}
+                                  onClick={(e) => e.stopPropagation()}
+                                >
+                                  <textarea
+                                    value={editingComment.content}
+                                    onChange={(e) => setEditingComment({ ...editingComment, content: e.target.value })}
+                                    style={{ 
+                                      width: '100%', 
+                                      minHeight: '60px',
+                                      marginBottom: '8px',
+                                      resize: 'vertical',
+                                      padding: '8px',
+                                      borderRadius: '4px',
+                                      border: '1px solid #ddd'
+                                    }}
+                                  />
+                                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                    <button
+                                      onClick={handleUpdateComment}
+                                      style={{
+                                        background: 'var(--primary-green)',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '6px 12px',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      수정
+                                    </button>
+                                    <button
+                                      onClick={() => setEditingComment(null)}
+                                      style={{
+                                        background: '#ccc',
+                                        color: '#333',
+                                        border: 'none',
+                                        padding: '6px 12px',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      취소
+                                    </button>
+                                  </div>
+                                </div>
+                              );
+                            }
+
+                            return (
+                              <div 
+                                key={comment.id}
+                                style={{
+                                  background: '#FFF9E6',
+                                  padding: '12px',
+                                  borderRadius: '8px',
+                                  marginBottom: '8px',
+                                  borderBottom: '1px solid var(--border-color)',
+                                  position: 'relative'
+                                }}
+                              >
+                                <div style={{ 
+                                  fontSize: '14px',
+                                  marginBottom: '8px',
+                                  lineHeight: '1.5',
+                                  paddingRight: isCommentOwner ? '30px' : '0'
+                                }}>
+                                  {comment.content}
+                                </div>
+                                <div style={{
+                                  fontSize: '12px',
+                                  opacity: 0.7,
+                                  textAlign: 'right'
+                                }}>
+                                  <span>
+                                    {comment.date || new Date(comment.createdAt).toLocaleDateString('ko-KR')}
+                                    {' by '}
+                                    {commentAuthor || '알 수 없음'}
+                                  </span>
+                                </div>
+                                {isCommentOwner && (
+                                  <div
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setOpenMenuCommentId(openMenuCommentId === comment.id ? null : comment.id);
+                                    }}
+                                    style={{
+                                      position: 'absolute',
+                                      top: '8px',
+                                      right: '8px',
+                                      cursor: 'pointer',
+                                      padding: '4px 6px',
+                                      fontSize: '16px',
+                                      fontWeight: 'bold',
+                                      lineHeight: '1',
+                                      userSelect: 'none'
+                                    }}
+                                  >
+                                    ⋮
+                                    {openMenuCommentId === comment.id && (
+                                      <div
+                                        style={{
+                                          position: 'absolute',
+                                          top: '100%',
+                                          right: 0,
+                                          background: 'white',
+                                          border: '1px solid #ddd',
+                                          borderRadius: '8px',
+                                          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                                          marginTop: '4px',
+                                          minWidth: '80px',
+                                          zIndex: 10,
+                                          overflow: 'hidden'
+                                        }}
+                                      >
+                                        <div
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleEditComment(post.id, comment);
+                                          }}
+                                          style={{
+                                            padding: '10px 12px',
+                                            cursor: 'pointer',
+                                            background: 'white',
+                                            borderBottom: '1px solid #eee',
+                                            fontSize: '13px',
+                                            color: '#333'
+                                          }}
+                                          onMouseEnter={(e) => e.target.style.background = '#f5f5f5'}
+                                          onMouseLeave={(e) => e.target.style.background = 'white'}
+                                        >
+                                          수정
+                                        </div>
+                                        <div
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteComment(post.id, comment.id);
+                                          }}
+                                          style={{
+                                            padding: '10px 12px',
+                                            cursor: 'pointer',
+                                            background: 'white',
+                                            fontSize: '13px',
+                                            color: '#d9534f'
+                                          }}
+                                          onMouseEnter={(e) => e.target.style.background = '#f5f5f5'}
+                                          onMouseLeave={(e) => e.target.style.background = 'white'}
+                                        >
+                                          삭제
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
                               </div>
-                              <div style={{
-                                fontSize: '12px',
-                                opacity: 0.7,
-                                textAlign: 'right'
-                              }}>
-                                <span>
-                                  {comment.date || new Date(comment.createdAt).toLocaleDateString('ko-KR')}
-                                  {' by '}
-                                  {typeof comment.author === 'string' ? comment.author : (comment.author?.nickname || comment.author?.name || '알 수 없음')}
-                                </span>
-                              </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       )}
 
