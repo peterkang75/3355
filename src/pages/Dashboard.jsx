@@ -229,73 +229,70 @@ function Dashboard() {
             </div>
           ) : (
             <div>
-              {posts.map(post => (
+              {posts.slice(0, 3).map(post => (
                 <div key={post.id} style={{
                   background: 'var(--bg-green)',
                   padding: '16px',
                   borderRadius: '8px',
                   marginBottom: '12px',
-                  borderBottom: '1px solid var(--border-color)'
-                }}>
+                  borderBottom: '1px solid var(--border-color)',
+                  cursor: 'pointer'
+                }}
+                onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
+                >
                   <div style={{ 
                     display: 'flex', 
                     justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    marginBottom: '12px'
+                    alignItems: 'center',
+                    gap: '12px'
                   }}>
-                    <h4 style={{ fontSize: '16px', fontWeight: '700', flex: 1 }}>
+                    <h4 style={{ 
+                      fontSize: '15px', 
+                      fontWeight: '600', 
+                      flex: 1,
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap'
+                    }}>
                       {post.title}
                     </h4>
-                    <span style={{
-                      background: 'var(--primary-green)',
-                      color: 'var(--text-light)',
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      fontSize: '12px',
-                      marginLeft: '8px'
-                    }}>
-                      공지
-                    </span>
+                    {post.comments && post.comments.length > 0 && (
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        fontSize: '13px',
+                        color: 'var(--primary-green)',
+                        fontWeight: '600'
+                      }}>
+                        <span>💬</span>
+                        <span>{post.comments.length}</span>
+                      </div>
+                    )}
                   </div>
-                  <p style={{ 
-                    opacity: 0.7,
-                    marginBottom: '12px',
-                    lineHeight: '1.6',
-                    whiteSpace: 'pre-wrap'
-                  }}>
-                    {post.content}
-                  </p>
-                  <div style={{ 
-                    fontSize: '13px', 
-                    opacity: 0.7,
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginBottom: '12px'
-                  }}>
-                    <span>{post.author?.name || '알 수 없음'}</span>
-                    <span>{new Date(post.createdAt).toLocaleDateString('ko-KR')}</span>
-                  </div>
-
-                  <button
-                    onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
-                    style={{
-                      background: 'var(--bg-card)',
-                      color: 'var(--primary-green)',
-                      padding: '8px 12px',
-                      borderRadius: '6px',
-                      fontSize: '13px',
-                      fontWeight: '600',
-                      width: '100%',
-                      marginBottom: expandedPost === post.id ? '12px' : '0',
-                      border: 'none',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    ◈ 댓글 {post.comments?.length > 0 ? `(${post.comments.length})` : '달기'}
-                  </button>
 
                   {expandedPost === post.id && (
-                    <div style={{ marginTop: '12px' }}>
+                    <div style={{ marginTop: '12px', paddingTop: '12px', borderTop: '1px solid var(--border-color)' }}>
+                      <p style={{ 
+                        opacity: 0.7,
+                        marginBottom: '12px',
+                        lineHeight: '1.6',
+                        whiteSpace: 'pre-wrap',
+                        fontSize: '14px'
+                      }}>
+                        {post.content}
+                      </p>
+                      <div style={{ 
+                        fontSize: '12px', 
+                        opacity: 0.7,
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        marginBottom: '12px'
+                      }}>
+                        <span>{post.author?.name || '알 수 없음'}</span>
+                        <span>{new Date(post.createdAt).toLocaleDateString('ko-KR')}</span>
+                      </div>
+
                       {post.comments?.length > 0 && (
                         <div style={{ marginBottom: '12px' }}>
                           {post.comments.map(comment => (
@@ -338,13 +335,18 @@ function Dashboard() {
                           onChange={(e) => setNewComment(e.target.value)}
                           onKeyPress={(e) => {
                             if (e.key === 'Enter') {
+                              e.stopPropagation();
                               handleAddComment(post.id);
                             }
                           }}
+                          onClick={(e) => e.stopPropagation()}
                           style={{ flex: 1, marginBottom: 0 }}
                         />
                         <button
-                          onClick={() => handleAddComment(post.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddComment(post.id);
+                          }}
                           style={{
                             background: 'var(--primary-green)',
                             color: 'var(--text-light)',
