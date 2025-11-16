@@ -178,7 +178,7 @@ function Booking() {
       setIsRentalLoading(null);
       
       if (!isCurrentlyRenting) {
-        alert('번호대여 감사합니다!');
+        alert(`${user.nickname}님, 번호 대여 감사합니다!`);
       }
     } catch (error) {
       console.error('번호대여 상태 변경 실패:', error);
