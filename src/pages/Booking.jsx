@@ -260,7 +260,7 @@ function Booking() {
           }}>
             {data.courseName && data.date ? (
               <>
-                라운딩 이름: <strong>{data.courseName} 컴페티션 {new Date(data.date).getDate().toString().padStart(2, '0')}/{(new Date(data.date).getMonth() + 1).toString().padStart(2, '0')}</strong>
+                라운딩 이름: <strong>클럽 컴페티션 [{(new Date(data.date).getMonth() + 1).toString().padStart(2, '0')}월 {new Date(data.date).getDate().toString().padStart(2, '0')}일]</strong>
               </>
             ) : (
               '골프장과 날짜를 선택하면 라운딩 이름이 자동 생성됩니다.'
@@ -293,63 +293,6 @@ function Booking() {
               type="date"
               value={data.date}
               onChange={(e) => setData({ ...data, date: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
-
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
-              라운딩 시간 *
-            </label>
-            <input
-              type="time"
-              value={data.time}
-              onChange={(e) => setData({ ...data, time: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
-
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
-              집결시간
-            </label>
-            <input
-              type="time"
-              placeholder="집결시간"
-              value={data.gatheringTime}
-              onChange={(e) => setData({ ...data, gatheringTime: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
-
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
-              그린피
-            </label>
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="그린피 금액 ($)"
-              value={data.greenFee}
-              onChange={(e) => setData({ ...data, greenFee: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
-
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
-              카트비
-            </label>
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="카트비 금액 ($)"
-              value={data.cartFee}
-              onChange={(e) => setData({ ...data, cartFee: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
-
-            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
-              회비
-            </label>
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="회비 금액 ($)"
-              value={data.membershipFee}
-              onChange={(e) => setData({ ...data, membershipFee: e.target.value })}
               style={{ marginBottom: '12px' }}
             />
           </>
