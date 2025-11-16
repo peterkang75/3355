@@ -134,8 +134,9 @@ router.get('/posts', async (req, res) => {
 
 router.post('/posts', async (req, res) => {
   try {
+    const { id, ...postData } = req.body; // ID 제거
     const post = await prisma.post.create({
-      data: req.body,
+      data: postData,
       include: { author: true }
     });
     res.json(post);
