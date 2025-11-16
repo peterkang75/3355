@@ -242,47 +242,64 @@ function Dashboard() {
                   >
                   <div style={{ 
                     display: 'flex', 
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    gap: '12px'
+                    gap: '8px',
+                    alignItems: 'flex-start'
                   }}>
-                    <h4 style={{ 
-                      fontSize: '15px', 
-                      fontWeight: '600', 
-                      flex: 1,
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap'
+                    <span style={{
+                      fontSize: '14px',
+                      opacity: 0.5,
+                      marginTop: '2px'
                     }}>
-                      {post.title}
-                    </h4>
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      fontSize: '12px',
-                      opacity: 0.7,
-                      flexShrink: 0
-                    }}>
-                      <span>
-                        {new Date(post.createdAt).toLocaleDateString('ko-KR', { 
-                          month: 'short', 
-                          day: 'numeric' 
-                        })}
-                      </span>
-                      {post.comments && post.comments.length > 0 && (
-                        <div style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          color: 'var(--primary-green)',
-                          fontWeight: '600',
-                          opacity: 1
-                        }}>
-                          <span>💬</span>
-                          <span>{post.comments.length}</span>
-                        </div>
-                      )}
+                      •
+                    </span>
+                    <div style={{ flex: 1 }}>
+                      <h4 style={{ 
+                        fontSize: '15px', 
+                        fontWeight: '600',
+                        marginBottom: '4px'
+                      }}>
+                        {post.title}
+                      </h4>
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontSize: '11px',
+                        opacity: 0.6,
+                        flexWrap: 'wrap'
+                      }}>
+                        <span>
+                          {new Date(post.createdAt).toLocaleDateString('ko-KR', { 
+                            month: 'short', 
+                            day: 'numeric'
+                          })}
+                          {' '}
+                          {new Date(post.createdAt).toLocaleTimeString('ko-KR', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </span>
+                        <span>•</span>
+                        <span>
+                          by {post.author?.nickname || post.author?.name || '알 수 없음'}
+                        </span>
+                        {post.comments && post.comments.length > 0 && (
+                          <>
+                            <span>•</span>
+                            <div style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '3px',
+                              color: 'var(--primary-green)',
+                              fontWeight: '600',
+                              opacity: 1
+                            }}>
+                              <span>💬</span>
+                              <span>{post.comments.length}</span>
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
 
