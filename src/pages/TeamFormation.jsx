@@ -25,7 +25,26 @@ function TeamFormation() {
       
       if (foundBooking && !hasInitialized) {
         const parsedParticipants = parseParticipants(foundBooking.participants);
-        setParticipants(parsedParticipants);
+        
+        // 번호대여 회원도 조편성에 포함
+        const rentalMembers = (foundBooking.numberRentals || []).map(phone => {
+          const member = members.find(m => m.phone === phone);
+          return member ? {
+            name: member.name,
+            nickname: member.nickname,
+            phone: member.phone
+          } : null;
+        }).filter(m => m !== null);
+        
+        // 참가자 + 번호대여 회원 합치기 (중복 제거)
+        const allParticipants = [...parsedParticipants];
+        rentalMembers.forEach(rental => {
+          if (!allParticipants.some(p => p.phone === rental.phone)) {
+            allParticipants.push(rental);
+          }
+        });
+        
+        setParticipants(allParticipants);
         
         if (foundBooking.teams) {
           try {
@@ -39,23 +58,23 @@ function TeamFormation() {
               team.members.filter(m => m !== null).map(m => m.phone)
             );
             
-            const unassignedMembers = parsedParticipants.filter(p => 
+            const unassignedMembers = allParticipants.filter(p => 
               !assignedPhones.includes(p.phone)
             );
             
             setUnassigned(unassignedMembers);
           } catch (e) {
             console.error('Failed to parse teams:', e);
-            initializeTeams(parsedParticipants);
+            initializeTeams(allParticipants);
           }
         } else {
-          initializeTeams(parsedParticipants);
+          initializeTeams(allParticipants);
         }
         
         setHasInitialized(true);
       }
     }
-  }, [bookingId, bookings, hasInitialized]);
+  }, [bookingId, bookings, hasInitialized, members]);
 
   const parseParticipants = (participants) => {
     if (!participants || !Array.isArray(participants)) {
