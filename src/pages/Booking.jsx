@@ -688,7 +688,7 @@ function Booking() {
 
           {(booking.restaurantName || booking.restaurantAddress) && (
             <div style={{
-              background: '#fff3e0',
+              background: '#A8D5E2',
               padding: '12px',
               borderRadius: '6px',
               marginBottom: '16px',
