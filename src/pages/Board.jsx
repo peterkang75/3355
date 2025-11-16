@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { useNavigate } from 'react-router-dom';
-import backArrow from '../assets/back-arrow.png';
 
 function Board() {
   const { user, posts, addPost, updatePost } = useApp();
@@ -53,14 +51,14 @@ function Board() {
           style={{
             background: 'none',
             border: 'none',
+            fontSize: '20px',
             cursor: 'pointer',
             padding: '0',
-            minWidth: '24px',
-            display: 'flex',
-            alignItems: 'center'
+            color: 'var(--text-light)',
+            minWidth: '24px'
           }}
         >
-          <img src={backArrow} alt="뒤로가기" style={{ height: '20px' }} />
+          ‹
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, marginLeft: '12px' }}>
           <h1>게시판</h1>

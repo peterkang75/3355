@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
-import backArrow from '../assets/back-arrow.png';
 
 function ScoreEntry() {
   const { user, saveScore } = useApp();
@@ -79,18 +78,13 @@ function ScoreEntry() {
           disabled={currentHole === 1}
           style={{
             background: 'transparent',
-            border: 'none',
             color: 'var(--text-light)',
+            fontSize: '16px',
             padding: '8px 16px',
-            opacity: currentHole === 1 ? 0.3 : 1,
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
+            opacity: currentHole === 1 ? 0.3 : 1
           }}
         >
-          <img src={backArrow} alt="뒤로가기" style={{ height: '16px', opacity: currentHole === 1 ? 0.3 : 1 }} />
-          <span style={{ fontSize: '16px' }}>Back</span>
+          ← Back
         </button>
         <button 
           onClick={saveRound}

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
-import backArrow from '../assets/back-arrow.png';
 
 function GradeSettings() {
   const navigate = useNavigate();
@@ -86,13 +85,13 @@ function GradeSettings() {
           style={{
             background: 'transparent',
             border: 'none',
+            color: 'var(--text-light)',
+            fontSize: '20px',
             cursor: 'pointer',
-            padding: '0 8px',
-            display: 'flex',
-            alignItems: 'center'
+            padding: '0 8px'
           }}
         >
-          <img src={backArrow} alt="뒤로가기" style={{ height: '20px' }} />
+          ←
         </button>
         <h1>그레이드 설정</h1>
       </div>

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
-import backArrow from '../assets/back-arrow.png';
 
 function Booking() {
   const { user, members, bookings, courses, addBooking, updateBooking, refreshBookings } = useApp();
@@ -1028,14 +1027,14 @@ function Booking() {
           style={{
             background: 'none',
             border: 'none',
+            fontSize: '20px',
             cursor: 'pointer',
             padding: '0',
-            minWidth: '24px',
-            display: 'flex',
-            alignItems: 'center'
+            color: 'var(--text-light)',
+            minWidth: '24px'
           }}
         >
-          <img src={backArrow} alt="뒤로가기" style={{ height: '20px' }} />
+          ‹
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, marginLeft: '12px' }}>
           <h1>라운딩</h1>
