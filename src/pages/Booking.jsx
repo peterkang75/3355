@@ -793,9 +793,9 @@ function Booking() {
                         style={{
                           flex: 1,
                           padding: '12px',
-                          background: isRenting ? '#ffd700' : '#fff8dc',
+                          background: isRenting ? '#fff8dc' : '#ffd700',
                           color: '#333',
-                          border: isRenting ? '2px solid #ff8c00' : '1px solid #ffd700',
+                          border: 'none',
                           borderRadius: '6px',
                           fontSize: '16px',
                           fontWeight: '700',
@@ -883,9 +883,9 @@ function Booking() {
                     style={{
                       flex: 1,
                       padding: '12px',
-                      background: isRenting ? '#ffd700' : '#fff8dc',
+                      background: isRenting ? '#fff8dc' : '#ffd700',
                       color: '#333',
-                      border: isRenting ? '2px solid #ff8c00' : '1px solid #ffd700',
+                      border: 'none',
                       borderRadius: '6px',
                       fontSize: '16px',
                       fontWeight: '700',

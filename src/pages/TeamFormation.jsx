@@ -345,8 +345,8 @@ function TeamFormation() {
                     style={{
                       padding: '8px 16px',
                       borderRadius: '6px',
-                      border: isRenting ? '2px solid #ff8c00' : '2px solid var(--border-color)',
-                      background: isRenting ? '#ffd700' : 'transparent',
+                      border: isRenting ? 'none' : '2px solid var(--border-color)',
+                      background: isRenting ? '#fff8dc' : 'transparent',
                       fontSize: '14px',
                       fontWeight: '600',
                       color: isRenting ? '#333' : 'var(--primary-green)'
@@ -383,10 +383,10 @@ function TeamFormation() {
                     onClick={() => handleSlotClick(teamIndex, slotIndex, member)}
                     style={{
                       minHeight: '60px',
-                      background: member ? (isRenting ? '#ffd700' : 'var(--primary-green)') : 'var(--bg-card)',
+                      background: member ? (isRenting ? '#fff8dc' : 'var(--primary-green)') : 'var(--bg-card)',
                       color: member ? (isRenting ? '#333' : 'var(--text-light)') : 'var(--text-dark)',
                       borderRadius: '8px',
-                      border: isRenting ? '2px solid #ff8c00' : '2px solid var(--border-color)',
+                      border: '2px solid var(--border-color)',
                       opacity: member ? 1 : 0.7,
                       display: 'flex',
                       alignItems: 'center',
