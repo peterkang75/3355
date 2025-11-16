@@ -272,8 +272,8 @@ function Dashboard() {
                     justifyContent: 'space-between',
                     marginBottom: '12px'
                   }}>
-                    <span>{post.author}</span>
-                    <span>{post.date}</span>
+                    <span>{post.author?.name || '알 수 없음'}</span>
+                    <span>{new Date(post.createdAt).toLocaleDateString('ko-KR')}</span>
                   </div>
 
                   <button
@@ -322,8 +322,8 @@ function Dashboard() {
                                 display: 'flex',
                                 justifyContent: 'space-between'
                               }}>
-                                <span>{comment.author}</span>
-                                <span>{comment.date}</span>
+                                <span>{typeof comment.author === 'string' ? comment.author : comment.author?.name || '알 수 없음'}</span>
+                                <span>{comment.date || new Date(comment.createdAt).toLocaleDateString('ko-KR')}</span>
                               </div>
                             </div>
                           ))}
