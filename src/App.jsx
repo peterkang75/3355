@@ -19,6 +19,7 @@ import GradeSettings from './pages/GradeSettings';
 import MemberDetail from './pages/MemberDetail';
 import Navigation from './components/Navigation';
 import InstallPrompt from './components/InstallPrompt';
+import logoImage from './assets/logo.jpeg';
 
 function AppRoutes({ user, logout }) {
   const navigate = useNavigate();
@@ -61,7 +62,7 @@ function App() {
       <div className="loading-screen">
         <div className="loading-content">
           <img 
-            src="/app-icon.png" 
+            src={logoImage} 
             alt="3355 골프 클럽" 
             className="loading-logo"
           />
