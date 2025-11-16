@@ -737,6 +737,26 @@ function Booking() {
             </div>
           </div>
 
+          {(user.isAdmin || user.role === '운영진') && (
+            <button
+              onClick={() => navigate(`/team-formation?id=${booking.id}`)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: 'var(--primary-green)',
+                color: 'var(--text-light)',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '15px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                marginBottom: '16px'
+              }}
+            >
+              📋 조편성하기
+            </button>
+          )}
+
           <div style={{ display: 'flex', gap: '8px' }}>
             {isRegistrationClosed(booking) ? (
               <>
