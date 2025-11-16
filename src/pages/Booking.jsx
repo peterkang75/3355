@@ -519,8 +519,8 @@ function Booking() {
                 <h3 style={{ 
                   fontSize: '14px', 
                   fontWeight: '700', 
-                  color: booking.type === '컴페티션' ? 'white' : '#333', 
-                  background: booking.type === '컴페티션' ? '#2d5355' : '#ff8c42',
+                  color: booking.type === '컴페티션' ? 'white' : 'white', 
+                  background: booking.type === '컴페티션' ? '#2d5355' : '#BF4D34',
                   padding: '6px 10px',
                   borderRadius: '6px',
                   marginBottom: '8px',
