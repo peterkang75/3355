@@ -248,7 +248,7 @@ function Dashboard() {
           onClick={() => navigate('/mypage')}
         >
           <div style={{ fontSize: '14px', fontWeight: '500' }}>
-            {user.nickname || user.name}
+            환영합니다 {user.nickname || user.name}님
           </div>
           <div style={{
             width: '36px',
