@@ -499,20 +499,34 @@ function TeamFormation() {
                 <div style={{ display: 'grid', gap: '8px' }}>
                   {unassigned.map((participant, index) => {
                     const isSelected = selectedParticipants.some(p => p.phone === participant.phone);
+                    const isRenting = booking?.numberRentals && booking.numberRentals.includes(participant.phone);
+                    
+                    let bgColor, textColor;
+                    if (isSelected) {
+                      bgColor = 'var(--primary-green)';
+                      textColor = 'white';
+                    } else if (isRenting) {
+                      bgColor = '#E6AA68';
+                      textColor = '#fff';
+                    } else {
+                      bgColor = 'var(--bg-card)';
+                      textColor = 'var(--primary-green)';
+                    }
+                    
                     return (
                       <button
                         key={index}
                         onClick={() => handleToggleParticipant(participant)}
                         style={{
                           padding: '16px',
-                          background: isSelected ? 'var(--primary-green)' : 'var(--bg-card)',
+                          background: bgColor,
                           border: '2px solid var(--border-color)',
                           borderRadius: '8px',
                           cursor: 'pointer',
                           textAlign: 'center',
                           fontSize: '16px',
                           fontWeight: '600',
-                          color: isSelected ? 'white' : 'var(--primary-green)',
+                          color: textColor,
                           transition: 'all 0.2s',
                           position: 'relative'
                         }}
