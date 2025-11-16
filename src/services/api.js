@@ -279,13 +279,29 @@ class ApiService {
     return response.json();
   }
 
-  async updateSetting(feature, minRole) {
+  async updateSetting(feature, data) {
     const response = await fetch(`${API_BASE}/settings/${feature}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ minRole })
+      body: JSON.stringify(data)
     });
     if (!response.ok) throw new Error('Failed to update setting');
+    return response.json();
+  }
+
+  async approveMember(id) {
+    const response = await fetch(`${API_BASE}/members/${id}/approve`, {
+      method: 'PATCH'
+    });
+    if (!response.ok) throw new Error('Failed to approve member');
+    return response.json();
+  }
+
+  async rejectMember(id) {
+    const response = await fetch(`${API_BASE}/members/${id}/reject`, {
+      method: 'PATCH'
+    });
+    if (!response.ok) throw new Error('Failed to reject member');
     return response.json();
   }
 

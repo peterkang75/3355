@@ -17,8 +17,18 @@ router.get('/members', async (req, res) => {
 
 router.post('/members', async (req, res) => {
   try {
+    // 회원가입 승인 필요 설정 확인
+    const approvalSetting = await prisma.appSettings.findUnique({
+      where: { feature: 'memberApprovalRequired' }
+    });
+    
+    const requiresApproval = approvalSetting?.enabled || false;
+    
     const member = await prisma.member.create({
-      data: req.body
+      data: {
+        ...req.body,
+        approvalStatus: requiresApproval ? 'pending' : 'approved'
+      }
     });
     res.json(member);
   } catch (error) {
@@ -507,11 +517,15 @@ router.get('/settings', async (req, res) => {
 
 router.put('/settings/:feature', async (req, res) => {
   try {
-    const { minRole } = req.body;
+    const { minRole, enabled } = req.body;
+    const updateData = {};
+    if (minRole !== undefined) updateData.minRole = minRole;
+    if (enabled !== undefined) updateData.enabled = enabled;
+    
     const setting = await prisma.appSettings.upsert({
       where: { feature: req.params.feature },
-      update: { minRole },
-      create: { feature: req.params.feature, minRole }
+      update: updateData,
+      create: { feature: req.params.feature, ...updateData }
     });
     res.json(setting);
   } catch (error) {
@@ -550,6 +564,34 @@ router.post('/scores', async (req, res) => {
   } catch (error) {
     console.error('Error creating score:', error);
     res.status(500).json({ error: 'Failed to create score' });
+  }
+});
+
+// 회원 승인
+router.patch('/members/:id/approve', async (req, res) => {
+  try {
+    const member = await prisma.member.update({
+      where: { id: req.params.id },
+      data: { approvalStatus: 'approved' }
+    });
+    res.json(member);
+  } catch (error) {
+    console.error('Error approving member:', error);
+    res.status(500).json({ error: 'Failed to approve member' });
+  }
+});
+
+// 회원 거부
+router.patch('/members/:id/reject', async (req, res) => {
+  try {
+    const member = await prisma.member.update({
+      where: { id: req.params.id },
+      data: { approvalStatus: 'rejected' }
+    });
+    res.json(member);
+  } catch (error) {
+    console.error('Error rejecting member:', error);
+    res.status(500).json({ error: 'Failed to reject member' });
   }
 });
 

@@ -27,6 +27,7 @@ model Member {
   balance          Int      @default(0)
   photo            String?
   isActive         Boolean  @default(true)
+  approvalStatus   String   @default("approved")
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 

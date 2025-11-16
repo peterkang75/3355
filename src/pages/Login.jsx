@@ -47,6 +47,16 @@ function Login({ onLogin }) {
       return;
     }
 
+    if (foundMember.approvalStatus === 'pending') {
+      setError('회원가입 승인 대기 중입니다. 운영진의 승인을 기다려주세요.');
+      return;
+    }
+
+    if (foundMember.approvalStatus === 'rejected') {
+      setError('회원가입이 거부되었습니다. 관리자에게 문의하세요.');
+      return;
+    }
+
     console.log('🔐 로그인 시도:', foundMember.name);
     console.log('📋 Member 정보:', JSON.stringify(foundMember, null, 2));
     
@@ -84,7 +94,11 @@ function Login({ onLogin }) {
         await refreshMembers();
       }
       
-      alert('회원가입이 완료되었습니다! 전화번호 끝 6자리로 로그인해주세요.');
+      if (result.approvalStatus === 'pending') {
+        alert('회원가입이 완료되었습니다! 운영진의 승인을 기다려주세요.');
+      } else {
+        alert('회원가입이 완료되었습니다! 전화번호 끝 6자리로 로그인해주세요.');
+      }
       setShowSignup(false);
     } catch (error) {
       console.error('❌ 저장 실패:', error);
