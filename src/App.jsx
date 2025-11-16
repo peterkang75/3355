@@ -55,7 +55,20 @@ function App() {
   const { user, loading, login, logout } = useApp();
 
   if (loading) {
-    return <div className="loading">로딩 중...</div>;
+    return (
+      <div className="loading-screen">
+        <div className="loading-content">
+          <img 
+            src="/app-icon.png" 
+            alt="3355 골프 클럽" 
+            className="loading-logo"
+          />
+          <h1 className="loading-title">3355 골프 클럽</h1>
+          <p className="loading-welcome">환영합니다</p>
+          <div className="loading-spinner"></div>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
