@@ -331,7 +331,7 @@ function Dashboard() {
                             <div 
                               key={comment.id}
                               style={{
-                                background: 'var(--bg-card)',
+                                background: '#FFF9E6',
                                 padding: '12px',
                                 borderRadius: '8px',
                                 marginBottom: '8px',
