@@ -2,16 +2,7 @@ import React from 'react';
 import logoImage from '../assets/logo.jpeg';
 
 function About() {
-  const handleFeedback = () => {
-    window.open('https://open.kakao.com/o/sBvflSoh', '_blank');
-  };
-
-  const handleBugReport = () => {
-    window.open('https://open.kakao.com/o/sBvflSoh', '_blank');
-  };
-
-  const handlePraiseDeveloper = () => {
-    alert('개발자가 매우 기뻐합니다! 🎉\n감사합니다!');
+  const handleContact = () => {
     window.open('https://open.kakao.com/o/sBvflSoh', '_blank');
   };
 
@@ -50,6 +41,12 @@ function About() {
           </div>
         </div>
 
+        <div style={{ 
+          height: '2px', 
+          background: 'linear-gradient(to right, transparent, var(--primary-green), transparent)',
+          margin: '20px 0'
+        }} />
+
         <div className="card">
           <h3 style={{ 
             fontSize: '16px', 
@@ -59,7 +56,7 @@ function About() {
           }}>
             주요 기능
           </h3>
-          <div style={{ fontSize: '14px', lineHeight: '1.8', opacity: 0.9 }}>
+          <div style={{ fontSize: '14px', lineHeight: '1.8', opacity: 0.9, marginBottom: '20px' }}>
             • 회원관리<br/>
             • 라운딩 관리<br/>
             <div style={{ paddingLeft: '16px', marginTop: '4px' }}>
@@ -71,57 +68,34 @@ function About() {
               - 하우스 핸디 자동 생성
             </div>
           </div>
-        </div>
 
-        <div className="card" style={{ background: 'var(--bg-green)' }}>
           <h3 style={{ 
             fontSize: '16px', 
             fontWeight: '700', 
             marginBottom: '12px',
+            marginTop: '24px',
             color: 'var(--primary-green)'
           }}>
             예정된 업데이트
           </h3>
-          <div style={{ fontSize: '14px', lineHeight: '1.8', opacity: 0.9 }}>
+          <div style={{ fontSize: '14px', lineHeight: '1.8', opacity: 0.9, marginBottom: '24px' }}>
             • 회비관리<br/>
             • 실시간 스코어 입력 (Miscore 와 동일 UI)
           </div>
-        </div>
 
-        <div className="card">
           <button
-            onClick={handleFeedback}
-            className="btn-primary"
-            style={{ marginBottom: '12px', width: '100%' }}
-          >
-            📝 피드백 보내기
-          </button>
-          <button
-            onClick={handleBugReport}
-            className="btn-primary"
-            style={{ 
-              marginBottom: '12px', 
-              width: '100%',
-              background: '#FF9800',
-              borderBottom: '3px solid #F57C00'
-            }}
-          >
-            🐛 버그 신고
-          </button>
-          <button
-            onClick={handlePraiseDeveloper}
+            onClick={handleContact}
             className="btn-primary"
             style={{ 
               width: '100%',
+              marginBottom: '24px',
               background: 'var(--primary-green)',
               borderBottom: '3px solid var(--primary-dark)'
             }}
           >
-            👏 개발자 찬양하기
+            💬 피드백, 버그신고, 동백님 찬양하기
           </button>
-        </div>
 
-        <div className="card">
           <h3 style={{ 
             fontSize: '16px', 
             fontWeight: '700', 
@@ -130,30 +104,11 @@ function About() {
           }}>
             개발자 정보
           </h3>
-          <div style={{ fontSize: '14px', lineHeight: '1.8', opacity: 0.9, marginBottom: '12px' }}>
-            동백
+          <div style={{ fontSize: '14px', lineHeight: '1.8', opacity: 0.9, marginBottom: '24px' }}>
+            멋짐, 매력, 잘생김 뿜뿜 동백님
           </div>
-          <a 
-            href="https://open.kakao.com/o/sBvflSoh" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            style={{
-              display: 'inline-block',
-              padding: '10px 20px',
-              background: '#FEE500',
-              color: '#000',
-              borderRadius: '6px',
-              textDecoration: 'none',
-              fontSize: '14px',
-              fontWeight: '600'
-            }}
-          >
-            💬 카카오톡으로 문의하기
-          </a>
-        </div>
 
-        <div className="card" style={{ background: 'var(--bg-green)' }}>
-          <div style={{ fontSize: '14px', lineHeight: '1.8', opacity: 0.7 }}>
+          <div style={{ fontSize: '14px', lineHeight: '1.8', opacity: 0.7, paddingTop: '16px', borderTop: '1px solid rgba(0,0,0,0.1)' }}>
             <div style={{ marginBottom: '8px' }}>
               <strong>개인정보 처리방침</strong><br/>
               그딴거 없음
@@ -163,16 +118,17 @@ function About() {
               그런것도 없음
             </div>
           </div>
-        </div>
 
-        <div style={{ 
-          textAlign: 'center', 
-          fontSize: '12px', 
-          opacity: 0.5,
-          marginTop: '20px',
-          padding: '20px'
-        }}>
-          Made with ❤️ by 동백
+          <div style={{ 
+            textAlign: 'center', 
+            fontSize: '12px', 
+            opacity: 0.5,
+            marginTop: '24px',
+            paddingTop: '16px',
+            borderTop: '1px solid rgba(0,0,0,0.05)'
+          }}>
+            Made with ❤️ by 동백
+          </div>
         </div>
       </div>
     </div>
