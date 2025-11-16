@@ -237,7 +237,7 @@ function Dashboard() {
             display: 'flex', 
             justifyContent: 'space-between', 
             alignItems: 'center',
-            marginBottom: '16px'
+            marginBottom: '13px'
           }}>
             <h3 style={{ 
               fontSize: '18px', 
@@ -268,11 +268,11 @@ function Dashboard() {
           {showNewPost && user.isAdmin && (
             <div style={{ 
               background: 'var(--bg-green)', 
-              padding: '16px', 
+              padding: '13px', 
               borderRadius: '8px',
-              marginBottom: '16px'
+              marginBottom: '13px'
             }}>
-              <h4 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: '700' }}>
+              <h4 style={{ marginBottom: '10px', fontSize: '16px', fontWeight: '700' }}>
                 새 공지사항
               </h4>
               <input
@@ -280,14 +280,14 @@ function Dashboard() {
                 placeholder="제목"
                 value={newPost.title}
                 onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
-                style={{ marginBottom: '12px', width: '100%' }}
+                style={{ marginBottom: '10px', width: '100%' }}
               />
               <textarea
                 placeholder="내용"
                 value={newPost.content}
                 onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
                 rows={6}
-                style={{ marginBottom: '12px', resize: 'vertical', width: '100%' }}
+                style={{ marginBottom: '10px', resize: 'vertical', width: '100%' }}
               />
               <button onClick={handleCreatePost} className="btn-primary">
                 게시하기
@@ -296,11 +296,11 @@ function Dashboard() {
           )}
 
           {posts.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px', opacity: 0.7, background: 'var(--bg-green)', borderRadius: '8px' }}>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>✎</div>
+            <div style={{ textAlign: 'center', padding: '32px', opacity: 0.7, background: 'var(--bg-green)', borderRadius: '8px' }}>
+              <div style={{ fontSize: '48px', marginBottom: '13px' }}>✎</div>
               <p>아직 공지사항이 없습니다</p>
               {user.isAdmin && (
-                <p style={{ fontSize: '14px', marginTop: '8px' }}>
+                <p style={{ fontSize: '14px', marginTop: '6px' }}>
                   상단의 작성 버튼을 눌러 첫 공지를 작성하세요
                 </p>
               )}
@@ -310,24 +310,24 @@ function Dashboard() {
               {editingPost && (
                 <div style={{
                   background: 'var(--bg-green)',
-                  padding: '16px',
+                  padding: '13px',
                   borderRadius: '8px',
-                  marginBottom: '12px'
+                  marginBottom: '10px'
                 }}>
-                  <h3 style={{ marginBottom: '12px', fontSize: '16px' }}>게시글 수정</h3>
+                  <h3 style={{ marginBottom: '10px', fontSize: '16px' }}>게시글 수정</h3>
                   <input
                     type="text"
                     placeholder="제목"
                     value={editingPost.title}
                     onChange={(e) => setEditingPost({ ...editingPost, title: e.target.value })}
-                    style={{ marginBottom: '12px', width: '100%' }}
+                    style={{ marginBottom: '10px', width: '100%' }}
                   />
                   <textarea
                     placeholder="내용"
                     value={editingPost.content}
                     onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
                     rows={6}
-                    style={{ marginBottom: '12px', resize: 'vertical', width: '100%' }}
+                    style={{ marginBottom: '10px', resize: 'vertical', width: '100%' }}
                   />
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button onClick={handleUpdatePost} className="btn-primary">
@@ -337,7 +337,7 @@ function Dashboard() {
                       background: '#ccc',
                       color: '#333',
                       border: 'none',
-                      padding: '12px 20px',
+                      padding: '10px 16px',
                       borderRadius: '8px',
                       fontWeight: '600',
                       cursor: 'pointer'
@@ -351,7 +351,7 @@ function Dashboard() {
                 <div key={post.id}>
                   <div style={{
                     background: expandedPost === post.id ? '#FFD449' : 'var(--bg-green)',
-                    padding: '12px',
+                    padding: '10px',
                     borderRadius: '8px',
                     cursor: 'pointer',
                     transition: 'background 0.2s',
@@ -497,10 +497,10 @@ function Dashboard() {
                   </div>
 
                   {expandedPost === post.id && (
-                    <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid rgba(0, 0, 0, 0.15)' }}>
+                    <div style={{ marginTop: '8px', paddingTop: '8px', borderTop: '1px solid rgba(0, 0, 0, 0.15)' }}>
                       <p style={{ 
                         opacity: 0.7,
-                        marginBottom: '12px',
+                        marginBottom: '10px',
                         lineHeight: '1.6',
                         whiteSpace: 'pre-wrap',
                         fontSize: '14px'
@@ -512,14 +512,14 @@ function Dashboard() {
                         opacity: 0.7,
                         display: 'flex',
                         justifyContent: 'space-between',
-                        marginBottom: '12px'
+                        marginBottom: '10px'
                       }}>
                         <span>{post.author?.name || '알 수 없음'}</span>
                         <span>{new Date(post.createdAt).toLocaleDateString('ko-KR')}</span>
                       </div>
 
                       {post.comments?.length > 0 && (
-                        <div style={{ marginBottom: '12px' }}>
+                        <div style={{ marginBottom: '10px' }}>
                           {post.comments.map(comment => {
                             const commentAuthor = typeof comment.author === 'string' ? comment.author : (comment.author?.nickname || comment.author?.name);
                             const isCommentOwner = user.isAdmin || commentAuthor === (user.nickname || user.name);
@@ -531,9 +531,9 @@ function Dashboard() {
                                   key={comment.id}
                                   style={{
                                     background: '#FFF9E6',
-                                    padding: '12px',
+                                    padding: '10px',
                                     borderRadius: '8px',
-                                    marginBottom: '8px',
+                                    marginBottom: '6px',
                                     borderBottom: '1px solid var(--border-color)'
                                   }}
                                   onClick={(e) => e.stopPropagation()}
@@ -544,7 +544,7 @@ function Dashboard() {
                                     style={{ 
                                       width: '100%', 
                                       minHeight: '60px',
-                                      marginBottom: '8px',
+                                      marginBottom: '6px',
                                       resize: 'vertical',
                                       padding: '8px',
                                       borderRadius: '4px',
@@ -590,16 +590,16 @@ function Dashboard() {
                                 key={comment.id}
                                 style={{
                                   background: '#FFF9E6',
-                                  padding: '12px',
+                                  padding: '10px',
                                   borderRadius: '8px',
-                                  marginBottom: '8px',
+                                  marginBottom: '6px',
                                   borderBottom: '1px solid var(--border-color)',
                                   position: 'relative'
                                 }}
                               >
                                 <div style={{ 
                                   fontSize: '14px',
-                                  marginBottom: '8px',
+                                  marginBottom: '6px',
                                   lineHeight: '1.5',
                                   paddingRight: isCommentOwner ? '30px' : '0'
                                 }}>
