@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
+import CrownIcon from '../components/CrownIcon';
 
 function Admin() {
   const navigate = useNavigate();
@@ -963,10 +964,7 @@ function Admin() {
                         gap: '6px'
                       }}>
                         <span style={{ color: 'var(--primary-green)' }}>{member.nickname || member.name}</span>
-                        {member.role === '관리자' && <span style={{ fontSize: '14px' }}>★</span>}
-                        {member.role === '방장' && <span style={{ fontSize: '14px' }}>👑</span>}
-                        {member.role === '운영진' && <span style={{ fontSize: '14px' }}>⚙</span>}
-                        {member.role === '클럽운영진' && <span style={{ fontSize: '14px' }}>🏌</span>}
+                        <CrownIcon role={member.role} size={16} />
                       </div>
                       <div style={{ fontSize: '13px', color: 'var(--text-dark)', opacity: 0.7 }}>
                         {member.name}
@@ -1815,10 +1813,22 @@ function Admin() {
                 borderBottom: '2px solid var(--primary-green)'
               }}>
                 <div style={{ textAlign: 'left' }}>기능</div>
-                <div style={{ textAlign: 'center' }}>관리자</div>
-                <div style={{ textAlign: 'center' }}>방장</div>
-                <div style={{ textAlign: 'center' }}>운영진</div>
-                <div style={{ textAlign: 'center' }}>클럽운영진</div>
+                <div style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                  <CrownIcon role="관리자" size={14} />
+                  <span>관리자</span>
+                </div>
+                <div style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                  <CrownIcon role="방장" size={14} />
+                  <span>방장</span>
+                </div>
+                <div style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                  <CrownIcon role="운영진" size={14} />
+                  <span>운영진</span>
+                </div>
+                <div style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                  <CrownIcon role="클럽운영진" size={14} />
+                  <span>클럽운영진</span>
+                </div>
                 <div style={{ textAlign: 'center' }}>회원</div>
               </div>
 
