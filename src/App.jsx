@@ -10,6 +10,7 @@ import ScoreEntry from './pages/ScoreEntry';
 import Fees from './pages/Fees';
 import MyPage from './pages/MyPage';
 import Admin from './pages/Admin';
+import About from './pages/About';
 import RoundingManagement from './pages/RoundingManagement';
 import TeamFormation from './pages/TeamFormation';
 import ParticipantManagement from './pages/ParticipantManagement';
@@ -36,6 +37,7 @@ function AppRoutes({ user, logout }) {
         <Route path="/fees" element={<Fees />} />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/about" element={<About />} />
         <Route path="/member/:id" element={<MemberDetail />} />
         <Route path="/rounding-management" element={<RoundingManagement />} />
         <Route path="/team-formation" element={<TeamFormation />} />

@@ -41,6 +41,10 @@ function Navigation({ user, onLogout }) {
           <span>관리</span>
         </NavLink>
       )}
+      <NavLink to="/about" className={({ isActive }) => isActive ? 'nav-item active' : 'nav-item'}>
+        <span className="nav-icon">ⓘ</span>
+        <span>About</span>
+      </NavLink>
     </nav>
   );
 }
