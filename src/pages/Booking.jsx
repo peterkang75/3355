@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
 
 function Booking() {
-  const { user, members, bookings, courses, addBooking, updateBooking, refreshBookings } = useApp();
+  const { user, members, bookings, courses, scores, addBooking, updateBooking, refreshBookings } = useApp();
   const navigate = useNavigate();
   const [showNewBooking, setShowNewBooking] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
@@ -45,6 +45,24 @@ function Booking() {
     } catch {
       return false;
     }
+  };
+
+  const hasUserScore = (booking) => {
+    if (!scores || scores.length === 0) return false;
+    const bookingDate = new Date(booking.date).toISOString().split('T')[0];
+    return scores.some(score => {
+      const scoreDate = new Date(score.date).toISOString().split('T')[0];
+      return scoreDate === bookingDate && score.courseName === booking.courseName;
+    });
+  };
+
+  const getUserScore = (booking) => {
+    if (!scores || scores.length === 0) return null;
+    const bookingDate = new Date(booking.date).toISOString().split('T')[0];
+    return scores.find(score => {
+      const scoreDate = new Date(score.date).toISOString().split('T')[0];
+      return scoreDate === bookingDate && score.courseName === booking.courseName;
+    });
   };
 
   const handleCreateBooking = () => {
@@ -741,9 +759,16 @@ function Booking() {
             {isRegistrationClosed(booking) ? (
               <>
                 <button
-                  onClick={() => booking.dailyHandicaps 
-                    ? navigate(`/member-score-entry?id=${booking.id}`) 
-                    : navigate('/score')}
+                  onClick={() => {
+                    if (booking.dailyHandicaps) {
+                      navigate(`/member-score-entry?id=${booking.id}`);
+                    } else if (hasUserScore(booking)) {
+                      const userScore = getUserScore(booking);
+                      navigate('/score', { state: { scoreId: userScore.id, readonly: true } });
+                    } else {
+                      navigate('/score');
+                    }
+                  }}
                   style={{
                     flex: 1,
                     padding: '12px',
@@ -756,7 +781,7 @@ function Booking() {
                     cursor: 'pointer'
                   }}
                 >
-                  {booking.dailyHandicaps ? '▲ 결과보기' : '⛳ 플레이하기'}
+                  {booking.dailyHandicaps ? '▲ 결과보기' : hasUserScore(booking) ? '📊 스코어보기' : '⛳ 플레이하기'}
                 </button>
                 {user.isAdmin && (
                   <button
