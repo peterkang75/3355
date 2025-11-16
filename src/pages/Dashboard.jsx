@@ -991,13 +991,20 @@ function Dashboard() {
                         e.stopPropagation();
                         navigate(`/team-formation?id=${booking.id}`);
                       }}
-                      className='btn-primary'
                       style={{ 
+                        background: 'transparent',
+                        border: 'none',
+                        color: 'var(--primary-green)',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        padding: '8px 0',
+                        textDecoration: 'underline',
+                        cursor: 'pointer',
                         width: '100%',
-                        background: '#214001'
+                        textAlign: 'center'
                       }}
                     >
-                      📋 조편성 보기
+                      조편성 보기 →
                     </button>
                   ) : isRegistrationClosed(booking) ? (
                     <button 
