@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
+import backArrow from '../assets/back-arrow.png';
 
 function MyPage() {
   const { user, logout, refreshMembers, courses } = useApp();
@@ -122,14 +123,14 @@ function MyPage() {
           style={{
             background: 'none',
             border: 'none',
-            fontSize: '20px',
             cursor: 'pointer',
             padding: '0',
-            color: 'var(--text-light)',
-            minWidth: '24px'
+            minWidth: '24px',
+            display: 'flex',
+            alignItems: 'center'
           }}
         >
-          ‹
+          <img src={backArrow} alt="뒤로가기" style={{ height: '20px' }} />
         </button>
         <h1 style={{ flex: 1, marginLeft: '12px' }}>마이 페이지</h1>
         <div style={{

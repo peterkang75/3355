@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
+import backArrow from '../assets/back-arrow.png';
 
 function Dashboard() {
   const { user, members, scores, bookings, posts, addPost, updatePost, deletePost, updateBooking } = useApp();
@@ -228,14 +229,14 @@ function Dashboard() {
           style={{
             background: 'none',
             border: 'none',
-            fontSize: '20px',
             cursor: 'pointer',
             padding: '0',
-            color: 'var(--text-light)',
-            minWidth: '24px'
+            minWidth: '24px',
+            display: 'flex',
+            alignItems: 'center'
           }}
         >
-          ‹
+          <img src={backArrow} alt="뒤로가기" style={{ height: '20px' }} />
         </button>
         <h1 style={{ flex: 1, marginLeft: '12px' }}>대시보드</h1>
         <div 

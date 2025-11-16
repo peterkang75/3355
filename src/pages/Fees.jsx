@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
+import backArrow from '../assets/back-arrow.png';
 
 function Fees() {
   const navigate = useNavigate();
@@ -24,14 +25,14 @@ function Fees() {
           style={{
             background: 'none',
             border: 'none',
-            fontSize: '20px',
             cursor: 'pointer',
             padding: '0',
-            color: 'var(--text-light)',
-            minWidth: '24px'
+            minWidth: '24px',
+            display: 'flex',
+            alignItems: 'center'
           }}
         >
-          ‹
+          <img src={backArrow} alt="뒤로가기" style={{ height: '20px' }} />
         </button>
         <h1 style={{ flex: 1, marginLeft: '12px' }}>회비 관리</h1>
         <div 
