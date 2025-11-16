@@ -229,17 +229,16 @@ function Dashboard() {
             </div>
           ) : (
             <div>
-              {posts.slice(0, 3).map(post => (
-                <div key={post.id} style={{
-                  background: 'var(--bg-green)',
-                  padding: '16px',
-                  borderRadius: '8px',
-                  marginBottom: '12px',
-                  borderBottom: '1px solid var(--border-color)',
-                  cursor: 'pointer'
-                }}
-                onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
-                >
+              {posts.slice(0, 3).map((post, index) => (
+                <div key={post.id}>
+                  <div style={{
+                    background: 'var(--bg-green)',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
+                  >
                   <div style={{ 
                     display: 'flex', 
                     justifyContent: 'space-between',
@@ -378,6 +377,14 @@ function Dashboard() {
                         </button>
                       </div>
                     </div>
+                  )}
+                  </div>
+                  {index < Math.min(posts.length, 3) - 1 && (
+                    <div style={{
+                      height: '1px',
+                      background: 'rgba(0, 0, 0, 0.1)',
+                      margin: '12px 0'
+                    }} />
                   )}
                 </div>
               ))}
