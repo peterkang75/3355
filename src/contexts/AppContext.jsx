@@ -108,8 +108,10 @@ export function AppProvider({ children }) {
 
   const loadUserData = async (userId) => {
     try {
+      console.log('🔄 사용자 스코어 로딩 시작...', userId);
       const userScores = await apiService.fetchScores(userId);
       setScores(userScores);
+      console.log('✅ 스코어 데이터 로드:', userScores.length, '개');
       
       setUser(prevUser => {
         if (!prevUser) return null;
@@ -133,7 +135,7 @@ export function AppProvider({ children }) {
         return prevUser;
       });
     } catch (error) {
-      console.error('User data load failed:', error);
+      console.error('❌ 사용자 데이터 로드 실패:', error);
     }
   };
 

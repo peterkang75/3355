@@ -999,15 +999,78 @@ function Dashboard() {
             <span style={{ fontSize: '20px' }}>📊</span>
             최근 스코어
           </h3>
-          <div style={{ 
-            padding: '16px',
-            background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(59, 64, 26, 0.05) 100%)',
-            borderRadius: '8px',
-            textAlign: 'center',
-            opacity: 0.7
-          }}>
-            기록된 스코어가 없습니다
-          </div>
+          {(() => {
+            const userScores = scores
+              .filter(score => score.userId === user.id)
+              .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+              .slice(0, 3);
+
+            if (userScores.length === 0) {
+              return (
+                <div style={{ 
+                  padding: '16px',
+                  background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(59, 64, 26, 0.05) 100%)',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  opacity: 0.7
+                }}>
+                  기록된 스코어가 없습니다
+                </div>
+              );
+            }
+
+            return (
+              <div>
+                {userScores.map((score, index) => {
+                  const overPar = score.totalScore - score.coursePar;
+                  const displayScore = overPar > 0 ? `+${overPar}` : overPar === 0 ? 'E' : overPar;
+                  
+                  return (
+                    <div key={score.id}>
+                      <div style={{
+                        padding: '12px',
+                        background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(59, 64, 26, 0.05) 100%)',
+                        borderRadius: '8px'
+                      }}>
+                        <div style={{ 
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          marginBottom: '6px'
+                        }}>
+                          <div style={{ 
+                            fontSize: '14px',
+                            fontWeight: '600'
+                          }}>
+                            {score.courseName}
+                          </div>
+                          <div style={{
+                            fontSize: '18px',
+                            fontWeight: '700',
+                            color: overPar > 0 ? '#d9534f' : overPar === 0 ? 'var(--accent-gold)' : 'var(--primary-green)'
+                          }}>
+                            {displayScore}
+                          </div>
+                        </div>
+                        <div style={{ 
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          fontSize: '12px',
+                          opacity: 0.7
+                        }}>
+                          <span>{new Date(score.date).toLocaleDateString('ko-KR')}</span>
+                          <span>{score.totalScore} ({score.coursePar})</span>
+                        </div>
+                      </div>
+                      {index < userScores.length - 1 && (
+                        <div style={{ height: '8px' }} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
         </div>
 
         <div className="card" style={{
