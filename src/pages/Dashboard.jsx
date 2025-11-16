@@ -223,7 +223,21 @@ function Dashboard() {
   return (
     <div>
       <div className="header">
-        <h1>대시보드</h1>
+        <button
+          onClick={() => navigate(-1)}
+          style={{
+            background: 'none',
+            border: 'none',
+            fontSize: '20px',
+            cursor: 'pointer',
+            padding: '0',
+            color: 'var(--text-dark)',
+            minWidth: '24px'
+          }}
+        >
+          ‹
+        </button>
+        <h1 style={{ flex: 1, marginLeft: '12px' }}>대시보드</h1>
         <div 
           style={{ 
             display: 'flex', 

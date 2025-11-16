@@ -497,7 +497,62 @@ function Admin() {
     return (
       <div>
         <div className="header">
-          <h1>관리자</h1>
+          <button
+            onClick={() => navigate(-1)}
+            style={{
+              background: 'none',
+              border: 'none',
+              fontSize: '20px',
+              cursor: 'pointer',
+              padding: '0',
+              color: 'var(--text-dark)',
+              minWidth: '24px'
+            }}
+          >
+            ‹
+          </button>
+          <h1 style={{ flex: 1, marginLeft: '12px' }}>관리자</h1>
+          <div 
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '8px',
+              cursor: 'pointer'
+            }}
+            onClick={() => navigate('/mypage')}
+          >
+            <div style={{ fontSize: '14px', fontWeight: '500' }}>
+              {user.nickname || user.name}
+            </div>
+            <div style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              overflow: 'hidden',
+              background: 'var(--primary-green)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontWeight: '600',
+              fontSize: '14px',
+              border: '2px solid var(--border-color)'
+            }}>
+              {user.profileImage ? (
+                <img 
+                  src={user.profileImage} 
+                  alt="프로필" 
+                  style={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    objectFit: 'cover' 
+                  }} 
+                />
+              ) : (
+                <span>{(user.nickname || user.name).charAt(0)}</span>
+              )}
+            </div>
+          </div>
         </div>
         <div className="page-content">
           <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
@@ -512,26 +567,62 @@ function Admin() {
   return (
     <div>
       <div className="header">
-        <h1>관리자</h1>
-        {activeTab !== 'menu' && (
-          <button
-            onClick={() => setActiveTab('menu')}
-            style={{
-              position: 'absolute',
-              left: '16px',
-              top: '50%',
-              transform: 'translateY(-50%)',
-              background: 'transparent',
-              border: 'none',
-              fontSize: '24px',
-              cursor: 'pointer',
-              padding: '8px',
-              color: 'var(--text-light)'
-            }}
-          >
-            ←
-          </button>
-        )}
+        <button
+          onClick={() => activeTab !== 'menu' ? setActiveTab('menu') : navigate(-1)}
+          style={{
+            background: 'none',
+            border: 'none',
+            fontSize: '20px',
+            cursor: 'pointer',
+            padding: '0',
+            color: 'var(--text-dark)',
+            minWidth: '24px'
+          }}
+        >
+          ‹
+        </button>
+        <h1 style={{ flex: 1, marginLeft: '12px' }}>관리자</h1>
+        <div 
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '8px',
+            cursor: 'pointer'
+          }}
+          onClick={() => navigate('/mypage')}
+        >
+          <div style={{ fontSize: '14px', fontWeight: '500' }}>
+            {user.nickname || user.name}
+          </div>
+          <div style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            overflow: 'hidden',
+            background: 'var(--primary-green)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontWeight: '600',
+            fontSize: '14px',
+            border: '2px solid var(--border-color)'
+          }}>
+            {user.profileImage ? (
+              <img 
+                src={user.profileImage} 
+                alt="프로필" 
+                style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  objectFit: 'cover' 
+                }} 
+              />
+            ) : (
+              <span>{(user.nickname || user.name).charAt(0)}</span>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="page-content">

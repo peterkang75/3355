@@ -1022,7 +1022,21 @@ function Booking() {
   return (
     <div>
       <div className="header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <button
+          onClick={() => navigate(-1)}
+          style={{
+            background: 'none',
+            border: 'none',
+            fontSize: '20px',
+            cursor: 'pointer',
+            padding: '0',
+            color: 'var(--text-dark)',
+            minWidth: '24px'
+          }}
+        >
+          ‹
+        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, marginLeft: '12px' }}>
           <h1>라운딩</h1>
           {user.isAdmin && (
             <button 

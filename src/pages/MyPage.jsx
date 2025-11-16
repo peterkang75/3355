@@ -118,26 +118,48 @@ function MyPage() {
     <div style={{ paddingBottom: '80px' }}>
       <div className="header">
         <button
-          onClick={() => navigate('/dashboard')}
+          onClick={() => navigate(-1)}
           style={{
             background: 'none',
             border: 'none',
-            fontSize: '24px',
+            fontSize: '20px',
             cursor: 'pointer',
-            padding: '8px',
-            color: 'var(--text-dark)'
+            padding: '0',
+            color: 'var(--text-dark)',
+            minWidth: '24px'
           }}
         >
-          ←
+          ‹
         </button>
-        <h1 style={{ 
-          margin: 0,
-          flex: 1,
-          textAlign: 'center'
+        <h1 style={{ flex: 1, marginLeft: '12px' }}>마이 페이지</h1>
+        <div style={{
+          width: '36px',
+          height: '36px',
+          borderRadius: '50%',
+          overflow: 'hidden',
+          background: 'var(--primary-green)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: 'white',
+          fontWeight: '600',
+          fontSize: '14px',
+          border: '2px solid var(--border-color)'
         }}>
-          마이페이지
-        </h1>
-        <div style={{ width: '40px' }}></div>
+          {user.photo ? (
+            <img 
+              src={user.photo} 
+              alt="프로필" 
+              style={{ 
+                width: '100%', 
+                height: '100%', 
+                objectFit: 'cover' 
+              }} 
+            />
+          ) : (
+            <span>{(user.nickname || user.name).charAt(0)}</span>
+          )}
+        </div>
       </div>
 
       <div className="page-content">
