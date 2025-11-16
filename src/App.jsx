@@ -18,6 +18,7 @@ import MemberScoreEntry from './pages/MemberScoreEntry';
 import GradeSettings from './pages/GradeSettings';
 import MemberDetail from './pages/MemberDetail';
 import Navigation from './components/Navigation';
+import InstallPrompt from './components/InstallPrompt';
 
 function AppRoutes({ user, logout }) {
   const navigate = useNavigate();
@@ -47,6 +48,7 @@ function AppRoutes({ user, logout }) {
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       <Navigation user={user} onLogout={logout} />
+      <InstallPrompt />
     </div>
   );
 }
