@@ -1022,22 +1022,67 @@ function Booking() {
   return (
     <div>
       <div className="header">
-        <h1>라운딩</h1>
-        {user.isAdmin && (
-          <button 
-            onClick={() => setShowNewBooking(!showNewBooking)}
-            style={{
-              background: 'var(--text-light)',
-              color: 'var(--primary-green)',
-              padding: '8px 16px',
-              borderRadius: '6px',
-              fontSize: '14px',
-              fontWeight: '600'
-            }}
-          >
-            {showNewBooking ? '취소' : '라운딩 생성'}
-          </button>
-        )}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <h1>라운딩</h1>
+          {user.isAdmin && (
+            <button 
+              onClick={() => setShowNewBooking(!showNewBooking)}
+              style={{
+                background: 'var(--primary-green)',
+                color: 'var(--text-light)',
+                padding: '6px 12px',
+                borderRadius: '6px',
+                fontSize: '13px',
+                fontWeight: '600',
+                border: 'none',
+                cursor: 'pointer'
+              }}
+            >
+              {showNewBooking ? '취소' : '생성'}
+            </button>
+          )}
+        </div>
+        <div 
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '8px',
+            cursor: 'pointer'
+          }}
+          onClick={() => navigate('/mypage')}
+        >
+          <div style={{ fontSize: '14px', fontWeight: '500' }}>
+            {user.nickname || user.name}
+          </div>
+          <div style={{
+            width: '36px',
+            height: '36px',
+            borderRadius: '50%',
+            overflow: 'hidden',
+            background: 'var(--primary-green)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: 'white',
+            fontWeight: '600',
+            fontSize: '14px',
+            border: '2px solid var(--border-color)'
+          }}>
+            {user.profileImage ? (
+              <img 
+                src={user.profileImage} 
+                alt="프로필" 
+                style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  objectFit: 'cover' 
+                }} 
+              />
+            ) : (
+              <span>{(user.nickname || user.name).charAt(0)}</span>
+            )}
+          </div>
+        </div>
       </div>
 
       <div className="page-content">

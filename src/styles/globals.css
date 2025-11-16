@@ -152,8 +152,8 @@ input:focus, textarea:focus, select:focus {
 }
 
 .header {
-  background: var(--primary-green);
-  color: var(--text-light);
+  background: var(--text-light);
+  color: var(--text-dark);
   padding: 16px;
   display: flex;
   align-items: center;
@@ -161,7 +161,8 @@ input:focus, textarea:focus, select:focus {
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: none;
+  box-shadow: 0 1px 0 var(--border-color);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .header h1 {

@@ -125,7 +125,7 @@ function MyPage() {
             fontSize: '24px',
             cursor: 'pointer',
             padding: '8px',
-            color: 'var(--text-light)'
+            color: 'var(--text-dark)'
           }}
         >
           ←
