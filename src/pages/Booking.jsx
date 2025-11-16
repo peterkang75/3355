@@ -10,6 +10,7 @@ function Booking() {
   const [editingBooking, setEditingBooking] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [bookingType, setBookingType] = useState('정기모임');
+  const [isRentalLoading, setIsRentalLoading] = useState(null);
   const [newBooking, setNewBooking] = useState({
     title: '',
     courseName: '',
@@ -164,18 +165,20 @@ function Booking() {
   };
 
   const handleToggleNumberRental = async (bookingId) => {
+    if (isRentalLoading === bookingId) return;
+    
     try {
+      setIsRentalLoading(bookingId);
       const booking = bookings.find(b => b.id === bookingId);
       const isCurrentlyRenting = booking.numberRentals && booking.numberRentals.includes(user.phone);
       
       await apiService.toggleNumberRental(bookingId, user.phone);
       await refreshBookings();
       
-      if (!isCurrentlyRenting) {
-        alert('번호 빌려주셔서 감사드려용~');
-      }
+      setIsRentalLoading(null);
     } catch (error) {
       console.error('번호대여 상태 변경 실패:', error);
+      setIsRentalLoading(null);
       alert('번호대여 상태 변경 중 오류가 발생했습니다.');
     }
   };
@@ -797,19 +800,21 @@ function Booking() {
                     {booking.type === '컴페티션' && (
                       <button
                         onClick={() => handleToggleNumberRental(booking.id)}
+                        disabled={isRentalLoading === booking.id}
                         style={{
                           flex: 1,
                           padding: '12px',
-                          background: isRenting ? '#fff8dc' : '#ffd700',
+                          background: isRentalLoading === booking.id ? '#ccc' : (isRenting ? '#fff8dc' : '#ffd700'),
                           color: '#333',
                           border: 'none',
                           borderRadius: '6px',
                           fontSize: '16px',
                           fontWeight: '700',
-                          cursor: 'pointer'
+                          cursor: isRentalLoading === booking.id ? 'wait' : 'pointer',
+                          opacity: isRentalLoading === booking.id ? 0.7 : 1
                         }}
                       >
-                        {isRenting ? '✓ 번호대여중' : '번호대여'}
+                        {isRentalLoading === booking.id ? '처리중...' : (isRenting ? '✓ 번호대여중' : '번호대여')}
                       </button>
                     )}
                   </>
@@ -887,19 +892,21 @@ function Booking() {
                 {booking.type === '컴페티션' && (
                   <button
                     onClick={() => handleToggleNumberRental(booking.id)}
+                    disabled={isRentalLoading === booking.id}
                     style={{
                       flex: 1,
                       padding: '12px',
-                      background: isRenting ? '#fff8dc' : '#ffd700',
+                      background: isRentalLoading === booking.id ? '#ccc' : (isRenting ? '#fff8dc' : '#ffd700'),
                       color: '#333',
                       border: 'none',
                       borderRadius: '6px',
                       fontSize: '16px',
                       fontWeight: '700',
-                      cursor: 'pointer'
+                      cursor: isRentalLoading === booking.id ? 'wait' : 'pointer',
+                      opacity: isRentalLoading === booking.id ? 0.7 : 1
                     }}
                   >
-                    {isRenting ? '✓ 번호대여중' : '번호대여'}
+                    {isRentalLoading === booking.id ? '처리중...' : (isRenting ? '✓ 번호대여중' : '번호대여')}
                   </button>
                 )}
               </>
