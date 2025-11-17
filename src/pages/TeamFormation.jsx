@@ -425,7 +425,7 @@ function TeamFormation() {
                     style={{
                       padding: '10px 14px',
                       borderRadius: '6px',
-                      border: isRenting ? 'none' : '2px solid var(--border-color)',
+                      border: '2px solid var(--border-color)',
                       background: isRenting ? '#E6AA68' : 'transparent',
                       fontSize: '14px',
                       fontWeight: '600',
