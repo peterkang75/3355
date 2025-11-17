@@ -5,7 +5,9 @@ const router = express.Router();
 
 router.get('/members', async (req, res) => {
   try {
+    // 비활성화된 회원은 제외하고 조회
     const members = await prisma.member.findMany({
+      where: { isActive: true },
       orderBy: { createdAt: 'desc' }
     });
     res.json(members);
@@ -52,13 +54,15 @@ router.put('/members/:id', async (req, res) => {
 
 router.delete('/members/:id', async (req, res) => {
   try {
-    await prisma.member.delete({
-      where: { id: req.params.id }
+    // 회원을 삭제하는 대신 비활성화 처리 (라운딩 데이터 보존)
+    const member = await prisma.member.update({
+      where: { id: req.params.id },
+      data: { isActive: false }
     });
-    res.json({ success: true });
+    res.json({ success: true, member });
   } catch (error) {
-    console.error('Error deleting member:', error);
-    res.status(500).json({ error: 'Failed to delete member' });
+    console.error('Error deactivating member:', error);
+    res.status(500).json({ error: 'Failed to deactivate member' });
   }
 });
 
