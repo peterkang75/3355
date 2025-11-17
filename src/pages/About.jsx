@@ -97,7 +97,7 @@ function About() {
             Version 1.0.0
           </div>
           <div style={{ fontSize: '14px', opacity: 0.7 }}>
-            Build 20251116
+            Build {__BUILD_NUMBER__}
           </div>
         </div>
 
