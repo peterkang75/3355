@@ -630,22 +630,25 @@ function Admin() {
 
       <div className="page-content">
         {activeTab === 'menu' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
             <button
               onClick={() => setActiveTab('members')}
-              className="card"
               style={{
-                padding: '20px',
+                padding: '16px',
                 textAlign: 'left',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 transition: 'all 0.2s',
+                background: 'var(--bg-page)',
+                borderTop: 'none',
+                borderLeft: 'none',
+                borderRight: 'none',
                 borderBottom: '1px solid var(--border-color)'
               }}
               onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-card)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-page)'}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>≡</div>
@@ -663,19 +666,22 @@ function Admin() {
 
             <button
               onClick={() => setActiveTab('fees')}
-              className="card"
               style={{
-                padding: '20px',
+                padding: '16px',
                 textAlign: 'left',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 transition: 'all 0.2s',
+                background: 'var(--bg-page)',
+                borderTop: 'none',
+                borderLeft: 'none',
+                borderRight: 'none',
                 borderBottom: '1px solid var(--border-color)'
               }}
               onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-card)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-page)'}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>$</div>
@@ -693,19 +699,22 @@ function Admin() {
 
             <button
               onClick={() => setActiveTab('courses')}
-              className="card"
               style={{
-                padding: '20px',
+                padding: '16px',
                 textAlign: 'left',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 transition: 'all 0.2s',
+                background: 'var(--bg-page)',
+                borderTop: 'none',
+                borderLeft: 'none',
+                borderRight: 'none',
                 borderBottom: '1px solid var(--border-color)'
               }}
               onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-card)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-page)'}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>⚑</div>
@@ -723,19 +732,22 @@ function Admin() {
 
             <button
               onClick={() => setActiveTab('settings')}
-              className="card"
               style={{
-                padding: '20px',
+                padding: '16px',
                 textAlign: 'left',
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 transition: 'all 0.2s',
+                background: 'var(--bg-page)',
+                borderTop: 'none',
+                borderLeft: 'none',
+                borderRight: 'none',
                 borderBottom: '1px solid var(--border-color)'
               }}
               onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-card)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-page)'}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>⚙</div>
