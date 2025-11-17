@@ -293,13 +293,15 @@ function Dashboard() {
     return true;
   };
   
-  const announcedBookings = bookings.filter(b => {
-    if (!b.isAnnounced) return false;
-    if (!canViewBooking(b)) return false;
-    const bookingDate = new Date(b.date);
-    bookingDate.setHours(0, 0, 0, 0);
-    return bookingDate >= today;
-  });
+  const announcedBookings = bookings
+    .filter(b => {
+      if (!b.isAnnounced) return false;
+      if (!canViewBooking(b)) return false;
+      const bookingDate = new Date(b.date);
+      bookingDate.setHours(0, 0, 0, 0);
+      return bookingDate >= today;
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
 
   return (
     <div>
