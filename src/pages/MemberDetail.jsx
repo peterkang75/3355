@@ -915,123 +915,130 @@ function MemberDetail() {
                   <div style={{
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '2px'
+                    alignItems: 'flex-start',
+                    gap: '8px'
                   }}>
-                    <div style={{
-                      fontSize: '15px',
-                      fontWeight: '700',
-                      color: 'var(--primary-green)',
-                      flex: 1
-                    }}>
-                      {score.roundingName}
-                    </div>
-                    <div style={{
-                      fontSize: '18px',
-                      fontWeight: '700',
-                      color: 'var(--primary-green)',
-                      marginRight: user?.isAdmin ? '8px' : '0'
-                    }}>
-                      {score.totalScore}
-                    </div>
-                    {user?.isAdmin && (
-                      <div style={{ position: 'relative' }}>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setOpenMenuId(openMenuId === score.id ? null : score.id);
-                          }}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            fontSize: '20px',
-                            cursor: 'pointer',
-                            padding: '4px 8px',
-                            opacity: 0.7,
-                            lineHeight: '1'
-                          }}
-                        >
-                          ⋮
-                        </button>
-                        {openMenuId === score.id && (
-                          <>
-                            <div
-                              onClick={() => setOpenMenuId(null)}
-                              style={{
-                                position: 'fixed',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                                zIndex: 99
-                              }}
-                            />
-                            <div
-                              onClick={(e) => e.stopPropagation()}
-                              style={{
-                                position: 'absolute',
-                                top: '100%',
-                                right: 0,
-                                marginTop: '4px',
-                                background: 'var(--bg-card)',
-                                border: '2px solid var(--border-color)',
-                                borderRadius: '6px',
-                                overflow: 'hidden',
-                                zIndex: 100,
-                                minWidth: '120px'
-                              }}
-                            >
-                              <button
-                                onClick={() => {
-                                  handleEditScore(score);
-                                  setOpenMenuId(null);
-                                }}
-                                style={{
-                                  width: '100%',
-                                  padding: '10px 16px',
-                                  background: 'var(--bg-card)',
-                                  border: 'none',
-                                  textAlign: 'left',
-                                  fontSize: '14px',
-                                  cursor: 'pointer',
-                                  borderBottom: '1px solid var(--border-color)'
-                                }}
-                                onMouseEnter={(e) => e.target.style.background = 'white'}
-                                onMouseLeave={(e) => e.target.style.background = 'var(--bg-card)'}
-                              >
-                                ▪ 수정
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setOpenMenuId(null);
-                                  handleDeleteScore(score.id);
-                                }}
-                                style={{
-                                  width: '100%',
-                                  padding: '10px 16px',
-                                  background: 'var(--bg-card)',
-                                  border: 'none',
-                                  textAlign: 'left',
-                                  fontSize: '14px',
-                                  cursor: 'pointer',
-                                  color: 'var(--alert-red)'
-                                }}
-                                onMouseEnter={(e) => e.target.style.background = '#fff5f5'}
-                                onMouseLeave={(e) => e.target.style.background = 'var(--bg-card)'}
-                              >
-                                × 삭제
-                              </button>
-                            </div>
-                          </>
-                        )}
+                    <div style={{ flex: 1 }}>
+                      <div style={{
+                        fontSize: '15px',
+                        fontWeight: '700',
+                        color: 'var(--primary-green)',
+                        marginBottom: '3px'
+                      }}>
+                        {score.roundingName}
                       </div>
-                    )}
-                  </div>
-                  <div style={{
-                    fontSize: '13px',
-                    opacity: 0.7
-                  }}>
-                    {score.courseName} · {new Date(score.date).toLocaleDateString('ko-KR')}
+                      <div style={{
+                        fontSize: '13px',
+                        opacity: 0.7
+                      }}>
+                        {score.courseName} · {new Date(score.date).toLocaleDateString('ko-KR')}
+                      </div>
+                    </div>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '4px'
+                    }}>
+                      <div style={{
+                        fontSize: '18px',
+                        fontWeight: '700',
+                        color: 'var(--primary-green)'
+                      }}>
+                        {score.totalScore}
+                      </div>
+                      {user?.isAdmin && (
+                        <div style={{ position: 'relative' }}>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenMenuId(openMenuId === score.id ? null : score.id);
+                            }}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              fontSize: '20px',
+                              cursor: 'pointer',
+                              padding: '4px 8px',
+                              opacity: 0.7,
+                              lineHeight: '1'
+                            }}
+                          >
+                            ⋮
+                          </button>
+                          {openMenuId === score.id && (
+                            <>
+                              <div
+                                onClick={() => setOpenMenuId(null)}
+                                style={{
+                                  position: 'fixed',
+                                  top: 0,
+                                  left: 0,
+                                  right: 0,
+                                  bottom: 0,
+                                  zIndex: 99
+                                }}
+                              />
+                              <div
+                                onClick={(e) => e.stopPropagation()}
+                                style={{
+                                  position: 'absolute',
+                                  top: '100%',
+                                  right: 0,
+                                  marginTop: '4px',
+                                  background: 'var(--bg-card)',
+                                  border: '2px solid var(--border-color)',
+                                  borderRadius: '6px',
+                                  overflow: 'hidden',
+                                  zIndex: 100,
+                                  minWidth: '120px'
+                                }}
+                              >
+                                <button
+                                  onClick={() => {
+                                    handleEditScore(score);
+                                    setOpenMenuId(null);
+                                  }}
+                                  style={{
+                                    width: '100%',
+                                    padding: '10px 16px',
+                                    background: 'var(--bg-card)',
+                                    border: 'none',
+                                    textAlign: 'left',
+                                    fontSize: '14px',
+                                    cursor: 'pointer',
+                                    borderBottom: '1px solid var(--border-color)'
+                                  }}
+                                  onMouseEnter={(e) => e.target.style.background = 'white'}
+                                  onMouseLeave={(e) => e.target.style.background = 'var(--bg-card)'}
+                                >
+                                  ▪ 수정
+                                </button>
+                                <button
+                                  onClick={() => {
+                                    setOpenMenuId(null);
+                                    handleDeleteScore(score.id);
+                                  }}
+                                  style={{
+                                    width: '100%',
+                                    padding: '10px 16px',
+                                    background: 'var(--bg-card)',
+                                    border: 'none',
+                                    textAlign: 'left',
+                                    fontSize: '14px',
+                                    cursor: 'pointer',
+                                    color: 'var(--alert-red)'
+                                  }}
+                                  onMouseEnter={(e) => e.target.style.background = '#fff5f5'}
+                                  onMouseLeave={(e) => e.target.style.background = 'var(--bg-card)'}
+                                >
+                                  × 삭제
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
