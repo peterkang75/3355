@@ -448,22 +448,6 @@ function Login({ onLogin }) {
             </button>
           </div>
         )}
-
-        {!showSignup && (
-          <div style={{ 
-            marginTop: '24px', 
-            padding: '16px',
-            background: 'var(--bg-card)',
-            border: '2px solid var(--border-color)',
-            borderRadius: '8px',
-            fontSize: '13px',
-            opacity: 0.7
-          }}>
-            <p style={{ marginBottom: '8px' }}>ⓘ 테스트 계정:</p>
-            <p>관리자: <strong>123456</strong></p>
-            <p>일반회원: <strong>아무 6자리 숫자</strong></p>
-          </div>
-        )}
       </div>
     </div>
   );
