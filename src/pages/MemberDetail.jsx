@@ -41,6 +41,23 @@ function MemberDetail() {
     }
   }, [member, scores]);
 
+  // 점 세 개 메뉴 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (openMenuId !== null) {
+        setOpenMenuId(null);
+      }
+    };
+
+    if (openMenuId !== null) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [openMenuId]);
+
   const loadMemberData = () => {
     const foundMember = members.find(m => m.id === id);
     if (foundMember) {

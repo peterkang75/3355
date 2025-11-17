@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
@@ -15,6 +15,40 @@ function Dashboard() {
   const [openMenuCommentId, setOpenMenuCommentId] = useState(null);
   const [editingComment, setEditingComment] = useState(null);
   const [isRentalLoading, setIsRentalLoading] = useState(null);
+
+  // 점 세 개 메뉴 외부 클릭 시 닫기 (게시글)
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (openMenuPostId !== null) {
+        setOpenMenuPostId(null);
+      }
+    };
+
+    if (openMenuPostId !== null) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [openMenuPostId]);
+
+  // 점 세 개 메뉴 외부 클릭 시 닫기 (댓글)
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (openMenuCommentId !== null) {
+        setOpenMenuCommentId(null);
+      }
+    };
+
+    if (openMenuCommentId !== null) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [openMenuCommentId]);
 
   const handleCreatePost = () => {
     if (!newPost.title || !newPost.content) {

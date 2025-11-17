@@ -45,6 +45,23 @@ function Booking() {
     }
   }, [bookingType, newBooking.date]);
 
+  // 점 세 개 메뉴 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (openMenuId !== null) {
+        setOpenMenuId(null);
+      }
+    };
+
+    if (openMenuId !== null) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [openMenuId]);
+
   const parseParticipants = (participants) => {
     if (!participants || !Array.isArray(participants)) return [];
     return participants.map(p => {
