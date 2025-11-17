@@ -816,7 +816,8 @@ function Dashboard() {
                                   opacity: 0.7,
                                   display: 'flex',
                                   alignItems: 'center',
-                                  gap: '4px'
+                                  justifyContent: 'flex-end',
+                                  gap: '12px'
                                 }}>
                                   <button
                                     onClick={(e) => {
@@ -839,15 +840,41 @@ function Dashboard() {
                                       width="16" 
                                       height="16" 
                                       viewBox="0 0 24 24" 
+                                      fill={(comment.likes || []).includes(user.id) ? '#1877F2' : '#999'}
+                                      style={{ marginTop: '1px' }}
+                                    >
+                                      <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+                                    </svg>
+                                    {(comment.likes || []).length > 0 && (
+                                      <span style={{ fontWeight: '600', color: '#333' }}>{(comment.likes || []).length}</span>
+                                    )}
+                                  </button>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleLikeComment(post.id, comment.id);
+                                    }}
+                                    style={{
+                                      background: 'none',
+                                      border: 'none',
+                                      cursor: 'pointer',
+                                      padding: '0',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '4px',
+                                      fontSize: '12px'
+                                    }}
+                                  >
+                                    <svg 
+                                      width="16" 
+                                      height="16" 
+                                      viewBox="0 0 24 24" 
                                       fill={(comment.likes || []).includes(user.id) ? '#FF69B4' : 'none'}
                                       stroke={(comment.likes || []).includes(user.id) ? '#FF69B4' : '#999'}
                                       strokeWidth="2"
                                     >
                                       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                                     </svg>
-                                    {(comment.likes || []).length > 0 && (
-                                      <span style={{ fontWeight: '600' }}>{(comment.likes || []).length}</span>
-                                    )}
                                   </button>
                                 </div>
                                 {isCommentOwner && (
