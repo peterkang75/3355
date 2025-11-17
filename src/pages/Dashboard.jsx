@@ -701,7 +701,7 @@ function Dashboard() {
                                     borderRadius: '4px',
                                     marginBottom: '8px',
                                     marginLeft: '20px',
-                                    borderLeft: '2px solid rgba(0, 0, 0, 0.2)'
+                                    borderLeft: '1px solid rgba(0, 0, 0, 0.2)'
                                   }}
                                   onClick={(e) => e.stopPropagation()}
                                 >
@@ -782,7 +782,7 @@ function Dashboard() {
                                   marginBottom: '8px',
                                   marginLeft: '20px',
                                   position: 'relative',
-                                  borderLeft: '2px solid rgba(0, 0, 0, 0.2)'
+                                  borderLeft: '1px solid rgba(0, 0, 0, 0.2)'
                                 }}
                               >
                                 <div style={{
