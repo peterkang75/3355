@@ -12,7 +12,6 @@ function TeamFormation() {
   const [participants, setParticipants] = useState([]);
   const [teams, setTeams] = useState([]);
   const [unassigned, setUnassigned] = useState([]);
-  const [hasInitialized, setHasInitialized] = useState(false);
   const [showSelectModal, setShowSelectModal] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
@@ -23,7 +22,7 @@ function TeamFormation() {
       const foundBooking = bookings.find(b => b.id === bookingId);
       setBooking(foundBooking);
       
-      if (foundBooking && !hasInitialized) {
+      if (foundBooking) {
         const parsedParticipants = parseParticipants(foundBooking.participants);
         
         // 번호대여 회원도 조편성에 포함
@@ -70,11 +69,9 @@ function TeamFormation() {
         } else {
           initializeTeams(allParticipants);
         }
-        
-        setHasInitialized(true);
       }
     }
-  }, [bookingId, bookings, hasInitialized, members]);
+  }, [bookingId, bookings, members]);
 
   const parseParticipants = (participants) => {
     if (!participants || !Array.isArray(participants)) {
