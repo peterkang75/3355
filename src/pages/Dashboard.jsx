@@ -683,8 +683,7 @@ function Dashboard() {
                       {post.comments?.length > 0 && (
                         <div style={{ 
                           marginBottom: '10px',
-                          paddingTop: '10px',
-                          borderTop: '1px solid rgba(0, 0, 0, 0.1)'
+                          marginTop: '10px'
                         }}>
                           {post.comments.map(comment => {
                             const commentAuthor = typeof comment.author === 'string' ? comment.author : (comment.author?.nickname || comment.author?.name);
@@ -698,9 +697,11 @@ function Dashboard() {
                                   style={{
                                     background: '#FFD449',
                                     padding: '12px',
+                                    paddingLeft: '16px',
                                     borderRadius: '4px',
                                     marginBottom: '8px',
-                                    marginLeft: '20px'
+                                    marginLeft: '20px',
+                                    borderLeft: '2px solid rgba(0, 0, 0, 0.2)'
                                   }}
                                   onClick={(e) => e.stopPropagation()}
                                 >
@@ -708,9 +709,19 @@ function Dashboard() {
                                     fontSize: '14px',
                                     fontWeight: '600',
                                     marginBottom: '6px',
-                                    color: '#333'
+                                    color: '#333',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px'
                                   }}>
-                                    {commentAuthor || '알 수 없음'}
+                                    <span>{commentAuthor || '알 수 없음'}</span>
+                                    <span style={{
+                                      fontSize: '12px',
+                                      fontWeight: '400',
+                                      opacity: 0.6
+                                    }}>
+                                      {getRelativeTime(comment.date || comment.createdAt || new Date())}
+                                    </span>
                                   </div>
                                   <textarea
                                     value={editingComment.content}
@@ -766,19 +777,31 @@ function Dashboard() {
                                 style={{
                                   background: '#FFD449',
                                   padding: '12px',
+                                  paddingLeft: '16px',
                                   borderRadius: '4px',
                                   marginBottom: '8px',
                                   marginLeft: '20px',
-                                  position: 'relative'
+                                  position: 'relative',
+                                  borderLeft: '2px solid rgba(0, 0, 0, 0.2)'
                                 }}
                               >
                                 <div style={{
                                   fontSize: '14px',
                                   fontWeight: '600',
                                   marginBottom: '4px',
-                                  color: '#333'
+                                  color: '#333',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px'
                                 }}>
-                                  {commentAuthor || '알 수 없음'}
+                                  <span>{commentAuthor || '알 수 없음'}</span>
+                                  <span style={{
+                                    fontSize: '12px',
+                                    fontWeight: '400',
+                                    opacity: 0.6
+                                  }}>
+                                    {getRelativeTime(comment.date || comment.createdAt || new Date())}
+                                  </span>
                                 </div>
                                 <div style={{ 
                                   fontSize: '14px',
@@ -790,12 +813,11 @@ function Dashboard() {
                                 </div>
                                 <div style={{
                                   fontSize: '12px',
-                                  opacity: 0.6,
+                                  opacity: 0.7,
                                   display: 'flex',
                                   alignItems: 'center',
-                                  gap: '12px'
+                                  gap: '4px'
                                 }}>
-                                  <span>{getRelativeTime(comment.date || comment.createdAt || new Date())}</span>
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
@@ -813,11 +835,12 @@ function Dashboard() {
                                       color: (comment.likes || []).includes(user.id) ? '#e74c3c' : '#999'
                                     }}
                                   >
-                                    <span style={{ fontSize: '14px' }}>
-                                      {(comment.likes || []).includes(user.id) ? '❤️' : '🤍'}
+                                    <span style={{ fontWeight: '600' }}>좋아요</span>
+                                    <span style={{ fontSize: '16px' }}>
+                                      {(comment.likes || []).includes(user.id) ? '👍🏻' : '👍🏼'}
                                     </span>
                                     {(comment.likes || []).length > 0 && (
-                                      <span>{(comment.likes || []).length}</span>
+                                      <span style={{ fontWeight: '600' }}>{(comment.likes || []).length}</span>
                                     )}
                                   </button>
                                 </div>
