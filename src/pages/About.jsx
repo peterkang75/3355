@@ -78,10 +78,11 @@ function About() {
             src={logoImage} 
             alt="3355 골프 클럽 로고" 
             style={{ 
-              width: '180px', 
-              height: '180px', 
+              width: '100px', 
+              height: '100px', 
               marginBottom: '16px',
-              objectFit: 'contain'
+              objectFit: 'cover',
+              borderRadius: '50%'
             }} 
           />
           <h2 style={{ 
