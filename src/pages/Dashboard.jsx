@@ -679,19 +679,13 @@ function Dashboard() {
                       }}>
                         {post.content}
                       </p>
-                      <div style={{ 
-                        fontSize: '12px', 
-                        opacity: 0.7,
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        marginBottom: '10px'
-                      }}>
-                        <span>{post.author?.name || '알 수 없음'}</span>
-                        <span>{new Date(post.createdAt).toLocaleDateString('ko-KR')}</span>
-                      </div>
 
                       {post.comments?.length > 0 && (
-                        <div style={{ marginBottom: '10px' }}>
+                        <div style={{ 
+                          marginBottom: '10px',
+                          paddingTop: '10px',
+                          borderTop: '1px solid rgba(0, 0, 0, 0.1)'
+                        }}>
                           {post.comments.map(comment => {
                             const commentAuthor = typeof comment.author === 'string' ? comment.author : (comment.author?.nickname || comment.author?.name);
                             const isCommentOwner = user.isAdmin || commentAuthor === (user.nickname || user.name);
@@ -710,93 +704,57 @@ function Dashboard() {
                                   }}
                                   onClick={(e) => e.stopPropagation()}
                                 >
-                                  <div style={{ display: 'flex', gap: '10px' }}>
-                                    {/* 프로필 사진 */}
-                                    <div style={{
-                                      width: '36px',
-                                      height: '36px',
-                                      borderRadius: '50%',
-                                      background: '#ccc',
-                                      overflow: 'hidden',
-                                      flexShrink: 0
-                                    }}>
-                                      {comment.authorPhoto || (members.find(m => m.id === comment.authorId)?.photo) ? (
-                                        <img 
-                                          src={comment.authorPhoto || members.find(m => m.id === comment.authorId)?.photo} 
-                                          alt="프로필" 
-                                          style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                                        />
-                                      ) : (
-                                        <div style={{
-                                          width: '100%',
-                                          height: '100%',
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          justifyContent: 'center',
-                                          fontSize: '16px',
-                                          fontWeight: 'bold',
-                                          color: '#666'
-                                        }}>
-                                          {(commentAuthor || '?')[0]}
-                                        </div>
-                                      )}
-                                    </div>
-                                    
-                                    {/* 편집 영역 */}
-                                    <div style={{ flex: 1 }}>
-                                      <div style={{
-                                        fontSize: '14px',
-                                        fontWeight: '600',
-                                        marginBottom: '6px',
-                                        color: '#333'
-                                      }}>
-                                        {commentAuthor || '알 수 없음'}
-                                      </div>
-                                      <textarea
-                                        value={editingComment.content}
-                                        onChange={(e) => setEditingComment({ ...editingComment, content: e.target.value })}
-                                        style={{ 
-                                          width: '100%', 
-                                          minHeight: '60px',
-                                          marginBottom: '8px',
-                                          resize: 'vertical',
-                                          padding: '8px',
-                                          borderRadius: '4px',
-                                          border: '1px solid #ddd',
-                                          fontSize: '14px'
-                                        }}
-                                      />
-                                      <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
-                                        <button
-                                          onClick={handleUpdateComment}
-                                          style={{
-                                            background: 'var(--primary-green)',
-                                            color: 'white',
-                                            border: 'none',
-                                            padding: '6px 12px',
-                                            borderRadius: '4px',
-                                            fontSize: '12px',
-                                            cursor: 'pointer'
-                                          }}
-                                        >
-                                          수정
-                                        </button>
-                                        <button
-                                          onClick={() => setEditingComment(null)}
-                                          style={{
-                                            background: '#ccc',
-                                            color: '#333',
-                                            border: 'none',
-                                            padding: '6px 12px',
-                                            borderRadius: '4px',
-                                            fontSize: '12px',
-                                            cursor: 'pointer'
-                                          }}
-                                        >
-                                          취소
-                                        </button>
-                                      </div>
-                                    </div>
+                                  <div style={{
+                                    fontSize: '14px',
+                                    fontWeight: '600',
+                                    marginBottom: '6px',
+                                    color: '#333'
+                                  }}>
+                                    {commentAuthor || '알 수 없음'}
+                                  </div>
+                                  <textarea
+                                    value={editingComment.content}
+                                    onChange={(e) => setEditingComment({ ...editingComment, content: e.target.value })}
+                                    style={{ 
+                                      width: '100%', 
+                                      minHeight: '60px',
+                                      marginBottom: '8px',
+                                      resize: 'vertical',
+                                      padding: '8px',
+                                      borderRadius: '4px',
+                                      border: '1px solid #ddd',
+                                      fontSize: '14px'
+                                    }}
+                                  />
+                                  <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
+                                    <button
+                                      onClick={handleUpdateComment}
+                                      style={{
+                                        background: 'var(--primary-green)',
+                                        color: 'white',
+                                        border: 'none',
+                                        padding: '6px 12px',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      수정
+                                    </button>
+                                    <button
+                                      onClick={() => setEditingComment(null)}
+                                      style={{
+                                        background: '#ccc',
+                                        color: '#333',
+                                        border: 'none',
+                                        padding: '6px 12px',
+                                        borderRadius: '4px',
+                                        fontSize: '12px',
+                                        cursor: 'pointer'
+                                      }}
+                                    >
+                                      취소
+                                    </button>
                                   </div>
                                 </div>
                               );
@@ -814,90 +772,54 @@ function Dashboard() {
                                   position: 'relative'
                                 }}
                               >
-                                <div style={{ display: 'flex', gap: '10px' }}>
-                                  {/* 프로필 사진 */}
-                                  <div style={{
-                                    width: '36px',
-                                    height: '36px',
-                                    borderRadius: '50%',
-                                    background: '#ccc',
-                                    overflow: 'hidden',
-                                    flexShrink: 0
-                                  }}>
-                                    {comment.authorPhoto || (members.find(m => m.id === comment.authorId)?.photo) ? (
-                                      <img 
-                                        src={comment.authorPhoto || members.find(m => m.id === comment.authorId)?.photo} 
-                                        alt="프로필" 
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
-                                      />
-                                    ) : (
-                                      <div style={{
-                                        width: '100%',
-                                        height: '100%',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontSize: '16px',
-                                        fontWeight: 'bold',
-                                        color: '#666'
-                                      }}>
-                                        {(commentAuthor || '?')[0]}
-                                      </div>
-                                    )}
-                                  </div>
-                                  
-                                  {/* 댓글 내용 */}
-                                  <div style={{ flex: 1 }}>
-                                    <div style={{
-                                      fontSize: '14px',
-                                      fontWeight: '600',
-                                      marginBottom: '4px',
-                                      color: '#333'
-                                    }}>
-                                      {commentAuthor || '알 수 없음'}
-                                    </div>
-                                    <div style={{ 
-                                      fontSize: '14px',
-                                      marginBottom: '6px',
-                                      lineHeight: '1.5',
-                                      color: '#333'
-                                    }}>
-                                      {comment.content}
-                                    </div>
-                                    <div style={{
-                                      fontSize: '12px',
-                                      opacity: 0.6,
+                                <div style={{
+                                  fontSize: '14px',
+                                  fontWeight: '600',
+                                  marginBottom: '4px',
+                                  color: '#333'
+                                }}>
+                                  {commentAuthor || '알 수 없음'}
+                                </div>
+                                <div style={{ 
+                                  fontSize: '14px',
+                                  marginBottom: '6px',
+                                  lineHeight: '1.5',
+                                  color: '#333'
+                                }}>
+                                  {comment.content}
+                                </div>
+                                <div style={{
+                                  fontSize: '12px',
+                                  opacity: 0.6,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '12px'
+                                }}>
+                                  <span>{getRelativeTime(comment.date || comment.createdAt || new Date())}</span>
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleLikeComment(post.id, comment.id);
+                                    }}
+                                    style={{
+                                      background: 'none',
+                                      border: 'none',
+                                      cursor: 'pointer',
+                                      padding: '0',
                                       display: 'flex',
                                       alignItems: 'center',
-                                      gap: '12px'
-                                    }}>
-                                      <span>{getRelativeTime(comment.date || comment.createdAt || new Date())}</span>
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleLikeComment(post.id, comment.id);
-                                        }}
-                                        style={{
-                                          background: 'none',
-                                          border: 'none',
-                                          cursor: 'pointer',
-                                          padding: '0',
-                                          display: 'flex',
-                                          alignItems: 'center',
-                                          gap: '4px',
-                                          fontSize: '12px',
-                                          color: (comment.likes || []).includes(user.id) ? '#e74c3c' : '#999'
-                                        }}
-                                      >
-                                        <span style={{ fontSize: '14px' }}>
-                                          {(comment.likes || []).includes(user.id) ? '❤️' : '🤍'}
-                                        </span>
-                                        {(comment.likes || []).length > 0 && (
-                                          <span>{(comment.likes || []).length}</span>
-                                        )}
-                                      </button>
-                                    </div>
-                                  </div>
+                                      gap: '4px',
+                                      fontSize: '12px',
+                                      color: (comment.likes || []).includes(user.id) ? '#e74c3c' : '#999'
+                                    }}
+                                  >
+                                    <span style={{ fontSize: '14px' }}>
+                                      {(comment.likes || []).includes(user.id) ? '❤️' : '🤍'}
+                                    </span>
+                                    {(comment.likes || []).length > 0 && (
+                                      <span>{(comment.likes || []).length}</span>
+                                    )}
+                                  </button>
                                 </div>
                                 {isCommentOwner && (
                                   <div
