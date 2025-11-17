@@ -371,14 +371,33 @@ function TeamFormation() {
         )}
 
         <div className="card" style={{ marginBottom: '16px' }}>
-          <h3 style={{ 
-            fontSize: '16px', 
-            fontWeight: '700',
-            marginBottom: '12px',
-            color: 'var(--primary-green)'
+          <div style={{ 
+            display: 'flex',
+            alignItems: 'center',
+            gap: '8px',
+            marginBottom: '12px'
           }}>
-            미배정 참가자 ({unassigned.length}명)
-          </h3>
+            <h3 style={{ 
+              fontSize: '16px', 
+              fontWeight: '700',
+              color: 'var(--primary-green)',
+              margin: 0
+            }}>
+              미배정 참가자 ({unassigned.length}명)
+            </h3>
+            {unassigned.filter(m => booking?.numberRentals && booking.numberRentals.includes(m.phone)).length > 0 && (
+              <span style={{
+                background: '#E6AA68',
+                color: '#fff',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                fontSize: '12px',
+                fontWeight: '600'
+              }}>
+                번호대여자 {unassigned.filter(m => booking?.numberRentals && booking.numberRentals.includes(m.phone)).length}
+              </span>
+            )}
+          </div>
           <div style={{
             minHeight: '60px',
             borderRadius: '8px',
@@ -404,21 +423,18 @@ function TeamFormation() {
                   <div
                     key={index}
                     style={{
-                      padding: '8px 16px',
+                      padding: '10px 14px',
                       borderRadius: '6px',
                       border: isRenting ? 'none' : '2px solid var(--border-color)',
                       background: isRenting ? '#E6AA68' : 'transparent',
                       fontSize: '14px',
                       fontWeight: '600',
-                      color: isRenting ? '#fff' : 'var(--primary-green)'
+                      color: isRenting ? '#fff' : 'var(--primary-green)',
+                      whiteSpace: 'nowrap',
+                      flexShrink: 0
                     }}
                   >
-                    <div>{getParticipantDisplayName(member)}</div>
-                    {isRenting && (
-                      <div style={{ fontSize: '11px', opacity: 0.8, fontWeight: '400', marginTop: '2px' }}>
-                        번호대여자
-                      </div>
-                    )}
+                    {getParticipantDisplayName(member)}
                   </div>
                 );
               })
@@ -463,16 +479,7 @@ function TeamFormation() {
                       transition: 'all 0.2s'
                     }}
                   >
-                    {member ? (
-                      <span>
-                        {getParticipantDisplayName(member)}
-                        {isRenting && (
-                          <span style={{ fontSize: '11px', opacity: 0.8, fontWeight: '400', marginLeft: '6px' }}>
-                            (번호대여)
-                          </span>
-                        )}
-                      </span>
-                    ) : '+ 추가'}
+                    {member ? getParticipantDisplayName(member) : '+ 추가'}
                   </button>
                 );
               })}
@@ -510,11 +517,26 @@ function TeamFormation() {
               display: 'flex', 
               justifyContent: 'space-between', 
               alignItems: 'center',
-              marginBottom: '12px' 
+              marginBottom: '12px',
+              gap: '8px'
             }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '700' }}>
-                참가자 선택 ({selectedParticipants.length}/4)
-              </h3>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
+                  참가자 선택 ({selectedParticipants.length}/4)
+                </h3>
+                {unassigned.filter(m => booking?.numberRentals && booking.numberRentals.includes(m.phone)).length > 0 && (
+                  <span style={{
+                    background: '#E6AA68',
+                    color: '#fff',
+                    padding: '4px 10px',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    fontWeight: '600'
+                  }}>
+                    번호대여자 {unassigned.filter(m => booking?.numberRentals && booking.numberRentals.includes(m.phone)).length}
+                  </span>
+                )}
+              </div>
               <button
                 onClick={() => {
                   setShowSelectModal(false);
@@ -601,11 +623,6 @@ function TeamFormation() {
                         )}
                         <span>
                           {getParticipantDisplayName(participant)}
-                          {isRenting && (
-                            <span style={{ fontSize: '11px', opacity: 0.8, fontWeight: '400', marginLeft: '6px' }}>
-                              (번호대여)
-                            </span>
-                          )}
                         </span>
                       </button>
                     );
