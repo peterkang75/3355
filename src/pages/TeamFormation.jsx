@@ -552,7 +552,7 @@ function TeamFormation() {
                   배정 가능한 참가자가 없습니다.
                 </p>
               ) : (
-                <div style={{ display: 'grid', gap: '8px' }}>
+                <div style={{ display: 'grid', gap: '6px' }}>
                   {unassigned.map((participant, index) => {
                     const isSelected = selectedParticipants.some(p => p.phone === participant.phone);
                     const isRenting = booking?.numberRentals && booking.numberRentals.includes(participant.phone);
@@ -574,13 +574,13 @@ function TeamFormation() {
                         key={index}
                         onClick={() => handleToggleParticipant(participant)}
                         style={{
-                          padding: '16px',
+                          padding: '12px 14px',
                           background: bgColor,
                           border: '2px solid var(--border-color)',
                           borderRadius: '8px',
                           cursor: 'pointer',
                           textAlign: 'center',
-                          fontSize: '16px',
+                          fontSize: '15px',
                           fontWeight: '600',
                           color: textColor,
                           transition: 'all 0.2s',
@@ -593,8 +593,8 @@ function TeamFormation() {
                         {isSelected && (
                           <span style={{ 
                             position: 'absolute', 
-                            left: '12px', 
-                            fontSize: '18px' 
+                            left: '10px', 
+                            fontSize: '16px' 
                           }}>
                             ✓
                           </span>
