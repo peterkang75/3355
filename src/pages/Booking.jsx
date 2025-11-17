@@ -260,6 +260,14 @@ function Booking() {
     return today > deadline;
   };
 
+  const isPastRoundingDate = (booking) => {
+    const bookingDate = new Date(booking.date);
+    const today = new Date();
+    bookingDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    return today > bookingDate;
+  };
+
   const canViewBooking = (booking) => {
     if (booking.type === '컴페티션') {
       return user.club === booking.courseName;
@@ -756,7 +764,7 @@ function Booking() {
           </div>
 
           <div style={{ display: 'flex', gap: '8px' }}>
-            {isRegistrationClosed(booking) ? (
+            {isPastRoundingDate(booking) && (booking.dailyHandicaps || hasUserScore(booking)) ? (
               <>
                 <button
                   onClick={() => {
@@ -765,8 +773,6 @@ function Booking() {
                     } else if (hasUserScore(booking)) {
                       const userScore = getUserScore(booking);
                       navigate('/score', { state: { scoreId: userScore.id, readonly: true } });
-                    } else {
-                      navigate('/score');
                     }
                   }}
                   style={{
@@ -781,7 +787,7 @@ function Booking() {
                     cursor: 'pointer'
                   }}
                 >
-                  {booking.dailyHandicaps ? '▲ 결과보기' : hasUserScore(booking) ? '📊 스코어보기' : '⛳ 플레이하기'}
+                  {booking.dailyHandicaps ? '▲ 결과보기' : '📊 스코어보기'}
                 </button>
                 {user.isAdmin && (
                   <button
@@ -802,85 +808,10 @@ function Booking() {
                   </button>
                 )}
               </>
-            ) : (booking.type === '컴페티션' && (user.isAdmin || user.role === '운영진')) ? (
+            ) : isRegistrationClosed(booking) && !isPastRoundingDate(booking) ? (
               <>
-                {hasTeams(booking) ? (
-                  <button
-                    onClick={() => navigate(`/team-formation?id=${booking.id}`)}
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      background: 'var(--primary-green)',
-                      color: 'var(--text-light)',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '16px',
-                      fontWeight: '700',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    📋 조편성 보기
-                  </button>
-                ) : (
-                  <>
-                    <button
-                      onClick={(isJoined || isRenting) ? null : () => handleJoinBooking(booking.id)}
-                      style={{
-                        flex: 1,
-                        padding: '12px',
-                        background: (isJoined || isRenting) ? '#e0e0e0' : 'var(--primary-green)',
-                        color: (isJoined || isRenting) ? '#999' : 'var(--text-light)',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '16px',
-                        fontWeight: '700',
-                        cursor: (isJoined || isRenting) ? 'default' : 'pointer',
-                        opacity: (isJoined || isRenting) ? 0.6 : 1
-                      }}
-                    >
-                      {isJoined ? '참가중' : '참가하기'}
-                    </button>
-                    <button
-                      onClick={(isJoined && !isRenting) ? () => handleJoinBooking(booking.id) : null}
-                      style={{
-                        flex: 1,
-                        padding: '12px',
-                        background: (isJoined && !isRenting) ? 'var(--alert-red)' : '#e0e0e0',
-                        color: (isJoined && !isRenting) ? 'var(--text-light)' : '#999',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '16px',
-                        fontWeight: '700',
-                        cursor: (isJoined && !isRenting) ? 'pointer' : 'default',
-                        opacity: (isJoined && !isRenting) ? 1 : 0.6
-                      }}
-                    >
-                      취소하기
-                    </button>
-                    {booking.type === '컴페티션' && (
-                      <button
-                        onClick={() => handleToggleNumberRental(booking.id)}
-                        disabled={isRentalLoading === booking.id}
-                        style={{
-                          flex: 1,
-                          padding: '12px',
-                          background: isRentalLoading === booking.id ? '#ccc' : '#E6AA68',
-                          color: '#fff',
-                          border: 'none',
-                          borderRadius: '6px',
-                          fontSize: '16px',
-                          fontWeight: '700',
-                          cursor: isRentalLoading === booking.id ? 'wait' : 'pointer',
-                          opacity: isRentalLoading === booking.id ? 0.7 : 1
-                        }}
-                      >
-                        {isRentalLoading === booking.id ? '처리중...' : (isRenting ? '✓ 번호대여중' : '번호대여')}
-                      </button>
-                    )}
-                  </>
-                )}
                 <button
-                  onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
+                  onClick={() => navigate(`/team-formation?id=${booking.id}`)}
                   style={{
                     flex: 1,
                     padding: '12px',
@@ -893,26 +824,27 @@ function Booking() {
                     cursor: 'pointer'
                   }}
                 >
-                  ◉ 라운딩 관리
+                  📋 조편성 보기
                 </button>
+                {user.isAdmin && (
+                  <button
+                    onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: 'var(--primary-green)',
+                      color: 'var(--text-light)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    ◉ 라운딩 관리
+                  </button>
+                )}
               </>
-            ) : hasTeams(booking) ? (
-              <button
-                onClick={() => navigate(`/team-formation?id=${booking.id}`)}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  background: 'var(--primary-green)',
-                  color: 'var(--text-light)',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '16px',
-                  fontWeight: '700',
-                  cursor: 'pointer'
-                }}
-              >
-                📋 조편성 보기
-              </button>
             ) : (
               <>
                 <button
@@ -967,6 +899,24 @@ function Booking() {
                     }}
                   >
                     {isRentalLoading === booking.id ? '처리중...' : (isRenting ? '✓ 번호대여중' : '번호대여')}
+                  </button>
+                )}
+                {user.isAdmin && (
+                  <button
+                    onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: 'var(--primary-green)',
+                      color: 'var(--text-light)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    ◉ 라운딩 관리
                   </button>
                 )}
               </>
