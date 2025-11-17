@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
@@ -25,6 +25,25 @@ function Booking() {
     restaurantAddress: ''
   });
   const [editBookingData, setEditBookingData] = useState(null);
+
+  // 컴페티션 라운딩 접수 마감일 자동 설정 (라운딩 날짜 8일 전 18:30)
+  useEffect(() => {
+    if (bookingType === '컴페티션' && newBooking.date) {
+      const roundingDate = new Date(newBooking.date);
+      const deadlineDate = new Date(roundingDate);
+      deadlineDate.setDate(deadlineDate.getDate() - 8);
+      deadlineDate.setHours(18, 30, 0, 0);
+      
+      const year = deadlineDate.getFullYear();
+      const month = String(deadlineDate.getMonth() + 1).padStart(2, '0');
+      const day = String(deadlineDate.getDate()).padStart(2, '0');
+      const hours = String(deadlineDate.getHours()).padStart(2, '0');
+      const minutes = String(deadlineDate.getMinutes()).padStart(2, '0');
+      
+      const formattedDeadline = `${year}-${month}-${day}T${hours}:${minutes}`;
+      setNewBooking(prev => ({ ...prev, registrationDeadline: formattedDeadline }));
+    }
+  }, [bookingType, newBooking.date]);
 
   const parseParticipants = (participants) => {
     if (!participants || !Array.isArray(participants)) return [];
