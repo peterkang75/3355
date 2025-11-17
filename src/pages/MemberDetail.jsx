@@ -900,15 +900,15 @@ function MemberDetail() {
               아직 기록된 스코어가 없습니다.
             </div>
           ) : (
-            <div style={{ display: 'grid', gap: '4.8px' }}>
+            <div style={{ display: 'grid', gap: '2px' }}>
               {scores.map((score, index) => (
                 <div
                   key={index}
                   style={{
-                    padding: '7.2px',
+                    padding: '6px 8px',
                     border: '1px solid var(--border-color)',
                     borderRadius: '6px',
-                    marginBottom: '4.8px',
+                    marginBottom: '2px',
                     position: 'relative'
                   }}
                 >
@@ -916,7 +916,7 @@ function MemberDetail() {
                     display: 'flex',
                     justifyContent: 'space-between',
                     alignItems: 'center',
-                    marginBottom: '3.6px'
+                    marginBottom: '2px'
                   }}>
                     <div style={{
                       fontSize: '15px',
