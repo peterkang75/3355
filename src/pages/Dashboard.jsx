@@ -706,9 +706,7 @@ function Dashboard() {
                                     padding: '12px',
                                     borderRadius: '4px',
                                     marginBottom: '8px',
-                                    marginLeft: '20px',
-                                    borderLeft: '2px solid var(--primary-green)',
-                                    borderTop: '2px solid var(--primary-green)'
+                                    marginLeft: '20px'
                                   }}
                                   onClick={(e) => e.stopPropagation()}
                                 >
@@ -813,8 +811,6 @@ function Dashboard() {
                                   borderRadius: '4px',
                                   marginBottom: '8px',
                                   marginLeft: '20px',
-                                  borderLeft: '2px solid var(--primary-green)',
-                                  borderTop: '2px solid var(--primary-green)',
                                   position: 'relative'
                                 }}
                               >
