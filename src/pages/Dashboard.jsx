@@ -667,11 +667,12 @@ function Dashboard() {
                                 <div 
                                   key={comment.id}
                                   style={{
-                                    background: '#FFF9E6',
+                                    background: '#FFD449',
                                     padding: '10px',
-                                    borderRadius: '8px',
+                                    borderRadius: '4px',
                                     marginBottom: '6px',
-                                    borderBottom: '1px solid var(--border-color)'
+                                    marginLeft: '20px',
+                                    borderLeft: '3px solid var(--primary-green)'
                                   }}
                                   onClick={(e) => e.stopPropagation()}
                                 >
@@ -726,11 +727,12 @@ function Dashboard() {
                               <div 
                                 key={comment.id}
                                 style={{
-                                  background: '#FFF9E6',
+                                  background: '#FFD449',
                                   padding: '10px',
-                                  borderRadius: '8px',
+                                  borderRadius: '4px',
                                   marginBottom: '6px',
-                                  borderBottom: '1px solid var(--border-color)',
+                                  marginLeft: '20px',
+                                  borderLeft: '3px solid var(--primary-green)',
                                   position: 'relative'
                                 }}
                               >
@@ -847,7 +849,14 @@ function Dashboard() {
                             }
                           }}
                           onClick={(e) => e.stopPropagation()}
-                          style={{ flex: 1, marginBottom: 0 }}
+                          style={{ 
+                            flex: 1, 
+                            marginBottom: 0,
+                            background: '#FFF9E6',
+                            border: '1px solid var(--border-color)',
+                            borderRadius: '8px',
+                            padding: '12px'
+                          }}
                         />
                         <button
                           onClick={(e) => {
