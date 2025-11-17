@@ -937,7 +937,10 @@ function MemberDetail() {
                     {user?.isAdmin && (
                       <div style={{ position: 'relative' }}>
                         <button
-                          onClick={() => setOpenMenuId(openMenuId === score.id ? null : score.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setOpenMenuId(openMenuId === score.id ? null : score.id);
+                          }}
                           style={{
                             background: 'none',
                             border: 'none',
@@ -964,6 +967,7 @@ function MemberDetail() {
                               }}
                             />
                             <div
+                              onClick={(e) => e.stopPropagation()}
                               style={{
                                 position: 'absolute',
                                 top: '100%',

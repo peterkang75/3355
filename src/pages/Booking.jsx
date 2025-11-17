@@ -580,7 +580,10 @@ function Booking() {
             {user.isAdmin && (
               <div style={{ position: 'relative' }}>
                 <button
-                  onClick={() => setOpenMenuId(openMenuId === booking.id ? null : booking.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenMenuId(openMenuId === booking.id ? null : booking.id);
+                  }}
                   style={{
                     background: 'transparent',
                     border: 'none',
@@ -593,7 +596,9 @@ function Booking() {
                   ⋮
                 </button>
                 {openMenuId === booking.id && (
-                  <div style={{
+                  <div 
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
                     position: 'absolute',
                     top: '100%',
                     right: 0,

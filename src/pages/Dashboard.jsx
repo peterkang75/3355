@@ -575,6 +575,7 @@ function Dashboard() {
                         ⋮
                         {openMenuPostId === post.id && (
                           <div
+                            onClick={(e) => e.stopPropagation()}
                             style={{
                               position: 'absolute',
                               top: '100%',
@@ -771,6 +772,7 @@ function Dashboard() {
                                     ⋮
                                     {openMenuCommentId === comment.id && (
                                       <div
+                                        onClick={(e) => e.stopPropagation()}
                                         style={{
                                           position: 'absolute',
                                           top: '100%',

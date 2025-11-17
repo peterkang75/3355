@@ -227,7 +227,10 @@ function RoundingManagement() {
             
             <div style={{ position: 'relative' }}>
               <button
-                onClick={() => setShowMenu(!showMenu)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowMenu(!showMenu);
+                }}
                 style={{
                   background: 'transparent',
                   border: 'none',
@@ -240,7 +243,9 @@ function RoundingManagement() {
                 ⋮
               </button>
               {showMenu && (
-                <div style={{
+                <div 
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
                   position: 'absolute',
                   top: '100%',
                   right: 0,
