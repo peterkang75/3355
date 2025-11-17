@@ -455,25 +455,23 @@ function TeamFormation() {
                       border: '2px solid var(--border-color)',
                       opacity: member ? 1 : 0.7,
                       display: 'flex',
-                      flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: '15px',
                       fontWeight: '600',
                       cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      gap: '2px'
+                      transition: 'all 0.2s'
                     }}
                   >
                     {member ? (
-                      <>
-                        <div>{getParticipantDisplayName(member)}</div>
+                      <span>
+                        {getParticipantDisplayName(member)}
                         {isRenting && (
-                          <div style={{ fontSize: '11px', opacity: 0.8, fontWeight: '400' }}>
-                            번호대여자
-                          </div>
+                          <span style={{ fontSize: '11px', opacity: 0.8, fontWeight: '400', marginLeft: '6px' }}>
+                            (번호대여)
+                          </span>
                         )}
-                      </>
+                      </span>
                     ) : '+ 추가'}
                   </button>
                 );
@@ -588,9 +586,8 @@ function TeamFormation() {
                           transition: 'all 0.2s',
                           position: 'relative',
                           display: 'flex',
-                          flexDirection: 'column',
                           alignItems: 'center',
-                          gap: '2px'
+                          justifyContent: 'center'
                         }}
                       >
                         {isSelected && (
@@ -602,12 +599,14 @@ function TeamFormation() {
                             ✓
                           </span>
                         )}
-                        <div>{getParticipantDisplayName(participant)}</div>
-                        {isRenting && (
-                          <div style={{ fontSize: '11px', opacity: 0.8, fontWeight: '400' }}>
-                            번호대여자
-                          </div>
-                        )}
+                        <span>
+                          {getParticipantDisplayName(participant)}
+                          {isRenting && (
+                            <span style={{ fontSize: '11px', opacity: 0.8, fontWeight: '400', marginLeft: '6px' }}>
+                              (번호대여)
+                            </span>
+                          )}
+                        </span>
                       </button>
                     );
                   })}
