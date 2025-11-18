@@ -5,6 +5,7 @@ import homeIcon from '../assets/home-icon.png';
 import mypageIcon from '../assets/mypage-icon.png';
 import adminIcon from '../assets/admin-icon.png';
 import aboutIcon from '../assets/about-icon.png';
+import feesIcon from '../assets/fees-icon.png';
 
 function Navigation({ user, onLogout }) {
   const navigate = useNavigate();
@@ -64,7 +65,9 @@ function Navigation({ user, onLogout }) {
         className={isActive('/fees') ? 'nav-item active' : 'nav-item'}
         onClick={(e) => handleNavClick(e, '/fees')}
       >
-        <span className="nav-icon">$</span>
+        <span className="nav-icon">
+          <img src={feesIcon} alt="회비" style={{ width: '24px', height: '24px' }} />
+        </span>
         <span>회비</span>
       </a>
       <a 
