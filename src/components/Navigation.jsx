@@ -52,6 +52,7 @@ function Navigation({ user, onLogout }) {
         </span>
         <span>라운딩</span>
       </a>
+      {/* TODO: 다음 버전에 활성화
       <a 
         href="/score" 
         className={isActive('/score') ? 'nav-item active' : 'nav-item'}
@@ -70,6 +71,7 @@ function Navigation({ user, onLogout }) {
         </span>
         <span>회비</span>
       </a>
+      */}
       <a 
         href="/mypage" 
         className={isActive('/mypage') ? 'nav-item active' : 'nav-item'}
