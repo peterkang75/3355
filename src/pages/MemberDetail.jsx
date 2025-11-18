@@ -627,7 +627,7 @@ function MemberDetail() {
                         e.currentTarget.style.borderColor = '#e0e0e0';
                       }}
                     >
-                      <span style={{ fontSize: '24px', width: '30px', textAlign: 'center', color: '#333' }}>⛳</span>
+                      <span style={{ fontSize: '24px', width: '30px', textAlign: 'center', color: '#333' }}>📊</span>
                       <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-dark)', flex: 1 }}>
                         스코어 기록
                       </span>
