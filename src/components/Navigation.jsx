@@ -72,7 +72,7 @@ function Navigation({ user, onLogout }) {
         </span>
         <span>마이페이지</span>
       </a>
-      {user?.isAdmin && (
+      {(user?.isAdmin || user?.role === '관리자' || user?.role === '운영진' || user?.role === '클럽운영진' || user?.role === '방장') && (
         <a 
           href="/admin" 
           className={isActive('/admin') ? 'nav-item active' : 'nav-item'}
