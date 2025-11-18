@@ -785,7 +785,7 @@ function Admin() {
                       alignItems: 'center'
                     }}
                   >
-                    <div style={{ flexShrink: 0 }}>
+                    <div style={{ flexShrink: 0, position: 'relative' }}>
                       {member.photo ? (
                         <img 
                           src={member.photo} 
@@ -811,6 +811,17 @@ function Admin() {
                           color: 'var(--text-dark)', opacity: 0.7
                         }}>
                           •
+                        </div>
+                      )}
+                      
+                      {member.role && ['관리자', '방장', '운영진', '클럽운영진'].includes(member.role) && (
+                        <div style={{
+                          position: 'absolute',
+                          bottom: '-3px',
+                          right: '-3px',
+                          zIndex: 10
+                        }}>
+                          <CrownIcon role={member.role} size={20} />
                         </div>
                       )}
                     </div>
@@ -938,7 +949,7 @@ function Admin() {
                       e.currentTarget.style.transform = 'translateX(0)';
                     }}
                   >
-                    <div style={{ flexShrink: 0 }}>
+                    <div style={{ flexShrink: 0, position: 'relative' }}>
                       {member.photo ? (
                         <img 
                           src={member.photo} 
@@ -966,6 +977,17 @@ function Admin() {
                           •
                         </div>
                       )}
+                      
+                      {member.role && ['관리자', '방장', '운영진', '클럽운영진'].includes(member.role) && (
+                        <div style={{
+                          position: 'absolute',
+                          bottom: '-3px',
+                          right: '-3px',
+                          zIndex: 10
+                        }}>
+                          <CrownIcon role={member.role} size={20} />
+                        </div>
+                      )}
                     </div>
 
                     <div style={{ flex: 1, minWidth: 0 }}>
@@ -973,12 +995,9 @@ function Admin() {
                         fontWeight: '700', 
                         fontSize: '16px',
                         marginBottom: '4px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px'
+                        color: 'var(--primary-green)'
                       }}>
-                        <span style={{ color: 'var(--primary-green)' }}>{member.nickname || member.name}</span>
-                        <CrownIcon role={member.role} size={16} />
+                        {member.nickname || member.name}
                       </div>
                       <div style={{ fontSize: '13px', color: 'var(--text-dark)', opacity: 0.7 }}>
                         {member.name}

@@ -183,7 +183,11 @@ function MyPage() {
 
       <div className="page-content">
         <div className="card" style={{ marginBottom: '16px', textAlign: 'center' }}>
-          <div style={{ marginBottom: '16px' }}>
+          <div style={{ 
+            display: 'inline-block', 
+            position: 'relative',
+            marginBottom: '16px'
+          }}>
             {(isEditing ? editData.photo : user.photo) ? (
               <img 
                 src={isEditing ? editData.photo : user.photo} 
@@ -192,8 +196,7 @@ function MyPage() {
                   width: '120px',
                   height: '120px',
                   objectFit: 'cover',
-                  borderRadius: '50%',
-                  margin: '0 auto'
+                  borderRadius: '50%'
                 }}
               />
             ) : (
@@ -206,10 +209,23 @@ function MyPage() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 fontSize: '60px',
-                color: '#999',
-                margin: '0 auto'
+                color: '#999'
               }}>
                 •
+              </div>
+            )}
+            
+            {!isEditing && user.role && ['관리자', '방장', '운영진', '클럽운영진'].includes(user.role) && (
+              <div style={{
+                position: 'absolute',
+                bottom: '-5px',
+                right: '-5px',
+                zIndex: 10
+              }}>
+                {user.role === '관리자' && <img src={adminIcon} alt="관리자" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />}
+                {user.role === '방장' && <img src={bangjangIcon} alt="방장" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />}
+                {user.role === '운영진' && <img src={staffIcon} alt="운영진" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />}
+                {user.role === '클럽운영진' && <img src={clubStaffIcon} alt="클럽운영진" style={{ width: '32px', height: '32px', borderRadius: '50%' }} />}
               </div>
             )}
           </div>
@@ -290,77 +306,6 @@ function MyPage() {
             </div>
           </div>
 
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '8px',
-            marginTop: '16px'
-          }}>
-            {user.role === '관리자' && (
-              <span style={{
-                padding: '4px 12px',
-                background: '#f5f5f5',
-                color: 'var(--text-dark)',
-                borderRadius: '12px',
-                fontSize: '12px',
-                fontWeight: '600',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
-                <img src={adminIcon} alt="관리자" style={{ width: '16px', height: '16px', borderRadius: '50%' }} />
-                관리자
-              </span>
-            )}
-            {user.role === '방장' && (
-              <span style={{
-                padding: '4px 12px',
-                background: '#f5f5f5',
-                color: 'var(--text-dark)',
-                borderRadius: '12px',
-                fontSize: '12px',
-                fontWeight: '600',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
-                <img src={bangjangIcon} alt="방장" style={{ width: '16px', height: '16px', borderRadius: '50%' }} />
-                방장
-              </span>
-            )}
-            {user.role === '운영진' && (
-              <span style={{
-                padding: '4px 12px',
-                background: '#f5f5f5',
-                color: 'var(--text-dark)',
-                borderRadius: '12px',
-                fontSize: '12px',
-                fontWeight: '600',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
-                <img src={staffIcon} alt="운영진" style={{ width: '16px', height: '16px', borderRadius: '50%' }} />
-                운영진
-              </span>
-            )}
-            {user.role === '클럽운영진' && (
-              <span style={{
-                padding: '4px 12px',
-                background: '#f5f5f5',
-                color: 'var(--text-dark)',
-                borderRadius: '12px',
-                fontSize: '12px',
-                fontWeight: '600',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}>
-                <img src={clubStaffIcon} alt="클럽운영진" style={{ width: '16px', height: '16px', borderRadius: '50%' }} />
-                클럽운영진
-              </span>
-            )}
-          </div>
         </div>
 
         {!isEditing ? (
