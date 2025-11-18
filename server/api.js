@@ -599,4 +599,190 @@ router.patch('/members/:id/reject', async (req, res) => {
   }
 });
 
+// ============= Transaction API =============
+
+// 모든 거래 내역 조회
+router.get('/transactions', async (req, res) => {
+  try {
+    const transactions = await prisma.transaction.findMany({
+      include: {
+        member: true,
+        booking: true
+      },
+      orderBy: { date: 'desc' }
+    });
+    res.json(transactions);
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    res.status(500).json({ error: 'Failed to fetch transactions' });
+  }
+});
+
+// 회원별 거래 내역 조회
+router.get('/transactions/member/:memberId', async (req, res) => {
+  try {
+    const transactions = await prisma.transaction.findMany({
+      where: { memberId: req.params.memberId },
+      include: {
+        booking: true
+      },
+      orderBy: { date: 'desc' }
+    });
+    res.json(transactions);
+  } catch (error) {
+    console.error('Error fetching member transactions:', error);
+    res.status(500).json({ error: 'Failed to fetch member transactions' });
+  }
+});
+
+// 회원 잔액 계산
+router.get('/transactions/balance/:memberId', async (req, res) => {
+  try {
+    const transactions = await prisma.transaction.findMany({
+      where: { memberId: req.params.memberId }
+    });
+
+    const balance = transactions.reduce((sum, t) => {
+      if (t.type === 'charge') return sum - t.amount;
+      if (t.type === 'payment') return sum + t.amount;
+      return sum;
+    }, 0);
+
+    res.json({ balance });
+  } catch (error) {
+    console.error('Error calculating member balance:', error);
+    res.status(500).json({ error: 'Failed to calculate balance' });
+  }
+});
+
+// 클럽 잔액 계산
+router.get('/transactions/club-balance', async (req, res) => {
+  try {
+    const transactions = await prisma.transaction.findMany();
+
+    const balance = transactions.reduce((sum, t) => {
+      if (t.type === 'payment') return sum + t.amount;
+      if (t.type === 'donation') return sum + t.amount;
+      if (t.type === 'expense') return sum - t.amount;
+      return sum;
+    }, 0);
+
+    res.json({ balance });
+  } catch (error) {
+    console.error('Error calculating club balance:', error);
+    res.status(500).json({ error: 'Failed to calculate club balance' });
+  }
+});
+
+// 회원별 미수금 조회
+router.get('/transactions/outstanding', async (req, res) => {
+  try {
+    const members = await prisma.member.findMany({
+      where: { isActive: true }
+    });
+
+    const outstandingBalances = await Promise.all(
+      members.map(async (member) => {
+        const transactions = await prisma.transaction.findMany({
+          where: { memberId: member.id }
+        });
+
+        const balance = transactions.reduce((sum, t) => {
+          if (t.type === 'charge') return sum - t.amount;
+          if (t.type === 'payment') return sum + t.amount;
+          return sum;
+        }, 0);
+
+        return {
+          memberId: member.id,
+          memberName: member.name,
+          memberNickname: member.nickname,
+          balance
+        };
+      })
+    );
+
+    res.json(outstandingBalances.filter(ob => ob.balance < 0));
+  } catch (error) {
+    console.error('Error fetching outstanding balances:', error);
+    res.status(500).json({ error: 'Failed to fetch outstanding balances' });
+  }
+});
+
+// 거래 생성 (charge, payment, expense, donation)
+router.post('/transactions', async (req, res) => {
+  try {
+    const transaction = await prisma.transaction.create({
+      data: req.body,
+      include: {
+        member: true,
+        booking: true
+      }
+    });
+    
+    // 회원 잔액 업데이트
+    if (transaction.memberId && (transaction.type === 'charge' || transaction.type === 'payment')) {
+      const memberTransactions = await prisma.transaction.findMany({
+        where: { memberId: transaction.memberId }
+      });
+
+      const newBalance = memberTransactions.reduce((sum, t) => {
+        if (t.type === 'charge') return sum - t.amount;
+        if (t.type === 'payment') return sum + t.amount;
+        return sum;
+      }, 0);
+
+      await prisma.member.update({
+        where: { id: transaction.memberId },
+        data: { balance: newBalance }
+      });
+    }
+
+    res.json(transaction);
+  } catch (error) {
+    console.error('Error creating transaction:', error);
+    res.status(500).json({ error: 'Failed to create transaction' });
+  }
+});
+
+// 거래 삭제
+router.delete('/transactions/:id', async (req, res) => {
+  try {
+    const transaction = await prisma.transaction.findUnique({
+      where: { id: req.params.id }
+    });
+
+    if (!transaction) {
+      return res.status(404).json({ error: 'Transaction not found' });
+    }
+
+    await prisma.transaction.delete({
+      where: { id: req.params.id }
+    });
+
+    // 회원 잔액 재계산
+    if (transaction.memberId) {
+      const memberTransactions = await prisma.transaction.findMany({
+        where: { memberId: transaction.memberId }
+      });
+
+      const newBalance = memberTransactions.reduce((sum, t) => {
+        if (t.type === 'charge') return sum - t.amount;
+        if (t.type === 'payment') return sum + t.amount;
+        return sum;
+      }, 0);
+
+      await prisma.member.update({
+        where: { id: transaction.memberId },
+        data: { balance: newBalance }
+      });
+    }
+
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting transaction:', error);
+    res.status(500).json({ error: 'Failed to delete transaction' });
+  }
+});
+
 module.exports = router;

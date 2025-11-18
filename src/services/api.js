@@ -320,6 +320,54 @@ class ApiService {
     if (!response.ok) throw new Error('Failed to create score');
     return response.json();
   }
+
+  async fetchTransactions() {
+    const response = await fetch(`${API_BASE}/transactions`);
+    if (!response.ok) throw new Error('Failed to fetch transactions');
+    return response.json();
+  }
+
+  async fetchMemberTransactions(memberId) {
+    const response = await fetch(`${API_BASE}/transactions/member/${memberId}`);
+    if (!response.ok) throw new Error('Failed to fetch member transactions');
+    return response.json();
+  }
+
+  async fetchMemberBalance(memberId) {
+    const response = await fetch(`${API_BASE}/transactions/balance/${memberId}`);
+    if (!response.ok) throw new Error('Failed to fetch member balance');
+    return response.json();
+  }
+
+  async fetchClubBalance() {
+    const response = await fetch(`${API_BASE}/transactions/club-balance`);
+    if (!response.ok) throw new Error('Failed to fetch club balance');
+    return response.json();
+  }
+
+  async fetchOutstandingBalances() {
+    const response = await fetch(`${API_BASE}/transactions/outstanding`);
+    if (!response.ok) throw new Error('Failed to fetch outstanding balances');
+    return response.json();
+  }
+
+  async createTransaction(transactionData) {
+    const response = await fetch(`${API_BASE}/transactions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(transactionData)
+    });
+    if (!response.ok) throw new Error('Failed to create transaction');
+    return response.json();
+  }
+
+  async deleteTransaction(id) {
+    const response = await fetch(`${API_BASE}/transactions/${id}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Failed to delete transaction');
+    return response.json();
+  }
 }
 
 export default new ApiService();
