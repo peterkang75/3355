@@ -1904,7 +1904,10 @@ function Admin() {
                   <CrownIcon role="클럽운영진" size={14} />
                   <span>클럽운영진</span>
                 </div>
-                <div style={{ textAlign: 'center' }}>회원</div>
+                <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                  <div style={{ height: '14px' }}></div>
+                  <span>회원</span>
+                </div>
               </div>
 
               <div style={{ display: 'grid', gap: '8px' }}>
