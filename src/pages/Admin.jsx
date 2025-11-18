@@ -264,25 +264,51 @@ function Admin() {
     }
 
     const selectedBooking = bookings.find(b => b.id === selectedIncome.bookingId);
+    
     if (!selectedBooking) {
       return activeMembers;
     }
 
-    const participantIds = selectedBooking.participants || [];
+    const participantData = selectedBooking.participants || [];
+    const participantPhones = participantData.map(p => {
+      if (typeof p === 'string') {
+        try {
+          const parsed = JSON.parse(p);
+          return parsed.phone;
+        } catch (e) {
+          return p;
+        }
+      }
+      return p?.phone || p;
+    });
     
-    const participants = activeMembers.filter(m => participantIds.includes(m.id));
-    const nonParticipants = activeMembers.filter(m => !participantIds.includes(m.id));
+    const participants = activeMembers.filter(m => participantPhones.includes(m.phone));
+    const nonParticipants = activeMembers.filter(m => !participantPhones.includes(m.phone));
     
     return [...participants, ...nonParticipants];
   };
 
   const handleToggleAllMembers = () => {
+    const allMembers = contextMembers || members || [];
     const sortedMembers = getSortedMembers();
     const selectedBooking = bookings.find(b => b.id === selectedIncome.bookingId);
-    const participantIds = selectedBooking?.participants || [];
     
-    if (selectedIncome.bookingId && participantIds.length > 0) {
-      const participantMembers = sortedMembers.filter(m => participantIds.includes(m.id));
+    if (selectedIncome.bookingId && selectedBooking) {
+      const participantData = selectedBooking.participants || [];
+      const participantPhones = participantData.map(p => {
+        if (typeof p === 'string') {
+          try {
+            const parsed = JSON.parse(p);
+            return parsed.phone;
+          } catch (e) {
+            return p;
+          }
+        }
+        return p?.phone || p;
+      });
+      
+      const participantMembers = allMembers.filter(m => m.isActive && participantPhones.includes(m.phone));
+      
       if (selectedMembers.length === participantMembers.length && 
           participantMembers.every(m => selectedMembers.includes(m.id))) {
         setSelectedMembers([]);
@@ -3455,7 +3481,10 @@ function Admin() {
               </label>
               <select
                 value={selectedIncome.bookingId || ''}
-                onChange={(e) => setSelectedIncome({...selectedIncome, bookingId: e.target.value || null})}
+                onChange={(e) => {
+                  const newBookingId = e.target.value || null;
+                  setSelectedIncome({...selectedIncome, bookingId: newBookingId});
+                }}
                 style={{
                   width: '100%',
                   padding: '12px',
@@ -3513,12 +3542,25 @@ function Admin() {
                 <input
                   type="checkbox"
                   checked={(() => {
+                    const allMembers = contextMembers || members || [];
                     const sortedMembers = getSortedMembers();
                     const selectedBooking = bookings.find(b => b.id === selectedIncome.bookingId);
-                    const participantIds = selectedBooking?.participants || [];
                     
-                    if (selectedIncome.bookingId && participantIds.length > 0) {
-                      const participantMembers = sortedMembers.filter(m => participantIds.includes(m.id));
+                    if (selectedIncome.bookingId && selectedBooking) {
+                      const participantData = selectedBooking.participants || [];
+                      const participantPhones = participantData.map(p => {
+                        if (typeof p === 'string') {
+                          try {
+                            const parsed = JSON.parse(p);
+                            return parsed.phone;
+                          } catch (e) {
+                            return p;
+                          }
+                        }
+                        return p?.phone || p;
+                      });
+                      
+                      const participantMembers = allMembers.filter(m => m.isActive && participantPhones.includes(m.phone));
                       return selectedMembers.length === participantMembers.length && 
                              participantMembers.every(m => selectedMembers.includes(m.id)) &&
                              participantMembers.length > 0;
@@ -3537,12 +3579,25 @@ function Admin() {
                 <span style={{ fontSize: '15px', fontWeight: '600' }}>전체 선택</span>
                 <span style={{ marginLeft: 'auto', fontSize: '13px', opacity: 0.7 }}>
                   {(() => {
+                    const allMembers = contextMembers || members || [];
                     const sortedMembers = getSortedMembers();
                     const selectedBooking = bookings.find(b => b.id === selectedIncome.bookingId);
-                    const participantIds = selectedBooking?.participants || [];
                     
-                    if (selectedIncome.bookingId && participantIds.length > 0) {
-                      const participantMembers = sortedMembers.filter(m => participantIds.includes(m.id));
+                    if (selectedIncome.bookingId && selectedBooking) {
+                      const participantData = selectedBooking.participants || [];
+                      const participantPhones = participantData.map(p => {
+                        if (typeof p === 'string') {
+                          try {
+                            const parsed = JSON.parse(p);
+                            return parsed.phone;
+                          } catch (e) {
+                            return p;
+                          }
+                        }
+                        return p?.phone || p;
+                      });
+                      
+                      const participantMembers = allMembers.filter(m => m.isActive && participantPhones.includes(m.phone));
                       const selectedParticipants = participantMembers.filter(m => selectedMembers.includes(m.id));
                       return `${selectedParticipants.length} / ${participantMembers.length}`;
                     } else {
@@ -3556,11 +3611,26 @@ function Admin() {
                 {(() => {
                   const sortedMembers = getSortedMembers();
                   const selectedBooking = bookings.find(b => b.id === selectedIncome.bookingId);
-                  const participantIds = selectedBooking?.participants || [];
-                  const hasBooking = !!selectedIncome.bookingId;
+                  const hasBooking = !!selectedIncome.bookingId && !!selectedBooking;
                   
-                  const participantMembers = hasBooking ? sortedMembers.filter(m => participantIds.includes(m.id)) : [];
-                  const nonParticipantMembers = hasBooking ? sortedMembers.filter(m => !participantIds.includes(m.id)) : sortedMembers;
+                  let participantPhones = [];
+                  if (hasBooking) {
+                    const participantData = selectedBooking.participants || [];
+                    participantPhones = participantData.map(p => {
+                      if (typeof p === 'string') {
+                        try {
+                          const parsed = JSON.parse(p);
+                          return parsed.phone;
+                        } catch (e) {
+                          return p;
+                        }
+                      }
+                      return p?.phone || p;
+                    });
+                  }
+                  
+                  const participantMembers = hasBooking ? sortedMembers.filter(m => participantPhones.includes(m.phone)) : [];
+                  const nonParticipantMembers = hasBooking ? sortedMembers.filter(m => !participantPhones.includes(m.phone)) : sortedMembers;
                   
                   return (
                     <>
