@@ -32,7 +32,8 @@ function CrownIcon({ role, size = 18 }) {
         width: size, 
         height: size, 
         display: 'inline-block', 
-        verticalAlign: 'middle' 
+        verticalAlign: 'middle',
+        borderRadius: '50%'
       }} 
     />
   );

@@ -376,7 +376,7 @@ function MemberDetail() {
                 alignItems: 'center',
                 gap: '4px'
               }}>
-                <img src={adminIcon} alt="관리자" style={{ width: '16px', height: '16px' }} />
+                <img src={adminIcon} alt="관리자" style={{ width: '16px', height: '16px', borderRadius: '50%' }} />
                 관리자
               </span>
             )}
@@ -392,7 +392,7 @@ function MemberDetail() {
                 alignItems: 'center',
                 gap: '4px'
               }}>
-                <img src={bangjangIcon} alt="방장" style={{ width: '16px', height: '16px' }} />
+                <img src={bangjangIcon} alt="방장" style={{ width: '16px', height: '16px', borderRadius: '50%' }} />
                 방장
               </span>
             )}
@@ -408,7 +408,7 @@ function MemberDetail() {
                 alignItems: 'center',
                 gap: '4px'
               }}>
-                <img src={staffIcon} alt="운영진" style={{ width: '16px', height: '16px' }} />
+                <img src={staffIcon} alt="운영진" style={{ width: '16px', height: '16px', borderRadius: '50%' }} />
                 운영진
               </span>
             )}
@@ -424,7 +424,7 @@ function MemberDetail() {
                 alignItems: 'center',
                 gap: '4px'
               }}>
-                <img src={clubStaffIcon} alt="클럽운영진" style={{ width: '16px', height: '16px' }} />
+                <img src={clubStaffIcon} alt="클럽운영진" style={{ width: '16px', height: '16px', borderRadius: '50%' }} />
                 클럽운영진
               </span>
             )}
@@ -527,7 +527,7 @@ function MemberDetail() {
                         gap: '4px'
                       }}
                     >
-                      <img src={adminIcon} alt="관리자" style={{ width: '20px', height: '20px' }} />
+                      <img src={adminIcon} alt="관리자" style={{ width: '20px', height: '20px', borderRadius: '50%' }} />
                       <span>관리자</span>
                     </button>
                     <button
@@ -548,7 +548,7 @@ function MemberDetail() {
                         gap: '4px'
                       }}
                     >
-                      <img src={bangjangIcon} alt="방장" style={{ width: '20px', height: '20px' }} />
+                      <img src={bangjangIcon} alt="방장" style={{ width: '20px', height: '20px', borderRadius: '50%' }} />
                       <span>방장</span>
                     </button>
                     <button
@@ -569,7 +569,7 @@ function MemberDetail() {
                         gap: '4px'
                       }}
                     >
-                      <img src={staffIcon} alt="운영진" style={{ width: '20px', height: '20px' }} />
+                      <img src={staffIcon} alt="운영진" style={{ width: '20px', height: '20px', borderRadius: '50%' }} />
                       <span>운영진</span>
                     </button>
                     <button
@@ -590,7 +590,7 @@ function MemberDetail() {
                         gap: '4px'
                       }}
                     >
-                      <img src={clubStaffIcon} alt="클럽운영진" style={{ width: '20px', height: '20px' }} />
+                      <img src={clubStaffIcon} alt="클럽운영진" style={{ width: '20px', height: '20px', borderRadius: '50%' }} />
                       <span>클럽<br/>운영진</span>
                     </button>
                     <button
