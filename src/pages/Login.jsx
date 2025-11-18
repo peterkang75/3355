@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
-import logoImage from '../assets/logo.png';
+import logoImage from '../assets/logo.jpeg';
 import apiService from '../services/api';
 
 function Login({ onLogin }) {
@@ -133,7 +133,7 @@ function Login({ onLogin }) {
       padding: '20px'
     }}>
       <div style={{
-        background: '#223B3F',
+        background: 'var(--bg-card)',
         border: '2px solid var(--border-color)',
         borderRadius: '16px',
         padding: '40px 30px',
@@ -154,14 +154,14 @@ function Login({ onLogin }) {
           />
           <h1 style={{ 
             fontSize: '24px', 
-            color: '#F5F5F5',
+            color: 'var(--primary-green)',
             marginBottom: '8px',
             fontWeight: '700'
           }}>
             3355 골프 클럽
           </h1>
           <p style={{ 
-            color: '#D4AF37', 
+            color: 'var(--primary-green)', 
             fontSize: '20px',
             fontFamily: "'Dancing Script', cursive",
             fontWeight: '600',
@@ -177,8 +177,7 @@ function Login({ onLogin }) {
               display: 'block', 
               marginBottom: '8px',
               fontSize: '14px',
-              fontWeight: '600',
-              color: '#E0E0E0'
+              fontWeight: '600'
             }}>
               전화번호 끝 6자리
             </label>
@@ -230,11 +229,11 @@ function Login({ onLogin }) {
           <div style={{ 
             marginTop: '24px',
             padding: '20px',
-            background: '#223B3F',
+            background: 'var(--bg-card)',
             border: '2px solid var(--border-color)',
             borderRadius: '8px'
           }}>
-            <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: '#F5F5F5' }}>
+            <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
               새 회원 가입
             </h3>
             <input
@@ -264,7 +263,7 @@ function Login({ onLogin }) {
               style={{ marginBottom: '12px', width: '100%' }}
             />
             <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#E0E0E0' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', opacity: 0.7 }}>
                 사진 (본인)
               </label>
               <input
@@ -327,11 +326,11 @@ function Login({ onLogin }) {
               )}
             </div>
             <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#E0E0E0' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
                 성별
               </label>
               <div style={{ display: 'flex', gap: '16px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: '#E0E0E0' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                   <input
                     type="radio"
                     name="gender"
@@ -341,7 +340,7 @@ function Login({ onLogin }) {
                   />
                   <span>남</span>
                 </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: '#E0E0E0' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                   <input
                     type="radio"
                     name="gender"
@@ -369,11 +368,11 @@ function Login({ onLogin }) {
               style={{ marginBottom: '12px', width: '100%' }}
             />
             <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#E0E0E0' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
                 클럽 멤버이신가요?
               </label>
               <div style={{ display: 'flex', gap: '16px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: '#E0E0E0' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                   <input
                     type="radio"
                     name="isClubMember"
@@ -383,7 +382,7 @@ function Login({ onLogin }) {
                   />
                   <span>예</span>
                 </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: '#E0E0E0' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
                   <input
                     type="radio"
                     name="isClubMember"
