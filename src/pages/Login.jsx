@@ -78,6 +78,12 @@ function Login({ onLogin }) {
       return;
     }
 
+    const existingMember = members.find(m => m.phone === newMember.phone);
+    if (existingMember) {
+      setError('이미 회원가입이 되어있습니다. 전화번호 끝 6자리 입력하여 로그인해 주세요.');
+      return;
+    }
+
     const userData = {
       ...newMember,
       isAdmin: false,
