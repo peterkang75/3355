@@ -41,12 +41,13 @@ function Dashboard() {
         setRecentTransactions(transactionsData.slice(0, 5));
       } catch (error) {
         console.error('거래내역 로드 실패:', error);
+        setRecentTransactions([]);
       }
     };
     if (user?.id) {
       loadTransactions();
     }
-  }, [user?.id]);
+  }, [user]);
 
   // 점 세 개 메뉴 외부 클릭 시 닫기 (게시글)
   useEffect(() => {
