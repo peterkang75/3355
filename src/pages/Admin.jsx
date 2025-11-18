@@ -1879,26 +1879,31 @@ function Admin() {
                 
                 <div style={{ display: 'grid', gap: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                    <label style={{ display: 'block', marginBottom: '12px', fontSize: '14px', fontWeight: '600' }}>
                       입금항목 *
                     </label>
-                    <select
-                      value={selectedIncome.categoryId}
-                      onChange={(e) => setSelectedIncome({...selectedIncome, categoryId: e.target.value})}
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        background: 'white'
-                      }}
-                    >
-                      <option value="">선택하세요</option>
+                    <div style={{ display: 'grid', gap: '8px', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))' }}>
                       {incomeCategories.map(cat => (
-                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        <button
+                          key={cat.id}
+                          onClick={() => setSelectedIncome({...selectedIncome, categoryId: cat.id})}
+                          style={{
+                            padding: '14px 16px',
+                            border: selectedIncome.categoryId === cat.id ? '2px solid var(--primary-green)' : '2px solid var(--border-color)',
+                            borderRadius: '8px',
+                            fontSize: '14px',
+                            fontWeight: selectedIncome.categoryId === cat.id ? '700' : '500',
+                            background: selectedIncome.categoryId === cat.id ? 'var(--primary-green)' : 'white',
+                            color: selectedIncome.categoryId === cat.id ? 'white' : 'var(--text-dark)',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            textAlign: 'center'
+                          }}
+                        >
+                          {cat.name}
+                        </button>
                       ))}
-                    </select>
+                    </div>
                   </div>
 
                   <div>
