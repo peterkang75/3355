@@ -214,11 +214,117 @@ router.post('/bookings', async (req, res) => {
 
 router.put('/bookings/:id', async (req, res) => {
   try {
+    const oldBooking = await prisma.booking.findUnique({
+      where: { id: req.params.id }
+    });
+
+    if (!oldBooking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+
     const booking = await prisma.booking.update({
       where: { id: req.params.id },
       data: req.body,
       include: { organizer: true }
     });
+
+    if (req.body.participants !== undefined) {
+      const oldParticipants = oldBooking.participants || [];
+      const newParticipants = req.body.participants || [];
+
+      const parseParticipant = (p) => {
+        try {
+          return typeof p === 'string' ? JSON.parse(p) : p;
+        } catch {
+          return p;
+        }
+      };
+
+      const oldPhones = oldParticipants.map(p => parseParticipant(p).phone).filter(Boolean);
+      const newPhones = newParticipants.map(p => parseParticipant(p).phone).filter(Boolean);
+
+      const addedPhones = newPhones.filter(phone => !oldPhones.includes(phone));
+      const removedPhones = oldPhones.filter(phone => !newPhones.includes(phone));
+
+      for (const phone of addedPhones) {
+        const member = await prisma.member.findFirst({
+          where: { phone }
+        });
+
+        if (member) {
+          const totalAmount = 
+            (booking.greenFee || 0) + 
+            (booking.cartFee || 0) + 
+            (booking.membershipFee || 0);
+
+          if (totalAmount > 0) {
+            await prisma.transaction.create({
+              data: {
+                type: 'charge',
+                amount: totalAmount,
+                description: `${booking.courseName} 라운딩`,
+                date: booking.date,
+                memberId: member.id,
+                bookingId: booking.id
+              }
+            });
+          }
+
+          const memberTransactions = await prisma.transaction.findMany({
+            where: { memberId: member.id }
+          });
+
+          const newBalance = memberTransactions.reduce((sum, t) => {
+            if (t.type === 'charge') return sum - t.amount;
+            if (t.type === 'payment') return sum + t.amount;
+            return sum;
+          }, 0);
+
+          await prisma.member.update({
+            where: { id: member.id },
+            data: { balance: newBalance }
+          });
+        }
+      }
+
+      for (const phone of removedPhones) {
+        const member = await prisma.member.findFirst({
+          where: { phone }
+        });
+
+        if (member) {
+          const transactionsToDelete = await prisma.transaction.findMany({
+            where: {
+              memberId: member.id,
+              bookingId: booking.id,
+              type: 'charge'
+            }
+          });
+
+          for (const transaction of transactionsToDelete) {
+            await prisma.transaction.delete({
+              where: { id: transaction.id }
+            });
+          }
+
+          const memberTransactions = await prisma.transaction.findMany({
+            where: { memberId: member.id }
+          });
+
+          const newBalance = memberTransactions.reduce((sum, t) => {
+            if (t.type === 'charge') return sum - t.amount;
+            if (t.type === 'payment') return sum + t.amount;
+            return sum;
+          }, 0);
+
+          await prisma.member.update({
+            where: { id: member.id },
+            data: { balance: newBalance }
+          });
+        }
+      }
+    }
+
     res.json(booking);
   } catch (error) {
     console.error('Error updating booking:', error);

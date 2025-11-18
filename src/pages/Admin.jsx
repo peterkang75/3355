@@ -51,6 +51,17 @@ function Admin() {
   const [hasChanges, setHasChanges] = useState(false);
   const [approvalRequired, setApprovalRequired] = useState(false);
   const [approvalPermission, setApprovalPermission] = useState('관리자');
+  
+  const [clubBalance, setClubBalance] = useState(0);
+  const [outstandingBalances, setOutstandingBalances] = useState([]);
+  const [recentTransactions, setRecentTransactions] = useState([]);
+  const [transactionForm, setTransactionForm] = useState({
+    type: 'charge',
+    amount: '',
+    description: '',
+    memberId: '',
+    date: new Date().toISOString().split('T')[0]
+  });
 
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
@@ -73,6 +84,9 @@ function Admin() {
   useEffect(() => {
     if (activeTab === 'settings') {
       loadPermissions();
+    }
+    if (activeTab === 'fees') {
+      loadFeeData();
     }
   }, [activeTab]);
 
@@ -102,6 +116,21 @@ function Admin() {
     }
   };
 
+  const loadFeeData = async () => {
+    try {
+      const [balanceData, outstandingData, transactionsData] = await Promise.all([
+        apiService.fetchClubBalance(),
+        apiService.fetchOutstandingBalances(),
+        apiService.fetchTransactions()
+      ]);
+      setClubBalance(balanceData.balance);
+      setOutstandingBalances(outstandingData);
+      setRecentTransactions(transactionsData.slice(0, 10));
+    } catch (error) {
+      console.error('회비 데이터 로드 실패:', error);
+    }
+  };
+
   const handlePermissionChange = (featureId, role) => {
     setPermissions({
       ...permissions,
@@ -120,6 +149,59 @@ function Admin() {
     } catch (error) {
       console.error('권한 설정 저장 실패:', error);
       alert('권한 설정 저장에 실패했습니다.');
+    }
+  };
+
+  const handleCreateTransaction = async () => {
+    try {
+      if (!transactionForm.amount || transactionForm.amount <= 0) {
+        alert('금액을 입력해주세요.');
+        return;
+      }
+
+      if ((transactionForm.type === 'charge' || transactionForm.type === 'payment') && !transactionForm.memberId) {
+        alert('회원을 선택해주세요.');
+        return;
+      }
+
+      const transactionData = {
+        type: transactionForm.type,
+        amount: parseFloat(transactionForm.amount),
+        description: transactionForm.description || '',
+        date: transactionForm.date,
+        memberId: (transactionForm.type === 'charge' || transactionForm.type === 'payment') ? transactionForm.memberId : null
+      };
+
+      await apiService.createTransaction(transactionData);
+      
+      setTransactionForm({
+        type: 'charge',
+        amount: '',
+        description: '',
+        memberId: '',
+        date: new Date().toISOString().split('T')[0]
+      });
+
+      await loadFeeData();
+      alert('거래가 등록되었습니다!');
+    } catch (error) {
+      console.error('거래 생성 실패:', error);
+      alert('거래 생성에 실패했습니다.');
+    }
+  };
+
+  const handleDeleteTransaction = async (id) => {
+    if (!confirm('이 거래를 삭제하시겠습니까?')) {
+      return;
+    }
+
+    try {
+      await apiService.deleteTransaction(id);
+      await loadFeeData();
+      alert('거래가 삭제되었습니다!');
+    } catch (error) {
+      console.error('거래 삭제 실패:', error);
+      alert('거래 삭제에 실패했습니다.');
     }
   };
 
@@ -1394,42 +1476,205 @@ function Admin() {
 
         {activeTab === 'fees' && (
           <div>
+            <div className="card" style={{ 
+              background: 'linear-gradient(135deg, #28a745 0%, #218838 100%)',
+              color: 'white',
+              padding: '24px'
+            }}>
+              <div style={{ fontSize: '14px', marginBottom: '8px', opacity: 0.9 }}>
+                클럽 잔액
+              </div>
+              <div style={{ fontSize: '36px', fontWeight: '700', marginBottom: '16px' }}>
+                ${clubBalance.toLocaleString()}
+              </div>
+              <div style={{ 
+                paddingTop: '16px',
+                borderTop: '1px solid rgba(255,255,255,0.3)',
+                fontSize: '14px'
+              }}>
+                <div style={{ opacity: 0.9 }}>미수금 회원: {outstandingBalances.length}명</div>
+              </div>
+            </div>
+
+            {outstandingBalances.length > 0 && (
+              <div className="card">
+                <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--alert-red)' }}>
+                  ⚠ 미수금 회원
+                </h3>
+                <div>
+                  {outstandingBalances.map(ob => (
+                    <div 
+                      key={ob.memberId}
+                      style={{
+                        padding: '12px',
+                        borderBottom: '1px solid var(--border-color)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}
+                    >
+                      <div>
+                        <div style={{ fontWeight: '600' }}>{ob.memberName}</div>
+                        <div style={{ fontSize: '13px', opacity: 0.7 }}>{ob.memberNickname}</div>
+                      </div>
+                      <div style={{
+                        fontSize: '18px',
+                        fontWeight: '700',
+                        color: 'var(--alert-red)'
+                      }}>
+                        ${Math.abs(ob.balance).toLocaleString()}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="card">
               <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
-                회비 생성
+                거래 입력
               </h3>
-              <input
-                type="text"
-                placeholder="회비 제목 (예: 월회비, 회식비)"
+              
+              <select 
+                value={transactionForm.type}
+                onChange={(e) => setTransactionForm({ ...transactionForm, type: e.target.value })}
                 style={{ marginBottom: '12px' }}
-              />
+              >
+                <option value="charge">회비 발생</option>
+                <option value="payment">납부</option>
+                <option value="expense">클럽 지출</option>
+                <option value="donation">도네이션</option>
+              </select>
+
+              {(transactionForm.type === 'charge' || transactionForm.type === 'payment') && (
+                <select
+                  value={transactionForm.memberId}
+                  onChange={(e) => setTransactionForm({ ...transactionForm, memberId: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                >
+                  <option value="">회원 선택</option>
+                  {members.map(member => (
+                    <option key={member.id} value={member.id}>
+                      {member.name} ({member.nickname})
+                    </option>
+                  ))}
+                </select>
+              )}
+
               <input
                 type="number"
+                inputMode="numeric"
                 placeholder="금액"
+                value={transactionForm.amount}
+                onChange={(e) => setTransactionForm({ ...transactionForm, amount: e.target.value })}
                 style={{ marginBottom: '12px' }}
               />
-              <select style={{ marginBottom: '12px' }}>
-                <option value="all">전체 회원</option>
-                <option value="select">회원 선택</option>
-              </select>
-              <button className="btn-primary">
-                회비 생성
+
+              <input
+                type="text"
+                placeholder="설명 (선택사항)"
+                value={transactionForm.description}
+                onChange={(e) => setTransactionForm({ ...transactionForm, description: e.target.value })}
+                style={{ marginBottom: '12px' }}
+              />
+
+              <input
+                type="date"
+                value={transactionForm.date}
+                onChange={(e) => setTransactionForm({ ...transactionForm, date: e.target.value })}
+                style={{ marginBottom: '16px' }}
+              />
+
+              <button className="btn-primary" onClick={handleCreateTransaction}>
+                {transactionForm.type === 'charge' ? '회비 발생' : 
+                 transactionForm.type === 'payment' ? '납부 처리' :
+                 transactionForm.type === 'expense' ? '지출 등록' : '도네이션 등록'}
               </button>
             </div>
 
             <div className="card">
               <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
-                지출 항목 관리
+                최근 거래 내역
               </h3>
-              <div style={{ 
-                padding: '16px',
-                background: 'var(--bg-green)',
-                borderRadius: '8px',
-                textAlign: 'center',
-                color: 'var(--text-dark)', opacity: 0.7
-              }}>
-                등록된 지출 항목이 없습니다
-              </div>
+              {recentTransactions.length === 0 ? (
+                <div style={{ 
+                  padding: '40px',
+                  textAlign: 'center',
+                  opacity: 0.7
+                }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>$</div>
+                  <p>거래 내역이 없습니다</p>
+                </div>
+              ) : (
+                <div>
+                  {recentTransactions.map(transaction => {
+                    const typeLabel = 
+                      transaction.type === 'charge' ? '회비 발생' :
+                      transaction.type === 'payment' ? '납부' :
+                      transaction.type === 'expense' ? '클럽 지출' : '도네이션';
+                    
+                    const typeColor =
+                      transaction.type === 'charge' ? 'var(--alert-red)' :
+                      transaction.type === 'payment' ? 'var(--success-green)' :
+                      transaction.type === 'expense' ? 'var(--alert-red)' : 'var(--success-green)';
+
+                    const sign = 
+                      transaction.type === 'payment' || transaction.type === 'donation' ? '+' : '-';
+
+                    return (
+                      <div 
+                        key={transaction.id}
+                        style={{
+                          padding: '12px',
+                          borderBottom: '1px solid var(--border-color)',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                            {typeLabel}
+                            {transaction.member && ` - ${transaction.member.name}`}
+                          </div>
+                          <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                            {new Date(transaction.date).toLocaleDateString('ko-KR')}
+                          </div>
+                          {transaction.description && (
+                            <div style={{ fontSize: '12px', opacity: 0.6, marginTop: '4px' }}>
+                              {transaction.description}
+                            </div>
+                          )}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <div style={{
+                            fontSize: '18px',
+                            fontWeight: '700',
+                            color: typeColor,
+                            minWidth: '80px',
+                            textAlign: 'right'
+                          }}>
+                            {sign}${transaction.amount.toLocaleString()}
+                          </div>
+                          <button
+                            onClick={() => handleDeleteTransaction(transaction.id)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: 'var(--alert-red)',
+                              cursor: 'pointer',
+                              fontSize: '20px',
+                              padding: '0 8px'
+                            }}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </div>
         )}
