@@ -2,6 +2,7 @@ import React from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import golfIcon from '../assets/golf-icon.png';
 import homeIcon from '../assets/home-icon.png';
+import mypageIcon from '../assets/mypage-icon.png';
 
 function Navigation({ user, onLogout }) {
   const navigate = useNavigate();
@@ -71,8 +72,10 @@ function Navigation({ user, onLogout }) {
         className={isActive('/mypage') ? 'nav-item active' : 'nav-item'}
         onClick={(e) => handleNavClick(e, '/mypage')}
       >
-        <span className="nav-icon">⚲</span>
-        <span>마이</span>
+        <span className="nav-icon">
+          <img src={mypageIcon} alt="마이페이지" style={{ width: '24px', height: '24px' }} />
+        </span>
+        <span>마이페이지</span>
       </a>
       {user?.isAdmin && (
         <a 
