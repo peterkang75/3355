@@ -59,7 +59,8 @@ function MyPage() {
         photo: editData.photo,
         gender: editData.gender,
         birthYear: editData.birthYear,
-        region: editData.region
+        region: editData.region,
+        isClubMember: editData.isMember
       };
       await apiService.updateMember(user.id, updateData);
       await refreshMembers();
