@@ -94,7 +94,8 @@ function Dashboard() {
       authorId: user.id,
       authorPhoto: user.photo,
       date: new Date().toISOString(),
-      likes: []
+      likes: [],
+      hearts: []
     }];
 
     updatePost(postId, { comments: updatedComments });
@@ -112,6 +113,25 @@ function Dashboard() {
           likes: hasLiked 
             ? likes.filter(id => id !== user.id)
             : [...likes, user.id]
+        };
+      }
+      return comment;
+    });
+
+    updatePost(postId, { comments: updatedComments });
+  };
+
+  const handleHeartComment = (postId, commentId) => {
+    const post = posts.find(p => p.id === postId);
+    const updatedComments = post.comments.map(comment => {
+      if (comment.id === commentId) {
+        const hearts = comment.hearts || [];
+        const hasHearted = hearts.includes(user.id);
+        return {
+          ...comment,
+          hearts: hasHearted 
+            ? hearts.filter(id => id !== user.id)
+            : [...hearts, user.id]
         };
       }
       return comment;
@@ -852,7 +872,7 @@ function Dashboard() {
                                   <button
                                     onClick={(e) => {
                                       e.stopPropagation();
-                                      handleLikeComment(post.id, comment.id);
+                                      handleHeartComment(post.id, comment.id);
                                     }}
                                     style={{
                                       background: 'none',
@@ -869,12 +889,15 @@ function Dashboard() {
                                       width="16" 
                                       height="16" 
                                       viewBox="0 0 24 24" 
-                                      fill={(comment.likes || []).includes(user.id) ? '#FF69B4' : 'none'}
-                                      stroke={(comment.likes || []).includes(user.id) ? '#FF69B4' : '#999'}
+                                      fill={(comment.hearts || []).includes(user.id) ? '#FF69B4' : 'none'}
+                                      stroke={(comment.hearts || []).includes(user.id) ? '#FF69B4' : '#999'}
                                       strokeWidth="2"
                                     >
                                       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
                                     </svg>
+                                    {(comment.hearts || []).length > 0 && (
+                                      <span style={{ fontWeight: '600', color: '#333' }}>{(comment.hearts || []).length}</span>
+                                    )}
                                   </button>
                                 </div>
                                 {isCommentOwner && (
