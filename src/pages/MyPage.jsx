@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
+import adminIcon from '../assets/role-admin.png';
+import bangjangIcon from '../assets/role-bangjang.png';
+import staffIcon from '../assets/role-staff.png';
+import clubStaffIcon from '../assets/role-club-staff.png';
 
 function MyPage() {
   const { user, logout, refreshMembers, courses } = useApp();
@@ -295,49 +299,65 @@ function MyPage() {
             {user.role === '관리자' && (
               <span style={{
                 padding: '4px 12px',
-                background: '#d4af37',
-                color: 'var(--text-light)',
+                background: '#f5f5f5',
+                color: 'var(--text-dark)',
                 borderRadius: '12px',
                 fontSize: '12px',
-                fontWeight: '600'
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
               }}>
-                ★ 관리자
+                <img src={adminIcon} alt="관리자" style={{ width: '16px', height: '16px' }} />
+                관리자
               </span>
             )}
             {user.role === '방장' && (
               <span style={{
                 padding: '4px 12px',
-                background: 'var(--accent-gold)',
-                color: 'var(--text-light)',
+                background: '#f5f5f5',
+                color: 'var(--text-dark)',
                 borderRadius: '12px',
                 fontSize: '12px',
-                fontWeight: '600'
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
               }}>
-                👑 방장
+                <img src={bangjangIcon} alt="방장" style={{ width: '16px', height: '16px' }} />
+                방장
               </span>
             )}
             {user.role === '운영진' && (
               <span style={{
                 padding: '4px 12px',
-                background: 'var(--primary-green)',
-                color: 'var(--text-light)',
+                background: '#f5f5f5',
+                color: 'var(--text-dark)',
                 borderRadius: '12px',
                 fontSize: '12px',
-                fontWeight: '600'
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
               }}>
-                ⚙ 운영진
+                <img src={staffIcon} alt="운영진" style={{ width: '16px', height: '16px' }} />
+                운영진
               </span>
             )}
             {user.role === '클럽운영진' && (
               <span style={{
                 padding: '4px 12px',
-                background: 'var(--accent-dark-olive)',
-                color: 'var(--text-light)',
+                background: '#f5f5f5',
+                color: 'var(--text-dark)',
                 borderRadius: '12px',
                 fontSize: '12px',
-                fontWeight: '600'
+                fontWeight: '600',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
               }}>
-                🏌 클럽운영진
+                <img src={clubStaffIcon} alt="클럽운영진" style={{ width: '16px', height: '16px' }} />
+                클럽운영진
               </span>
             )}
           </div>
