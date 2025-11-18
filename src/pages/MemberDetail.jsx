@@ -857,13 +857,85 @@ function MemberDetail() {
               onChange={(e) => setEditData({ ...editData, clubMemberNumber: e.target.value })}
               style={{ marginBottom: '12px' }}
             />
-            <input
-              type="text"
-              placeholder="사진 URL"
-              value={editData.photo || ''}
-              onChange={(e) => setEditData({ ...editData, photo: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                사진 (본인)
+              </label>
+              {editData.photo && (
+                <div style={{ marginBottom: '12px', textAlign: 'center' }}>
+                  <img 
+                    src={editData.photo} 
+                    alt="현재 사진" 
+                    style={{
+                      width: '120px',
+                      height: '120px',
+                      objectFit: 'cover',
+                      borderRadius: '50%',
+                      border: '3px solid var(--primary-green)'
+                    }}
+                  />
+                </div>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      const img = new Image();
+                      img.onload = () => {
+                        try {
+                          const canvas = document.createElement('canvas');
+                          const MAX_WIDTH = 400;
+                          const MAX_HEIGHT = 400;
+                          let width = img.width;
+                          let height = img.height;
+
+                          if (width > height) {
+                            if (width > MAX_WIDTH) {
+                              height *= MAX_WIDTH / width;
+                              width = MAX_WIDTH;
+                            }
+                          } else {
+                            if (height > MAX_HEIGHT) {
+                              width *= MAX_HEIGHT / height;
+                              height = MAX_HEIGHT;
+                            }
+                          }
+
+                          canvas.width = width;
+                          canvas.height = height;
+                          const ctx = canvas.getContext('2d');
+                          if (!ctx) {
+                            alert('이미지 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+                            return;
+                          }
+                          ctx.drawImage(img, 0, 0, width, height);
+
+                          const resizedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                          setEditData(prev => ({ ...prev, photo: resizedBase64 }));
+                        } catch (error) {
+                          console.error('이미지 리사이징 실패:', error);
+                          alert('이미지 처리 중 오류가 발생했습니다. 다른 이미지를 선택해주세요.');
+                        }
+                      };
+                      img.onerror = (error) => {
+                        console.error('이미지 로딩 실패:', error);
+                        alert('이미지를 불러오는 중 오류가 발생했습니다. 다른 파일을 선택해주세요.');
+                      };
+                      img.src = event.target.result;
+                    };
+                    reader.onerror = () => {
+                      alert('파일을 읽는 중 오류가 발생했습니다. 다시 시도해주세요.');
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+                style={{ width: '100%' }}
+              />
+            </div>
             
             <div style={{ marginBottom: '12px' }}>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
