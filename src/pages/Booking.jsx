@@ -408,7 +408,7 @@ function Booking() {
               style={{ marginBottom: '12px' }}
             >
               <option value="">골프장 선택</option>
-              {courses.filter(course => course.isCompetition !== true).map(course => (
+              {courses.map(course => (
                 <option key={course.id} value={course.name}>
                   {course.name}
                 </option>
