@@ -1126,7 +1126,7 @@ function Dashboard() {
             borderLeft: '3px solid var(--accent-gold)',
             background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(242, 163, 65, 0.05) 100%)'
           }}>
-            <div style={{ fontSize: '11px', opacity: 0.7, marginBottom: '4px', marginTop: '4px' }}>
+            <div style={{ fontSize: '14px', fontWeight: '700', opacity: 0.8, marginBottom: '4px', marginTop: '4px' }}>
               회비 잔액
             </div>
             <div style={{ 
