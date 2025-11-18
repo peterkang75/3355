@@ -31,10 +31,11 @@ model Member {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  posts    Post[]
-  bookings Booking[]
-  scores   Score[]
-  fees     Fee[]     @relation("MemberFees")
+  posts        Post[]
+  bookings     Booking[]
+  scores       Score[]
+  fees         Fee[]         @relation("MemberFees")
+  transactions Transaction[]
 }
 
 model Post {
@@ -78,6 +79,8 @@ model Booking {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
+  transactions Transaction[]
+
   @@index([organizerId])
   @@index([date])
 }
@@ -99,6 +102,27 @@ model Fee {
 
   @@index([date])
   @@index([status])
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  type        String
+  category    String?
+  amount      Int
+  memberId    String?
+  member      Member?  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  bookingId   String?
+  booking     Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  description String?
+  date        String
+  createdBy   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([memberId])
+  @@index([bookingId])
+  @@index([type])
+  @@index([date])
 }
 
 model Score {
