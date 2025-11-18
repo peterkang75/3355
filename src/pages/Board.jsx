@@ -3,6 +3,7 @@ import { useApp } from '../contexts/AppContext';
 
 function Board() {
   const { user, posts, addPost, updatePost } = useApp();
+  const canCreatePost = user.isAdmin || user.role === '관리자' || user.role === '방장' || user.role === '운영진' || user.role === '클럽운영진';
   const [showNewPost, setShowNewPost] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', content: '' });
   const [expandedPost, setExpandedPost] = useState(null);
@@ -63,7 +64,7 @@ function Board() {
         </button>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, marginLeft: '12px' }}>
           <h1>게시판</h1>
-          {user.isAdmin && (
+          {canCreatePost && (
             <button 
               onClick={() => setShowNewPost(!showNewPost)}
               style={{
@@ -125,7 +126,7 @@ function Board() {
       </div>
 
       <div className="page-content">
-        {showNewPost && user.isAdmin && (
+        {showNewPost && canCreatePost && (
           <div className="card">
             <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
               새 공지사항
@@ -154,7 +155,7 @@ function Board() {
           <div className="card" style={{ textAlign: 'center', padding: '40px', opacity: 0.7 }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>✎</div>
             <p>아직 공지사항이 없습니다</p>
-            {user.isAdmin && (
+            {canCreatePost && (
               <p style={{ fontSize: '14px', marginTop: '8px' }}>
                 상단의 작성 버튼을 눌러 첫 공지를 작성하세요
               </p>

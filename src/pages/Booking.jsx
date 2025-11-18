@@ -7,6 +7,7 @@ import CrownIcon from '../components/CrownIcon';
 function Booking() {
   const { user, members, bookings, courses, scores, addBooking, updateBooking, refreshBookings } = useApp();
   const navigate = useNavigate();
+  const canManageBooking = user.isAdmin || user.role === '관리자' || user.role === '방장' || user.role === '운영진' || user.role === '클럽운영진';
   const [showNewBooking, setShowNewBooking] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -615,7 +616,7 @@ function Booking() {
                 ⛳ {booking.courseName}
               </div>
             </div>
-            {user.isAdmin && (
+            {canManageBooking && (
               <div style={{ position: 'relative' }}>
                 <button
                   onClick={(e) => {
@@ -868,7 +869,7 @@ function Booking() {
                 >
                   {booking.dailyHandicaps ? '▲ 결과보기' : '📊 스코어보기'}
                 </button>
-                {user.isAdmin && (
+                {canManageBooking && (
                   <button
                     onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
                     style={{
@@ -905,7 +906,7 @@ function Booking() {
                 >
                   📋 조편성 보기
                 </button>
-                {user.isAdmin && (
+                {canManageBooking && (
                   <button
                     onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
                     style={{
@@ -980,7 +981,7 @@ function Booking() {
                     {isRentalLoading === booking.id ? '처리중...' : (isRenting ? '✓ 번호대여중' : '번호대여')}
                   </button>
                 )}
-                {user.isAdmin && (
+                {canManageBooking && (
                   <button
                     onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
                     style={{
@@ -1050,7 +1051,7 @@ function Booking() {
           >
             {booking.dailyHandicaps ? '▲ 결과보기' : '⛳ 플레이하기'}
           </button>
-          {user.isAdmin && (
+          {canManageBooking && (
             <button
               onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
               style={{
@@ -1150,7 +1151,7 @@ function Booking() {
       </div>
 
       <div className="page-content">
-        {showNewBooking && user.isAdmin && (
+        {showNewBooking && canManageBooking && (
           <div className="card">
             <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
               새 라운딩 만들기
@@ -1184,7 +1185,7 @@ function Booking() {
           }}>
             ⛳ 현재 활성중인 라운딩
           </h3>
-          {user.isAdmin && (
+          {canManageBooking && (
             <button 
               onClick={() => setShowNewBooking(!showNewBooking)}
               style={{
