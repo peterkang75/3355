@@ -129,7 +129,7 @@ function Login({ onLogin }) {
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      background: 'var(--bg-card)',
+      background: '#223B3F',
       padding: '20px'
     }}>
       <div style={{
