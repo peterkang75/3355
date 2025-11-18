@@ -331,6 +331,69 @@ export function AppProvider({ children }) {
     }
   };
 
+  const refreshAllData = async () => {
+    try {
+      console.log('🔄 모든 데이터 새로고침 중...');
+      setLoading(true);
+      
+      localStorage.removeItem('golfPosts');
+      localStorage.removeItem('golfBookings');
+      localStorage.removeItem('golfFees');
+      
+      const [membersData, postsData, bookingsData, feesData, coursesData] = await Promise.all([
+        apiService.fetchMembers(),
+        apiService.fetchPosts(),
+        apiService.fetchBookings(),
+        apiService.fetchFees(),
+        apiService.fetchCourses()
+      ]);
+
+      if (membersData) {
+        setMembers(membersData);
+        localStorage.setItem('golfMembers', JSON.stringify(membersData));
+        
+        if (user) {
+          const updatedUser = membersData.find(m => m.id === user.id);
+          if (updatedUser) {
+            setUser(updatedUser);
+            localStorage.setItem('golfUser', JSON.stringify(updatedUser));
+          }
+        }
+      }
+
+      if (postsData) {
+        setPosts(postsData);
+        localStorage.setItem('golfPosts', JSON.stringify(postsData));
+      }
+
+      if (bookingsData) {
+        setBookings(bookingsData);
+        localStorage.setItem('golfBookings', JSON.stringify(bookingsData));
+      }
+
+      if (feesData) {
+        setFees(feesData);
+        localStorage.setItem('golfFees', JSON.stringify(feesData));
+      }
+
+      if (coursesData) {
+        setCourses(coursesData);
+      }
+
+      if (user) {
+        await loadUserData(user.id);
+      }
+
+      console.log('✅ 모든 데이터 새로고침 완료!');
+      return true;
+    } catch (error) {
+      console.error('❌ 데이터 새로고침 실패:', error);
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const isAdmin = () => user?.role === '관리자';
   const isOperator = () => user?.role === '운영진' || user?.role === '관리자' || user?.role === '방장' || user?.role === '클럽운영진';
   const isMember = () => user?.role === '회원';
@@ -359,6 +422,7 @@ export function AppProvider({ children }) {
     refreshMembers,
     refreshCourses,
     refreshBookings,
+    refreshAllData,
     isAdmin,
     isOperator,
     isMember

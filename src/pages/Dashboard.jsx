@@ -5,10 +5,11 @@ import apiService from '../services/api';
 import CrownIcon from '../components/CrownIcon';
 
 function Dashboard() {
-  const { user, members, scores, bookings, posts, addPost, updatePost, deletePost, updateBooking, refreshBookings } = useApp();
+  const { user, members, scores, bookings, posts, addPost, updatePost, deletePost, updateBooking, refreshBookings, refreshAllData } = useApp();
   const navigate = useNavigate();
   const canCreatePost = user && (user.isAdmin || user.role === '관리자' || user.role === '방장' || user.role === '운영진' || user.role === '클럽운영진');
   const [showNewPost, setShowNewPost] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', content: '' });
   const [expandedPost, setExpandedPost] = useState(null);
   const [newComment, setNewComment] = useState('');
@@ -332,6 +333,17 @@ function Dashboard() {
     return today > bookingDate;
   };
 
+  const handleRefreshData = async () => {
+    setIsRefreshing(true);
+    const success = await refreshAllData();
+    if (success) {
+      alert('✅ 데이터를 최신 상태로 업데이트했습니다!');
+    } else {
+      alert('❌ 데이터 새로고침에 실패했습니다. 다시 시도해주세요.');
+    }
+    setIsRefreshing(false);
+  };
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
@@ -371,6 +383,26 @@ function Dashboard() {
           ‹
         </button>
         <h1 style={{ flex: 1, marginLeft: '12px' }}>대시보드</h1>
+        <button
+          onClick={handleRefreshData}
+          disabled={isRefreshing}
+          style={{
+            background: 'rgba(255, 255, 255, 0.2)',
+            border: 'none',
+            borderRadius: '8px',
+            padding: '8px 12px',
+            cursor: isRefreshing ? 'wait' : 'pointer',
+            color: 'var(--text-light)',
+            fontSize: '12px',
+            fontWeight: '600',
+            marginRight: '8px',
+            opacity: isRefreshing ? 0.6 : 1,
+            transition: 'all 0.2s'
+          }}
+          title="데이터 새로고침"
+        >
+          {isRefreshing ? '🔄 새로고침 중...' : '🔄 새로고침'}
+        </button>
         <div 
           style={{ 
             display: 'flex', 
