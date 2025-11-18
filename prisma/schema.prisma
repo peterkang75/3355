@@ -143,10 +143,11 @@ model Score {
 }
 
 model Course {
-  id       String @id @default(cuid())
-  name     String @unique
-  address  String
-  holePars Json?
+  id            String  @id @default(cuid())
+  name          String  @unique
+  address       String
+  holePars      Json?
+  isCompetition Boolean @default(false)
 }
 
 model AppSettings {
