@@ -108,10 +108,8 @@ export function AppProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    const API_URL = import.meta.env.VITE_API_URL || 
-                    (window.location.origin.includes('replit') ? window.location.origin : 'http://localhost:3001');
-    
-    const socket = io(API_URL, {
+    const socket = io({
+      path: '/socket.io',
       transports: ['websocket', 'polling'],
       reconnectionAttempts: 5,
       reconnectionDelay: 1000
