@@ -277,10 +277,23 @@ function Admin() {
 
   const handleToggleAllMembers = () => {
     const sortedMembers = getSortedMembers();
-    if (selectedMembers.length === sortedMembers.length) {
-      setSelectedMembers([]);
+    const selectedBooking = bookings.find(b => b.id === selectedIncome.bookingId);
+    const participantIds = selectedBooking?.participants || [];
+    
+    if (selectedIncome.bookingId && participantIds.length > 0) {
+      const participantMembers = sortedMembers.filter(m => participantIds.includes(m.id));
+      if (selectedMembers.length === participantMembers.length && 
+          participantMembers.every(m => selectedMembers.includes(m.id))) {
+        setSelectedMembers([]);
+      } else {
+        setSelectedMembers(participantMembers.map(m => m.id));
+      }
     } else {
-      setSelectedMembers(sortedMembers.map(m => m.id));
+      if (selectedMembers.length === sortedMembers.length) {
+        setSelectedMembers([]);
+      } else {
+        setSelectedMembers(sortedMembers.map(m => m.id));
+      }
     }
   };
 
@@ -3498,7 +3511,20 @@ function Admin() {
               >
                 <input
                   type="checkbox"
-                  checked={selectedMembers.length === getSortedMembers().length && getSortedMembers().length > 0}
+                  checked={(() => {
+                    const sortedMembers = getSortedMembers();
+                    const selectedBooking = bookings.find(b => b.id === selectedIncome.bookingId);
+                    const participantIds = selectedBooking?.participants || [];
+                    
+                    if (selectedIncome.bookingId && participantIds.length > 0) {
+                      const participantMembers = sortedMembers.filter(m => participantIds.includes(m.id));
+                      return selectedMembers.length === participantMembers.length && 
+                             participantMembers.every(m => selectedMembers.includes(m.id)) &&
+                             participantMembers.length > 0;
+                    } else {
+                      return selectedMembers.length === sortedMembers.length && sortedMembers.length > 0;
+                    }
+                  })()}
                   onChange={handleToggleAllMembers}
                   style={{
                     width: '18px',
@@ -3509,7 +3535,19 @@ function Admin() {
                 />
                 <span style={{ fontSize: '15px', fontWeight: '600' }}>전체 선택</span>
                 <span style={{ marginLeft: 'auto', fontSize: '13px', opacity: 0.7 }}>
-                  {selectedMembers.length} / {getSortedMembers().length}
+                  {(() => {
+                    const sortedMembers = getSortedMembers();
+                    const selectedBooking = bookings.find(b => b.id === selectedIncome.bookingId);
+                    const participantIds = selectedBooking?.participants || [];
+                    
+                    if (selectedIncome.bookingId && participantIds.length > 0) {
+                      const participantMembers = sortedMembers.filter(m => participantIds.includes(m.id));
+                      const selectedParticipants = participantMembers.filter(m => selectedMembers.includes(m.id));
+                      return `${selectedParticipants.length} / ${participantMembers.length}`;
+                    } else {
+                      return `${selectedMembers.length} / ${sortedMembers.length}`;
+                    }
+                  })()}
                 </span>
               </div>
 
