@@ -5,7 +5,7 @@ import apiService from '../services/api';
 import CrownIcon from '../components/CrownIcon';
 
 function Dashboard() {
-  const { user, members, scores, bookings, posts, addPost, updatePost, deletePost, updateBooking, refreshBookings, refreshAllData } = useApp();
+  const { user, members, scores, bookings, posts, fees, addPost, updatePost, deletePost, updateBooking, refreshBookings, refreshAllData } = useApp();
   const navigate = useNavigate();
   const canCreatePost = user && (user.isAdmin || user.role === '관리자' || user.role === '방장' || user.role === '운영진' || user.role === '클럽운영진');
   const [showNewPost, setShowNewPost] = useState(false);
@@ -1549,15 +1549,76 @@ function Dashboard() {
             <span style={{ fontSize: '20px' }}>💳</span>
             회비 납부 내역
           </h3>
-          <div style={{ 
-            padding: '16px',
-            background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(242, 163, 65, 0.05) 100%)',
-            borderRadius: '8px',
-            textAlign: 'center',
-            opacity: 0.7
-          }}>
-            납부 내역이 없습니다
-          </div>
+          {(() => {
+            const userFees = fees
+              .filter(fee => fee.memberId === user.id)
+              .sort((a, b) => new Date(b.date) - new Date(a.date))
+              .slice(0, 5);
+
+            if (userFees.length === 0) {
+              return (
+                <div style={{ 
+                  padding: '16px',
+                  background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(242, 163, 65, 0.05) 100%)',
+                  borderRadius: '8px',
+                  textAlign: 'center',
+                  opacity: 0.7
+                }}>
+                  납부 내역이 없습니다
+                </div>
+              );
+            }
+
+            return (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                {userFees.map((fee, index) => {
+                  const isIncome = fee.type === 'income';
+                  return (
+                    <div key={fee.id}>
+                      <div style={{
+                        padding: '12px',
+                        background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(242, 163, 65, 0.05) 100%)',
+                        borderRadius: '8px'
+                      }}>
+                        <div style={{ 
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          marginBottom: '6px'
+                        }}>
+                          <div style={{ 
+                            fontSize: '14px',
+                            fontWeight: '600'
+                          }}>
+                            {fee.description}
+                          </div>
+                          <div style={{
+                            fontSize: '16px',
+                            fontWeight: '700',
+                            color: isIncome ? '#d9534f' : 'var(--primary-green)'
+                          }}>
+                            {isIncome ? '-' : '+'}{formatCurrency(fee.amount)}
+                          </div>
+                        </div>
+                        <div style={{ 
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          fontSize: '12px',
+                          opacity: 0.7
+                        }}>
+                          <span>{new Date(fee.date).toLocaleDateString('ko-KR')}</span>
+                          <span>{isIncome ? '지출' : '수입'}</span>
+                        </div>
+                      </div>
+                      {index < userFees.length - 1 && (
+                        <div style={{ height: '8px' }} />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
         </div>
 
         <div style={{ 
