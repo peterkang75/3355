@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
-import logoImage from '../assets/logo.jpeg';
+import logoImage from '../assets/logo.png';
 import apiService from '../services/api';
 
 function Login({ onLogin }) {
@@ -133,7 +133,7 @@ function Login({ onLogin }) {
       padding: '20px'
     }}>
       <div style={{
-        background: 'var(--bg-card)',
+        background: '#223B3F',
         border: '2px solid var(--border-color)',
         borderRadius: '16px',
         padding: '40px 30px',
@@ -229,7 +229,7 @@ function Login({ onLogin }) {
           <div style={{ 
             marginTop: '24px',
             padding: '20px',
-            background: 'var(--bg-card)',
+            background: '#223B3F',
             border: '2px solid var(--border-color)',
             borderRadius: '8px'
           }}>
