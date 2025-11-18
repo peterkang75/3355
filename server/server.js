@@ -1,9 +1,19 @@
 const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 const path = require('path');
 const apiRouter = require('./api');
 const prisma = require('./db');
 
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
 const PORT = process.env.NODE_ENV === 'production' ? 5000 : 3001;
 
 async function initializeDefaultCategories() {
@@ -46,7 +56,10 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use('/api', apiRouter);
+app.use('/api', (req, res, next) => {
+  req.io = io;
+  next();
+}, apiRouter);
 
 app.use(express.static(path.join(__dirname, '../dist'), {
   etag: false,
@@ -57,8 +70,17 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
 
-app.listen(PORT, '0.0.0.0', async () => {
+io.on('connection', (socket) => {
+  console.log(`✅ Socket connected: ${socket.id}`);
+  
+  socket.on('disconnect', () => {
+    console.log(`❌ Socket disconnected: ${socket.id}`);
+  });
+});
+
+server.listen(PORT, '0.0.0.0', async () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`📊 Database connected`);
+  console.log(`🔌 Socket.IO ready`);
   await initializeDefaultCategories();
 });

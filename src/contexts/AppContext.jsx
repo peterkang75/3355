@@ -1,4 +1,5 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { io } from 'socket.io-client';
 import apiService from '../services/api';
 import { calculateHandicap } from '../utils/handicap';
 
@@ -104,6 +105,101 @@ export function AppProvider({ children }) {
     };
 
     initApp();
+  }, []);
+
+  useEffect(() => {
+    const API_URL = import.meta.env.VITE_API_URL || 
+                    (window.location.origin.includes('replit') ? window.location.origin : 'http://localhost:3001');
+    
+    const socket = io(API_URL, {
+      transports: ['websocket', 'polling'],
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000
+    });
+
+    socket.on('connect', () => {
+      console.log('🔌 Socket.IO 연결 성공');
+    });
+
+    socket.on('disconnect', () => {
+      console.log('❌ Socket.IO 연결 끊김');
+    });
+
+    socket.on('members:updated', async () => {
+      console.log('📢 회원 데이터 업데이트 이벤트 수신');
+      try {
+        const membersData = await apiService.fetchMembers();
+        if (membersData) {
+          setMembers(membersData);
+          localStorage.setItem('golfMembers', JSON.stringify(membersData));
+          
+          const savedUser = localStorage.getItem('golfUser');
+          if (savedUser) {
+            const userData = JSON.parse(savedUser);
+            const updatedUser = membersData.find(m => m.id === userData.id);
+            if (updatedUser) {
+              setUser(updatedUser);
+              localStorage.setItem('golfUser', JSON.stringify(updatedUser));
+            }
+          }
+        }
+      } catch (error) {
+        console.error('회원 새로고침 실패:', error);
+      }
+    });
+
+    socket.on('posts:updated', async () => {
+      console.log('📢 게시글 데이터 업데이트 이벤트 수신');
+      try {
+        const postsData = await apiService.fetchPosts();
+        if (postsData) {
+          setPosts(postsData);
+          localStorage.setItem('golfPosts', JSON.stringify(postsData));
+        }
+      } catch (error) {
+        console.error('게시글 새로고침 실패:', error);
+      }
+    });
+
+    socket.on('bookings:updated', async () => {
+      console.log('📢 라운딩 데이터 업데이트 이벤트 수신');
+      try {
+        const bookingsData = await apiService.fetchBookings();
+        if (bookingsData) {
+          setBookings(bookingsData);
+          localStorage.setItem('golfBookings', JSON.stringify(bookingsData));
+        }
+      } catch (error) {
+        console.error('라운딩 새로고침 실패:', error);
+      }
+    });
+
+    socket.on('transactions:updated', async () => {
+      console.log('📢 참가비 데이터 업데이트 이벤트 수신');
+      try {
+        const membersData = await apiService.fetchMembers();
+        if (membersData) {
+          setMembers(membersData);
+          localStorage.setItem('golfMembers', JSON.stringify(membersData));
+          
+          const savedUser = localStorage.getItem('golfUser');
+          if (savedUser) {
+            const userData = JSON.parse(savedUser);
+            const updatedUser = membersData.find(m => m.id === userData.id);
+            if (updatedUser) {
+              setUser(updatedUser);
+              localStorage.setItem('golfUser', JSON.stringify(updatedUser));
+            }
+          }
+        }
+      } catch (error) {
+        console.error('참가비 새로고침 실패:', error);
+      }
+    });
+
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   const loadUserData = async (userId) => {

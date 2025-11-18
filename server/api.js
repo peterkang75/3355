@@ -32,6 +32,7 @@ router.post('/members', async (req, res) => {
         approvalStatus: requiresApproval ? 'pending' : 'approved'
       }
     });
+    req.io.emit('members:updated');
     res.json(member);
   } catch (error) {
     console.error('Error creating member:', error);
@@ -45,6 +46,7 @@ router.put('/members/:id', async (req, res) => {
       where: { id: req.params.id },
       data: req.body
     });
+    req.io.emit('members:updated');
     res.json(member);
   } catch (error) {
     console.error('Error updating member:', error);
@@ -59,6 +61,7 @@ router.delete('/members/:id', async (req, res) => {
       where: { id: req.params.id },
       data: { isActive: false }
     });
+    req.io.emit('members:updated');
     res.json({ success: true, member });
   } catch (error) {
     console.error('Error deactivating member:', error);
@@ -81,6 +84,7 @@ router.patch('/members/:id/toggle-admin', async (req, res) => {
       data: { isAdmin: !member.isAdmin }
     });
     
+    req.io.emit('members:updated');
     res.json(updated);
   } catch (error) {
     console.error('Error toggling admin status:', error);
@@ -103,6 +107,7 @@ router.patch('/members/:id/toggle-active', async (req, res) => {
       data: { isActive: member.isActive === false ? true : false }
     });
     
+    req.io.emit('members:updated');
     res.json(updated);
   } catch (error) {
     console.error('Error toggling active status:', error);
@@ -125,6 +130,7 @@ router.patch('/members/:id/toggle-fees-permission', async (req, res) => {
       data: { canManageFees: !member.canManageFees }
     });
     
+    req.io.emit('members:updated');
     res.json(updated);
   } catch (error) {
     console.error('Error toggling fees permission:', error);
@@ -148,6 +154,7 @@ router.patch('/members/:id/role', async (req, res) => {
       }
     });
     
+    req.io.emit('members:updated');
     res.json(updated);
   } catch (error) {
     console.error('Error updating member role:', error);
@@ -175,6 +182,7 @@ router.post('/posts', async (req, res) => {
       data: postData,
       include: { author: true }
     });
+    req.io.emit('posts:updated');
     res.json(post);
   } catch (error) {
     console.error('Error creating post:', error);
@@ -189,6 +197,7 @@ router.put('/posts/:id', async (req, res) => {
       data: req.body,
       include: { author: true }
     });
+    req.io.emit('posts:updated');
     res.json(post);
   } catch (error) {
     console.error('Error updating post:', error);
@@ -201,6 +210,7 @@ router.delete('/posts/:id', async (req, res) => {
     await prisma.post.delete({
       where: { id: req.params.id }
     });
+    req.io.emit('posts:updated');
     res.json({ success: true });
   } catch (error) {
     console.error('Error deleting post:', error);
@@ -227,6 +237,7 @@ router.post('/bookings', async (req, res) => {
       data: req.body,
       include: { organizer: true }
     });
+    req.io.emit('bookings:updated');
     res.json(booking);
   } catch (error) {
     console.error('Error creating booking:', error);
@@ -347,6 +358,9 @@ router.put('/bookings/:id', async (req, res) => {
       }
     }
 
+    req.io.emit('bookings:updated');
+    req.io.emit('members:updated');
+    req.io.emit('transactions:updated');
     res.json(booking);
   } catch (error) {
     console.error('Error updating booking:', error);
@@ -359,6 +373,7 @@ router.delete('/bookings/:id', async (req, res) => {
     await prisma.booking.delete({
       where: { id: req.params.id }
     });
+    req.io.emit('bookings:updated');
     res.json({ success: true });
   } catch (error) {
     console.error('Error deleting booking:', error);
@@ -382,6 +397,7 @@ router.patch('/bookings/:id/toggle-announce', async (req, res) => {
       include: { organizer: true }
     });
     
+    req.io.emit('bookings:updated');
     res.json(updated);
   } catch (error) {
     console.error('Error toggling announce status:', error);
@@ -418,6 +434,7 @@ router.patch('/bookings/:id/toggle-number-rental', async (req, res) => {
       include: { organizer: true }
     });
     
+    req.io.emit('bookings:updated');
     res.json(updated);
   } catch (error) {
     console.error('Error toggling number rental:', error);
@@ -712,6 +729,7 @@ router.patch('/members/:id/approve', async (req, res) => {
       where: { id: req.params.id },
       data: { approvalStatus: 'approved' }
     });
+    req.io.emit('members:updated');
     res.json(member);
   } catch (error) {
     console.error('Error approving member:', error);
@@ -726,6 +744,7 @@ router.patch('/members/:id/reject', async (req, res) => {
       where: { id: req.params.id },
       data: { approvalStatus: 'rejected' }
     });
+    req.io.emit('members:updated');
     res.json(member);
   } catch (error) {
     console.error('Error rejecting member:', error);
@@ -872,6 +891,8 @@ router.post('/transactions', async (req, res) => {
       });
     }
 
+    req.io.emit('transactions:updated');
+    req.io.emit('members:updated');
     res.json(transaction);
   } catch (error) {
     console.error('Error creating transaction:', error);
@@ -912,6 +933,8 @@ router.delete('/transactions/:id', async (req, res) => {
       });
     }
 
+    req.io.emit('transactions:updated');
+    req.io.emit('members:updated');
     res.json({ success: true });
   } catch (error) {
     console.error('Error deleting transaction:', error);
