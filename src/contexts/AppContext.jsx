@@ -112,6 +112,7 @@ export function AppProvider({ children }) {
     const socketUrl = isDevelopment ? 'http://localhost:3001' : window.location.origin;
     
     console.log('🔌 Socket.IO 연결 시도:', socketUrl);
+    console.log('📱 현재 기기:', /mobile/i.test(navigator.userAgent) ? '모바일' : 'PC');
     
     const socket = io(socketUrl, {
       path: '/socket.io',
@@ -121,11 +122,15 @@ export function AppProvider({ children }) {
     });
 
     socket.on('connect', () => {
-      console.log('🔌 Socket.IO 연결 성공');
+      console.log('🔌 Socket.IO 연결 성공 - Socket ID:', socket.id);
     });
 
     socket.on('disconnect', () => {
       console.log('❌ Socket.IO 연결 끊김');
+    });
+    
+    socket.on('reconnect', () => {
+      console.log('♻️ Socket.IO 재연결 성공');
     });
 
     socket.on('members:updated', async () => {
@@ -200,7 +205,50 @@ export function AppProvider({ children }) {
       }
     });
 
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState === 'visible') {
+        console.log('📱 앱이 포어그라운드로 돌아옴 - 데이터 새로고침');
+        try {
+          const [membersData, postsData, bookingsData] = await Promise.all([
+            apiService.fetchMembers(),
+            apiService.fetchPosts(),
+            apiService.fetchBookings()
+          ]);
+          
+          if (membersData) {
+            setMembers(membersData);
+            localStorage.setItem('golfMembers', JSON.stringify(membersData));
+            
+            const savedUser = localStorage.getItem('golfUser');
+            if (savedUser) {
+              const userData = JSON.parse(savedUser);
+              const updatedUser = membersData.find(m => m.id === userData.id);
+              if (updatedUser) {
+                setUser(updatedUser);
+                localStorage.setItem('golfUser', JSON.stringify(updatedUser));
+              }
+            }
+          }
+          
+          if (postsData) {
+            setPosts(postsData);
+            localStorage.setItem('golfPosts', JSON.stringify(postsData));
+          }
+          
+          if (bookingsData) {
+            setBookings(bookingsData);
+            localStorage.setItem('golfBookings', JSON.stringify(bookingsData));
+          }
+        } catch (error) {
+          console.error('포어그라운드 새로고침 실패:', error);
+        }
+      }
+    };
+    
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       socket.disconnect();
     };
   }, []);
