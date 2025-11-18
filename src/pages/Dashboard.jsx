@@ -335,13 +335,19 @@ function Dashboard() {
 
   const handleRefreshData = async () => {
     setIsRefreshing(true);
-    const success = await refreshAllData();
-    if (success) {
-      alert('✅ 데이터를 최신 상태로 업데이트했습니다!');
-    } else {
-      alert('❌ 데이터 새로고침에 실패했습니다. 다시 시도해주세요.');
+    try {
+      const success = await refreshAllData();
+      if (success) {
+        alert('✅ 데이터를 최신 상태로 업데이트했습니다!');
+      } else {
+        alert('❌ 데이터 새로고침에 실패했습니다.\n\n브라우저 개발자 도구(F12)의 Console 탭에서 에러를 확인하세요.');
+      }
+    } catch (error) {
+      console.error('새로고침 에러:', error);
+      alert('❌ 새로고침 중 오류가 발생했습니다.\n\n에러: ' + (error.message || '알 수 없는 오류'));
+    } finally {
+      setIsRefreshing(false);
     }
-    setIsRefreshing(false);
   };
 
   const today = new Date();

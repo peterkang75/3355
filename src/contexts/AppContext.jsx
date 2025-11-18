@@ -332,38 +332,42 @@ export function AppProvider({ children }) {
   };
 
   const refreshAllData = async () => {
+    console.log('🔄 모든 데이터 새로고침 시작...');
+    setLoading(true);
+    
     try {
-      console.log('🔄 모든 데이터 새로고침 중...');
-      setLoading(true);
-      
       localStorage.removeItem('golfPosts');
       localStorage.removeItem('golfBookings');
       localStorage.removeItem('golfFees');
+      console.log('✅ 로컬 캐시 삭제 완료');
       
+      console.log('📡 서버에서 데이터 가져오는 중...');
       const [membersData, postsData, bookingsData, feesData, coursesData] = await Promise.all([
         apiService.fetchMembers().catch(err => { 
-          console.error('회원 데이터 로드 실패:', err); 
+          console.error('⚠️ 회원 데이터 로드 실패:', err); 
           return []; 
         }),
         apiService.fetchPosts().catch(err => { 
-          console.error('게시글 데이터 로드 실패:', err); 
+          console.error('⚠️ 게시글 데이터 로드 실패:', err); 
           return []; 
         }),
         apiService.fetchBookings().catch(err => { 
-          console.error('예약 데이터 로드 실패:', err); 
+          console.error('⚠️ 예약 데이터 로드 실패:', err); 
           return []; 
         }),
         apiService.fetchFees().catch(err => { 
-          console.error('회비 데이터 로드 실패:', err); 
+          console.error('⚠️ 회비 데이터 로드 실패:', err); 
           return []; 
         }),
         apiService.fetchCourses().catch(err => { 
-          console.error('골프장 데이터 로드 실패:', err); 
+          console.error('⚠️ 골프장 데이터 로드 실패:', err); 
           return []; 
         })
       ]);
 
-      if (membersData && membersData.length >= 0) {
+      console.log('📦 데이터 저장 중...');
+      
+      if (Array.isArray(membersData)) {
         console.log('✅ 회원 데이터 업데이트:', membersData.length, '명');
         setMembers(membersData);
         localStorage.setItem('golfMembers', JSON.stringify(membersData));
@@ -377,44 +381,47 @@ export function AppProvider({ children }) {
         }
       }
 
-      if (postsData && postsData.length >= 0) {
+      if (Array.isArray(postsData)) {
         console.log('✅ 게시글 데이터 업데이트:', postsData.length, '개');
         setPosts(postsData);
         localStorage.setItem('golfPosts', JSON.stringify(postsData));
       }
 
-      if (bookingsData && bookingsData.length >= 0) {
+      if (Array.isArray(bookingsData)) {
         console.log('✅ 예약 데이터 업데이트:', bookingsData.length, '개');
         setBookings(bookingsData);
         localStorage.setItem('golfBookings', JSON.stringify(bookingsData));
       }
 
-      if (feesData && feesData.length >= 0) {
+      if (Array.isArray(feesData)) {
         console.log('✅ 회비 데이터 업데이트:', feesData.length, '개');
         setFees(feesData);
         localStorage.setItem('golfFees', JSON.stringify(feesData));
       }
 
-      if (coursesData && coursesData.length >= 0) {
+      if (Array.isArray(coursesData)) {
         console.log('✅ 골프장 데이터 업데이트:', coursesData.length, '개');
         setCourses(coursesData);
       }
 
       if (user) {
         try {
+          console.log('👤 사용자 스코어 데이터 로드 중...');
           await loadUserData(user.id);
+          console.log('✅ 사용자 스코어 데이터 로드 완료');
         } catch (err) {
-          console.error('사용자 데이터 로드 실패:', err);
+          console.error('⚠️ 사용자 데이터 로드 실패:', err);
         }
       }
 
       console.log('✅ 모든 데이터 새로고침 완료!');
+      setLoading(false);
       return true;
     } catch (error) {
       console.error('❌ 데이터 새로고침 실패:', error);
-      return false;
-    } finally {
+      console.error('에러 상세:', error.message, error.stack);
       setLoading(false);
+      return false;
     }
   };
 
