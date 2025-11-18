@@ -115,7 +115,6 @@ function Admin() {
       for (const [feature, minRole] of Object.entries(permissions)) {
         await apiService.updateSetting(feature, { minRole });
       }
-      await apiService.updateSetting('memberApprovalRequired', { enabled: approvalRequired });
       setHasChanges(false);
       alert('권한 설정이 저장되었습니다!');
     } catch (error) {
@@ -124,9 +123,16 @@ function Admin() {
     }
   };
 
-  const handleApprovalToggle = () => {
-    setApprovalRequired(!approvalRequired);
-    setHasChanges(true);
+  const handleApprovalToggle = async () => {
+    const newValue = !approvalRequired;
+    setApprovalRequired(newValue);
+    try {
+      await apiService.updateSetting('memberApprovalRequired', { enabled: newValue });
+    } catch (error) {
+      console.error('회원가입 승인 설정 저장 실패:', error);
+      alert('회원가입 승인 설정 저장에 실패했습니다.');
+      setApprovalRequired(!newValue);
+    }
   };
 
   useEffect(() => {
