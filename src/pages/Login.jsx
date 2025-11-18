@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
-import logoImage from '../assets/logo.jpeg';
+import logoImage from '../assets/logo-new.png';
 import apiService from '../services/api';
 
 function Login({ onLogin }) {
