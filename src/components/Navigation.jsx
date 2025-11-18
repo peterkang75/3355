@@ -53,6 +53,16 @@ function Navigation({ user, onLogout }) {
         <span>라운딩</span>
       </a>
       <a 
+        href="/board" 
+        className={isActive('/board') ? 'nav-item active' : 'nav-item'}
+        onClick={(e) => handleNavClick(e, '/board')}
+      >
+        <span className="nav-icon" style={{ fontSize: '24px' }}>
+          📋
+        </span>
+        <span>게시판</span>
+      </a>
+      <a 
         href="/fees" 
         className={isActive('/fees') ? 'nav-item active' : 'nav-item'}
         onClick={(e) => handleNavClick(e, '/fees')}
