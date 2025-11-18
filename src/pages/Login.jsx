@@ -68,8 +68,9 @@ function Login({ onLogin }) {
   const handleSignup = async () => {
     console.log('🔵 회원가입 시작');
     
-    if (!newMember.name || !newMember.phone) {
-      setError('이름과 전화번호를 입력해주세요.');
+    if (!newMember.name || !newMember.nickname || !newMember.phone || !newMember.photo || 
+        !newMember.gender || !newMember.birthYear || !newMember.region) {
+      setError('이름, 대화명, 전화번호, 사진, 성별, 출생연도, 지역은 필수 입력 항목입니다.');
       return;
     }
 
@@ -82,6 +83,13 @@ function Login({ onLogin }) {
     if (existingMember) {
       setError('이미 회원가입이 되어있습니다. 전화번호 끝 6자리 입력하여 로그인해 주세요.');
       return;
+    }
+
+    if (newMember.isClubMember === 'yes') {
+      if (!newMember.club || !newMember.handicap || !newMember.clubMemberNumber || !newMember.golflinkNumber) {
+        setError('소속 클럽 선택 시 핸디캡, 클럽회원번호, Golflink 번호는 필수 입력 항목입니다.');
+        return;
+      }
     }
 
     const userData = {
