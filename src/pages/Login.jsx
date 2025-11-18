@@ -154,14 +154,14 @@ function Login({ onLogin }) {
           />
           <h1 style={{ 
             fontSize: '24px', 
-            color: 'var(--primary-green)',
+            color: '#F5F5F5',
             marginBottom: '8px',
             fontWeight: '700'
           }}>
             3355 골프 클럽
           </h1>
           <p style={{ 
-            color: 'var(--primary-green)', 
+            color: '#D4AF37', 
             fontSize: '20px',
             fontFamily: "'Dancing Script', cursive",
             fontWeight: '600',
@@ -177,7 +177,8 @@ function Login({ onLogin }) {
               display: 'block', 
               marginBottom: '8px',
               fontSize: '14px',
-              fontWeight: '600'
+              fontWeight: '600',
+              color: '#E0E0E0'
             }}>
               전화번호 끝 6자리
             </label>
@@ -233,7 +234,7 @@ function Login({ onLogin }) {
             border: '2px solid var(--border-color)',
             borderRadius: '8px'
           }}>
-            <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
+            <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: '#F5F5F5' }}>
               새 회원 가입
             </h3>
             <input
@@ -263,7 +264,7 @@ function Login({ onLogin }) {
               style={{ marginBottom: '12px', width: '100%' }}
             />
             <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', opacity: 0.7 }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#E0E0E0' }}>
                 사진 (본인)
               </label>
               <input
@@ -326,11 +327,11 @@ function Login({ onLogin }) {
               )}
             </div>
             <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#E0E0E0' }}>
                 성별
               </label>
               <div style={{ display: 'flex', gap: '16px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: '#E0E0E0' }}>
                   <input
                     type="radio"
                     name="gender"
@@ -340,7 +341,7 @@ function Login({ onLogin }) {
                   />
                   <span>남</span>
                 </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: '#E0E0E0' }}>
                   <input
                     type="radio"
                     name="gender"
@@ -368,11 +369,11 @@ function Login({ onLogin }) {
               style={{ marginBottom: '12px', width: '100%' }}
             />
             <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: '#E0E0E0' }}>
                 클럽 멤버이신가요?
               </label>
               <div style={{ display: 'flex', gap: '16px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: '#E0E0E0' }}>
                   <input
                     type="radio"
                     name="isClubMember"
@@ -382,7 +383,7 @@ function Login({ onLogin }) {
                   />
                   <span>예</span>
                 </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', color: '#E0E0E0' }}>
                   <input
                     type="radio"
                     name="isClubMember"
