@@ -62,6 +62,12 @@ function Admin() {
     memberId: '',
     date: new Date().toISOString().split('T')[0]
   });
+  
+  const [allTransactions, setAllTransactions] = useState([]);
+  const [ledgerFilter, setLedgerFilter] = useState({
+    type: 'all',
+    memberId: 'all'
+  });
 
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
@@ -87,6 +93,9 @@ function Admin() {
     }
     if (activeTab === 'fees') {
       loadFeeData();
+    }
+    if (activeTab === 'ledger') {
+      loadLedgerData();
     }
   }, [activeTab]);
 
@@ -128,6 +137,19 @@ function Admin() {
       setRecentTransactions(transactionsData.slice(0, 10));
     } catch (error) {
       console.error('회비 데이터 로드 실패:', error);
+    }
+  };
+
+  const loadLedgerData = async () => {
+    try {
+      if (refreshMembers) {
+        await refreshMembers();
+      }
+      const transactionsData = await apiService.fetchTransactions();
+      setAllTransactions(transactionsData || []);
+    } catch (error) {
+      console.error('장부 데이터 로드 실패:', error);
+      setAllTransactions([]);
     }
   };
 
@@ -803,6 +825,39 @@ function Admin() {
                   </div>
                   <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
                     회비 등록 및 납부 관리
+                  </div>
+                </div>
+              </div>
+              <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.7 }}>›</div>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('ledger')}
+              style={{
+                padding: '16px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                transition: 'all 0.2s',
+                background: 'var(--bg-page)',
+                borderTop: 'none',
+                borderLeft: 'none',
+                borderRight: 'none',
+                borderBottom: '1px solid var(--border-color)'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-page)'}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>📖</div>
+                <div>
+                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: 'var(--text-dark)' }}>
+                    통합 장부
+                  </div>
+                  <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
+                    모든 거래 내역 조회
                   </div>
                 </div>
               </div>
@@ -1673,6 +1728,150 @@ function Admin() {
                       </div>
                     );
                   })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'ledger' && (
+          <div>
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
+                필터
+              </h3>
+              
+              <div style={{ display: 'grid', gap: '12px' }}>
+                <select
+                  value={ledgerFilter.type}
+                  onChange={(e) => setLedgerFilter({ ...ledgerFilter, type: e.target.value })}
+                  style={{ marginBottom: '8px' }}
+                >
+                  <option value="all">전체 거래</option>
+                  <option value="charge">회비 발생</option>
+                  <option value="payment">납부</option>
+                  <option value="expense">클럽 지출</option>
+                  <option value="donation">도네이션</option>
+                </select>
+
+                <select
+                  value={ledgerFilter.memberId}
+                  onChange={(e) => setLedgerFilter({ ...ledgerFilter, memberId: e.target.value })}
+                >
+                  <option value="all">전체 회원</option>
+                  {members.map(member => (
+                    <option key={member.id} value={member.id}>
+                      {member.name} ({member.nickname})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div className="card">
+              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
+                거래 내역 ({
+                  allTransactions
+                    .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
+                    .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
+                    .length
+                }건)
+              </h3>
+
+              {allTransactions
+                .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
+                .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
+                .length === 0 ? (
+                <div style={{ 
+                  padding: '40px',
+                  textAlign: 'center',
+                  opacity: 0.7
+                }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>📖</div>
+                  <p>조건에 맞는 거래가 없습니다</p>
+                </div>
+              ) : (
+                <div>
+                  {allTransactions
+                    .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
+                    .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
+                    .map(transaction => {
+                      const typeLabel = 
+                        transaction.type === 'charge' ? '회비 발생' :
+                        transaction.type === 'payment' ? '납부' :
+                        transaction.type === 'expense' ? '클럽 지출' : '도네이션';
+                      
+                      const typeColor =
+                        transaction.type === 'charge' ? 'var(--alert-red)' :
+                        transaction.type === 'payment' ? 'var(--success-green)' :
+                        transaction.type === 'expense' ? 'var(--alert-red)' : 'var(--success-green)';
+
+                      const sign = 
+                        transaction.type === 'payment' || transaction.type === 'donation' ? '+' : '-';
+
+                      const bgColor = 
+                        transaction.type === 'payment' || transaction.type === 'donation' 
+                          ? 'rgba(40, 167, 69, 0.05)' 
+                          : 'rgba(220, 53, 69, 0.05)';
+
+                      return (
+                        <div 
+                          key={transaction.id}
+                          style={{
+                            padding: '16px',
+                            borderBottom: '1px solid var(--border-color)',
+                            borderRadius: '8px',
+                            marginBottom: '8px',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            background: bgColor
+                          }}
+                        >
+                          <div style={{ flex: 1 }}>
+                            <div style={{ 
+                              display: 'flex', 
+                              alignItems: 'center',
+                              gap: '8px',
+                              marginBottom: '6px'
+                            }}>
+                              <div style={{
+                                fontSize: '12px',
+                                padding: '3px 8px',
+                                borderRadius: '4px',
+                                background: typeColor,
+                                color: 'white',
+                                fontWeight: '600'
+                              }}>
+                                {typeLabel}
+                              </div>
+                              {transaction.member && (
+                                <div style={{ fontSize: '14px', fontWeight: '600' }}>
+                                  {transaction.member.name} ({transaction.member.nickname})
+                                </div>
+                              )}
+                            </div>
+                            <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                              {new Date(transaction.date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
+                            </div>
+                            {transaction.description && (
+                              <div style={{ fontSize: '13px', opacity: 0.8, marginTop: '6px' }}>
+                                {transaction.description}
+                              </div>
+                            )}
+                          </div>
+                          <div style={{
+                            fontSize: '20px',
+                            fontWeight: '700',
+                            color: typeColor,
+                            minWidth: '100px',
+                            textAlign: 'right'
+                          }}>
+                            {sign}${transaction.amount.toLocaleString()}
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
               )}
             </div>

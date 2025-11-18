@@ -26,6 +26,8 @@ function MemberDetail() {
     courseName: '',
     totalScore: ''
   });
+  const [transactions, setTransactions] = useState([]);
+  const [memberBalance, setMemberBalance] = useState(0);
 
   useEffect(() => {
     loadMemberData();
@@ -34,6 +36,7 @@ function MemberDetail() {
   useEffect(() => {
     if (member) {
       loadScores();
+      loadTransactions();
     }
   }, [member]);
 
@@ -77,6 +80,21 @@ function MemberDetail() {
     } catch (error) {
       console.error('스코어 로드 실패:', error);
       setScores([]);
+    }
+  };
+
+  const loadTransactions = async () => {
+    try {
+      const [transactionsData, balanceData] = await Promise.all([
+        apiService.fetchMemberTransactions(id),
+        apiService.fetchMemberBalance(id)
+      ]);
+      setTransactions(transactionsData || []);
+      setMemberBalance(balanceData.balance || 0);
+    } catch (error) {
+      console.error('거래 내역 로드 실패:', error);
+      setTransactions([]);
+      setMemberBalance(0);
     }
   };
 
@@ -431,14 +449,83 @@ function MemberDetail() {
               <div style={{
                 fontSize: '20px',
                 fontWeight: '700',
-                color: member.balance < 0 ? 'var(--alert-red)' : 'var(--success-green)',
+                color: memberBalance < 0 ? 'var(--alert-red)' : 'var(--success-green)',
                 textAlign: 'center',
                 padding: '16px',
-                background: member.balance < 0 ? '#fee' : '#efe',
+                background: memberBalance < 0 ? '#fee' : '#efe',
                 borderRadius: '8px'
               }}>
-                {member.balance < 0 ? '미수금' : '잔액'}: ${Math.abs(member.balance).toLocaleString()}
+                {memberBalance < 0 ? '미수금' : '잔액'}: ${Math.abs(memberBalance).toLocaleString()}
               </div>
+            </div>
+
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ 
+                fontSize: '16px', 
+                fontWeight: '700',
+                marginBottom: '16px',
+                color: 'var(--primary-green)'
+              }}>
+                거래 내역
+              </h3>
+              
+              {transactions.length === 0 ? (
+                <div style={{ 
+                  padding: '24px',
+                  textAlign: 'center',
+                  opacity: 0.7
+                }}>
+                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>$</div>
+                  <p style={{ fontSize: '14px' }}>거래 내역이 없습니다</p>
+                </div>
+              ) : (
+                <div>
+                  {transactions.map(transaction => {
+                    const typeLabel = 
+                      transaction.type === 'charge' ? '회비 발생' :
+                      transaction.type === 'payment' ? '납부' : '';
+                    
+                    const typeColor =
+                      transaction.type === 'charge' ? 'var(--alert-red)' : 'var(--success-green)';
+
+                    const sign = transaction.type === 'payment' ? '+' : '-';
+
+                    return (
+                      <div 
+                        key={transaction.id}
+                        style={{
+                          padding: '12px',
+                          borderBottom: '1px solid var(--border-color)',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                            {typeLabel}
+                          </div>
+                          <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                            {new Date(transaction.date).toLocaleDateString('ko-KR')}
+                          </div>
+                          {transaction.description && (
+                            <div style={{ fontSize: '12px', opacity: 0.6, marginTop: '4px' }}>
+                              {transaction.description}
+                            </div>
+                          )}
+                        </div>
+                        <div style={{
+                          fontSize: '18px',
+                          fontWeight: '700',
+                          color: typeColor
+                        }}>
+                          {sign}${transaction.amount.toLocaleString()}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {isAdmin && (
