@@ -336,10 +336,14 @@ export function AppProvider({ children }) {
     setLoading(true);
     
     try {
-      localStorage.removeItem('golfPosts');
-      localStorage.removeItem('golfBookings');
-      localStorage.removeItem('golfFees');
-      console.log('✅ 로컬 캐시 삭제 완료');
+      try {
+        localStorage.removeItem('golfPosts');
+        localStorage.removeItem('golfBookings');
+        localStorage.removeItem('golfFees');
+        console.log('✅ 로컬 캐시 삭제 완료');
+      } catch (storageError) {
+        console.warn('⚠️ 로컬 캐시 삭제 실패 (계속 진행):', storageError);
+      }
       
       console.log('📡 서버에서 데이터 가져오는 중...');
       const [membersData, postsData, bookingsData, feesData, coursesData] = await Promise.all([
@@ -370,13 +374,21 @@ export function AppProvider({ children }) {
       if (Array.isArray(membersData)) {
         console.log('✅ 회원 데이터 업데이트:', membersData.length, '명');
         setMembers(membersData);
-        localStorage.setItem('golfMembers', JSON.stringify(membersData));
+        try {
+          localStorage.setItem('golfMembers', JSON.stringify(membersData));
+        } catch (e) {
+          console.error('⚠️ 회원 데이터 localStorage 저장 실패:', e);
+        }
         
         if (user) {
           const updatedUser = membersData.find(m => m.id === user.id);
           if (updatedUser) {
             setUser(updatedUser);
-            localStorage.setItem('golfUser', JSON.stringify(updatedUser));
+            try {
+              localStorage.setItem('golfUser', JSON.stringify(updatedUser));
+            } catch (e) {
+              console.error('⚠️ 사용자 데이터 localStorage 저장 실패:', e);
+            }
           }
         }
       }
@@ -384,19 +396,31 @@ export function AppProvider({ children }) {
       if (Array.isArray(postsData)) {
         console.log('✅ 게시글 데이터 업데이트:', postsData.length, '개');
         setPosts(postsData);
-        localStorage.setItem('golfPosts', JSON.stringify(postsData));
+        try {
+          localStorage.setItem('golfPosts', JSON.stringify(postsData));
+        } catch (e) {
+          console.error('⚠️ 게시글 데이터 localStorage 저장 실패:', e);
+        }
       }
 
       if (Array.isArray(bookingsData)) {
         console.log('✅ 예약 데이터 업데이트:', bookingsData.length, '개');
         setBookings(bookingsData);
-        localStorage.setItem('golfBookings', JSON.stringify(bookingsData));
+        try {
+          localStorage.setItem('golfBookings', JSON.stringify(bookingsData));
+        } catch (e) {
+          console.error('⚠️ 예약 데이터 localStorage 저장 실패:', e);
+        }
       }
 
       if (Array.isArray(feesData)) {
         console.log('✅ 회비 데이터 업데이트:', feesData.length, '개');
         setFees(feesData);
-        localStorage.setItem('golfFees', JSON.stringify(feesData));
+        try {
+          localStorage.setItem('golfFees', JSON.stringify(feesData));
+        } catch (e) {
+          console.error('⚠️ 회비 데이터 localStorage 저장 실패:', e);
+        }
       }
 
       if (Array.isArray(coursesData)) {
