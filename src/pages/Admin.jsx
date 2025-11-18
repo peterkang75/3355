@@ -256,7 +256,8 @@ function Admin() {
   };
 
   const getSortedMembers = () => {
-    const activeMembers = members.filter(m => m.isActive);
+    const allMembers = contextMembers || members || [];
+    const activeMembers = allMembers.filter(m => m.isActive);
     
     if (!selectedIncome.bookingId) {
       return activeMembers;
