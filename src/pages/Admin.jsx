@@ -1115,7 +1115,7 @@ function Admin() {
                     onClick={handleCancelEdit}
                     style={{
                       flex: 1,
-                      padding: '14px',
+                      padding: '14px 24px',
                       background: '#BD5B43',
                       color: 'white',
                       border: 'none',
@@ -1129,8 +1129,17 @@ function Admin() {
                   </button>
                   <button
                     onClick={handleSaveEdit}
-                    className="btn-primary"
-                    style={{ flex: 1 }}
+                    style={{
+                      flex: 1,
+                      padding: '14px 24px',
+                      background: 'var(--primary-green)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
                   >
                     저장
                   </button>
@@ -1552,7 +1561,7 @@ function Admin() {
                     onClick={handleCancelCourseEdit}
                     style={{
                       flex: 1,
-                      padding: '14px',
+                      padding: '14px 24px',
                       background: '#BD5B43',
                       color: 'white',
                       border: 'none',
@@ -1566,8 +1575,17 @@ function Admin() {
                   </button>
                   <button
                     onClick={handleSaveCourseEdit}
-                    className="btn-primary"
-                    style={{ flex: 1 }}
+                    style={{
+                      flex: 1,
+                      padding: '14px 24px',
+                      background: 'var(--primary-green)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
                   >
                     저장
                   </button>
@@ -2112,7 +2130,7 @@ function Admin() {
                 onClick={handleCloseScoreModal}
                 style={{
                   flex: 1,
-                  padding: '14px',
+                  padding: '14px 24px',
                   background: '#BD5B43',
                   color: 'white',
                   border: 'none',
@@ -2126,8 +2144,17 @@ function Admin() {
               </button>
               <button
                 onClick={handleSaveScore}
-                className="btn-primary"
-                style={{ flex: 1 }}
+                style={{
+                  flex: 1,
+                  padding: '14px 24px',
+                  background: 'var(--primary-green)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
               >
                 저장
               </button>

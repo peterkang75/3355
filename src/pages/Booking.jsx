@@ -524,7 +524,7 @@ function Booking() {
             }}
             style={{
               flex: 1,
-              padding: '14px',
+              padding: '14px 24px',
               background: '#BD5B43',
               color: 'white',
               border: 'none',
@@ -536,7 +536,20 @@ function Booking() {
           >
             취소하기
           </button>
-          <button onClick={onSubmit} className="btn-primary" style={{ flex: 1 }}>
+          <button 
+            onClick={onSubmit}
+            style={{
+              flex: 1,
+              padding: '14px 24px',
+              background: 'var(--primary-green)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
             {submitText}
           </button>
         </div>

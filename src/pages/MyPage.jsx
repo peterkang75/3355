@@ -570,7 +570,7 @@ function MyPage() {
                 }}
                 style={{ 
                   flex: 1,
-                  padding: '14px',
+                  padding: '14px 24px',
                   background: '#BD5B43',
                   color: 'white',
                   border: 'none',
@@ -584,8 +584,17 @@ function MyPage() {
               </button>
               <button
                 onClick={handleSave}
-                className="btn-primary"
-                style={{ flex: 1 }}
+                style={{
+                  flex: 1,
+                  padding: '14px 24px',
+                  background: 'var(--primary-green)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
               >
                 저장
               </button>
