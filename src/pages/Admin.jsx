@@ -80,10 +80,11 @@ function Admin() {
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [selectedIncome, setSelectedIncome] = useState({
     categoryId: '',
-    bookingId: '',
+    bookingId: null,
     amount: '',
     date: new Date().toISOString().split('T')[0]
   });
+  const [selectedMembers, setSelectedMembers] = useState([]);
 
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
@@ -232,26 +233,34 @@ function Admin() {
     }
   };
 
-  const handleOpenIncomeModal = (booking) => {
-    if (!booking) return;
-    
-    setSelectedIncome({
-      categoryId: incomeCategories[0]?.id || '',
-      bookingId: booking.id,
-      amount: booking.totalFee || '',
-      date: new Date().toISOString().split('T')[0]
-    });
+  const handleOpenIncomeModal = () => {
+    if (!selectedIncome.categoryId) {
+      alert('입금항목을 선택해주세요.');
+      return;
+    }
+    setSelectedMembers([]);
     setShowIncomeModal(true);
   };
 
   const handleCloseIncomeModal = () => {
     setShowIncomeModal(false);
-    setSelectedIncome({
-      categoryId: '',
-      bookingId: '',
-      amount: '',
-      date: new Date().toISOString().split('T')[0]
-    });
+    setSelectedMembers([]);
+  };
+
+  const handleToggleMember = (memberId) => {
+    setSelectedMembers(prev => 
+      prev.includes(memberId) 
+        ? prev.filter(id => id !== memberId)
+        : [...prev, memberId]
+    );
+  };
+
+  const handleToggleAllMembers = () => {
+    if (selectedMembers.length === members.filter(m => m.isActive).length) {
+      setSelectedMembers([]);
+    } else {
+      setSelectedMembers(members.filter(m => m.isActive).map(m => m.id));
+    }
   };
 
   const handleProcessIncome = async () => {
@@ -261,21 +270,35 @@ function Admin() {
         return;
       }
 
+      if (selectedMembers.length === 0) {
+        alert('회원을 선택해주세요.');
+        return;
+      }
+
       const category = incomeCategories.find(c => c.id === selectedIncome.categoryId);
       const booking = bookings.find(b => b.id === selectedIncome.bookingId);
       
-      const transactionData = {
-        type: 'club_income',
-        amount: parseFloat(selectedIncome.amount),
-        description: `${category?.name}${booking ? ` - ${booking.courseName}` : ''}`,
-        date: selectedIncome.date,
-        categoryId: selectedIncome.categoryId,
-        bookingId: selectedIncome.bookingId || null
-      };
+      for (const memberId of selectedMembers) {
+        const member = members.find(m => m.id === memberId);
+        const transactionData = {
+          type: 'payment',
+          amount: parseFloat(selectedIncome.amount),
+          description: `${category?.name}${booking ? ` - ${booking.courseName}` : ''}`,
+          date: selectedIncome.date,
+          memberId: memberId
+        };
 
-      await apiService.createTransaction(transactionData);
-      alert('클럽 입금이 처리되었습니다.');
+        await apiService.createTransaction(transactionData);
+      }
+
+      alert(`${selectedMembers.length}명의 회원에게 입금이 처리되었습니다.`);
       handleCloseIncomeModal();
+      setSelectedIncome({
+        categoryId: '',
+        bookingId: null,
+        amount: '',
+        date: new Date().toISOString().split('T')[0]
+      });
       await loadFeeData();
     } catch (error) {
       console.error('입금 처리 실패:', error);
@@ -1749,10 +1772,10 @@ function Admin() {
                   클럽 입금 처리
                 </h3>
                 
-                <div style={{ display: 'grid', gap: '12px' }}>
+                <div style={{ display: 'grid', gap: '16px' }}>
                   <div>
                     <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                      입금항목
+                      입금항목 *
                     </label>
                     <select
                       value={selectedIncome.categoryId}
@@ -1775,43 +1798,63 @@ function Admin() {
 
                   <div>
                     <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                      라운딩 선택
+                      라운딩 선택 (옵션)
                     </label>
-                    <div style={{ display: 'grid', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
-                      {bookings.map(booking => (
-                        <div
-                          key={booking.id}
-                          onClick={() => handleOpenIncomeModal(booking)}
-                          style={{
-                            padding: '12px',
-                            background: 'var(--bg-green)',
-                            borderRadius: '8px',
-                            cursor: 'pointer',
-                            border: '2px solid transparent',
-                            transition: 'all 0.2s'
-                          }}
-                          onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--primary-green)'}
-                          onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
-                        >
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div>
-                              <div style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
-                                {booking.courseName}
-                              </div>
-                              <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                                {new Date(booking.date).toLocaleDateString('ko-KR')}
-                              </div>
-                            </div>
-                            <div style={{ textAlign: 'right' }}>
-                              <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--primary-green)' }}>
-                                ${booking.totalFee?.toLocaleString() || 0}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                    <select
+                      value={selectedIncome.bookingId || ''}
+                      onChange={(e) => setSelectedIncome({...selectedIncome, bookingId: e.target.value || null})}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        background: 'white'
+                      }}
+                    >
+                      <option value="">선택 안함</option>
+                      {bookings.filter(b => !b.isCompetition).map(booking => (
+                        <option key={booking.id} value={booking.id}>
+                          {booking.courseName} - {new Date(booking.date).toLocaleDateString('ko-KR')}
+                        </option>
                       ))}
-                    </div>
+                    </select>
                   </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                      날짜
+                    </label>
+                    <input
+                      type="date"
+                      value={selectedIncome.date}
+                      onChange={(e) => setSelectedIncome({...selectedIncome, date: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleOpenIncomeModal}
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      background: 'var(--primary-green)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    회원 선택
+                  </button>
                 </div>
               </div>
             )}
@@ -3372,13 +3415,14 @@ function Admin() {
               maxWidth: '500px',
               width: '100%',
               maxHeight: '90vh',
-              overflowY: 'auto'
+              display: 'flex',
+              flexDirection: 'column'
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
               <h3 style={{ fontSize: '20px', fontWeight: '700', margin: 0 }}>
-                입금 처리
+                회원 선택 및 금액 입력
               </h3>
               <button
                 onClick={handleCloseIncomeModal}
@@ -3395,113 +3439,97 @@ function Admin() {
               </button>
             </div>
 
-            <div style={{ display: 'grid', gap: '16px' }}>
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                  입금항목
-                </label>
-                <select
-                  value={selectedIncome.categoryId}
-                  onChange={(e) => setSelectedIncome({...selectedIncome, categoryId: e.target.value})}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    background: 'white'
-                  }}
-                >
-                  <option value="">선택하세요</option>
-                  {incomeCategories.map(cat => (
-                    <option key={cat.id} value={cat.id}>{cat.name}</option>
-                  ))}
-                </select>
-              </div>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                금액
+              </label>
+              <input
+                type="number"
+                value={selectedIncome.amount}
+                onChange={(e) => setSelectedIncome({...selectedIncome, amount: e.target.value})}
+                placeholder="금액 입력"
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
 
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                  라운딩
-                </label>
-                <div style={{
+            <div style={{ 
+              borderTop: '1px solid var(--border-color)',
+              paddingTop: '16px',
+              marginBottom: '16px'
+            }}>
+              <div 
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
                   padding: '12px',
                   background: 'var(--bg-green)',
                   borderRadius: '8px',
-                  border: '1px solid var(--border-color)'
-                }}>
-                  {bookings.find(b => b.id === selectedIncome.bookingId) ? (
-                    <>
-                      <div style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
-                        {bookings.find(b => b.id === selectedIncome.bookingId).courseName}
-                      </div>
-                      <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                        {new Date(bookings.find(b => b.id === selectedIncome.bookingId).date).toLocaleDateString('ko-KR')}
-                      </div>
-                    </>
-                  ) : (
-                    <div style={{ opacity: 0.5 }}>라운딩 선택 안됨</div>
-                  )}
-                </div>
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                  금액
-                </label>
+                  marginBottom: '12px',
+                  cursor: 'pointer'
+                }}
+                onClick={handleToggleAllMembers}
+              >
                 <input
-                  type="number"
-                  value={selectedIncome.amount}
-                  onChange={(e) => setSelectedIncome({...selectedIncome, amount: e.target.value})}
-                  placeholder="금액 입력"
+                  type="checkbox"
+                  checked={selectedMembers.length === members.filter(m => m.isActive).length && members.filter(m => m.isActive).length > 0}
+                  onChange={handleToggleAllMembers}
                   style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '8px',
-                    fontSize: '14px'
+                    width: '18px',
+                    height: '18px',
+                    marginRight: '12px',
+                    cursor: 'pointer'
                   }}
                 />
-                {bookings.find(b => b.id === selectedIncome.bookingId)?.totalFee && (
-                  <button
-                    onClick={() => setSelectedIncome({
-                      ...selectedIncome,
-                      amount: bookings.find(b => b.id === selectedIncome.bookingId).totalFee
-                    })}
+                <span style={{ fontSize: '15px', fontWeight: '600' }}>전체 선택</span>
+                <span style={{ marginLeft: 'auto', fontSize: '13px', opacity: 0.7 }}>
+                  {selectedMembers.length} / {members.filter(m => m.isActive).length}
+                </span>
+              </div>
+
+              <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                {members.filter(m => m.isActive).map(member => (
+                  <div
+                    key={member.id}
                     style={{
-                      marginTop: '8px',
-                      padding: '8px 12px',
-                      background: 'var(--bg-green)',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '6px',
-                      fontSize: '13px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '12px',
+                      borderBottom: '1px solid var(--border-color)',
                       cursor: 'pointer'
                     }}
+                    onClick={() => handleToggleMember(member.id)}
                   >
-                    전체 금액: ${bookings.find(b => b.id === selectedIncome.bookingId).totalFee.toLocaleString()}
-                  </button>
-                )}
-              </div>
-
-              <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                  날짜
-                </label>
-                <input
-                  type="date"
-                  value={selectedIncome.date}
-                  onChange={(e) => setSelectedIncome({...selectedIncome, date: e.target.value})}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '8px',
-                    fontSize: '14px'
-                  }}
-                />
+                    <input
+                      type="checkbox"
+                      checked={selectedMembers.includes(member.id)}
+                      onChange={() => handleToggleMember(member.id)}
+                      style={{
+                        width: '18px',
+                        height: '18px',
+                        marginRight: '12px',
+                        cursor: 'pointer'
+                      }}
+                    />
+                    <div>
+                      <div style={{ fontSize: '15px', fontWeight: '600' }}>
+                        {member.name}
+                      </div>
+                      <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                        {member.nickname}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
+            <div style={{ display: 'flex', gap: '12px', marginTop: 'auto' }}>
               <button
                 onClick={handleCloseIncomeModal}
                 style={{
@@ -3531,7 +3559,7 @@ function Admin() {
                   cursor: 'pointer'
                 }}
               >
-                입금 처리
+                적용
               </button>
             </div>
           </div>
