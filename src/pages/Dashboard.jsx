@@ -18,6 +18,7 @@ function Dashboard() {
   const [openMenuCommentId, setOpenMenuCommentId] = useState(null);
   const [editingComment, setEditingComment] = useState(null);
   const [isRentalLoading, setIsRentalLoading] = useState(null);
+  const [recentTransactions, setRecentTransactions] = useState([]);
 
   // 상대 시간 표시 함수
   const getRelativeTime = (dateString) => {
@@ -31,6 +32,21 @@ function Dashboard() {
     if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}일 전`;
     return past.toLocaleDateString('ko-KR');
   };
+
+  // 거래내역 로드
+  useEffect(() => {
+    const loadTransactions = async () => {
+      try {
+        const transactionsData = await apiService.fetchMemberTransactions(user.id);
+        setRecentTransactions(transactionsData.slice(0, 5));
+      } catch (error) {
+        console.error('거래내역 로드 실패:', error);
+      }
+    };
+    if (user?.id) {
+      loadTransactions();
+    }
+  }, [user?.id]);
 
   // 점 세 개 메뉴 외부 클릭 시 닫기 (게시글)
   useEffect(() => {
@@ -1550,12 +1566,7 @@ function Dashboard() {
             회비 납부 내역
           </h3>
           {(() => {
-            const userFees = fees
-              .filter(fee => fee.memberId === user.id)
-              .sort((a, b) => new Date(b.date) - new Date(a.date))
-              .slice(0, 5);
-
-            if (userFees.length === 0) {
+            if (recentTransactions.length === 0) {
               return (
                 <div style={{ 
                   padding: '16px',
@@ -1564,17 +1575,21 @@ function Dashboard() {
                   textAlign: 'center',
                   opacity: 0.7
                 }}>
-                  납부 내역이 없습니다
+                  거래 내역이 없습니다
                 </div>
               );
             }
 
             return (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {userFees.map((fee, index) => {
-                  const isIncome = fee.type === 'income';
+                {recentTransactions.map((transaction, index) => {
+                  const isCharge = transaction.type === 'charge';
+                  const label = transaction.type === 'charge' 
+                    ? (transaction.bookingId ? '라운딩 회비' : '회비 발생')
+                    : '납부';
+                  
                   return (
-                    <div key={fee.id}>
+                    <div key={transaction.id}>
                       <div style={{
                         padding: '12px',
                         background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(242, 163, 65, 0.05) 100%)',
@@ -1590,14 +1605,14 @@ function Dashboard() {
                             fontSize: '14px',
                             fontWeight: '600'
                           }}>
-                            {fee.description}
+                            {label}
                           </div>
                           <div style={{
                             fontSize: '16px',
                             fontWeight: '700',
-                            color: isIncome ? '#d9534f' : 'var(--primary-green)'
+                            color: isCharge ? 'var(--alert-red)' : 'var(--success-green)'
                           }}>
-                            {isIncome ? '-' : '+'}{formatCurrency(fee.amount)}
+                            {isCharge ? '-' : '+'}{formatCurrency(transaction.amount)}
                           </div>
                         </div>
                         <div style={{ 
@@ -1606,11 +1621,11 @@ function Dashboard() {
                           fontSize: '12px',
                           opacity: 0.7
                         }}>
-                          <span>{new Date(fee.date).toLocaleDateString('ko-KR')}</span>
-                          <span>{isIncome ? '지출' : '수입'}</span>
+                          <span>{new Date(transaction.createdAt).toLocaleDateString('ko-KR')}</span>
+                          <span>잔액: {formatCurrency(transaction.balanceAfter)}</span>
                         </div>
                       </div>
-                      {index < userFees.length - 1 && (
+                      {index < recentTransactions.length - 1 && (
                         <div style={{ height: '8px' }} />
                       )}
                     </div>
