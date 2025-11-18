@@ -447,7 +447,7 @@ function MemberDetail() {
                   <h3 style={{ 
                     fontSize: '14px', 
                     fontWeight: '600',
-                    marginBottom: '12px',
+                    marginBottom: '16px',
                     opacity: 0.7,
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px'
@@ -456,116 +456,95 @@ function MemberDetail() {
                   </h3>
                   
                   <div style={{ 
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: '8px'
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px'
                   }}>
-                    <button
-                      onClick={() => handleChangeRole('관리자')}
-                      disabled={member.role === '관리자'}
-                      style={{
-                        padding: '10px 8px',
-                        background: member.role === '관리자' ? 'var(--primary-green)' : '#f5f5f5',
-                        color: member.role === '관리자' ? 'var(--text-light)' : 'var(--text-dark)',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        cursor: member.role === '관리자' ? 'default' : 'pointer',
-                        transition: 'all 0.2s',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}
-                    >
-                      <img src={adminIcon} alt="관리자" style={{ width: '20px', height: '20px', borderRadius: '50%' }} />
-                      <span>관리자</span>
-                    </button>
-                    <button
-                      onClick={() => handleChangeRole('방장')}
-                      disabled={member.role === '방장'}
-                      style={{
-                        padding: '10px 8px',
-                        background: member.role === '방장' ? 'var(--primary-green)' : '#f5f5f5',
-                        color: member.role === '방장' ? 'var(--text-light)' : 'var(--text-dark)',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        cursor: member.role === '방장' ? 'default' : 'pointer',
-                        transition: 'all 0.2s',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}
-                    >
-                      <img src={bangjangIcon} alt="방장" style={{ width: '20px', height: '20px', borderRadius: '50%' }} />
-                      <span>방장</span>
-                    </button>
-                    <button
-                      onClick={() => handleChangeRole('운영진')}
-                      disabled={member.role === '운영진'}
-                      style={{
-                        padding: '10px 8px',
-                        background: member.role === '운영진' ? 'var(--primary-green)' : '#f5f5f5',
-                        color: member.role === '운영진' ? 'var(--text-light)' : 'var(--text-dark)',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        cursor: member.role === '운영진' ? 'default' : 'pointer',
-                        transition: 'all 0.2s',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}
-                    >
-                      <img src={staffIcon} alt="운영진" style={{ width: '20px', height: '20px', borderRadius: '50%' }} />
-                      <span>운영진</span>
-                    </button>
-                    <button
-                      onClick={() => handleChangeRole('클럽운영진')}
-                      disabled={member.role === '클럽운영진'}
-                      style={{
-                        padding: '10px 8px',
-                        background: member.role === '클럽운영진' ? 'var(--primary-green)' : '#f5f5f5',
-                        color: member.role === '클럽운영진' ? 'var(--text-light)' : 'var(--text-dark)',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        cursor: member.role === '클럽운영진' ? 'default' : 'pointer',
-                        transition: 'all 0.2s',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '4px'
-                      }}
-                    >
-                      <img src={clubStaffIcon} alt="클럽운영진" style={{ width: '20px', height: '20px', borderRadius: '50%' }} />
-                      <span>클럽<br/>운영진</span>
-                    </button>
-                    <button
-                      onClick={() => handleChangeRole('회원')}
-                      disabled={member.role === '회원' || !member.role}
-                      style={{
-                        padding: '10px 8px',
-                        background: (member.role === '회원' || !member.role) ? 'var(--primary-green)' : '#f5f5f5',
-                        color: (member.role === '회원' || !member.role) ? 'var(--text-light)' : 'var(--text-dark)',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        cursor: (member.role === '회원' || !member.role) ? 'default' : 'pointer',
-                        transition: 'all 0.2s',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '4px',
-                        gridColumn: 'span 2'
-                      }}
-                    >
-                      <span style={{ fontSize: '18px' }}>●</span>
-                      <span>회원</span>
-                    </button>
+                    {['관리자', '방장', '운영진', '클럽운영진', '회원'].map((role) => {
+                      const isSelected = member.role === role || (!member.role && role === '회원');
+                      const icons = {
+                        '관리자': adminIcon,
+                        '방장': bangjangIcon,
+                        '운영진': staffIcon,
+                        '클럽운영진': clubStaffIcon
+                      };
+                      
+                      return (
+                        <label
+                          key={role}
+                          onClick={() => handleChangeRole(role)}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '12px',
+                            padding: '14px 16px',
+                            background: isSelected ? 'var(--bg-green)' : '#f8f8f8',
+                            border: isSelected ? '2px solid var(--primary-green)' : '2px solid #e0e0e0',
+                            borderRadius: '10px',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            position: 'relative'
+                          }}
+                          onMouseEnter={(e) => {
+                            if (!isSelected) {
+                              e.currentTarget.style.background = '#f0f0f0';
+                              e.currentTarget.style.borderColor = '#ccc';
+                            }
+                          }}
+                          onMouseLeave={(e) => {
+                            if (!isSelected) {
+                              e.currentTarget.style.background = '#f8f8f8';
+                              e.currentTarget.style.borderColor = '#e0e0e0';
+                            }
+                          }}
+                        >
+                          <div style={{
+                            width: '24px',
+                            height: '24px',
+                            borderRadius: '50%',
+                            border: isSelected ? '7px solid var(--primary-green)' : '2px solid #ccc',
+                            background: 'white',
+                            flexShrink: 0,
+                            transition: 'all 0.2s'
+                          }} />
+                          
+                          {icons[role] && (
+                            <img 
+                              src={icons[role]} 
+                              alt={role} 
+                              style={{ 
+                                width: '28px', 
+                                height: '28px', 
+                                borderRadius: '50%',
+                                flexShrink: 0
+                              }} 
+                            />
+                          )}
+                          {!icons[role] && (
+                            <div style={{
+                              width: '28px',
+                              height: '28px',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '20px',
+                              flexShrink: 0
+                            }}>
+                              ●
+                            </div>
+                          )}
+                          
+                          <span style={{
+                            fontSize: '16px',
+                            fontWeight: isSelected ? '700' : '600',
+                            color: isSelected ? 'var(--primary-green)' : 'var(--text-dark)',
+                            flex: 1
+                          }}>
+                            {role}
+                          </span>
+                        </label>
+                      );
+                    })}
                   </div>
                 </div>
 
