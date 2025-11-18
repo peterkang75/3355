@@ -15,6 +15,8 @@ function Dashboard() {
   const [openMenuCommentId, setOpenMenuCommentId] = useState(null);
   const [editingComment, setEditingComment] = useState(null);
   const [isRentalLoading, setIsRentalLoading] = useState(null);
+  const [reactionMenuComment, setReactionMenuComment] = useState(null);
+  const [longPressTimer, setLongPressTimer] = useState(null);
 
   // 상대 시간 표시 함수
   const getRelativeTime = (dateString) => {
@@ -62,6 +64,23 @@ function Dashboard() {
       document.removeEventListener('click', handleClickOutside);
     };
   }, [openMenuCommentId]);
+
+  // 반응 메뉴 외부 클릭 시 닫기
+  useEffect(() => {
+    const handleClickOutside = () => {
+      if (reactionMenuComment !== null) {
+        setReactionMenuComment(null);
+      }
+    };
+
+    if (reactionMenuComment !== null) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [reactionMenuComment]);
 
   const handleCreatePost = () => {
     if (!newPost.title || !newPost.content) {
@@ -138,6 +157,26 @@ function Dashboard() {
     });
 
     updatePost(postId, { comments: updatedComments });
+    setReactionMenuComment(null);
+  };
+
+  const handleLikeCommentFromMenu = (postId, commentId) => {
+    handleLikeComment(postId, commentId);
+    setReactionMenuComment(null);
+  };
+
+  const handleCommentLongPress = (postId, commentId) => {
+    const timer = setTimeout(() => {
+      setReactionMenuComment({ postId, commentId });
+    }, 500);
+    setLongPressTimer(timer);
+  };
+
+  const handleCommentTouchEnd = () => {
+    if (longPressTimer) {
+      clearTimeout(longPressTimer);
+      setLongPressTimer(null);
+    }
   };
 
   const handleDeletePost = async (postId) => {
@@ -804,6 +843,11 @@ function Dashboard() {
                                   position: 'relative',
                                   borderLeft: '1px solid rgba(0, 0, 0, 0.2)'
                                 }}
+                                onTouchStart={() => handleCommentLongPress(post.id, comment.id)}
+                                onTouchEnd={handleCommentTouchEnd}
+                                onMouseDown={() => handleCommentLongPress(post.id, comment.id)}
+                                onMouseUp={handleCommentTouchEnd}
+                                onMouseLeave={handleCommentTouchEnd}
                               >
                                 <div style={{
                                   fontSize: '14px',
@@ -831,75 +875,104 @@ function Dashboard() {
                                 }}>
                                   {comment.content}
                                 </div>
-                                <div style={{
-                                  fontSize: '12px',
-                                  opacity: 0.7,
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'flex-end',
-                                  gap: '12px'
-                                }}>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleLikeComment(post.id, comment.id);
-                                    }}
-                                    style={{
-                                      background: 'none',
-                                      border: 'none',
-                                      cursor: 'pointer',
-                                      padding: '0',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      gap: '4px',
-                                      fontSize: '12px',
-                                      color: '#999'
-                                    }}
-                                  >
-                                    <svg 
-                                      width="16" 
-                                      height="16" 
-                                      viewBox="0 0 24 24" 
-                                      fill={(comment.likes || []).includes(user.id) ? '#1877F2' : '#999'}
-                                      style={{ marginTop: '1px' }}
-                                    >
-                                      <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
-                                    </svg>
+
+                                {/* 반응을 누른 사람들 표시 */}
+                                {((comment.likes || []).length > 0 || (comment.hearts || []).length > 0) && (
+                                  <div style={{
+                                    fontSize: '12px',
+                                    marginTop: '8px',
+                                    paddingTop: '8px',
+                                    borderTop: '1px solid rgba(0, 0, 0, 0.1)',
+                                    display: 'flex',
+                                    gap: '12px',
+                                    flexWrap: 'wrap'
+                                  }}>
                                     {(comment.likes || []).length > 0 && (
-                                      <span style={{ fontWeight: '600', color: '#333' }}>{(comment.likes || []).length}</span>
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="#1877F2">
+                                          <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+                                        </svg>
+                                        <span style={{ color: '#666' }}>
+                                          {(comment.likes || []).map(userId => {
+                                            const member = members.find(m => m.id === userId);
+                                            return member?.nickname || member?.name || '알 수 없음';
+                                          }).join(', ')}
+                                        </span>
+                                      </div>
                                     )}
-                                  </button>
-                                  <button
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleHeartComment(post.id, comment.id);
-                                    }}
+                                    {(comment.hearts || []).length > 0 && (
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="#FF69B4" stroke="#FF69B4" strokeWidth="2">
+                                          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                        </svg>
+                                        <span style={{ color: '#666' }}>
+                                          {(comment.hearts || []).map(userId => {
+                                            const member = members.find(m => m.id === userId);
+                                            return member?.nickname || member?.name || '알 수 없음';
+                                          }).join(', ')}
+                                        </span>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+
+                                {/* 반응 메뉴 */}
+                                {reactionMenuComment?.postId === post.id && reactionMenuComment?.commentId === comment.id && (
+                                  <div
+                                    onClick={(e) => e.stopPropagation()}
                                     style={{
-                                      background: 'none',
-                                      border: 'none',
-                                      cursor: 'pointer',
-                                      padding: '0',
+                                      position: 'absolute',
+                                      bottom: '100%',
+                                      left: '50%',
+                                      transform: 'translateX(-50%)',
+                                      marginBottom: '8px',
+                                      background: 'white',
+                                      borderRadius: '24px',
+                                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                      padding: '8px 12px',
                                       display: 'flex',
-                                      alignItems: 'center',
-                                      gap: '4px',
-                                      fontSize: '12px'
+                                      gap: '16px',
+                                      zIndex: 1000
                                     }}
                                   >
-                                    <svg 
-                                      width="16" 
-                                      height="16" 
-                                      viewBox="0 0 24 24" 
-                                      fill={(comment.hearts || []).includes(user.id) ? '#FF69B4' : 'none'}
-                                      stroke={(comment.hearts || []).includes(user.id) ? '#FF69B4' : '#999'}
-                                      strokeWidth="2"
+                                    <button
+                                      onClick={() => handleLikeCommentFromMenu(post.id, comment.id)}
+                                      style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        padding: '4px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        transition: 'transform 0.2s'
+                                      }}
+                                      onMouseEnter={(e) => e.target.style.transform = 'scale(1.2)'}
+                                      onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
                                     >
-                                      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
-                                    </svg>
-                                    {(comment.hearts || []).length > 0 && (
-                                      <span style={{ fontWeight: '600', color: '#333' }}>{(comment.hearts || []).length}</span>
-                                    )}
-                                  </button>
-                                </div>
+                                      <svg width="32" height="32" viewBox="0 0 24 24" fill="#1877F2">
+                                        <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+                                      </svg>
+                                    </button>
+                                    <button
+                                      onClick={() => handleHeartComment(post.id, comment.id)}
+                                      style={{
+                                        background: 'none',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        padding: '4px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        transition: 'transform 0.2s'
+                                      }}
+                                      onMouseEnter={(e) => e.target.style.transform = 'scale(1.2)'}
+                                      onMouseLeave={(e) => e.target.style.transform = 'scale(1)'}
+                                    >
+                                      <svg width="32" height="32" viewBox="0 0 24 24" fill="#FF69B4">
+                                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+                                      </svg>
+                                    </button>
+                                  </div>
+                                )}
                                 {isCommentOwner && (
                                   <div
                                     onClick={(e) => {
