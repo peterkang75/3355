@@ -342,17 +342,18 @@ function Admin() {
       for (const memberId of selectedMembers) {
         const member = members.find(m => m.id === memberId);
         const transactionData = {
-          type: 'payment',
+          type: 'charge',
           amount: parseFloat(selectedIncome.amount),
           description: `${category?.name}${booking ? ` - ${booking.courseName}` : ''}`,
           date: selectedIncome.date,
-          memberId: memberId
+          memberId: memberId,
+          bookingId: selectedIncome.bookingId || null
         };
 
         await apiService.createTransaction(transactionData);
       }
 
-      alert(`${selectedMembers.length}명의 회원에게 입금이 처리되었습니다.`);
+      alert(`${selectedMembers.length}명의 회원에게 참가비가 청구되었습니다.`);
       handleCloseIncomeModal();
       setSelectedIncome({
         categoryId: '',
