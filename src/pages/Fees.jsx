@@ -61,7 +61,7 @@ function Fees() {
 
   const getTransactionLabel = (transaction) => {
     if (transaction.type === 'charge') {
-      return transaction.bookingId ? '라운딩 회비' : '회비 발생';
+      return transaction.bookingId ? '라운딩 참가비' : '참가비 발생';
     }
     if (transaction.type === 'payment') {
       return '납부';
@@ -99,7 +99,7 @@ function Fees() {
           >
             ‹
           </button>
-          <h1 style={{ flex: 1, marginLeft: '12px' }}>회비 관리</h1>
+          <h1 style={{ flex: 1, marginLeft: '12px' }}>참가비 관리</h1>
           <div 
             style={{ 
               display: 'flex', 
@@ -261,7 +261,7 @@ function Fees() {
             transition: 'all 0.2s'
           }}
         >
-          개인 회비 내역
+          개인 참가비 내역
         </button>
         <button
           onClick={() => setActiveTab('club')}
@@ -278,7 +278,7 @@ function Fees() {
             transition: 'all 0.2s'
           }}
         >
-          모임 회비 내역
+          모임 참가비 내역
         </button>
       </div>
 
@@ -312,7 +312,7 @@ function Fees() {
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ opacity: 0.9 }}>총 회비</div>
+                  <div style={{ opacity: 0.9 }}>총 참가비</div>
                   <div style={{ fontWeight: '600', marginTop: '4px' }}>
                     ${totalCharges.toLocaleString()}
                   </div>
@@ -388,7 +388,7 @@ function Fees() {
                 ⓘ 납부 안내
               </div>
               <p style={{ fontSize: '13px', lineHeight: '1.6', opacity: 0.8, margin: 0 }}>
-                회비 납부는 관리자에게 문의해주세요. 
+                참가비 납부는 관리자에게 문의해주세요. 
                 납부 완료 후 관리자가 처리하면 자동으로 잔액에 반영됩니다.
               </p>
             </div>
@@ -407,7 +407,7 @@ function Fees() {
                   style={{ marginBottom: '8px' }}
                 >
                   <option value="all">전체</option>
-                  <option value="charge">회비 발생</option>
+                  <option value="charge">참가비 발생</option>
                   <option value="payment">납부</option>
                   <option value="expense">클럽 지출</option>
                   <option value="donation">도네이션</option>
@@ -455,7 +455,7 @@ function Fees() {
                     .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
                     .map(transaction => {
                       const typeLabel = 
-                        transaction.type === 'charge' ? '회비 발생' :
+                        transaction.type === 'charge' ? '참가비 발생' :
                         transaction.type === 'payment' ? '납부' :
                         transaction.type === 'expense' ? '클럽 지출' : '도네이션';
                       

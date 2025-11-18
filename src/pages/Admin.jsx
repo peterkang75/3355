@@ -76,7 +76,7 @@ function Admin() {
     { id: 'team_formation', name: '조편성' },
     { id: 'participant_management', name: '참가자 관리' },
     { id: 'score_entry', name: '스코어 입력' },
-    { id: 'fee_management', name: '회비 관리' },
+    { id: 'fee_management', name: '참가비 관리' },
     { id: 'course_management', name: '골프장 관리' },
     { id: 'create_post', name: '게시판 작성' },
     { id: 'member_approval', name: '회원 승인' }
@@ -825,10 +825,10 @@ function Admin() {
                 <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>$</div>
                 <div>
                   <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: 'var(--text-dark)' }}>
-                    회비 관리
+                    참가비 관리
                   </div>
                   <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
-                    회비 등록 및 납부 관리
+                    참가비 등록 및 납부 관리
                   </div>
                 </div>
               </div>
@@ -1601,7 +1601,7 @@ function Admin() {
                 onChange={(e) => setTransactionForm({ ...transactionForm, type: e.target.value })}
                 style={{ marginBottom: '12px' }}
               >
-                <option value="charge">회비 발생</option>
+                <option value="charge">참가비 발생</option>
                 <option value="payment">납부</option>
                 <option value="expense">클럽 지출</option>
                 <option value="donation">도네이션</option>
@@ -1647,7 +1647,7 @@ function Admin() {
               />
 
               <button className="btn-primary" onClick={handleCreateTransaction}>
-                {transactionForm.type === 'charge' ? '회비 발생' : 
+                {transactionForm.type === 'charge' ? '참가비 발생' : 
                  transactionForm.type === 'payment' ? '납부 처리' :
                  transactionForm.type === 'expense' ? '지출 등록' : '도네이션 등록'}
               </button>
@@ -1670,7 +1670,7 @@ function Admin() {
                 <div>
                   {recentTransactions.map(transaction => {
                     const typeLabel = 
-                      transaction.type === 'charge' ? '회비 발생' :
+                      transaction.type === 'charge' ? '참가비 발생' :
                       transaction.type === 'payment' ? '납부' :
                       transaction.type === 'expense' ? '클럽 지출' : '도네이션';
                     
@@ -1754,7 +1754,7 @@ function Admin() {
                   style={{ marginBottom: '8px' }}
                 >
                   <option value="all">전체 거래</option>
-                  <option value="charge">회비 발생</option>
+                  <option value="charge">참가비 발생</option>
                   <option value="payment">납부</option>
                   <option value="expense">클럽 지출</option>
                   <option value="donation">도네이션</option>
@@ -1803,7 +1803,7 @@ function Admin() {
                     .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
                     .map(transaction => {
                       const typeLabel = 
-                        transaction.type === 'charge' ? '회비 발생' :
+                        transaction.type === 'charge' ? '참가비 발생' :
                         transaction.type === 'payment' ? '납부' :
                         transaction.type === 'expense' ? '클럽 지출' : '도네이션';
                       
@@ -2501,7 +2501,7 @@ function Admin() {
 
             <div className="card" style={{ marginBottom: '16px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
-                회비관리 권한
+                참가비관리 권한
               </h3>
               <div style={{
                 padding: '10px 12px',
@@ -2511,7 +2511,7 @@ function Admin() {
                 fontSize: '12px',
                 color: 'var(--text-dark)', opacity: 0.7
               }}>
-                • 회비 메뉴에서 회비 내역을 확인하고 관리할 수 있는 권한을 부여합니다
+                • 참가비 메뉴에서 참가비 내역을 확인하고 관리할 수 있는 권한을 부여합니다
               </div>
               <div style={{ display: 'grid', gap: '8px' }}>
                 {members.filter(m => m.isActive).map(member => (

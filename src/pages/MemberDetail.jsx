@@ -443,7 +443,7 @@ function MemberDetail() {
                 marginBottom: '16px',
                 color: 'var(--primary-green)'
               }}>
-                회비 정보
+                참가비 정보
               </h3>
               
               <div style={{
@@ -482,7 +482,7 @@ function MemberDetail() {
                 <div>
                   {transactions.map(transaction => {
                     const typeLabel = 
-                      transaction.type === 'charge' ? '회비 발생' :
+                      transaction.type === 'charge' ? '참가비 발생' :
                       transaction.type === 'payment' ? '납부' : '';
                     
                     const typeColor =

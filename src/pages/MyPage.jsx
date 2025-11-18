@@ -370,7 +370,7 @@ function MyPage() {
                 marginBottom: '16px',
                 color: 'var(--primary-green)'
               }}>
-                회비 정보
+                참가비 정보
               </h3>
               
               <div style={{

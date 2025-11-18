@@ -1163,7 +1163,7 @@ function Dashboard() {
             background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(242, 163, 65, 0.05) 100%)'
           }}>
             <div style={{ fontSize: '14px', fontWeight: '700', opacity: 0.8, marginBottom: '4px', marginTop: '4px' }}>
-              회비 잔액
+              참가비 잔액
             </div>
             <div style={{ 
               fontSize: '20px', 
@@ -1592,7 +1592,7 @@ function Dashboard() {
               margin: 0
             }}>
               <span style={{ fontSize: '20px' }}>💳</span>
-              회비 납부 내역
+              참가비 납부 내역
             </h3>
             <button
               onClick={() => navigate('/fees')}
@@ -1630,7 +1630,7 @@ function Dashboard() {
                 {recentTransactions.map((transaction, index) => {
                   const isCharge = transaction.type === 'charge';
                   const label = transaction.type === 'charge' 
-                    ? (transaction.bookingId ? '라운딩 회비' : '회비 발생')
+                    ? (transaction.bookingId ? '라운딩 참가비' : '참가비 발생')
                     : '납부';
                   
                   return (

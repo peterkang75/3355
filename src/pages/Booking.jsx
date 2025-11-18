@@ -472,12 +472,12 @@ function Booking() {
             />
 
             <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
-              회비
+              참가비
             </label>
             <input
               type="number"
               inputMode="numeric"
-              placeholder="회비 금액 ($)"
+              placeholder="참가비 금액 ($)"
               value={data.membershipFee}
               onChange={(e) => setData({ ...data, membershipFee: e.target.value })}
               style={{ marginBottom: '12px' }}
@@ -770,7 +770,7 @@ function Booking() {
                 )}
                 {booking.membershipFee && (
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                    <span>회비</span>
+                    <span>참가비</span>
                     <span>{formatCurrency(booking.membershipFee)}</span>
                   </div>
                 )}

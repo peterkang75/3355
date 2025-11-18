@@ -58,9 +58,9 @@ function Navigation({ user, onLogout }) {
         onClick={(e) => handleNavClick(e, '/fees')}
       >
         <span className="nav-icon">
-          <img src={feesIcon} alt="회비" style={{ width: '24px', height: '24px' }} />
+          <img src={feesIcon} alt="참가비" style={{ width: '24px', height: '24px' }} />
         </span>
-        <span>회비</span>
+        <span>참가비</span>
       </a>
       <a 
         href="/mypage" 
