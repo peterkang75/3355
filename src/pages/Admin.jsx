@@ -3454,7 +3454,7 @@ function Admin() {
                 <option value="">선택 안함</option>
                 {bookings.filter(b => !b.isCompetition).map(booking => (
                   <option key={booking.id} value={booking.id}>
-                    {booking.courseName} - {new Date(booking.date).toLocaleDateString('ko-KR')}
+                    {booking.title || booking.courseName} - {new Date(booking.date).toLocaleDateString('ko-KR')}
                   </option>
                 ))}
               </select>
