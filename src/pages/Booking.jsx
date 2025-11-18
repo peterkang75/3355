@@ -156,6 +156,7 @@ function Booking() {
   const handleEditBooking = (booking) => {
     setEditingBooking(booking.id);
     setOpenMenuId(null);
+    setBookingType(booking.type || '정기모임');
     setEditBookingData({
       title: booking.title || '',
       courseName: booking.courseName,
@@ -316,6 +317,8 @@ function Booking() {
   const completedBookings = bookings.filter(b => !isBookingActive(b) && canViewBooking(b)).sort((a, b) => new Date(b.date) - new Date(a.date));
 
   const renderBookingForm = (data, setData, onSubmit, submitText, isNewBooking = false, showCancelButton = true) => {
+    const currentBooking = !isNewBooking && editingBooking ? bookings.find(b => b.id === editingBooking) : null;
+    const currentType = isNewBooking ? bookingType : (currentBooking?.type || '정기모임');
     const isStrikeCom = isNewBooking && bookingType === '스트라컴';
     
     return (
@@ -336,7 +339,7 @@ function Booking() {
           </>
         )}
 
-        {isNewBooking && bookingType === '컴페티션' && (
+        {isNewBooking && currentType === '컴페티션' && (
           <div style={{ 
             marginBottom: '16px', 
             padding: '12px', 
@@ -355,7 +358,7 @@ function Booking() {
           </div>
         )}
 
-        {bookingType === '컴페티션' ? (
+        {currentType === '컴페티션' ? (
           <>
             <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
               골프장 * (컴페티션)
@@ -366,7 +369,7 @@ function Booking() {
               style={{ marginBottom: '12px' }}
             >
               <option value="">골프장 선택</option>
-              {courses.map(course => (
+              {courses.filter(course => course.isCompetition === true).map(course => (
                 <option key={course.id} value={course.name}>
                   {course.name}
                 </option>
@@ -405,7 +408,7 @@ function Booking() {
               style={{ marginBottom: '12px' }}
             >
               <option value="">골프장 선택</option>
-              {courses.map(course => (
+              {courses.filter(course => course.isCompetition !== true).map(course => (
                 <option key={course.id} value={course.name}>
                   {course.name}
                 </option>
