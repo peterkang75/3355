@@ -1879,25 +1879,26 @@ function Admin() {
                 
                 <div style={{ display: 'grid', gap: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', marginBottom: '12px', fontSize: '14px', fontWeight: '600' }}>
+                    <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', fontWeight: '600' }}>
                       입금항목 *
                     </label>
-                    <div style={{ display: 'grid', gap: '8px', gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))' }}>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                       {incomeCategories.map(cat => (
                         <button
                           key={cat.id}
                           onClick={() => setSelectedIncome({...selectedIncome, categoryId: cat.id})}
                           style={{
-                            padding: '14px 16px',
-                            border: selectedIncome.categoryId === cat.id ? '2px solid var(--primary-green)' : '2px solid var(--border-color)',
-                            borderRadius: '8px',
-                            fontSize: '14px',
-                            fontWeight: selectedIncome.categoryId === cat.id ? '700' : '500',
-                            background: selectedIncome.categoryId === cat.id ? 'var(--primary-green)' : 'white',
+                            padding: '8px 12px',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '13px',
+                            fontWeight: selectedIncome.categoryId === cat.id ? '600' : '500',
+                            background: selectedIncome.categoryId === cat.id ? 'var(--primary-green)' : '#f0f0f0',
                             color: selectedIncome.categoryId === cat.id ? 'white' : 'var(--text-dark)',
                             cursor: 'pointer',
                             transition: 'all 0.2s',
-                            textAlign: 'center'
+                            textAlign: 'center',
+                            whiteSpace: 'nowrap'
                           }}
                         >
                           {cat.name}
@@ -1952,26 +1953,32 @@ function Admin() {
                 
                 <div style={{ display: 'grid', gap: '16px' }}>
                   <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                    <label style={{ display: 'block', marginBottom: '10px', fontSize: '14px', fontWeight: '600' }}>
                       출금항목 *
                     </label>
-                    <select
-                      value={selectedExpense.categoryId}
-                      onChange={(e) => setSelectedExpense({...selectedExpense, categoryId: e.target.value})}
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        background: 'white'
-                      }}
-                    >
-                      <option value="">선택하세요</option>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                       {expenseCategories.map(cat => (
-                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                        <button
+                          key={cat.id}
+                          onClick={() => setSelectedExpense({...selectedExpense, categoryId: cat.id})}
+                          style={{
+                            padding: '8px 12px',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '13px',
+                            fontWeight: selectedExpense.categoryId === cat.id ? '600' : '500',
+                            background: selectedExpense.categoryId === cat.id ? 'var(--primary-green)' : '#f0f0f0',
+                            color: selectedExpense.categoryId === cat.id ? 'white' : 'var(--text-dark)',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            textAlign: 'center',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {cat.name}
+                        </button>
                       ))}
-                    </select>
+                    </div>
                   </div>
 
                   <div>
