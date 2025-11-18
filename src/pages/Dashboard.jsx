@@ -1093,16 +1093,11 @@ function Dashboard() {
             background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(63, 115, 25, 0.05) 100%)'
           }}>
             <div style={{ 
-              fontSize: '20px',
-              marginBottom: '4px'
-            }}>
-              ⛳
-            </div>
-            <div style={{ 
               fontSize: '16px', 
               fontWeight: '700',
               color: 'var(--accent-mid-green)',
-              marginBottom: '4px'
+              marginBottom: '4px',
+              marginTop: '4px'
             }}>
               핸디: {user?.handicap ?? user?.calculatedHandicap ?? 18}
             </div>
@@ -1131,13 +1126,7 @@ function Dashboard() {
             borderLeft: '3px solid var(--accent-gold)',
             background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(242, 163, 65, 0.05) 100%)'
           }}>
-            <div style={{ 
-              fontSize: '20px',
-              marginBottom: '4px'
-            }}>
-              💰
-            </div>
-            <div style={{ fontSize: '11px', opacity: 0.7, marginBottom: '4px' }}>
+            <div style={{ fontSize: '11px', opacity: 0.7, marginBottom: '4px', marginTop: '4px' }}>
               회비 잔액
             </div>
             <div style={{ 
