@@ -75,6 +75,16 @@ function Admin() {
   const [newIncomeCategoryName, setNewIncomeCategoryName] = useState('');
   const [newExpenseCategoryName, setNewExpenseCategoryName] = useState('');
 
+  const [clubTab, setClubTab] = useState('income');
+  const [bookings, setBookings] = useState([]);
+  const [showIncomeModal, setShowIncomeModal] = useState(false);
+  const [selectedIncome, setSelectedIncome] = useState({
+    categoryId: '',
+    bookingId: '',
+    amount: '',
+    date: new Date().toISOString().split('T')[0]
+  });
+
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
     { id: 'edit_rounding', name: '라운딩 수정/삭제' },
@@ -134,14 +144,20 @@ function Admin() {
 
   const loadFeeData = async () => {
     try {
-      const [balanceData, outstandingData, transactionsData] = await Promise.all([
+      const [balanceData, outstandingData, transactionsData, incomeCats, expenseCats, bookingsData] = await Promise.all([
         apiService.fetchClubBalance(),
         apiService.fetchOutstandingBalances(),
-        apiService.fetchTransactions()
+        apiService.fetchTransactions(),
+        apiService.fetchIncomeCategories(),
+        apiService.fetchExpenseCategories(),
+        apiService.fetchBookings()
       ]);
       setClubBalance(balanceData.balance);
       setOutstandingBalances(outstandingData);
       setRecentTransactions(transactionsData.slice(0, 10));
+      setIncomeCategories(incomeCats || []);
+      setExpenseCategories(expenseCats || []);
+      setBookings(bookingsData || []);
     } catch (error) {
       console.error('회비 데이터 로드 실패:', error);
     }
@@ -213,6 +229,57 @@ function Admin() {
     } catch (error) {
       console.error('출금항목 삭제 실패:', error);
       alert('출금항목 삭제에 실패했습니다.');
+    }
+  };
+
+  const handleOpenIncomeModal = (booking) => {
+    if (!booking) return;
+    
+    setSelectedIncome({
+      categoryId: incomeCategories[0]?.id || '',
+      bookingId: booking.id,
+      amount: booking.totalFee || '',
+      date: new Date().toISOString().split('T')[0]
+    });
+    setShowIncomeModal(true);
+  };
+
+  const handleCloseIncomeModal = () => {
+    setShowIncomeModal(false);
+    setSelectedIncome({
+      categoryId: '',
+      bookingId: '',
+      amount: '',
+      date: new Date().toISOString().split('T')[0]
+    });
+  };
+
+  const handleProcessIncome = async () => {
+    try {
+      if (!selectedIncome.categoryId || !selectedIncome.amount) {
+        alert('입금항목과 금액을 입력해주세요.');
+        return;
+      }
+
+      const category = incomeCategories.find(c => c.id === selectedIncome.categoryId);
+      const booking = bookings.find(b => b.id === selectedIncome.bookingId);
+      
+      const transactionData = {
+        type: 'club_income',
+        amount: parseFloat(selectedIncome.amount),
+        description: `${category?.name}${booking ? ` - ${booking.courseName}` : ''}`,
+        date: selectedIncome.date,
+        categoryId: selectedIncome.categoryId,
+        bookingId: selectedIncome.bookingId || null
+      };
+
+      await apiService.createTransaction(transactionData);
+      alert('클럽 입금이 처리되었습니다.');
+      handleCloseIncomeModal();
+      await loadFeeData();
+    } catch (error) {
+      console.error('입금 처리 실패:', error);
+      alert('입금 처리에 실패했습니다.');
     }
   };
 
@@ -1631,6 +1698,135 @@ function Admin() {
                 <div style={{ opacity: 0.9 }}>미수금 회원: {outstandingBalances.length}명</div>
               </div>
             </div>
+
+            <div style={{ 
+              display: 'flex', 
+              gap: '8px',
+              background: 'var(--bg-card)',
+              borderRadius: '12px',
+              padding: '4px',
+              marginBottom: '16px'
+            }}>
+              <button
+                onClick={() => setClubTab('income')}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: clubTab === 'income' ? 'var(--primary-green)' : 'transparent',
+                  color: clubTab === 'income' ? 'white' : 'var(--text-dark)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                클럽 입금
+              </button>
+              <button
+                onClick={() => setClubTab('expense')}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: clubTab === 'expense' ? 'var(--primary-green)' : 'transparent',
+                  color: clubTab === 'expense' ? 'white' : 'var(--text-dark)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                클럽 출금
+              </button>
+            </div>
+
+            {clubTab === 'income' && (
+              <div className="card" style={{ marginBottom: '16px' }}>
+                <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
+                  클럽 입금 처리
+                </h3>
+                
+                <div style={{ display: 'grid', gap: '12px' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                      입금항목
+                    </label>
+                    <select
+                      value={selectedIncome.categoryId}
+                      onChange={(e) => setSelectedIncome({...selectedIncome, categoryId: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        background: 'white'
+                      }}
+                    >
+                      <option value="">선택하세요</option>
+                      {incomeCategories.map(cat => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                      라운딩 선택
+                    </label>
+                    <div style={{ display: 'grid', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
+                      {bookings.map(booking => (
+                        <div
+                          key={booking.id}
+                          onClick={() => handleOpenIncomeModal(booking)}
+                          style={{
+                            padding: '12px',
+                            background: 'var(--bg-green)',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                            border: '2px solid transparent',
+                            transition: 'all 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.borderColor = 'var(--primary-green)'}
+                          onMouseLeave={(e) => e.currentTarget.style.borderColor = 'transparent'}
+                        >
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div>
+                              <div style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
+                                {booking.courseName}
+                              </div>
+                              <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                                {new Date(booking.date).toLocaleDateString('ko-KR')}
+                              </div>
+                            </div>
+                            <div style={{ textAlign: 'right' }}>
+                              <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--primary-green)' }}>
+                                ${booking.totalFee?.toLocaleString() || 0}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {clubTab === 'expense' && (
+              <div className="card" style={{ marginBottom: '16px' }}>
+                <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
+                  클럽 출금 처리
+                </h3>
+                <div style={{ padding: '40px', textAlign: 'center', opacity: 0.7 }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>🚧</div>
+                  <p>출금 처리 기능은 준비 중입니다</p>
+                </div>
+              </div>
+            )}
 
             {outstandingBalances.length > 0 && (
               <div className="card">
@@ -3150,6 +3346,194 @@ function Admin() {
                 </div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {showIncomeModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px'
+        }} onClick={handleCloseIncomeModal}>
+          <div 
+            style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '24px',
+              maxWidth: '500px',
+              width: '100%',
+              maxHeight: '90vh',
+              overflowY: 'auto'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: '700', margin: 0 }}>
+                입금 처리
+              </h3>
+              <button
+                onClick={handleCloseIncomeModal}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  padding: '0',
+                  color: 'var(--text-dark)'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                  입금항목
+                </label>
+                <select
+                  value={selectedIncome.categoryId}
+                  onChange={(e) => setSelectedIncome({...selectedIncome, categoryId: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    background: 'white'
+                  }}
+                >
+                  <option value="">선택하세요</option>
+                  {incomeCategories.map(cat => (
+                    <option key={cat.id} value={cat.id}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                  라운딩
+                </label>
+                <div style={{
+                  padding: '12px',
+                  background: 'var(--bg-green)',
+                  borderRadius: '8px',
+                  border: '1px solid var(--border-color)'
+                }}>
+                  {bookings.find(b => b.id === selectedIncome.bookingId) ? (
+                    <>
+                      <div style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
+                        {bookings.find(b => b.id === selectedIncome.bookingId).courseName}
+                      </div>
+                      <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                        {new Date(bookings.find(b => b.id === selectedIncome.bookingId).date).toLocaleDateString('ko-KR')}
+                      </div>
+                    </>
+                  ) : (
+                    <div style={{ opacity: 0.5 }}>라운딩 선택 안됨</div>
+                  )}
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                  금액
+                </label>
+                <input
+                  type="number"
+                  value={selectedIncome.amount}
+                  onChange={(e) => setSelectedIncome({...selectedIncome, amount: e.target.value})}
+                  placeholder="금액 입력"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    fontSize: '14px'
+                  }}
+                />
+                {bookings.find(b => b.id === selectedIncome.bookingId)?.totalFee && (
+                  <button
+                    onClick={() => setSelectedIncome({
+                      ...selectedIncome,
+                      amount: bookings.find(b => b.id === selectedIncome.bookingId).totalFee
+                    })}
+                    style={{
+                      marginTop: '8px',
+                      padding: '8px 12px',
+                      background: 'var(--bg-green)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '6px',
+                      fontSize: '13px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    전체 금액: ${bookings.find(b => b.id === selectedIncome.bookingId).totalFee.toLocaleString()}
+                  </button>
+                )}
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                  날짜
+                </label>
+                <input
+                  type="date"
+                  value={selectedIncome.date}
+                  onChange={(e) => setSelectedIncome({...selectedIncome, date: e.target.value})}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+            </div>
+
+            <div style={{ marginTop: '24px', display: 'flex', gap: '12px' }}>
+              <button
+                onClick={handleCloseIncomeModal}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={handleProcessIncome}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'var(--primary-green)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                입금 처리
+              </button>
+            </div>
           </div>
         </div>
       )}
