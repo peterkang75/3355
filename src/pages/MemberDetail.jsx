@@ -498,16 +498,6 @@ function MemberDetail() {
                             }
                           }}
                         >
-                          <div style={{
-                            width: '24px',
-                            height: '24px',
-                            borderRadius: '50%',
-                            border: isSelected ? '7px solid var(--primary-green)' : '2px solid #ccc',
-                            background: 'white',
-                            flexShrink: 0,
-                            transition: 'all 0.2s'
-                          }} />
-                          
                           {icons[role] && (
                             <img 
                               src={icons[role]} 
@@ -542,6 +532,16 @@ function MemberDetail() {
                           }}>
                             {role}
                           </span>
+                          
+                          <div style={{
+                            width: '24px',
+                            height: '24px',
+                            borderRadius: '50%',
+                            border: isSelected ? '7px solid var(--primary-green)' : '2px solid #ccc',
+                            background: 'white',
+                            flexShrink: 0,
+                            transition: 'all 0.2s'
+                          }} />
                         </label>
                       );
                     })}
