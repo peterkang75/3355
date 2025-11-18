@@ -3650,7 +3650,10 @@ function Admin() {
                           <input
                             type="checkbox"
                             checked={selectedMembers.includes(member.id)}
-                            onChange={() => handleToggleMember(member.id)}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              handleToggleMember(member.id);
+                            }}
                             style={{
                               width: '18px',
                               height: '18px',
@@ -3710,7 +3713,10 @@ function Admin() {
                           <input
                             type="checkbox"
                             checked={selectedMembers.includes(member.id)}
-                            onChange={() => handleToggleMember(member.id)}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              handleToggleMember(member.id);
+                            }}
                             style={{
                               width: '18px',
                               height: '18px',
