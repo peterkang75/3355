@@ -588,7 +588,7 @@ function MemberDetail() {
                         e.currentTarget.style.borderColor = '#e0e0e0';
                       }}
                     >
-                      <span style={{ fontSize: '24px', width: '30px', textAlign: 'center' }}>✎</span>
+                      <span style={{ fontSize: '24px', width: '30px', textAlign: 'center', color: '#333' }}>✎</span>
                       <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-dark)', flex: 1 }}>
                         정보 수정
                       </span>
@@ -627,7 +627,7 @@ function MemberDetail() {
                         e.currentTarget.style.borderColor = '#e0e0e0';
                       }}
                     >
-                      <span style={{ fontSize: '24px', width: '30px', textAlign: 'center' }}>⛳</span>
+                      <span style={{ fontSize: '24px', width: '30px', textAlign: 'center', color: '#333' }}>⛳</span>
                       <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-dark)', flex: 1 }}>
                         스코어 기록
                       </span>
@@ -657,7 +657,7 @@ function MemberDetail() {
                         e.currentTarget.style.borderColor = '#e0e0e0';
                       }}
                     >
-                      <span style={{ fontSize: '24px', width: '30px', textAlign: 'center' }}>
+                      <span style={{ fontSize: '24px', width: '30px', textAlign: 'center', color: '#333' }}>
                         {member.isActive === false ? '○' : '●'}
                       </span>
                       <span style={{ fontSize: '16px', fontWeight: '600', color: '#666', flex: 1 }}>
@@ -689,7 +689,7 @@ function MemberDetail() {
                         e.currentTarget.style.borderColor = '#ffcccc';
                       }}
                     >
-                      <span style={{ fontSize: '24px', width: '30px', textAlign: 'center', color: 'var(--alert-red)' }}>×</span>
+                      <span style={{ fontSize: '24px', width: '30px', textAlign: 'center', color: '#333' }}>×</span>
                       <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--alert-red)', flex: 1 }}>
                         회원 삭제
                       </span>
