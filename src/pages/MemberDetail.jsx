@@ -240,13 +240,7 @@ function MemberDetail() {
 
   return (
     <div style={{ paddingBottom: '80px' }}>
-      <div style={{
-        position: 'sticky',
-        top: 0,
-        background: 'var(--text-light)',
-        borderBottom: '1px solid var(--border-color)',
-        zIndex: 100,
-        padding: '16px',
+      <div className="header" style={{
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between'
@@ -259,22 +253,17 @@ function MemberDetail() {
             fontSize: '20px',
             fontWeight: '700',
             cursor: 'pointer',
-            padding: '8px',
-            color: 'var(--primary-green)'
+            padding: '0',
+            color: 'var(--text-light)',
+            minWidth: '24px'
           }}
         >
-          ←
+          ‹
         </button>
-        <h1 style={{ 
-          fontSize: '20px', 
-          fontWeight: '700',
-          margin: 0,
-          flex: 1,
-          textAlign: 'center'
-        }}>
+        <h1 style={{ flex: 1, marginLeft: '12px' }}>
           회원 상세
         </h1>
-        <div style={{ width: '40px' }}></div>
+        <div style={{ width: '24px' }}></div>
       </div>
 
       <div className="page-content">
