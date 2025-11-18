@@ -3452,7 +3452,7 @@ function Admin() {
                 }}
               >
                 <option value="">선택 안함</option>
-                {bookings.filter(b => !b.isCompetition).map(booking => (
+                {bookings.filter(b => b.type !== '컴페티션').map(booking => (
                   <option key={booking.id} value={booking.id}>
                     {booking.title || booking.courseName} - {new Date(booking.date).toLocaleDateString('ko-KR')}
                   </option>
@@ -3518,37 +3518,23 @@ function Admin() {
                   const sortedMembers = getSortedMembers();
                   const selectedBooking = bookings.find(b => b.id === selectedIncome.bookingId);
                   const participantIds = selectedBooking?.participants || [];
+                  const hasBooking = !!selectedIncome.bookingId;
                   
-                  return sortedMembers.map((member, index) => {
-                    const isParticipant = participantIds.includes(member.id);
-                    const showDivider = selectedIncome.bookingId && 
-                                       index > 0 && 
-                                       participantIds.includes(sortedMembers[index - 1].id) && 
-                                       !isParticipant;
-                    
-                    return (
-                      <div key={member.id}>
-                        {showDivider && (
-                          <div style={{
-                            padding: '8px 12px',
-                            background: 'var(--bg-card)',
-                            fontSize: '13px',
-                            fontWeight: '600',
-                            color: 'var(--text-secondary)',
-                            borderTop: '1px solid var(--border-color)',
-                            borderBottom: '1px solid var(--border-color)'
-                          }}>
-                            미참가 회원
-                          </div>
-                        )}
+                  const participantMembers = hasBooking ? sortedMembers.filter(m => participantIds.includes(m.id)) : [];
+                  const nonParticipantMembers = hasBooking ? sortedMembers.filter(m => !participantIds.includes(m.id)) : sortedMembers;
+                  
+                  return (
+                    <>
+                      {participantMembers.map(member => (
                         <div
+                          key={member.id}
                           style={{
                             display: 'flex',
                             alignItems: 'center',
                             padding: '12px',
                             borderBottom: '1px solid var(--border-color)',
                             cursor: 'pointer',
-                            background: isParticipant && selectedIncome.bookingId ? 'var(--bg-green)' : 'transparent'
+                            background: 'var(--bg-green)'
                           }}
                           onClick={() => handleToggleMember(member.id)}
                         >
@@ -3571,22 +3557,70 @@ function Admin() {
                               {member.nickname}
                             </div>
                           </div>
-                          {isParticipant && selectedIncome.bookingId && (
-                            <div style={{
-                              fontSize: '12px',
-                              padding: '4px 8px',
-                              background: 'var(--primary-green)',
-                              color: 'white',
-                              borderRadius: '4px',
-                              fontWeight: '600'
-                            }}>
-                              참가
-                            </div>
-                          )}
+                          <div style={{
+                            fontSize: '12px',
+                            padding: '4px 8px',
+                            background: 'var(--primary-green)',
+                            color: 'white',
+                            borderRadius: '4px',
+                            fontWeight: '600'
+                          }}>
+                            참가
+                          </div>
                         </div>
-                      </div>
-                    );
-                  });
+                      ))}
+                      
+                      {hasBooking && participantMembers.length > 0 && nonParticipantMembers.length > 0 && (
+                        <div style={{
+                          padding: '10px 12px',
+                          background: 'var(--bg-card)',
+                          fontSize: '13px',
+                          fontWeight: '600',
+                          color: 'var(--text-secondary)',
+                          borderTop: '2px solid var(--border-color)',
+                          borderBottom: '2px solid var(--border-color)',
+                          textAlign: 'center'
+                        }}>
+                          미참가 회원
+                        </div>
+                      )}
+                      
+                      {nonParticipantMembers.map(member => (
+                        <div
+                          key={member.id}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '12px',
+                            borderBottom: '1px solid var(--border-color)',
+                            cursor: 'pointer',
+                            background: 'transparent'
+                          }}
+                          onClick={() => handleToggleMember(member.id)}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedMembers.includes(member.id)}
+                            onChange={() => handleToggleMember(member.id)}
+                            style={{
+                              width: '18px',
+                              height: '18px',
+                              marginRight: '12px',
+                              cursor: 'pointer'
+                            }}
+                          />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: '15px', fontWeight: '600' }}>
+                              {member.name}
+                            </div>
+                            <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                              {member.nickname}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  );
                 })()}
               </div>
             </div>
