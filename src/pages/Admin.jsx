@@ -1112,19 +1112,12 @@ function Admin() {
                 />
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
-                    onClick={handleSaveEdit}
-                    className="btn-primary"
-                    style={{ flex: 1 }}
-                  >
-                    저장
-                  </button>
-                  <button
                     onClick={handleCancelEdit}
                     style={{
                       flex: 1,
-                      padding: '12px',
-                      background: 'var(--primary-green)',
-                      color: 'var(--text-light)',
+                      padding: '14px',
+                      background: '#BD5B43',
+                      color: 'white',
                       border: 'none',
                       borderRadius: '8px',
                       fontSize: '16px',
@@ -1132,7 +1125,14 @@ function Admin() {
                       cursor: 'pointer'
                     }}
                   >
-                    취소
+                    취소하기
+                  </button>
+                  <button
+                    onClick={handleSaveEdit}
+                    className="btn-primary"
+                    style={{ flex: 1 }}
+                  >
+                    저장
                   </button>
                 </div>
               </div>
@@ -1549,19 +1549,12 @@ function Admin() {
 
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <button
-                    onClick={handleSaveCourseEdit}
-                    className="btn-primary"
-                    style={{ flex: 1 }}
-                  >
-                    저장
-                  </button>
-                  <button
                     onClick={handleCancelCourseEdit}
                     style={{
                       flex: 1,
-                      padding: '12px',
-                      background: 'var(--primary-green)',
-                      color: 'var(--text-light)',
+                      padding: '14px',
+                      background: '#BD5B43',
+                      color: 'white',
                       border: 'none',
                       borderRadius: '8px',
                       fontSize: '16px',
@@ -1569,7 +1562,14 @@ function Admin() {
                       cursor: 'pointer'
                     }}
                   >
-                    취소
+                    취소하기
+                  </button>
+                  <button
+                    onClick={handleSaveCourseEdit}
+                    className="btn-primary"
+                    style={{ flex: 1 }}
+                  >
+                    저장
                   </button>
                 </div>
               </div>
@@ -2112,24 +2112,24 @@ function Admin() {
                 onClick={handleCloseScoreModal}
                 style={{
                   flex: 1,
-                  padding: '12px',
-                  background: 'var(--text-light)',
-                  color: 'var(--text-dark)', opacity: 0.7,
-                  border: '2px solid #ddd',
+                  padding: '14px',
+                  background: '#BD5B43',
+                  color: 'white',
+                  border: 'none',
                   borderRadius: '8px',
                   fontSize: '16px',
                   fontWeight: '600',
                   cursor: 'pointer'
                 }}
               >
-                취소
+                취소하기
               </button>
               <button
                 onClick={handleSaveScore}
                 className="btn-primary"
                 style={{ flex: 1 }}
               >
-                저장하기
+                저장
               </button>
             </div>
 

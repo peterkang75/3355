@@ -314,7 +314,7 @@ function Booking() {
   const activeBookings = bookings.filter(b => isBookingActive(b) && canViewBooking(b)).sort((a, b) => new Date(a.date) - new Date(b.date));
   const completedBookings = bookings.filter(b => !isBookingActive(b) && canViewBooking(b)).sort((a, b) => new Date(b.date) - new Date(a.date));
 
-  const renderBookingForm = (data, setData, onSubmit, submitText, isNewBooking = false) => {
+  const renderBookingForm = (data, setData, onSubmit, submitText, isNewBooking = false, showCancelButton = true) => {
     const isStrikeCom = isNewBooking && bookingType === '스트라컴';
     
     return (
@@ -516,9 +516,30 @@ function Booking() {
           </>
         )}
 
-        <button onClick={onSubmit} className="btn-primary">
-          {submitText}
-        </button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button 
+            onClick={isNewBooking ? () => setShowNewBooking(false) : () => {
+              setEditingBooking(null);
+              setEditBookingData(null);
+            }}
+            style={{
+              flex: 1,
+              padding: '14px',
+              background: '#BD5B43',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer'
+            }}
+          >
+            취소하기
+          </button>
+          <button onClick={onSubmit} className="btn-primary" style={{ flex: 1 }}>
+            {submitText}
+          </button>
+        </div>
       </>
     );
   };
@@ -1115,16 +1136,6 @@ function Booking() {
               ✎ 라운딩 정보 수정
             </h3>
             {renderBookingForm(editBookingData, setEditBookingData, handleSaveBooking, '수정 완료', false)}
-            <button 
-              onClick={() => {
-                setEditingBooking(null);
-                setEditBookingData(null);
-              }}
-              className="btn-outline"
-              style={{ marginTop: '8px' }}
-            >
-              취소
-            </button>
           </div>
         )}
 
