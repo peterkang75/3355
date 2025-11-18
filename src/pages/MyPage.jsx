@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
+import CrownIcon from '../components/CrownIcon';
 import adminIcon from '../assets/role-admin.png';
 import bangjangIcon from '../assets/role-bangjang.png';
 import staffIcon from '../assets/role-staff.png';
