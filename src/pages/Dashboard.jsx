@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
+import CrownIcon from '../components/CrownIcon';
 
 function Dashboard() {
   const { user, members, scores, bookings, posts, addPost, updatePost, deletePost, updateBooking, refreshBookings } = useApp();
@@ -381,32 +382,44 @@ function Dashboard() {
           <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-light)' }}>
             환영합니다 {user.nickname || user.name}님
           </div>
-          <div style={{
-            width: '36px',
-            height: '36px',
-            borderRadius: '50%',
-            overflow: 'hidden',
-            background: 'var(--primary-green)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontWeight: '600',
-            fontSize: '14px',
-            border: '2px solid var(--border-color)'
-          }}>
-            {user.photo ? (
-              <img 
-                src={user.photo} 
-                alt="프로필" 
-                style={{ 
-                  width: '100%', 
-                  height: '100%', 
-                  objectFit: 'cover' 
-                }} 
-              />
-            ) : (
-              <span>{(user.nickname || user.name).charAt(0)}</span>
+          <div style={{ position: 'relative' }}>
+            <div style={{
+              width: '36px',
+              height: '36px',
+              borderRadius: '50%',
+              overflow: 'hidden',
+              background: 'var(--primary-green)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontWeight: '600',
+              fontSize: '14px',
+              border: '2px solid var(--border-color)'
+            }}>
+              {user.photo ? (
+                <img 
+                  src={user.photo} 
+                  alt="프로필" 
+                  style={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    objectFit: 'cover' 
+                  }} 
+                />
+              ) : (
+                <span>{(user.nickname || user.name).charAt(0)}</span>
+              )}
+            </div>
+            {user.role && ['관리자', '방장', '운영진', '클럽운영진'].includes(user.role) && (
+              <div style={{
+                position: 'absolute',
+                bottom: '-2px',
+                right: '-2px',
+                zIndex: 10
+              }}>
+                <CrownIcon role={user.role} size={16} />
+              </div>
             )}
           </div>
         </div>
