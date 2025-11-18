@@ -44,6 +44,7 @@ model Post {
   authorId  String
   author    Member   @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments  Json     @default("[]")
+  likes     Json     @default("[]")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
