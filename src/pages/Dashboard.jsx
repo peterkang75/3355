@@ -813,7 +813,6 @@ function Dashboard() {
                                 </div>
                                 <div style={{
                                   fontSize: '12px',
-                                  opacity: 0.7,
                                   display: 'flex',
                                   alignItems: 'center',
                                   justifyContent: 'flex-end',
@@ -822,8 +821,8 @@ function Dashboard() {
                                   {(comment.likes || []).length > 0 && (
                                     <span style={{
                                       fontSize: '11px',
-                                      opacity: 0.6,
-                                      color: '#666'
+                                      color: '#555',
+                                      lineHeight: '16px'
                                     }}>
                                       {(comment.likes || []).map(likeUserId => {
                                         const likedMember = members.find(m => m.id === likeUserId);
@@ -845,7 +844,8 @@ function Dashboard() {
                                       alignItems: 'center',
                                       gap: '4px',
                                       fontSize: '12px',
-                                      color: '#999'
+                                      color: '#999',
+                                      lineHeight: '16px'
                                     }}
                                   >
                                     <svg 
@@ -853,7 +853,7 @@ function Dashboard() {
                                       height="16" 
                                       viewBox="0 0 24 24" 
                                       fill={(comment.likes || []).includes(user.id) ? '#1877F2' : '#999'}
-                                      style={{ marginTop: '1px' }}
+                                      style={{ flexShrink: 0 }}
                                     >
                                       <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
                                     </svg>
