@@ -19,7 +19,7 @@ import GradeSettings from './pages/GradeSettings';
 import MemberDetail from './pages/MemberDetail';
 import Navigation from './components/Navigation';
 import InstallPrompt from './components/InstallPrompt';
-import logoImage from './assets/logo-dark.png';
+import logoImage from './assets/logo-transparent.png';
 
 function AppRoutes({ user, logout }) {
   const navigate = useNavigate();
