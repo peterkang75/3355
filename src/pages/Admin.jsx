@@ -1890,7 +1890,7 @@ function Admin() {
                       cursor: 'pointer'
                     }}
                   >
-                    회원 선택
+                    회원&금액 선택
                   </button>
                 </div>
               </div>
