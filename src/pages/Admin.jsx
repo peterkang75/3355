@@ -1888,19 +1888,19 @@ function Admin() {
                 borderBottom: '2px solid var(--primary-green)'
               }}>
                 <div style={{ textAlign: 'left' }}>기능</div>
-                <div style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
                   <CrownIcon role="관리자" size={14} />
                   <span>관리자</span>
                 </div>
-                <div style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
                   <CrownIcon role="방장" size={14} />
                   <span>방장</span>
                 </div>
-                <div style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
                   <CrownIcon role="운영진" size={14} />
                   <span>운영진</span>
                 </div>
-                <div style={{ textAlign: 'center', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+                <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
                   <CrownIcon role="클럽운영진" size={14} />
                   <span>클럽운영진</span>
                 </div>
