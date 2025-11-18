@@ -38,7 +38,7 @@ function Dashboard() {
     const loadTransactions = async () => {
       try {
         const transactionsData = await apiService.fetchMemberTransactions(user.id);
-        setRecentTransactions(transactionsData.slice(0, 5));
+        setRecentTransactions(transactionsData.slice(0, 3));
       } catch (error) {
         console.error('거래내역 로드 실패:', error);
         setRecentTransactions([]);
@@ -1465,18 +1465,40 @@ function Dashboard() {
         <div className="card" style={{
           borderLeft: '3px solid var(--accent-dark-olive)'
         }}>
-          <h3 style={{ 
-            fontSize: '16px', 
-            fontWeight: '700',
-            marginBottom: '12px',
-            color: 'var(--accent-dark-olive)',
-            display: 'flex',
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
             alignItems: 'center',
-            gap: '8px'
+            marginBottom: '12px'
           }}>
-            <span style={{ fontSize: '20px' }}>📊</span>
-            최근 스코어
-          </h3>
+            <h3 style={{ 
+              fontSize: '16px', 
+              fontWeight: '700',
+              color: 'var(--accent-dark-olive)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              margin: 0
+            }}>
+              <span style={{ fontSize: '20px' }}>📊</span>
+              최근 스코어
+            </h3>
+            <button
+              onClick={() => navigate('/mypage')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--accent-dark-olive)',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+                padding: 0
+              }}
+            >
+              전체보기 →
+            </button>
+          </div>
           {(() => {
             const userScores = scores
               .filter(score => score.userId === user.id)
@@ -1554,18 +1576,40 @@ function Dashboard() {
         <div className="card" style={{
           borderLeft: '3px solid var(--accent-gold)'
         }}>
-          <h3 style={{ 
-            fontSize: '16px', 
-            fontWeight: '700',
-            marginBottom: '12px',
-            color: 'var(--accent-gold)',
-            display: 'flex',
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
             alignItems: 'center',
-            gap: '8px'
+            marginBottom: '12px'
           }}>
-            <span style={{ fontSize: '20px' }}>💳</span>
-            회비 납부 내역
-          </h3>
+            <h3 style={{ 
+              fontSize: '16px', 
+              fontWeight: '700',
+              color: 'var(--accent-gold)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              margin: 0
+            }}>
+              <span style={{ fontSize: '20px' }}>💳</span>
+              회비 납부 내역
+            </h3>
+            <button
+              onClick={() => navigate('/fees')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--accent-gold)',
+                fontSize: '12px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                textDecoration: 'underline',
+                padding: 0
+              }}
+            >
+              전체보기 →
+            </button>
+          </div>
           {(() => {
             if (recentTransactions.length === 0) {
               return (
@@ -1582,7 +1626,7 @@ function Dashboard() {
             }
 
             return (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6.4px' }}>
                 {recentTransactions.map((transaction, index) => {
                   const isCharge = transaction.type === 'charge';
                   const label = transaction.type === 'charge' 
@@ -1626,9 +1670,6 @@ function Dashboard() {
                           <span>잔액: {formatCurrency(transaction.balanceAfter)}</span>
                         </div>
                       </div>
-                      {index < recentTransactions.length - 1 && (
-                        <div style={{ height: '8px' }} />
-                      )}
                     </div>
                   );
                 })}
