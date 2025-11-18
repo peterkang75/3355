@@ -383,26 +383,6 @@ function Dashboard() {
           ‹
         </button>
         <h1 style={{ flex: 1, marginLeft: '12px' }}>대시보드</h1>
-        <button
-          onClick={handleRefreshData}
-          disabled={isRefreshing}
-          style={{
-            background: 'rgba(255, 255, 255, 0.2)',
-            border: 'none',
-            borderRadius: '8px',
-            padding: '8px 12px',
-            cursor: isRefreshing ? 'wait' : 'pointer',
-            color: 'var(--text-light)',
-            fontSize: '12px',
-            fontWeight: '600',
-            marginRight: '8px',
-            opacity: isRefreshing ? 0.6 : 1,
-            transition: 'all 0.2s'
-          }}
-          title="데이터 새로고침"
-        >
-          {isRefreshing ? '🔄 새로고침 중...' : '🔄 새로고침'}
-        </button>
         <div 
           style={{ 
             display: 'flex', 
@@ -1572,6 +1552,45 @@ function Dashboard() {
           }}>
             납부 내역이 없습니다
           </div>
+        </div>
+
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          padding: '24px 0 32px 0',
+          marginTop: '8px'
+        }}>
+          <button
+            onClick={handleRefreshData}
+            disabled={isRefreshing}
+            style={{
+              background: 'linear-gradient(135deg, var(--primary-green) 0%, var(--accent-bright-green) 100%)',
+              border: 'none',
+              borderRadius: '12px',
+              padding: '16px 32px',
+              cursor: isRefreshing ? 'wait' : 'pointer',
+              color: 'white',
+              fontSize: '16px',
+              fontWeight: '700',
+              boxShadow: '0 4px 12px rgba(45, 95, 63, 0.3)',
+              opacity: isRefreshing ? 0.6 : 1,
+              transition: 'all 0.3s',
+              minWidth: '200px'
+            }}
+            onMouseDown={(e) => {
+              if (!isRefreshing) {
+                e.currentTarget.style.transform = 'scale(0.95)';
+              }
+            }}
+            onMouseUp={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
+          >
+            {isRefreshing ? '🔄 새로고침 중...' : '🔄 데이터 새로고침'}
+          </button>
         </div>
       </div>
     </div>
