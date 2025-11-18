@@ -255,11 +255,32 @@ function Admin() {
     );
   };
 
+  const getSortedMembers = () => {
+    const activeMembers = members.filter(m => m.isActive);
+    
+    if (!selectedIncome.bookingId) {
+      return activeMembers;
+    }
+
+    const selectedBooking = bookings.find(b => b.id === selectedIncome.bookingId);
+    if (!selectedBooking) {
+      return activeMembers;
+    }
+
+    const participantIds = selectedBooking.participants || [];
+    
+    const participants = activeMembers.filter(m => participantIds.includes(m.id));
+    const nonParticipants = activeMembers.filter(m => !participantIds.includes(m.id));
+    
+    return [...participants, ...nonParticipants];
+  };
+
   const handleToggleAllMembers = () => {
-    if (selectedMembers.length === members.filter(m => m.isActive).length) {
+    const sortedMembers = getSortedMembers();
+    if (selectedMembers.length === sortedMembers.length) {
       setSelectedMembers([]);
     } else {
-      setSelectedMembers(members.filter(m => m.isActive).map(m => m.id));
+      setSelectedMembers(sortedMembers.map(m => m.id));
     }
   };
 
@@ -1792,31 +1813,6 @@ function Admin() {
                       <option value="">선택하세요</option>
                       {incomeCategories.map(cat => (
                         <option key={cat.id} value={cat.id}>{cat.name}</option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                      라운딩 선택 (옵션)
-                    </label>
-                    <select
-                      value={selectedIncome.bookingId || ''}
-                      onChange={(e) => setSelectedIncome({...selectedIncome, bookingId: e.target.value || null})}
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        background: 'white'
-                      }}
-                    >
-                      <option value="">선택 안함</option>
-                      {bookings.filter(b => !b.isCompetition).map(booking => (
-                        <option key={booking.id} value={booking.id}>
-                          {booking.courseName} - {new Date(booking.date).toLocaleDateString('ko-KR')}
-                        </option>
                       ))}
                     </select>
                   </div>
@@ -3439,6 +3435,31 @@ function Admin() {
               </button>
             </div>
 
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                라운딩 선택 (옵션)
+              </label>
+              <select
+                value={selectedIncome.bookingId || ''}
+                onChange={(e) => setSelectedIncome({...selectedIncome, bookingId: e.target.value || null})}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  background: 'white'
+                }}
+              >
+                <option value="">선택 안함</option>
+                {bookings.filter(b => !b.isCompetition).map(booking => (
+                  <option key={booking.id} value={booking.id}>
+                    {booking.courseName} - {new Date(booking.date).toLocaleDateString('ko-KR')}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             <div style={{ marginBottom: '20px' }}>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
                 금액
@@ -3477,7 +3498,7 @@ function Admin() {
               >
                 <input
                   type="checkbox"
-                  checked={selectedMembers.length === members.filter(m => m.isActive).length && members.filter(m => m.isActive).length > 0}
+                  checked={selectedMembers.length === getSortedMembers().length && getSortedMembers().length > 0}
                   onChange={handleToggleAllMembers}
                   style={{
                     width: '18px',
@@ -3488,44 +3509,85 @@ function Admin() {
                 />
                 <span style={{ fontSize: '15px', fontWeight: '600' }}>전체 선택</span>
                 <span style={{ marginLeft: 'auto', fontSize: '13px', opacity: 0.7 }}>
-                  {selectedMembers.length} / {members.filter(m => m.isActive).length}
+                  {selectedMembers.length} / {getSortedMembers().length}
                 </span>
               </div>
 
               <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
-                {members.filter(m => m.isActive).map(member => (
-                  <div
-                    key={member.id}
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      padding: '12px',
-                      borderBottom: '1px solid var(--border-color)',
-                      cursor: 'pointer'
-                    }}
-                    onClick={() => handleToggleMember(member.id)}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={selectedMembers.includes(member.id)}
-                      onChange={() => handleToggleMember(member.id)}
-                      style={{
-                        width: '18px',
-                        height: '18px',
-                        marginRight: '12px',
-                        cursor: 'pointer'
-                      }}
-                    />
-                    <div>
-                      <div style={{ fontSize: '15px', fontWeight: '600' }}>
-                        {member.name}
+                {(() => {
+                  const sortedMembers = getSortedMembers();
+                  const selectedBooking = bookings.find(b => b.id === selectedIncome.bookingId);
+                  const participantIds = selectedBooking?.participants || [];
+                  
+                  return sortedMembers.map((member, index) => {
+                    const isParticipant = participantIds.includes(member.id);
+                    const showDivider = selectedIncome.bookingId && 
+                                       index > 0 && 
+                                       participantIds.includes(sortedMembers[index - 1].id) && 
+                                       !isParticipant;
+                    
+                    return (
+                      <div key={member.id}>
+                        {showDivider && (
+                          <div style={{
+                            padding: '8px 12px',
+                            background: 'var(--bg-card)',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            color: 'var(--text-secondary)',
+                            borderTop: '1px solid var(--border-color)',
+                            borderBottom: '1px solid var(--border-color)'
+                          }}>
+                            미참가 회원
+                          </div>
+                        )}
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '12px',
+                            borderBottom: '1px solid var(--border-color)',
+                            cursor: 'pointer',
+                            background: isParticipant && selectedIncome.bookingId ? 'var(--bg-green)' : 'transparent'
+                          }}
+                          onClick={() => handleToggleMember(member.id)}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedMembers.includes(member.id)}
+                            onChange={() => handleToggleMember(member.id)}
+                            style={{
+                              width: '18px',
+                              height: '18px',
+                              marginRight: '12px',
+                              cursor: 'pointer'
+                            }}
+                          />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: '15px', fontWeight: '600' }}>
+                              {member.name}
+                            </div>
+                            <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                              {member.nickname}
+                            </div>
+                          </div>
+                          {isParticipant && selectedIncome.bookingId && (
+                            <div style={{
+                              fontSize: '12px',
+                              padding: '4px 8px',
+                              background: 'var(--primary-green)',
+                              color: 'white',
+                              borderRadius: '4px',
+                              fontWeight: '600'
+                            }}>
+                              참가
+                            </div>
+                          )}
+                        </div>
                       </div>
-                      <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                        {member.nickname}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                    );
+                  });
+                })()}
               </div>
             </div>
 
