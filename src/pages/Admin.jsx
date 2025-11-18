@@ -15,7 +15,8 @@ function Admin() {
   const [newCourse, setNewCourse] = useState({
     name: '',
     address: '',
-    holePars: Array(18).fill('')
+    holePars: Array(18).fill(''),
+    isCompetition: false
   });
   const [showNewMemberForm, setShowNewMemberForm] = useState(false);
   const [newMember, setNewMember] = useState({
@@ -440,7 +441,8 @@ function Admin() {
       const courseData = {
         name: newCourse.name,
         address: newCourse.address,
-        holePars: newCourse.holePars
+        holePars: newCourse.holePars,
+        isCompetition: newCourse.isCompetition
       };
       
       await apiService.createCourse(courseData);
@@ -449,7 +451,8 @@ function Admin() {
       setNewCourse({ 
         name: '', 
         address: '',
-        holePars: Array(18).fill('')
+        holePars: Array(18).fill(''),
+        isCompetition: false
       });
       
       if (refreshCourses) {
@@ -472,7 +475,8 @@ function Admin() {
     setEditCourseData({
       name: course.name || '',
       address: course.address || '',
-      holePars: course.holePars || Array(18).fill(4)
+      holePars: course.holePars || Array(18).fill(4),
+      isCompetition: course.isCompetition || false
     });
     setShowCourseMenu(null);
   };
@@ -1898,6 +1902,39 @@ function Admin() {
                 onChange={(e) => setNewCourse({ ...newCourse, address: e.target.value })}
                 style={{ marginBottom: '16px' }}
               />
+
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '16px',
+                  background: 'var(--bg-green)',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  userSelect: 'none'
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={newCourse.isCompetition}
+                    onChange={(e) => setNewCourse({ ...newCourse, isCompetition: e.target.checked })}
+                    style={{
+                      width: '20px',
+                      height: '20px',
+                      cursor: 'pointer',
+                      accentColor: 'var(--primary-green)'
+                    }}
+                  />
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '4px' }}>
+                      이 골프장을 컴페티션용으로 사용하겠습니까?
+                    </div>
+                    <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                      컴페티션용 골프장은 대회 및 경기용으로 구분됩니다
+                    </div>
+                  </div>
+                </label>
+              </div>
               
               <div style={{ marginBottom: '16px' }}>
                 <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
@@ -1986,6 +2023,39 @@ function Admin() {
                   onChange={(e) => setEditCourseData({ ...editCourseData, address: e.target.value })}
                   style={{ marginBottom: '16px' }}
                 />
+
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '16px',
+                    background: 'var(--bg-green)',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    userSelect: 'none'
+                  }}>
+                    <input
+                      type="checkbox"
+                      checked={editCourseData.isCompetition || false}
+                      onChange={(e) => setEditCourseData({ ...editCourseData, isCompetition: e.target.checked })}
+                      style={{
+                        width: '20px',
+                        height: '20px',
+                        cursor: 'pointer',
+                        accentColor: 'var(--primary-green)'
+                      }}
+                    />
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '4px' }}>
+                        이 골프장을 컴페티션용으로 사용하겠습니까?
+                      </div>
+                      <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                        컴페티션용 골프장은 대회 및 경기용으로 구분됩니다
+                      </div>
+                    </div>
+                  </label>
+                </div>
                 
                 <div style={{ marginBottom: '16px' }}>
                   <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
@@ -2114,8 +2184,22 @@ function Admin() {
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: '700', fontSize: '16px', marginBottom: '4px' }}>
-                          {course.name}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                          <div style={{ fontWeight: '700', fontSize: '16px' }}>
+                            {course.name}
+                          </div>
+                          {course.isCompetition && (
+                            <div style={{
+                              fontSize: '11px',
+                              padding: '3px 8px',
+                              borderRadius: '4px',
+                              background: 'var(--primary-green)',
+                              color: 'white',
+                              fontWeight: '600'
+                            }}>
+                              컴페티션
+                            </div>
+                          )}
                         </div>
                         {course.address && (
                           <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7, marginBottom: '8px' }}>
