@@ -919,4 +919,84 @@ router.delete('/transactions/:id', async (req, res) => {
   }
 });
 
+// 입금항목 조회
+router.get('/income-categories', async (req, res) => {
+  try {
+    const categories = await prisma.incomeCategory.findMany({
+      orderBy: { createdAt: 'asc' }
+    });
+    res.json(categories);
+  } catch (error) {
+    console.error('Error fetching income categories:', error);
+    res.status(500).json({ error: 'Failed to fetch income categories' });
+  }
+});
+
+// 입금항목 생성
+router.post('/income-categories', async (req, res) => {
+  try {
+    const { name } = req.body;
+    const category = await prisma.incomeCategory.create({
+      data: { name }
+    });
+    res.json(category);
+  } catch (error) {
+    console.error('Error creating income category:', error);
+    res.status(500).json({ error: 'Failed to create income category' });
+  }
+});
+
+// 입금항목 삭제
+router.delete('/income-categories/:id', async (req, res) => {
+  try {
+    await prisma.incomeCategory.delete({
+      where: { id: req.params.id }
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting income category:', error);
+    res.status(500).json({ error: 'Failed to delete income category' });
+  }
+});
+
+// 출금항목 조회
+router.get('/expense-categories', async (req, res) => {
+  try {
+    const categories = await prisma.expenseCategory.findMany({
+      orderBy: { createdAt: 'asc' }
+    });
+    res.json(categories);
+  } catch (error) {
+    console.error('Error fetching expense categories:', error);
+    res.status(500).json({ error: 'Failed to fetch expense categories' });
+  }
+});
+
+// 출금항목 생성
+router.post('/expense-categories', async (req, res) => {
+  try {
+    const { name } = req.body;
+    const category = await prisma.expenseCategory.create({
+      data: { name }
+    });
+    res.json(category);
+  } catch (error) {
+    console.error('Error creating expense category:', error);
+    res.status(500).json({ error: 'Failed to create expense category' });
+  }
+});
+
+// 출금항목 삭제
+router.delete('/expense-categories/:id', async (req, res) => {
+  try {
+    await prisma.expenseCategory.delete({
+      where: { id: req.params.id }
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting expense category:', error);
+    res.status(500).json({ error: 'Failed to delete expense category' });
+  }
+});
+
 module.exports = router;

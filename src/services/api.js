@@ -376,6 +376,54 @@ class ApiService {
     if (!response.ok) throw new Error('Failed to delete transaction');
     return response.json();
   }
+
+  async fetchIncomeCategories() {
+    const response = await fetch(`${API_BASE}/income-categories`);
+    if (!response.ok) throw new Error('Failed to fetch income categories');
+    return response.json();
+  }
+
+  async createIncomeCategory(name) {
+    const response = await fetch(`${API_BASE}/income-categories`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    if (!response.ok) throw new Error('Failed to create income category');
+    return response.json();
+  }
+
+  async deleteIncomeCategory(id) {
+    const response = await fetch(`${API_BASE}/income-categories/${id}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Failed to delete income category');
+    return response.json();
+  }
+
+  async fetchExpenseCategories() {
+    const response = await fetch(`${API_BASE}/expense-categories`);
+    if (!response.ok) throw new Error('Failed to fetch expense categories');
+    return response.json();
+  }
+
+  async createExpenseCategory(name) {
+    const response = await fetch(`${API_BASE}/expense-categories`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+    if (!response.ok) throw new Error('Failed to create expense category');
+    return response.json();
+  }
+
+  async deleteExpenseCategory(id) {
+    const response = await fetch(`${API_BASE}/expense-categories/${id}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Failed to delete expense category');
+    return response.json();
+  }
 }
 
 export default new ApiService();

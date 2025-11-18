@@ -70,6 +70,11 @@ function Admin() {
     memberId: 'all'
   });
 
+  const [incomeCategories, setIncomeCategories] = useState([]);
+  const [expenseCategories, setExpenseCategories] = useState([]);
+  const [newIncomeCategoryName, setNewIncomeCategoryName] = useState('');
+  const [newExpenseCategoryName, setNewExpenseCategoryName] = useState('');
+
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
     { id: 'edit_rounding', name: '라운딩 수정/삭제' },
@@ -91,6 +96,7 @@ function Admin() {
   useEffect(() => {
     if (activeTab === 'settings') {
       loadPermissions();
+      loadCategories();
     }
     if (activeTab === 'fees') {
       loadFeeData();
@@ -138,6 +144,75 @@ function Admin() {
       setRecentTransactions(transactionsData.slice(0, 10));
     } catch (error) {
       console.error('회비 데이터 로드 실패:', error);
+    }
+  };
+
+  const loadCategories = async () => {
+    try {
+      const [income, expense] = await Promise.all([
+        apiService.fetchIncomeCategories(),
+        apiService.fetchExpenseCategories()
+      ]);
+      setIncomeCategories(income);
+      setExpenseCategories(expense);
+    } catch (error) {
+      console.error('항목 로드 실패:', error);
+    }
+  };
+
+  const handleAddIncomeCategory = async () => {
+    if (!newIncomeCategoryName.trim()) {
+      alert('항목명을 입력해주세요.');
+      return;
+    }
+    try {
+      await apiService.createIncomeCategory(newIncomeCategoryName.trim());
+      setNewIncomeCategoryName('');
+      await loadCategories();
+      alert('입금항목이 추가되었습니다.');
+    } catch (error) {
+      console.error('입금항목 추가 실패:', error);
+      alert('입금항목 추가에 실패했습니다.');
+    }
+  };
+
+  const handleDeleteIncomeCategory = async (id) => {
+    if (!confirm('정말 이 입금항목을 삭제하시겠습니까?')) return;
+    try {
+      await apiService.deleteIncomeCategory(id);
+      await loadCategories();
+      alert('입금항목이 삭제되었습니다.');
+    } catch (error) {
+      console.error('입금항목 삭제 실패:', error);
+      alert('입금항목 삭제에 실패했습니다.');
+    }
+  };
+
+  const handleAddExpenseCategory = async () => {
+    if (!newExpenseCategoryName.trim()) {
+      alert('항목명을 입력해주세요.');
+      return;
+    }
+    try {
+      await apiService.createExpenseCategory(newExpenseCategoryName.trim());
+      setNewExpenseCategoryName('');
+      await loadCategories();
+      alert('출금항목이 추가되었습니다.');
+    } catch (error) {
+      console.error('출금항목 추가 실패:', error);
+      alert('출금항목 추가에 실패했습니다.');
+    }
+  };
+
+  const handleDeleteExpenseCategory = async (id) => {
+    if (!confirm('정말 이 출금항목을 삭제하시겠습니까?')) return;
+    try {
+      await apiService.deleteExpenseCategory(id);
+      await loadCategories();
+      alert('출금항목이 삭제되었습니다.');
+    } catch (error) {
+      console.error('출금항목 삭제 실패:', error);
+      alert('출금항목 삭제에 실패했습니다.');
     }
   };
 
@@ -2608,6 +2683,176 @@ function Admin() {
                         transition: 'left 0.3s'
                       }} />
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
+                입금항목 관리
+              </h3>
+              <div style={{
+                padding: '10px 12px',
+                background: 'var(--bg-green)',
+                borderRadius: '6px',
+                marginBottom: '12px',
+                fontSize: '12px',
+                color: 'var(--text-dark)', opacity: 0.7
+              }}>
+                • 참가비 거래 시 사용할 입금 항목을 관리합니다
+              </div>
+              
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="text"
+                    value={newIncomeCategoryName}
+                    onChange={(e) => setNewIncomeCategoryName(e.target.value)}
+                    placeholder="새 입금항목명 입력..."
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '8px',
+                      fontSize: '14px'
+                    }}
+                  />
+                  <button
+                    onClick={handleAddIncomeCategory}
+                    style={{
+                      padding: '12px 20px',
+                      background: 'var(--primary-green)',
+                      color: 'var(--text-light)',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    + 추가
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gap: '8px' }}>
+                {incomeCategories.map((category) => (
+                  <div
+                    key={category.id}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '12px',
+                      background: 'var(--bg-green)',
+                      borderRadius: '8px'
+                    }}
+                  >
+                    <div style={{ fontSize: '15px', fontWeight: '600' }}>
+                      {category.name}
+                    </div>
+                    <button
+                      onClick={() => handleDeleteIncomeCategory(category.id)}
+                      style={{
+                        padding: '6px 12px',
+                        background: 'var(--alert-red)',
+                        color: 'var(--text-light)',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      × 삭제
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
+                출금항목 관리
+              </h3>
+              <div style={{
+                padding: '10px 12px',
+                background: 'var(--bg-green)',
+                borderRadius: '6px',
+                marginBottom: '12px',
+                fontSize: '12px',
+                color: 'var(--text-dark)', opacity: 0.7
+              }}>
+                • 참가비 거래 시 사용할 출금 항목을 관리합니다
+              </div>
+              
+              <div style={{ marginBottom: '16px' }}>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <input
+                    type="text"
+                    value={newExpenseCategoryName}
+                    onChange={(e) => setNewExpenseCategoryName(e.target.value)}
+                    placeholder="새 출금항목명 입력..."
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '8px',
+                      fontSize: '14px'
+                    }}
+                  />
+                  <button
+                    onClick={handleAddExpenseCategory}
+                    style={{
+                      padding: '12px 20px',
+                      background: 'var(--primary-green)',
+                      color: 'var(--text-light)',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '14px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap'
+                    }}
+                  >
+                    + 추가
+                  </button>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gap: '8px' }}>
+                {expenseCategories.map((category) => (
+                  <div
+                    key={category.id}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '12px',
+                      background: 'var(--bg-green)',
+                      borderRadius: '8px'
+                    }}
+                  >
+                    <div style={{ fontSize: '15px', fontWeight: '600' }}>
+                      {category.name}
+                    </div>
+                    <button
+                      onClick={() => handleDeleteExpenseCategory(category.id)}
+                      style={{
+                        padding: '6px 12px',
+                        background: 'var(--alert-red)',
+                        color: 'var(--text-light)',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      × 삭제
+                    </button>
                   </div>
                 ))}
               </div>
