@@ -182,6 +182,7 @@ router.post('/posts', async (req, res) => {
       data: postData,
       include: { author: true }
     });
+    console.log('📤 Socket 이벤트 발송: posts:updated');
     req.io.emit('posts:updated');
     res.json(post);
   } catch (error) {
@@ -197,6 +198,7 @@ router.put('/posts/:id', async (req, res) => {
       data: req.body,
       include: { author: true }
     });
+    console.log('📤 Socket 이벤트 발송: posts:updated');
     req.io.emit('posts:updated');
     res.json(post);
   } catch (error) {
@@ -210,6 +212,7 @@ router.delete('/posts/:id', async (req, res) => {
     await prisma.post.delete({
       where: { id: req.params.id }
     });
+    console.log('📤 Socket 이벤트 발송: posts:updated (삭제)');
     req.io.emit('posts:updated');
     res.json({ success: true });
   } catch (error) {

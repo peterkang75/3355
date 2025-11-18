@@ -108,7 +108,12 @@ export function AppProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    const socket = io({
+    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+    const socketUrl = isDevelopment ? 'http://localhost:3001' : window.location.origin;
+    
+    console.log('🔌 Socket.IO 연결 시도:', socketUrl);
+    
+    const socket = io(socketUrl, {
       path: '/socket.io',
       transports: ['websocket', 'polling'],
       reconnectionAttempts: 5,
