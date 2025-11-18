@@ -811,66 +811,56 @@ function Dashboard() {
                                 }}>
                                   {comment.content}
                                 </div>
-                                <div>
-                                  <div style={{
-                                    fontSize: '12px',
-                                    opacity: 0.7,
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'flex-end',
-                                    gap: '4px',
-                                    marginBottom: '6px'
-                                  }}>
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleLikeComment(post.id, comment.id);
-                                      }}
-                                      style={{
-                                        background: 'none',
-                                        border: 'none',
-                                        cursor: 'pointer',
-                                        padding: '0',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '4px',
-                                        fontSize: '12px',
-                                        color: '#999'
-                                      }}
-                                    >
-                                      <svg 
-                                        width="16" 
-                                        height="16" 
-                                        viewBox="0 0 24 24" 
-                                        fill={(comment.likes || []).includes(user.id) ? '#1877F2' : '#999'}
-                                        style={{ marginTop: '1px' }}
-                                      >
-                                        <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
-                                      </svg>
-                                      {(comment.likes || []).length > 0 && (
-                                        <span style={{ fontWeight: '600', color: '#333' }}>{(comment.likes || []).length}</span>
-                                      )}
-                                    </button>
-                                  </div>
+                                <div style={{
+                                  fontSize: '12px',
+                                  opacity: 0.7,
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'flex-end',
+                                  gap: '8px'
+                                }}>
                                   {(comment.likes || []).length > 0 && (
-                                    <>
-                                      <div style={{
-                                        borderTop: '1px solid rgba(0, 0, 0, 0.1)',
-                                        marginBottom: '6px'
-                                      }} />
-                                      <div style={{
-                                        fontSize: '11px',
-                                        opacity: 0.6,
-                                        textAlign: 'right',
-                                        color: '#666'
-                                      }}>
-                                        {(comment.likes || []).map(likeUserId => {
-                                          const likedMember = members.find(m => m.id === likeUserId);
-                                          return likedMember?.nickname || likedMember?.name || '알 수 없음';
-                                        }).join(', ')}
-                                      </div>
-                                    </>
+                                    <span style={{
+                                      fontSize: '11px',
+                                      opacity: 0.6,
+                                      color: '#666'
+                                    }}>
+                                      {(comment.likes || []).map(likeUserId => {
+                                        const likedMember = members.find(m => m.id === likeUserId);
+                                        return likedMember?.nickname || likedMember?.name || '알 수 없음';
+                                      }).join(', ')}
+                                    </span>
                                   )}
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleLikeComment(post.id, comment.id);
+                                    }}
+                                    style={{
+                                      background: 'none',
+                                      border: 'none',
+                                      cursor: 'pointer',
+                                      padding: '0',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: '4px',
+                                      fontSize: '12px',
+                                      color: '#999'
+                                    }}
+                                  >
+                                    <svg 
+                                      width="16" 
+                                      height="16" 
+                                      viewBox="0 0 24 24" 
+                                      fill={(comment.likes || []).includes(user.id) ? '#1877F2' : '#999'}
+                                      style={{ marginTop: '1px' }}
+                                    >
+                                      <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+                                    </svg>
+                                    {(comment.likes || []).length > 0 && (
+                                      <span style={{ fontWeight: '600', color: '#333' }}>{(comment.likes || []).length}</span>
+                                    )}
+                                  </button>
                                 </div>
                                 {isCommentOwner && (
                                   <div
