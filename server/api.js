@@ -110,6 +110,28 @@ router.patch('/members/:id/toggle-active', async (req, res) => {
   }
 });
 
+router.patch('/members/:id/toggle-fees-permission', async (req, res) => {
+  try {
+    const member = await prisma.member.findUnique({
+      where: { id: req.params.id }
+    });
+    
+    if (!member) {
+      return res.status(404).json({ error: 'Member not found' });
+    }
+    
+    const updated = await prisma.member.update({
+      where: { id: req.params.id },
+      data: { canManageFees: !member.canManageFees }
+    });
+    
+    res.json(updated);
+  } catch (error) {
+    console.error('Error toggling fees permission:', error);
+    res.status(500).json({ error: 'Failed to toggle fees permission' });
+  }
+});
+
 router.patch('/members/:id/role', async (req, res) => {
   try {
     const { role } = req.body;

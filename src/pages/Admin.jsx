@@ -901,38 +901,40 @@ function Admin() {
               <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.7 }}>›</div>
             </button>
 
-            <button
-              onClick={() => setActiveTab('settings')}
-              style={{
-                padding: '16px',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                transition: 'all 0.2s',
-                background: 'var(--bg-page)',
-                borderTop: 'none',
-                borderLeft: 'none',
-                borderRight: 'none',
-                borderBottom: '1px solid var(--border-color)'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-page)'}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>⚙</div>
-                <div>
-                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: 'var(--text-dark)' }}>
-                    앱 설정
-                  </div>
-                  <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
-                    앱 기본 설정 관리
+            {user.role === '관리자' && (
+              <button
+                onClick={() => setActiveTab('settings')}
+                style={{
+                  padding: '16px',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  transition: 'all 0.2s',
+                  background: 'var(--bg-page)',
+                  borderTop: 'none',
+                  borderLeft: 'none',
+                  borderRight: 'none',
+                  borderBottom: '1px solid var(--border-color)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-page)'}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>⚙</div>
+                  <div>
+                    <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: 'var(--text-dark)' }}>
+                      앱 설정
+                    </div>
+                    <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
+                      앱 기본 설정 관리
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.7 }}>›</div>
-            </button>
+                <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.7 }}>›</div>
+              </button>
+            )}
           </div>
         )}
 
@@ -2494,6 +2496,120 @@ function Admin() {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
+                회비관리 권한
+              </h3>
+              <div style={{
+                padding: '10px 12px',
+                background: 'var(--bg-green)',
+                borderRadius: '6px',
+                marginBottom: '12px',
+                fontSize: '12px',
+                color: 'var(--text-dark)', opacity: 0.7
+              }}>
+                • 회비 메뉴에서 회비 내역을 확인하고 관리할 수 있는 권한을 부여합니다
+              </div>
+              <div style={{ display: 'grid', gap: '8px' }}>
+                {members.filter(m => m.isActive).map(member => (
+                  <div
+                    key={member.id}
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '12px',
+                      background: 'var(--bg-green)',
+                      borderRadius: '8px'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      {member.photo ? (
+                        <img 
+                          src={member.photo} 
+                          alt={member.name}
+                          style={{
+                            width: '40px',
+                            height: '40px',
+                            objectFit: 'cover',
+                            borderRadius: '50%',
+                            border: '2px solid var(--border-color)'
+                          }}
+                        />
+                      ) : (
+                        <div style={{
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '50%',
+                          background: 'var(--primary-green)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: '18px',
+                          fontWeight: '700',
+                          color: 'var(--text-light)'
+                        }}>
+                          {member.name.charAt(0)}
+                        </div>
+                      )}
+                      <div>
+                        <div style={{ fontSize: '15px', fontWeight: '600', marginBottom: '2px' }}>
+                          {member.name}
+                          {member.role && member.role !== '회원' && (
+                            <span style={{ 
+                              marginLeft: '8px',
+                              fontSize: '12px',
+                              padding: '2px 8px',
+                              background: 'var(--primary-green)',
+                              color: 'var(--text-light)',
+                              borderRadius: '4px',
+                              fontWeight: '600'
+                            }}>
+                              {member.role}
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                          {member.nickname || '-'}
+                        </div>
+                      </div>
+                    </div>
+                    <div
+                      onClick={async () => {
+                        try {
+                          await apiService.toggleFeesPermission(member.id);
+                          await loadMembers();
+                        } catch (error) {
+                          console.error('회비관리 권한 변경 실패:', error);
+                          alert('권한 변경에 실패했습니다.');
+                        }
+                      }}
+                      style={{
+                        width: '60px',
+                        height: '32px',
+                        background: member.canManageFees ? 'var(--primary-green)' : '#ccc',
+                        borderRadius: '16px',
+                        position: 'relative',
+                        cursor: 'pointer',
+                        transition: 'background 0.3s'
+                      }}
+                    >
+                      <div style={{
+                        width: '28px',
+                        height: '28px',
+                        background: 'white',
+                        borderRadius: '50%',
+                        position: 'absolute',
+                        top: '2px',
+                        left: member.canManageFees ? '30px' : '2px',
+                        transition: 'left 0.3s'
+                      }} />
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 

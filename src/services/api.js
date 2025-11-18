@@ -51,6 +51,14 @@ class ApiService {
     return response.json();
   }
 
+  async toggleFeesPermission(id) {
+    const response = await fetch(`${API_BASE}/members/${id}/toggle-fees-permission`, {
+      method: 'PATCH'
+    });
+    if (!response.ok) throw new Error('Failed to toggle fees permission');
+    return response.json();
+  }
+
   async updateMemberRole(id, role) {
     const response = await fetch(`${API_BASE}/members/${id}/role`, {
       method: 'PATCH',

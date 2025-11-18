@@ -28,6 +28,7 @@ model Member {
   photo            String?
   isActive         Boolean  @default(true)
   approvalStatus   String   @default("approved")
+  canManageFees    Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
