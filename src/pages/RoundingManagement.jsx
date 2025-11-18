@@ -416,15 +416,37 @@ function RoundingManagement() {
             />
 
             <div style={{ display: 'flex', gap: '8px' }}>
-              <button onClick={handleSaveEdit} className="btn-primary" style={{ flex: 1 }}>
-                ✓ 저장
+              <button 
+                onClick={() => setIsEditing(false)}
+                style={{
+                  flex: 1,
+                  padding: '14px 24px',
+                  background: '#BD5B43',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                취소하기
               </button>
               <button 
-                onClick={() => setIsEditing(false)} 
-                className="btn-secondary" 
-                style={{ flex: 1 }}
+                onClick={handleSaveEdit}
+                style={{
+                  flex: 1,
+                  padding: '14px 24px',
+                  background: 'var(--primary-green)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
               >
-                취소
+                저장
               </button>
             </div>
           </div>

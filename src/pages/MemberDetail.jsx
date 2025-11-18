@@ -835,21 +835,39 @@ function MemberDetail() {
 
             <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
               <button
-                onClick={handleSave}
-                className="btn-primary"
-                style={{ flex: 1 }}
-              >
-                ■ 저장
-              </button>
-              <button
                 onClick={() => {
                   setIsEditing(false);
                   setEditData(member);
                 }}
-                className="btn-secondary"
-                style={{ flex: 1 }}
+                style={{
+                  flex: 1,
+                  padding: '14px 24px',
+                  background: '#BD5B43',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
               >
-                × 취소
+                취소하기
+              </button>
+              <button
+                onClick={handleSave}
+                style={{
+                  flex: 1,
+                  padding: '14px 24px',
+                  background: 'var(--primary-green)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                저장
               </button>
             </div>
           </div>
