@@ -552,7 +552,7 @@ function MemberDetail() {
                   <h3 style={{ 
                     fontSize: '14px', 
                     fontWeight: '600',
-                    marginBottom: '12px',
+                    marginBottom: '16px',
                     opacity: 0.7,
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px'
@@ -561,31 +561,40 @@ function MemberDetail() {
                   </h3>
                   
                   <div style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: '1fr 1fr',
+                    display: 'flex',
+                    flexDirection: 'column',
                     gap: '8px'
                   }}>
                     <button
                       onClick={() => setIsEditing(true)}
                       style={{
-                        padding: '12px',
-                        background: 'var(--primary-green)',
-                        color: 'var(--text-light)',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
                         display: 'flex',
-                        flexDirection: 'column',
                         alignItems: 'center',
-                        gap: '4px',
-                        transition: 'all 0.2s'
+                        gap: '12px',
+                        padding: '14px 16px',
+                        background: '#f8f8f8',
+                        border: '1px solid #e0e0e0',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        textAlign: 'left'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'var(--bg-green)';
+                        e.currentTarget.style.borderColor = 'var(--primary-green)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = '#f8f8f8';
+                        e.currentTarget.style.borderColor = '#e0e0e0';
                       }}
                     >
-                      <span style={{ fontSize: '20px' }}>▪</span>
-                      <span>정보 수정</span>
+                      <span style={{ fontSize: '24px', width: '30px', textAlign: 'center' }}>✎</span>
+                      <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-dark)', flex: 1 }}>
+                        정보 수정
+                      </span>
+                      <span style={{ fontSize: '18px', opacity: 0.5 }}>›</span>
                     </button>
+
                     <button
                       onClick={() => {
                         setEditingScoreId(null);
@@ -598,63 +607,93 @@ function MemberDetail() {
                         setShowScoreModal(true);
                       }}
                       style={{
-                        padding: '12px',
-                        background: 'var(--primary-green)',
-                        color: 'var(--text-light)',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
                         display: 'flex',
-                        flexDirection: 'column',
                         alignItems: 'center',
-                        gap: '4px',
-                        transition: 'all 0.2s'
+                        gap: '12px',
+                        padding: '14px 16px',
+                        background: '#f8f8f8',
+                        border: '1px solid #e0e0e0',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        textAlign: 'left'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = 'var(--bg-green)';
+                        e.currentTarget.style.borderColor = 'var(--primary-green)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = '#f8f8f8';
+                        e.currentTarget.style.borderColor = '#e0e0e0';
                       }}
                     >
-                      <span style={{ fontSize: '20px' }}>◆</span>
-                      <span>스코어 기록</span>
+                      <span style={{ fontSize: '24px', width: '30px', textAlign: 'center' }}>⛳</span>
+                      <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-dark)', flex: 1 }}>
+                        스코어 기록
+                      </span>
+                      <span style={{ fontSize: '18px', opacity: 0.5 }}>›</span>
                     </button>
+
                     <button
                       onClick={handleToggleActive}
                       style={{
-                        padding: '12px',
-                        background: '#f5f5f5',
-                        color: '#666',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
                         display: 'flex',
-                        flexDirection: 'column',
                         alignItems: 'center',
-                        gap: '4px',
-                        transition: 'all 0.2s'
+                        gap: '12px',
+                        padding: '14px 16px',
+                        background: '#f8f8f8',
+                        border: '1px solid #e0e0e0',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        textAlign: 'left'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#f0f0f0';
+                        e.currentTarget.style.borderColor = '#ccc';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = '#f8f8f8';
+                        e.currentTarget.style.borderColor = '#e0e0e0';
                       }}
                     >
-                      <span style={{ fontSize: '20px' }}>{member.isActive === false ? '○' : '●'}</span>
-                      <span>{member.isActive === false ? '활성화' : '비활성화'}</span>
+                      <span style={{ fontSize: '24px', width: '30px', textAlign: 'center' }}>
+                        {member.isActive === false ? '○' : '●'}
+                      </span>
+                      <span style={{ fontSize: '16px', fontWeight: '600', color: '#666', flex: 1 }}>
+                        {member.isActive === false ? '활성화' : '비활성화'}
+                      </span>
+                      <span style={{ fontSize: '18px', opacity: 0.5 }}>›</span>
                     </button>
+
                     <button
                       onClick={handleDelete}
                       style={{
-                        padding: '12px',
-                        background: '#fff5f5',
-                        color: 'var(--alert-red)',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        cursor: 'pointer',
                         display: 'flex',
-                        flexDirection: 'column',
                         alignItems: 'center',
-                        gap: '4px',
-                        transition: 'all 0.2s'
+                        gap: '12px',
+                        padding: '14px 16px',
+                        background: '#fff5f5',
+                        border: '1px solid #ffcccc',
+                        borderRadius: '10px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        textAlign: 'left'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = '#ffe5e5';
+                        e.currentTarget.style.borderColor = '#ff9999';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = '#fff5f5';
+                        e.currentTarget.style.borderColor = '#ffcccc';
                       }}
                     >
-                      <span style={{ fontSize: '20px' }}>×</span>
-                      <span>회원 삭제</span>
+                      <span style={{ fontSize: '24px', width: '30px', textAlign: 'center', color: 'var(--alert-red)' }}>×</span>
+                      <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--alert-red)', flex: 1 }}>
+                        회원 삭제
+                      </span>
+                      <span style={{ fontSize: '18px', opacity: 0.5, color: 'var(--alert-red)' }}>›</span>
                     </button>
                   </div>
                 </div>
