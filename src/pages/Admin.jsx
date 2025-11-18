@@ -85,6 +85,13 @@ function Admin() {
     date: new Date().toISOString().split('T')[0]
   });
   const [selectedMembers, setSelectedMembers] = useState([]);
+  const [selectedExpense, setSelectedExpense] = useState({
+    categoryId: '',
+    bookingId: null,
+    amount: '',
+    date: new Date().toISOString().split('T')[0],
+    description: ''
+  });
 
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
@@ -365,6 +372,42 @@ function Admin() {
     } catch (error) {
       console.error('입금 처리 실패:', error);
       alert('입금 처리에 실패했습니다.');
+    }
+  };
+
+  const handleClubExpense = async () => {
+    try {
+      if (!selectedExpense.categoryId || !selectedExpense.amount) {
+        alert('출금항목과 금액을 입력해주세요.');
+        return;
+      }
+
+      const category = expenseCategories.find(c => c.id === selectedExpense.categoryId);
+      const booking = bookings.find(b => b.id === selectedExpense.bookingId);
+      
+      const transactionData = {
+        type: 'expense',
+        amount: parseFloat(selectedExpense.amount),
+        description: `${category?.name}${booking ? ` - ${booking.courseName}` : ''}${selectedExpense.description ? ` (${selectedExpense.description})` : ''}`,
+        date: selectedExpense.date,
+        memberId: null,
+        bookingId: selectedExpense.bookingId || null
+      };
+
+      await apiService.createTransaction(transactionData);
+
+      alert('클럽 출금이 처리되었습니다.');
+      setSelectedExpense({
+        categoryId: '',
+        bookingId: null,
+        amount: '',
+        date: new Date().toISOString().split('T')[0],
+        description: ''
+      });
+      await loadFeeData();
+    } catch (error) {
+      console.error('출금 처리 실패:', error);
+      alert('출금 처리에 실패했습니다.');
     }
   };
 
@@ -1899,11 +1942,132 @@ function Admin() {
             {clubTab === 'expense' && (
               <div className="card" style={{ marginBottom: '16px' }}>
                 <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
-                  클럽 출금 처리
+                  클럽 출금 생성
                 </h3>
-                <div style={{ padding: '40px', textAlign: 'center', opacity: 0.7 }}>
-                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>🚧</div>
-                  <p>출금 처리 기능은 준비 중입니다</p>
+                
+                <div style={{ display: 'grid', gap: '16px' }}>
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                      출금항목 *
+                    </label>
+                    <select
+                      value={selectedExpense.categoryId}
+                      onChange={(e) => setSelectedExpense({...selectedExpense, categoryId: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        background: 'white'
+                      }}
+                    >
+                      <option value="">선택하세요</option>
+                      {expenseCategories.map(cat => (
+                        <option key={cat.id} value={cat.id}>{cat.name}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                      라운딩 선택 (선택사항)
+                    </label>
+                    <select
+                      value={selectedExpense.bookingId || ''}
+                      onChange={(e) => setSelectedExpense({...selectedExpense, bookingId: e.target.value || null})}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        background: 'white'
+                      }}
+                    >
+                      <option value="">선택 안 함</option>
+                      {bookings
+                        .filter(b => b.type !== '컴페티션')
+                        .map(booking => (
+                          <option key={booking.id} value={booking.id}>
+                            {booking.date} - {booking.courseName}
+                          </option>
+                        ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                      금액 *
+                    </label>
+                    <input
+                      type="number"
+                      value={selectedExpense.amount}
+                      onChange={(e) => setSelectedExpense({...selectedExpense, amount: e.target.value})}
+                      placeholder="금액을 입력하세요"
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                      메모 (선택사항)
+                    </label>
+                    <input
+                      type="text"
+                      value={selectedExpense.description}
+                      onChange={(e) => setSelectedExpense({...selectedExpense, description: e.target.value})}
+                      placeholder="추가 설명을 입력하세요"
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                      날짜
+                    </label>
+                    <input
+                      type="date"
+                      value={selectedExpense.date}
+                      onChange={(e) => setSelectedExpense({...selectedExpense, date: e.target.value})}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </div>
+
+                  <button
+                    onClick={handleClubExpense}
+                    style={{
+                      width: '100%',
+                      padding: '14px',
+                      background: 'var(--primary-green)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                      fontWeight: '600',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    적용
+                  </button>
                 </div>
               </div>
             )}
