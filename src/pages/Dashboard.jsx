@@ -7,6 +7,7 @@ import CrownIcon from '../components/CrownIcon';
 function Dashboard() {
   const { user, members, scores, bookings, posts, addPost, updatePost, deletePost, updateBooking, refreshBookings } = useApp();
   const navigate = useNavigate();
+  const canCreatePost = user && (user.isAdmin || user.role === '관리자' || user.role === '방장' || user.role === '운영진' || user.role === '클럽운영진');
   const [showNewPost, setShowNewPost] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', content: '' });
   const [expandedPost, setExpandedPost] = useState(null);
@@ -442,7 +443,7 @@ function Dashboard() {
             }}>
               ✎ 게시판
             </h3>
-            {user.isAdmin && (
+            {canCreatePost && (
               <button 
                 onClick={() => setShowNewPost(!showNewPost)}
                 style={{
@@ -461,7 +462,7 @@ function Dashboard() {
             )}
           </div>
 
-          {showNewPost && user.isAdmin && (
+          {showNewPost && canCreatePost && (
             <div style={{ 
               background: 'var(--bg-green)', 
               padding: '13px', 
@@ -495,7 +496,7 @@ function Dashboard() {
             <div style={{ textAlign: 'center', padding: '32px', opacity: 0.7, background: 'var(--bg-green)', borderRadius: '8px' }}>
               <div style={{ fontSize: '48px', marginBottom: '13px' }}>✎</div>
               <p>아직 공지사항이 없습니다</p>
-              {user.isAdmin && (
+              {canCreatePost && (
                 <p style={{ fontSize: '14px', marginTop: '6px' }}>
                   상단의 작성 버튼을 눌러 첫 공지를 작성하세요
                 </p>
