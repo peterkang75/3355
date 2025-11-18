@@ -120,6 +120,18 @@ function Dashboard() {
     updatePost(postId, { comments: updatedComments });
   };
 
+  const handleLikePost = (postId) => {
+    const post = posts.find(p => p.id === postId);
+    const likes = post.likes || [];
+    const hasLiked = likes.includes(user.id);
+    
+    updatePost(postId, {
+      likes: hasLiked 
+        ? likes.filter(id => id !== user.id)
+        : [...likes, user.id]
+    });
+  };
+
   const handleDeletePost = async (postId) => {
     if (window.confirm('이 게시글을 삭제하시겠습니까?')) {
       try {
@@ -679,6 +691,60 @@ function Dashboard() {
                       }}>
                         {post.content}
                       </p>
+
+                      {/* 게시글 좋아요 */}
+                      <div style={{
+                        fontSize: '12px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'flex-end',
+                        gap: '8px',
+                        marginBottom: '10px'
+                      }}>
+                        {(post.likes || []).length > 0 && (
+                          <span style={{
+                            fontSize: '11px',
+                            color: '#555',
+                            lineHeight: '16px'
+                          }}>
+                            {(post.likes || []).map(likeUserId => {
+                              const likedMember = members.find(m => m.id === likeUserId);
+                              return likedMember?.nickname || likedMember?.name || '알 수 없음';
+                            }).join(', ')}
+                          </span>
+                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleLikePost(post.id);
+                          }}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: '0',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '12px',
+                            color: '#999',
+                            lineHeight: '16px'
+                          }}
+                        >
+                          <svg 
+                            width="16" 
+                            height="16" 
+                            viewBox="0 0 24 24" 
+                            fill={(post.likes || []).includes(user.id) ? '#1877F2' : '#999'}
+                            style={{ flexShrink: 0 }}
+                          >
+                            <path d="M1 21h4V9H1v12zm22-11c0-1.1-.9-2-2-2h-6.31l.95-4.57.03-.32c0-.41-.17-.79-.44-1.06L14.17 1 7.59 7.59C7.22 7.95 7 8.45 7 9v10c0 1.1.9 2 2 2h9c.83 0 1.54-.5 1.84-1.22l3.02-7.05c.09-.23.14-.47.14-.73v-2z"/>
+                          </svg>
+                          {(post.likes || []).length > 0 && (
+                            <span style={{ fontWeight: '600', color: '#333' }}>{(post.likes || []).length}</span>
+                          )}
+                        </button>
+                      </div>
 
                       {post.comments?.length > 0 && (
                         <div style={{ 
