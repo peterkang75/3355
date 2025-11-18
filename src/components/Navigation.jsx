@@ -4,6 +4,7 @@ import golfIcon from '../assets/golf-icon.png';
 import homeIcon from '../assets/home-icon.png';
 import mypageIcon from '../assets/mypage-icon.png';
 import adminIcon from '../assets/admin-icon.png';
+import aboutIcon from '../assets/about-icon.png';
 
 function Navigation({ user, onLogout }) {
   const navigate = useNavigate();
@@ -95,7 +96,9 @@ function Navigation({ user, onLogout }) {
         className={isActive('/about') ? 'nav-item active' : 'nav-item'}
         onClick={(e) => handleNavClick(e, '/about')}
       >
-        <span className="nav-icon">ⓘ</span>
+        <span className="nav-icon">
+          <img src={aboutIcon} alt="About" style={{ width: '24px', height: '24px' }} />
+        </span>
         <span>About</span>
       </a>
     </nav>
