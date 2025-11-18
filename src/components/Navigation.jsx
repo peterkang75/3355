@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import golfIcon from '../assets/golf-icon.png';
+import homeIcon from '../assets/home-icon.png';
 
 function Navigation({ user, onLogout }) {
   const navigate = useNavigate();
@@ -32,7 +33,9 @@ function Navigation({ user, onLogout }) {
         className={isActive('/') ? 'nav-item active' : 'nav-item'}
         onClick={(e) => handleNavClick(e, '/')}
       >
-        <span className="nav-icon">⌂</span>
+        <span className="nav-icon">
+          <img src={homeIcon} alt="홈" style={{ width: '24px', height: '24px' }} />
+        </span>
         <span>홈</span>
       </a>
       <a 
