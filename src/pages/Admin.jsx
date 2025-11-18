@@ -1831,7 +1831,7 @@ function Admin() {
             {clubTab === 'income' && (
               <div className="card" style={{ marginBottom: '16px' }}>
                 <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
-                  클럽 입금 처리
+                  클럽 입금 생성
                 </h3>
                 
                 <div style={{ display: 'grid', gap: '16px' }}>
