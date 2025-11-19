@@ -27,7 +27,36 @@ export function AppProvider({ children }) {
       }
       
       try {
-        console.log('🔄 데이터베이스에서 데이터 로드 중...');
+        const cachedMembers = localStorage.getItem('golfMembers');
+        const cachedPosts = localStorage.getItem('golfPosts');
+        const cachedBookings = localStorage.getItem('golfBookings');
+        const cachedFees = localStorage.getItem('golfFees');
+        
+        if (cachedMembers) {
+          const membersData = JSON.parse(cachedMembers);
+          console.log('💾 캐시된 회원 데이터 로드:', membersData.length, '명');
+          setMembers(membersData);
+        }
+        
+        if (cachedPosts) {
+          const postsData = JSON.parse(cachedPosts);
+          console.log('💾 캐시된 게시글 데이터 로드:', postsData.length, '개');
+          setPosts(postsData);
+        }
+        
+        if (cachedBookings) {
+          const bookingsData = JSON.parse(cachedBookings);
+          console.log('💾 캐시된 라운딩 데이터 로드:', bookingsData.length, '개');
+          setBookings(bookingsData);
+        }
+        
+        if (cachedFees) {
+          const feesData = JSON.parse(cachedFees);
+          console.log('💾 캐시된 회비 데이터 로드:', feesData.length, '개');
+          setFees(feesData);
+        }
+        
+        console.log('🔄 서버에서 최신 데이터 가져오는 중...');
         
         const [membersData, postsData, bookingsData, feesData, coursesData] = await Promise.all([
           apiService.fetchMembers().catch(err => { console.error('Members 로드 실패:', err); return []; }),
@@ -37,59 +66,88 @@ export function AppProvider({ children }) {
           apiService.fetchCourses().catch(err => { console.error('Courses 로드 실패:', err); return []; })
         ]);
 
-        if (membersData) {
-          console.log('✅ 회원 데이터 로드:', membersData.length, '명');
+        if (membersData && membersData.length > 0) {
+          console.log('✅ 서버 회원 데이터 로드:', membersData.length, '명');
           setMembers(membersData);
-          localStorage.setItem('golfMembers', JSON.stringify(membersData));
+          try {
+            localStorage.setItem('golfMembers', JSON.stringify(membersData));
+          } catch (e) {
+            console.warn('⚠️ 회원 데이터 저장 실패:', e.message);
+          }
           
           if (savedUserId) {
             const currentUser = membersData.find(m => m.id === savedUserId);
             if (currentUser) {
               console.log('✅ 로그인한 사용자 정보 업데이트:', currentUser.name);
               setUser(currentUser);
-              localStorage.setItem('golfUser', JSON.stringify(currentUser));
+              try {
+                localStorage.setItem('golfUser', JSON.stringify(currentUser));
+              } catch (e) {
+                console.warn('⚠️ 사용자 데이터 저장 실패:', e.message);
+              }
             }
           }
         }
 
-        if (postsData) {
-          console.log('✅ 게시글 데이터 로드:', postsData.length, '개');
+        if (postsData && postsData.length > 0) {
+          console.log('✅ 서버 게시글 데이터 로드:', postsData.length, '개');
           setPosts(postsData);
-          localStorage.setItem('golfPosts', JSON.stringify(postsData));
+          try {
+            localStorage.setItem('golfPosts', JSON.stringify(postsData));
+          } catch (e) {
+            console.warn('⚠️ 게시글 데이터 저장 실패:', e.message);
+          }
         }
 
-        if (bookingsData) {
-          console.log('✅ 예약 데이터 로드:', bookingsData.length, '개');
+        if (bookingsData && bookingsData.length > 0) {
+          console.log('✅ 서버 라운딩 데이터 로드:', bookingsData.length, '개');
           setBookings(bookingsData);
-          localStorage.setItem('golfBookings', JSON.stringify(bookingsData));
+          try {
+            localStorage.setItem('golfBookings', JSON.stringify(bookingsData));
+          } catch (e) {
+            console.warn('⚠️ 라운딩 데이터 저장 실패:', e.message);
+          }
         }
 
-        if (feesData) {
-          console.log('✅ 회비 데이터 로드:', feesData.length, '개');
+        if (feesData && feesData.length > 0) {
+          console.log('✅ 서버 회비 데이터 로드:', feesData.length, '개');
           setFees(feesData);
-          localStorage.setItem('golfFees', JSON.stringify(feesData));
+          try {
+            localStorage.setItem('golfFees', JSON.stringify(feesData));
+          } catch (e) {
+            console.warn('⚠️ 회비 데이터 저장 실패:', e.message);
+          }
         }
 
         if (coursesData && coursesData.length > 0) {
           console.log('✅ 골프장 데이터 로드:', coursesData.length, '개');
           setCourses(coursesData);
         } else {
-          const defaultCourses = [
-            { name: 'The Australian Golf Club', address: 'Kensington' },
-            { name: 'Concord Golf Club', address: 'Concord' },
-            { name: 'St Michael\'s Golf Club', address: 'Little Bay' }
-          ];
-          
-          for (const course of defaultCourses) {
-            try {
-              await apiService.createCourse(course);
-            } catch (err) {
-              console.error('코스 생성 실패:', err);
+          console.log('⚠️ 골프장 데이터 없음 - 기본 코스 생성 시도');
+          try {
+            const defaultCourses = [
+              { name: 'The Australian Golf Club', address: 'Kensington' },
+              { name: 'Concord Golf Club', address: 'Concord' },
+              { name: 'St Michael\'s Golf Club', address: 'Little Bay' }
+            ];
+            
+            for (const course of defaultCourses) {
+              try {
+                await apiService.createCourse(course);
+                console.log('✅ 코스 생성:', course.name);
+              } catch (err) {
+                console.log('ℹ️ 코스 이미 존재:', course.name);
+              }
             }
+            
+            const refreshedCourses = await apiService.fetchCourses();
+            if (refreshedCourses && refreshedCourses.length > 0) {
+              setCourses(refreshedCourses);
+              console.log('✅ 골프장 데이터 로드:', refreshedCourses.length, '개');
+            }
+          } catch (err) {
+            console.log('⚠️ 기본 코스 생성 중 오류 발생 (계속 진행)');
           }
-          
-          const refreshedCourses = await apiService.fetchCourses();
-          setCourses(refreshedCourses);
         }
 
         if (savedUserId) {
