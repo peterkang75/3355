@@ -542,9 +542,24 @@ function Admin() {
       await apiService.createTransaction(transactionData);
       alert(`${member.nickname || member.name}님의 미수금이 전액 납부되었습니다.`);
       
-      // 필요한 데이터만 빠르게 새로고침
-      await refreshBalanceAndOutstanding();
-      if (refreshMembers) await refreshMembers();
+      // 거래 내역 포함 전체 데이터 새로고침
+      await Promise.all([
+        refreshBalanceAndOutstanding(),
+        refreshMembers ? refreshMembers() : Promise.resolve()
+      ]);
+      
+      // 최근 거래 내역 다시 불러오기
+      const transactionsData = await apiService.fetchTransactions(50);
+      let runningBalance = 0;
+      const transactionsWithBalance = transactionsData.reverse().map(t => {
+        if (t.type === 'payment' || t.type === 'donation') {
+          runningBalance += t.amount;
+        } else if (t.type === 'expense') {
+          runningBalance -= t.amount;
+        }
+        return { ...t, clubBalance: runningBalance };
+      }).reverse();
+      setRecentTransactions(transactionsWithBalance);
       
       setPaymentAmounts(prev => {
         const updated = { ...prev };
@@ -580,9 +595,24 @@ function Admin() {
       await apiService.createTransaction(transactionData);
       alert(`${member.nickname || member.name}님의 ${amount.toLocaleString()}원이 납부 처리되었습니다.`);
       
-      // 필요한 데이터만 빠르게 새로고침
-      await refreshBalanceAndOutstanding();
-      if (refreshMembers) await refreshMembers();
+      // 거래 내역 포함 전체 데이터 새로고침
+      await Promise.all([
+        refreshBalanceAndOutstanding(),
+        refreshMembers ? refreshMembers() : Promise.resolve()
+      ]);
+      
+      // 최근 거래 내역 다시 불러오기
+      const transactionsData = await apiService.fetchTransactions(50);
+      let runningBalance = 0;
+      const transactionsWithBalance = transactionsData.reverse().map(t => {
+        if (t.type === 'payment' || t.type === 'donation') {
+          runningBalance += t.amount;
+        } else if (t.type === 'expense') {
+          runningBalance -= t.amount;
+        }
+        return { ...t, clubBalance: runningBalance };
+      }).reverse();
+      setRecentTransactions(transactionsWithBalance);
       
       setPaymentAmounts(prev => {
         const updated = { ...prev };
