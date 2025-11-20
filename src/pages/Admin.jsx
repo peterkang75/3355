@@ -449,7 +449,7 @@ function Admin() {
           const transactionData = {
             type: isDonation ? 'donation' : 'charge',
             amount: parseFloat(selectedIncome.amount),
-            description: `${category?.name}${booking ? ` - ${booking.courseName}` : ''}${isDonation ? ` (${member.name})` : ''}`,
+            description: `${category?.name}${isDonation ? '' : '청구'}${booking ? ` - ${booking.courseName}` : ''}${isDonation ? ` (${member.name})` : ''}`,
             date: selectedIncome.date,
             memberId: memberId,
             bookingId: selectedIncome.bookingId || null
@@ -2473,7 +2473,7 @@ function Admin() {
                           transaction.type === 'expense' ? '클럽 지출' : '도네이션';
                         
                         const typeColor =
-                          transaction.type === 'charge' ? 'var(--alert-red)' :
+                          transaction.type === 'charge' ? 'var(--success-green)' :
                           transaction.type === 'payment' ? 'var(--success-green)' :
                           transaction.type === 'expense' ? 'var(--alert-red)' : 'var(--success-green)';
 
