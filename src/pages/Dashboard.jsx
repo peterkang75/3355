@@ -272,12 +272,16 @@ function Dashboard() {
       const participationFee = (booking.greenFee || 0) + (booking.cartFee || 0) + (booking.membershipFee || 0);
       
       if (alreadyJoined) {
+        console.log('🔄 참가 취소 시작 - 참가비:', participationFee);
+        
         // 참가 취소 - 접수마감 확인
         if (booking.registrationDeadline) {
           const today = new Date();
           today.setHours(0, 0, 0, 0);
           const deadline = new Date(booking.registrationDeadline);
           deadline.setHours(23, 59, 59, 999); // 마감일 23:59:59까지 허용
+          
+          console.log('📅 마감일 확인 - 오늘:', today, '마감일:', deadline);
           
           // 접수마감이 지났으면 환불 불가
           if (today > deadline) {
@@ -288,11 +292,15 @@ function Dashboard() {
         
         // 참가 취소 - 환불 방식 선택
         if (participationFee > 0) {
+          console.log('💰 참가비 있음 - 환불 방식 선택창 표시');
+          
           const choice = window.confirm(
             '참가 취소 방식을 선택해주세요:\n\n' +
             '확인 → 환불받기 (현금 환불)\n' +
             '취소 → 크레딧으로 남겨두기 (클럽 내 사용)'
           );
+          
+          console.log('✅ 사용자 선택:', choice ? '환불받기' : '크레딧으로 남겨두기');
           
           // 참가 취소 처리
           const updatedParticipants = participants
@@ -327,6 +335,8 @@ function Dashboard() {
             await apiService.createTransaction(transactionData);
           }
         } else {
+          console.log('💸 참가비 없음 - 바로 취소 처리');
+          
           // 참가비가 없는 경우 그냥 취소
           const updatedParticipants = participants
             .filter(p => p.phone !== user.phone)
