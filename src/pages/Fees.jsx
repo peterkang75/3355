@@ -46,7 +46,7 @@ function Fees() {
     .reduce((sum, t) => sum + t.amount, 0);
 
   const totalPayments = userTransactions
-    .filter(t => t.type === 'payment')
+    .filter(t => t.type === 'payment' || t.type === 'donation')
     .reduce((sum, t) => sum + t.amount, 0);
   
   const balance = totalPayments - totalCharges;
@@ -328,7 +328,7 @@ function Fees() {
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ opacity: 0.9 }}>총 참가비</div>
+                  <div style={{ opacity: 0.9 }}>총 회비</div>
                   <div style={{ fontWeight: '600', marginTop: '4px' }}>
                     ${totalCharges.toLocaleString()}
                   </div>
