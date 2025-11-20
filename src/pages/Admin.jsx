@@ -126,7 +126,7 @@ function Admin() {
       loadCategories();
     }
     if (activeTab === 'fees') {
-      loadFeeData();
+      loadFeeDataFast();
     }
     if (activeTab === 'ledger') {
       loadLedgerData();
@@ -156,6 +156,54 @@ function Admin() {
       setPermissions(permissionsObj);
     } catch (error) {
       console.error('권한 설정 로드 실패:', error);
+    }
+  };
+
+  const loadFeeDataFast = async () => {
+    try {
+      // 1단계: 캐시된 항목 즉시 표시
+      const cachedIncome = sessionStorage.getItem('incomeCategories');
+      const cachedExpense = sessionStorage.getItem('expenseCategories');
+      const cachedBookings = sessionStorage.getItem('feeBookings');
+      
+      if (cachedIncome) setIncomeCategories(JSON.parse(cachedIncome));
+      if (cachedExpense) setExpenseCategories(JSON.parse(cachedExpense));
+      if (cachedBookings) setBookings(JSON.parse(cachedBookings));
+      
+      // 2단계: 중요한 데이터만 먼저 로드 (빠른 표시)
+      const [balanceData, outstandingData] = await Promise.all([
+        apiService.fetchClubBalance(),
+        apiService.fetchOutstandingBalances()
+      ]);
+      
+      setClubBalance(balanceData.balance);
+      setOutstandingBalances(outstandingData);
+      
+      // 3단계: 나머지 데이터 백그라운드 로드
+      const [transactionsData, incomeCats, expenseCats, bookingsData] = await Promise.all([
+        apiService.fetchTransactions(),
+        cachedIncome ? Promise.resolve(JSON.parse(cachedIncome)) : apiService.fetchIncomeCategories(),
+        cachedExpense ? Promise.resolve(JSON.parse(cachedExpense)) : apiService.fetchExpenseCategories(),
+        cachedBookings ? Promise.resolve(JSON.parse(cachedBookings)) : apiService.fetchBookings()
+      ]);
+      
+      setRecentTransactions(transactionsData.slice(0, 10));
+      setIncomeCategories(incomeCats || []);
+      setExpenseCategories(expenseCats || []);
+      setBookings(bookingsData || []);
+      
+      // 캐시 저장 (변경 가능성 있는 항목만)
+      if (!cachedIncome || JSON.stringify(incomeCats) !== cachedIncome) {
+        sessionStorage.setItem('incomeCategories', JSON.stringify(incomeCats));
+      }
+      if (!cachedExpense || JSON.stringify(expenseCats) !== cachedExpense) {
+        sessionStorage.setItem('expenseCategories', JSON.stringify(expenseCats));
+      }
+      if (!cachedBookings || JSON.stringify(bookingsData) !== cachedBookings) {
+        sessionStorage.setItem('feeBookings', JSON.stringify(bookingsData));
+      }
+    } catch (error) {
+      console.error('회비 데이터 로드 실패:', error);
     }
   };
 
@@ -201,6 +249,9 @@ function Admin() {
       ]);
       setIncomeCategories(income);
       setExpenseCategories(expense);
+      // 캐시 업데이트
+      sessionStorage.setItem('incomeCategories', JSON.stringify(income));
+      sessionStorage.setItem('expenseCategories', JSON.stringify(expense));
     } catch (error) {
       console.error('항목 로드 실패:', error);
     }
