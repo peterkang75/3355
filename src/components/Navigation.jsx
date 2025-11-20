@@ -20,7 +20,15 @@ function Navigation({ user, onLogout }) {
 
   const handleNavClick = (e, path) => {
     e.preventDefault();
-    navigate(path);
+    
+    if (location.pathname === path) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      navigate(path);
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      }, 100);
+    }
   };
 
   const isActive = (path) => {
