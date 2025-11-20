@@ -6,7 +6,7 @@ import CrownIcon from '../components/CrownIcon';
 import io from 'socket.io-client';
 
 function Dashboard() {
-  const { user, members, scores, bookings, posts, fees, addPost, updatePost, deletePost, updateBooking, refreshBookings, refreshAllData } = useApp();
+  const { user, members, scores, bookings, posts, fees, addPost, updatePost, deletePost, updateBooking, refreshBookings, refreshAllData, refreshMembers } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
   const canCreatePost = user && (user.isAdmin || user.role === '관리자' || user.role === '방장' || user.role === '운영진' || user.role === '클럽운영진');
@@ -83,12 +83,14 @@ function Dashboard() {
     socket.on('transactions:updated', () => {
       console.log('📢 거래 내역 업데이트 이벤트 수신 - Dashboard');
       loadTransactions();
+      if (refreshMembers) refreshMembers();
     });
 
     // 회원 정보 업데이트 이벤트 (잔액 변경)
     socket.on('members:updated', () => {
       console.log('📢 회원 정보 업데이트 이벤트 수신 - Dashboard');
       loadTransactions();
+      if (refreshMembers) refreshMembers();
     });
 
     return () => {
