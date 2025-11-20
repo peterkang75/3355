@@ -299,7 +299,7 @@ router.put('/bookings/:id', async (req, res) => {
                 type: 'charge',
                 amount: totalAmount,
                 description: `${booking.courseName} 라운딩`,
-                date: booking.date,
+                date: new Date().toISOString().split('T')[0],
                 memberId: member.id,
                 bookingId: booking.id
               }
