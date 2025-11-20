@@ -1183,9 +1183,14 @@ function Dashboard() {
             <div style={{ 
               fontSize: '20px', 
               fontWeight: '700',
-              color: user.balance < 0 ? 'var(--alert-red)' : 'var(--accent-gold)'
+              color: (user?.balance ?? 0) < 0 ? 'var(--alert-red)' : 'var(--accent-gold)'
             }}>
-              ${user.balance?.toLocaleString() || 0}
+              {(() => {
+                console.log('💰 대시보드 잔액 표시 - user:', user);
+                console.log('💰 대시보드 잔액 표시 - balance:', user?.balance);
+                const balance = user?.balance ?? 0;
+                return `${balance.toLocaleString()}원`;
+              })()}
             </div>
           </div>
         </div>
