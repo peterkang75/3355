@@ -1816,8 +1816,8 @@ function Admin() {
         {activeTab === 'fees' && (
           <div>
             <div className="card" style={{ 
-              background: 'linear-gradient(135deg, #28a745 0%, #218838 100%)',
-              color: 'white',
+              background: 'linear-gradient(135deg, #FFD54F 0%, #FFC107 100%)',
+              color: '#1a1a1a',
               padding: '12px',
               display: 'flex',
               justifyContent: 'space-between',
