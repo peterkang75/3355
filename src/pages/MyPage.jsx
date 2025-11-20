@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import apiService from '../services/api';
 import CrownIcon from '../components/CrownIcon';
 import adminIcon from '../assets/role-admin.png';
@@ -11,9 +11,20 @@ import clubStaffIcon from '../assets/role-club-staff.png';
 function MyPage() {
   const { user, logout, refreshMembers, courses } = useApp();
   const navigate = useNavigate();
+  const location = useLocation();
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(user || {});
   const [scores, setScores] = useState([]);
+
+  useEffect(() => {
+    if (location.state?.reset) {
+      setIsEditing(false);
+      if (user) {
+        setEditData({ ...user, isMember: user.isClubMember || '' });
+      }
+      window.history.replaceState({}, document.title);
+    }
+  }, [location, user]);
 
   useEffect(() => {
     console.log('👤 MyPage - user 객체:', user);

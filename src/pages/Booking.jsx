@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import apiService from '../services/api';
 import CrownIcon from '../components/CrownIcon';
 
 function Booking() {
   const { user, members, bookings, courses, scores, addBooking, updateBooking, refreshBookings } = useApp();
   const navigate = useNavigate();
+  const location = useLocation();
   const canManageBooking = user.isAdmin || user.role === '관리자' || user.role === '방장' || user.role === '운영진' || user.role === '클럽운영진';
   const [showNewBooking, setShowNewBooking] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
@@ -27,6 +28,30 @@ function Booking() {
     restaurantAddress: ''
   });
   const [editBookingData, setEditBookingData] = useState(null);
+
+  useEffect(() => {
+    if (location.state?.reset) {
+      setShowNewBooking(false);
+      setEditingBooking(null);
+      setOpenMenuId(null);
+      setBookingType('정기모임');
+      setNewBooking({
+        title: '',
+        courseName: '',
+        date: '',
+        time: '',
+        gatheringTime: '',
+        greenFee: '',
+        cartFee: '',
+        membershipFee: '',
+        registrationDeadline: '',
+        restaurantName: '',
+        restaurantAddress: ''
+      });
+      setEditBookingData(null);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   // 컴페티션 라운딩 접수 마감일 자동 설정 (라운딩 날짜 8일 전 18:30)
   useEffect(() => {

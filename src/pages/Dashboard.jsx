@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import apiService from '../services/api';
 import CrownIcon from '../components/CrownIcon';
 
 function Dashboard() {
   const { user, members, scores, bookings, posts, fees, addPost, updatePost, deletePost, updateBooking, refreshBookings, refreshAllData } = useApp();
   const navigate = useNavigate();
+  const location = useLocation();
   const canCreatePost = user && (user.isAdmin || user.role === '관리자' || user.role === '방장' || user.role === '운영진' || user.role === '클럽운영진');
   const [showNewPost, setShowNewPost] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -19,6 +20,20 @@ function Dashboard() {
   const [editingComment, setEditingComment] = useState(null);
   const [isRentalLoading, setIsRentalLoading] = useState(null);
   const [recentTransactions, setRecentTransactions] = useState([]);
+
+  useEffect(() => {
+    if (location.state?.reset) {
+      setShowNewPost(false);
+      setNewPost({ title: '', content: '' });
+      setExpandedPost(null);
+      setNewComment('');
+      setOpenMenuPostId(null);
+      setEditingPost(null);
+      setOpenMenuCommentId(null);
+      setEditingComment(null);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   // 상대 시간 표시 함수
   const getRelativeTime = (dateString) => {
