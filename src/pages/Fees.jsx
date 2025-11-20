@@ -60,7 +60,8 @@ function Fees() {
       return '도네이션';
     }
     if (transaction.type === 'credit') {
-      return '참가비청구';
+      // description을 그대로 표시 (예: "참가취소(환불)")
+      return transaction.description || '참가취소(환불)';
     }
     if (transaction.type === 'charge') {
       // description에서 항목명 추출

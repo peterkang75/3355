@@ -272,7 +272,21 @@ function Dashboard() {
       const participationFee = (booking.greenFee || 0) + (booking.cartFee || 0) + (booking.membershipFee || 0);
       
       if (alreadyJoined) {
-        // 참가 취소 - 크레딧 처리
+        // 참가 취소 - 접수마감 확인
+        if (booking.registrationDeadline) {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const deadline = new Date(booking.registrationDeadline);
+          deadline.setHours(23, 59, 59, 999); // 마감일 23:59:59까지 허용
+          
+          // 접수마감이 지났으면 환불 불가
+          if (today > deadline) {
+            alert('접수마감이 지났으므로 납부하신 회비는 환불되지 않습니다.');
+            return;
+          }
+        }
+        
+        // 참가 취소 처리
         const updatedParticipants = participants
           .filter(p => p.phone !== user.phone)
           .map(p => JSON.stringify(p));
@@ -281,12 +295,12 @@ function Dashboard() {
           participants: updatedParticipants
         });
         
-        // 참가비가 있는 경우 크레딧 트랜잭션 생성
+        // 참가비가 있는 경우 크레딧 트랜잭션 생성 (환불)
         if (participationFee > 0) {
           const transactionData = {
             type: 'credit',
             amount: participationFee,
-            description: `라운딩 참가비 취소 (크레딧)`,
+            description: `참가취소(환불)`,
             date: new Date().toISOString().split('T')[0],
             memberId: user.id,
             bookingId: bookingId

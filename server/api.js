@@ -313,6 +313,8 @@ router.put('/bookings/:id', async (req, res) => {
           const newBalance = memberTransactions.reduce((sum, t) => {
             if (t.type === 'charge') return sum - t.amount;
             if (t.type === 'payment') return sum + t.amount;
+            if (t.type === 'credit') return sum + t.amount;
+            if (t.type === 'donation') return sum + t.amount;
             return sum;
           }, 0);
 
@@ -350,6 +352,8 @@ router.put('/bookings/:id', async (req, res) => {
           const newBalance = memberTransactions.reduce((sum, t) => {
             if (t.type === 'charge') return sum - t.amount;
             if (t.type === 'payment') return sum + t.amount;
+            if (t.type === 'credit') return sum + t.amount;
+            if (t.type === 'donation') return sum + t.amount;
             return sum;
           }, 0);
 
