@@ -3,7 +3,6 @@ import { useApp } from '../contexts/AppContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import apiService from '../services/api';
 import CrownIcon from '../components/CrownIcon';
-import io from 'socket.io-client';
 
 function Dashboard() {
   const { user, members, scores, bookings, posts, fees, addPost, updatePost, deletePost, updateBooking, refreshBookings, refreshAllData, refreshMembers } = useApp();
@@ -49,54 +48,21 @@ function Dashboard() {
     return past.toLocaleDateString('ko-KR');
   };
 
-  // 거래내역 로드
-  const loadTransactions = async () => {
-    if (!user?.id) return;
-    try {
-      const transactionsData = await apiService.fetchMemberTransactions(user.id);
-      setRecentTransactions(transactionsData.slice(0, 3));
-    } catch (error) {
-      console.error('거래내역 로드 실패:', error);
-      setRecentTransactions([]);
-    }
-  };
-
+  // 거래내역 로드 - user가 업데이트될 때마다 자동 새로고침
   useEffect(() => {
-    if (user?.id) {
-      loadTransactions();
-    }
-  }, [user]);
-
-  // Socket.IO 실시간 업데이트 리스너
-  useEffect(() => {
-    if (!user?.id) return;
-
-    const socketUrl = window.location.hostname === 'localhost' 
-      ? 'http://localhost:3001' 
-      : window.location.origin;
-    
-    const socket = io(socketUrl, {
-      transports: ['websocket', 'polling']
-    });
-
-    // 거래 내역 업데이트 이벤트
-    socket.on('transactions:updated', () => {
-      console.log('📢 거래 내역 업데이트 이벤트 수신 - Dashboard');
-      loadTransactions();
-      if (refreshMembers) refreshMembers();
-    });
-
-    // 회원 정보 업데이트 이벤트 (잔액 변경)
-    socket.on('members:updated', () => {
-      console.log('📢 회원 정보 업데이트 이벤트 수신 - Dashboard');
-      loadTransactions();
-      if (refreshMembers) refreshMembers();
-    });
-
-    return () => {
-      socket.disconnect();
+    const loadTransactions = async () => {
+      if (!user?.id) return;
+      try {
+        const transactionsData = await apiService.fetchMemberTransactions(user.id);
+        setRecentTransactions(transactionsData.slice(0, 3));
+      } catch (error) {
+        console.error('거래내역 로드 실패:', error);
+        setRecentTransactions([]);
+      }
     };
-  }, [user?.id]);
+
+    loadTransactions();
+  }, [user]); // user 객체가 변경될 때마다 새로고침 (AppContext의 Socket.IO가 user 업데이트)
 
   // 점 세 개 메뉴 외부 클릭 시 닫기 (게시글)
   useEffect(() => {
