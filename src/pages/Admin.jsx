@@ -1871,7 +1871,7 @@ function Admin() {
                 style={{
                   flex: 1,
                   padding: '12px',
-                  background: clubTab === 'expense' ? 'var(--primary-green)' : 'transparent',
+                  background: clubTab === 'expense' ? '#CD5C5C' : 'transparent',
                   color: clubTab === 'expense' ? 'white' : 'var(--text-dark)',
                   border: 'none',
                   borderRadius: '8px',
