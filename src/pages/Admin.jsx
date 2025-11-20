@@ -100,7 +100,7 @@ function Admin() {
     { id: 'team_formation', name: '조편성' },
     { id: 'participant_management', name: '참가자 관리' },
     { id: 'score_entry', name: '스코어 입력' },
-    { id: 'fee_management', name: '참가비 관리' },
+    { id: 'fee_management', name: '클럽회계관리' },
     { id: 'course_management', name: '골프장 관리' },
     { id: 'create_post', name: '게시판 작성' },
     { id: 'member_approval', name: '회원 승인' }
@@ -1103,7 +1103,7 @@ function Admin() {
                 <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>$</div>
                 <div>
                   <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: 'var(--text-dark)' }}>
-                    참가비 관리
+                    클럽회계관리
                   </div>
                   <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
                     참가비 등록 및 납부 관리
@@ -3036,7 +3036,7 @@ function Admin() {
 
             <div className="card" style={{ marginBottom: '16px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
-                참가비관리 권한
+                클럽회계관리 권한
               </h3>
               <div style={{
                 padding: '10px 12px',
