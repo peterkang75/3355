@@ -2397,12 +2397,12 @@ function Admin() {
                   최근 거래 내역 (최근 50건)
                 </h3>
                 <div style={{ 
-                  fontSize: '20px', 
-                  fontWeight: '700', 
+                  fontSize: '14px', 
+                  fontWeight: '600', 
                   color: 'var(--primary-green)',
                   background: 'var(--bg-green)',
-                  padding: '8px 16px',
-                  borderRadius: '8px'
+                  padding: '6px 12px',
+                  borderRadius: '6px'
                 }}>
                   클럽 잔액: ${clubBalance.toLocaleString()}
                 </div>
