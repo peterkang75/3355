@@ -69,7 +69,20 @@ function Fees() {
 
   const getTransactionLabel = (transaction) => {
     if (transaction.type === 'charge') {
-      return transaction.bookingId ? '라운딩 참가비' : '참가비 발생';
+      // description에서 항목명 추출
+      if (transaction.description) {
+        const parts = transaction.description.split(' - ');
+        const categoryName = parts[0].replace(/\s*\([^)]*\)$/, ''); // 괄호 내용 제거
+        
+        // "라운딩"이 포함된 경우만 "참가비"로 표시
+        if (categoryName.includes('라운딩')) {
+          return '참가비';
+        }
+        
+        // 그 외에는 항목명 그대로 표시 (예: "회식비", "도네이션" 등)
+        return categoryName;
+      }
+      return '참가비 발생';
     }
     if (transaction.type === 'payment') {
       return '납부';
