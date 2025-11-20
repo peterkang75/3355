@@ -313,6 +313,7 @@ function Dashboard() {
           
           if (choice) {
             // 환불받기 선택
+            console.log('💳 환불받기 처리 시작');
             const transactionData = {
               type: 'payment',
               amount: participationFee,
@@ -321,9 +322,12 @@ function Dashboard() {
               memberId: user.id,
               bookingId: bookingId
             };
-            await apiService.createTransaction(transactionData);
+            console.log('📝 거래 데이터:', transactionData);
+            const result = await apiService.createTransaction(transactionData);
+            console.log('✅ 환불 거래 생성 완료:', result);
           } else {
             // 크레딧으로 남겨두기 선택
+            console.log('💎 크레딧 처리 시작');
             const transactionData = {
               type: 'credit',
               amount: participationFee,
@@ -332,7 +336,9 @@ function Dashboard() {
               memberId: user.id,
               bookingId: bookingId
             };
-            await apiService.createTransaction(transactionData);
+            console.log('📝 거래 데이터:', transactionData);
+            const result = await apiService.createTransaction(transactionData);
+            console.log('✅ 크레딧 거래 생성 완료:', result);
           }
         } else {
           console.log('💸 참가비 없음 - 바로 취소 처리');
