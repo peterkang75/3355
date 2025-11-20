@@ -72,6 +72,12 @@ function Fees() {
       return '참가비 발생';
     }
     if (transaction.type === 'payment') {
+      // description에서 전액납부/부분납부 구분
+      if (transaction.description && transaction.description.includes('전액')) {
+        return '전액납부';
+      } else if (transaction.description && transaction.description.includes('부분')) {
+        return '부분납부';
+      }
       return '납부';
     }
     return '';
