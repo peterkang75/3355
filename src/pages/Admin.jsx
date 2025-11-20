@@ -84,7 +84,8 @@ function Admin() {
     categoryId: '',
     bookingId: null,
     amount: '',
-    date: new Date().toISOString().split('T')[0]
+    date: new Date().toISOString().split('T')[0],
+    manualName: ''
   });
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [selectedExpense, setSelectedExpense] = useState({
@@ -411,37 +412,50 @@ function Admin() {
         return;
       }
 
-      if (selectedMembers.length === 0) {
-        alert('회원을 선택해주세요.');
-        return;
-      }
-
       const category = incomeCategories.find(c => c.id === selectedIncome.categoryId);
       const booking = bookings.find(b => b.id === selectedIncome.bookingId);
-      
-      // 도네이션인 경우 특별 처리: 회원 청구 없이 클럽 잔고에만 추가
       const isDonation = category?.name === '도네이션';
-      
-      // 병렬 처리로 속도 개선
-      const transactionPromises = selectedMembers.map(memberId => {
-        const member = members.find(m => m.id === memberId);
+
+      // 수동 입력 이름이 있는 경우
+      if (selectedIncome.manualName && selectedIncome.manualName.trim()) {
         const transactionData = {
-          type: isDonation ? 'donation' : 'charge',
+          type: isDonation ? 'donation' : 'payment',
           amount: parseFloat(selectedIncome.amount),
-          description: `${category?.name}${booking ? ` - ${booking.courseName}` : ''}${isDonation ? ` (${member.name})` : ''}`,
+          description: `${category?.name}${booking ? ` - ${booking.courseName}` : ''} (${selectedIncome.manualName.trim()})`,
           date: selectedIncome.date,
-          memberId: memberId,
+          memberId: null,
           bookingId: selectedIncome.bookingId || null
         };
-        return apiService.createTransaction(transactionData);
-      });
+        
+        await apiService.createTransaction(transactionData);
+        alert(`${selectedIncome.manualName.trim()}님의 ${isDonation ? '도네이션' : '입금'}이 클럽 잔고에 추가되었습니다.`);
+      } 
+      // 회원 선택이 있는 경우
+      else if (selectedMembers.length > 0) {
+        // 병렬 처리로 속도 개선
+        const transactionPromises = selectedMembers.map(memberId => {
+          const member = members.find(m => m.id === memberId);
+          const transactionData = {
+            type: isDonation ? 'donation' : 'charge',
+            amount: parseFloat(selectedIncome.amount),
+            description: `${category?.name}${booking ? ` - ${booking.courseName}` : ''}${isDonation ? ` (${member.name})` : ''}`,
+            date: selectedIncome.date,
+            memberId: memberId,
+            bookingId: selectedIncome.bookingId || null
+          };
+          return apiService.createTransaction(transactionData);
+        });
 
-      await Promise.all(transactionPromises);
+        await Promise.all(transactionPromises);
 
-      if (isDonation) {
-        alert(`${selectedMembers.length}명의 회원 도네이션이 클럽 잔고에 추가되었습니다.`);
+        if (isDonation) {
+          alert(`${selectedMembers.length}명의 회원 도네이션이 클럽 잔고에 추가되었습니다.`);
+        } else {
+          alert(`${selectedMembers.length}명의 회원에게 참가비가 청구되었습니다.`);
+        }
       } else {
-        alert(`${selectedMembers.length}명의 회원에게 참가비가 청구되었습니다.`);
+        alert('회원을 선택하거나 이름을 수동으로 입력해주세요.');
+        return;
       }
       
       handleCloseIncomeModal();
@@ -449,7 +463,8 @@ function Admin() {
         categoryId: '',
         bookingId: null,
         amount: '',
-        date: new Date().toISOString().split('T')[0]
+        date: new Date().toISOString().split('T')[0],
+        manualName: ''
       });
       
       // 필요한 데이터만 빠르게 새로고침
@@ -3844,6 +3859,25 @@ function Admin() {
                 value={selectedIncome.amount}
                 onChange={(e) => setSelectedIncome({...selectedIncome, amount: e.target.value})}
                 placeholder="금액 입력"
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                이름 수동 입력 (옵션)
+              </label>
+              <input
+                type="text"
+                value={selectedIncome.manualName}
+                onChange={(e) => setSelectedIncome({...selectedIncome, manualName: e.target.value})}
+                placeholder="회원 목록에 없는 이름 입력"
                 style={{
                   width: '100%',
                   padding: '12px',
