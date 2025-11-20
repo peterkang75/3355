@@ -354,21 +354,29 @@ function Admin() {
       const category = incomeCategories.find(c => c.id === selectedIncome.categoryId);
       const booking = bookings.find(b => b.id === selectedIncome.bookingId);
       
+      // 도네이션인 경우 특별 처리: 회원 청구 없이 클럽 잔고에만 추가
+      const isDonation = category?.name === '도네이션';
+      
       for (const memberId of selectedMembers) {
         const member = members.find(m => m.id === memberId);
         const transactionData = {
-          type: 'charge',
+          type: isDonation ? 'donation' : 'charge',
           amount: parseFloat(selectedIncome.amount),
-          description: `${category?.name}${booking ? ` - ${booking.courseName}` : ''}`,
+          description: `${category?.name}${booking ? ` - ${booking.courseName}` : ''}${isDonation ? ` (${member.name})` : ''}`,
           date: selectedIncome.date,
-          memberId: memberId,
+          memberId: isDonation ? memberId : memberId,
           bookingId: selectedIncome.bookingId || null
         };
 
         await apiService.createTransaction(transactionData);
       }
 
-      alert(`${selectedMembers.length}명의 회원에게 참가비가 청구되었습니다.`);
+      if (isDonation) {
+        alert(`${selectedMembers.length}명의 회원 도네이션이 클럽 잔고에 추가되었습니다.`);
+      } else {
+        alert(`${selectedMembers.length}명의 회원에게 참가비가 청구되었습니다.`);
+      }
+      
       handleCloseIncomeModal();
       setSelectedIncome({
         categoryId: '',
