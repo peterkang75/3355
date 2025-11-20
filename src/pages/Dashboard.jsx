@@ -5,7 +5,7 @@ import apiService from '../services/api';
 import CrownIcon from '../components/CrownIcon';
 
 function Dashboard() {
-  const { user, members, scores, bookings, posts, fees, addPost, updatePost, deletePost, updateBooking, refreshBookings, refreshAllData, refreshMembers } = useApp();
+  const { user, members, scores, bookings, posts, fees, userTransactions, addPost, updatePost, deletePost, updateBooking, refreshBookings, refreshAllData, refreshMembers } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
   const canCreatePost = user && (user.isAdmin || user.role === '관리자' || user.role === '방장' || user.role === '운영진' || user.role === '클럽운영진');
@@ -1183,9 +1183,19 @@ function Dashboard() {
             <div style={{ 
               fontSize: '20px', 
               fontWeight: '700',
-              color: (user?.balance ?? 0) < 0 ? 'var(--alert-red)' : 'var(--accent-gold)'
+              color: (() => {
+                const totalPayments = userTransactions.filter(t => t.type === 'payment').reduce((sum, t) => sum + t.amount, 0);
+                const totalCharges = userTransactions.filter(t => t.type === 'charge').reduce((sum, t) => sum + t.amount, 0);
+                const balance = totalPayments - totalCharges;
+                return balance < 0 ? 'var(--alert-red)' : 'var(--accent-gold)';
+              })()
             }}>
-              ${(user?.balance ?? 0).toLocaleString()}
+              ${(() => {
+                const totalPayments = userTransactions.filter(t => t.type === 'payment').reduce((sum, t) => sum + t.amount, 0);
+                const totalCharges = userTransactions.filter(t => t.type === 'charge').reduce((sum, t) => sum + t.amount, 0);
+                const balance = totalPayments - totalCharges;
+                return balance.toLocaleString();
+              })()}
             </div>
           </div>
         </div>

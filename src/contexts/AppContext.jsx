@@ -13,6 +13,7 @@ export function AppProvider({ children }) {
   const [scores, setScores] = useState([]);
   const [fees, setFees] = useState([]);
   const [courses, setCourses] = useState([]);
+  const [userTransactions, setUserTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -258,8 +259,17 @@ export function AppProvider({ children }) {
 
     socket.on('transactions:updated', async () => {
       console.log('📢 거래 데이터 업데이트 이벤트 수신');
-      // 회원 잔액 업데이트는 members:updated 이벤트에서 처리되므로 중복 fetch 제거
-      // 필요시 특정 페이지에서 거래 내역만 개별적으로 새로고침
+      // user 거래 내역 갱신
+      if (user?.id) {
+        try {
+          const transactionsData = await apiService.fetchMemberTransactions(user.id);
+          if (transactionsData) {
+            setUserTransactions(transactionsData);
+          }
+        } catch (error) {
+          console.error('거래 내역 갱신 실패:', error);
+        }
+      }
     });
 
     const handleVisibilityChange = async () => {
@@ -309,6 +319,25 @@ export function AppProvider({ children }) {
       socket.disconnect();
     };
   }, []);
+
+  // user 거래 내역 로드
+  useEffect(() => {
+    const loadUserTransactions = async () => {
+      if (user?.id) {
+        try {
+          const transactionsData = await apiService.fetchMemberTransactions(user.id);
+          setUserTransactions(transactionsData || []);
+        } catch (error) {
+          console.error('거래 내역 로드 실패:', error);
+          setUserTransactions([]);
+        }
+      } else {
+        setUserTransactions([]);
+      }
+    };
+    
+    loadUserTransactions();
+  }, [user?.id]);
 
   const loadUserData = async (userId) => {
     try {
@@ -665,6 +694,7 @@ export function AppProvider({ children }) {
     scores,
     fees,
     courses,
+    userTransactions,
     loading,
     login,
     logout,

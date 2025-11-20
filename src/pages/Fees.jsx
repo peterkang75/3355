@@ -7,10 +7,8 @@ import api from '../services/api';
 function Fees() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, members } = useApp();
+  const { user, members, userTransactions } = useApp();
   const [activeTab, setActiveTab] = useState('personal');
-  const [balance, setBalance] = useState(0);
-  const [transactions, setTransactions] = useState([]);
   const [allTransactions, setAllTransactions] = useState([]);
   const [ledgerFilter, setLedgerFilter] = useState({ type: 'all', memberId: 'all' });
   const [loading, setLoading] = useState(true);
@@ -24,27 +22,11 @@ function Fees() {
 
   useEffect(() => {
     if (activeTab === 'personal') {
-      loadPersonalData();
+      setLoading(false);
     } else {
       loadLedgerData();
     }
   }, [user.id, activeTab]);
-
-  const loadPersonalData = async () => {
-    try {
-      setLoading(true);
-      const [balanceData, transactionsData] = await Promise.all([
-        api.fetchMemberBalance(user.id),
-        api.fetchMemberTransactions(user.id)
-      ]);
-      setBalance(balanceData.balance);
-      setTransactions(transactionsData);
-    } catch (error) {
-      console.error('Failed to load fee data:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const loadLedgerData = async () => {
     try {
@@ -59,13 +41,15 @@ function Fees() {
     }
   };
 
-  const totalCharges = transactions
+  const totalCharges = userTransactions
     .filter(t => t.type === 'charge')
     .reduce((sum, t) => sum + t.amount, 0);
 
-  const totalPayments = transactions
+  const totalPayments = userTransactions
     .filter(t => t.type === 'payment')
     .reduce((sum, t) => sum + t.amount, 0);
+  
+  const balance = totalPayments - totalCharges;
 
   const getTransactionLabel = (transaction) => {
     if (transaction.type === 'charge') {
@@ -351,7 +335,7 @@ function Fees() {
                 거래 내역
               </h3>
 
-              {transactions.length === 0 ? (
+              {userTransactions.length === 0 ? (
                 <div style={{ 
                   padding: '40px',
                   textAlign: 'center',
@@ -362,7 +346,7 @@ function Fees() {
                 </div>
               ) : (
                 <div>
-                  {transactions.map(transaction => (
+                  {userTransactions.map(transaction => (
                     <div 
                       key={transaction.id}
                       style={{
