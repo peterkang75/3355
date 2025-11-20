@@ -262,28 +262,67 @@ function Dashboard() {
     }
   };
 
-  const handleJoinBooking = (bookingId) => {
-    const booking = bookings.find(b => b.id === bookingId);
-    const participants = parseParticipants(booking.participants);
-    const alreadyJoined = participants.some(p => p.phone === user.phone);
-    
-    if (alreadyJoined) {
-      const updatedParticipants = participants
-        .filter(p => p.phone !== user.phone)
-        .map(p => JSON.stringify(p));
+  const handleJoinBooking = async (bookingId) => {
+    try {
+      const booking = bookings.find(b => b.id === bookingId);
+      const participants = parseParticipants(booking.participants);
+      const alreadyJoined = participants.some(p => p.phone === user.phone);
       
-      updateBooking(bookingId, {
-        participants: updatedParticipants
-      });
-    } else {
-      const updatedParticipants = [
-        ...participants,
-        { name: user.name, nickname: user.nickname, phone: user.phone }
-      ].map(p => JSON.stringify(p));
+      // 참가비 계산
+      const participationFee = (booking.greenFee || 0) + (booking.cartFee || 0) + (booking.membershipFee || 0);
       
-      updateBooking(bookingId, {
-        participants: updatedParticipants
-      });
+      if (alreadyJoined) {
+        // 참가 취소 - 크레딧 처리
+        const updatedParticipants = participants
+          .filter(p => p.phone !== user.phone)
+          .map(p => JSON.stringify(p));
+        
+        await updateBooking(bookingId, {
+          participants: updatedParticipants
+        });
+        
+        // 참가비가 있는 경우 크레딧 트랜잭션 생성
+        if (participationFee > 0) {
+          const transactionData = {
+            type: 'credit',
+            amount: participationFee,
+            description: `라운딩 참가비 취소 (크레딧)`,
+            date: new Date().toISOString().split('T')[0],
+            memberId: user.id,
+            bookingId: bookingId
+          };
+          await apiService.createTransaction(transactionData);
+        }
+      } else {
+        // 참가 신청 - 참가비 청구
+        const updatedParticipants = [
+          ...participants,
+          { name: user.name, nickname: user.nickname, phone: user.phone }
+        ].map(p => JSON.stringify(p));
+        
+        await updateBooking(bookingId, {
+          participants: updatedParticipants
+        });
+        
+        // 참가비가 있는 경우 청구 트랜잭션 생성
+        if (participationFee > 0) {
+          const transactionData = {
+            type: 'charge',
+            amount: participationFee,
+            description: `라운딩 참가비 청구`,
+            date: new Date().toISOString().split('T')[0],
+            memberId: user.id,
+            bookingId: bookingId
+          };
+          await apiService.createTransaction(transactionData);
+        }
+      }
+      
+      // 데이터 새로고침
+      await refreshBookings();
+    } catch (error) {
+      console.error('참가/참가 취소 처리 실패:', error);
+      alert('참가/참가 취소 처리에 실패했습니다.');
     }
   };
 

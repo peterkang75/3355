@@ -907,7 +907,7 @@ router.get('/transactions/outstanding', async (req, res) => {
   }
 });
 
-// 거래 생성 (charge, payment, expense, donation)
+// 거래 생성 (charge, payment, expense, donation, credit)
 router.post('/transactions', async (req, res) => {
   try {
     const transaction = await prisma.transaction.create({
@@ -919,7 +919,7 @@ router.post('/transactions', async (req, res) => {
     });
     
     // 회원 잔액 업데이트
-    if (transaction.memberId && (transaction.type === 'charge' || transaction.type === 'payment')) {
+    if (transaction.memberId && (transaction.type === 'charge' || transaction.type === 'payment' || transaction.type === 'credit')) {
       const memberTransactions = await prisma.transaction.findMany({
         where: { memberId: transaction.memberId }
       });
@@ -927,6 +927,7 @@ router.post('/transactions', async (req, res) => {
       const newBalance = memberTransactions.reduce((sum, t) => {
         if (t.type === 'charge') return sum - t.amount;
         if (t.type === 'payment') return sum + t.amount;
+        if (t.type === 'credit') return sum + t.amount;
         return sum;
       }, 0);
 
@@ -969,6 +970,7 @@ router.delete('/transactions/:id', async (req, res) => {
       const newBalance = memberTransactions.reduce((sum, t) => {
         if (t.type === 'charge') return sum - t.amount;
         if (t.type === 'payment') return sum + t.amount;
+        if (t.type === 'credit') return sum + t.amount;
         return sum;
       }, 0);
 
