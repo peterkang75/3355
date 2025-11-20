@@ -2250,7 +2250,7 @@ function Admin() {
                         .filter(b => b.type !== '컴페티션')
                         .map(booking => (
                           <option key={booking.id} value={booking.id}>
-                            {booking.name} - {booking.date} - {booking.courseName}
+                            {booking.title || '이름 없음'} - {booking.courseName}
                           </option>
                         ))}
                     </select>
