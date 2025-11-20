@@ -422,19 +422,21 @@ function Admin() {
       // 도네이션인 경우 특별 처리: 회원 청구 없이 클럽 잔고에만 추가
       const isDonation = category?.name === '도네이션';
       
-      for (const memberId of selectedMembers) {
+      // 병렬 처리로 속도 개선
+      const transactionPromises = selectedMembers.map(memberId => {
         const member = members.find(m => m.id === memberId);
         const transactionData = {
           type: isDonation ? 'donation' : 'charge',
           amount: parseFloat(selectedIncome.amount),
           description: `${category?.name}${booking ? ` - ${booking.courseName}` : ''}${isDonation ? ` (${member.name})` : ''}`,
           date: selectedIncome.date,
-          memberId: isDonation ? memberId : memberId,
+          memberId: memberId,
           bookingId: selectedIncome.bookingId || null
         };
+        return apiService.createTransaction(transactionData);
+      });
 
-        await apiService.createTransaction(transactionData);
-      }
+      await Promise.all(transactionPromises);
 
       if (isDonation) {
         alert(`${selectedMembers.length}명의 회원 도네이션이 클럽 잔고에 추가되었습니다.`);
@@ -449,7 +451,10 @@ function Admin() {
         amount: '',
         date: new Date().toISOString().split('T')[0]
       });
-      await loadFeeData();
+      
+      // 필요한 데이터만 빠르게 새로고침
+      await refreshBalanceAndOutstanding();
+      if (refreshMembers) await refreshMembers();
     } catch (error) {
       console.error('입금 처리 실패:', error);
       alert('입금 처리에 실패했습니다.');
@@ -485,7 +490,9 @@ function Admin() {
         date: new Date().toISOString().split('T')[0],
         description: ''
       });
-      await loadFeeData();
+      
+      // 필요한 데이터만 빠르게 새로고침
+      await refreshBalanceAndOutstanding();
     } catch (error) {
       console.error('출금 처리 실패:', error);
       alert('출금 처리에 실패했습니다.');
