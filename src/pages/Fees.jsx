@@ -278,7 +278,7 @@ function Fees() {
             transition: 'all 0.2s'
           }}
         >
-          모임 참가비 내역
+          클럽 회계장부
         </button>
       </div>
 
