@@ -3949,7 +3949,7 @@ function Admin() {
                 }}
               >
                 <option value="">선택 안함</option>
-                {bookings.filter(b => b.type !== '컴페티션').map(booking => (
+                {bookings.map(booking => (
                   <option key={booking.id} value={booking.id}>
                     {booking.title || booking.courseName} - {new Date(booking.date).toLocaleDateString('ko-KR')}
                   </option>
