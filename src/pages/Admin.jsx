@@ -182,13 +182,24 @@ function Admin() {
       
       // 3단계: 나머지 데이터 백그라운드 로드
       const [transactionsData, incomeCats, expenseCats, bookingsData] = await Promise.all([
-        apiService.fetchTransactions(10),
+        apiService.fetchTransactions(50),
         cachedIncome ? Promise.resolve(JSON.parse(cachedIncome)) : apiService.fetchIncomeCategories(),
         cachedExpense ? Promise.resolve(JSON.parse(cachedExpense)) : apiService.fetchExpenseCategories(),
         cachedBookings ? Promise.resolve(JSON.parse(cachedBookings)) : apiService.fetchBookings()
       ]);
       
-      setRecentTransactions(transactionsData);
+      // 거래 내역에 누적 클럽 잔액 계산
+      let runningBalance = 0;
+      const transactionsWithBalance = transactionsData.reverse().map(t => {
+        if (t.type === 'payment' || t.type === 'donation') {
+          runningBalance += t.amount;
+        } else if (t.type === 'expense') {
+          runningBalance -= t.amount;
+        }
+        return { ...t, clubBalance: runningBalance };
+      }).reverse();
+      
+      setRecentTransactions(transactionsWithBalance);
       setIncomeCategories(incomeCats || []);
       setExpenseCategories(expenseCats || []);
       setBookings(bookingsData || []);
@@ -2352,7 +2363,7 @@ function Admin() {
 
             <div className="card">
               <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
-                최근 거래 내역
+                최근 거래 내역 (최근 50건)
               </h3>
               {recentTransactions.length === 0 ? (
                 <div style={{ 
@@ -2364,73 +2375,123 @@ function Admin() {
                   <p>거래 내역이 없습니다</p>
                 </div>
               ) : (
-                <div>
-                  {recentTransactions.map(transaction => {
-                    const typeLabel = 
-                      transaction.type === 'charge' ? '참가비 발생' :
-                      transaction.type === 'payment' ? '납부' :
-                      transaction.type === 'expense' ? '클럽 지출' : '도네이션';
-                    
-                    const typeColor =
-                      transaction.type === 'charge' ? 'var(--alert-red)' :
-                      transaction.type === 'payment' ? 'var(--success-green)' :
-                      transaction.type === 'expense' ? 'var(--alert-red)' : 'var(--success-green)';
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{
+                    width: '100%',
+                    borderCollapse: 'collapse',
+                    fontSize: '12px'
+                  }}>
+                    <thead>
+                      <tr style={{
+                        background: 'var(--bg-green)',
+                        borderBottom: '2px solid var(--primary-green)'
+                      }}>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>날짜</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>대화명</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>항목</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>라운딩</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap' }}>금액</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap' }}>클럽잔액</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>집행자</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: '600', whiteSpace: 'nowrap' }}>관리</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentTransactions.map(transaction => {
+                        const typeLabel = 
+                          transaction.type === 'charge' ? '참가비 발생' :
+                          transaction.type === 'payment' ? '납부' :
+                          transaction.type === 'expense' ? '클럽 지출' : '도네이션';
+                        
+                        const typeColor =
+                          transaction.type === 'charge' ? 'var(--alert-red)' :
+                          transaction.type === 'payment' ? 'var(--success-green)' :
+                          transaction.type === 'expense' ? 'var(--alert-red)' : 'var(--success-green)';
 
-                    const sign = 
-                      transaction.type === 'payment' || transaction.type === 'donation' ? '+' : '-';
+                        const sign = 
+                          transaction.type === 'payment' || transaction.type === 'donation' ? '+' : '-';
+                        
+                        const bookingName = transaction.booking ? 
+                          (transaction.booking.title || transaction.booking.courseName) : '-';
 
-                    return (
-                      <div 
-                        key={transaction.id}
-                        style={{
-                          padding: '12px',
-                          borderBottom: '1px solid var(--border-color)',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center'
-                        }}
-                      >
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontWeight: '600', marginBottom: '4px' }}>
-                            {typeLabel}
-                            {transaction.member && ` - ${transaction.member.name}`}
-                          </div>
-                          <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                            {new Date(transaction.date).toLocaleDateString('ko-KR')}
-                          </div>
-                          {transaction.description && (
-                            <div style={{ fontSize: '12px', opacity: 0.6, marginTop: '4px' }}>
-                              {transaction.description}
-                            </div>
-                          )}
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <div style={{
-                            fontSize: '18px',
-                            fontWeight: '700',
-                            color: typeColor,
-                            minWidth: '80px',
-                            textAlign: 'right'
-                          }}>
-                            {sign}${transaction.amount.toLocaleString()}
-                          </div>
-                          <button
-                            onClick={() => handleDeleteTransaction(transaction.id)}
+                        return (
+                          <tr 
+                            key={transaction.id}
                             style={{
-                              background: 'none',
-                              border: 'none',
-                              color: 'var(--alert-red)',
-                              cursor: 'pointer',
-                              fontSize: '20px',
-                              padding: '0 8px'
+                              borderBottom: '1px solid var(--border-color)'
                             }}
                           >
-                            ×
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
+                            <td style={{ padding: '8px', whiteSpace: 'nowrap' }}>
+                              {new Date(transaction.date).toLocaleDateString('ko-KR', { 
+                                month: '2-digit', 
+                                day: '2-digit' 
+                              })}
+                            </td>
+                            <td style={{ padding: '8px', whiteSpace: 'nowrap' }}>
+                              {transaction.member?.nickname || transaction.member?.name || '-'}
+                            </td>
+                            <td style={{ padding: '8px' }}>
+                              <div style={{ 
+                                maxWidth: '150px', 
+                                overflow: 'hidden', 
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                              }}>
+                                {transaction.description || typeLabel}
+                              </div>
+                            </td>
+                            <td style={{ padding: '8px' }}>
+                              <div style={{ 
+                                maxWidth: '120px', 
+                                overflow: 'hidden', 
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                              }}>
+                                {bookingName}
+                              </div>
+                            </td>
+                            <td style={{ 
+                              padding: '8px', 
+                              textAlign: 'right',
+                              fontWeight: '600',
+                              color: typeColor,
+                              whiteSpace: 'nowrap'
+                            }}>
+                              {sign}${transaction.amount.toLocaleString()}
+                            </td>
+                            <td style={{ 
+                              padding: '8px', 
+                              textAlign: 'right',
+                              fontWeight: '600',
+                              color: 'var(--primary-green)',
+                              whiteSpace: 'nowrap'
+                            }}>
+                              ${transaction.clubBalance?.toLocaleString() || '0'}
+                            </td>
+                            <td style={{ padding: '8px', fontSize: '11px', opacity: 0.7, whiteSpace: 'nowrap' }}>
+                              by {user?.nickname || user?.name || '관리자'}
+                            </td>
+                            <td style={{ padding: '8px', textAlign: 'center' }}>
+                              <button
+                                onClick={() => handleDeleteTransaction(transaction.id)}
+                                style={{
+                                  background: 'none',
+                                  border: 'none',
+                                  color: 'var(--alert-red)',
+                                  cursor: 'pointer',
+                                  fontSize: '16px',
+                                  padding: '0 4px'
+                                }}
+                                title="삭제"
+                              >
+                                ×
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
                 </div>
               )}
             </div>
