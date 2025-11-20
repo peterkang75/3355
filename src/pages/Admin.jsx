@@ -57,6 +57,7 @@ function Admin() {
   const [clubBalance, setClubBalance] = useState(0);
   const [outstandingBalances, setOutstandingBalances] = useState([]);
   const [recentTransactions, setRecentTransactions] = useState([]);
+  const [paymentAmounts, setPaymentAmounts] = useState({});
   const [transactionForm, setTransactionForm] = useState({
     type: 'charge',
     amount: '',
@@ -424,6 +425,70 @@ function Admin() {
     } catch (error) {
       console.error('출금 처리 실패:', error);
       alert('출금 처리에 실패했습니다.');
+    }
+  };
+
+  const handleFullPayment = async (memberId, amount) => {
+    try {
+      const member = members.find(m => m.id === memberId);
+      if (!member) return;
+
+      const transactionData = {
+        type: 'payment',
+        amount: Math.abs(amount),
+        description: '미수금 전액 납부',
+        date: new Date().toISOString().split('T')[0],
+        memberId: memberId,
+        bookingId: null
+      };
+
+      await apiService.createTransaction(transactionData);
+      alert(`${member.nickname || member.name}님의 미수금이 전액 납부되었습니다.`);
+      await loadFeeData();
+      
+      setPaymentAmounts(prev => {
+        const updated = { ...prev };
+        delete updated[memberId];
+        return updated;
+      });
+    } catch (error) {
+      console.error('납부 처리 실패:', error);
+      alert('납부 처리에 실패했습니다.');
+    }
+  };
+
+  const handlePartialPayment = async (memberId) => {
+    try {
+      const amount = parseFloat(paymentAmounts[memberId]);
+      if (!amount || amount <= 0) {
+        alert('올바른 금액을 입력해주세요.');
+        return;
+      }
+
+      const member = members.find(m => m.id === memberId);
+      if (!member) return;
+
+      const transactionData = {
+        type: 'payment',
+        amount: amount,
+        description: '부분 납부',
+        date: new Date().toISOString().split('T')[0],
+        memberId: memberId,
+        bookingId: null
+      };
+
+      await apiService.createTransaction(transactionData);
+      alert(`${member.nickname || member.name}님의 ${amount.toLocaleString()}원이 납부 처리되었습니다.`);
+      await loadFeeData();
+      
+      setPaymentAmounts(prev => {
+        const updated = { ...prev };
+        delete updated[memberId];
+        return updated;
+      });
+    } catch (error) {
+      console.error('납부 처리 실패:', error);
+      alert('납부 처리에 실패했습니다.');
     }
   };
 
@@ -2108,6 +2173,9 @@ function Admin() {
 
             {outstandingBalances.length > 0 && (
               <div className="card">
+                <h2 style={{ marginBottom: '8px', fontSize: '20px', fontWeight: '700', color: 'var(--primary-green)' }}>
+                  클럽 입금 처리
+                </h2>
                 <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--alert-red)' }}>
                   ⚠ 미수금 회원
                 </h3>
@@ -2119,20 +2187,72 @@ function Admin() {
                         padding: '12px',
                         borderBottom: '1px solid var(--border-color)',
                         display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
+                        flexDirection: 'column',
+                        gap: '8px'
                       }}
                     >
-                      <div>
-                        <div style={{ fontWeight: '600' }}>{ob.memberName}</div>
-                        <div style={{ fontSize: '13px', opacity: 0.7 }}>{ob.memberNickname}</div>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <div style={{ fontWeight: '600', fontSize: '16px' }}>{ob.memberNickname || ob.memberName}</div>
+                          {ob.memberNickname && <div style={{ fontSize: '13px', opacity: 0.7 }}>{ob.memberName}</div>}
+                        </div>
+                        <div style={{
+                          fontSize: '18px',
+                          fontWeight: '700',
+                          color: 'var(--alert-red)'
+                        }}>
+                          ${Math.abs(ob.balance).toLocaleString()}
+                        </div>
                       </div>
-                      <div style={{
-                        fontSize: '18px',
-                        fontWeight: '700',
-                        color: 'var(--alert-red)'
-                      }}>
-                        ${Math.abs(ob.balance).toLocaleString()}
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <button
+                          onClick={() => handleFullPayment(ob.memberId, ob.balance)}
+                          style={{
+                            padding: '8px 14px',
+                            background: 'var(--primary-green)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          전체금액지불
+                        </button>
+                        <input
+                          type="number"
+                          placeholder="금액 입력"
+                          value={paymentAmounts[ob.memberId] || ''}
+                          onChange={(e) => setPaymentAmounts(prev => ({
+                            ...prev,
+                            [ob.memberId]: e.target.value
+                          }))}
+                          style={{
+                            flex: 1,
+                            padding: '8px',
+                            border: '1px solid var(--border-color)',
+                            borderRadius: '6px',
+                            fontSize: '14px'
+                          }}
+                        />
+                        <button
+                          onClick={() => handlePartialPayment(ob.memberId)}
+                          style={{
+                            padding: '8px 14px',
+                            background: '#4CAF50',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          납부처리
+                        </button>
                       </div>
                     </div>
                   ))}
