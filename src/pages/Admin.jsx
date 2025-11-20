@@ -2414,6 +2414,13 @@ function Admin() {
                         const bookingName = transaction.booking ? 
                           (transaction.booking.title || transaction.booking.courseName) : '-';
 
+                        // 항목명 추출 (description에서 첫 번째 부분만)
+                        let categoryName = typeLabel;
+                        if (transaction.description) {
+                          const parts = transaction.description.split(' - ');
+                          categoryName = parts[0].replace(/\s*\([^)]*\)$/, ''); // 괄호 내용 제거
+                        }
+
                         return (
                           <tr 
                             key={transaction.id}
@@ -2423,6 +2430,7 @@ function Admin() {
                           >
                             <td style={{ padding: '8px', whiteSpace: 'nowrap' }}>
                               {new Date(transaction.date).toLocaleDateString('ko-KR', { 
+                                year: '2-digit',
                                 month: '2-digit', 
                                 day: '2-digit' 
                               })}
@@ -2437,7 +2445,7 @@ function Admin() {
                                 textOverflow: 'ellipsis',
                                 whiteSpace: 'nowrap'
                               }}>
-                                {transaction.description || typeLabel}
+                                {categoryName}
                               </div>
                             </td>
                             <td style={{ padding: '8px' }}>
