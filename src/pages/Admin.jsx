@@ -181,13 +181,13 @@ function Admin() {
       
       // 3단계: 나머지 데이터 백그라운드 로드
       const [transactionsData, incomeCats, expenseCats, bookingsData] = await Promise.all([
-        apiService.fetchTransactions(),
+        apiService.fetchTransactions(10),
         cachedIncome ? Promise.resolve(JSON.parse(cachedIncome)) : apiService.fetchIncomeCategories(),
         cachedExpense ? Promise.resolve(JSON.parse(cachedExpense)) : apiService.fetchExpenseCategories(),
         cachedBookings ? Promise.resolve(JSON.parse(cachedBookings)) : apiService.fetchBookings()
       ]);
       
-      setRecentTransactions(transactionsData.slice(0, 10));
+      setRecentTransactions(transactionsData);
       setIncomeCategories(incomeCats || []);
       setExpenseCategories(expenseCats || []);
       setBookings(bookingsData || []);

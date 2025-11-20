@@ -329,8 +329,9 @@ class ApiService {
     return response.json();
   }
 
-  async fetchTransactions() {
-    const response = await fetch(`${API_BASE}/transactions`);
+  async fetchTransactions(limit) {
+    const url = limit ? `${API_BASE}/transactions?limit=${limit}` : `${API_BASE}/transactions`;
+    const response = await fetch(url);
     if (!response.ok) throw new Error('Failed to fetch transactions');
     return response.json();
   }

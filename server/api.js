@@ -757,15 +757,30 @@ router.patch('/members/:id/reject', async (req, res) => {
 
 // ============= Transaction API =============
 
-// 모든 거래 내역 조회
+// 모든 거래 내역 조회 (최적화: limit 지원)
 router.get('/transactions', async (req, res) => {
   try {
+    const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
+    
     const transactions = await prisma.transaction.findMany({
       include: {
-        member: true,
-        booking: true
+        member: {
+          select: {
+            id: true,
+            name: true,
+            nickname: true
+          }
+        },
+        booking: {
+          select: {
+            id: true,
+            courseName: true,
+            date: true
+          }
+        }
       },
-      orderBy: { date: 'desc' }
+      orderBy: { date: 'desc' },
+      take: limit
     });
     res.json(transactions);
   } catch (error) {
@@ -811,10 +826,15 @@ router.get('/transactions/balance/:memberId', async (req, res) => {
   }
 });
 
-// 클럽 잔액 계산
+// 클럽 잔액 계산 (최적화)
 router.get('/transactions/club-balance', async (req, res) => {
   try {
-    const transactions = await prisma.transaction.findMany();
+    const transactions = await prisma.transaction.findMany({
+      select: {
+        type: true,
+        amount: true
+      }
+    });
 
     const balance = transactions.reduce((sum, t) => {
       if (t.type === 'payment') return sum + t.amount;
@@ -830,35 +850,57 @@ router.get('/transactions/club-balance', async (req, res) => {
   }
 });
 
-// 회원별 미수금 조회
+// 회원별 미수금 조회 (최적화: N+1 쿼리 해결)
 router.get('/transactions/outstanding', async (req, res) => {
   try {
-    const members = await prisma.member.findMany({
-      where: { isActive: true }
+    const [members, transactions] = await Promise.all([
+      prisma.member.findMany({
+        where: { isActive: true },
+        select: {
+          id: true,
+          name: true,
+          nickname: true
+        }
+      }),
+      prisma.transaction.findMany({
+        where: {
+          OR: [
+            { type: 'charge' },
+            { type: 'payment' }
+          ]
+        },
+        select: {
+          memberId: true,
+          type: true,
+          amount: true
+        }
+      })
+    ]);
+
+    const balanceByMember = {};
+    
+    transactions.forEach(t => {
+      if (!t.memberId) return;
+      if (!balanceByMember[t.memberId]) {
+        balanceByMember[t.memberId] = 0;
+      }
+      if (t.type === 'charge') {
+        balanceByMember[t.memberId] -= t.amount;
+      } else if (t.type === 'payment') {
+        balanceByMember[t.memberId] += t.amount;
+      }
     });
 
-    const outstandingBalances = await Promise.all(
-      members.map(async (member) => {
-        const transactions = await prisma.transaction.findMany({
-          where: { memberId: member.id }
-        });
+    const outstandingBalances = members
+      .map(member => ({
+        memberId: member.id,
+        memberName: member.name,
+        memberNickname: member.nickname,
+        balance: balanceByMember[member.id] || 0
+      }))
+      .filter(ob => ob.balance < 0);
 
-        const balance = transactions.reduce((sum, t) => {
-          if (t.type === 'charge') return sum - t.amount;
-          if (t.type === 'payment') return sum + t.amount;
-          return sum;
-        }, 0);
-
-        return {
-          memberId: member.id,
-          memberName: member.name,
-          memberNickname: member.nickname,
-          balance
-        };
-      })
-    );
-
-    res.json(outstandingBalances.filter(ob => ob.balance < 0));
+    res.json(outstandingBalances);
   } catch (error) {
     console.error('Error fetching outstanding balances:', error);
     res.status(500).json({ error: 'Failed to fetch outstanding balances' });
