@@ -2268,10 +2268,8 @@ function Admin() {
                         gap: '8px'
                       }}
                     >
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <div>
-                          <div style={{ fontWeight: '600', fontSize: '16px' }}>{ob.memberNickname || ob.memberName}</div>
-                        </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ fontWeight: '600', fontSize: '16px' }}>{ob.memberNickname || ob.memberName}</div>
                         <div style={{
                           fontSize: '18px',
                           fontWeight: '700',
