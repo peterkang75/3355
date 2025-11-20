@@ -352,63 +352,58 @@ function Fees() {
                   {userTransactions.map(transaction => {
                     // 라운딩 이름 추출
                     const bookingName = transaction.booking ? 
-                      (transaction.booking.title || transaction.booking.courseName) : '';
+                      (transaction.booking.title || transaction.booking.courseName) : '-';
                     
                     return (
                       <div 
                         key={transaction.id}
                         style={{
-                          padding: '12px 16px',
+                          padding: '10px 12px',
                           borderBottom: '1px solid var(--border-color)',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          gap: '12px',
-                          fontSize: '14px'
-                        }}
-                      >
-                        <div style={{ 
-                          flex: '1',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '8px',
-                          overflow: 'hidden'
+                          fontSize: '13px'
+                        }}
+                      >
+                        <div style={{ 
+                          width: '80px',
+                          fontWeight: '600',
+                          flexShrink: 0,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
                         }}>
-                          <span style={{ 
-                            fontWeight: '600',
-                            whiteSpace: 'nowrap'
-                          }}>
-                            {getTransactionLabel(transaction)}
-                          </span>
-                          {bookingName && (
-                            <>
-                              <span style={{ opacity: 0.5 }}>·</span>
-                              <span style={{ 
-                                opacity: 0.7,
-                                overflow: 'hidden',
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap'
-                              }}>
-                                {bookingName}
-                              </span>
-                            </>
-                          )}
-                          <span style={{ opacity: 0.5 }}>·</span>
-                          <span style={{ 
-                            opacity: 0.7,
-                            whiteSpace: 'nowrap'
-                          }}>
-                            {new Date(transaction.date).toLocaleDateString('ko-KR', { 
-                              month: 'short', 
-                              day: 'numeric' 
-                            })}
-                          </span>
+                          {getTransactionLabel(transaction)}
+                        </div>
+                        <div style={{ 
+                          flex: '1',
+                          minWidth: '0',
+                          opacity: 0.7,
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap'
+                        }}>
+                          {bookingName}
+                        </div>
+                        <div style={{ 
+                          width: '70px',
+                          flexShrink: 0,
+                          opacity: 0.7,
+                          textAlign: 'center'
+                        }}>
+                          {new Date(transaction.date).toLocaleDateString('ko-KR', { 
+                            month: 'short', 
+                            day: 'numeric' 
+                          })}
                         </div>
                         <div style={{
-                          fontSize: '16px',
+                          width: '80px',
+                          fontSize: '15px',
                           fontWeight: '700',
                           color: getTransactionColor(transaction),
-                          whiteSpace: 'nowrap'
+                          textAlign: 'right',
+                          flexShrink: 0
                         }}>
                           {getTransactionSign(transaction)}
                           ${transaction.amount.toLocaleString()}
