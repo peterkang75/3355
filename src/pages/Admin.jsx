@@ -1981,7 +1981,7 @@ function Admin() {
                             borderRadius: '6px',
                             fontSize: '13px',
                             fontWeight: selectedExpense.categoryId === cat.id ? '600' : '500',
-                            background: selectedExpense.categoryId === cat.id ? 'var(--primary-green)' : '#f0f0f0',
+                            background: selectedExpense.categoryId === cat.id ? '#E59879' : '#f0f0f0',
                             color: selectedExpense.categoryId === cat.id ? 'white' : 'var(--text-dark)',
                             cursor: 'pointer',
                             transition: 'all 0.2s',
