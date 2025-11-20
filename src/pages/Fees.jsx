@@ -322,7 +322,7 @@ function Fees() {
                 fontSize: '14px'
               }}>
                 <div>
-                  <div style={{ opacity: 0.9 }}>총 납부</div>
+                  <div style={{ opacity: 0.9 }}>총 납부(도네이션 포함)</div>
                   <div style={{ fontWeight: '600', marginTop: '4px' }}>
                     ${totalPayments.toLocaleString()}
                   </div>
