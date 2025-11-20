@@ -74,12 +74,6 @@ function Fees() {
         const parts = transaction.description.split(' - ');
         const categoryName = parts[0].replace(/\s*\([^)]*\)$/, ''); // 괄호 내용 제거
         
-        console.log('💳 거래 라벨 생성:', {
-          description: transaction.description,
-          categoryName: categoryName,
-          hasRounding: categoryName.includes('라운딩')
-        });
-        
         // "라운딩"이 포함된 경우만 "참가비"로 표시
         if (categoryName.includes('라운딩')) {
           return '참가비';

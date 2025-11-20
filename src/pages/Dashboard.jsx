@@ -1185,12 +1185,7 @@ function Dashboard() {
               fontWeight: '700',
               color: (user?.balance ?? 0) < 0 ? 'var(--alert-red)' : 'var(--accent-gold)'
             }}>
-              {(() => {
-                console.log('💰 대시보드 잔액 표시 - user:', user);
-                console.log('💰 대시보드 잔액 표시 - balance:', user?.balance);
-                const balance = user?.balance ?? 0;
-                return `${balance.toLocaleString()}원`;
-              })()}
+              ${(user?.balance ?? 0).toLocaleString()}
             </div>
           </div>
         </div>
