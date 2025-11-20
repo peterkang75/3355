@@ -52,6 +52,9 @@ function Fees() {
   const balance = totalPayments - totalCharges;
 
   const getTransactionLabel = (transaction) => {
+    if (transaction.type === 'donation') {
+      return '도네이션';
+    }
     if (transaction.type === 'charge') {
       // description에서 항목명 추출
       if (transaction.description) {
@@ -63,7 +66,7 @@ function Fees() {
           return '참가비';
         }
         
-        // 그 외에는 항목명 그대로 표시 (예: "회식비", "도네이션" 등)
+        // 그 외에는 항목명 그대로 표시 (예: "회식비청구" 등)
         return categoryName;
       }
       return '참가비 발생';
@@ -346,44 +349,73 @@ function Fees() {
                 </div>
               ) : (
                 <div>
-                  {userTransactions.map(transaction => (
-                    <div 
-                      key={transaction.id}
-                      style={{
-                        padding: '16px',
-                        borderBottom: '1px solid var(--border-color)',
-                        borderRadius: '8px',
-                        marginBottom: '8px',
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center'
-                      }}
-                    >
-                      <div>
-                        <div style={{ fontWeight: '600', marginBottom: '4px' }}>
-                          {getTransactionLabel(transaction)}
+                  {userTransactions.map(transaction => {
+                    // 라운딩 이름 추출
+                    const bookingName = transaction.booking ? 
+                      (transaction.booking.title || transaction.booking.courseName) : '';
+                    
+                    return (
+                      <div 
+                        key={transaction.id}
+                        style={{
+                          padding: '12px 16px',
+                          borderBottom: '1px solid var(--border-color)',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          gap: '12px',
+                          fontSize: '14px'
+                        }}
+                      >
+                        <div style={{ 
+                          flex: '1',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          overflow: 'hidden'
+                        }}>
+                          <span style={{ 
+                            fontWeight: '600',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {getTransactionLabel(transaction)}
+                          </span>
+                          {bookingName && (
+                            <>
+                              <span style={{ opacity: 0.5 }}>·</span>
+                              <span style={{ 
+                                opacity: 0.7,
+                                overflow: 'hidden',
+                                textOverflow: 'ellipsis',
+                                whiteSpace: 'nowrap'
+                              }}>
+                                {bookingName}
+                              </span>
+                            </>
+                          )}
+                          <span style={{ opacity: 0.5 }}>·</span>
+                          <span style={{ 
+                            opacity: 0.7,
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {new Date(transaction.date).toLocaleDateString('ko-KR', { 
+                              month: 'short', 
+                              day: 'numeric' 
+                            })}
+                          </span>
                         </div>
-                        <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                          {new Date(transaction.date).toLocaleDateString('ko-KR')}
-                        </div>
-                        {transaction.description && (
-                          <div style={{ fontSize: '12px', opacity: 0.6, marginTop: '4px' }}>
-                            {transaction.description}
-                          </div>
-                        )}
-                      </div>
-                      <div style={{ textAlign: 'right' }}>
                         <div style={{
-                          fontSize: '18px',
+                          fontSize: '16px',
                           fontWeight: '700',
-                          color: getTransactionColor(transaction)
+                          color: getTransactionColor(transaction),
+                          whiteSpace: 'nowrap'
                         }}>
                           {getTransactionSign(transaction)}
                           ${transaction.amount.toLocaleString()}
                         </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
