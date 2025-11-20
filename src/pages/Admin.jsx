@@ -180,12 +180,12 @@ function Admin() {
       setClubBalance(balanceData.balance);
       setOutstandingBalances(outstandingData);
       
-      // 3단계: 나머지 데이터 백그라운드 로드
+      // 3단계: 나머지 데이터 백그라운드 로드 (라운딩은 항상 최신 데이터)
       const [transactionsData, incomeCats, expenseCats, bookingsData] = await Promise.all([
         apiService.fetchTransactions(50),
         cachedIncome ? Promise.resolve(JSON.parse(cachedIncome)) : apiService.fetchIncomeCategories(),
         cachedExpense ? Promise.resolve(JSON.parse(cachedExpense)) : apiService.fetchExpenseCategories(),
-        cachedBookings ? Promise.resolve(JSON.parse(cachedBookings)) : apiService.fetchBookings()
+        apiService.fetchBookings() // 항상 최신 라운딩 데이터 가져오기
       ]);
       
       // 거래 내역에 누적 클럽 잔액 계산
