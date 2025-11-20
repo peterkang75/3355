@@ -2419,6 +2419,11 @@ function Admin() {
                         if (transaction.description) {
                           const parts = transaction.description.split(' - ');
                           categoryName = parts[0].replace(/\s*\([^)]*\)$/, ''); // 괄호 내용 제거
+                          
+                          // 라운딩이 있으면 항목에 라운딩 이름 추가
+                          if (transaction.booking && parts.length > 1) {
+                            categoryName = `${categoryName} (${parts[1]})`;
+                          }
                         }
 
                         return (
