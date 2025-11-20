@@ -2271,7 +2271,6 @@ function Admin() {
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
                           <div style={{ fontWeight: '600', fontSize: '16px' }}>{ob.memberNickname || ob.memberName}</div>
-                          {ob.memberNickname && <div style={{ fontSize: '13px', opacity: 0.7 }}>{ob.memberName}</div>}
                         </div>
                         <div style={{
                           fontSize: '18px',
@@ -2285,12 +2284,12 @@ function Admin() {
                         <button
                           onClick={() => handleFullPayment(ob.memberId, ob.balance)}
                           style={{
-                            padding: '8px 14px',
+                            padding: '12px 20px',
                             background: 'var(--primary-green)',
                             color: 'white',
                             border: 'none',
                             borderRadius: '6px',
-                            fontSize: '13px',
+                            fontSize: '15px',
                             fontWeight: '600',
                             cursor: 'pointer',
                             whiteSpace: 'nowrap'
@@ -2298,16 +2297,17 @@ function Admin() {
                         >
                           전체금액지불
                         </button>
+                        <div style={{ flex: 1 }}></div>
                         <input
                           type="number"
-                          placeholder="금액 입력"
+                          placeholder="금액"
                           value={paymentAmounts[ob.memberId] || ''}
                           onChange={(e) => setPaymentAmounts(prev => ({
                             ...prev,
                             [ob.memberId]: e.target.value
                           }))}
                           style={{
-                            flex: 1,
+                            width: '100px',
                             padding: '8px',
                             border: '1px solid var(--border-color)',
                             borderRadius: '6px',
