@@ -86,12 +86,14 @@ function Fees() {
   const getTransactionColor = (transaction) => {
     if (transaction.type === 'charge') return 'var(--alert-red)';
     if (transaction.type === 'payment') return 'var(--success-green)';
+    if (transaction.type === 'donation') return 'var(--success-green)';
     return 'var(--text-primary)';
   };
 
   const getTransactionSign = (transaction) => {
     if (transaction.type === 'charge') return '-';
     if (transaction.type === 'payment') return '+';
+    if (transaction.type === 'donation') return '+';
     return '';
   };
 
