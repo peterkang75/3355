@@ -180,6 +180,19 @@ function Admin() {
     }
   };
 
+  const refreshBalanceAndOutstanding = async () => {
+    try {
+      const [balanceData, outstandingData] = await Promise.all([
+        apiService.fetchClubBalance(),
+        apiService.fetchOutstandingBalances()
+      ]);
+      setClubBalance(balanceData.balance);
+      setOutstandingBalances(outstandingData);
+    } catch (error) {
+      console.error('잔액 데이터 새로고침 실패:', error);
+    }
+  };
+
   const loadCategories = async () => {
     try {
       const [income, expense] = await Promise.all([
@@ -444,7 +457,10 @@ function Admin() {
 
       await apiService.createTransaction(transactionData);
       alert(`${member.nickname || member.name}님의 미수금이 전액 납부되었습니다.`);
-      await loadFeeData();
+      
+      // 필요한 데이터만 빠르게 새로고침
+      await refreshBalanceAndOutstanding();
+      if (refreshMembers) await refreshMembers();
       
       setPaymentAmounts(prev => {
         const updated = { ...prev };
@@ -479,7 +495,10 @@ function Admin() {
 
       await apiService.createTransaction(transactionData);
       alert(`${member.nickname || member.name}님의 ${amount.toLocaleString()}원이 납부 처리되었습니다.`);
-      await loadFeeData();
+      
+      // 필요한 데이터만 빠르게 새로고침
+      await refreshBalanceAndOutstanding();
+      if (refreshMembers) await refreshMembers();
       
       setPaymentAmounts(prev => {
         const updated = { ...prev };

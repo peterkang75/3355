@@ -197,7 +197,11 @@ export function AppProvider({ children }) {
         const membersData = await apiService.fetchMembers();
         if (membersData) {
           setMembers(membersData);
-          localStorage.setItem('golfMembers', JSON.stringify(membersData));
+          try {
+            localStorage.setItem('golfMembers', JSON.stringify(membersData));
+          } catch (e) {
+            console.warn('⚠️ 회원 데이터 저장 실패 (quota):', e.message);
+          }
           
           const savedUser = localStorage.getItem('golfUser');
           if (savedUser) {
@@ -205,7 +209,11 @@ export function AppProvider({ children }) {
             const updatedUser = membersData.find(m => m.id === userData.id);
             if (updatedUser) {
               setUser(updatedUser);
-              localStorage.setItem('golfUser', JSON.stringify(updatedUser));
+              try {
+                localStorage.setItem('golfUser', JSON.stringify(updatedUser));
+              } catch (e) {
+                console.warn('⚠️ 사용자 데이터 저장 실패:', e.message);
+              }
             }
           }
         }
@@ -220,7 +228,11 @@ export function AppProvider({ children }) {
         const postsData = await apiService.fetchPosts();
         if (postsData) {
           setPosts(postsData);
-          localStorage.setItem('golfPosts', JSON.stringify(postsData));
+          try {
+            localStorage.setItem('golfPosts', JSON.stringify(postsData));
+          } catch (e) {
+            console.warn('⚠️ 게시글 데이터 저장 실패 (quota):', e.message);
+          }
         }
       } catch (error) {
         console.error('게시글 새로고침 실패:', error);
@@ -233,7 +245,11 @@ export function AppProvider({ children }) {
         const bookingsData = await apiService.fetchBookings();
         if (bookingsData) {
           setBookings(bookingsData);
-          localStorage.setItem('golfBookings', JSON.stringify(bookingsData));
+          try {
+            localStorage.setItem('golfBookings', JSON.stringify(bookingsData));
+          } catch (e) {
+            console.warn('⚠️ 라운딩 데이터 저장 실패 (quota):', e.message);
+          }
         }
       } catch (error) {
         console.error('라운딩 새로고침 실패:', error);
@@ -241,26 +257,9 @@ export function AppProvider({ children }) {
     });
 
     socket.on('transactions:updated', async () => {
-      console.log('📢 참가비 데이터 업데이트 이벤트 수신');
-      try {
-        const membersData = await apiService.fetchMembers();
-        if (membersData) {
-          setMembers(membersData);
-          localStorage.setItem('golfMembers', JSON.stringify(membersData));
-          
-          const savedUser = localStorage.getItem('golfUser');
-          if (savedUser) {
-            const userData = JSON.parse(savedUser);
-            const updatedUser = membersData.find(m => m.id === userData.id);
-            if (updatedUser) {
-              setUser(updatedUser);
-              localStorage.setItem('golfUser', JSON.stringify(updatedUser));
-            }
-          }
-        }
-      } catch (error) {
-        console.error('참가비 새로고침 실패:', error);
-      }
+      console.log('📢 거래 데이터 업데이트 이벤트 수신');
+      // 회원 잔액 업데이트는 members:updated 이벤트에서 처리되므로 중복 fetch 제거
+      // 필요시 특정 페이지에서 거래 내역만 개별적으로 새로고침
     });
 
     const handleVisibilityChange = async () => {
