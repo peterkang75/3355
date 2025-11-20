@@ -1960,7 +1960,7 @@ function Admin() {
             )}
 
             {clubTab === 'expense' && (
-              <div className="card" style={{ marginBottom: '16px' }}>
+              <div className="card" style={{ marginBottom: '16px', background: '#F5F5DC' }}>
                 <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
                   클럽 출금 생성
                 </h3>
