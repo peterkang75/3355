@@ -2491,8 +2491,9 @@ function Admin() {
                           categoryName = parts[0].replace(/\s*\([^)]*\)$/, ''); // 괄호 내용 제거
                         }
                         
-                        // 라운딩 참가비인 경우 "참가비"로 표시
-                        if (transaction.booking && (transaction.type === 'charge' || categoryName.includes('라운딩'))) {
+                        // 라운딩 참가 버튼으로 생성된 거래만 "참가비"로 표시
+                        // (description에 "라운딩"이 포함된 경우만 참가비)
+                        if (categoryName.includes('라운딩') && transaction.type === 'charge') {
                           categoryName = '참가비';
                         }
 
