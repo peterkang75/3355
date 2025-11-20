@@ -2411,19 +2411,20 @@ function Admin() {
                         const sign = 
                           transaction.type === 'payment' || transaction.type === 'donation' ? '+' : '-';
                         
+                        // 라운딩 이름 (라운딩 컬럼용)
                         const bookingName = transaction.booking ? 
                           (transaction.booking.title || transaction.booking.courseName) : '-';
 
-                        // 항목명 추출 (description에서 첫 번째 부분만)
+                        // 항목명 추출 (항목 컬럼용)
                         let categoryName = typeLabel;
                         if (transaction.description) {
                           const parts = transaction.description.split(' - ');
                           categoryName = parts[0].replace(/\s*\([^)]*\)$/, ''); // 괄호 내용 제거
-                          
-                          // 라운딩이 있으면 항목에 라운딩 이름 추가
-                          if (transaction.booking && parts.length > 1) {
-                            categoryName = `${categoryName} (${parts[1]})`;
-                          }
+                        }
+                        
+                        // 라운딩 참가비인 경우 "참가비"로 표시
+                        if (transaction.booking && (transaction.type === 'charge' || categoryName.includes('라운딩'))) {
+                          categoryName = '참가비';
                         }
 
                         return (
