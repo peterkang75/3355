@@ -22,9 +22,10 @@ function Navigation({ user, onLogout }) {
     e.preventDefault();
     
     if (location.pathname === path) {
+      navigate(path, { replace: true, state: { reset: true } });
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      navigate(path);
+      navigate(path, { state: { reset: true } });
       setTimeout(() => {
         window.scrollTo({ top: 0, behavior: 'auto' });
       }, 100);

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import CrownIcon from '../components/CrownIcon';
 import api from '../services/api';
 
 function Fees() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, members } = useApp();
   const [activeTab, setActiveTab] = useState('personal');
   const [balance, setBalance] = useState(0);
@@ -13,6 +14,13 @@ function Fees() {
   const [allTransactions, setAllTransactions] = useState([]);
   const [ledgerFilter, setLedgerFilter] = useState({ type: 'all', memberId: 'all' });
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (location.state?.reset) {
+      setActiveTab('personal');
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   useEffect(() => {
     if (activeTab === 'personal') {

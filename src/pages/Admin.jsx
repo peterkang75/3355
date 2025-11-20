@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 import CrownIcon from '../components/CrownIcon';
 
 function Admin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, addFee, courses, addCourse, refreshMembers, refreshCourses, members: contextMembers } = useApp();
   const [activeTab, setActiveTab] = useState('menu');
   const [members, setMembers] = useState([]);
@@ -104,6 +105,13 @@ function Admin() {
     { id: 'create_post', name: '게시판 작성' },
     { id: 'member_approval', name: '회원 승인' }
   ];
+
+  useEffect(() => {
+    if (location.state?.reset) {
+      setActiveTab('menu');
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   useEffect(() => {
     if (contextMembers) {
