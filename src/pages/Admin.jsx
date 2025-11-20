@@ -1818,20 +1818,26 @@ function Admin() {
             <div className="card" style={{ 
               background: 'linear-gradient(135deg, #28a745 0%, #218838 100%)',
               color: 'white',
-              padding: '12px'
+              padding: '12px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
             }}>
-              <div style={{ fontSize: '10px', marginBottom: '4px', opacity: 0.9 }}>
-                클럽 잔액
-              </div>
-              <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
-                ${clubBalance.toLocaleString()}
+              <div>
+                <div style={{ fontSize: '10px', marginBottom: '4px', opacity: 0.9 }}>
+                  클럽 잔액
+                </div>
+                <div style={{ fontSize: '28px', fontWeight: '700' }}>
+                  ${clubBalance.toLocaleString()}
+                </div>
               </div>
               <div style={{ 
-                paddingTop: '8px',
-                borderTop: '1px solid rgba(255,255,255,0.3)',
-                fontSize: '10px'
+                fontSize: '11px',
+                textAlign: 'right',
+                opacity: 0.9
               }}>
-                <div style={{ opacity: 0.9 }}>미수금 회원: {outstandingBalances.length}명</div>
+                <div>미수금 회원</div>
+                <div style={{ fontSize: '20px', fontWeight: '700', marginTop: '4px' }}>{outstandingBalances.length}명</div>
               </div>
             </div>
 
