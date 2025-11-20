@@ -286,26 +286,55 @@ function Dashboard() {
           }
         }
         
-        // 참가 취소 처리
-        const updatedParticipants = participants
-          .filter(p => p.phone !== user.phone)
-          .map(p => JSON.stringify(p));
-        
-        await updateBooking(bookingId, {
-          participants: updatedParticipants
-        });
-        
-        // 참가비가 있는 경우 크레딧 트랜잭션 생성 (환불)
+        // 참가 취소 - 환불 방식 선택
         if (participationFee > 0) {
-          const transactionData = {
-            type: 'credit',
-            amount: participationFee,
-            description: `참가취소(환불)`,
-            date: new Date().toISOString().split('T')[0],
-            memberId: user.id,
-            bookingId: bookingId
-          };
-          await apiService.createTransaction(transactionData);
+          const choice = window.confirm(
+            '참가 취소 방식을 선택해주세요:\n\n' +
+            '확인 → 환불받기 (현금 환불)\n' +
+            '취소 → 크레딧으로 남겨두기 (클럽 내 사용)'
+          );
+          
+          // 참가 취소 처리
+          const updatedParticipants = participants
+            .filter(p => p.phone !== user.phone)
+            .map(p => JSON.stringify(p));
+          
+          await updateBooking(bookingId, {
+            participants: updatedParticipants
+          });
+          
+          if (choice) {
+            // 환불받기 선택
+            const transactionData = {
+              type: 'payment',
+              amount: participationFee,
+              description: `참가비 환불`,
+              date: new Date().toISOString().split('T')[0],
+              memberId: user.id,
+              bookingId: bookingId
+            };
+            await apiService.createTransaction(transactionData);
+          } else {
+            // 크레딧으로 남겨두기 선택
+            const transactionData = {
+              type: 'credit',
+              amount: participationFee,
+              description: `크레딧처리`,
+              date: new Date().toISOString().split('T')[0],
+              memberId: user.id,
+              bookingId: bookingId
+            };
+            await apiService.createTransaction(transactionData);
+          }
+        } else {
+          // 참가비가 없는 경우 그냥 취소
+          const updatedParticipants = participants
+            .filter(p => p.phone !== user.phone)
+            .map(p => JSON.stringify(p));
+          
+          await updateBooking(bookingId, {
+            participants: updatedParticipants
+          });
         }
       } else {
         // 참가 신청 - 참가비 청구

@@ -60,8 +60,8 @@ function Fees() {
       return '도네이션';
     }
     if (transaction.type === 'credit') {
-      // description을 그대로 표시 (예: "참가취소(환불)")
-      return transaction.description || '참가취소(환불)';
+      // description을 그대로 표시 (예: "크레딧처리")
+      return transaction.description || '크레딧처리';
     }
     if (transaction.type === 'charge') {
       // description에서 항목명 추출
@@ -80,11 +80,13 @@ function Fees() {
       return '참가비 발생';
     }
     if (transaction.type === 'payment') {
-      // description에서 전액납부/부분납부 구분
+      // description에서 전액납부/부분납부/참가비 환불 구분
       if (transaction.description && transaction.description.includes('전액')) {
         return '전액납부';
       } else if (transaction.description && transaction.description.includes('부분')) {
         return '부분납부';
+      } else if (transaction.description && transaction.description.includes('환불')) {
+        return '참가비 환불';
       }
       return '납부';
     }
