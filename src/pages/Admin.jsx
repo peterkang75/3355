@@ -2337,68 +2337,6 @@ function Admin() {
 
             <div className="card">
               <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
-                거래 입력
-              </h3>
-              
-              <select 
-                value={transactionForm.type}
-                onChange={(e) => setTransactionForm({ ...transactionForm, type: e.target.value })}
-                style={{ marginBottom: '12px' }}
-              >
-                <option value="charge">참가비 발생</option>
-                <option value="payment">납부</option>
-                <option value="expense">클럽 지출</option>
-                <option value="donation">도네이션</option>
-              </select>
-
-              {(transactionForm.type === 'charge' || transactionForm.type === 'payment') && (
-                <select
-                  value={transactionForm.memberId}
-                  onChange={(e) => setTransactionForm({ ...transactionForm, memberId: e.target.value })}
-                  style={{ marginBottom: '12px' }}
-                >
-                  <option value="">회원 선택</option>
-                  {members.map(member => (
-                    <option key={member.id} value={member.id}>
-                      {member.name} ({member.nickname})
-                    </option>
-                  ))}
-                </select>
-              )}
-
-              <input
-                type="number"
-                inputMode="numeric"
-                placeholder="금액"
-                value={transactionForm.amount}
-                onChange={(e) => setTransactionForm({ ...transactionForm, amount: e.target.value })}
-                style={{ marginBottom: '12px' }}
-              />
-
-              <input
-                type="text"
-                placeholder="설명 (선택사항)"
-                value={transactionForm.description}
-                onChange={(e) => setTransactionForm({ ...transactionForm, description: e.target.value })}
-                style={{ marginBottom: '12px' }}
-              />
-
-              <input
-                type="date"
-                value={transactionForm.date}
-                onChange={(e) => setTransactionForm({ ...transactionForm, date: e.target.value })}
-                style={{ marginBottom: '16px' }}
-              />
-
-              <button className="btn-primary" onClick={handleCreateTransaction}>
-                {transactionForm.type === 'charge' ? '참가비 발생' : 
-                 transactionForm.type === 'payment' ? '납부 처리' :
-                 transactionForm.type === 'expense' ? '지출 등록' : '도네이션 등록'}
-              </button>
-            </div>
-
-            <div className="card">
-              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
                 최근 거래 내역
               </h3>
               {recentTransactions.length === 0 ? (
