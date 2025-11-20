@@ -1818,18 +1818,18 @@ function Admin() {
             <div className="card" style={{ 
               background: 'linear-gradient(135deg, #28a745 0%, #218838 100%)',
               color: 'white',
-              padding: '24px'
+              padding: '12px'
             }}>
-              <div style={{ fontSize: '14px', marginBottom: '8px', opacity: 0.9 }}>
+              <div style={{ fontSize: '10px', marginBottom: '4px', opacity: 0.9 }}>
                 클럽 잔액
               </div>
-              <div style={{ fontSize: '36px', fontWeight: '700', marginBottom: '16px' }}>
+              <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
                 ${clubBalance.toLocaleString()}
               </div>
               <div style={{ 
-                paddingTop: '16px',
+                paddingTop: '8px',
                 borderTop: '1px solid rgba(255,255,255,0.3)',
-                fontSize: '14px'
+                fontSize: '10px'
               }}>
                 <div style={{ opacity: 0.9 }}>미수금 회원: {outstandingBalances.length}명</div>
               </div>
