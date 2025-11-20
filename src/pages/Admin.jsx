@@ -478,9 +478,24 @@ function Admin() {
         manualName: ''
       });
       
-      // 필요한 데이터만 빠르게 새로고침
-      await refreshBalanceAndOutstanding();
-      if (refreshMembers) await refreshMembers();
+      // 거래 내역 포함 전체 데이터 새로고침
+      await Promise.all([
+        refreshBalanceAndOutstanding(),
+        refreshMembers ? refreshMembers() : Promise.resolve()
+      ]);
+      
+      // 최근 거래 내역 다시 불러오기
+      const transactionsData = await apiService.fetchTransactions(50);
+      let runningBalance = 0;
+      const transactionsWithBalance = transactionsData.reverse().map(t => {
+        if (t.type === 'payment' || t.type === 'donation') {
+          runningBalance += t.amount;
+        } else if (t.type === 'expense') {
+          runningBalance -= t.amount;
+        }
+        return { ...t, clubBalance: runningBalance };
+      }).reverse();
+      setRecentTransactions(transactionsWithBalance);
     } catch (error) {
       console.error('입금 처리 실패:', error);
       alert('입금 처리에 실패했습니다.');
@@ -517,8 +532,21 @@ function Admin() {
         description: ''
       });
       
-      // 필요한 데이터만 빠르게 새로고침
+      // 거래 내역 포함 전체 데이터 새로고침
       await refreshBalanceAndOutstanding();
+      
+      // 최근 거래 내역 다시 불러오기
+      const transactionsData = await apiService.fetchTransactions(50);
+      let runningBalance = 0;
+      const transactionsWithBalance = transactionsData.reverse().map(t => {
+        if (t.type === 'payment' || t.type === 'donation') {
+          runningBalance += t.amount;
+        } else if (t.type === 'expense') {
+          runningBalance -= t.amount;
+        }
+        return { ...t, clubBalance: runningBalance };
+      }).reverse();
+      setRecentTransactions(transactionsWithBalance);
     } catch (error) {
       console.error('출금 처리 실패:', error);
       alert('출금 처리에 실패했습니다.');
