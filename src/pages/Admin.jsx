@@ -2392,9 +2392,21 @@ function Admin() {
             )}
 
             <div className="card">
-              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
-                최근 거래 내역 (최근 50건)
-              </h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
+                  최근 거래 내역 (최근 50건)
+                </h3>
+                <div style={{ 
+                  fontSize: '20px', 
+                  fontWeight: '700', 
+                  color: 'var(--primary-green)',
+                  background: 'var(--bg-green)',
+                  padding: '8px 16px',
+                  borderRadius: '8px'
+                }}>
+                  클럽 잔액: ${clubBalance.toLocaleString()}
+                </div>
+              </div>
               {recentTransactions.length === 0 ? (
                 <div style={{ 
                   padding: '40px',
@@ -2421,7 +2433,6 @@ function Admin() {
                         <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>항목</th>
                         <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>라운딩</th>
                         <th style={{ padding: '10px 8px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap' }}>금액</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap' }}>클럽잔액</th>
                         <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>집행자</th>
                         <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: '600', whiteSpace: 'nowrap' }}>관리</th>
                       </tr>
@@ -2502,15 +2513,6 @@ function Admin() {
                               whiteSpace: 'nowrap'
                             }}>
                               {sign}${transaction.amount.toLocaleString()}
-                            </td>
-                            <td style={{ 
-                              padding: '8px', 
-                              textAlign: 'right',
-                              fontWeight: '600',
-                              color: 'var(--primary-green)',
-                              whiteSpace: 'nowrap'
-                            }}>
-                              ${transaction.clubBalance?.toLocaleString() || '0'}
                             </td>
                             <td style={{ padding: '8px', fontSize: '11px', opacity: 0.7, whiteSpace: 'nowrap' }}>
                               by {user?.nickname || user?.name || '관리자'}
