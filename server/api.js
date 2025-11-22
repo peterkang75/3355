@@ -745,6 +745,13 @@ router.get('/transactions', async (req, res) => {
             courseName: true,
             date: true
           }
+        },
+        executor: {
+          select: {
+            id: true,
+            name: true,
+            nickname: true
+          }
         }
       },
       orderBy: { date: 'desc' },

@@ -320,7 +320,8 @@ function Dashboard() {
               description: `참가비 환불`,
               date: new Date().toISOString().split('T')[0],
               memberId: user.id,
-              bookingId: bookingId
+              bookingId: bookingId,
+              createdBy: user.id
             };
             console.log('📝 거래 데이터:', transactionData);
             const result = await apiService.createTransaction(transactionData);
@@ -334,7 +335,8 @@ function Dashboard() {
               description: `크레딧처리`,
               date: new Date().toISOString().split('T')[0],
               memberId: user.id,
-              bookingId: bookingId
+              bookingId: bookingId,
+              createdBy: user.id
             };
             console.log('📝 거래 데이터:', transactionData);
             const result = await apiService.createTransaction(transactionData);
@@ -371,7 +373,8 @@ function Dashboard() {
             description: `라운딩 참가비 청구`,
             date: new Date().toISOString().split('T')[0],
             memberId: user.id,
-            bookingId: bookingId
+            bookingId: bookingId,
+            createdBy: user.id
           };
           await apiService.createTransaction(transactionData);
         }

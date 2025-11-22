@@ -435,7 +435,8 @@ function Admin() {
           description: `${category?.name}${booking ? ` - ${booking.courseName}` : ''} (${selectedIncome.manualName.trim()})`,
           date: selectedIncome.date,
           memberId: null,
-          bookingId: selectedIncome.bookingId || null
+          bookingId: selectedIncome.bookingId || null,
+          createdBy: user.id
         };
         
         await apiService.createTransaction(transactionData);
@@ -452,7 +453,8 @@ function Admin() {
             description: `${category?.name}${isDonation ? '' : '청구'}${booking ? ` - ${booking.courseName}` : ''}${isDonation ? ` (${member.name})` : ''}`,
             date: selectedIncome.date,
             memberId: memberId,
-            bookingId: selectedIncome.bookingId || null
+            bookingId: selectedIncome.bookingId || null,
+            createdBy: user.id
           };
           return apiService.createTransaction(transactionData);
         });
@@ -518,7 +520,8 @@ function Admin() {
         description: `${category?.name}${booking ? ` - ${booking.courseName}` : ''}${selectedExpense.description ? ` (${selectedExpense.description})` : ''}`,
         date: selectedExpense.date,
         memberId: null,
-        bookingId: selectedExpense.bookingId || null
+        bookingId: selectedExpense.bookingId || null,
+        createdBy: user.id
       };
 
       await apiService.createTransaction(transactionData);
@@ -564,7 +567,8 @@ function Admin() {
         description: '미수금 전액 납부',
         date: new Date().toISOString().split('T')[0],
         memberId: memberId,
-        bookingId: null
+        bookingId: null,
+        createdBy: user.id
       };
 
       await apiService.createTransaction(transactionData);
@@ -617,7 +621,8 @@ function Admin() {
         description: '부분 납부',
         date: new Date().toISOString().split('T')[0],
         memberId: memberId,
-        bookingId: null
+        bookingId: null,
+        createdBy: user.id
       };
 
       await apiService.createTransaction(transactionData);
@@ -704,7 +709,8 @@ function Admin() {
         amount: parseFloat(transactionForm.amount),
         description: transactionForm.description || '',
         date: transactionForm.date,
-        memberId: (transactionForm.type === 'charge' || transactionForm.type === 'payment') ? transactionForm.memberId : null
+        memberId: (transactionForm.type === 'charge' || transactionForm.type === 'payment') ? transactionForm.memberId : null,
+        createdBy: user.id
       };
 
       await apiService.createTransaction(transactionData);
@@ -2544,7 +2550,7 @@ function Admin() {
                               {sign}${transaction.amount.toLocaleString()}
                             </td>
                             <td style={{ padding: '8px', fontSize: '11px', opacity: 0.7, whiteSpace: 'nowrap' }}>
-                              by {user?.nickname || user?.name || '관리자'}
+                              by {transaction.executor?.nickname || transaction.executor?.name || '시스템'}
                             </td>
                             <td style={{ padding: '8px', textAlign: 'center' }}>
                               <button

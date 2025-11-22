@@ -32,11 +32,12 @@ model Member {
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
-  posts        Post[]
-  bookings     Booking[]
-  scores       Score[]
-  fees         Fee[]         @relation("MemberFees")
-  transactions Transaction[]
+  posts                 Post[]
+  bookings              Booking[]
+  scores                Score[]
+  fees                  Fee[]         @relation("MemberFees")
+  transactions          Transaction[] @relation("MemberTransactions")
+  executedTransactions  Transaction[] @relation("ExecutorTransactions")
 }
 
 model Post {
@@ -111,17 +112,19 @@ model Transaction {
   category    String?
   amount      Int
   memberId    String?
-  member      Member?  @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  member      Member?  @relation(fields: [memberId], references: [id], onDelete: Cascade, name: "MemberTransactions")
   bookingId   String?
   booking     Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
   description String?
   date        String
   createdBy   String?
+  executor    Member?  @relation(fields: [createdBy], references: [id], onDelete: SetNull, name: "ExecutorTransactions")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@index([memberId])
   @@index([bookingId])
+  @@index([createdBy])
   @@index([type])
   @@index([date])
 }
