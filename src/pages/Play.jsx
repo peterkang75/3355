@@ -223,7 +223,7 @@ function Play() {
         <div style={{ background: 'white', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '20px 16px', borderBottom: '1px solid #e0e0e0' }}>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px' }}>
             <button onClick={() => updateScore(isTeammate, -1)} style={{ width: '52px', height: '52px', border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: '28px', fontWeight: '700', cursor: 'pointer', color: '#666' }}>−</button>
-            <div style={{ fontSize: '72px', fontWeight: '300', minWidth: '80px', textAlign: 'center', color: '#000' }}>{score}</div>
+            <div style={{ fontSize: '72px', fontWeight: '600', minWidth: '80px', textAlign: 'center', color: '#000' }}>{score}</div>
             <button onClick={() => updateScore(isTeammate, 1)} style={{ width: '52px', height: '52px', border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: '28px', fontWeight: '700', cursor: 'pointer', color: '#666' }}>+</button>
           </div>
           <div style={{ fontSize: '13px', color: '#666', fontWeight: '400' }}>{score} points</div>
