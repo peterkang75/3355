@@ -520,6 +520,34 @@ function RoundingManagement() {
             </button>
 
             <button
+              onClick={() => navigate(`/play?id=${bookingId}`)}
+              style={{
+                padding: '20px',
+                border: 'none',
+                borderBottom: '1px solid var(--border-color)',
+                borderRadius: '0',
+                fontSize: '16px',
+                fontWeight: '600',
+                color: '#2196F3',
+                cursor: 'pointer',
+                textAlign: 'left',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}
+            >
+              <span style={{ fontSize: '24px', color: '#2196F3' }}>⛳</span>
+              <div>
+                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
+                  플레이하기
+                </div>
+                <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                  홀별 스코어를 입력합니다
+                </div>
+              </div>
+            </button>
+
+            <button
               onClick={() => navigate(`/member-score-entry?id=${bookingId}`)}
               style={{
                 padding: '20px',
