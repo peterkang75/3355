@@ -217,22 +217,20 @@ function Play() {
           <div style={{ fontSize: '13px', color: '#666', fontWeight: '400' }}>{score} points</div>
         </div>
 
-        <div style={{ background: 'white', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: '1px', fontSize: '12px', backgroundColor: '#e0e0e0', padding: '1px' }}>
-            <button onClick={() => setScoreValue(isTeammate, par)} style={{ padding: '12px', border: 'none', background: 'white', color: '#000', fontWeight: '700', cursor: 'pointer', fontSize: '12px' }}>
-              PAR
-            </button>
-            <button disabled style={{ padding: '12px', border: 'none', background: 'white', color: '#000', fontWeight: '700', opacity: 0.6, fontSize: '12px' }}>SHOTS</button>
-            <button disabled style={{ padding: '12px', border: 'none', background: 'white', color: '#000', fontWeight: '700', opacity: 0.6, fontSize: '12px' }}>NTP</button>
-            <button disabled style={{ padding: '12px', border: 'none', background: 'white', color: '#000', fontWeight: '700', opacity: 0.6, fontSize: '12px' }}>PICK UP</button>
-            <div style={{ padding: '12px', background: 'white', textAlign: 'center', fontWeight: '700', fontSize: '12px', color: '#000' }}>{isTeammate ? tmateUnder - tmatePar >= 0 ? '+' : '' : myUnder - myPar >= 0 ? '+' : ''}{isTeammate ? tmateUnder - tmatePar : myUnder - myPar}</div>
+        <div style={{ background: 'white', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '0' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: '1px', fontSize: '12px', backgroundColor: '#e0e0e0', padding: '1px', marginBottom: '0' }}>
+            <div style={{ padding: '8px', background: 'white', textAlign: 'center', fontWeight: '700', fontSize: '12px', color: '#666' }}>PAR</div>
+            <div style={{ padding: '8px', background: 'white', textAlign: 'center', fontWeight: '700', fontSize: '12px', color: '#666' }}>SHOTS</div>
+            <div style={{ padding: '8px', background: 'white', textAlign: 'center', fontWeight: '700', fontSize: '12px', color: '#666' }}>NTP</div>
+            <div style={{ padding: '8px', background: 'white', textAlign: 'center', fontWeight: '700', fontSize: '12px', color: '#666' }}>PICK UP</div>
+            <div style={{ padding: '8px', background: 'white', textAlign: 'center', fontWeight: '700', fontSize: '12px', color: '#000' }}>+0</div>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: '1px', fontSize: '12px', backgroundColor: '#e0e0e0', padding: '1px' }}>
-            <div style={{ padding: '12px', background: 'white', textAlign: 'center', fontWeight: '700', fontSize: '14px', color: '#000' }}>{par}</div>
-            <div style={{ padding: '12px', background: 'white', textAlign: 'center', fontWeight: '700', fontSize: '14px', color: '#000' }}>1</div>
-            <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ padding: '12px', border: 'none', background: '#4A90E2', color: 'white', fontWeight: '700', cursor: 'pointer', fontSize: '14px', borderRadius: '0' }}>?</button>
-            <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ padding: '12px', border: 'none', background: 'white', color: '#000', fontWeight: '700', cursor: 'pointer', fontSize: '14px' }}>P</button>
-            <div style={{ padding: '12px', background: 'white', textAlign: 'center', fontWeight: '700', fontSize: '14px', color: '#000' }}>{score}</div>
+            <div style={{ padding: '20px 12px', background: 'white', textAlign: 'center', fontWeight: '700', fontSize: '18px', color: '#000', aspectRatio: '1' }}>{par}</div>
+            <div style={{ padding: '20px 12px', background: 'white', textAlign: 'center', fontWeight: '700', fontSize: '18px', color: '#000', aspectRatio: '1' }}>1</div>
+            <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ padding: '20px 12px', border: 'none', background: '#4A90E2', color: 'white', fontWeight: '700', cursor: 'pointer', fontSize: '18px', borderRadius: '0', aspectRatio: '1' }}>?</button>
+            <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ padding: '20px 12px', border: 'none', background: 'white', color: '#000', fontWeight: '700', cursor: 'pointer', fontSize: '18px', aspectRatio: '1' }}>P</button>
+            <div style={{ padding: '20px 12px', background: 'white', textAlign: 'center', fontWeight: '700', fontSize: '18px', color: '#000', aspectRatio: '1' }}>{score}</div>
           </div>
         </div>
       </div>
