@@ -97,6 +97,7 @@ function Admin() {
     description: ''
   });
   const [showRefundModal, setShowRefundModal] = useState(false);
+  const [isProcessingRefund, setIsProcessingRefund] = useState(false);
 
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
@@ -351,6 +352,7 @@ function Admin() {
 
   const handleCloseRefundModal = () => {
     setShowRefundModal(false);
+    setIsProcessingRefund(false);
   };
 
   const handleToggleMember = (memberId) => {
@@ -547,8 +549,7 @@ function Admin() {
       };
 
       await apiService.createTransaction(transactionData);
-
-      alert(`클럽 ${category?.name}이 처리되었습니다.`);
+      
       setSelectedExpense({
         categoryId: '',
         bookingId: null,
@@ -558,11 +559,12 @@ function Admin() {
         description: ''
       });
       
-      // 거래 내역 포함 전체 데이터 새로고침
-      await refreshBalanceAndOutstanding();
+      // 병렬로 데이터 새로고침
+      const [transactionsData] = await Promise.all([
+        apiService.fetchTransactions(50),
+        refreshBalanceAndOutstanding()
+      ]);
       
-      // 최근 거래 내역 다시 불러오기
-      const transactionsData = await apiService.fetchTransactions(50);
       let runningBalance = 0;
       const transactionsWithBalance = transactionsData.reverse().map(t => {
         if (t.type === 'payment' || t.type === 'donation') {
@@ -573,9 +575,12 @@ function Admin() {
         return { ...t, clubBalance: runningBalance };
       }).reverse();
       setRecentTransactions(transactionsWithBalance);
+      
+      return true;
     } catch (error) {
       console.error('출금 처리 실패:', error);
       alert('출금 처리에 실패했습니다.');
+      return false;
     }
   };
 
@@ -4596,6 +4601,7 @@ function Admin() {
             }}>
               <button
                 onClick={handleCloseRefundModal}
+                disabled={isProcessingRefund}
                 style={{
                   flex: 1,
                   padding: '12px',
@@ -4604,29 +4610,43 @@ function Admin() {
                   borderRadius: '8px',
                   fontSize: '16px',
                   fontWeight: '600',
-                  cursor: 'pointer'
+                  cursor: isProcessingRefund ? 'not-allowed' : 'pointer',
+                  opacity: isProcessingRefund ? 0.5 : 1
                 }}
               >
                 취소
               </button>
               <button
                 onClick={async () => {
-                  await handleClubExpense();
-                  handleCloseRefundModal();
+                  if (isProcessingRefund) return;
+                  
+                  setIsProcessingRefund(true);
+                  const success = await handleClubExpense();
+                  
+                  if (success) {
+                    const category = expenseCategories.find(c => c.id === selectedExpense.categoryId);
+                    const member = members.find(m => m.id === selectedExpense.memberId);
+                    alert(`${member?.nickname || member?.name}님에게 ${category?.name} ${selectedExpense.amount}원이 처리되었습니다.`);
+                    handleCloseRefundModal();
+                  }
+                  
+                  setIsProcessingRefund(false);
                 }}
+                disabled={isProcessingRefund}
                 style={{
                   flex: 1,
                   padding: '12px',
-                  background: 'var(--primary-green)',
+                  background: isProcessingRefund ? '#999' : 'var(--primary-green)',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
                   fontSize: '16px',
                   fontWeight: '600',
-                  cursor: 'pointer'
+                  cursor: isProcessingRefund ? 'not-allowed' : 'pointer',
+                  opacity: isProcessingRefund ? 0.7 : 1
                 }}
               >
-                환불 처리
+                {isProcessingRefund ? '처리 중...' : '환불 처리'}
               </button>
             </div>
           </div>
