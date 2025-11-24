@@ -378,6 +378,14 @@ class ApiService {
     return response.json();
   }
 
+  async deleteChargeTransaction(memberId, bookingId) {
+    const response = await fetch(`${API_BASE}/transactions/charge/${memberId}/${bookingId}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Failed to delete charge transaction');
+    return response.json();
+  }
+
   async fetchIncomeCategories() {
     const response = await fetch(`${API_BASE}/income-categories`);
     if (!response.ok) throw new Error('Failed to fetch income categories');

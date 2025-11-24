@@ -91,10 +91,12 @@ function Admin() {
   const [selectedExpense, setSelectedExpense] = useState({
     categoryId: '',
     bookingId: null,
+    memberId: null,
     amount: '',
     date: new Date().toISOString().split('T')[0],
     description: ''
   });
+  const [showRefundModal, setShowRefundModal] = useState(false);
 
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
@@ -339,6 +341,18 @@ function Admin() {
     setSelectedMembers([]);
   };
 
+  const handleOpenRefundModal = () => {
+    const category = expenseCategories.find(c => c.id === selectedExpense.categoryId);
+    if (category?.name !== '환불') {
+      return;
+    }
+    setShowRefundModal(true);
+  };
+
+  const handleCloseRefundModal = () => {
+    setShowRefundModal(false);
+  };
+
   const handleToggleMember = (memberId) => {
     setSelectedMembers(prev => 
       prev.includes(memberId) 
@@ -512,24 +526,33 @@ function Admin() {
       }
 
       const category = expenseCategories.find(c => c.id === selectedExpense.categoryId);
+      
+      // 환불인 경우 회원 선택 필수
+      if (category?.name === '환불' && !selectedExpense.memberId) {
+        alert('환불받을 회원을 선택해주세요.');
+        return;
+      }
+
       const booking = bookings.find(b => b.id === selectedExpense.bookingId);
+      const member = members.find(m => m.id === selectedExpense.memberId);
       
       const transactionData = {
         type: 'expense',
         amount: parseFloat(selectedExpense.amount),
-        description: `${category?.name}${booking ? ` - ${booking.courseName}` : ''}${selectedExpense.description ? ` (${selectedExpense.description})` : ''}`,
+        description: `${category?.name}${booking ? ` - ${booking.courseName}` : ''}${member ? ` (${member.nickname || member.name})` : ''}${selectedExpense.description ? ` - ${selectedExpense.description}` : ''}`,
         date: selectedExpense.date,
-        memberId: null,
+        memberId: category?.name === '환불' ? selectedExpense.memberId : null,
         bookingId: selectedExpense.bookingId || null,
         createdBy: user.id
       };
 
       await apiService.createTransaction(transactionData);
 
-      alert('클럽 출금이 처리되었습니다.');
+      alert(`클럽 ${category?.name}이 처리되었습니다.`);
       setSelectedExpense({
         categoryId: '',
         bookingId: null,
+        memberId: null,
         amount: '',
         date: new Date().toISOString().split('T')[0],
         description: ''
@@ -2235,51 +2258,81 @@ function Admin() {
                     </div>
                   </div>
 
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                      라운딩 선택 (선택사항)
-                    </label>
-                    <select
-                      value={selectedExpense.bookingId || ''}
-                      onChange={(e) => setSelectedExpense({...selectedExpense, bookingId: e.target.value || null})}
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        background: 'white'
-                      }}
-                    >
-                      <option value="">선택 안 함</option>
-                      {bookings
-                        .filter(b => b.type !== '컴페티션')
-                        .map(booking => (
-                          <option key={booking.id} value={booking.id}>
-                            {booking.title || '이름 없음'} - {booking.courseName}
-                          </option>
-                        ))}
-                    </select>
-                  </div>
+                  {(() => {
+                    const category = expenseCategories.find(c => c.id === selectedExpense.categoryId);
+                    const isRefund = category?.name === '환불';
+                    
+                    return (
+                      <>
+                        {!isRefund && (
+                          <div>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                              라운딩 선택 (선택사항)
+                            </label>
+                            <select
+                              value={selectedExpense.bookingId || ''}
+                              onChange={(e) => setSelectedExpense({...selectedExpense, bookingId: e.target.value || null})}
+                              style={{
+                                width: '100%',
+                                padding: '12px',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '8px',
+                                fontSize: '14px',
+                                background: 'white'
+                              }}
+                            >
+                              <option value="">선택 안 함</option>
+                              {bookings
+                                .filter(b => b.type !== '컴페티션')
+                                .map(booking => (
+                                  <option key={booking.id} value={booking.id}>
+                                    {booking.title || '이름 없음'} - {booking.courseName}
+                                  </option>
+                                ))}
+                            </select>
+                          </div>
+                        )}
 
-                  <div>
-                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                      금액 *
-                    </label>
-                    <input
-                      type="number"
-                      value={selectedExpense.amount}
-                      onChange={(e) => setSelectedExpense({...selectedExpense, amount: e.target.value})}
-                      placeholder="금액을 입력하세요"
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '8px',
-                        fontSize: '14px'
-                      }}
-                    />
-                  </div>
+                        {isRefund ? (
+                          <button
+                            onClick={handleOpenRefundModal}
+                            style={{
+                              width: '100%',
+                              padding: '14px',
+                              background: 'var(--primary-green)',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '8px',
+                              fontSize: '16px',
+                              fontWeight: '600',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            회원&금액 선택
+                          </button>
+                        ) : (
+                          <div>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                              금액 *
+                            </label>
+                            <input
+                              type="number"
+                              value={selectedExpense.amount}
+                              onChange={(e) => setSelectedExpense({...selectedExpense, amount: e.target.value})}
+                              placeholder="금액을 입력하세요"
+                              style={{
+                                width: '100%',
+                                padding: '12px',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '8px',
+                                fontSize: '14px'
+                              }}
+                            />
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
 
                   <div>
                     <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
@@ -2318,22 +2371,31 @@ function Admin() {
                     />
                   </div>
 
-                  <button
-                    onClick={handleClubExpense}
-                    style={{
-                      width: '100%',
-                      padding: '14px',
-                      background: 'var(--primary-green)',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontSize: '16px',
-                      fontWeight: '600',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    적용
-                  </button>
+                  {(() => {
+                    const category = expenseCategories.find(c => c.id === selectedExpense.categoryId);
+                    const isRefund = category?.name === '환불';
+                    
+                    if (isRefund) return null;
+                    
+                    return (
+                      <button
+                        onClick={handleClubExpense}
+                        style={{
+                          width: '100%',
+                          padding: '14px',
+                          background: 'var(--primary-green)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontSize: '16px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        적용
+                      </button>
+                    );
+                  })()}
                 </div>
               </div>
             )}
@@ -4279,6 +4341,276 @@ function Admin() {
                 }}
               >
                 적용
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showRefundModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px'
+        }} onClick={handleCloseRefundModal}>
+          <div 
+            style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '24px',
+              maxWidth: '500px',
+              width: '100%',
+              maxHeight: '90vh',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+              <h3 style={{ fontSize: '20px', fontWeight: '700', margin: 0 }}>
+                환불 회원 및 금액 선택
+              </h3>
+              <button
+                onClick={handleCloseRefundModal}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  padding: '0',
+                  color: 'var(--text-dark)'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                라운딩 선택 (옵션)
+              </label>
+              <select
+                value={selectedExpense.bookingId || ''}
+                onChange={(e) => {
+                  const newBookingId = e.target.value || null;
+                  setSelectedExpense({...selectedExpense, bookingId: newBookingId});
+                }}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  background: 'white'
+                }}
+              >
+                <option value="">선택 안함</option>
+                {bookings.filter(b => b.type !== '컴페티션').map(booking => (
+                  <option key={booking.id} value={booking.id}>
+                    {booking.title || booking.courseName} - {new Date(booking.date).toLocaleDateString('ko-KR')}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                환불 금액
+              </label>
+              <input
+                type="number"
+                value={selectedExpense.amount}
+                onChange={(e) => setSelectedExpense({...selectedExpense, amount: e.target.value})}
+                placeholder="금액 입력"
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+
+            <div style={{ 
+              borderTop: '1px solid var(--border-color)',
+              paddingTop: '16px',
+              marginBottom: '16px'
+            }}>
+              <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>
+                회원 선택 (1명만 선택)
+              </div>
+
+              <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+                {(() => {
+                  const allMembers = contextMembers || members || [];
+                  const activeMembers = allMembers.filter(m => m.isActive);
+                  const selectedBooking = bookings.find(b => b.id === selectedExpense.bookingId);
+                  const hasBooking = !!selectedExpense.bookingId && !!selectedBooking;
+                  
+                  let participantPhones = [];
+                  if (hasBooking) {
+                    const participantData = selectedBooking.participants || [];
+                    participantPhones = participantData.map(p => {
+                      if (typeof p === 'string') {
+                        try {
+                          const parsed = JSON.parse(p);
+                          return parsed.phone;
+                        } catch (e) {
+                          return p;
+                        }
+                      }
+                      return p?.phone || p;
+                    });
+                  }
+                  
+                  const participantMembers = hasBooking ? activeMembers.filter(m => participantPhones.includes(m.phone)) : [];
+                  const nonParticipantMembers = hasBooking ? activeMembers.filter(m => !participantPhones.includes(m.phone)) : activeMembers;
+                  
+                  return (
+                    <>
+                      {participantMembers.map(member => (
+                        <div
+                          key={member.id}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '12px',
+                            borderBottom: '1px solid var(--border-color)',
+                            cursor: 'pointer',
+                            background: selectedExpense.memberId === member.id ? 'var(--bg-green)' : 'transparent'
+                          }}
+                          onClick={() => setSelectedExpense({...selectedExpense, memberId: member.id})}
+                        >
+                          <input
+                            type="radio"
+                            checked={selectedExpense.memberId === member.id}
+                            onChange={() => setSelectedExpense({...selectedExpense, memberId: member.id})}
+                            style={{
+                              width: '18px',
+                              height: '18px',
+                              marginRight: '12px',
+                              cursor: 'pointer'
+                            }}
+                          />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: '15px', fontWeight: '600' }}>
+                              {member.name}
+                            </div>
+                            <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                              {member.nickname}
+                            </div>
+                          </div>
+                          <div style={{
+                            fontSize: '12px',
+                            padding: '4px 8px',
+                            background: 'var(--primary-green)',
+                            color: 'white',
+                            borderRadius: '4px',
+                            fontWeight: '600'
+                          }}>
+                            참가
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {hasBooking && participantMembers.length > 0 && nonParticipantMembers.length > 0 && (
+                        <div style={{
+                          padding: '10px 12px',
+                          background: 'var(--bg-card)',
+                          fontSize: '13px',
+                          fontWeight: '600',
+                          color: 'var(--text-secondary)',
+                          borderTop: '2px solid var(--border-color)',
+                          borderBottom: '2px solid var(--border-color)',
+                          textAlign: 'center'
+                        }}>
+                          미참가 회원
+                        </div>
+                      )}
+                      
+                      {nonParticipantMembers.map(member => (
+                        <div
+                          key={member.id}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '12px',
+                            borderBottom: '1px solid var(--border-color)',
+                            cursor: 'pointer',
+                            background: selectedExpense.memberId === member.id ? 'var(--bg-green)' : 'transparent'
+                          }}
+                          onClick={() => setSelectedExpense({...selectedExpense, memberId: member.id})}
+                        >
+                          <input
+                            type="radio"
+                            checked={selectedExpense.memberId === member.id}
+                            onChange={() => setSelectedExpense({...selectedExpense, memberId: member.id})}
+                            style={{
+                              width: '18px',
+                              height: '18px',
+                              marginRight: '12px',
+                              cursor: 'pointer'
+                            }}
+                          />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: '15px', fontWeight: '600' }}>
+                              {member.name}
+                            </div>
+                            <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                              {member.nickname}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  );
+                })()}
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px', marginTop: 'auto' }}>
+              <button
+                onClick={handleCloseRefundModal}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={async () => {
+                  await handleClubExpense();
+                  handleCloseRefundModal();
+                }}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'var(--primary-green)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                환불 처리
               </button>
             </div>
           </div>

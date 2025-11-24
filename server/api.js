@@ -964,6 +964,55 @@ router.delete('/transactions/:id', async (req, res) => {
   }
 });
 
+// 청구 트랜잭션 삭제 (회원 ID와 라운딩 ID로)
+router.delete('/transactions/charge/:memberId/:bookingId', async (req, res) => {
+  try {
+    const { memberId, bookingId } = req.params;
+    
+    // 해당 회원과 라운딩에 대한 청구 트랜잭션 찾기
+    const transaction = await prisma.transaction.findFirst({
+      where: {
+        memberId: memberId,
+        bookingId: bookingId,
+        type: 'charge'
+      }
+    });
+
+    if (!transaction) {
+      return res.json({ success: true }); // 이미 삭제되었거나 없음
+    }
+
+    // 트랜잭션 삭제
+    await prisma.transaction.delete({
+      where: { id: transaction.id }
+    });
+
+    // 회원 잔액 재계산
+    const memberTransactions = await prisma.transaction.findMany({
+      where: { memberId: memberId }
+    });
+
+    const newBalance = memberTransactions.reduce((sum, t) => {
+      if (t.type === 'charge') return sum - t.amount;
+      if (t.type === 'payment') return sum + t.amount;
+      if (t.type === 'credit') return sum + t.amount;
+      return sum;
+    }, 0);
+
+    await prisma.member.update({
+      where: { id: memberId },
+      data: { balance: newBalance }
+    });
+
+    req.io.emit('transactions:updated');
+    req.io.emit('members:updated');
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting charge transaction:', error);
+    res.status(500).json({ error: 'Failed to delete charge transaction' });
+  }
+});
+
 // 입금항목 조회
 router.get('/income-categories', async (req, res) => {
   try {
