@@ -18,164 +18,38 @@ function Play() {
   const [courseData, setCourseData] = useState(null);
 
   useEffect(() => {
-    console.log('🎯 Play 페이지 로드:', { bookingId, bookingsLength: bookings.length, userPhone: user?.phone });
+    console.log('🎯 Play 페이지 로드:', bookingId);
+    if (!bookingId || bookings.length === 0) return;
     
-    if (bookingId && bookings.length > 0) {
-      const foundBooking = bookings.find(b => b.id === bookingId);
-      console.log('📍 찾은 라운딩:', foundBooking?.title, 'Teams:', foundBooking?.teams);
-      
-      setBooking(foundBooking);
-      
-      if (foundBooking?.teams) {
-        try {
-          const teams = typeof foundBooking.teams === 'string' ? JSON.parse(foundBooking.teams) : foundBooking.teams;
-          console.log('📋 파싱된 팀:', teams);
-          
-          const userTeam = teams.find(t => t.members?.some(m => m.phone === user?.phone));
-          console.log('🏌️ 사용자 팀:', userTeam);
-          
-          if (userTeam) {
-            const members = userTeam.members.filter(m => m.phone !== user?.phone);
-            console.log('👥 팀원들:', members);
-            setTeammates(members || []);
-          }
-        } catch (e) {
-          console.error('팀 정보 파싱 오류:', e);
+    const foundBooking = bookings.find(b => b.id === bookingId);
+    console.log('📍 라운딩:', foundBooking?.title);
+    setBooking(foundBooking);
+    
+    if (foundBooking?.teams) {
+      try {
+        const teams = typeof foundBooking.teams === 'string' ? JSON.parse(foundBooking.teams) : foundBooking.teams;
+        const userTeam = teams.find(t => t.members?.some(m => m.phone === user?.phone));
+        if (userTeam) {
+          const members = userTeam.members.filter(m => m.phone !== user?.phone);
+          console.log('👥 팀원:', members.length);
+          setTeammates(members);
         }
+      } catch (e) {
+        console.error('팀 파싱:', e);
       }
-
-      const course = courses.find(c => c.name === foundBooking?.courseName);
-      if (course) setCourseData(course);
     }
+
+    const course = courses.find(c => c.name === foundBooking?.courseName);
+    if (course) setCourseData(course);
   }, [bookingId, bookings, user?.phone, courses]);
 
-  const handleSelectTeammate = (teammate) => {
-    setSelectedTeammate(teammate);
-  };
-
-  const handleStartScoring = () => {
-    if (!selectedTeammate) {
-      alert('마크할 회원을 선택해주세요.');
-      return;
-    }
-    setRoundStartTime(Date.now());
-    setStep('scorecard');
-  };
-
-  const getElapsedTime = () => {
-    if (!roundStartTime) return '00:00:00';
-    const elapsed = Math.floor((Date.now() - roundStartTime) / 1000);
-    const hours = Math.floor(elapsed / 3600);
-    const minutes = Math.floor((elapsed % 3600) / 60);
-    const seconds = elapsed % 60;
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-  };
-
-  const getMemberPar = () => {
-    if (!courseData?.holePars || !selectedTeammate) return null;
-    const gender = selectedTeammate.gender || 'M';
-    const parArray = gender === 'F' ? courseData.holePars.female : courseData.holePars.male;
-    return parArray ? parArray[currentHole - 1] : null;
-  };
-
-  const handleSetScore = (value) => {
-    const newScores = [...holeScores];
-    newScores[currentHole - 1] = value;
-    setHoleScores(newScores);
-  };
-
-  const handleParClick = () => {
-    const par = getMemberPar();
-    if (par) handleSetScore(par);
-  };
-
-  const handleDPClick = () => {
-    const par = getMemberPar();
-    if (par) handleSetScore(par * 2);
-  };
-
-  const nextHole = () => {
-    if (currentHole < 18) setCurrentHole(currentHole + 1);
-  };
-
-  const prevHole = () => {
-    if (currentHole > 1) setCurrentHole(currentHole - 1);
-  };
-
-  const calculateUnderOver = () => {
-    let total = 0;
-    let parTotal = 0;
-    const parArray = courseData?.holePars[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
-    for (let i = 0; i < currentHole; i++) {
-      if (holeScores[i] > 0) {
-        total += holeScores[i];
-        parTotal += (parArray[i] || 0);
-      }
-    }
-    return total - parTotal;
-  };
-
-  const handleSaveRound = async () => {
-    if (!window.confirm('라운드를 저장하시겠습니까?')) return;
-
-    try {
-      const totalScore = holeScores.reduce((sum, score) => sum + score, 0);
-      const parArray = courseData?.holePars[selectedTeammate.gender === 'F' ? 'female' : 'male'] || [];
-      const coursePar = parArray.reduce((sum, par) => sum + par, 0);
-      const today = new Date().toISOString().split('T')[0];
-
-      const response = await fetch('/api/scores', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          memberId: user.id,
-          roundingName: booking?.title,
-          date: today,
-          courseName: courseData?.name,
-          totalScore,
-          coursePar,
-          holes: holeScores
-        })
-      });
-
-      if (response.ok) {
-        alert('스코어가 저장되었습니다!');
-        navigate(-1);
-      } else {
-        alert('스코어 저장에 실패했습니다.');
-      }
-    } catch (error) {
-      console.error('스코어 저장 오류:', error);
-      alert('오류가 발생했습니다.');
-    }
-  };
-
-  if (!bookingId || !booking) {
+  if (!bookingId || !booking || teammates.length === 0) {
     return (
-      <div style={{ minHeight: '100vh', padding: '16px', paddingBottom: '80px' }}>
+      <div style={{ minHeight: '100vh', padding: '16px' }}>
         <div className="header">
-          <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', fontSize: '16px', padding: '8px 16px' }}>
-            ← Back
-          </button>
+          <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', padding: '8px 16px' }}>← Back</button>
         </div>
-        <div className="card" style={{ marginTop: '16px', textAlign: 'center', padding: '32px' }}>
-          <p style={{ fontSize: '16px', opacity: 0.7 }}>라운딩 정보를 불러오는 중입니다...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (teammates.length === 0) {
-    return (
-      <div style={{ minHeight: '100vh', padding: '16px', paddingBottom: '80px' }}>
-        <div className="header">
-          <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', fontSize: '16px', padding: '8px 16px' }}>
-            ← Back
-          </button>
-        </div>
-        <div className="card" style={{ marginTop: '16px', textAlign: 'center', padding: '32px' }}>
-          <p style={{ fontSize: '16px', opacity: 0.7 }}>같은 조의 회원이 없습니다.</p>
-        </div>
+        <div style={{ marginTop: '32px', textAlign: 'center', opacity: 0.6 }}>로딩 중...</div>
       </div>
     );
   }
@@ -184,42 +58,34 @@ function Play() {
     return (
       <div style={{ minHeight: '100vh', padding: '16px', paddingBottom: '80px' }}>
         <div className="header">
-          <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', fontSize: '16px', padding: '8px 16px' }}>
-            ← Back
-          </button>
+          <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', padding: '8px 16px' }}>← Back</button>
         </div>
-
         <div className="card" style={{ marginTop: '16px' }}>
-          <h2 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
-            내가 마크할 회원을 선택하세요
-          </h2>
-
+          <h2 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>내가 마크할 회원을 선택하세요</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
             {teammates.map(teammate => (
               <div
                 key={teammate.phone}
-                onClick={() => handleSelectTeammate(teammate)}
+                onClick={() => setSelectedTeammate(teammate)}
                 style={{
                   padding: '16px',
                   border: selectedTeammate?.phone === teammate.phone ? '2px solid var(--primary-green)' : '1px solid var(--border-color)',
                   borderRadius: '8px',
                   background: selectedTeammate?.phone === teammate.phone ? 'var(--bg-green)' : 'var(--text-light)',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
+                  cursor: 'pointer'
                 }}
               >
-                <div style={{ fontWeight: '600', fontSize: '16px' }}>
-                  {teammate.nickname || teammate.name}
-                </div>
-                <div style={{ fontSize: '14px', color: 'var(--text-dark)', marginTop: '4px' }}>
-                  HC: {teammate.handicap || '-'}
-                </div>
+                <div style={{ fontWeight: '600', fontSize: '16px' }}>{teammate.nickname || teammate.name}</div>
+                <div style={{ fontSize: '14px', color: 'var(--text-dark)', marginTop: '4px' }}>HC: {teammate.handicap || '-'}</div>
               </div>
             ))}
           </div>
-
           <button
-            onClick={handleStartScoring}
+            onClick={() => {
+              if (!selectedTeammate) { alert('선택해주세요'); return; }
+              setRoundStartTime(Date.now());
+              setStep('scorecard');
+            }}
             disabled={!selectedTeammate}
             style={{
               width: '100%',
@@ -241,87 +107,112 @@ function Play() {
     );
   }
 
-  const par = getMemberPar();
-  const currentScore = holeScores[currentHole - 1];
-  const underOver = calculateUnderOver();
+  const getTime = () => {
+    if (!roundStartTime) return '00:00:00';
+    const sec = Math.floor((Date.now() - roundStartTime) / 1000);
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  };
+
+  const getPar = () => {
+    if (!courseData?.holePars || !selectedTeammate) return null;
+    const arr = selectedTeammate.gender === 'F' ? courseData.holePars.female : courseData.holePars.male;
+    return arr ? arr[currentHole - 1] : null;
+  };
+
+  const score = holeScores[currentHole - 1];
+  const parArr = courseData?.holePars[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
+  let under = 0, par = 0;
+  for (let i = 0; i < currentHole; i++) {
+    if (holeScores[i] > 0) { under += holeScores[i]; par += (parArr[i] || 0); }
+  }
+
+  const handleSave = async () => {
+    if (!window.confirm('저장?')) return;
+    try {
+      const total = holeScores.reduce((a, b) => a + b, 0);
+      const coursePar = parArr.reduce((a, b) => a + b, 0);
+      const today = new Date().toISOString().split('T')[0];
+      
+      await fetch('/api/scores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          memberId: user.id,
+          roundingName: booking?.title,
+          date: today,
+          courseName: courseData?.name,
+          totalScore: total,
+          coursePar,
+          holes: holeScores
+        })
+      });
+      alert('저장됨!');
+      navigate(-1);
+    } catch (e) { alert('오류'); }
+  };
 
   return (
     <div style={{ minHeight: '100vh', padding: '16px', paddingBottom: '80px' }}>
       <div className="header">
-        <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', fontSize: '16px', padding: '8px 16px' }}>
-          ← Back
-        </button>
-        <button onClick={handleSaveRound} style={{ background: 'transparent', color: 'var(--primary-green)', fontSize: '16px', padding: '8px 16px', fontWeight: '600' }}>
-          💾 저장
-        </button>
+        <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', padding: '8px 16px' }}>← Back</button>
+        <button onClick={handleSave} style={{ background: 'transparent', color: 'var(--primary-green)', padding: '8px 16px', fontWeight: '600' }}>💾 저장</button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginTop: '16px', marginBottom: '16px' }}>
-        <div style={{ border: '2px solid var(--primary-green)', borderRadius: '8px', padding: '12px', textAlign: 'center', background: 'var(--bg-card)' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginTop: '16px', marginBottom: '16px' }}>
+        <div style={{ border: '2px solid var(--primary-green)', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
           <div style={{ fontSize: '12px', fontWeight: '600', opacity: 0.7 }}>ROUND TIME</div>
-          <div style={{ fontSize: '18px', fontWeight: '700', marginTop: '4px' }}>{getElapsedTime()}</div>
+          <div style={{ fontSize: '18px', fontWeight: '700', marginTop: '4px' }}>{getTime()}</div>
         </div>
-        <div style={{ border: '2px solid var(--primary-green)', borderRadius: '8px', padding: '12px', textAlign: 'center', background: 'var(--bg-card)' }}>
+        <div style={{ border: '2px solid var(--primary-green)', borderRadius: '8px', padding: '12px', textAlign: 'center' }}>
           <div style={{ fontSize: '12px', fontWeight: '600', opacity: 0.7 }}>HOLE</div>
           <div style={{ fontSize: '18px', fontWeight: '700', marginTop: '4px' }}>{currentHole}</div>
         </div>
-        <div style={{ border: '2px solid var(--border-color)', borderRadius: '8px', padding: '12px', textAlign: 'center', background: 'var(--bg-card)', opacity: 0.5 }}>
+        <div style={{ border: '2px solid var(--border-color)', borderRadius: '8px', padding: '12px', textAlign: 'center', opacity: 0.5 }}>
           <div style={{ fontSize: '12px', fontWeight: '600', opacity: 0.7 }}>TO MID</div>
           <div style={{ fontSize: '18px', fontWeight: '700', marginTop: '4px' }}>-</div>
         </div>
       </div>
 
-      <div style={{ background: 'var(--primary-green)', color: 'white', borderRadius: '8px', padding: '12px', marginBottom: '16px', textAlign: 'center' }}>
-        <div style={{ fontWeight: '700', fontSize: '16px' }}>
-          {selectedTeammate?.nickname || selectedTeammate?.name} (HC: {selectedTeammate?.handicap || '-'})
-        </div>
+      <div style={{ background: 'var(--primary-green)', color: 'white', borderRadius: '8px', padding: '12px', marginBottom: '16px', textAlign: 'center', fontWeight: '700' }}>
+        {selectedTeammate?.nickname || selectedTeammate?.name} (HC: {selectedTeammate?.handicap || '-'})
       </div>
 
       <div style={{ background: 'var(--text-light)', borderRadius: '8px', padding: '16px', marginBottom: '16px' }}>
         <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-          <div style={{ fontSize: '12px', opacity: 0.7, marginBottom: '8px' }}>점수</div>
-          <div style={{ fontSize: '48px', fontWeight: '700' }}>{currentScore}</div>
-          <div style={{ fontSize: '12px', opacity: 0.7, marginTop: '4px' }}>포인트</div>
+          <div style={{ fontSize: '12px', opacity: 0.7 }}>점수</div>
+          <div style={{ fontSize: '48px', fontWeight: '700' }}>{score}</div>
         </div>
-
         <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', alignItems: 'center' }}>
-          <button onClick={() => handleSetScore(Math.max(0, currentScore - 1))} style={{ width: '56px', height: '56px', border: '1px solid var(--border-color)', background: 'white', borderRadius: '8px', fontSize: '24px', fontWeight: '700', cursor: 'pointer' }}>
-            −
-          </button>
-          <div style={{ fontSize: '12px', opacity: 0.7 }}>점수 조정</div>
-          <button onClick={() => handleSetScore(currentScore + 1)} style={{ width: '56px', height: '56px', border: '1px solid var(--border-color)', background: 'white', borderRadius: '8px', fontSize: '24px', fontWeight: '700', cursor: 'pointer' }}>
-            +
-          </button>
+          <button onClick={() => { const s = [...holeScores]; s[currentHole - 1] = Math.max(0, score - 1); setHoleScores(s); }} style={{ width: '56px', height: '56px', border: '1px solid var(--border-color)', background: 'white', borderRadius: '8px', fontSize: '24px', fontWeight: '700', cursor: 'pointer' }}>−</button>
+          <div style={{ fontSize: '12px', opacity: 0.7 }}>조정</div>
+          <button onClick={() => { const s = [...holeScores]; s[currentHole - 1] = score + 1; setHoleScores(s); }} style={{ width: '56px', height: '56px', border: '1px solid var(--border-color)', background: 'white', borderRadius: '8px', fontSize: '24px', fontWeight: '700', cursor: 'pointer' }}>+</button>
         </div>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '16px' }}>
-        <button onClick={handleParClick} style={{ padding: '12px', border: '1px solid var(--border-color)', background: selectedTeammate?.gender === 'F' ? '#e74c3c' : 'var(--primary-green)', color: 'white', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '12px' }}>
-          PAR<div style={{ fontSize: '20px', marginTop: '4px' }}>{par || '-'}</div>
+        <button onClick={() => { const p = getPar(); if (p) { const s = [...holeScores]; s[currentHole - 1] = p; setHoleScores(s); }}} style={{ padding: '12px', border: '1px solid var(--border-color)', background: selectedTeammate?.gender === 'F' ? '#e74c3c' : 'var(--primary-green)', color: 'white', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '12px' }}>
+          PAR<div style={{ fontSize: '20px', marginTop: '4px' }}>{getPar() || '-'}</div>
         </button>
-        <button disabled style={{ padding: '12px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-dark)', borderRadius: '8px', fontWeight: '700', opacity: 0.5, cursor: 'not-allowed' }}>
+        <button disabled style={{ padding: '12px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-dark)', borderRadius: '8px', fontWeight: '700', opacity: 0.5 }}>
           SHOTS<div style={{ fontSize: '20px', marginTop: '4px' }}>-</div>
         </button>
-        <button onClick={handleDPClick} style={{ padding: '12px', border: '1px solid var(--border-color)', background: 'var(--primary-green)', color: 'white', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '11px' }}>
+        <button onClick={() => { const p = getPar(); if (p) { const s = [...holeScores]; s[currentHole - 1] = p * 2; setHoleScores(s); }}} style={{ padding: '12px', border: '1px solid var(--border-color)', background: 'var(--primary-green)', color: 'white', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '11px' }}>
           양파<div style={{ fontSize: '16px', marginTop: '4px' }}>DP</div>
         </button>
         <div style={{ padding: '12px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', borderRadius: '8px', fontWeight: '700', textAlign: 'center' }}>
-          TOTAL<div style={{ fontSize: '20px', marginTop: '4px' }}>{underOver >= 0 ? '+' : ''}{underOver}</div>
+          TOTAL<div style={{ fontSize: '20px', marginTop: '4px' }}>{under - par >= 0 ? '+' : ''}{under - par}</div>
         </div>
       </div>
 
-      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', marginBottom: '16px' }}>
-        <button onClick={prevHole} disabled={currentHole === 1} style={{ flex: 1, padding: '12px', border: '1px solid var(--border-color)', background: currentHole === 1 ? 'var(--bg-card)' : 'var(--text-light)', borderRadius: '8px', fontWeight: '700', cursor: currentHole === 1 ? 'not-allowed' : 'pointer', opacity: currentHole === 1 ? 0.5 : 1 }}>
-          ← 이전
-        </button>
-        <button onClick={nextHole} disabled={currentHole === 18} style={{ flex: 1, padding: '12px', border: '1px solid var(--border-color)', background: currentHole === 18 ? 'var(--bg-card)' : 'var(--primary-green)', color: currentHole === 18 ? 'var(--text-dark)' : 'white', borderRadius: '8px', fontWeight: '700', cursor: currentHole === 18 ? 'not-allowed' : 'pointer', opacity: currentHole === 18 ? 0.5 : 1 }}>
-          다음 →
-        </button>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+        <button onClick={() => currentHole > 1 && setCurrentHole(currentHole - 1)} disabled={currentHole === 1} style={{ flex: 1, padding: '12px', border: '1px solid var(--border-color)', background: currentHole === 1 ? 'var(--bg-card)' : 'var(--text-light)', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', opacity: currentHole === 1 ? 0.5 : 1 }}>← 이전</button>
+        <button onClick={() => currentHole < 18 && setCurrentHole(currentHole + 1)} disabled={currentHole === 18} style={{ flex: 1, padding: '12px', border: '1px solid var(--border-color)', background: currentHole === 18 ? 'var(--bg-card)' : 'var(--primary-green)', color: currentHole === 18 ? 'var(--text-dark)' : 'white', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', opacity: currentHole === 18 ? 0.5 : 1 }}>다음 →</button>
       </div>
 
-      <button onClick={handleSaveRound} style={{ width: '100%', padding: '16px', background: 'var(--primary-green)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', fontSize: '16px', cursor: 'pointer' }}>
-        라운드 저장
-      </button>
+      <button onClick={handleSave} style={{ width: '100%', padding: '16px', background: 'var(--primary-green)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', fontSize: '16px', cursor: 'pointer' }}>라운드 저장</button>
     </div>
   );
 }
