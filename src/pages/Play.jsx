@@ -310,6 +310,7 @@ function Play() {
   };
 
   const handleTouchEnd = (e) => {
+    if (!touchStart || !e.changedTouches[0]) return;
     const touchEnd = e.changedTouches[0].clientX;
     const diff = touchStart - touchEnd;
     const threshold = 50;
@@ -317,9 +318,11 @@ function Play() {
     if (Math.abs(diff) > threshold) {
       if (diff > 0) {
         // 왼쪽 스와이프 → 다음 홀
+        console.log('🔄 왼쪽 스와이프 - 다음 홀로');
         goToNextHole();
       } else {
         // 오른쪽 스와이프 → 이전 홀
+        console.log('🔄 오른쪽 스와이프 - 이전 홀로');
         goToPreviousHole();
       }
     }
@@ -336,6 +339,8 @@ function Play() {
   const goToNextHole = () => {
     if (currentHole < 18) {
       setCurrentHole(currentHole + 1);
+    } else {
+      setCurrentHole(1); // 18번에서 → 1번 (순환)
     }
   };
 
@@ -363,8 +368,6 @@ function Play() {
       </div>
 
       <div 
-        onTouchStart={handleTouchStart}
-        onTouchEnd={handleTouchEnd}
         style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '12px 24px', position: 'relative' }}
       >
         <ScoreSection title={`${selectedTeammate?.nickname || selectedTeammate?.name} (HC: ${selectedTeammate?.handicap || '-'})`} isTeammate={true} />
