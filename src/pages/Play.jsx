@@ -233,13 +233,13 @@ function Play() {
           <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
               <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>PAR</div>
-              <button onClick={() => setScoreValue(isTeammate, par)} style={{ ...boxStyle, border: '2px solid #ccc', background: 'white', cursor: 'pointer', width: '100px', height: '100px' }}>{par}</button>
+              <button onClick={() => setScoreValue(isTeammate, par)} style={{ ...boxStyle, border: '2px solid #ccc', background: 'white', cursor: 'pointer', width: '90px', height: '90px' }}>{par}</button>
             </div>
             
             {!isTeammate && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
                 <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>NTP</div>
-                <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, background: '#6399CF', color: 'white', border: 'none', width: '100px', height: '100px', fontSize: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0' }}>
+                <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, background: '#6399CF', color: 'white', border: 'none', width: '90px', height: '90px', fontSize: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0' }}>
                   <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="25" cy="15" r="8" stroke="white" strokeWidth="3"/>
                     <line x1="25" y1="23" x2="25" y2="42" stroke="white" strokeWidth="3" strokeLinecap="round"/>
@@ -250,12 +250,12 @@ function Play() {
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
               <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>양파</div>
-              <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, width: '100px', height: '100px' }}>{par * 2}</button>
+              <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, width: '90px', height: '90px' }}>{par * 2}</button>
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
               <div style={{ fontSize: '12px', fontWeight: '700', color: '#000' }}>TOTAL</div>
-              <div style={{ ...boxStyle, width: '100px', height: '100px' }}>{diffText}</div>
+              <div style={{ ...boxStyle, width: '90px', height: '90px' }}>{diffText}</div>
             </div>
           </div>
         </div>
