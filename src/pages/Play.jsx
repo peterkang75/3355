@@ -258,12 +258,6 @@ function Play() {
     );
   };
 
-  useEffect(() => {
-    if (currentHole === 1 && !roundStartTime && step === 'scorecard') {
-      setRoundStartTime(Date.now());
-    }
-  }, [currentHole, step]);
-
   return (
     <div style={{ minHeight: '100vh', background: '#223B3F', display: 'flex', flexDirection: 'column', padding: '0' }}>
       <div className="header" style={{ background: '#223B3F', borderBottom: 'none' }}></div>
