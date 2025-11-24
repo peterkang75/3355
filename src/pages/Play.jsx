@@ -100,6 +100,27 @@ function Play() {
     return () => clearTimeout(timer);
   }, [holeScores]);
 
+  // 모든 hooks은 조건 없이 먼저 호출되어야 함
+  const mismatchedHoles = useMemo(() => {
+    const mismatches = [];
+    for (let i = 0; i < 18; i++) {
+      if (holeScores.me[i] !== holeScores.teammate[i]) {
+        mismatches.push(i + 1);
+      }
+    }
+    return mismatches;
+  }, [holeScores]);
+
+  const isAllHolesComplete = () => {
+    return holeScores.me.every(score => score > 0) && holeScores.teammate.every(score => score > 0);
+  };
+
+  useEffect(() => {
+    if (step === 'scorecard' && isAllHolesComplete() && mismatchedHoles.length > 0) {
+      setShowMismatches(true);
+    }
+  }, [step, mismatchedHoles.length]);
+
   if (!bookingId || !booking || teammates.length === 0) {
     return (
       <div style={{ minHeight: '100vh', padding: '16px', background: '#223B3F' }}>
@@ -320,26 +341,6 @@ function Play() {
   const isPC = () => {
     return typeof window !== 'undefined' && window.innerWidth > 768;
   };
-
-  const isAllHolesComplete = () => {
-    return holeScores.me.every(score => score > 0) && holeScores.teammate.every(score => score > 0);
-  };
-
-  const mismatchedHoles = useMemo(() => {
-    const mismatches = [];
-    for (let i = 0; i < 18; i++) {
-      if (holeScores.me[i] !== holeScores.teammate[i]) {
-        mismatches.push(i + 1);
-      }
-    }
-    return mismatches;
-  }, [holeScores]);
-
-  useEffect(() => {
-    if (step === 'scorecard' && isAllHolesComplete() && mismatchedHoles.length > 0) {
-      setShowMismatches(true);
-    }
-  }, [step, mismatchedHoles.length]);
 
   return (
     <div 

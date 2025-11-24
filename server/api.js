@@ -509,6 +509,25 @@ router.get('/scores/:userId', async (req, res) => {
   }
 });
 
+router.get('/scores/check', async (req, res) => {
+  try {
+    const { memberId, date, roundingName } = req.query;
+    
+    const score = await prisma.score.findFirst({
+      where: {
+        userId: memberId,
+        date: date,
+        roundingName: roundingName
+      }
+    });
+    
+    res.json({ exists: !!score });
+  } catch (error) {
+    console.error('Error checking score:', error);
+    res.status(500).json({ error: 'Failed to check score' });
+  }
+});
+
 router.post('/scores', async (req, res) => {
   try {
     const score = await prisma.score.create({
