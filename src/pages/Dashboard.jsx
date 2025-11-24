@@ -1216,16 +1216,20 @@ function Dashboard() {
               fontSize: '20px', 
               fontWeight: '700',
               color: (() => {
-                const totalPayments = userTransactions.filter(t => t.type === 'payment').reduce((sum, t) => sum + t.amount, 0);
+                const totalPayments = userTransactions.filter(t => t.type === 'payment' || t.type === 'donation').reduce((sum, t) => sum + t.amount, 0);
+                const totalCredits = userTransactions.filter(t => t.type === 'credit').reduce((sum, t) => sum + t.amount, 0);
                 const totalCharges = userTransactions.filter(t => t.type === 'charge').reduce((sum, t) => sum + t.amount, 0);
-                const balance = totalPayments - totalCharges;
+                const totalExpenses = userTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+                const balance = totalPayments + totalCredits - totalCharges - totalExpenses;
                 return balance < 0 ? 'var(--alert-red)' : 'var(--accent-gold)';
               })()
             }}>
               ${(() => {
-                const totalPayments = userTransactions.filter(t => t.type === 'payment').reduce((sum, t) => sum + t.amount, 0);
+                const totalPayments = userTransactions.filter(t => t.type === 'payment' || t.type === 'donation').reduce((sum, t) => sum + t.amount, 0);
+                const totalCredits = userTransactions.filter(t => t.type === 'credit').reduce((sum, t) => sum + t.amount, 0);
                 const totalCharges = userTransactions.filter(t => t.type === 'charge').reduce((sum, t) => sum + t.amount, 0);
-                const balance = totalPayments - totalCharges;
+                const totalExpenses = userTransactions.filter(t => t.type === 'expense').reduce((sum, t) => sum + t.amount, 0);
+                const balance = totalPayments + totalCredits - totalCharges - totalExpenses;
                 return balance.toLocaleString();
               })()}
             </div>
