@@ -1016,13 +1016,16 @@ function Admin() {
   };
 
   const handleHoleParChange = (holeIndex, value, gender) => {
+    const parsedValue = value === '' ? '' : parseInt(value) || '';
     if (gender === 'male') {
-      const newHolePars = [...newCourse.maleHolePars];
-      newHolePars[holeIndex] = value === '' ? '' : parseInt(value) || '';
-      setNewCourse({ ...newCourse, maleHolePars: newHolePars });
+      const newMalePars = [...newCourse.maleHolePars];
+      newMalePars[holeIndex] = parsedValue;
+      const newFemalePars = [...newCourse.femaleHolePars];
+      newFemalePars[holeIndex] = parsedValue;
+      setNewCourse({ ...newCourse, maleHolePars: newMalePars, femaleHolePars: newFemalePars });
     } else {
       const newHolePars = [...newCourse.femaleHolePars];
-      newHolePars[holeIndex] = value === '' ? '' : parseInt(value) || '';
+      newHolePars[holeIndex] = parsedValue;
       setNewCourse({ ...newCourse, femaleHolePars: newHolePars });
     }
   };
@@ -1047,7 +1050,17 @@ function Admin() {
     }
 
     try {
-      await apiService.updateCourse(editingCourse, editCourseData);
+      const updateData = {
+        name: editCourseData.name,
+        address: editCourseData.address,
+        holePars: {
+          male: editCourseData.maleHolePars.map(p => parseInt(p) || 4),
+          female: editCourseData.femaleHolePars.map(p => parseInt(p) || 4)
+        },
+        isCompetition: editCourseData.isCompetition
+      };
+      
+      await apiService.updateCourse(editingCourse, updateData);
       alert('골프장 정보가 수정되었습니다.');
       
       setEditingCourse(null);
@@ -1089,13 +1102,16 @@ function Admin() {
   };
 
   const handleEditCourseHoleParChange = (holeIndex, value, gender) => {
+    const parsedValue = value === '' ? '' : parseInt(value) || '';
     if (gender === 'male') {
-      const newHolePars = [...editCourseData.maleHolePars];
-      newHolePars[holeIndex] = parseInt(value) || 3;
-      setEditCourseData({ ...editCourseData, maleHolePars: newHolePars });
+      const newMalePars = [...editCourseData.maleHolePars];
+      newMalePars[holeIndex] = parsedValue;
+      const newFemalePars = [...editCourseData.femaleHolePars];
+      newFemalePars[holeIndex] = parsedValue;
+      setEditCourseData({ ...editCourseData, maleHolePars: newMalePars, femaleHolePars: newFemalePars });
     } else {
       const newHolePars = [...editCourseData.femaleHolePars];
-      newHolePars[holeIndex] = parseInt(value) || 3;
+      newHolePars[holeIndex] = parsedValue;
       setEditCourseData({ ...editCourseData, femaleHolePars: newHolePars });
     }
   };
@@ -2865,7 +2881,7 @@ function Admin() {
               
               <div style={{ marginBottom: '16px' }}>
                 <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
-                  각 홀별 PAR 설정 (남자 / 여자)
+                  각 홀별 PAR 설정 (앞: 남자 / 뒤: 여자)
                 </h4>
                 <div style={{ 
                   display: 'grid', 
@@ -2874,7 +2890,7 @@ function Admin() {
                 }}>
                   {newCourse.maleHolePars.map((par, index) => (
                     <div 
-                      key={`male-${index}`}
+                      key={`hole-${index}`}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -2887,67 +2903,45 @@ function Admin() {
                       <label style={{ 
                         fontSize: '13px', 
                         fontWeight: '600',
-                        minWidth: '60px',
-                        color: 'var(--primary-green)'
+                        minWidth: '40px',
+                        color: 'var(--text-dark)'
                       }}>
-                        {index + 1}홀 (남자)
+                        {index + 1}홀
                       </label>
                       <input
                         type="number"
                         inputMode="numeric"
-                        placeholder="남자 PAR"
+                        placeholder="남"
                         value={par}
                         onChange={(e) => handleHoleParChange(index, e.target.value, 'male')}
                         min="3"
                         max="6"
                         style={{
-                          width: '50px',
+                          width: '45px',
                           padding: '6px',
                           fontSize: '12px',
                           textAlign: 'center',
-                          border: '2px solid var(--border-color)',
-                          borderRadius: '4px'
+                          border: '2px solid var(--primary-green)',
+                          borderRadius: '4px',
+                          fontWeight: '600'
                         }}
                       />
-                    </div>
-                  ))}
-                </div>
-                <div style={{ marginTop: '12px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '12px' }}>
-                  {newCourse.femaleHolePars.map((par, index) => (
-                    <div 
-                      key={`female-${index}`}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        padding: '8px',
-                        background: 'var(--bg-green)',
-                        borderRadius: '6px'
-                      }}
-                    >
-                      <label style={{ 
-                        fontSize: '13px', 
-                        fontWeight: '600',
-                        minWidth: '60px',
-                        color: '#e74c3c'
-                      }}>
-                        {index + 1}홀 (여자)
-                      </label>
                       <input
                         type="number"
                         inputMode="numeric"
-                        placeholder="여자 PAR"
-                        value={par}
+                        placeholder="여"
+                        value={newCourse.femaleHolePars[index]}
                         onChange={(e) => handleHoleParChange(index, e.target.value, 'female')}
                         min="3"
                         max="6"
                         style={{
-                          width: '50px',
+                          width: '45px',
                           padding: '6px',
                           fontSize: '12px',
                           textAlign: 'center',
-                          border: '2px solid var(--border-color)',
-                          borderRadius: '4px'
+                          border: '2px solid #e74c3c',
+                          borderRadius: '4px',
+                          fontWeight: '600'
                         }}
                       />
                     </div>
@@ -3027,16 +3021,16 @@ function Admin() {
                 
                 <div style={{ marginBottom: '16px' }}>
                   <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
-                    각 홀별 PAR 설정
+                    각 홀별 PAR 설정 (앞: 남자 / 뒤: 여자)
                   </h4>
                   <div style={{ 
                     display: 'grid', 
-                    gridTemplateColumns: 'repeat(3, 1fr)', 
+                    gridTemplateColumns: 'repeat(2, 1fr)', 
                     gap: '12px' 
                   }}>
-                    {editCourseData.holePars.map((par, index) => (
+                    {editCourseData.maleHolePars.map((par, index) => (
                       <div 
-                        key={index}
+                        key={`hole-${index}`}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -3047,27 +3041,47 @@ function Admin() {
                         }}
                       >
                         <label style={{ 
-                          fontSize: '14px', 
+                          fontSize: '13px', 
                           fontWeight: '600',
-                          minWidth: '50px',
-                          color: 'var(--primary-green)'
+                          minWidth: '40px',
+                          color: 'var(--text-dark)'
                         }}>
-                          {index + 1}번홀
+                          {index + 1}홀
                         </label>
                         <input
                           type="number"
                           inputMode="numeric"
+                          placeholder="남"
                           value={par}
-                          onChange={(e) => handleEditCourseHoleParChange(index, e.target.value)}
+                          onChange={(e) => handleEditCourseHoleParChange(index, e.target.value, 'male')}
                           min="3"
                           max="6"
                           style={{
-                            width: '50px',
+                            width: '45px',
                             padding: '6px',
-                            fontSize: '14px',
+                            fontSize: '12px',
                             textAlign: 'center',
-                            border: '2px solid var(--border-color)',
-                            borderRadius: '4px'
+                            border: '2px solid var(--primary-green)',
+                            borderRadius: '4px',
+                            fontWeight: '600'
+                          }}
+                        />
+                        <input
+                          type="number"
+                          inputMode="numeric"
+                          placeholder="여"
+                          value={editCourseData.femaleHolePars[index]}
+                          onChange={(e) => handleEditCourseHoleParChange(index, e.target.value, 'female')}
+                          min="3"
+                          max="6"
+                          style={{
+                            width: '45px',
+                            padding: '6px',
+                            fontSize: '12px',
+                            textAlign: 'center',
+                            border: '2px solid #e74c3c',
+                            borderRadius: '4px',
+                            fontWeight: '600'
                           }}
                         />
                       </div>
@@ -3083,7 +3097,7 @@ function Admin() {
                     fontWeight: '600',
                     textAlign: 'center'
                   }}>
-                    총 PAR: {editCourseData.holePars.reduce((sum, par) => sum + par, 0)}
+                    남자 총 PAR: {editCourseData.maleHolePars.reduce((sum, par) => sum + (parseInt(par) || 0), 0)} / 여자 총 PAR: {editCourseData.femaleHolePars.reduce((sum, par) => sum + (parseInt(par) || 0), 0)}
                   </div>
                 </div>
 
