@@ -793,7 +793,7 @@ router.get('/transactions/balance/:memberId', async (req, res) => {
       if (t.type === 'payment') return sum + t.amount;
       if (t.type === 'credit') return sum + t.amount;
       if (t.type === 'donation') return sum + t.amount;
-      if (t.type === 'expense') return sum + t.amount;
+      if (t.type === 'expense') return sum - t.amount;
       return sum;
     }, 0);
 
@@ -867,8 +867,10 @@ router.get('/transactions/outstanding', async (req, res) => {
       }
       if (t.type === 'charge') {
         balanceByMember[t.memberId] -= t.amount;
-      } else if (t.type === 'payment' || t.type === 'credit' || t.type === 'donation' || t.type === 'expense') {
+      } else if (t.type === 'payment' || t.type === 'credit' || t.type === 'donation') {
         balanceByMember[t.memberId] += t.amount;
+      } else if (t.type === 'expense') {
+        balanceByMember[t.memberId] -= t.amount;
       }
     });
 
@@ -910,7 +912,7 @@ router.post('/transactions', async (req, res) => {
         if (t.type === 'payment') return sum + t.amount;
         if (t.type === 'credit') return sum + t.amount;
         if (t.type === 'donation') return sum + t.amount;
-        if (t.type === 'expense') return sum + t.amount;
+        if (t.type === 'expense') return sum - t.amount;
         return sum;
       }, 0);
 
@@ -955,7 +957,7 @@ router.delete('/transactions/:id', async (req, res) => {
         if (t.type === 'payment') return sum + t.amount;
         if (t.type === 'credit') return sum + t.amount;
         if (t.type === 'donation') return sum + t.amount;
-        if (t.type === 'expense') return sum + t.amount;
+        if (t.type === 'expense') return sum - t.amount;
         return sum;
       }, 0);
 
