@@ -239,7 +239,7 @@ function Play() {
             {!isTeammate && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
                 <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>NTP</div>
-                <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, background: '#4A90E2', color: 'white', border: 'none', width: '100px', height: '100px' }}>?</button>
+                <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, background: '#4A90E2', color: 'white', border: 'none', width: '100px', height: '100px', fontSize: '40px' }}>⛳</button>
               </div>
             )}
             
