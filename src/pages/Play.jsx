@@ -202,6 +202,18 @@ function Play() {
       ? courseData?.holePars[selectedTeammate?.gender === 'F' ? 'female' : 'male']?.[currentHole - 1]
       : courseData?.holePars[user?.gender === 'F' ? 'female' : 'male']?.[currentHole - 1];
     
+    const parArrForCalc = isTeammate ? parArr : userParArr;
+    let totalScore = 0, totalPar = 0;
+    const scoreArr = isTeammate ? holeScores.teammate : holeScores.me;
+    for (let i = 0; i < currentHole; i++) {
+      if (scoreArr[i] > 0) { totalScore += scoreArr[i]; totalPar += (parArrForCalc[i] || 0); }
+    }
+    const diff = totalScore - totalPar;
+    const diffText = diff > 0 ? '+' + diff : diff === 0 ? 'E' : String(diff);
+    
+    const boxStyle = { width: '100%', aspectRatio: '1', padding: '12px', background: 'white', border: '2px solid #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '25px', color: '#000' };
+    const buttonStyle = { width: '100%', aspectRatio: '1', padding: '12px', border: '2px solid #ccc', background: 'white', color: '#000', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '25px' };
+    
     return (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '0', padding: '0', marginBottom: '12px' }}>
         <div style={{ background: '#4A90E2', color: 'white', padding: '12px 16px', borderRadius: '0', textAlign: 'center', fontWeight: '700', fontSize: '16px' }}>
@@ -218,26 +230,32 @@ function Play() {
         </div>
 
         <div style={{ background: 'white', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: '12px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: isTeammate ? '1fr 1fr 1fr 1fr' : '1fr 1fr 1fr 1fr 1fr', gap: '12px' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
               <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>PAR</div>
-              <div style={{ width: '100%', aspectRatio: '1', padding: '12px', background: 'white', border: '2px solid #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '18px', color: '#000' }}>{par}</div>
+              <button onClick={() => setScoreValue(isTeammate, par)} style={{ ...boxStyle, border: '2px solid #ccc', background: 'white', cursor: 'pointer' }}>{par}</button>
             </div>
+            
+            {!isTeammate && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
+                <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>NTP</div>
+                <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, background: '#4A90E2', color: 'white', border: 'none' }}>?</button>
+              </div>
+            )}
+            
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
-              <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>SHOTS</div>
-              <div style={{ width: '100%', aspectRatio: '1', padding: '12px', background: 'white', border: '2px solid #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '18px', color: '#000' }}>1</div>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>양파</div>
+              <button onClick={() => setScoreValue(isTeammate, par * 2)} style={buttonStyle}>●</button>
             </div>
+            
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
-              <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>NTP</div>
-              <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ width: '100%', aspectRatio: '1', padding: '12px', border: 'none', background: '#4A90E2', color: 'white', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '18px' }}>?</button>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>DP</div>
+              <button onClick={() => setScoreValue(isTeammate, par * 2)} style={buttonStyle}>{par * 2}</button>
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
-              <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>PICK UP</div>
-              <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ width: '100%', aspectRatio: '1', padding: '12px', border: '2px solid #ccc', background: 'white', color: '#000', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '18px' }}>P</button>
-            </div>
+            
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
               <div style={{ fontSize: '12px', fontWeight: '700', color: '#000' }}>TOTAL</div>
-              <div style={{ width: '100%', aspectRatio: '1', padding: '12px', background: 'white', border: '2px solid #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '18px', color: '#000' }}>{score}</div>
+              <div style={boxStyle}>{diffText}</div>
             </div>
           </div>
         </div>
