@@ -245,11 +245,6 @@ function Play() {
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
               <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>양파</div>
-              <button onClick={() => setScoreValue(isTeammate, par * 2)} style={buttonStyle}>●</button>
-            </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
-              <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>DP</div>
               <button onClick={() => setScoreValue(isTeammate, par * 2)} style={buttonStyle}>{par * 2}</button>
             </div>
             
@@ -263,24 +258,24 @@ function Play() {
     );
   };
 
+  useEffect(() => {
+    if (currentHole === 1 && !roundStartTime && step === 'scorecard') {
+      setRoundStartTime(Date.now());
+    }
+  }, [currentHole, step]);
+
   return (
     <div style={{ minHeight: '100vh', background: '#223B3F', display: 'flex', flexDirection: 'column', padding: '0' }}>
-      <div className="header" style={{ background: '#223B3F', borderBottom: 'none' }}>
-        <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'white', padding: '8px 16px' }}>← Back</button>
-      </div>
+      <div className="header" style={{ background: '#223B3F', borderBottom: 'none' }}></div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', padding: '12px 24px', marginBottom: '0' }}>
-        <div style={{ border: '2px solid white', borderRadius: '8px', padding: '8px', textAlign: 'center', fontSize: '11px', background: 'transparent', color: 'white' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', padding: '12px 24px', marginBottom: '0' }}>
+        <div style={{ border: '2px solid white', borderRadius: '8px', padding: '12px', textAlign: 'center', fontSize: '11px', background: 'transparent', color: 'white' }}>
           <div style={{ fontWeight: '700', opacity: 1, fontSize: '11px' }}>ROUND TIME</div>
-          <div style={{ fontSize: '18px', fontWeight: '700', marginTop: '2px' }}>{getTime()}</div>
+          <div style={{ fontSize: '20px', fontWeight: '700', marginTop: '8px' }}>{getTime()}</div>
         </div>
-        <div style={{ border: '2px solid white', borderRadius: '8px', padding: '8px', textAlign: 'center', fontSize: '11px', background: 'transparent', color: 'white' }}>
+        <div style={{ border: '2px solid white', borderRadius: '8px', padding: '12px', textAlign: 'center', fontSize: '11px', background: 'transparent', color: 'white' }}>
           <div style={{ fontWeight: '700', opacity: 1, fontSize: '11px' }}>HOLE</div>
-          <div style={{ fontSize: '18px', fontWeight: '700', marginTop: '2px' }}>{currentHole}</div>
-        </div>
-        <div style={{ border: '2px solid rgba(255,255,255,0.3)', borderRadius: '8px', padding: '8px', textAlign: 'center', fontSize: '11px', background: 'transparent', color: 'rgba(255,255,255,0.7)' }}>
-          <div style={{ fontWeight: '700', opacity: 0.7, fontSize: '11px' }}>TO MID</div>
-          <div style={{ fontSize: '18px', fontWeight: '700', marginTop: '2px' }}>-</div>
+          <div style={{ fontSize: '36px', fontWeight: '700', marginTop: '8px' }}>{currentHole}</div>
         </div>
       </div>
 
