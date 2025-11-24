@@ -17,6 +17,7 @@ function Play() {
   const [holeScores, setHoleScores] = useState({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
   const [courseData, setCourseData] = useState(null);
   const [touchStart, setTouchStart] = useState(0);
+  const [showMismatches, setShowMismatches] = useState(false);
 
   useEffect(() => {
     setSelectedTeammate(null);
@@ -302,6 +303,28 @@ function Play() {
     return typeof window !== 'undefined' && window.innerWidth > 768;
   };
 
+  const isAllHolesComplete = () => {
+    return holeScores.me.every(score => score > 0) && holeScores.teammate.every(score => score > 0);
+  };
+
+  const getMismatchedHoles = () => {
+    const mismatches = [];
+    for (let i = 0; i < 18; i++) {
+      if (holeScores.me[i] !== holeScores.teammate[i]) {
+        mismatches.push(i + 1);
+      }
+    }
+    return mismatches;
+  };
+
+  const mismatchedHoles = getMismatchedHoles();
+
+  useEffect(() => {
+    if (isAllHolesComplete() && mismatchedHoles.length > 0) {
+      setShowMismatches(true);
+    }
+  }, [isAllHolesComplete(), mismatchedHoles.length]);
+
   return (
     <div 
       style={{ minHeight: '100vh', background: '#223B3F', display: 'flex', flexDirection: 'column', padding: '0' }}
@@ -385,6 +408,75 @@ function Play() {
         <button onClick={goToPreviousHole} style={{ flex: 1, padding: '12px', background: 'white', color: '#000', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: '14px' }}>← 이전</button>
         <button onClick={goToNextHole} style={{ flex: 1, padding: '12px', background: 'white', color: 'black', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: '14px' }}>다음 →</button>
       </div>
+
+      {showMismatches && mismatchedHoles.length > 0 && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '24px',
+            maxWidth: '400px',
+            maxHeight: '80vh',
+            overflow: 'auto'
+          }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', textAlign: 'center' }}>
+              점수 확인 필요
+            </h3>
+            <p style={{ fontSize: '14px', color: '#666', marginBottom: '16px', textAlign: 'center' }}>
+              다음 홀에서 점수가 다릅니다:
+            </p>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px', marginBottom: '20px' }}>
+              {mismatchedHoles.map(hole => (
+                <button
+                  key={hole}
+                  onClick={() => {
+                    setCurrentHole(hole);
+                    setShowMismatches(false);
+                  }}
+                  style={{
+                    padding: '12px',
+                    background: '#6399CF',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontWeight: '700',
+                    fontSize: '14px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {hole}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowMismatches(false)}
+              style={{
+                width: '100%',
+                padding: '12px',
+                background: '#ddd',
+                color: '#000',
+                border: 'none',
+                borderRadius: '6px',
+                fontWeight: '700',
+                cursor: 'pointer'
+              }}
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
