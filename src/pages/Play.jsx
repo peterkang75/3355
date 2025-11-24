@@ -276,13 +276,30 @@ function Play() {
     if (Math.abs(diff) > threshold) {
       if (diff > 0) {
         // 왼쪽 스와이프 → 다음 홀
-        if (currentHole < 18) setCurrentHole(currentHole + 1);
+        goToNextHole();
       } else {
         // 오른쪽 스와이프 → 이전 홀
-        if (currentHole > 1) setCurrentHole(currentHole - 1);
-        else setCurrentHole(18); // 1번에서 오른쪽 스와이프 → 18번
+        goToPreviousHole();
       }
     }
+  };
+
+  const goToPreviousHole = () => {
+    if (currentHole > 1) {
+      setCurrentHole(currentHole - 1);
+    } else {
+      setCurrentHole(18); // 1번에서 → 18번
+    }
+  };
+
+  const goToNextHole = () => {
+    if (currentHole < 18) {
+      setCurrentHole(currentHole + 1);
+    }
+  };
+
+  const isPC = () => {
+    return typeof window !== 'undefined' && window.innerWidth > 768;
   };
 
   return (
@@ -304,15 +321,69 @@ function Play() {
         </div>
       </div>
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '12px 24px' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '12px 24px', position: 'relative' }}>
         <ScoreSection title={`${selectedTeammate?.nickname || selectedTeammate?.name} (HC: ${selectedTeammate?.handicap || '-'})`} isTeammate={true} />
         
         <ScoreSection title={`${user?.nickname || user?.name} (HC: ${user?.handicap || '-'})`} isTeammate={false} />
+
+        {isPC() && (
+          <>
+            <button
+              onClick={goToPreviousHole}
+              style={{
+                position: 'fixed',
+                left: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: '50px',
+                height: '50px',
+                borderRadius: '50%',
+                background: 'rgba(255, 255, 255, 0.8)',
+                color: '#223B3F',
+                border: 'none',
+                fontSize: '24px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                zIndex: 100,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              ←
+            </button>
+
+            <button
+              onClick={goToNextHole}
+              style={{
+                position: 'fixed',
+                right: '12px',
+                top: '50%',
+                transform: 'translateY(-50%)',
+                width: '50px',
+                height: '50px',
+                borderRadius: '50%',
+                background: 'rgba(255, 255, 255, 0.8)',
+                color: '#223B3F',
+                border: 'none',
+                fontSize: '24px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                zIndex: 100,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              →
+            </button>
+          </>
+        )}
       </div>
 
       <div style={{ display: 'flex', gap: '8px', padding: '12px 24px', background: '#223B3F' }}>
-        <button onClick={() => currentHole > 1 && setCurrentHole(currentHole - 1)} disabled={currentHole === 1} style={{ flex: 1, padding: '12px', background: currentHole === 1 ? '#444' : 'white', color: currentHole === 1 ? '#999' : '#000', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: '14px' }}>← 이전</button>
-        <button onClick={() => currentHole < 18 && setCurrentHole(currentHole + 1)} disabled={currentHole === 18} style={{ flex: 1, padding: '12px', background: currentHole === 18 ? '#444' : 'white', color: 'black', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: '14px' }}>다음 →</button>
+        <button onClick={goToPreviousHole} style={{ flex: 1, padding: '12px', background: 'white', color: '#000', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: '14px' }}>← 이전</button>
+        <button onClick={goToNextHole} style={{ flex: 1, padding: '12px', background: 'white', color: 'black', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: '14px' }}>다음 →</button>
       </div>
     </div>
   );
