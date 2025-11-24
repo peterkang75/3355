@@ -216,7 +216,7 @@ function Play() {
     
     return (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '0', padding: '0', marginBottom: '12px' }}>
-        <div style={{ background: '#4A90E2', color: 'white', padding: '12px 16px', borderRadius: '0', textAlign: 'center', fontWeight: '700', fontSize: '16px' }}>
+        <div style={{ background: '#6399CF', color: 'white', padding: '12px 16px', borderRadius: '0', textAlign: 'center', fontWeight: '700', fontSize: '16px' }}>
           {title}
         </div>
         
@@ -239,7 +239,12 @@ function Play() {
             {!isTeammate && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
                 <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>NTP</div>
-                <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, background: '#4A90E2', color: 'white', border: 'none', width: '100px', height: '100px', fontSize: '40px' }}>⛳</button>
+                <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, background: '#6399CF', color: 'white', border: 'none', width: '100px', height: '100px', fontSize: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0' }}>
+                  <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="25" cy="15" r="8" stroke="white" strokeWidth="3"/>
+                    <line x1="25" y1="23" x2="25" y2="42" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+                  </svg>
+                </button>
               </div>
             )}
             
