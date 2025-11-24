@@ -2921,7 +2921,7 @@ function Admin() {
                           padding: '6px',
                           fontSize: '12px',
                           textAlign: 'center',
-                          border: '2px solid var(--primary-green)',
+                          border: '1px solid var(--primary-green)',
                           borderRadius: '4px',
                           fontWeight: '600'
                         }}
@@ -2939,7 +2939,7 @@ function Admin() {
                           padding: '6px',
                           fontSize: '12px',
                           textAlign: 'center',
-                          border: '2px solid #e74c3c',
+                          border: '1px solid #e74c3c',
                           borderRadius: '4px',
                           fontWeight: '600'
                         }}
@@ -3061,7 +3061,7 @@ function Admin() {
                             padding: '6px',
                             fontSize: '12px',
                             textAlign: 'center',
-                            border: '2px solid var(--primary-green)',
+                            border: '1px solid var(--primary-green)',
                             borderRadius: '4px',
                             fontWeight: '600'
                           }}
@@ -3079,7 +3079,7 @@ function Admin() {
                             padding: '6px',
                             fontSize: '12px',
                             textAlign: 'center',
-                            border: '2px solid #e74c3c',
+                            border: '1px solid #e74c3c',
                             borderRadius: '4px',
                             fontWeight: '600'
                           }}
