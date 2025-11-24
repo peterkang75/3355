@@ -3277,21 +3277,28 @@ function Admin() {
                           gap: '4px',
                           fontSize: '12px'
                         }}>
-                          {(course.holePars.male || []).map((par, idx) => (
-                            <div 
-                              key={idx}
-                              style={{
-                                padding: '4px',
-                                background: 'var(--text-light)',
-                                borderRadius: '4px',
-                                textAlign: 'center',
-                                border: '1px solid var(--primary-green)'
-                              }}
-                            >
-                              <div style={{ fontSize: '10px', color: 'var(--text-dark)', opacity: 0.7 }}>{idx + 1}</div>
-                              <div style={{ fontWeight: '600' }}>{par}</div>
-                            </div>
-                          ))}
+                          {(course.holePars.male || []).map((malePar, idx) => {
+                            const femalePar = (course.holePars.female || [])[idx];
+                            return (
+                              <div 
+                                key={idx}
+                                style={{
+                                  padding: '4px',
+                                  background: 'var(--text-light)',
+                                  borderRadius: '4px',
+                                  textAlign: 'center',
+                                  border: '1px solid var(--primary-green)'
+                                }}
+                              >
+                                <div style={{ fontSize: '10px', color: 'var(--text-dark)', opacity: 0.7 }}>{idx + 1}</div>
+                                <div style={{ fontWeight: '600' }}>
+                                  <span style={{ color: 'var(--primary-green)' }}>{malePar}</span>
+                                  <span style={{ color: 'var(--text-dark)' }}>/</span>
+                                  <span style={{ color: '#e74c3c' }}>{femalePar}</span>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     )}
