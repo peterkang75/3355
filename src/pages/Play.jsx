@@ -211,8 +211,8 @@ function Play() {
     const diff = totalScore - totalPar;
     const diffText = diff > 0 ? '+' + diff : diff === 0 ? 'E' : String(diff);
     
-    const boxStyle = { width: '100%', aspectRatio: '1', padding: '12px', background: 'white', border: '2px solid #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '25px', color: '#000' };
-    const buttonStyle = { width: '100%', aspectRatio: '1', padding: '12px', border: '2px solid #ccc', background: 'white', color: '#000', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '25px' };
+    const boxStyle = { width: '100%', aspectRatio: '1', padding: '12px', background: 'white', border: '2px solid #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '35px', color: '#000' };
+    const buttonStyle = { width: '100%', aspectRatio: '1', padding: '12px', border: '2px solid #ccc', background: 'white', color: '#000', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '35px' };
     
     return (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '0', padding: '0', marginBottom: '12px' }}>
@@ -223,7 +223,7 @@ function Play() {
         <div style={{ background: 'white', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '20px 16px', borderBottom: '1px solid #e0e0e0' }}>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px' }}>
             <button onClick={() => updateScore(isTeammate, -1)} style={{ width: '52px', height: '52px', border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: '28px', fontWeight: '700', cursor: 'pointer', color: '#666' }}>−</button>
-            <div style={{ fontSize: '72px', fontWeight: '900', minWidth: '80px', textAlign: 'center', color: '#000' }}>{score}</div>
+            <div style={{ fontSize: '72px', fontWeight: '300', minWidth: '80px', textAlign: 'center', color: '#000' }}>{score}</div>
             <button onClick={() => updateScore(isTeammate, 1)} style={{ width: '52px', height: '52px', border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: '28px', fontWeight: '700', cursor: 'pointer', color: '#666' }}>+</button>
           </div>
           <div style={{ fontSize: '13px', color: '#666', fontWeight: '400' }}>{score} points</div>
