@@ -5,11 +5,11 @@ import { useApp } from '../contexts/AppContext';
 function Play() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, bookings, courses, saveScore } = useApp();
+  const { user, bookings, courses } = useApp();
   const bookingId = searchParams.get('id');
   
   const [booking, setBooking] = useState(null);
-  const [step, setStep] = useState('selectMember'); // selectMember -> scorecard
+  const [step, setStep] = useState('selectMember');
   const [selectedTeammate, setSelectedTeammate] = useState(null);
   const [teammates, setTeammates] = useState([]);
   const [roundStartTime, setRoundStartTime] = useState(null);
@@ -35,7 +35,6 @@ function Play() {
         }
       }
 
-      // 골프장 정보 가져오기
       const course = courses.find(c => c.name === foundBooking?.courseName);
       if (course) setCourseData(course);
     }
@@ -97,12 +96,11 @@ function Play() {
   const calculateUnderOver = () => {
     let total = 0;
     let parTotal = 0;
+    const parArray = courseData?.holePars[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
     for (let i = 0; i < currentHole; i++) {
-      const score = holeScores[i];
-      const par = getMemberPar();
-      if (score > 0) {
-        total += score;
-        parTotal += (courseData?.holePars[selectedTeammate.gender === 'F' ? 'female' : 'male'][i] || 0);
+      if (holeScores[i] > 0) {
+        total += holeScores[i];
+        parTotal += (parArray[i] || 0);
       }
     }
     return total - parTotal;
@@ -121,7 +119,7 @@ function Play() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          memberId: selectedTeammate.phone ? user.id : null,
+          memberId: user.id,
           roundingName: booking?.title,
           date: today,
           courseName: courseData?.name,
@@ -143,19 +141,41 @@ function Play() {
     }
   };
 
+  if (!bookingId || !booking) {
+    return (
+      <div style={{ minHeight: '100vh', padding: '16px', paddingBottom: '80px' }}>
+        <div className="header">
+          <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', fontSize: '16px', padding: '8px 16px' }}>
+            ← Back
+          </button>
+        </div>
+        <div className="card" style={{ marginTop: '16px', textAlign: 'center', padding: '32px' }}>
+          <p style={{ fontSize: '16px', opacity: 0.7 }}>라운딩 정보를 불러오는 중입니다...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (teammates.length === 0) {
+    return (
+      <div style={{ minHeight: '100vh', padding: '16px', paddingBottom: '80px' }}>
+        <div className="header">
+          <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', fontSize: '16px', padding: '8px 16px' }}>
+            ← Back
+          </button>
+        </div>
+        <div className="card" style={{ marginTop: '16px', textAlign: 'center', padding: '32px' }}>
+          <p style={{ fontSize: '16px', opacity: 0.7 }}>같은 조의 회원이 없습니다.</p>
+        </div>
+      </div>
+    );
+  }
+
   if (step === 'selectMember') {
     return (
       <div style={{ minHeight: '100vh', padding: '16px', paddingBottom: '80px' }}>
         <div className="header">
-          <button 
-            onClick={() => navigate(-1)}
-            style={{
-              background: 'transparent',
-              color: 'var(--text-light)',
-              fontSize: '16px',
-              padding: '8px 16px'
-            }}
-          >
+          <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', fontSize: '16px', padding: '8px 16px' }}>
             ← Back
           </button>
         </div>
@@ -219,261 +239,78 @@ function Play() {
   return (
     <div style={{ minHeight: '100vh', padding: '16px', paddingBottom: '80px' }}>
       <div className="header">
-        <button 
-          onClick={() => navigate(-1)}
-          style={{
-            background: 'transparent',
-            color: 'var(--text-light)',
-            fontSize: '16px',
-            padding: '8px 16px'
-          }}
-        >
+        <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', fontSize: '16px', padding: '8px 16px' }}>
           ← Back
         </button>
-        <button 
-          onClick={handleSaveRound}
-          style={{
-            background: 'transparent',
-            color: 'var(--primary-green)',
-            fontSize: '16px',
-            padding: '8px 16px',
-            fontWeight: '600'
-          }}
-        >
+        <button onClick={handleSaveRound} style={{ background: 'transparent', color: 'var(--primary-green)', fontSize: '16px', padding: '8px 16px', fontWeight: '600' }}>
           💾 저장
         </button>
       </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(3, 1fr)',
-        gap: '8px',
-        marginTop: '16px',
-        marginBottom: '16px'
-      }}>
-        <div style={{
-          border: '2px solid var(--primary-green)',
-          borderRadius: '8px',
-          padding: '12px',
-          textAlign: 'center',
-          background: 'var(--bg-card)'
-        }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginTop: '16px', marginBottom: '16px' }}>
+        <div style={{ border: '2px solid var(--primary-green)', borderRadius: '8px', padding: '12px', textAlign: 'center', background: 'var(--bg-card)' }}>
           <div style={{ fontSize: '12px', fontWeight: '600', opacity: 0.7 }}>ROUND TIME</div>
           <div style={{ fontSize: '18px', fontWeight: '700', marginTop: '4px' }}>{getElapsedTime()}</div>
         </div>
-        <div style={{
-          border: '2px solid var(--primary-green)',
-          borderRadius: '8px',
-          padding: '12px',
-          textAlign: 'center',
-          background: 'var(--bg-card)'
-        }}>
+        <div style={{ border: '2px solid var(--primary-green)', borderRadius: '8px', padding: '12px', textAlign: 'center', background: 'var(--bg-card)' }}>
           <div style={{ fontSize: '12px', fontWeight: '600', opacity: 0.7 }}>HOLE</div>
           <div style={{ fontSize: '18px', fontWeight: '700', marginTop: '4px' }}>{currentHole}</div>
         </div>
-        <div style={{
-          border: '2px solid var(--border-color)',
-          borderRadius: '8px',
-          padding: '12px',
-          textAlign: 'center',
-          background: 'var(--bg-card)',
-          opacity: 0.5
-        }}>
+        <div style={{ border: '2px solid var(--border-color)', borderRadius: '8px', padding: '12px', textAlign: 'center', background: 'var(--bg-card)', opacity: 0.5 }}>
           <div style={{ fontSize: '12px', fontWeight: '600', opacity: 0.7 }}>TO MID</div>
           <div style={{ fontSize: '18px', fontWeight: '700', marginTop: '4px' }}>-</div>
         </div>
       </div>
 
-      <div style={{
-        background: 'var(--primary-green)',
-        color: 'white',
-        borderRadius: '8px',
-        padding: '12px',
-        marginBottom: '16px',
-        textAlign: 'center'
-      }}>
+      <div style={{ background: 'var(--primary-green)', color: 'white', borderRadius: '8px', padding: '12px', marginBottom: '16px', textAlign: 'center' }}>
         <div style={{ fontWeight: '700', fontSize: '16px' }}>
           {selectedTeammate?.nickname || selectedTeammate?.name} (HC: {selectedTeammate?.handicap || '-'})
         </div>
       </div>
 
-      <div style={{
-        background: 'var(--text-light)',
-        borderRadius: '8px',
-        padding: '16px',
-        marginBottom: '16px'
-      }}>
+      <div style={{ background: 'var(--text-light)', borderRadius: '8px', padding: '16px', marginBottom: '16px' }}>
         <div style={{ textAlign: 'center', marginBottom: '16px' }}>
           <div style={{ fontSize: '12px', opacity: 0.7, marginBottom: '8px' }}>점수</div>
           <div style={{ fontSize: '48px', fontWeight: '700' }}>{currentScore}</div>
           <div style={{ fontSize: '12px', opacity: 0.7, marginTop: '4px' }}>포인트</div>
         </div>
 
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '16px',
-          alignItems: 'center'
-        }}>
-          <button
-            onClick={() => handleSetScore(Math.max(0, currentScore - 1))}
-            style={{
-              width: '56px',
-              height: '56px',
-              border: '1px solid var(--border-color)',
-              background: 'white',
-              borderRadius: '8px',
-              fontSize: '24px',
-              fontWeight: '700',
-              cursor: 'pointer'
-            }}
-          >
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', alignItems: 'center' }}>
+          <button onClick={() => handleSetScore(Math.max(0, currentScore - 1))} style={{ width: '56px', height: '56px', border: '1px solid var(--border-color)', background: 'white', borderRadius: '8px', fontSize: '24px', fontWeight: '700', cursor: 'pointer' }}>
             −
           </button>
           <div style={{ fontSize: '12px', opacity: 0.7 }}>점수 조정</div>
-          <button
-            onClick={() => handleSetScore(currentScore + 1)}
-            style={{
-              width: '56px',
-              height: '56px',
-              border: '1px solid var(--border-color)',
-              background: 'white',
-              borderRadius: '8px',
-              fontSize: '24px',
-              fontWeight: '700',
-              cursor: 'pointer'
-            }}
-          >
+          <button onClick={() => handleSetScore(currentScore + 1)} style={{ width: '56px', height: '56px', border: '1px solid var(--border-color)', background: 'white', borderRadius: '8px', fontSize: '24px', fontWeight: '700', cursor: 'pointer' }}>
             +
           </button>
         </div>
       </div>
 
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, 1fr)',
-        gap: '8px',
-        marginBottom: '16px'
-      }}>
-        <button
-          onClick={handleParClick}
-          style={{
-            padding: '12px',
-            border: '1px solid var(--border-color)',
-            background: selectedTeammate?.gender === 'F' ? '#e74c3c' : 'var(--primary-green)',
-            color: 'white',
-            borderRadius: '8px',
-            fontWeight: '700',
-            cursor: 'pointer'
-          }}
-        >
-          PAR
-          <div style={{ fontSize: '20px', marginTop: '4px' }}>{par || '-'}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', marginBottom: '16px' }}>
+        <button onClick={handleParClick} style={{ padding: '12px', border: '1px solid var(--border-color)', background: selectedTeammate?.gender === 'F' ? '#e74c3c' : 'var(--primary-green)', color: 'white', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '12px' }}>
+          PAR<div style={{ fontSize: '20px', marginTop: '4px' }}>{par || '-'}</div>
         </button>
-        <button
-          disabled
-          style={{
-            padding: '12px',
-            border: '1px solid var(--border-color)',
-            background: 'var(--bg-card)',
-            color: 'var(--text-dark)',
-            borderRadius: '8px',
-            fontWeight: '700',
-            opacity: 0.5,
-            cursor: 'not-allowed'
-          }}
-        >
-          SHOTS
-          <div style={{ fontSize: '20px', marginTop: '4px' }}>-</div>
+        <button disabled style={{ padding: '12px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', color: 'var(--text-dark)', borderRadius: '8px', fontWeight: '700', opacity: 0.5, cursor: 'not-allowed' }}>
+          SHOTS<div style={{ fontSize: '20px', marginTop: '4px' }}>-</div>
         </button>
-        <button
-          onClick={handleDPClick}
-          style={{
-            padding: '12px',
-            border: '1px solid var(--border-color)',
-            background: 'var(--primary-green)',
-            color: 'white',
-            borderRadius: '8px',
-            fontWeight: '700',
-            cursor: 'pointer',
-            fontSize: '13px'
-          }}
-        >
-          양파
-          <div style={{ fontSize: '16px', marginTop: '4px' }}>DP</div>
+        <button onClick={handleDPClick} style={{ padding: '12px', border: '1px solid var(--border-color)', background: 'var(--primary-green)', color: 'white', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '11px' }}>
+          양파<div style={{ fontSize: '16px', marginTop: '4px' }}>DP</div>
         </button>
-        <div
-          style={{
-            padding: '12px',
-            border: '1px solid var(--border-color)',
-            background: 'var(--bg-card)',
-            borderRadius: '8px',
-            fontWeight: '700',
-            textAlign: 'center'
-          }}
-        >
-          TOTAL
-          <div style={{ fontSize: '20px', marginTop: '4px' }}>
-            {underOver >= 0 ? '+' : ''}{underOver}
-          </div>
+        <div style={{ padding: '12px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', borderRadius: '8px', fontWeight: '700', textAlign: 'center' }}>
+          TOTAL<div style={{ fontSize: '20px', marginTop: '4px' }}>{underOver >= 0 ? '+' : ''}{underOver}</div>
         </div>
       </div>
 
-      <div style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        gap: '8px',
-        marginBottom: '16px'
-      }}>
-        <button
-          onClick={prevHole}
-          disabled={currentHole === 1}
-          style={{
-            flex: 1,
-            padding: '12px',
-            border: '1px solid var(--border-color)',
-            background: currentHole === 1 ? 'var(--bg-card)' : 'var(--text-light)',
-            borderRadius: '8px',
-            fontWeight: '700',
-            cursor: currentHole === 1 ? 'not-allowed' : 'pointer',
-            opacity: currentHole === 1 ? 0.5 : 1
-          }}
-        >
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: '8px', marginBottom: '16px' }}>
+        <button onClick={prevHole} disabled={currentHole === 1} style={{ flex: 1, padding: '12px', border: '1px solid var(--border-color)', background: currentHole === 1 ? 'var(--bg-card)' : 'var(--text-light)', borderRadius: '8px', fontWeight: '700', cursor: currentHole === 1 ? 'not-allowed' : 'pointer', opacity: currentHole === 1 ? 0.5 : 1 }}>
           ← 이전
         </button>
-        <button
-          onClick={nextHole}
-          disabled={currentHole === 18}
-          style={{
-            flex: 1,
-            padding: '12px',
-            border: '1px solid var(--border-color)',
-            background: currentHole === 18 ? 'var(--bg-card)' : 'var(--primary-green)',
-            color: currentHole === 18 ? 'var(--text-dark)' : 'white',
-            borderRadius: '8px',
-            fontWeight: '700',
-            cursor: currentHole === 18 ? 'not-allowed' : 'pointer',
-            opacity: currentHole === 18 ? 0.5 : 1
-          }}
-        >
+        <button onClick={nextHole} disabled={currentHole === 18} style={{ flex: 1, padding: '12px', border: '1px solid var(--border-color)', background: currentHole === 18 ? 'var(--bg-card)' : 'var(--primary-green)', color: currentHole === 18 ? 'var(--text-dark)' : 'white', borderRadius: '8px', fontWeight: '700', cursor: currentHole === 18 ? 'not-allowed' : 'pointer', opacity: currentHole === 18 ? 0.5 : 1 }}>
           다음 →
         </button>
       </div>
 
-      <button
-        onClick={handleSaveRound}
-        style={{
-          width: '100%',
-          padding: '16px',
-          background: 'var(--primary-green)',
-          color: 'white',
-          border: 'none',
-          borderRadius: '8px',
-          fontWeight: '700',
-          fontSize: '16px',
-          cursor: 'pointer'
-        }}
-      >
+      <button onClick={handleSaveRound} style={{ width: '100%', padding: '16px', background: 'var(--primary-green)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', fontSize: '16px', cursor: 'pointer' }}>
         라운드 저장
       </button>
     </div>
