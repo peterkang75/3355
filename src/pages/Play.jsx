@@ -111,19 +111,36 @@ function Play() {
   const handleSaveRound = async () => {
     if (!window.confirm('라운드를 저장하시겠습니까?')) return;
 
-    const totalScore = holeScores.reduce((sum, score) => sum + score, 0);
-    const coursePar = (courseData?.holePars[selectedTeammate.gender === 'F' ? 'female' : 'male'] || []).reduce((sum, par) => sum + par, 0);
+    try {
+      const totalScore = holeScores.reduce((sum, score) => sum + score, 0);
+      const parArray = courseData?.holePars[selectedTeammate.gender === 'F' ? 'female' : 'male'] || [];
+      const coursePar = parArray.reduce((sum, par) => sum + par, 0);
+      const today = new Date().toISOString().split('T')[0];
 
-    await saveScore({
-      roundingName: booking?.title,
-      courseName: courseData?.name,
-      totalScore,
-      coursePar,
-      holes: holeScores
-    });
+      const response = await fetch('/api/scores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          memberId: selectedTeammate.phone ? user.id : null,
+          roundingName: booking?.title,
+          date: today,
+          courseName: courseData?.name,
+          totalScore,
+          coursePar,
+          holes: holeScores
+        })
+      });
 
-    alert('스코어가 저장되었습니다!');
-    navigate(-1);
+      if (response.ok) {
+        alert('스코어가 저장되었습니다!');
+        navigate(-1);
+      } else {
+        alert('스코어 저장에 실패했습니다.');
+      }
+    } catch (error) {
+      console.error('스코어 저장 오류:', error);
+      alert('오류가 발생했습니다.');
+    }
   };
 
   if (step === 'selectMember') {

@@ -675,7 +675,7 @@ router.get('/scores/:memberId', async (req, res) => {
 
 router.post('/scores', async (req, res) => {
   try {
-    const { memberId, roundingName, date, courseName, totalScore } = req.body;
+    const { memberId, roundingName, date, courseName, totalScore, holes, coursePar } = req.body;
     const score = await prisma.score.create({
       data: {
         userId: memberId,
@@ -683,7 +683,8 @@ router.post('/scores', async (req, res) => {
         date,
         courseName,
         totalScore,
-        holes: ''
+        coursePar: coursePar || 72,
+        holes: holes ? JSON.stringify(holes) : ''
       }
     });
     res.json(score);

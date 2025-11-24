@@ -290,23 +290,40 @@ function ParticipantManagement() {
             </div>
           )}
 
-          <button
-            onClick={() => navigate(`/team-formation?id=${bookingId}`)}
-            style={{
-              width: '100%',
-              padding: '12px',
-              background: 'var(--primary-green)',
-              color: 'var(--text-light)',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '15px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              marginTop: '16px'
-            }}
-          >
-            📋 조편성하기
-          </button>
+          <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+            <button
+              onClick={() => navigate(`/team-formation?id=${bookingId}`)}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: 'var(--primary-green)',
+                color: 'var(--text-light)',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '15px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              📋 조편성하기
+            </button>
+            <button
+              onClick={() => navigate(`/play?id=${bookingId}`)}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: '#2196F3',
+                color: 'var(--text-light)',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '15px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              ⛳ 플레이하기
+            </button>
+          </div>
         </div>
       </div>
 
