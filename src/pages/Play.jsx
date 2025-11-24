@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 
@@ -138,8 +138,23 @@ function Play() {
             ))}
           </div>
           <button
-            onClick={() => {
+            onClick={async () => {
               if (!selectedTeammate) { alert('선택해주세요'); return; }
+              
+              try {
+                const today = new Date().toISOString().split('T')[0];
+                const res = await fetch(`/api/scores/check?memberId=${selectedTeammate.phone}&date=${today}&roundingName=${booking?.title}`);
+                const data = await res.json();
+                
+                if (data.exists) {
+                  alert('이미 점수가 저장되어있습니다.');
+                  navigate(-1);
+                  return;
+                }
+              } catch (e) {
+                console.error('점수 확인 오류:', e);
+              }
+              
               setRoundStartTime(Date.now());
               setCurrentHole(1);
               setHoleScores({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
@@ -310,7 +325,7 @@ function Play() {
     return holeScores.me.every(score => score > 0) && holeScores.teammate.every(score => score > 0);
   };
 
-  const getMismatchedHoles = () => {
+  const mismatchedHoles = useMemo(() => {
     const mismatches = [];
     for (let i = 0; i < 18; i++) {
       if (holeScores.me[i] !== holeScores.teammate[i]) {
@@ -318,15 +333,13 @@ function Play() {
       }
     }
     return mismatches;
-  };
-
-  const mismatchedHoles = getMismatchedHoles();
+  }, [holeScores]);
 
   useEffect(() => {
     if (step === 'scorecard' && isAllHolesComplete() && mismatchedHoles.length > 0) {
       setShowMismatches(true);
     }
-  }, [step, holeScores]);
+  }, [step, mismatchedHoles.length]);
 
   return (
     <div 
