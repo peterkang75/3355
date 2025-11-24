@@ -230,27 +230,27 @@ function Play() {
         </div>
 
         <div style={{ background: 'white', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: isTeammate ? '1fr 1fr 1fr 1fr' : '1fr 1fr 1fr 1fr 1fr', gap: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
               <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>PAR</div>
-              <button onClick={() => setScoreValue(isTeammate, par)} style={{ ...boxStyle, border: '2px solid #ccc', background: 'white', cursor: 'pointer' }}>{par}</button>
+              <button onClick={() => setScoreValue(isTeammate, par)} style={{ ...boxStyle, border: '2px solid #ccc', background: 'white', cursor: 'pointer', width: '100px', height: '100px' }}>{par}</button>
             </div>
             
             {!isTeammate && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
                 <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>NTP</div>
-                <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, background: '#4A90E2', color: 'white', border: 'none' }}>?</button>
+                <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, background: '#4A90E2', color: 'white', border: 'none', width: '100px', height: '100px' }}>?</button>
               </div>
             )}
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
               <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>양파</div>
-              <button onClick={() => setScoreValue(isTeammate, par * 2)} style={buttonStyle}>{par * 2}</button>
+              <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, width: '100px', height: '100px' }}>{par * 2}</button>
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
               <div style={{ fontSize: '12px', fontWeight: '700', color: '#000' }}>TOTAL</div>
-              <div style={boxStyle}>{diffText}</div>
+              <div style={{ ...boxStyle, width: '100px', height: '100px' }}>{diffText}</div>
             </div>
           </div>
         </div>
