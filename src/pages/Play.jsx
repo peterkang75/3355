@@ -216,7 +216,7 @@ function Play() {
     
     return (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '0', padding: '0', marginBottom: '12px' }}>
-        <div style={{ background: '#6399CF', color: 'white', padding: '12px 16px', borderRadius: '0', textAlign: 'center', fontWeight: '700', fontSize: '16px' }}>
+        <div style={{ background: '#6399CF', color: 'white', padding: '16px', borderRadius: '0', textAlign: 'center', fontWeight: '700', fontSize: '21px' }}>
           {title}
         </div>
         
