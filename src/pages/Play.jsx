@@ -18,6 +18,8 @@ function Play() {
   const [courseData, setCourseData] = useState(null);
   const [touchStart, setTouchStart] = useState(0);
   const [showMismatches, setShowMismatches] = useState(false);
+  const [slideDirection, setSlideDirection] = useState(''); // 'left', 'right', ''
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     setSelectedTeammate(null);
@@ -316,15 +318,23 @@ function Play() {
     const threshold = 50;
 
     if (Math.abs(diff) > threshold) {
+      setIsAnimating(true);
       if (diff > 0) {
         // 왼쪽 스와이프 → 다음 홀
         console.log('🔄 왼쪽 스와이프 - 다음 홀로');
-        goToNextHole();
+        setSlideDirection('left');
+        setTimeout(() => goToNextHole(), 300);
       } else {
-        // 오른쪽 스와이프 → 이전 홀
+        // 오른쪽 스와이프 → 이전 홀 (뒤로가기 방지)
         console.log('🔄 오른쪽 스와이프 - 이전 홀로');
-        goToPreviousHole();
+        e.preventDefault();
+        setSlideDirection('right');
+        setTimeout(() => goToPreviousHole(), 300);
       }
+      setTimeout(() => {
+        setIsAnimating(false);
+        setSlideDirection('');
+      }, 300);
     }
   };
 
@@ -368,7 +378,15 @@ function Play() {
       </div>
 
       <div 
-        style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '12px 24px', position: 'relative' }}
+        style={{ 
+          flex: 1, 
+          display: 'flex', 
+          flexDirection: 'column', 
+          padding: '12px 24px', 
+          position: 'relative',
+          transition: isAnimating ? 'transform 0.3s ease-out' : 'none',
+          transform: slideDirection === 'left' ? 'translateX(-100%)' : slideDirection === 'right' ? 'translateX(100%)' : 'translateX(0)'
+        }}
       >
         <ScoreSection title={`${selectedTeammate?.nickname || selectedTeammate?.name} (HC: ${selectedTeammate?.handicap || '-'})`} isTeammate={true} />
         
