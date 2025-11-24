@@ -791,6 +791,9 @@ router.get('/transactions/balance/:memberId', async (req, res) => {
     const balance = transactions.reduce((sum, t) => {
       if (t.type === 'charge') return sum - t.amount;
       if (t.type === 'payment') return sum + t.amount;
+      if (t.type === 'credit') return sum + t.amount;
+      if (t.type === 'donation') return sum + t.amount;
+      if (t.type === 'expense') return sum + t.amount;
       return sum;
     }, 0);
 
@@ -841,7 +844,10 @@ router.get('/transactions/outstanding', async (req, res) => {
         where: {
           OR: [
             { type: 'charge' },
-            { type: 'payment' }
+            { type: 'payment' },
+            { type: 'credit' },
+            { type: 'donation' },
+            { type: 'expense' }
           ]
         },
         select: {
@@ -861,7 +867,7 @@ router.get('/transactions/outstanding', async (req, res) => {
       }
       if (t.type === 'charge') {
         balanceByMember[t.memberId] -= t.amount;
-      } else if (t.type === 'payment') {
+      } else if (t.type === 'payment' || t.type === 'credit' || t.type === 'donation' || t.type === 'expense') {
         balanceByMember[t.memberId] += t.amount;
       }
     });
@@ -894,7 +900,7 @@ router.post('/transactions', async (req, res) => {
     });
     
     // 회원 잔액 업데이트
-    if (transaction.memberId && (transaction.type === 'charge' || transaction.type === 'payment' || transaction.type === 'credit')) {
+    if (transaction.memberId) {
       const memberTransactions = await prisma.transaction.findMany({
         where: { memberId: transaction.memberId }
       });
@@ -903,6 +909,8 @@ router.post('/transactions', async (req, res) => {
         if (t.type === 'charge') return sum - t.amount;
         if (t.type === 'payment') return sum + t.amount;
         if (t.type === 'credit') return sum + t.amount;
+        if (t.type === 'donation') return sum + t.amount;
+        if (t.type === 'expense') return sum + t.amount;
         return sum;
       }, 0);
 
@@ -946,6 +954,8 @@ router.delete('/transactions/:id', async (req, res) => {
         if (t.type === 'charge') return sum - t.amount;
         if (t.type === 'payment') return sum + t.amount;
         if (t.type === 'credit') return sum + t.amount;
+        if (t.type === 'donation') return sum + t.amount;
+        if (t.type === 'expense') return sum + t.amount;
         return sum;
       }, 0);
 
