@@ -16,6 +16,7 @@ function Play() {
   const [currentHole, setCurrentHole] = useState(1);
   const [holeScores, setHoleScores] = useState({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
   const [courseData, setCourseData] = useState(null);
+  const [touchStart, setTouchStart] = useState(0);
 
   useEffect(() => {
     setSelectedTeammate(null);
@@ -263,8 +264,33 @@ function Play() {
     );
   };
 
+  const handleTouchStart = (e) => {
+    setTouchStart(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e) => {
+    const touchEnd = e.changedTouches[0].clientX;
+    const diff = touchStart - touchEnd;
+    const threshold = 50;
+
+    if (Math.abs(diff) > threshold) {
+      if (diff > 0) {
+        // 왼쪽 스와이프 → 다음 홀
+        if (currentHole < 18) setCurrentHole(currentHole + 1);
+      } else {
+        // 오른쪽 스와이프 → 이전 홀
+        if (currentHole > 1) setCurrentHole(currentHole - 1);
+        else setCurrentHole(18); // 1번에서 오른쪽 스와이프 → 18번
+      }
+    }
+  };
+
   return (
-    <div style={{ minHeight: '100vh', background: '#223B3F', display: 'flex', flexDirection: 'column', padding: '0' }}>
+    <div 
+      style={{ minHeight: '100vh', background: '#223B3F', display: 'flex', flexDirection: 'column', padding: '0' }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       <div className="header" style={{ background: '#223B3F', borderBottom: 'none' }}></div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', padding: '12px 24px', marginBottom: '0' }}>
