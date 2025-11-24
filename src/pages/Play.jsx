@@ -141,6 +141,9 @@ function Play() {
             onClick={() => {
               if (!selectedTeammate) { alert('선택해주세요'); return; }
               setRoundStartTime(Date.now());
+              setCurrentHole(1);
+              setHoleScores({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
+              setShowMismatches(false);
               setStep('scorecard');
             }}
             disabled={!selectedTeammate}
@@ -320,10 +323,10 @@ function Play() {
   const mismatchedHoles = getMismatchedHoles();
 
   useEffect(() => {
-    if (isAllHolesComplete() && mismatchedHoles.length > 0) {
+    if (step === 'scorecard' && isAllHolesComplete() && mismatchedHoles.length > 0) {
       setShowMismatches(true);
     }
-  }, [isAllHolesComplete(), mismatchedHoles.length]);
+  }, [step, holeScores]);
 
   return (
     <div 
