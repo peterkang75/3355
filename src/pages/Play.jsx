@@ -46,6 +46,58 @@ function Play() {
     if (course) setCourseData(course);
   }, [bookingId, bookings, user?.phone, courses]);
 
+  // 실시간 저장
+  useEffect(() => {
+    if (step !== 'scorecard' || !booking || !selectedTeammate || !courseData) return;
+
+    const saveScore = async () => {
+      try {
+        const parArr = courseData?.holePars[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
+        const userParArr = courseData?.holePars[user?.gender === 'F' ? 'female' : 'male'] || [];
+        const today = new Date().toISOString().split('T')[0];
+
+        const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
+        const coursePar = userParArr.reduce((a, b) => a + b, 0);
+        const totalTeammate = holeScores.teammate.reduce((a, b) => a + b, 0);
+        const courseParTeammate = parArr.reduce((a, b) => a + b, 0);
+
+        await Promise.all([
+          fetch('/api/scores', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              memberId: user.id,
+              roundingName: booking?.title,
+              date: today,
+              courseName: courseData?.name,
+              totalScore: totalMe,
+              coursePar,
+              holes: holeScores.me
+            })
+          }),
+          fetch('/api/scores', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              memberId: selectedTeammate.phone,
+              roundingName: booking?.title,
+              date: today,
+              courseName: courseData?.name,
+              totalScore: totalTeammate,
+              coursePar: courseParTeammate,
+              holes: holeScores.teammate
+            })
+          })
+        ]);
+      } catch (e) {
+        console.error('저장 오류:', e);
+      }
+    };
+
+    const timer = setTimeout(saveScore, 500);
+    return () => clearTimeout(timer);
+  }, [holeScores]);
+
   if (!bookingId || !booking || teammates.length === 0) {
     return (
       <div style={{ minHeight: '100vh', padding: '16px' }}>
@@ -119,12 +171,6 @@ function Play() {
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   };
 
-  const getPar = (gender) => {
-    if (!courseData?.holePars || !selectedTeammate) return null;
-    const arr = gender === 'F' ? courseData.holePars.female : courseData.holePars.male;
-    return arr ? arr[currentHole - 1] : null;
-  };
-
   const parArr = courseData?.holePars[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
   const userParArr = courseData?.holePars[user?.gender === 'F' ? 'female' : 'male'] || [];
   
@@ -134,51 +180,28 @@ function Play() {
     if (holeScores.me[i] > 0) { myUnder += holeScores.me[i]; myPar += (userParArr[i] || 0); }
   }
 
-  const handleSave = async () => {
-    if (!window.confirm('저장?')) return;
-    try {
-      const totalTeammate = holeScores.teammate.reduce((a, b) => a + b, 0);
-      const courseParTeammate = parArr.reduce((a, b) => a + b, 0);
-      const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
-      const coursePar = userParArr.reduce((a, b) => a + b, 0);
-      const today = new Date().toISOString().split('T')[0];
-      
-      await Promise.all([
-        fetch('/api/scores', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            memberId: user.id,
-            roundingName: booking?.title,
-            date: today,
-            courseName: courseData?.name,
-            totalScore: totalMe,
-            coursePar,
-            holes: holeScores.me
-          })
-        }),
-        fetch('/api/scores', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            memberId: selectedTeammate.phone,
-            roundingName: booking?.title,
-            date: today,
-            courseName: courseData?.name,
-            totalScore: totalTeammate,
-            coursePar: courseParTeammate,
-            holes: holeScores.teammate
-          })
-        })
-      ]);
-      alert('저장됨!');
-      navigate(-1);
-    } catch (e) { alert('오류'); }
+  const updateScore = (isTeammate, delta) => {
+    const newScores = { ...holeScores };
+    const scoreArray = isTeammate ? [...newScores.teammate] : [...newScores.me];
+    scoreArray[currentHole - 1] = Math.max(0, scoreArray[currentHole - 1] + delta);
+    newScores[isTeammate ? 'teammate' : 'me'] = scoreArray;
+    setHoleScores(newScores);
   };
 
-  const ScoreSection = ({ title, scores, gender, player, isTeammate }) => {
-    const score = isTeammate ? scores.teammate[currentHole - 1] : scores.me[currentHole - 1];
-    const par = gender === 'F' ? courseData?.holePars.female?.[currentHole - 1] : courseData?.holePars.male?.[currentHole - 1];
+  const setScoreValue = (isTeammate, value) => {
+    const newScores = { ...holeScores };
+    const scoreArray = isTeammate ? [...newScores.teammate] : [...newScores.me];
+    scoreArray[currentHole - 1] = value;
+    newScores[isTeammate ? 'teammate' : 'me'] = scoreArray;
+    setHoleScores(newScores);
+  };
+
+  const ScoreSection = ({ title, isTeammate }) => {
+    const score = isTeammate ? holeScores.teammate[currentHole - 1] : holeScores.me[currentHole - 1];
+    const par = isTeammate 
+      ? courseData?.holePars[selectedTeammate?.gender === 'F' ? 'female' : 'male']?.[currentHole - 1]
+      : courseData?.holePars[user?.gender === 'F' ? 'female' : 'male']?.[currentHole - 1];
+    const gender = isTeammate ? selectedTeammate?.gender : user?.gender;
     
     return (
       <div style={{ background: 'var(--text-light)', borderRadius: '8px', padding: '12px', marginBottom: '12px' }}>
@@ -186,24 +209,19 @@ function Play() {
           {title}
         </div>
         
-        <div style={{ textAlign: 'center', marginBottom: '12px' }}>
-          <div style={{ fontSize: '12px', opacity: 0.7 }}>점수</div>
-          <div style={{ fontSize: '40px', fontWeight: '700' }}>{score}</div>
-        </div>
-
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', alignItems: 'center', marginBottom: '12px' }}>
-          <button onClick={() => { const s = [...scores[isTeammate ? 'teammate' : 'me']]; s[currentHole - 1] = Math.max(0, score - 1); setHoleScores({ ...scores, [isTeammate ? 'teammate' : 'me']: s }); }} style={{ width: '48px', height: '48px', border: '1px solid var(--border-color)', background: 'white', borderRadius: '8px', fontSize: '20px', fontWeight: '700', cursor: 'pointer' }}>−</button>
-          <div style={{ fontSize: '12px', opacity: 0.7 }}>조정</div>
-          <button onClick={() => { const s = [...scores[isTeammate ? 'teammate' : 'me']]; s[currentHole - 1] = score + 1; setHoleScores({ ...scores, [isTeammate ? 'teammate' : 'me']: s }); }} style={{ width: '48px', height: '48px', border: '1px solid var(--border-color)', background: 'white', borderRadius: '8px', fontSize: '20px', fontWeight: '700', cursor: 'pointer' }}>+</button>
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px', marginBottom: '12px' }}>
+          <button onClick={() => updateScore(isTeammate, -1)} style={{ width: '56px', height: '56px', border: '1px solid var(--border-color)', background: 'white', borderRadius: '8px', fontSize: '28px', fontWeight: '700', cursor: 'pointer' }}>−</button>
+          <div style={{ fontSize: '48px', fontWeight: '700', minWidth: '50px', textAlign: 'center' }}>{score}</div>
+          <button onClick={() => updateScore(isTeammate, 1)} style={{ width: '56px', height: '56px', border: '1px solid var(--border-color)', background: 'white', borderRadius: '8px', fontSize: '28px', fontWeight: '700', cursor: 'pointer' }}>+</button>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '6px', fontSize: '12px' }}>
-          <button onClick={() => { const s = [...scores[isTeammate ? 'teammate' : 'me']]; s[currentHole - 1] = par; setHoleScores({ ...scores, [isTeammate ? 'teammate' : 'me']: s }); }} style={{ padding: '8px', border: '1px solid var(--border-color)', background: gender === 'F' ? '#e74c3c' : 'var(--primary-green)', color: 'white', borderRadius: '4px', fontWeight: '700', cursor: 'pointer' }}>
+          <button onClick={() => setScoreValue(isTeammate, par)} style={{ padding: '12px', border: '1px solid var(--border-color)', background: gender === 'F' ? '#e74c3c' : 'var(--primary-green)', color: 'white', borderRadius: '4px', fontWeight: '700', cursor: 'pointer' }}>
             PAR {par}
           </button>
-          <button disabled style={{ padding: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', opacity: 0.5 }}>SHOTS</button>
-          <button onClick={() => { const s = [...scores[isTeammate ? 'teammate' : 'me']]; s[currentHole - 1] = par * 2; setHoleScores({ ...scores, [isTeammate ? 'teammate' : 'me']: s }); }} style={{ padding: '8px', border: '1px solid var(--border-color)', background: 'var(--primary-green)', color: 'white', borderRadius: '4px', fontWeight: '700', cursor: 'pointer', fontSize: '11px' }}>DP</button>
-          <div style={{ padding: '8px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', textAlign: 'center', fontWeight: '700' }}>{isTeammate ? tmateUnder - tmatePar >= 0 ? '+' : '' : myUnder - myPar >= 0 ? '+' : ''}{isTeammate ? tmateUnder - tmatePar : myUnder - myPar}</div>
+          <button disabled style={{ padding: '12px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', opacity: 0.5, fontWeight: '700' }}>SHOTS</button>
+          <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ padding: '12px', border: '1px solid var(--border-color)', background: 'var(--primary-green)', color: 'white', borderRadius: '4px', fontWeight: '700', cursor: 'pointer' }}>DP</button>
+          <div style={{ padding: '12px', border: '1px solid var(--border-color)', background: 'var(--bg-card)', textAlign: 'center', fontWeight: '700' }}>{isTeammate ? tmateUnder - tmatePar >= 0 ? '+' : '' : myUnder - myPar >= 0 ? '+' : ''}{isTeammate ? tmateUnder - tmatePar : myUnder - myPar}</div>
         </div>
       </div>
     );
@@ -213,7 +231,6 @@ function Play() {
     <div style={{ minHeight: '100vh', padding: '16px', paddingBottom: '80px' }}>
       <div className="header">
         <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', padding: '8px 16px' }}>← Back</button>
-        <button onClick={handleSave} style={{ background: 'transparent', color: 'var(--primary-green)', padding: '8px 16px', fontWeight: '600' }}>💾 저장</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', marginTop: '12px', marginBottom: '12px' }}>
@@ -231,16 +248,14 @@ function Play() {
         </div>
       </div>
 
-      <ScoreSection title={`${selectedTeammate?.nickname || selectedTeammate?.name} (HC: ${selectedTeammate?.handicap || '-'})`} scores={holeScores} gender={selectedTeammate?.gender} player={selectedTeammate} isTeammate={true} />
+      <ScoreSection title={`${selectedTeammate?.nickname || selectedTeammate?.name} (HC: ${selectedTeammate?.handicap || '-'})`} isTeammate={true} />
       
-      <ScoreSection title={`${user?.nickname || user?.name} (HC: ${user?.handicap || '-'})`} scores={holeScores} gender={user?.gender} player={user} isTeammate={false} />
+      <ScoreSection title={`${user?.nickname || user?.name} (HC: ${user?.handicap || '-'})`} isTeammate={false} />
 
       <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
         <button onClick={() => currentHole > 1 && setCurrentHole(currentHole - 1)} disabled={currentHole === 1} style={{ flex: 1, padding: '12px', background: currentHole === 1 ? 'var(--bg-card)' : 'var(--text-light)', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', opacity: currentHole === 1 ? 0.5 : 1 }}>← 이전</button>
         <button onClick={() => currentHole < 18 && setCurrentHole(currentHole + 1)} disabled={currentHole === 18} style={{ flex: 1, padding: '12px', background: currentHole === 18 ? 'var(--bg-card)' : 'var(--primary-green)', color: currentHole === 18 ? 'var(--text-dark)' : 'white', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', opacity: currentHole === 18 ? 0.5 : 1 }}>다음 →</button>
       </div>
-
-      <button onClick={handleSave} style={{ width: '100%', padding: '14px', background: 'var(--primary-green)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '700', fontSize: '16px', cursor: 'pointer' }}>라운드 저장</button>
     </div>
   );
 }
