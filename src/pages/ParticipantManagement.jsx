@@ -324,125 +324,195 @@ function ParticipantManagement() {
             background: 'var(--bg-card)',
             border: '2px solid var(--border-color)',
             borderRadius: '12px',
-            padding: '24px',
             width: '100%',
             maxWidth: '400px',
-            maxHeight: '80vh',
-            overflow: 'auto'
+            maxHeight: '85vh',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
           }}>
             <div style={{ 
               display: 'flex', 
               justifyContent: 'space-between', 
               alignItems: 'center',
-              marginBottom: '20px' 
+              padding: '24px 24px 16px 24px',
+              borderBottom: '1px solid var(--border-color)'
             }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '700' }}>참가자 추가</h3>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>참가자 추가</h3>
               <button
-                onClick={() => setShowAddModal(false)}
+                onClick={() => {
+                  setShowAddModal(false);
+                  setSelectedToAdd([]);
+                }}
                 style={{
                   background: 'transparent',
                   border: 'none',
                   fontSize: '24px',
                   cursor: 'pointer',
-                  opacity: 0.7
+                  opacity: 0.7,
+                  padding: 0
                 }}
               >
                 ×
               </button>
             </div>
 
-            {availableMembers.length === 0 ? (
-              <p style={{ textAlign: 'center', opacity: 0.7, padding: '32px 0' }}>
-                회원이 없습니다.
-              </p>
-            ) : (
-              <div style={{ display: 'grid', gap: '8px' }}>
-                {booking?.type === '컴페티션' && (
-                  <>
-                    {members.filter(m => m.club === booking.courseName).length > 0 && (
-                      <div style={{
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        color: 'var(--primary-green)',
-                        padding: '8px 0 4px 0',
-                        borderBottom: '2px solid var(--primary-green)'
-                      }}>
-                        {booking.courseName} 회원
-                      </div>
-                    )}
-                  </>
-                )}
-                {availableMembers.map((member, index) => {
-                  const alreadyAdded = isParticipant(member.phone);
-                  const isClubMember = booking?.type === '컴페티션' && member.club === booking.courseName;
-                  const prevMember = index > 0 ? availableMembers[index - 1] : null;
-                  const showDivider = booking?.type === '컴페티션' && 
-                    prevMember && 
-                    prevMember.club === booking.courseName && 
-                    member.club !== booking.courseName;
-                  
-                  return (
-                    <React.Fragment key={member.id}>
-                      {showDivider && (
+            <div style={{ 
+              flex: 1, 
+              overflowY: 'auto', 
+              padding: '16px'
+            }}>
+              {availableMembers.length === 0 ? (
+                <p style={{ textAlign: 'center', opacity: 0.7, padding: '32px 0' }}>
+                  회원이 없습니다.
+                </p>
+              ) : (
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  {booking?.type === '컴페티션' && (
+                    <>
+                      {members.filter(m => m.club === booking.courseName).length > 0 && (
                         <div style={{
                           fontSize: '13px',
                           fontWeight: '600',
-                          color: 'var(--text-dark)',
-                          opacity: 0.7,
-                          padding: '12px 0 4px 0',
-                          marginTop: '8px',
-                          borderBottom: '1px solid var(--border-color)'
+                          color: 'var(--primary-green)',
+                          padding: '8px 0 4px 0',
+                          borderBottom: '2px solid var(--primary-green)'
                         }}>
-                          비회원
+                          {booking.courseName} 회원
                         </div>
                       )}
-                      <button
-                        onClick={() => handleAddParticipant(member)}
-                        disabled={alreadyAdded}
-                        style={{
-                          padding: '16px',
-                          background: 'var(--bg-card)',
-                          border: '2px solid var(--border-color)',
-                          borderRadius: '8px',
-                          cursor: alreadyAdded ? 'not-allowed' : 'pointer',
-                          textAlign: 'left',
-                          opacity: alreadyAdded ? 0.6 : 1,
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center'
-                        }}
-                      >
-                        <div>
-                          <div style={{ 
-                            fontSize: '16px', 
-                            fontWeight: '600', 
-                            marginBottom: '4px', 
-                            color: alreadyAdded ? 'var(--text-dark)' : 'var(--primary-green)' 
-                          }}>
-                            {member.nickname}
-                          </div>
-                          <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                            {member.name}
-                          </div>
-                        </div>
-                        {alreadyAdded && (
-                          <span style={{
+                    </>
+                  )}
+                  {availableMembers.map((member, index) => {
+                    const alreadyAdded = isParticipant(member.phone);
+                    const isSelected = selectedToAdd.some(m => m.phone === member.phone);
+                    const prevMember = index > 0 ? availableMembers[index - 1] : null;
+                    const showDivider = booking?.type === '컴페티션' && 
+                      prevMember && 
+                      prevMember.club === booking.courseName && 
+                      member.club !== booking.courseName;
+                    
+                    return (
+                      <React.Fragment key={member.id}>
+                        {showDivider && (
+                          <div style={{
                             fontSize: '13px',
                             fontWeight: '600',
+                            color: 'var(--text-dark)',
                             opacity: 0.7,
-                            background: 'var(--border-color)',
-                            padding: '4px 12px',
-                            borderRadius: '12px'
+                            padding: '12px 0 4px 0',
+                            marginTop: '8px',
+                            borderBottom: '1px solid var(--border-color)'
                           }}>
-                            추가됨
-                          </span>
+                            비회원
+                          </div>
                         )}
-                      </button>
-                    </React.Fragment>
-                  );
-                })}
-              </div>
-            )}
+                        <button
+                          onClick={() => handleToggleMemberSelection(member)}
+                          disabled={alreadyAdded}
+                          style={{
+                            padding: '16px',
+                            background: isSelected ? 'var(--primary-green)' : alreadyAdded ? 'var(--bg-card)' : 'var(--bg-card)',
+                            border: isSelected ? '2px solid var(--primary-green)' : '2px solid var(--border-color)',
+                            borderRadius: '8px',
+                            cursor: alreadyAdded ? 'not-allowed' : 'pointer',
+                            textAlign: 'left',
+                            opacity: alreadyAdded ? 0.6 : 1,
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            transition: 'all 0.2s'
+                          }}
+                        >
+                          <div>
+                            <div style={{ 
+                              fontSize: '16px', 
+                              fontWeight: '600', 
+                              marginBottom: '4px', 
+                              color: isSelected ? 'white' : alreadyAdded ? 'var(--text-dark)' : 'var(--primary-green)' 
+                            }}>
+                              {member.nickname}
+                            </div>
+                            <div style={{ 
+                              fontSize: '13px', 
+                              opacity: 0.7,
+                              color: isSelected ? 'rgba(255, 255, 255, 0.7)' : 'inherit'
+                            }}>
+                              {member.name}
+                            </div>
+                          </div>
+                          {isSelected && (
+                            <span style={{
+                              fontSize: '20px',
+                              fontWeight: '700',
+                              color: 'white'
+                            }}>
+                              ✓
+                            </span>
+                          )}
+                          {alreadyAdded && (
+                            <span style={{
+                              fontSize: '13px',
+                              fontWeight: '600',
+                              opacity: 0.7,
+                              background: 'var(--border-color)',
+                              padding: '4px 12px',
+                              borderRadius: '12px'
+                            }}>
+                              추가됨
+                            </span>
+                          )}
+                        </button>
+                      </React.Fragment>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            <div style={{
+              padding: '16px 24px 24px 24px',
+              borderTop: '1px solid var(--border-color)',
+              display: 'flex',
+              gap: '12px'
+            }}>
+              <button
+                onClick={() => {
+                  setShowAddModal(false);
+                  setSelectedToAdd([]);
+                }}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  fontSize: '15px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={handleConfirmAdd}
+                disabled={selectedToAdd.length === 0}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: selectedToAdd.length === 0 ? '#999' : 'var(--primary-green)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '15px',
+                  fontWeight: '600',
+                  cursor: selectedToAdd.length === 0 ? 'not-allowed' : 'pointer',
+                  opacity: selectedToAdd.length === 0 ? 0.6 : 1
+                }}
+              >
+                확인 ({selectedToAdd.length}명)
+              </button>
+            </div>
           </div>
         </div>
       )}
