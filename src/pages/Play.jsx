@@ -9,13 +9,19 @@ function Play() {
   const bookingId = searchParams.get('id');
   
   const [booking, setBooking] = useState(null);
-  const [step, setStep] = useState('selectMember');
-  const [selectedTeammate, setSelectedTeammate] = useState(null);
+  const [step, setStep] = useState('selectMember'); // 항상 selectMember로 시작
+  const [selectedTeammate, setSelectedTeammate] = useState(null); // null로 시작
   const [teammates, setTeammates] = useState([]);
   const [roundStartTime, setRoundStartTime] = useState(null);
   const [currentHole, setCurrentHole] = useState(1);
   const [holeScores, setHoleScores] = useState(Array(18).fill(0));
   const [courseData, setCourseData] = useState(null);
+
+  // 페이지 로드 후 상태 확인
+  useEffect(() => {
+    setSelectedTeammate(null); // 상태 리셋
+    setStep('selectMember'); // step을 다시 selectMember로
+  }, [bookingId]);
 
   useEffect(() => {
     console.log('🎯 Play 페이지 로드:', bookingId);
