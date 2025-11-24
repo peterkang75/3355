@@ -3269,7 +3269,7 @@ function Admin() {
                     {course.holePars && (
                       <div style={{ marginTop: '12px' }}>
                         <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '8px', color: 'var(--primary-green)' }}>
-                          홀별 PAR (총: {course.holePars.reduce((sum, par) => sum + par, 0)})
+                          홀별 PAR (남자 총: {(course.holePars.male || []).reduce((sum, par) => sum + (par || 0), 0)} / 여자 총: {(course.holePars.female || []).reduce((sum, par) => sum + (par || 0), 0)})
                         </div>
                         <div style={{ 
                           display: 'grid', 
@@ -3277,7 +3277,7 @@ function Admin() {
                           gap: '4px',
                           fontSize: '12px'
                         }}>
-                          {course.holePars.map((par, idx) => (
+                          {(course.holePars.male || []).map((par, idx) => (
                             <div 
                               key={idx}
                               style={{
@@ -3285,7 +3285,7 @@ function Admin() {
                                 background: 'var(--text-light)',
                                 borderRadius: '4px',
                                 textAlign: 'center',
-                                border: '1px solid var(--border-color)'
+                                border: '1px solid var(--primary-green)'
                               }}
                             >
                               <div style={{ fontSize: '10px', color: 'var(--text-dark)', opacity: 0.7 }}>{idx + 1}</div>
