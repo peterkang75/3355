@@ -2885,7 +2885,7 @@ function Admin() {
                 </h4>
                 <div style={{ 
                   display: 'grid', 
-                  gridTemplateColumns: 'repeat(4, 1fr)', 
+                  gridTemplateColumns: 'repeat(3, 1fr)', 
                   gap: '12px' 
                 }}>
                   {newCourse.maleHolePars.map((par, index) => (
@@ -3025,7 +3025,7 @@ function Admin() {
                   </h4>
                   <div style={{ 
                     display: 'grid', 
-                    gridTemplateColumns: 'repeat(4, 1fr)', 
+                    gridTemplateColumns: 'repeat(3, 1fr)', 
                     gap: '12px' 
                   }}>
                     {editCourseData.maleHolePars.map((par, index) => (
