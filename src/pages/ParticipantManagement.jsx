@@ -12,6 +12,7 @@ function ParticipantManagement() {
   const [showAddModal, setShowAddModal] = useState(false);
   const [availableMembers, setAvailableMembers] = useState([]);
   const [selectedToAdd, setSelectedToAdd] = useState([]);
+  const [isAddingParticipants, setIsAddingParticipants] = useState(false);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -63,6 +64,8 @@ function ParticipantManagement() {
       return;
     }
 
+    setIsAddingParticipants(true);
+
     try {
       const newParticipants = selectedToAdd.map(member => ({
         name: member.name,
@@ -89,18 +92,19 @@ function ParticipantManagement() {
       console.log('📡 응답 상태:', response.status);
 
       if (response.ok) {
-        const result = await response.json();
-        console.log('✅ 참가자 일괄 추가 성공:', result);
-        await refreshBookings();
+        console.log('✅ 참가자 일괄 추가 성공');
         setShowAddModal(false);
         setSelectedToAdd([]);
+        refreshBookings();
       } else {
         const errorData = await response.text();
         console.error('❌ 서버 오류:', errorData);
+        setIsAddingParticipants(false);
         alert(`참가자 추가에 실패했습니다: ${errorData}`);
       }
     } catch (error) {
       console.error('❌ 참가자 추가 오류:', error.message, error);
+      setIsAddingParticipants(false);
       alert(`참가자 추가 중 오류가 발생했습니다: ${error.message}`);
     }
   };
