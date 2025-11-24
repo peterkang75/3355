@@ -18,16 +18,25 @@ function Play() {
   const [courseData, setCourseData] = useState(null);
 
   useEffect(() => {
+    console.log('🎯 Play 페이지 로드:', { bookingId, bookingsLength: bookings.length, userPhone: user?.phone });
+    
     if (bookingId && bookings.length > 0) {
       const foundBooking = bookings.find(b => b.id === bookingId);
+      console.log('📍 찾은 라운딩:', foundBooking?.title, 'Teams:', foundBooking?.teams);
+      
       setBooking(foundBooking);
       
       if (foundBooking?.teams) {
         try {
-          const teams = JSON.parse(foundBooking.teams);
+          const teams = typeof foundBooking.teams === 'string' ? JSON.parse(foundBooking.teams) : foundBooking.teams;
+          console.log('📋 파싱된 팀:', teams);
+          
           const userTeam = teams.find(t => t.members?.some(m => m.phone === user?.phone));
+          console.log('🏌️ 사용자 팀:', userTeam);
+          
           if (userTeam) {
             const members = userTeam.members.filter(m => m.phone !== user?.phone);
+            console.log('👥 팀원들:', members);
             setTeammates(members || []);
           }
         } catch (e) {
@@ -38,7 +47,7 @@ function Play() {
       const course = courses.find(c => c.name === foundBooking?.courseName);
       if (course) setCourseData(course);
     }
-  }, [bookingId, bookings, user, courses]);
+  }, [bookingId, bookings, user?.phone, courses]);
 
   const handleSelectTeammate = (teammate) => {
     setSelectedTeammate(teammate);
