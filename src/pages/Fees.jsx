@@ -53,7 +53,11 @@ function Fees() {
     .filter(t => t.type === 'credit')
     .reduce((sum, t) => sum + t.amount, 0);
   
-  const balance = totalPayments + totalCredits - totalCharges;
+  const totalExpenses = userTransactions
+    .filter(t => t.type === 'expense')
+    .reduce((sum, t) => sum + t.amount, 0);
+  
+  const balance = totalPayments + totalCredits - totalCharges - totalExpenses;
 
   const getTransactionLabel = (transaction) => {
     if (transaction.type === 'donation') {
@@ -62,6 +66,16 @@ function Fees() {
     if (transaction.type === 'credit') {
       // description을 그대로 표시 (예: "크레딧처리")
       return transaction.description || '크레딧처리';
+    }
+    if (transaction.type === 'expense') {
+      // description에서 "환불" 추출
+      if (transaction.description) {
+        const parts = transaction.description.split(' - ');
+        if (parts[0].includes('환불')) {
+          return '환불';
+        }
+      }
+      return '환불';
     }
     if (transaction.type === 'charge') {
       // description에서 항목명 추출
@@ -98,6 +112,7 @@ function Fees() {
     if (transaction.type === 'payment') return 'var(--success-green)';
     if (transaction.type === 'donation') return 'var(--success-green)';
     if (transaction.type === 'credit') return 'var(--success-green)';
+    if (transaction.type === 'expense') return 'var(--alert-red)';
     return 'var(--text-primary)';
   };
 
@@ -106,6 +121,7 @@ function Fees() {
     if (transaction.type === 'payment') return '+';
     if (transaction.type === 'donation') return '+';
     if (transaction.type === 'credit') return '+';
+    if (transaction.type === 'expense') return '-';
     return '';
   };
 
