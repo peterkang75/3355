@@ -204,7 +204,7 @@ function Play() {
     const gender = isTeammate ? selectedTeammate?.gender : user?.gender;
     
     return (
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#f5f5f5', borderRadius: '0', padding: '16px', marginBottom: '0' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#f5f5f5', borderRadius: '0', padding: '16px', marginBottom: '0', marginLeft: '0', marginRight: '0' }}>
         <div style={{ background: 'var(--primary-green)', color: 'white', padding: '16px', borderRadius: '0', textAlign: 'center', marginBottom: '16px', fontWeight: '700', fontSize: '16px' }}>
           {title}
         </div>
@@ -230,12 +230,12 @@ function Play() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#2d5a3d', display: 'flex', flexDirection: 'column', padding: '0' }}>
-      <div className="header" style={{ background: '#2d5a3d', borderBottom: 'none' }}>
+    <div style={{ minHeight: '100vh', background: '#3a6b5c', display: 'flex', flexDirection: 'column', padding: '0' }}>
+      <div className="header" style={{ background: '#3a6b5c', borderBottom: 'none' }}>
         <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', padding: '8px 16px' }}>← Back</button>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', padding: '12px 16px', marginBottom: '0' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', padding: '12px 24px', marginBottom: '0' }}>
         <div style={{ border: '2px solid white', borderRadius: '8px', padding: '10px', textAlign: 'center', fontSize: '13px', background: 'rgba(255,255,255,0.1)', color: 'white' }}>
           <div style={{ fontWeight: '600', opacity: 0.9 }}>TIME</div>
           <div style={{ fontSize: '16px', fontWeight: '700', marginTop: '4px' }}>{getTime()}</div>
@@ -250,13 +250,13 @@ function Play() {
         </div>
       </div>
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0 24px' }}>
         <ScoreSection title={`${selectedTeammate?.nickname || selectedTeammate?.name} (HC: ${selectedTeammate?.handicap || '-'})`} isTeammate={true} />
         
         <ScoreSection title={`${user?.nickname || user?.name} (HC: ${user?.handicap || '-'})`} isTeammate={false} />
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', padding: '12px 16px', background: '#2d5a3d' }}>
+      <div style={{ display: 'flex', gap: '8px', padding: '12px 24px', background: '#3a6b5c' }}>
         <button onClick={() => currentHole > 1 && setCurrentHole(currentHole - 1)} disabled={currentHole === 1} style={{ flex: 1, padding: '14px', background: currentHole === 1 ? '#444' : 'white', color: currentHole === 1 ? '#999' : '#333', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none' }}>← 이전</button>
         <button onClick={() => currentHole < 18 && setCurrentHole(currentHole + 1)} disabled={currentHole === 18} style={{ flex: 1, padding: '14px', background: currentHole === 18 ? '#444' : 'var(--primary-green)', color: 'white', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none' }}>다음 →</button>
       </div>
