@@ -100,7 +100,7 @@ function Play() {
 
   if (!bookingId || !booking || teammates.length === 0) {
     return (
-      <div style={{ minHeight: '100vh', padding: '16px' }}>
+      <div style={{ minHeight: '100vh', padding: '16px', background: '#223B3F' }}>
         <div className="header">
           <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', padding: '8px 16px' }}>← Back</button>
         </div>
@@ -111,7 +111,7 @@ function Play() {
 
   if (step === 'selectMember') {
     return (
-      <div style={{ minHeight: '100vh', padding: '16px', paddingBottom: '80px' }}>
+      <div style={{ minHeight: '100vh', padding: '16px', paddingBottom: '80px', background: '#223B3F' }}>
         <div className="header">
           <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', padding: '8px 16px' }}>← Back</button>
         </div>
@@ -201,64 +201,74 @@ function Play() {
     const par = isTeammate 
       ? courseData?.holePars[selectedTeammate?.gender === 'F' ? 'female' : 'male']?.[currentHole - 1]
       : courseData?.holePars[user?.gender === 'F' ? 'female' : 'male']?.[currentHole - 1];
-    const gender = isTeammate ? selectedTeammate?.gender : user?.gender;
     
     return (
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#f5f5f5', borderRadius: '0', padding: '16px', marginBottom: '0', marginLeft: '0', marginRight: '0' }}>
-        <div style={{ background: 'var(--primary-green)', color: 'white', padding: '16px', borderRadius: '0', textAlign: 'center', marginBottom: '16px', fontWeight: '700', fontSize: '16px' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '0', padding: '0', marginBottom: '12px' }}>
+        <div style={{ background: '#4A90E2', color: 'white', padding: '12px 16px', borderRadius: '0', textAlign: 'center', fontWeight: '700', fontSize: '16px' }}>
           {title}
         </div>
         
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '20px', marginBottom: '16px' }}>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '24px' }}>
-            <button onClick={() => updateScore(isTeammate, -1)} style={{ width: '72px', height: '72px', border: '2px solid #ccc', background: 'white', borderRadius: '8px', fontSize: '36px', fontWeight: '700', cursor: 'pointer' }}>−</button>
-            <div style={{ fontSize: '80px', fontWeight: '700', minWidth: '90px', textAlign: 'center' }}>{score}</div>
-            <button onClick={() => updateScore(isTeammate, 1)} style={{ width: '72px', height: '72px', border: '2px solid #ccc', background: 'white', borderRadius: '8px', fontSize: '36px', fontWeight: '700', cursor: 'pointer' }}>+</button>
+        <div style={{ background: 'white', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '20px 16px', borderBottom: '1px solid #e0e0e0' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px' }}>
+            <button onClick={() => updateScore(isTeammate, -1)} style={{ width: '52px', height: '52px', border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: '28px', fontWeight: '700', cursor: 'pointer', color: '#666' }}>−</button>
+            <div style={{ fontSize: '72px', fontWeight: '900', minWidth: '80px', textAlign: 'center', color: '#000' }}>{score}</div>
+            <button onClick={() => updateScore(isTeammate, 1)} style={{ width: '52px', height: '52px', border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: '28px', fontWeight: '700', cursor: 'pointer', color: '#666' }}>+</button>
           </div>
+          <div style={{ fontSize: '13px', color: '#666', fontWeight: '400' }}>{score} points</div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '8px', fontSize: '14px' }}>
-          <button onClick={() => setScoreValue(isTeammate, par)} style={{ padding: '16px', border: '1px solid #ccc', background: gender === 'F' ? '#e74c3c' : 'var(--primary-green)', color: 'white', borderRadius: '4px', fontWeight: '700', cursor: 'pointer' }}>
-            PAR {par}
-          </button>
-          <button disabled style={{ padding: '16px', border: '1px solid #ccc', background: '#eee', opacity: 0.5, fontWeight: '700' }}>SHOTS</button>
-          <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ padding: '16px', border: '1px solid #ccc', background: 'var(--primary-green)', color: 'white', borderRadius: '4px', fontWeight: '700', cursor: 'pointer' }}>DP</button>
-          <div style={{ padding: '16px', border: '1px solid #ccc', background: 'white', textAlign: 'center', fontWeight: '700', fontSize: '16px' }}>{isTeammate ? tmateUnder - tmatePar >= 0 ? '+' : '' : myUnder - myPar >= 0 ? '+' : ''}{isTeammate ? tmateUnder - tmatePar : myUnder - myPar}</div>
+        <div style={{ background: 'white', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: '1px', fontSize: '12px', backgroundColor: '#e0e0e0', padding: '1px' }}>
+            <button onClick={() => setScoreValue(isTeammate, par)} style={{ padding: '12px', border: 'none', background: 'white', color: '#000', fontWeight: '700', cursor: 'pointer', fontSize: '12px' }}>
+              PAR
+            </button>
+            <button disabled style={{ padding: '12px', border: 'none', background: 'white', color: '#000', fontWeight: '700', opacity: 0.6, fontSize: '12px' }}>SHOTS</button>
+            <button disabled style={{ padding: '12px', border: 'none', background: 'white', color: '#000', fontWeight: '700', opacity: 0.6, fontSize: '12px' }}>NTP</button>
+            <button disabled style={{ padding: '12px', border: 'none', background: 'white', color: '#000', fontWeight: '700', opacity: 0.6, fontSize: '12px' }}>PICK UP</button>
+            <div style={{ padding: '12px', background: 'white', textAlign: 'center', fontWeight: '700', fontSize: '12px', color: '#000' }}>{isTeammate ? tmateUnder - tmatePar >= 0 ? '+' : '' : myUnder - myPar >= 0 ? '+' : ''}{isTeammate ? tmateUnder - tmatePar : myUnder - myPar}</div>
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr', gap: '1px', fontSize: '12px', backgroundColor: '#e0e0e0', padding: '1px' }}>
+            <div style={{ padding: '12px', background: 'white', textAlign: 'center', fontWeight: '700', fontSize: '14px', color: '#000' }}>{par}</div>
+            <div style={{ padding: '12px', background: 'white', textAlign: 'center', fontWeight: '700', fontSize: '14px', color: '#000' }}>1</div>
+            <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ padding: '12px', border: 'none', background: '#4A90E2', color: 'white', fontWeight: '700', cursor: 'pointer', fontSize: '14px', borderRadius: '0' }}>?</button>
+            <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ padding: '12px', border: 'none', background: 'white', color: '#000', fontWeight: '700', cursor: 'pointer', fontSize: '14px' }}>P</button>
+            <div style={{ padding: '12px', background: 'white', textAlign: 'center', fontWeight: '700', fontSize: '14px', color: '#000' }}>{score}</div>
+          </div>
         </div>
       </div>
     );
   };
 
   return (
-    <div style={{ minHeight: '100vh', background: '#3a6b5c', display: 'flex', flexDirection: 'column', padding: '0' }}>
-      <div className="header" style={{ background: '#3a6b5c', borderBottom: 'none' }}>
-        <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', padding: '8px 16px' }}>← Back</button>
+    <div style={{ minHeight: '100vh', background: '#223B3F', display: 'flex', flexDirection: 'column', padding: '0' }}>
+      <div className="header" style={{ background: '#223B3F', borderBottom: 'none' }}>
+        <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'white', padding: '8px 16px' }}>← Back</button>
       </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px', padding: '12px 24px', marginBottom: '0' }}>
-        <div style={{ border: '2px solid white', borderRadius: '8px', padding: '10px', textAlign: 'center', fontSize: '13px', background: 'rgba(255,255,255,0.1)', color: 'white' }}>
-          <div style={{ fontWeight: '600', opacity: 0.9 }}>TIME</div>
-          <div style={{ fontSize: '16px', fontWeight: '700', marginTop: '4px' }}>{getTime()}</div>
+        <div style={{ border: '2px solid white', borderRadius: '8px', padding: '8px', textAlign: 'center', fontSize: '11px', background: 'transparent', color: 'white' }}>
+          <div style={{ fontWeight: '700', opacity: 1, fontSize: '11px' }}>ROUND TIME</div>
+          <div style={{ fontSize: '18px', fontWeight: '700', marginTop: '2px' }}>{getTime()}</div>
         </div>
-        <div style={{ border: '2px solid white', borderRadius: '8px', padding: '10px', textAlign: 'center', fontSize: '13px', background: 'rgba(255,255,255,0.1)', color: 'white' }}>
-          <div style={{ fontWeight: '600', opacity: 0.9 }}>HOLE</div>
-          <div style={{ fontSize: '16px', fontWeight: '700', marginTop: '4px' }}>{currentHole}</div>
+        <div style={{ border: '2px solid white', borderRadius: '8px', padding: '8px', textAlign: 'center', fontSize: '11px', background: 'transparent', color: 'white' }}>
+          <div style={{ fontWeight: '700', opacity: 1, fontSize: '11px' }}>HOLE</div>
+          <div style={{ fontSize: '18px', fontWeight: '700', marginTop: '2px' }}>{currentHole}</div>
         </div>
-        <div style={{ border: '2px solid rgba(255,255,255,0.3)', borderRadius: '8px', padding: '10px', textAlign: 'center', fontSize: '13px', background: 'rgba(0,0,0,0.2)', color: 'rgba(255,255,255,0.6)' }}>
-          <div style={{ fontWeight: '600', opacity: 0.7 }}>TO MID</div>
-          <div style={{ fontSize: '16px', fontWeight: '700', marginTop: '4px' }}>-</div>
+        <div style={{ border: '2px solid rgba(255,255,255,0.3)', borderRadius: '8px', padding: '8px', textAlign: 'center', fontSize: '11px', background: 'transparent', color: 'rgba(255,255,255,0.7)' }}>
+          <div style={{ fontWeight: '700', opacity: 0.7, fontSize: '11px' }}>TO MID</div>
+          <div style={{ fontSize: '18px', fontWeight: '700', marginTop: '2px' }}>-</div>
         </div>
       </div>
 
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0 24px' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '12px 24px' }}>
         <ScoreSection title={`${selectedTeammate?.nickname || selectedTeammate?.name} (HC: ${selectedTeammate?.handicap || '-'})`} isTeammate={true} />
         
         <ScoreSection title={`${user?.nickname || user?.name} (HC: ${user?.handicap || '-'})`} isTeammate={false} />
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', padding: '12px 24px', background: '#3a6b5c' }}>
-        <button onClick={() => currentHole > 1 && setCurrentHole(currentHole - 1)} disabled={currentHole === 1} style={{ flex: 1, padding: '14px', background: currentHole === 1 ? '#444' : 'white', color: currentHole === 1 ? '#999' : '#333', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none' }}>← 이전</button>
-        <button onClick={() => currentHole < 18 && setCurrentHole(currentHole + 1)} disabled={currentHole === 18} style={{ flex: 1, padding: '14px', background: currentHole === 18 ? '#444' : 'var(--primary-green)', color: 'white', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none' }}>다음 →</button>
+      <div style={{ display: 'flex', gap: '8px', padding: '12px 24px', background: '#223B3F' }}>
+        <button onClick={() => currentHole > 1 && setCurrentHole(currentHole - 1)} disabled={currentHole === 1} style={{ flex: 1, padding: '12px', background: currentHole === 1 ? '#444' : 'white', color: currentHole === 1 ? '#999' : '#000', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: '14px' }}>← 이전</button>
+        <button onClick={() => currentHole < 18 && setCurrentHole(currentHole + 1)} disabled={currentHole === 18} style={{ flex: 1, padding: '12px', background: currentHole === 18 ? '#444' : 'white', color: 'black', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: '14px' }}>다음 →</button>
       </div>
     </div>
   );
