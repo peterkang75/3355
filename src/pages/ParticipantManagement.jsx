@@ -11,6 +11,7 @@ function ParticipantManagement() {
   const [participants, setParticipants] = useState([]);
   const [showAddModal, setShowAddModal] = useState(false);
   const [availableMembers, setAvailableMembers] = useState([]);
+  const [selectedToAdd, setSelectedToAdd] = useState([]);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -47,23 +48,33 @@ function ParticipantManagement() {
     return participants.some(p => p.phone === memberPhone);
   };
 
-  const handleAddParticipant = async (member) => {
-    if (isParticipant(member.phone)) {
+  const handleToggleMemberSelection = (member) => {
+    const isSelected = selectedToAdd.some(m => m.phone === member.phone);
+    if (isSelected) {
+      setSelectedToAdd(selectedToAdd.filter(m => m.phone !== member.phone));
+    } else {
+      setSelectedToAdd([...selectedToAdd, member]);
+    }
+  };
+
+  const handleConfirmAdd = async () => {
+    if (selectedToAdd.length === 0) {
+      alert('추가할 참가자를 선택해주세요.');
       return;
     }
 
     try {
-      const newParticipant = {
+      const newParticipants = selectedToAdd.map(member => ({
         name: member.name,
         nickname: member.nickname,
         phone: member.phone
-      };
+      }));
 
-      const updatedParticipants = [...participants, newParticipant];
+      const updatedParticipants = [...participants, ...newParticipants];
       
-      console.log('🔵 참가자 추가 시도:', {
+      console.log('🔵 참가자 일괄 추가 시도:', {
         bookingId,
-        newParticipant,
+        addCount: newParticipants.length,
         updatedParticipants
       });
       
@@ -79,8 +90,10 @@ function ParticipantManagement() {
 
       if (response.ok) {
         const result = await response.json();
-        console.log('✅ 참가자 추가 성공:', result);
+        console.log('✅ 참가자 일괄 추가 성공:', result);
         await refreshBookings();
+        setShowAddModal(false);
+        setSelectedToAdd([]);
       } else {
         const errorData = await response.text();
         console.error('❌ 서버 오류:', errorData);
