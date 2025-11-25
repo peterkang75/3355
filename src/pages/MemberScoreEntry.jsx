@@ -14,6 +14,7 @@ function MemberScoreEntry() {
   const [saving, setSaving] = useState(false);
   const [leaderboard, setLeaderboard] = useState(null);
   const [ntpRecords, setNtpRecords] = useState([]);
+  const [loadingScores, setLoadingScores] = useState(true);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -32,10 +33,16 @@ function MemberScoreEntry() {
         
         if (foundBooking.dailyHandicaps) {
           loadExistingScores(foundBooking);
+        } else {
+          setLoadingScores(false);
         }
         
         loadNtpRecords();
+      } else {
+        setLoadingScores(false);
       }
+    } else if (bookings.length > 0) {
+      setLoadingScores(false);
     }
   }, [bookingId, bookings]);
 
@@ -78,6 +85,8 @@ function MemberScoreEntry() {
       }
     } catch (error) {
       console.error('기존 스코어 로드 실패:', error);
+    } finally {
+      setLoadingScores(false);
     }
   };
 
@@ -341,7 +350,17 @@ function MemberScoreEntry() {
           </div>
         </div>
 
-        {!leaderboard && (() => {
+        {loadingScores && (
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '40px 20px',
+            color: '#666'
+          }}>
+            <div style={{ fontSize: '16px', marginBottom: '8px' }}>결과를 불러오는 중...</div>
+          </div>
+        )}
+
+        {!loadingScores && !leaderboard && (() => {
           const teams = parseTeams(booking.teams);
           return teams && teams.length > 0 ? (
             teams.map((team, teamIndex) => (
@@ -457,7 +476,7 @@ function MemberScoreEntry() {
           );
         })()}
 
-        {!leaderboard && (
+        {!loadingScores && !leaderboard && (
           <button
             onClick={handleSaveScores}
             disabled={saving}
