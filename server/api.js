@@ -862,42 +862,6 @@ router.get('/scores/:memberId', async (req, res) => {
   }
 });
 
-router.post('/scores', async (req, res) => {
-  try {
-    const { memberId, markerId, roundingName, date, courseName, totalScore, holes, coursePar } = req.body;
-    const score = await prisma.score.upsert({
-      where: {
-        userId_markerId_date_roundingName: {
-          userId: memberId,
-          markerId: markerId || null,
-          date: date,
-          roundingName: roundingName || ''
-        }
-      },
-      update: {
-        courseName,
-        totalScore,
-        coursePar: coursePar || 72,
-        holes: holes ? JSON.stringify(holes) : ''
-      },
-      create: {
-        userId: memberId,
-        markerId: markerId || null,
-        roundingName,
-        date,
-        courseName,
-        totalScore,
-        coursePar: coursePar || 72,
-        holes: holes ? JSON.stringify(holes) : ''
-      }
-    });
-    res.json(score);
-  } catch (error) {
-    console.error('Error creating score:', error);
-    res.status(500).json({ error: 'Failed to create score' });
-  }
-});
-
 // 회원 승인
 router.patch('/members/:id/approve', async (req, res) => {
   try {
