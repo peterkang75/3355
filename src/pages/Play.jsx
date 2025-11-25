@@ -17,6 +17,8 @@ function Play() {
   const [holeScores, setHoleScores] = useState({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
   const [courseData, setCourseData] = useState(null);
   const [showMismatches, setShowMismatches] = useState(false);
+  const [showNtpModal, setShowNtpModal] = useState(false);
+  const [ntpDistance, setNtpDistance] = useState('');
 
   useEffect(() => {
     setSelectedTeammate(null);
@@ -312,7 +314,7 @@ function Play() {
             {isNearHole && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
                 <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>NTP</div>
-                <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, background: '#6399CF', color: 'white', border: 'none', width: '55px', height: '55px', fontSize: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0' }}>
+                <button onClick={() => { setNtpDistance(''); setShowNtpModal(true); }} style={{ ...buttonStyle, background: '#6399CF', color: 'white', border: 'none', width: '55px', height: '55px', fontSize: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0' }}>
                   <svg width="32" height="32" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="25" cy="15" r="8" stroke="white" strokeWidth="3"/>
                     <line x1="25" y1="23" x2="25" y2="42" stroke="white" strokeWidth="3" strokeLinecap="round"/>
@@ -511,6 +513,110 @@ function Play() {
             >
               닫기
             </button>
+          </div>
+        </div>
+      )}
+
+      {showNtpModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '24px',
+            width: '90%',
+            maxWidth: '320px'
+          }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px', textAlign: 'center' }}>
+              NTP 거리 입력
+            </h3>
+            <p style={{ fontSize: '14px', color: '#666', marginBottom: '20px', textAlign: 'center' }}>
+              홀 {currentHole} - 핀까지의 거리 (cm)
+            </p>
+            <input
+              type="number"
+              value={ntpDistance}
+              onChange={(e) => setNtpDistance(e.target.value)}
+              placeholder="거리를 입력하세요 (cm)"
+              style={{
+                width: '100%',
+                padding: '14px',
+                fontSize: '18px',
+                border: '2px solid #ccc',
+                borderRadius: '8px',
+                marginBottom: '20px',
+                textAlign: 'center',
+                boxSizing: 'border-box'
+              }}
+              autoFocus
+            />
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => setShowNtpModal(false)}
+                style={{
+                  flex: 1,
+                  padding: '14px',
+                  background: '#ddd',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: '700',
+                  fontSize: '16px',
+                  cursor: 'pointer'
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={async () => {
+                  if (!ntpDistance || parseFloat(ntpDistance) <= 0) {
+                    alert('거리를 입력해주세요');
+                    return;
+                  }
+                  try {
+                    await fetch('/api/ntp', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        bookingId: bookingId,
+                        memberId: user.id,
+                        memberName: user.nickname || user.name,
+                        holeNumber: currentHole,
+                        distance: parseFloat(ntpDistance)
+                      })
+                    });
+                    setShowNtpModal(false);
+                    alert('NTP 거리가 저장되었습니다!');
+                  } catch (e) {
+                    console.error('NTP 저장 오류:', e);
+                    alert('저장 중 오류가 발생했습니다');
+                  }
+                }}
+                style={{
+                  flex: 1,
+                  padding: '14px',
+                  background: '#6399CF',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: '700',
+                  fontSize: '16px',
+                  cursor: 'pointer'
+                }}
+              >
+                저장
+              </button>
+            </div>
           </div>
         </div>
       )}
