@@ -350,7 +350,15 @@ function Play() {
     if (currentHole < 18) {
       setCurrentHole(currentHole + 1);
     } else {
-      setCurrentHole(1); // 18번에서 → 1번 (순환)
+      setCurrentHole(1);
+    }
+  };
+
+  const handleScoreCheck = () => {
+    if (mismatchedHoles.length > 0) {
+      setShowMismatches(true);
+    } else {
+      setStep('roundComplete');
     }
   };
 
@@ -405,15 +413,14 @@ function Play() {
           <div style={{ fontSize: '34px', fontWeight: '700', marginTop: '6px' }}>{currentHole}</div>
         </div>
         <button 
-          onClick={goToNextHole}
-          onTouchEnd={goToNextHole}
+          onClick={currentHole === 18 ? handleScoreCheck : goToNextHole}
           style={{ 
             flex: 1,
             border: '2px solid white', 
             borderRadius: '8px', 
             padding: '11px 16px',
-            background: 'white', 
-            color: '#223B3F', 
+            background: currentHole === 18 ? '#6399CF' : 'white', 
+            color: currentHole === 18 ? 'white' : '#223B3F', 
             fontSize: '11px', 
             fontWeight: '700', 
             cursor: 'pointer',
@@ -427,8 +434,8 @@ function Play() {
             touchAction: 'manipulation'
           }}
         >
-          <div style={{ fontSize: '14px', fontWeight: '900' }}>→</div>
-          <div>다음홀</div>
+          <div style={{ fontSize: '14px', fontWeight: '900' }}>{currentHole === 18 ? '✓' : '→'}</div>
+          <div>{currentHole === 18 ? '점수점검' : '다음홀'}</div>
         </button>
       </div>
 
