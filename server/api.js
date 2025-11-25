@@ -621,13 +621,14 @@ router.post('/courses', async (req, res) => {
 
 router.put('/courses/:id', async (req, res) => {
   try {
-    const { name, address, holePars, isCompetition } = req.body;
+    const { name, address, holePars, nearHoles, isCompetition } = req.body;
     const course = await prisma.course.update({
       where: { id: req.params.id },
       data: {
         name,
         address,
         holePars,
+        nearHoles,
         isCompetition
       }
     });
