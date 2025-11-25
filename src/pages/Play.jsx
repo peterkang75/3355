@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 
 function Play() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, bookings, courses } = useApp();
+  const { user, bookings, courses, members } = useApp();
   const bookingId = searchParams.get('id');
   
   const [booking, setBooking] = useState(null);
@@ -21,6 +21,8 @@ function Play() {
   const [ntpDistance, setNtpDistance] = useState('');
   const [serverMismatches, setServerMismatches] = useState([]);
   const [isCheckingScores, setIsCheckingScores] = useState(false);
+  const [teammateReady, setTeammateReady] = useState(false);
+  const [checkingInterval, setCheckingInterval] = useState(null);
 
   useEffect(() => {
     setSelectedTeammate(null);
@@ -77,6 +79,8 @@ function Play() {
         const totalTeammate = holeScores.teammate.reduce((a, b) => a + b, 0);
         const courseParTeammate = parArr.reduce((a, b) => a + b, 0);
 
+        const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.phone;
+        
         await Promise.all([
           fetch('/api/scores', {
             method: 'POST',
@@ -96,7 +100,7 @@ function Play() {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              memberId: selectedTeammate.phone,
+              memberId: teammateMemberId,
               markerId: user.id,
               roundingName: booking?.title,
               date: today,
@@ -119,6 +123,12 @@ function Play() {
   const isAllHolesComplete = () => {
     return holeScores.me.every(score => score > 0) && holeScores.teammate.every(score => score > 0);
   };
+
+  const getTeammateMemberId = useCallback(() => {
+    if (!selectedTeammate?.phone || !members) return selectedTeammate?.phone;
+    const member = members.find(m => m.phone === selectedTeammate.phone);
+    return member?.id || selectedTeammate.phone;
+  }, [selectedTeammate, members]);
 
   if (!bookingId || !booking || !courseData) {
     return (
@@ -209,6 +219,149 @@ function Play() {
             플레이하기
           </button>
         </div>
+      </div>
+    );
+  }
+
+  if (step === 'scoreCheck') {
+    return (
+      <div style={{ minHeight: '100vh', padding: '16px', background: '#223B3F' }}>
+        <div className="header" style={{ background: '#223B3F', borderBottom: 'none' }}>
+          <button 
+            onClick={() => setStep('scorecard')} 
+            style={{ background: 'transparent', color: 'white', padding: '8px 16px', border: 'none', cursor: 'pointer' }}
+          >
+            ← 돌아가기
+          </button>
+        </div>
+        
+        <div style={{ textAlign: 'center', color: 'white', marginTop: '60px', marginBottom: '32px' }}>
+          <div style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px' }}>점수 점검</div>
+          <div style={{ fontSize: '14px', opacity: 0.8, marginBottom: '8px' }}>{booking?.title}</div>
+        </div>
+        
+        <div className="card" style={{ marginBottom: '24px', textAlign: 'center' }}>
+          <div style={{ marginBottom: '20px' }}>
+            <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>
+              {selectedTeammate?.nickname || selectedTeammate?.name}
+            </div>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              gap: '8px',
+              color: teammateReady ? '#27ae60' : '#f39c12'
+            }}>
+              {teammateReady ? (
+                <>
+                  <span style={{ fontSize: '20px' }}>✓</span>
+                  <span>점수 입력 완료</span>
+                </>
+              ) : (
+                <>
+                  <span style={{ 
+                    display: 'inline-block',
+                    width: '16px',
+                    height: '16px',
+                    border: '2px solid #f39c12',
+                    borderTopColor: 'transparent',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite'
+                  }}></span>
+                  <span>점수 입력 대기 중...</span>
+                </>
+              )}
+            </div>
+          </div>
+          
+          <div style={{ borderTop: '1px solid #eee', paddingTop: '20px' }}>
+            <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '8px' }}>
+              {user?.nickname || user?.name}
+            </div>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center',
+              gap: '8px',
+              color: '#27ae60'
+            }}>
+              <span style={{ fontSize: '20px' }}>✓</span>
+              <span>점수 입력 완료</span>
+            </div>
+          </div>
+        </div>
+        
+        {teammateReady && (
+          <div className="card" style={{ marginBottom: '24px' }}>
+            {serverMismatches.length > 0 ? (
+              <>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px', textAlign: 'center', color: '#e74c3c' }}>
+                  점수가 다른 홀이 있습니다
+                </h3>
+                <p style={{ fontSize: '14px', color: '#666', marginBottom: '16px', textAlign: 'center' }}>
+                  아래 홀의 점수를 확인해주세요
+                </p>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px', marginBottom: '16px' }}>
+                  {serverMismatches.map(hole => (
+                    <button
+                      key={hole}
+                      onClick={() => {
+                        setCurrentHole(hole);
+                        setStep('scorecard');
+                      }}
+                      style={{
+                        padding: '12px',
+                        background: '#6399CF',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontWeight: '700',
+                        fontSize: '14px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {hole}
+                    </button>
+                  ))}
+                </div>
+              </>
+            ) : (
+              <>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px', textAlign: 'center', color: '#27ae60' }}>
+                  모든 점수가 일치합니다!
+                </h3>
+                <button
+                  onClick={() => setStep('roundComplete')}
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    background: 'var(--primary-green)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    color: 'white',
+                    fontWeight: '700',
+                    fontSize: '16px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  라운드 완료하기
+                </button>
+              </>
+            )}
+          </div>
+        )}
+        
+        {!teammateReady && (
+          <div style={{ textAlign: 'center', color: 'white', opacity: 0.6, fontSize: '14px' }}>
+            팀메이트가 점수 입력을 완료하면<br/>자동으로 비교가 시작됩니다
+          </div>
+        )}
+        
+        <style>{`
+          @keyframes spin {
+            to { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
     );
   }
@@ -422,46 +575,75 @@ function Play() {
     }
   };
 
-  const handleScoreCheck = async () => {
-    setIsCheckingScores(true);
+  const handleScoreCheck = () => {
+    setTeammateReady(false);
+    setServerMismatches([]);
+    setStep('scoreCheck');
+  };
+
+  const checkTeammateScores = useCallback(async () => {
     try {
       const today = new Date().toISOString().split('T')[0];
-      const res = await fetch(`/api/scores/round-comparison?roundingName=${encodeURIComponent(booking?.title)}&date=${today}&myId=${user.id}&teammateId=${selectedTeammate.phone}`);
+      const teammateMemberId = getTeammateMemberId();
+      const res = await fetch(`/api/scores/round-comparison?roundingName=${encodeURIComponent(booking?.title)}&date=${today}&myId=${user.id}&teammateId=${teammateMemberId}`);
       const data = await res.json();
       
-      const mismatches = [];
+      const teammateHasData = data.myScoreByTeammate && data.teammateScoreByTeammate;
+      const teammateComplete = teammateHasData && 
+        data.myScoreByTeammate.every(s => s > 0) && 
+        data.teammateScoreByTeammate.every(s => s > 0);
       
-      for (let i = 0; i < 18; i++) {
-        const myScoreByMe = holeScores.me[i];
-        const myScoreByTeammate = data.myScoreByTeammate?.[i];
-        const teammateScoreByMe = holeScores.teammate[i];
-        const teammateScoreByTeammate = data.teammateScoreByTeammate?.[i];
+      if (teammateComplete) {
+        setTeammateReady(true);
         
-        if (myScoreByTeammate !== null && myScoreByTeammate !== undefined && myScoreByMe !== myScoreByTeammate) {
-          if (!mismatches.includes(i + 1)) mismatches.push(i + 1);
+        const mismatches = [];
+        for (let i = 0; i < 18; i++) {
+          const myScoreByMe = holeScores.me[i];
+          const myScoreByTeammate = data.myScoreByTeammate?.[i];
+          const teammateScoreByMe = holeScores.teammate[i];
+          const teammateScoreByTeammate = data.teammateScoreByTeammate?.[i];
+          
+          if (myScoreByTeammate !== null && myScoreByTeammate !== undefined && myScoreByMe !== myScoreByTeammate) {
+            if (!mismatches.includes(i + 1)) mismatches.push(i + 1);
+          }
+          if (teammateScoreByTeammate !== null && teammateScoreByTeammate !== undefined && teammateScoreByMe !== teammateScoreByTeammate) {
+            if (!mismatches.includes(i + 1)) mismatches.push(i + 1);
+          }
         }
-        if (teammateScoreByTeammate !== null && teammateScoreByTeammate !== undefined && teammateScoreByMe !== teammateScoreByTeammate) {
-          if (!mismatches.includes(i + 1)) mismatches.push(i + 1);
-        }
+        
+        mismatches.sort((a, b) => a - b);
+        setServerMismatches(mismatches);
+        return true;
       }
-      
-      mismatches.sort((a, b) => a - b);
-      setServerMismatches(mismatches);
-      
-      if (mismatches.length > 0) {
-        setShowMismatches(true);
-      } else if (!data.myScoreByTeammate && !data.teammateScoreByTeammate) {
-        alert('팀메이트가 아직 점수를 입력하지 않았습니다.');
-      } else {
-        setStep('roundComplete');
-      }
+      return false;
     } catch (e) {
-      console.error('점수 비교 오류:', e);
-      alert('점수 비교 중 오류가 발생했습니다.');
-    } finally {
-      setIsCheckingScores(false);
+      console.error('점수 확인 오류:', e);
+      return false;
     }
-  };
+  }, [booking, user, holeScores, getTeammateMemberId]);
+
+  useEffect(() => {
+    if (step !== 'scoreCheck') {
+      if (checkingInterval) {
+        clearInterval(checkingInterval);
+        setCheckingInterval(null);
+      }
+      return;
+    }
+
+    checkTeammateScores();
+    
+    const interval = setInterval(() => {
+      checkTeammateScores();
+    }, 3000);
+    
+    setCheckingInterval(interval);
+    
+    return () => {
+      clearInterval(interval);
+      setCheckingInterval(null);
+    };
+  }, [step, checkTeammateScores]);
 
   return (
     <div 
@@ -515,7 +697,6 @@ function Play() {
         </div>
         <button 
           onClick={currentHole === 18 ? handleScoreCheck : goToNextHole}
-          disabled={isCheckingScores}
           style={{ 
             flex: 1,
             border: '2px solid white', 
@@ -525,7 +706,7 @@ function Play() {
             color: currentHole === 18 ? 'white' : '#223B3F', 
             fontSize: '11px', 
             fontWeight: '700', 
-            cursor: isCheckingScores ? 'wait' : 'pointer',
+            cursor: 'pointer',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -533,12 +714,11 @@ function Play() {
             gap: '6px',
             WebkitUserSelect: 'none',
             WebkitTapHighlightColor: 'transparent',
-            touchAction: 'manipulation',
-            opacity: isCheckingScores ? 0.7 : 1
+            touchAction: 'manipulation'
           }}
         >
-          <div style={{ fontSize: '14px', fontWeight: '900' }}>{currentHole === 18 ? (isCheckingScores ? '...' : '✓') : '→'}</div>
-          <div>{currentHole === 18 ? (isCheckingScores ? '확인중' : '점수점검') : '다음홀'}</div>
+          <div style={{ fontSize: '14px', fontWeight: '900' }}>{currentHole === 18 ? '✓' : '→'}</div>
+          <div>{currentHole === 18 ? '점수점검' : '다음홀'}</div>
         </button>
       </div>
 
