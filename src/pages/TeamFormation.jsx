@@ -115,6 +115,19 @@ function TeamFormation() {
     return nickname;
   };
 
+  const getHandicapDisplay = (participant) => {
+    if (!participant) return '';
+    const member = members.find(m => m.phone === participant.phone);
+    if (!member) return '';
+    
+    if (member.gaHandy) {
+      return `GA ${member.gaHandy}`;
+    } else if (member.houseHandy) {
+      return `HH ${member.houseHandy}`;
+    }
+    return '';
+  };
+
   const handleSlotClick = (teamIndex, slotIndex, currentMember) => {
     const hasAdminAccess = user?.role === '관리자' || user?.role === '방장' || user?.role === '운영진' || user?.role === '클럽운영진' || user?.isAdmin;
     
@@ -416,6 +429,7 @@ function TeamFormation() {
             ) : (
               unassigned.map((member, index) => {
                 const isRenting = booking?.numberRentals && booking.numberRentals.includes(member.phone);
+                const handicapText = getHandicapDisplay(member);
                 return (
                   <div
                     key={index}
@@ -432,6 +446,7 @@ function TeamFormation() {
                     }}
                   >
                     {getParticipantDisplayName(member)}
+                    {handicapText && <span style={{ fontSize: '12px', opacity: 0.8, marginLeft: '4px' }}>({handicapText})</span>}
                   </div>
                 );
               })
@@ -456,6 +471,7 @@ function TeamFormation() {
             }}>
               {team.members.map((member, slotIndex) => {
                 const isRenting = member && booking?.numberRentals && booking.numberRentals.includes(member.phone);
+                const handicapText = member ? getHandicapDisplay(member) : '';
                 return (
                   <button
                     key={slotIndex}
@@ -468,15 +484,18 @@ function TeamFormation() {
                       border: '2px solid var(--border-color)',
                       opacity: member ? 1 : 0.7,
                       display: 'flex',
+                      flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: '15px',
                       fontWeight: '600',
                       cursor: 'pointer',
-                      transition: 'all 0.2s'
+                      transition: 'all 0.2s',
+                      gap: '2px'
                     }}
                   >
-                    {member ? getParticipantDisplayName(member) : '+ 추가'}
+                    <span>{member ? getParticipantDisplayName(member) : '+ 추가'}</span>
+                    {handicapText && <span style={{ fontSize: '11px', opacity: 0.85 }}>{handicapText}</span>}
                   </button>
                 );
               })}
@@ -588,6 +607,7 @@ function TeamFormation() {
                       textColor = 'var(--primary-green)';
                     }
                     
+                    const handicapText = getHandicapDisplay(participant);
                     return (
                       <button
                         key={index}
@@ -605,14 +625,18 @@ function TeamFormation() {
                           transition: 'all 0.2s',
                           position: 'relative',
                           display: 'flex',
+                          flexDirection: 'column',
                           alignItems: 'center',
-                          justifyContent: 'center'
+                          justifyContent: 'center',
+                          gap: '2px'
                         }}
                       >
                         {isSelected && (
                           <span style={{ 
                             position: 'absolute', 
                             left: '10px', 
+                            top: '50%',
+                            transform: 'translateY(-50%)',
                             fontSize: '16px' 
                           }}>
                             ✓
@@ -621,6 +645,7 @@ function TeamFormation() {
                         <span>
                           {getParticipantDisplayName(participant)}
                         </span>
+                        {handicapText && <span style={{ fontSize: '11px', opacity: 0.8 }}>{handicapText}</span>}
                       </button>
                     );
                   })}
