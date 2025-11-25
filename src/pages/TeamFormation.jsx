@@ -122,6 +122,8 @@ function TeamFormation() {
     
     if (member.gaHandy) {
       return `GA ${member.gaHandy}`;
+    } else if (member.golflinkNumber && member.handicap) {
+      return `GA ${member.handicap}`;
     } else if (member.houseHandy) {
       return `HH ${member.houseHandy}`;
     }
