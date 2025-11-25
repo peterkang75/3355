@@ -262,8 +262,7 @@ function Play() {
               >
                 <div style={{ fontWeight: '600', fontSize: '16px' }}>{teammate.nickname || teammate.name}</div>
                 <div style={{ fontSize: '14px', color: 'var(--text-dark)', marginTop: '4px' }}>
-                  핸디캡: {teammate.gaHandy || teammate.houseHandy || teammate.handicap || '-'}
-                  {teammate.gaHandy ? ' (GA)' : teammate.houseHandy ? ' (HH)' : ''}
+                  핸디캡 : {teammate.gaHandy ? `GA${teammate.gaHandy}` : teammate.houseHandy ? `HH${teammate.houseHandy}` : teammate.handicap || '-'}
                 </div>
               </div>
             ))}
