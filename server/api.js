@@ -535,6 +535,34 @@ router.get('/scores/round-comparison', async (req, res) => {
       }
     }
     
+    // 서버에서 불일치 홀 계산 (두 사람 모두 같은 결과를 보도록)
+    const mismatches = [];
+    for (let i = 0; i < 18; i++) {
+      // A(myId)의 점수: A가 기록한 것 vs B가 기록한 것
+      const myByMe = result.myScoreByMe?.[i];
+      const myByTeammate = result.myScoreByTeammate?.[i];
+      // B(teammateId)의 점수: B가 기록한 것 vs A가 기록한 것
+      const teammateByTeammate = result.teammateScoreByTeammate?.[i];
+      const teammateByMe = result.teammateScoreByMe?.[i];
+      
+      // A의 점수 불일치
+      if (myByMe !== undefined && myByTeammate !== undefined && myByMe !== myByTeammate) {
+        mismatches.push(i + 1);
+      }
+      // B의 점수 불일치
+      if (teammateByTeammate !== undefined && teammateByMe !== undefined && teammateByTeammate !== teammateByMe) {
+        if (!mismatches.includes(i + 1)) mismatches.push(i + 1);
+      }
+    }
+    
+    result.mismatches = mismatches.sort((a, b) => a - b);
+    
+    // 팀메이트가 완료했는지 확인
+    const teammateComplete = result.myScoreByTeammate && result.teammateScoreByTeammate &&
+      result.myScoreByTeammate.every(s => s > 0) && 
+      result.teammateScoreByTeammate.every(s => s > 0);
+    result.teammateComplete = teammateComplete;
+    
     res.json(result);
   } catch (error) {
     console.error('Error fetching round comparison:', error);
@@ -847,52 +875,6 @@ router.post('/scores', async (req, res) => {
   } catch (error) {
     console.error('Error creating score:', error);
     res.status(500).json({ error: 'Failed to create score' });
-  }
-});
-
-router.get('/scores/round-comparison', async (req, res) => {
-  try {
-    const { roundingName, date, myId, teammateId } = req.query;
-    
-    if (!roundingName || !date || !myId || !teammateId) {
-      return res.status(400).json({ error: 'Missing required parameters' });
-    }
-    
-    const scores = await prisma.score.findMany({
-      where: {
-        roundingName,
-        date,
-        OR: [
-          { userId: myId },
-          { userId: teammateId }
-        ]
-      }
-    });
-    
-    const result = {
-      myScoreByMe: null,
-      myScoreByTeammate: null,
-      teammateScoreByMe: null,
-      teammateScoreByTeammate: null
-    };
-    
-    for (const score of scores) {
-      const holes = score.holes ? JSON.parse(score.holes) : [];
-      if (score.userId === myId && score.markerId === myId) {
-        result.myScoreByMe = holes;
-      } else if (score.userId === myId && score.markerId === teammateId) {
-        result.myScoreByTeammate = holes;
-      } else if (score.userId === teammateId && score.markerId === myId) {
-        result.teammateScoreByMe = holes;
-      } else if (score.userId === teammateId && score.markerId === teammateId) {
-        result.teammateScoreByTeammate = holes;
-      }
-    }
-    
-    res.json(result);
-  } catch (error) {
-    console.error('Error fetching round comparison:', error);
-    res.status(500).json({ error: 'Failed to fetch round comparison' });
   }
 });
 

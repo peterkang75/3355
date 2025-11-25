@@ -138,31 +138,10 @@ function Play() {
       const res = await fetch(`/api/scores/round-comparison?roundingName=${encodeURIComponent(booking?.title)}&date=${today}&myId=${user.id}&teammateId=${teammateMemberId}`);
       const data = await res.json();
       
-      const teammateHasData = data.myScoreByTeammate && data.teammateScoreByTeammate;
-      const teammateComplete = teammateHasData && 
-        data.myScoreByTeammate.every(s => s > 0) && 
-        data.teammateScoreByTeammate.every(s => s > 0);
-      
-      if (teammateComplete) {
+      // 서버에서 계산한 teammateComplete와 mismatches 사용
+      if (data.teammateComplete) {
         setTeammateReady(true);
-        
-        const mismatches = [];
-        for (let i = 0; i < 18; i++) {
-          const myScoreByMe = holeScores.me[i];
-          const myScoreByTeammate = data.myScoreByTeammate?.[i];
-          const teammateScoreByMe = holeScores.teammate[i];
-          const teammateScoreByTeammate = data.teammateScoreByTeammate?.[i];
-          
-          if (myScoreByTeammate !== null && myScoreByTeammate !== undefined && myScoreByMe !== myScoreByTeammate) {
-            if (!mismatches.includes(i + 1)) mismatches.push(i + 1);
-          }
-          if (teammateScoreByTeammate !== null && teammateScoreByTeammate !== undefined && teammateScoreByMe !== teammateScoreByTeammate) {
-            if (!mismatches.includes(i + 1)) mismatches.push(i + 1);
-          }
-        }
-        
-        mismatches.sort((a, b) => a - b);
-        setServerMismatches(mismatches);
+        setServerMismatches(data.mismatches || []);
         return true;
       }
       return false;
@@ -170,7 +149,7 @@ function Play() {
       console.error('점수 확인 오류:', e);
       return false;
     }
-  }, [booking, user, holeScores, getTeammateMemberId]);
+  }, [booking, user, getTeammateMemberId]);
 
   useEffect(() => {
     if (step !== 'scoreCheck') {
