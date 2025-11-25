@@ -1042,11 +1042,13 @@ function Admin() {
   const handleEditCourse = (course) => {
     setEditingCourse(course.id);
     const holePars = course.holePars || { male: Array(18).fill(4), female: Array(18).fill(4) };
+    const nearHoles = course.nearHoles || Array(18).fill(false);
     setEditCourseData({
       name: course.name || '',
       address: course.address || '',
       maleHolePars: Array.isArray(holePars) ? holePars : holePars.male || Array(18).fill(4),
       femaleHolePars: Array.isArray(holePars) ? holePars : holePars.female || Array(18).fill(4),
+      nearHoles: Array.isArray(nearHoles) ? nearHoles : Array(18).fill(false),
       isCompetition: course.isCompetition || false
     });
     setShowCourseMenu(null);
@@ -1066,6 +1068,7 @@ function Admin() {
           male: editCourseData.maleHolePars.map(p => parseInt(p) || 4),
           female: editCourseData.femaleHolePars.map(p => parseInt(p) || 4)
         },
+        nearHoles: editCourseData.nearHoles,
         isCompetition: editCourseData.isCompetition
       };
       
@@ -1123,6 +1126,12 @@ function Admin() {
       newHolePars[holeIndex] = parsedValue;
       setEditCourseData({ ...editCourseData, femaleHolePars: newHolePars });
     }
+  };
+
+  const handleEditNearHoleChange = (holeIndex) => {
+    const newNearHoles = [...editCourseData.nearHoles];
+    newNearHoles[holeIndex] = !newNearHoles[holeIndex];
+    setEditCourseData({ ...editCourseData, nearHoles: newNearHoles });
   };
 
   const handleOpenScoreModal = async (member) => {
@@ -3050,33 +3059,33 @@ function Admin() {
                 
                 <div style={{ marginBottom: '16px' }}>
                   <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
-                    각 홀별 PAR 설정 (앞: 남자 / 뒤: 여자)
+                    각 홀별 PAR 설정
                   </h4>
                   <div style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: 'repeat(3, 1fr)', 
-                    gap: '12px' 
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '8px'
                   }}>
                     {editCourseData.maleHolePars.map((par, index) => (
                       <div 
                         key={`hole-${index}`}
                         style={{
-                          display: 'flex',
+                          display: 'grid',
+                          gridTemplateColumns: '60px 60px 60px 1fr',
                           alignItems: 'center',
                           gap: '8px',
-                          padding: '8px',
+                          padding: '8px 12px',
                           background: 'var(--bg-green)',
                           borderRadius: '6px'
                         }}
                       >
-                        <label style={{ 
+                        <div style={{ 
                           fontSize: '13px', 
                           fontWeight: '600',
-                          minWidth: '40px',
                           color: 'var(--text-dark)'
                         }}>
                           {index + 1}홀
-                        </label>
+                        </div>
                         <input
                           type="number"
                           inputMode="numeric"
@@ -3086,7 +3095,7 @@ function Admin() {
                           min="3"
                           max="6"
                           style={{
-                            width: '45px',
+                            width: '100%',
                             padding: '6px',
                             fontSize: '12px',
                             textAlign: 'center',
@@ -3104,7 +3113,7 @@ function Admin() {
                           min="3"
                           max="6"
                           style={{
-                            width: '45px',
+                            width: '100%',
                             padding: '6px',
                             fontSize: '12px',
                             textAlign: 'center',
@@ -3113,6 +3122,26 @@ function Admin() {
                             fontWeight: '600'
                           }}
                         />
+                        <label style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px',
+                          cursor: 'pointer',
+                          userSelect: 'none'
+                        }}>
+                          <input
+                            type="checkbox"
+                            checked={editCourseData.nearHoles?.[index] || false}
+                            onChange={() => handleEditNearHoleChange(index)}
+                            style={{
+                              width: '18px',
+                              height: '18px',
+                              cursor: 'pointer',
+                              accentColor: 'var(--primary-green)'
+                            }}
+                          />
+                          <span style={{ fontSize: '12px', fontWeight: '600' }}>니어</span>
+                        </label>
                       </div>
                     ))}
                   </div>
