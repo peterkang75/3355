@@ -19,6 +19,8 @@ function Play() {
   const [showMismatches, setShowMismatches] = useState(false);
   const [showNtpModal, setShowNtpModal] = useState(false);
   const [ntpDistance, setNtpDistance] = useState('');
+  const [serverMismatches, setServerMismatches] = useState([]);
+  const [isCheckingScores, setIsCheckingScores] = useState(false);
 
   useEffect(() => {
     setSelectedTeammate(null);
@@ -81,6 +83,7 @@ function Play() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               memberId: user.id,
+              markerId: user.id,
               roundingName: booking?.title,
               date: today,
               courseName: courseData?.name,
@@ -94,6 +97,7 @@ function Play() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               memberId: selectedTeammate.phone,
+              markerId: user.id,
               roundingName: booking?.title,
               date: today,
               courseName: courseData?.name,
@@ -112,26 +116,9 @@ function Play() {
     return () => clearTimeout(timer);
   }, [holeScores]);
 
-  // 모든 hooks은 조건 없이 먼저 호출되어야 함
-  const mismatchedHoles = useMemo(() => {
-    const mismatches = [];
-    for (let i = 0; i < 18; i++) {
-      if (holeScores.me[i] !== holeScores.teammate[i]) {
-        mismatches.push(i + 1);
-      }
-    }
-    return mismatches;
-  }, [holeScores]);
-
   const isAllHolesComplete = () => {
     return holeScores.me.every(score => score > 0) && holeScores.teammate.every(score => score > 0);
   };
-
-  useEffect(() => {
-    if (step === 'scorecard' && isAllHolesComplete() && mismatchedHoles.length > 0) {
-      setShowMismatches(true);
-    }
-  }, [step, mismatchedHoles.length]);
 
   if (!bookingId || !booking || !courseData) {
     return (
@@ -435,11 +422,44 @@ function Play() {
     }
   };
 
-  const handleScoreCheck = () => {
-    if (mismatchedHoles.length > 0) {
-      setShowMismatches(true);
-    } else {
-      setStep('roundComplete');
+  const handleScoreCheck = async () => {
+    setIsCheckingScores(true);
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const res = await fetch(`/api/scores/round-comparison?roundingName=${encodeURIComponent(booking?.title)}&date=${today}&myId=${user.id}&teammateId=${selectedTeammate.phone}`);
+      const data = await res.json();
+      
+      const mismatches = [];
+      
+      for (let i = 0; i < 18; i++) {
+        const myScoreByMe = holeScores.me[i];
+        const myScoreByTeammate = data.myScoreByTeammate?.[i];
+        const teammateScoreByMe = holeScores.teammate[i];
+        const teammateScoreByTeammate = data.teammateScoreByTeammate?.[i];
+        
+        if (myScoreByTeammate !== null && myScoreByTeammate !== undefined && myScoreByMe !== myScoreByTeammate) {
+          if (!mismatches.includes(i + 1)) mismatches.push(i + 1);
+        }
+        if (teammateScoreByTeammate !== null && teammateScoreByTeammate !== undefined && teammateScoreByMe !== teammateScoreByTeammate) {
+          if (!mismatches.includes(i + 1)) mismatches.push(i + 1);
+        }
+      }
+      
+      mismatches.sort((a, b) => a - b);
+      setServerMismatches(mismatches);
+      
+      if (mismatches.length > 0) {
+        setShowMismatches(true);
+      } else if (!data.myScoreByTeammate && !data.teammateScoreByTeammate) {
+        alert('팀메이트가 아직 점수를 입력하지 않았습니다.');
+      } else {
+        setStep('roundComplete');
+      }
+    } catch (e) {
+      console.error('점수 비교 오류:', e);
+      alert('점수 비교 중 오류가 발생했습니다.');
+    } finally {
+      setIsCheckingScores(false);
     }
   };
 
@@ -495,6 +515,7 @@ function Play() {
         </div>
         <button 
           onClick={currentHole === 18 ? handleScoreCheck : goToNextHole}
+          disabled={isCheckingScores}
           style={{ 
             flex: 1,
             border: '2px solid white', 
@@ -504,7 +525,7 @@ function Play() {
             color: currentHole === 18 ? 'white' : '#223B3F', 
             fontSize: '11px', 
             fontWeight: '700', 
-            cursor: 'pointer',
+            cursor: isCheckingScores ? 'wait' : 'pointer',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -512,11 +533,12 @@ function Play() {
             gap: '6px',
             WebkitUserSelect: 'none',
             WebkitTapHighlightColor: 'transparent',
-            touchAction: 'manipulation'
+            touchAction: 'manipulation',
+            opacity: isCheckingScores ? 0.7 : 1
           }}
         >
-          <div style={{ fontSize: '14px', fontWeight: '900' }}>{currentHole === 18 ? '✓' : '→'}</div>
-          <div>{currentHole === 18 ? '점수점검' : '다음홀'}</div>
+          <div style={{ fontSize: '14px', fontWeight: '900' }}>{currentHole === 18 ? (isCheckingScores ? '...' : '✓') : '→'}</div>
+          <div>{currentHole === 18 ? (isCheckingScores ? '확인중' : '점수점검') : '다음홀'}</div>
         </button>
       </div>
 
@@ -536,7 +558,7 @@ function Play() {
       </div>
 
 
-      {showMismatches && mismatchedHoles.length > 0 && (
+      {showMismatches && serverMismatches.length > 0 && (
         <div style={{
           position: 'fixed',
           top: 0,
@@ -561,13 +583,13 @@ function Play() {
               점수 확인 필요
             </h3>
             <p style={{ fontSize: '14px', color: '#666', marginBottom: '16px', textAlign: 'center' }}>
-              다음 홀에서 점수가 다릅니다:
+              팀메이트와 점수가 다른 홀:
             </p>
             <p style={{ fontSize: '13px', color: '#888', marginBottom: '12px', textAlign: 'center' }}>
-              수정할 홀을 선택하세요
+              확인할 홀을 선택하세요
             </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px', marginBottom: '20px' }}>
-              {mismatchedHoles.map(hole => (
+              {serverMismatches.map(hole => (
                 <button
                   key={hole}
                   onClick={() => {
@@ -608,9 +630,7 @@ function Play() {
               <button
                 onClick={() => {
                   setShowMismatches(false);
-                  if (mismatchedHoles.length === 0) {
-                    setStep('roundComplete');
-                  }
+                  handleScoreCheck();
                 }}
                 style={{
                   flex: 1,
