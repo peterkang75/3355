@@ -34,7 +34,8 @@ model Member {
 
   posts                 Post[]
   bookings              Booking[]
-  scores                Score[]
+  playerScores          Score[]       @relation("PlayerScores")
+  markerScores          Score[]       @relation("MarkerScores")
   fees                  Fee[]         @relation("MemberFees")
   transactions          Transaction[] @relation("MemberTransactions")
   executedTransactions  Transaction[] @relation("ExecutorTransactions")
@@ -132,7 +133,9 @@ model Transaction {
 model Score {
   id           String   @id @default(cuid())
   userId       String
-  user         Member   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         Member   @relation(fields: [userId], references: [id], onDelete: Cascade, name: "PlayerScores")
+  markerId     String?
+  marker       Member?  @relation(fields: [markerId], references: [id], onDelete: SetNull, name: "MarkerScores")
   roundingName String?
   date         String
   courseName   String
@@ -142,8 +145,11 @@ model Score {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
+  @@unique([userId, markerId, date, roundingName])
   @@index([userId])
+  @@index([markerId])
   @@index([date])
+  @@index([roundingName])
 }
 
 model Course {
