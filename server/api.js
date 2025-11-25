@@ -626,8 +626,6 @@ router.post('/scores', async (req, res) => {
   try {
     const { memberId, markerId, roundingName, date, courseName, totalScore, coursePar, holes } = req.body;
     
-    console.log('📝 점수 저장 요청:', { memberId, markerId, roundingName, date, totalScore });
-    
     // upsert로 중복 방지 및 업데이트
     const score = await prisma.score.upsert({
       where: {
@@ -861,6 +859,42 @@ router.get('/scores/:memberId', async (req, res) => {
   } catch (error) {
     console.error('Error fetching scores:', error);
     res.status(500).json({ error: 'Failed to fetch scores' });
+  }
+});
+
+router.post('/scores', async (req, res) => {
+  try {
+    const { memberId, markerId, roundingName, date, courseName, totalScore, holes, coursePar } = req.body;
+    const score = await prisma.score.upsert({
+      where: {
+        userId_markerId_date_roundingName: {
+          userId: memberId,
+          markerId: markerId || null,
+          date: date,
+          roundingName: roundingName || ''
+        }
+      },
+      update: {
+        courseName,
+        totalScore,
+        coursePar: coursePar || 72,
+        holes: holes ? JSON.stringify(holes) : ''
+      },
+      create: {
+        userId: memberId,
+        markerId: markerId || null,
+        roundingName,
+        date,
+        courseName,
+        totalScore,
+        coursePar: coursePar || 72,
+        holes: holes ? JSON.stringify(holes) : ''
+      }
+    });
+    res.json(score);
+  } catch (error) {
+    console.error('Error creating score:', error);
+    res.status(500).json({ error: 'Failed to create score' });
   }
 });
 
