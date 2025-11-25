@@ -16,10 +16,7 @@ function Play() {
   const [currentHole, setCurrentHole] = useState(1);
   const [holeScores, setHoleScores] = useState({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
   const [courseData, setCourseData] = useState(null);
-  const [touchStart, setTouchStart] = useState(0);
   const [showMismatches, setShowMismatches] = useState(false);
-  const [slideDirection, setSlideDirection] = useState(''); // 'left', 'right', ''
-  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     setSelectedTeammate(null);
@@ -329,37 +326,6 @@ function Play() {
     );
   };
 
-  const handleTouchStart = (e) => {
-    setTouchStart(e.touches[0].clientX);
-  };
-
-  const handleTouchEnd = (e) => {
-    if (!touchStart || !e.changedTouches[0]) return;
-    const touchEnd = e.changedTouches[0].clientX;
-    const diff = touchStart - touchEnd;
-    const threshold = 5;
-
-    if (Math.abs(diff) > threshold) {
-      setIsAnimating(true);
-      if (diff > 0) {
-        // 왼쪽 스와이프 → 다음 홀
-        console.log('🔄 왼쪽 스와이프 - 다음 홀로 (diff: ' + diff + ')');
-        setSlideDirection('left');
-        setTimeout(() => goToNextHole(), 300);
-      } else {
-        // 오른쪽 스와이프 → 이전 홀 (뒤로가기 방지)
-        console.log('🔄 오른쪽 스와이프 - 이전 홀로 (diff: ' + diff + ')');
-        e.preventDefault();
-        setSlideDirection('right');
-        setTimeout(() => goToPreviousHole(), 300);
-      }
-      setTimeout(() => {
-        setIsAnimating(false);
-        setSlideDirection('');
-      }, 300);
-    }
-  };
-
   const goToPreviousHole = () => {
     if (currentHole > 1) {
       setCurrentHole(currentHole - 1);
@@ -374,10 +340,6 @@ function Play() {
     } else {
       setCurrentHole(1); // 18번에서 → 1번 (순환)
     }
-  };
-
-  const isPC = () => {
-    return typeof window !== 'undefined' && window.innerWidth > 768;
   };
 
   return (
@@ -396,100 +358,77 @@ function Play() {
         bottom: 0,
         width: '100%'
       }}
-      onTouchStartCapture={handleTouchStart}
-      onTouchEndCapture={handleTouchEnd}
     >
       <div className="header" style={{ background: '#223B3F', borderBottom: 'none' }}></div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', padding: '12px 24px', marginBottom: '0' }}>
-        <div style={{ border: '2px solid white', borderRadius: '8px', padding: '12px', textAlign: 'center', fontSize: '11px', background: 'transparent', color: 'white' }}>
-          <div style={{ fontWeight: '700', opacity: 1, fontSize: '11px' }}>ROUND TIME</div>
-          <div style={{ fontSize: '20px', fontWeight: '700', marginTop: '8px' }}>{getTime()}</div>
-        </div>
-        <div style={{ border: '2px solid white', borderRadius: '8px', padding: '12px', textAlign: 'center', fontSize: '11px', background: 'transparent', color: 'white' }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', padding: '16px 24px', marginBottom: '0' }}>
+        <button 
+          onClick={goToPreviousHole}
+          onTouchEnd={goToPreviousHole}
+          style={{ 
+            width: '50px', 
+            height: '50px', 
+            borderRadius: '8px', 
+            background: 'white', 
+            color: '#223B3F', 
+            border: 'none', 
+            fontSize: '24px', 
+            fontWeight: '700', 
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            WebkitUserSelect: 'none',
+            WebkitTapHighlightColor: 'transparent',
+            touchAction: 'manipulation'
+          }}
+        >
+          ←
+        </button>
+        <div style={{ border: '2px solid white', borderRadius: '8px', padding: '16px 32px', textAlign: 'center', fontSize: '11px', background: 'transparent', color: 'white', minWidth: '80px' }}>
           <div style={{ fontWeight: '700', opacity: 1, fontSize: '11px' }}>HOLE</div>
-          <div style={{ fontSize: '36px', fontWeight: '700', marginTop: '8px' }}>{currentHole}</div>
+          <div style={{ fontSize: '48px', fontWeight: '700', marginTop: '8px' }}>{currentHole}</div>
         </div>
+        <button 
+          onClick={goToNextHole}
+          onTouchEnd={goToNextHole}
+          style={{ 
+            width: '50px', 
+            height: '50px', 
+            borderRadius: '8px', 
+            background: 'white', 
+            color: '#223B3F', 
+            border: 'none', 
+            fontSize: '24px', 
+            fontWeight: '700', 
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            WebkitUserSelect: 'none',
+            WebkitTapHighlightColor: 'transparent',
+            touchAction: 'manipulation'
+          }}
+        >
+          →
+        </button>
       </div>
 
       <div 
-        onTouchStartCapture={handleTouchStart}
-        onTouchEndCapture={handleTouchEnd}
         style={{ 
           flex: 1, 
           display: 'flex', 
           flexDirection: 'column', 
           padding: '12px 24px', 
-          position: 'relative',
-          transition: isAnimating ? 'transform 0.3s ease-out' : 'none',
-          transform: slideDirection === 'left' ? 'translateX(-100%)' : slideDirection === 'right' ? 'translateX(100%)' : 'translateX(0)'
+          position: 'relative'
         }}
       >
         <ScoreSection title={`${selectedTeammate?.nickname || selectedTeammate?.name} (HC: ${selectedTeammate?.handicap || '-'})`} isTeammate={true} />
         
         <ScoreSection title={`${user?.nickname || user?.name} (HC: ${user?.handicap || '-'})`} isTeammate={false} />
 
-        {isPC() && (
-          <>
-            <button
-              onClick={goToPreviousHole}
-              style={{
-                position: 'fixed',
-                left: '12px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                width: '50px',
-                height: '50px',
-                borderRadius: '50%',
-                background: 'rgba(255, 255, 255, 0.8)',
-                color: '#223B3F',
-                border: 'none',
-                fontSize: '24px',
-                fontWeight: '700',
-                cursor: 'pointer',
-                zIndex: 100,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              ←
-            </button>
-
-            <button
-              onClick={goToNextHole}
-              style={{
-                position: 'fixed',
-                right: '12px',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                width: '50px',
-                height: '50px',
-                borderRadius: '50%',
-                background: 'rgba(255, 255, 255, 0.8)',
-                color: '#223B3F',
-                border: 'none',
-                fontSize: '24px',
-                fontWeight: '700',
-                cursor: 'pointer',
-                zIndex: 100,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              →
-            </button>
-          </>
-        )}
       </div>
 
-      {step === 'scorecard' ? null : (
-        <div style={{ display: 'flex', gap: '8px', padding: '12px 24px', background: '#223B3F' }}>
-          <button onClick={goToPreviousHole} style={{ flex: 1, padding: '12px', background: 'white', color: '#000', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: '14px' }}>← 이전</button>
-          <button onClick={goToNextHole} style={{ flex: 1, padding: '12px', background: 'white', color: 'black', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: '14px' }}>다음 →</button>
-        </div>
-      )}
 
       {showMismatches && mismatchedHoles.length > 0 && (
         <div style={{
