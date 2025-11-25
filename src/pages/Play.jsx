@@ -72,7 +72,7 @@ function Play() {
       try {
         const parArr = courseData?.holePars[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
         const userParArr = courseData?.holePars[user?.gender === 'F' ? 'female' : 'male'] || [];
-        const today = new Date().toISOString().split('T')[0];
+        const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
 
         const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
         const coursePar = userParArr.reduce((a, b) => a + b, 0);
@@ -89,8 +89,8 @@ function Play() {
               memberId: user.id,
               markerId: user.id,
               roundingName: booking?.title,
-              date: today,
-              courseName: courseData?.name,
+              date: scoreDate,
+              courseName: booking?.courseName,
               totalScore: totalMe,
               coursePar,
               holes: holeScores.me
@@ -103,8 +103,8 @@ function Play() {
               memberId: teammateMemberId,
               markerId: user.id,
               roundingName: booking?.title,
-              date: today,
-              courseName: courseData?.name,
+              date: scoreDate,
+              courseName: booking?.courseName,
               totalScore: totalTeammate,
               coursePar: courseParTeammate,
               holes: holeScores.teammate

@@ -496,6 +496,22 @@ router.get('/scores/booking/:date/:courseName', async (req, res) => {
   }
 });
 
+router.get('/scores/by-rounding/:roundingName', async (req, res) => {
+  try {
+    const { roundingName } = req.params;
+    const scores = await prisma.score.findMany({
+      where: { 
+        roundingName: decodeURIComponent(roundingName)
+      },
+      include: { user: true }
+    });
+    res.json(scores);
+  } catch (error) {
+    console.error('Error fetching rounding scores:', error);
+    res.status(500).json({ error: 'Failed to fetch rounding scores' });
+  }
+});
+
 router.get('/scores/round-comparison', async (req, res) => {
   try {
     const { roundingName, date, myId, teammateId } = req.query;

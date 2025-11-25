@@ -51,7 +51,14 @@ function MemberScoreEntry() {
 
   const loadExistingScores = async (booking) => {
     try {
-      const bookingScores = await apiService.fetchBookingScores(booking.date, booking.courseName);
+      let bookingScores = await apiService.fetchBookingScores(booking.date, booking.courseName);
+      
+      if ((!bookingScores || bookingScores.length === 0) && booking.title) {
+        const res = await fetch(`/api/scores/by-rounding/${encodeURIComponent(booking.title)}`);
+        if (res.ok) {
+          bookingScores = await res.json();
+        }
+      }
       
       if (bookingScores && bookingScores.length > 0) {
         const dailyHandicaps = typeof booking.dailyHandicaps === 'string' 
