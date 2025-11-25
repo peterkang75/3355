@@ -319,78 +319,22 @@ function BingoGame() {
               </button>
             </div>
             <span style={{ fontSize: '13px', opacity: 0.7 }}>({gridSize} x {gridSize})</span>
-          </div>
-
-          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-            {isEditMode ? (
-              <button
-                onClick={handleSave}
-                style={{
-                  padding: '10px 20px',
-                  background: 'var(--primary-green)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
-              >
-                저장 및 게임 시작
-              </button>
-            ) : (
-              <button
-                onClick={() => setIsEditMode(true)}
-                style={{
-                  padding: '10px 20px',
-                  background: '#666',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
-              >
-                편집 모드
-              </button>
-            )}
             <button
               onClick={handleReset}
               style={{
-                padding: '10px 20px',
+                padding: '8px 16px',
                 background: '#dc3545',
                 color: 'white',
                 border: 'none',
                 borderRadius: '6px',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: '600',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                marginLeft: 'auto'
               }}
             >
               초기화
             </button>
-            {!isEditMode && (
-              <button
-                onClick={() => {
-                  setSelectedCells([]);
-                  setBingoLines([]);
-                  setShowBingo(false);
-                }}
-                style={{
-                  padding: '10px 20px',
-                  background: '#6c757d',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
-              >
-                선택 초기화
-              </button>
-            )}
           </div>
         </div>
 
@@ -483,6 +427,66 @@ function BingoGame() {
             </div>
           </div>
         )}
+
+        <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+          {isEditMode ? (
+            <button
+              onClick={handleSave}
+              style={{
+                flex: 1,
+                padding: '14px 20px',
+                background: 'var(--primary-green)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '16px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                boxShadow: '0 2px 8px rgba(0,128,0,0.3)'
+              }}
+            >
+              저장 및 게임 시작
+            </button>
+          ) : (
+            <>
+              <button
+                onClick={() => setIsEditMode(true)}
+                style={{
+                  flex: 1,
+                  padding: '14px 20px',
+                  background: '#666',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  cursor: 'pointer'
+                }}
+              >
+                편집 모드
+              </button>
+              <button
+                onClick={() => {
+                  setSelectedCells([]);
+                  setBingoLines([]);
+                  setShowBingo(false);
+                }}
+                style={{
+                  padding: '14px 20px',
+                  background: '#6c757d',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                선택 초기화
+              </button>
+            </>
+          )}
+        </div>
 
         <div className="card">
           <div style={{
