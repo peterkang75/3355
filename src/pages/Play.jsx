@@ -312,7 +312,7 @@ function Play() {
             {isNearHole && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
                 <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>NTP</div>
-                <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, background: '#6399CF', color: 'white', border: 'none', width: '55px', height: '55px', fontSize: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0', animation: 'ntpBlink 1s infinite' }}>
+                <button className="ntp-blink-btn" onClick={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, background: '#6399CF', color: 'white', border: 'none', width: '55px', height: '55px', fontSize: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0' }}>
                   <svg width="32" height="32" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="25" cy="15" r="8" stroke="white" strokeWidth="3"/>
                     <line x1="25" y1="23" x2="25" y2="42" stroke="white" strokeWidth="3" strokeLinecap="round"/>

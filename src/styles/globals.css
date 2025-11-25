@@ -330,3 +330,30 @@ input:focus, textarea:focus, select:focus {
     transform: rotate(360deg);
   }
 }
+
+@keyframes ntpBlink {
+  0%, 49% {
+    background-color: #6399CF;
+  }
+  50%, 100% {
+    background-color: white;
+  }
+}
+
+.ntp-blink-btn {
+  animation: ntpBlink 1s infinite;
+}
+
+.ntp-blink-btn svg circle,
+.ntp-blink-btn svg line {
+  animation: ntpSvgBlink 1s infinite;
+}
+
+@keyframes ntpSvgBlink {
+  0%, 49% {
+    stroke: white;
+  }
+  50%, 100% {
+    stroke: #6399CF;
+  }
+}
