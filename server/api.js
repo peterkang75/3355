@@ -530,8 +530,34 @@ router.get('/scores/check', async (req, res) => {
 
 router.post('/scores', async (req, res) => {
   try {
-    const score = await prisma.score.create({
-      data: req.body
+    const { memberId, markerId, roundingName, date, courseName, totalScore, coursePar, holes } = req.body;
+    
+    // upsert로 중복 방지 및 업데이트
+    const score = await prisma.score.upsert({
+      where: {
+        userId_markerId_date_roundingName: {
+          userId: memberId,
+          markerId: markerId || memberId,
+          date: date,
+          roundingName: roundingName || ''
+        }
+      },
+      update: {
+        courseName,
+        totalScore,
+        coursePar,
+        holes: JSON.stringify(holes)
+      },
+      create: {
+        userId: memberId,
+        markerId: markerId || memberId,
+        roundingName: roundingName || '',
+        date,
+        courseName,
+        totalScore,
+        coursePar,
+        holes: JSON.stringify(holes)
+      }
     });
     res.json(score);
   } catch (error) {
