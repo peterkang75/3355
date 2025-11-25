@@ -18,6 +18,7 @@ import MemberScoreEntry from './pages/MemberScoreEntry';
 import GradeSettings from './pages/GradeSettings';
 import MemberDetail from './pages/MemberDetail';
 import Play from './pages/Play';
+import Leaderboard from './pages/Leaderboard';
 import Navigation from './components/Navigation';
 import InstallPrompt from './components/InstallPrompt';
 import logoImage from './assets/logo-transparent.png';
@@ -49,6 +50,7 @@ function AppRoutes({ user, logout }) {
         <Route path="/member-score-entry" element={<MemberScoreEntry />} />
         <Route path="/grade-settings" element={<GradeSettings />} />
         <Route path="/play" element={<Play />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       {location.pathname !== '/play' && <Navigation user={user} onLogout={logout} />}

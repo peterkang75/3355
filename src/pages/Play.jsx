@@ -733,7 +733,37 @@ function Play() {
         width: '100%'
       }}
     >
-      <div className="header" style={{ background: '#223B3F', borderBottom: 'none' }}></div>
+      <div className="header" style={{ 
+        background: '#223B3F', 
+        borderBottom: 'none',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        padding: '0 16px'
+      }}>
+        <div style={{ width: '40px' }}></div>
+        <div style={{ flex: 1, textAlign: 'center', color: 'white', fontSize: '14px', fontWeight: '600' }}>
+          {booking?.title}
+        </div>
+        <button
+          onClick={() => navigate(`/leaderboard?id=${bookingId}`)}
+          style={{
+            background: 'rgba(255,255,255,0.15)',
+            border: '1px solid rgba(255,255,255,0.3)',
+            borderRadius: '6px',
+            padding: '8px 12px',
+            color: 'white',
+            fontSize: '12px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}
+        >
+          📊
+        </button>
+      </div>
 
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px', padding: '16px 24px', marginBottom: '0' }}>
         <button 
