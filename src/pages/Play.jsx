@@ -286,7 +286,7 @@ function Play() {
           {title}
         </div>
         
-        <div style={{ background: 'white', flex: 0.45, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '12px 8px', borderBottom: '1px solid #e0e0e0', minHeight: 0 }}>
+        <div style={{ background: 'white', flex: 0.675, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '12px 8px', borderBottom: '1px solid #e0e0e0', minHeight: 0 }}>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px' }}>
             <button onMouseDown={() => updateScore(isTeammate, -1)} onTouchStart={() => updateScore(isTeammate, -1)} style={{ width: '44px', height: '44px', border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: '24px', fontWeight: '700', cursor: 'pointer', color: '#666', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation', flexShrink: 0 }}>−</button>
             <div style={{ fontSize: '64px', fontWeight: '600', minWidth: '70px', textAlign: 'center', color: '#000' }}>{score}</div>
@@ -295,7 +295,7 @@ function Play() {
           <div style={{ fontSize: '12px', color: '#666', fontWeight: '400' }}>{score} points</div>
         </div>
 
-        <div style={{ background: 'white', padding: '8px 6px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 0.55, minHeight: 0 }}>
+        <div style={{ background: 'white', padding: '8px 6px', display: 'flex', flexDirection: 'column', gap: '8px', flex: 0.325, minHeight: 0 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: '6px', flex: 1, minWidth: 0 }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center', flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: '11px', fontWeight: '700', color: '#666' }}>PAR</div>
