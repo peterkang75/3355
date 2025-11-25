@@ -51,9 +51,9 @@ function Leaderboard() {
       const coursePar = course?.holePars?.male?.reduce((a, b) => a + b, 0) || 72;
 
       const processedScores = bookingScores.map(score => {
-        const member = members.find(m => m.id === score.memberId || m.phone === score.memberId);
-        const nickname = member?.nickname || member?.name || score.memberId;
-        const handicap = dailyHandicaps[score.memberId] || member?.handicap || 0;
+        const member = score.user || members.find(m => m.id === score.userId || m.phone === score.userId);
+        const nickname = member?.nickname || member?.name || score.userId;
+        const handicap = dailyHandicaps[score.userId] || member?.handicap || 0;
         
         let grade = 'ALL';
         if (gradeSettings && gradeSettings.useGrades) {
@@ -71,7 +71,7 @@ function Leaderboard() {
         const overUnder = totalScore - coursePar;
 
         return {
-          memberId: score.memberId,
+          odId: score.userId,
           nickname,
           handicap,
           grade,
@@ -249,7 +249,7 @@ function Leaderboard() {
         ) : (
           filteredScores.map((score, index) => (
             <div
-              key={score.memberId}
+              key={`${score.odId}-${index}`}
               style={{
                 display: 'grid',
                 gridTemplateColumns: '50px 1fr 60px 60px 70px',
@@ -269,7 +269,7 @@ function Leaderboard() {
               </div>
               <div>
                 <div style={{ color: 'white', fontSize: '15px', fontWeight: '500' }}>
-                  {score.nickname} [{score.handicap}]
+                  {score.nickname}
                 </div>
               </div>
               <div style={{ 
@@ -277,7 +277,7 @@ function Leaderboard() {
                 color: 'rgba(255,255,255,0.8)',
                 fontSize: '14px'
               }}>
-                {score.thru}
+                {score.handicap || '-'}
               </div>
               <div style={{ 
                 textAlign: 'center', 
