@@ -12,7 +12,8 @@ function GradeSettings() {
   const [gradeSettings, setGradeSettings] = useState({
     gradeA: { type: 'below', value: 10 },
     gradeB: { min: 11, max: 22 },
-    gradeC: { type: 'above', value: 23 }
+    gradeC: { min: 23, max: 30 },
+    gradeD: { type: 'above', value: 31 }
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -238,7 +239,7 @@ function GradeSettings() {
             padding: '16px',
             border: '1px solid var(--border-color)',
             borderRadius: '8px',
-            marginBottom: '20px'
+            marginBottom: '12px'
           }}>
             <div style={{ 
               fontSize: '16px', 
@@ -248,13 +249,69 @@ function GradeSettings() {
             }}>
               ▲ 그레이드 C
             </div>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '14px', opacity: 0.7 }}>핸디</span>
+                <input
+                  type="number"
+                  value={gradeSettings.gradeC.min}
+                  onChange={(e) => setGradeSettings({
+                    ...gradeSettings,
+                    gradeC: { ...gradeSettings.gradeC, min: parseInt(e.target.value) || 0 }
+                  })}
+                  style={{
+                    padding: '10px',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    width: '80px'
+                  }}
+                />
+                <span style={{ fontSize: '14px', opacity: 0.7 }}>부터</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <input
+                  type="number"
+                  value={gradeSettings.gradeC.max}
+                  onChange={(e) => setGradeSettings({
+                    ...gradeSettings,
+                    gradeC: { ...gradeSettings.gradeC, max: parseInt(e.target.value) || 0 }
+                  })}
+                  style={{
+                    padding: '10px',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    width: '80px'
+                  }}
+                />
+                <span style={{ fontSize: '14px', opacity: 0.7 }}>까지</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Grade D */}
+          <div style={{
+            padding: '16px',
+            border: '1px solid var(--border-color)',
+            borderRadius: '8px',
+            marginBottom: '20px'
+          }}>
+            <div style={{ 
+              fontSize: '16px', 
+              fontWeight: '700', 
+              marginBottom: '12px',
+              color: 'var(--primary-green)'
+            }}>
+              ▲ 그레이드 D
+            </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
               <input
                 type="number"
-                value={gradeSettings.gradeC.value}
+                value={gradeSettings.gradeD.value}
                 onChange={(e) => setGradeSettings({
                   ...gradeSettings,
-                  gradeC: { ...gradeSettings.gradeC, value: parseInt(e.target.value) || 0 }
+                  gradeD: { ...gradeSettings.gradeD, value: parseInt(e.target.value) || 0 }
                 })}
                 style={{
                   padding: '10px',
@@ -264,10 +321,10 @@ function GradeSettings() {
                 }}
               />
               <select
-                value={gradeSettings.gradeC.type}
+                value={gradeSettings.gradeD.type}
                 onChange={(e) => setGradeSettings({
                   ...gradeSettings,
-                  gradeC: { ...gradeSettings.gradeC, type: e.target.value }
+                  gradeD: { ...gradeSettings.gradeD, type: e.target.value }
                 })}
                 style={{
                   padding: '10px',
