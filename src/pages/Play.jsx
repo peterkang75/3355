@@ -273,9 +273,19 @@ function Play() {
     const diff = totalScore - totalPar;
     const diffText = diff > 0 ? '+' + diff : diff === 0 ? 'E' : String(diff);
     
+    const isNearHole = !isTeammate && courseData?.nearHoles?.[currentHole - 1];
+    
     const iosButtonStyle = { WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation', userSelect: 'none' };
     const boxStyle = { width: '100%', aspectRatio: '1', padding: '12px', background: 'white', border: '2px solid #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '28px', color: '#000', ...iosButtonStyle };
     const buttonStyle = { width: '100%', aspectRatio: '1', padding: '12px', border: '2px solid #ccc', background: 'white', color: '#000', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '28px', ...iosButtonStyle };
+    
+    const blinkingStyle = {
+      animation: 'blink 1s infinite',
+      '@keyframes blink': {
+        '0%, 49%': { background: '#6399CF' },
+        '50%, 100%': { background: 'white', color: '#6399CF' }
+      }
+    };
     
     return (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '0', padding: '0', marginBottom: '12px' }}>
@@ -299,10 +309,10 @@ function Play() {
               <button onClick={() => setScoreValue(isTeammate, par)} style={{ ...boxStyle, border: '2px solid #ccc', background: 'white', cursor: 'pointer', width: '55px', height: '55px' }}>{par}</button>
             </div>
             
-            {!isTeammate && (
+            {isNearHole && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
                 <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>NTP</div>
-                <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, background: '#6399CF', color: 'white', border: 'none', width: '55px', height: '55px', fontSize: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0' }}>
+                <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, background: '#6399CF', color: 'white', border: 'none', width: '55px', height: '55px', fontSize: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0', animation: 'ntpBlink 1s infinite' }}>
                   <svg width="32" height="32" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="25" cy="15" r="8" stroke="white" strokeWidth="3"/>
                     <line x1="25" y1="23" x2="25" y2="42" stroke="white" strokeWidth="3" strokeLinecap="round"/>
