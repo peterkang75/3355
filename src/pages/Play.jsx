@@ -640,7 +640,53 @@ function Play() {
     }
   };
 
-  const handleScoreCheck = () => {
+  const handleScoreCheck = async () => {
+    // 먼저 현재 점수를 저장
+    try {
+      const parArr = courseData?.holePars[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
+      const userParArr = courseData?.holePars[user?.gender === 'F' ? 'female' : 'male'] || [];
+      const today = new Date().toISOString().split('T')[0];
+      const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.phone;
+
+      const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
+      const coursePar = userParArr.reduce((a, b) => a + b, 0);
+      const totalTeammate = holeScores.teammate.reduce((a, b) => a + b, 0);
+      const courseParTeammate = parArr.reduce((a, b) => a + b, 0);
+
+      await Promise.all([
+        fetch('/api/scores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            memberId: user.id,
+            markerId: user.id,
+            roundingName: booking?.title,
+            date: today,
+            courseName: courseData?.name,
+            totalScore: totalMe,
+            coursePar,
+            holes: holeScores.me
+          })
+        }),
+        fetch('/api/scores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            memberId: teammateMemberId,
+            markerId: user.id,
+            roundingName: booking?.title,
+            date: today,
+            courseName: courseData?.name,
+            totalScore: totalTeammate,
+            coursePar: courseParTeammate,
+            holes: holeScores.teammate
+          })
+        })
+      ]);
+    } catch (e) {
+      console.error('점수 저장 오류:', e);
+    }
+    
     setTeammateReady(false);
     setServerMismatches([]);
     setStep('scoreCheck');
