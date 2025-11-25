@@ -584,7 +584,7 @@ function Play() {
                     return;
                   }
                   try {
-                    await fetch('/api/ntp', {
+                    const response = await fetch('/api/ntp', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
                       body: JSON.stringify({
@@ -595,6 +595,9 @@ function Play() {
                         distance: parseFloat(ntpDistance)
                       })
                     });
+                    if (!response.ok) {
+                      throw new Error('저장 실패');
+                    }
                     setShowNtpModal(false);
                     alert('NTP 거리가 저장되었습니다!');
                   } catch (e) {

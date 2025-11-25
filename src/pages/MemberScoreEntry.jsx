@@ -13,6 +13,7 @@ function MemberScoreEntry() {
   const [scores, setScores] = useState({});
   const [saving, setSaving] = useState(false);
   const [leaderboard, setLeaderboard] = useState(null);
+  const [ntpRecords, setNtpRecords] = useState([]);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -32,9 +33,21 @@ function MemberScoreEntry() {
         if (foundBooking.dailyHandicaps) {
           loadExistingScores(foundBooking);
         }
+        
+        loadNtpRecords();
       }
     }
   }, [bookingId, bookings]);
+
+  const loadNtpRecords = async () => {
+    try {
+      const res = await fetch(`/api/ntp/${bookingId}`);
+      const data = await res.json();
+      setNtpRecords(data);
+    } catch (error) {
+      console.error('NTP 데이터 로드 실패:', error);
+    }
+  };
 
   const loadExistingScores = async (booking) => {
     try {
@@ -634,6 +647,80 @@ function MemberScoreEntry() {
                     </tbody>
                   </table>
                 </div>
+              </div>
+            )}
+
+            {ntpRecords.length > 0 && (
+              <div style={{ marginTop: '20px' }}>
+                <div style={{
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  color: '#6399CF',
+                  marginBottom: '12px',
+                  padding: '8px 12px',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '6px'
+                }}>
+                  🏳️ NTP (Near The Pin)
+                </div>
+                {(() => {
+                  const groupedByHole = ntpRecords.reduce((acc, record) => {
+                    if (!acc[record.holeNumber]) {
+                      acc[record.holeNumber] = [];
+                    }
+                    acc[record.holeNumber].push(record);
+                    return acc;
+                  }, {});
+
+                  return Object.entries(groupedByHole)
+                    .sort(([a], [b]) => Number(a) - Number(b))
+                    .map(([holeNumber, records]) => {
+                      const sortedRecords = [...records].sort((a, b) => a.distance - b.distance);
+                      return (
+                        <div key={holeNumber} style={{ marginBottom: '16px' }}>
+                          <div style={{
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            color: '#333',
+                            marginBottom: '8px',
+                            paddingLeft: '4px'
+                          }}>
+                            홀 {holeNumber}
+                          </div>
+                          <div style={{ overflowX: 'auto' }}>
+                            <table style={{ 
+                              width: '100%', 
+                              borderCollapse: 'collapse',
+                              fontSize: '13px'
+                            }}>
+                              <thead>
+                                <tr style={{ background: '#f5f5f5' }}>
+                                  <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700', width: '60px' }}>순위</th>
+                                  <th style={{ padding: '10px 8px', textAlign: 'left', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>이름</th>
+                                  <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>거리 (cm)</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {sortedRecords.map((record, index) => (
+                                  <tr key={record.id} style={{ background: index % 2 === 0 ? 'var(--bg-card)' : 'var(--text-light)' }}>
+                                    <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: index === 0 ? '700' : '400', color: index === 0 ? '#6399CF' : 'inherit' }}>
+                                      {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                                    </td>
+                                    <td style={{ padding: '10px 8px', textAlign: 'left', borderBottom: '1px solid var(--border-color)', fontWeight: '600' }}>
+                                      {record.memberName}
+                                    </td>
+                                    <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: index === 0 ? '700' : '400', color: index === 0 ? '#6399CF' : 'inherit' }}>
+                                      {record.distance}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                      );
+                    });
+                })()}
               </div>
             )}
             
