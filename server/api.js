@@ -626,6 +626,8 @@ router.post('/scores', async (req, res) => {
   try {
     const { memberId, markerId, roundingName, date, courseName, totalScore, coursePar, holes } = req.body;
     
+    console.log('📝 점수 저장 요청:', { memberId, markerId, roundingName, date, totalScore });
+    
     // upsert로 중복 방지 및 업데이트
     const score = await prisma.score.upsert({
       where: {
