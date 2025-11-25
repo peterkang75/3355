@@ -31,19 +31,30 @@ function Play() {
     if (!bookingId || bookings.length === 0) return;
     
     const foundBooking = bookings.find(b => b.id === bookingId);
+    console.log('📌 Booking 찾음:', foundBooking?.title);
     setBooking(foundBooking);
     
     if (foundBooking?.teams) {
       try {
         const teams = typeof foundBooking.teams === 'string' ? JSON.parse(foundBooking.teams) : foundBooking.teams;
+        console.log('👥 팀 데이터:', teams);
         const userTeam = teams.find(t => t.members?.some(m => m.phone === user?.phone));
-        if (userTeam) {
+        console.log('👤 사용자 팀:', userTeam);
+        if (userTeam && userTeam.members) {
           const members = userTeam.members.filter(m => m.phone !== user?.phone);
+          console.log('🤝 팀원:', members);
           setTeammates(members);
+        } else {
+          console.log('⚠️ 팀 정보 없음, 팀원 배열 초기화');
+          setTeammates([]);
         }
       } catch (e) {
-        console.error('팀 파싱:', e);
+        console.error('팀 파싱 에러:', e);
+        setTeammates([]);
       }
+    } else {
+      console.log('⚠️ Booking에 teams 정보 없음');
+      setTeammates([]);
     }
 
     const course = courses.find(c => c.name === foundBooking?.courseName);
@@ -123,7 +134,7 @@ function Play() {
     }
   }, [step, mismatchedHoles.length]);
 
-  if (!bookingId || !booking || teammates.length === 0) {
+  if (!bookingId || !booking || !courseData) {
     return (
       <div style={{ minHeight: '100vh', padding: '16px', background: '#223B3F' }}>
         <div className="header">
@@ -135,6 +146,17 @@ function Play() {
   }
 
   if (step === 'selectMember') {
+    if (teammates.length === 0) {
+      return (
+        <div style={{ minHeight: '100vh', padding: '16px', background: '#223B3F' }}>
+          <div className="header">
+            <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', padding: '8px 16px' }}>← Back</button>
+          </div>
+          <div style={{ marginTop: '32px', textAlign: 'center', color: 'white', opacity: 0.7 }}>팀원이 없습니다</div>
+        </div>
+      );
+    }
+    
     return (
       <div style={{ minHeight: '100vh', padding: '16px', paddingBottom: '80px', background: '#223B3F' }}>
         <div className="header">
