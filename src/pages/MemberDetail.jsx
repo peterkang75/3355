@@ -175,6 +175,7 @@ function MemberDetail() {
       } else {
         await apiService.createScore({
           userId: id,
+          markerId: user.id,
           ...scoreFormData,
           totalScore: parseInt(scoreFormData.totalScore)
         });

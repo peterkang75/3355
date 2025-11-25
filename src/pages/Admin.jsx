@@ -1180,6 +1180,7 @@ function Admin() {
     try {
       const scoreData = {
         userId: member.id,
+        markerId: user.id,
         date: scoreFormData.date,
         courseName: scoreFormData.courseName,
         totalScore: totalScore,

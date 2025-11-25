@@ -228,6 +228,7 @@ function MemberScoreEntry() {
           
           scoresToSave.push({
             userId: member.id,
+            markerId: user.id,
             date: booking.date,
             courseName: booking.courseName,
             totalScore: totalScore,

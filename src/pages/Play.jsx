@@ -87,7 +87,7 @@ function Play() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               memberId: user.id,
-              markerId: user.id,
+              markerId: teammateMemberId,
               roundingName: booking?.title,
               date: today,
               courseName: courseData?.name,
@@ -638,7 +638,7 @@ function Play() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             memberId: user.id,
-            markerId: user.id,
+            markerId: teammateMemberId,
             roundingName: booking?.title,
             date: today,
             courseName: courseData?.name,
