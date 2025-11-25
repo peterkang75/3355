@@ -283,7 +283,7 @@ function Play() {
           {title}
         </div>
         
-        <div style={{ background: 'white', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '20px 16px', borderBottom: '1px solid #e0e0e0' }}>
+        <div style={{ background: 'white', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '20px 16px 11px 16px', borderBottom: '1px solid #e0e0e0' }}>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px' }}>
             <button onMouseDown={() => updateScore(isTeammate, -1)} onTouchStart={() => updateScore(isTeammate, -1)} style={{ width: '42px', height: '42px', border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: '22px', fontWeight: '700', cursor: 'pointer', color: '#666', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>−</button>
             <div style={{ fontSize: '58px', fontWeight: '600', minWidth: '64px', textAlign: 'center', color: '#000' }}>{score}</div>
