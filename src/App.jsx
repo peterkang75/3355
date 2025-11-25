@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from './contexts/AppContext';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
@@ -24,6 +24,7 @@ import logoImage from './assets/logo-transparent.png';
 
 function AppRoutes({ user, logout }) {
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     navigate('/');
@@ -50,7 +51,7 @@ function AppRoutes({ user, logout }) {
         <Route path="/play" element={<Play />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-      <Navigation user={user} onLogout={logout} />
+      {location.pathname !== '/play' && <Navigation user={user} onLogout={logout} />}
       <InstallPrompt />
     </div>
   );

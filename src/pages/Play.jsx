@@ -337,7 +337,7 @@ function Play() {
     if (!touchStart || !e.changedTouches[0]) return;
     const touchEnd = e.changedTouches[0].clientX;
     const diff = touchStart - touchEnd;
-    const threshold = 50;
+    const threshold = 30;
 
     if (Math.abs(diff) > threshold) {
       setIsAnimating(true);
@@ -382,7 +382,20 @@ function Play() {
 
   return (
     <div 
-      style={{ minHeight: '100vh', background: '#223B3F', display: 'flex', flexDirection: 'column', padding: '0' }}
+      style={{ 
+        height: '100vh', 
+        background: '#223B3F', 
+        display: 'flex', 
+        flexDirection: 'column', 
+        padding: '0',
+        overflow: 'hidden',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100%'
+      }}
       onTouchStartCapture={handleTouchStart}
       onTouchEndCapture={handleTouchEnd}
     >
@@ -471,10 +484,12 @@ function Play() {
         )}
       </div>
 
-      <div style={{ display: 'flex', gap: '8px', padding: '12px 24px', background: '#223B3F' }}>
-        <button onClick={goToPreviousHole} style={{ flex: 1, padding: '12px', background: 'white', color: '#000', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: '14px' }}>← 이전</button>
-        <button onClick={goToNextHole} style={{ flex: 1, padding: '12px', background: 'white', color: 'black', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: '14px' }}>다음 →</button>
-      </div>
+      {step === 'scorecard' ? null : (
+        <div style={{ display: 'flex', gap: '8px', padding: '12px 24px', background: '#223B3F' }}>
+          <button onClick={goToPreviousHole} style={{ flex: 1, padding: '12px', background: 'white', color: '#000', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: '14px' }}>← 이전</button>
+          <button onClick={goToNextHole} style={{ flex: 1, padding: '12px', background: 'white', color: 'black', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: '14px' }}>다음 →</button>
+        </div>
+      )}
 
       {showMismatches && mismatchedHoles.length > 0 && (
         <div style={{
