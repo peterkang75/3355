@@ -38,10 +38,10 @@ function Play() {
       try {
         const teams = typeof foundBooking.teams === 'string' ? JSON.parse(foundBooking.teams) : foundBooking.teams;
         console.log('👥 팀 데이터:', teams);
-        const userTeam = teams.find(t => t.members?.some(m => m.phone === user?.phone));
+        const userTeam = teams.find(t => t.members?.some(m => m?.phone === user?.phone));
         console.log('👤 사용자 팀:', userTeam);
         if (userTeam && userTeam.members) {
-          const members = userTeam.members.filter(m => m.phone !== user?.phone);
+          const members = userTeam.members.filter(m => m && m.phone !== user?.phone);
           console.log('🤝 팀원:', members);
           setTeammates(members);
         } else {
