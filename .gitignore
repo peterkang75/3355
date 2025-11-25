@@ -132,12 +132,3 @@ dist
 # Replit debugger
 .breakpoints
 /src/generated/prisma
-
-# Build & cache
-.vite
-.vite-cache
-dist/
-
-# Prisma
-prisma/dev.db
-prisma/dev.db-journal

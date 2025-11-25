@@ -277,37 +277,36 @@ function Play() {
     const diffText = diff > 0 ? '+' + diff : diff === 0 ? 'E' : String(diff);
     
     const iosButtonStyle = { WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation', userSelect: 'none' };
-    const baseBoxStyle = { padding: '0', background: 'white', border: '2px solid #ccc', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', color: '#000', ...iosButtonStyle };
-    const boxStyle = { ...baseBoxStyle, cursor: 'pointer' };
-    const buttonStyle = { ...baseBoxStyle, cursor: 'pointer', border: '2px solid #ccc', color: '#000' };
+    const boxStyle = { width: '100%', aspectRatio: '1', padding: '12px', background: 'white', border: '2px solid #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '35px', color: '#000', ...iosButtonStyle };
+    const buttonStyle = { width: '100%', aspectRatio: '1', padding: '12px', border: '2px solid #ccc', background: 'white', color: '#000', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '35px', ...iosButtonStyle };
     
     return (
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '0', padding: '0', marginBottom: '6px', minHeight: 0, overflow: 'hidden' }}>
-        <div style={{ background: '#6399CF', color: 'white', padding: '12px', borderRadius: '0', textAlign: 'center', fontWeight: '700', fontSize: '16px', flexShrink: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '0', padding: '0', marginBottom: '12px' }}>
+        <div style={{ background: '#6399CF', color: 'white', padding: '16px', borderRadius: '0', textAlign: 'center', fontWeight: '700', fontSize: '21px' }}>
           {title}
         </div>
         
-        <div style={{ background: 'white', flex: 0.675, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '12px 8px', borderBottom: '1px solid #e0e0e0', minHeight: 0 }}>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '16px' }}>
-            <button onMouseDown={() => updateScore(isTeammate, -1)} onTouchStart={() => updateScore(isTeammate, -1)} style={{ width: '44px', height: '44px', border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: '24px', fontWeight: '700', cursor: 'pointer', color: '#666', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation', flexShrink: 0 }}>−</button>
-            <div style={{ fontSize: '64px', fontWeight: '600', minWidth: '70px', textAlign: 'center', color: '#000' }}>{score}</div>
-            <button onMouseDown={() => updateScore(isTeammate, 1)} onTouchStart={() => updateScore(isTeammate, 1)} style={{ width: '44px', height: '44px', border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: '24px', fontWeight: '700', cursor: 'pointer', color: '#666', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation', flexShrink: 0 }}>+</button>
+        <div style={{ background: 'white', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '20px 16px', borderBottom: '1px solid #e0e0e0' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px' }}>
+            <button onMouseDown={() => updateScore(isTeammate, -1)} onTouchStart={() => updateScore(isTeammate, -1)} style={{ width: '52px', height: '52px', border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: '28px', fontWeight: '700', cursor: 'pointer', color: '#666', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>−</button>
+            <div style={{ fontSize: '72px', fontWeight: '600', minWidth: '80px', textAlign: 'center', color: '#000' }}>{score}</div>
+            <button onMouseDown={() => updateScore(isTeammate, 1)} onTouchStart={() => updateScore(isTeammate, 1)} style={{ width: '52px', height: '52px', border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: '28px', fontWeight: '700', cursor: 'pointer', color: '#666', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>+</button>
           </div>
-          <div style={{ fontSize: '12px', color: '#666', fontWeight: '400' }}>{score} points</div>
+          <div style={{ fontSize: '13px', color: '#666', fontWeight: '400' }}>{score} points</div>
         </div>
 
-        <div style={{ background: 'white', padding: '2px', display: 'flex', flexDirection: 'column', gap: '2px', flex: 0.325, minHeight: 0, justifyContent: 'center' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: '2px', minWidth: 0, height: 'auto' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'center', flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: '10px', fontWeight: '700', color: '#666' }}>PAR</div>
-              <button onMouseDown={() => setScoreValue(isTeammate, par)} onTouchStart={() => setScoreValue(isTeammate, par)} style={{ ...boxStyle, width: '100%', height: '45px', fontSize: '56px', overflow: 'hidden' }}>{par}</button>
+        <div style={{ background: 'white', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>PAR</div>
+              <button onMouseDown={() => setScoreValue(isTeammate, par)} onTouchStart={() => setScoreValue(isTeammate, par)} style={{ ...boxStyle, border: '2px solid #ccc', background: 'white', cursor: 'pointer', width: '90px', height: '90px' }}>{par}</button>
             </div>
             
             {!isTeammate && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'center', flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: '10px', fontWeight: '700', color: '#666' }}>NTP</div>
-                <button onMouseDown={() => setScoreValue(isTeammate, par * 2)} onTouchStart={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, background: '#6399CF', color: 'white', border: 'none', width: '100%', height: '45px', fontSize: '48px', overflow: 'hidden' }}>
-                  <svg width="32" height="32" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
+                <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>NTP</div>
+                <button onMouseDown={() => setScoreValue(isTeammate, par * 2)} onTouchStart={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, background: '#6399CF', color: 'white', border: 'none', width: '90px', height: '90px', fontSize: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0' }}>
+                  <svg width="50" height="50" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="25" cy="15" r="8" stroke="white" strokeWidth="3"/>
                     <line x1="25" y1="23" x2="25" y2="42" stroke="white" strokeWidth="3" strokeLinecap="round"/>
                   </svg>
@@ -315,14 +314,14 @@ function Play() {
               </div>
             )}
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'center', flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: '10px', fontWeight: '700', color: '#666' }}>양파</div>
-              <button onMouseDown={() => setScoreValue(isTeammate, par * 2)} onTouchStart={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, width: '100%', height: '45px', fontSize: '48px', overflow: 'hidden' }}>{par * 2}</button>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>양파</div>
+              <button onMouseDown={() => setScoreValue(isTeammate, par * 2)} onTouchStart={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, width: '90px', height: '90px' }}>{par * 2}</button>
             </div>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'center', flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: '10px', fontWeight: '700', color: '#000' }}>TOTAL</div>
-              <div style={{ ...boxStyle, width: '100%', height: '45px', fontSize: '56px', overflow: 'hidden' }}>{diffText}</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: '#000' }}>TOTAL</div>
+              <div style={{ ...boxStyle, width: '90px', height: '90px' }}>{diffText}</div>
             </div>
           </div>
         </div>
@@ -383,20 +382,20 @@ function Play() {
 
   return (
     <div 
-      style={{ height: '100vh', background: '#223B3F', display: 'flex', flexDirection: 'column', padding: '0', overflow: 'hidden', overscrollBehavior: 'none' }}
+      style={{ minHeight: '100vh', background: '#223B3F', display: 'flex', flexDirection: 'column', padding: '0' }}
       onTouchStartCapture={handleTouchStart}
       onTouchEndCapture={handleTouchEnd}
     >
-      <div className="header" style={{ background: '#223B3F', borderBottom: 'none', height: '0px' }}></div>
+      <div className="header" style={{ background: '#223B3F', borderBottom: 'none' }}></div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', padding: '8px 16px', marginBottom: '0', height: '60px', flexShrink: 0 }}>
-        <div style={{ border: '2px solid white', borderRadius: '8px', padding: '6px', textAlign: 'center', fontSize: '9px', background: 'transparent', color: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <div style={{ fontWeight: '700', opacity: 1, fontSize: '9px' }}>ROUND TIME</div>
-          <div style={{ fontSize: '14px', fontWeight: '700', marginTop: '2px' }}>{getTime()}</div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', padding: '12px 24px', marginBottom: '0' }}>
+        <div style={{ border: '2px solid white', borderRadius: '8px', padding: '12px', textAlign: 'center', fontSize: '11px', background: 'transparent', color: 'white' }}>
+          <div style={{ fontWeight: '700', opacity: 1, fontSize: '11px' }}>ROUND TIME</div>
+          <div style={{ fontSize: '20px', fontWeight: '700', marginTop: '8px' }}>{getTime()}</div>
         </div>
-        <div style={{ border: '2px solid white', borderRadius: '8px', padding: '6px', textAlign: 'center', fontSize: '9px', background: 'transparent', color: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-          <div style={{ fontWeight: '700', opacity: 1, fontSize: '9px' }}>HOLE</div>
-          <div style={{ fontSize: '24px', fontWeight: '700', marginTop: '2px' }}>{currentHole}</div>
+        <div style={{ border: '2px solid white', borderRadius: '8px', padding: '12px', textAlign: 'center', fontSize: '11px', background: 'transparent', color: 'white' }}>
+          <div style={{ fontWeight: '700', opacity: 1, fontSize: '11px' }}>HOLE</div>
+          <div style={{ fontSize: '36px', fontWeight: '700', marginTop: '8px' }}>{currentHole}</div>
         </div>
       </div>
 
@@ -407,11 +406,10 @@ function Play() {
           flex: 1, 
           display: 'flex', 
           flexDirection: 'column', 
-          padding: '8px 12px', 
+          padding: '12px 24px', 
           position: 'relative',
           transition: isAnimating ? 'transform 0.3s ease-out' : 'none',
-          transform: slideDirection === 'left' ? 'translateX(-100%)' : slideDirection === 'right' ? 'translateX(100%)' : 'translateX(0)',
-          overflow: 'hidden'
+          transform: slideDirection === 'left' ? 'translateX(-100%)' : slideDirection === 'right' ? 'translateX(100%)' : 'translateX(0)'
         }}
       >
         <ScoreSection title={`${selectedTeammate?.nickname || selectedTeammate?.name} (HC: ${selectedTeammate?.handicap || '-'})`} isTeammate={true} />
@@ -473,9 +471,9 @@ function Play() {
         )}
       </div>
 
-      <div style={{ display: 'flex', gap: '6px', padding: '8px 12px', background: '#223B3F', flexShrink: 0, height: '50px' }}>
-        <button onClick={goToPreviousHole} style={{ flex: 1, padding: '0', background: 'white', color: '#000', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: '12px' }}>← 이전</button>
-        <button onClick={goToNextHole} style={{ flex: 1, padding: '0', background: 'white', color: 'black', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: '12px' }}>다음 →</button>
+      <div style={{ display: 'flex', gap: '8px', padding: '12px 24px', background: '#223B3F' }}>
+        <button onClick={goToPreviousHole} style={{ flex: 1, padding: '12px', background: 'white', color: '#000', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: '14px' }}>← 이전</button>
+        <button onClick={goToNextHole} style={{ flex: 1, padding: '12px', background: 'white', color: 'black', borderRadius: '0', fontWeight: '700', cursor: 'pointer', border: 'none', fontSize: '14px' }}>다음 →</button>
       </div>
 
       {showMismatches && mismatchedHoles.length > 0 && (

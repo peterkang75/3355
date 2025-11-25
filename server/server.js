@@ -14,7 +14,7 @@ const io = new Server(server, {
   }
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.NODE_ENV === 'production' ? 5000 : 3001;
 
 async function initializeDefaultCategories() {
   try {
@@ -56,10 +56,6 @@ app.use((req, res, next) => {
   next();
 });
 
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
-});
-
 app.use('/api', (req, res, next) => {
   req.io = io;
   next();
@@ -82,9 +78,9 @@ io.on('connection', (socket) => {
   });
 });
 
-server.listen(PORT, '0.0.0.0', () => {
+server.listen(PORT, '0.0.0.0', async () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`📊 Database connected`);
   console.log(`🔌 Socket.IO ready`);
-  initializeDefaultCategories().catch(err => console.error('Failed to initialize categories:', err));
+  await initializeDefaultCategories();
 });
