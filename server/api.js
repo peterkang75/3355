@@ -538,6 +538,13 @@ router.get('/scores/round-comparison', async (req, res) => {
     // 서버에서 불일치 홀 계산 (두 사람 모두 같은 결과를 보도록)
     // 0도 "다름"으로 인식 (실수로 입력 안 한 경우도 확인 가능하도록)
     const mismatches = [];
+    
+    console.log('📊 점수 비교 시작:');
+    console.log('  myScoreByMe:', result.myScoreByMe);
+    console.log('  myScoreByTeammate:', result.myScoreByTeammate);
+    console.log('  teammateScoreByMe:', result.teammateScoreByMe);
+    console.log('  teammateScoreByTeammate:', result.teammateScoreByTeammate);
+    
     for (let i = 0; i < 18; i++) {
       // A(myId)의 점수: A가 기록한 것 vs B가 기록한 것
       const myByMe = result.myScoreByMe?.[i] ?? 0;
@@ -548,19 +555,24 @@ router.get('/scores/round-comparison', async (req, res) => {
       
       // A의 점수 불일치 (0도 다른 점수로 간주)
       if (myByMe !== myByTeammate) {
+        console.log(`  홀${i+1} A점수 불일치: ${myByMe} vs ${myByTeammate}`);
         mismatches.push(i + 1);
       }
       // B의 점수 불일치 (0도 다른 점수로 간주)
       if (teammateByTeammate !== teammateByMe) {
+        console.log(`  홀${i+1} B점수 불일치: ${teammateByTeammate} vs ${teammateByMe}`);
         if (!mismatches.includes(i + 1)) mismatches.push(i + 1);
       }
     }
+    
+    console.log('📊 불일치 홀:', mismatches);
     
     result.mismatches = mismatches.sort((a, b) => a - b);
     
     // 팀메이트가 점수를 입력했는지 확인 (데이터가 존재하면 됨)
     const teammateComplete = result.myScoreByTeammate && result.teammateScoreByTeammate;
     result.teammateComplete = !!teammateComplete;
+    console.log('📊 팀메이트 완료:', teammateComplete);
     
     res.json(result);
   } catch (error) {
