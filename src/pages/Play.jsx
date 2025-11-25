@@ -5,7 +5,7 @@ import { useApp } from '../contexts/AppContext';
 function Play() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, bookings, courses, members } = useApp();
+  const { user, bookings, courses, members, refreshBookings } = useApp();
   const bookingId = searchParams.get('id');
   
   const [booking, setBooking] = useState(null);
@@ -122,6 +122,45 @@ function Play() {
 
   const isAllHolesComplete = () => {
     return holeScores.me.every(score => score > 0) && holeScores.teammate.every(score => score > 0);
+  };
+
+  const handleRoundComplete = async () => {
+    try {
+      const existingHandicaps = booking?.dailyHandicaps 
+        ? (typeof booking.dailyHandicaps === 'string' 
+            ? JSON.parse(booking.dailyHandicaps) 
+            : booking.dailyHandicaps)
+        : {};
+      
+      const dailyHandicaps = { ...existingHandicaps };
+      
+      const userMember = members?.find(m => m.phone === user?.phone);
+      if (userMember) {
+        dailyHandicaps[userMember.phone] = parseFloat(userMember.handicap) || 0;
+      }
+      
+      const teammateMember = members?.find(m => m.phone === selectedTeammate?.phone);
+      if (teammateMember) {
+        dailyHandicaps[teammateMember.phone] = parseFloat(teammateMember.handicap) || 0;
+      }
+      
+      if (Object.keys(dailyHandicaps).length > 0 && bookingId) {
+        await fetch(`/api/bookings/${bookingId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ dailyHandicaps })
+        });
+        
+        if (refreshBookings) {
+          await refreshBookings();
+        }
+      }
+      
+      setStep('roundComplete');
+    } catch (e) {
+      console.error('라운드 완료 처리 오류:', e);
+      setStep('roundComplete');
+    }
   };
 
   const getTeammateMemberId = useCallback(() => {
@@ -375,7 +414,7 @@ function Play() {
                   모든 점수가 일치합니다!
                 </h3>
                 <button
-                  onClick={() => setStep('roundComplete')}
+                  onClick={handleRoundComplete}
                   style={{
                     width: '100%',
                     padding: '16px',
