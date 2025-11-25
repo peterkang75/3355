@@ -12,7 +12,7 @@ function GradeSettings() {
   const [gradeSettings, setGradeSettings] = useState({
     gradeA: { type: 'below', value: 10 },
     gradeB: { min: 11, max: 22 },
-    gradeC: { min: 23, max: 30 },
+    gradeC: { min: '', max: '' },
     gradeD: { type: 'above', value: 31 }
   });
   const [isSaving, setIsSaving] = useState(false);
@@ -257,7 +257,7 @@ function GradeSettings() {
                   value={gradeSettings.gradeC.min}
                   onChange={(e) => setGradeSettings({
                     ...gradeSettings,
-                    gradeC: { ...gradeSettings.gradeC, min: parseInt(e.target.value) || 0 }
+                    gradeC: { ...gradeSettings.gradeC, min: e.target.value === '' ? '' : parseInt(e.target.value) }
                   })}
                   style={{
                     padding: '10px',
@@ -275,7 +275,7 @@ function GradeSettings() {
                   value={gradeSettings.gradeC.max}
                   onChange={(e) => setGradeSettings({
                     ...gradeSettings,
-                    gradeC: { ...gradeSettings.gradeC, max: parseInt(e.target.value) || 0 }
+                    gradeC: { ...gradeSettings.gradeC, max: e.target.value === '' ? '' : parseInt(e.target.value) }
                   })}
                   style={{
                     padding: '10px',
@@ -291,7 +291,7 @@ function GradeSettings() {
           </div>
 
           {/* Grade D - Grade C의 까지 값이 있을 때만 표시 */}
-          {gradeSettings.gradeC.max > 0 && (
+          {gradeSettings.gradeC.max !== '' && gradeSettings.gradeC.max > 0 && (
             <div style={{
               padding: '16px',
               border: '1px solid var(--border-color)',
