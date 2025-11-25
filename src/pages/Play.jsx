@@ -366,24 +366,27 @@ function Play() {
           onClick={goToPreviousHole}
           onTouchEnd={goToPreviousHole}
           style={{ 
-            width: '50px', 
-            height: '50px', 
+            border: '2px solid white', 
             borderRadius: '8px', 
+            padding: '16px 24px',
             background: 'white', 
             color: '#223B3F', 
-            border: 'none', 
-            fontSize: '24px', 
+            fontSize: '11px', 
             fontWeight: '700', 
             cursor: 'pointer',
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
+            gap: '8px',
             WebkitUserSelect: 'none',
             WebkitTapHighlightColor: 'transparent',
-            touchAction: 'manipulation'
+            touchAction: 'manipulation',
+            minWidth: '80px'
           }}
         >
-          ←
+          <div style={{ fontSize: '20px', fontWeight: '900' }}>←</div>
+          <div>이전홀</div>
         </button>
         <div style={{ border: '2px solid white', borderRadius: '8px', padding: '16px 32px', textAlign: 'center', fontSize: '11px', background: 'transparent', color: 'white', minWidth: '80px' }}>
           <div style={{ fontWeight: '700', opacity: 1, fontSize: '11px' }}>HOLE</div>
@@ -393,24 +396,27 @@ function Play() {
           onClick={goToNextHole}
           onTouchEnd={goToNextHole}
           style={{ 
-            width: '50px', 
-            height: '50px', 
+            border: '2px solid white', 
             borderRadius: '8px', 
+            padding: '16px 24px',
             background: 'white', 
             color: '#223B3F', 
-            border: 'none', 
-            fontSize: '24px', 
+            fontSize: '11px', 
             fontWeight: '700', 
             cursor: 'pointer',
             display: 'flex',
+            flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
+            gap: '8px',
             WebkitUserSelect: 'none',
             WebkitTapHighlightColor: 'transparent',
-            touchAction: 'manipulation'
+            touchAction: 'manipulation',
+            minWidth: '80px'
           }}
         >
-          →
+          <div style={{ fontSize: '20px', fontWeight: '900' }}>→</div>
+          <div>다음홀</div>
         </button>
       </div>
 
