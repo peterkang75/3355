@@ -472,7 +472,7 @@ function Play() {
         </div>
         
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/')}
           style={{
             width: '100%',
             padding: '16px',
