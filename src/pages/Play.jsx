@@ -748,20 +748,17 @@ function Play() {
         <button
           onClick={() => navigate(`/leaderboard?id=${bookingId}`)}
           style={{
-            background: 'rgba(255,255,255,0.15)',
-            border: '1px solid rgba(255,255,255,0.3)',
+            background: '#d69e2e',
+            border: 'none',
             borderRadius: '6px',
             padding: '8px 12px',
             color: 'white',
-            fontSize: '12px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '4px'
+            fontSize: '11px',
+            fontWeight: '700',
+            cursor: 'pointer'
           }}
         >
-          📊
+          Leaderboard
         </button>
       </div>
 
