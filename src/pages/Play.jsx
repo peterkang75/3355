@@ -337,18 +337,18 @@ function Play() {
     if (!touchStart || !e.changedTouches[0]) return;
     const touchEnd = e.changedTouches[0].clientX;
     const diff = touchStart - touchEnd;
-    const threshold = 30;
+    const threshold = 5;
 
     if (Math.abs(diff) > threshold) {
       setIsAnimating(true);
       if (diff > 0) {
         // 왼쪽 스와이프 → 다음 홀
-        console.log('🔄 왼쪽 스와이프 - 다음 홀로');
+        console.log('🔄 왼쪽 스와이프 - 다음 홀로 (diff: ' + diff + ')');
         setSlideDirection('left');
         setTimeout(() => goToNextHole(), 300);
       } else {
         // 오른쪽 스와이프 → 이전 홀 (뒤로가기 방지)
-        console.log('🔄 오른쪽 스와이프 - 이전 홀로');
+        console.log('🔄 오른쪽 스와이프 - 이전 홀로 (diff: ' + diff + ')');
         e.preventDefault();
         setSlideDirection('right');
         setTimeout(() => goToPreviousHole(), 300);
