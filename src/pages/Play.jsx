@@ -226,6 +226,87 @@ function Play() {
     );
   }
 
+  if (step === 'roundComplete') {
+    const totalTeammate = holeScores.teammate.reduce((a, b) => a + b, 0);
+    const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
+    const parArrTeammate = courseData?.holePars[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
+    const parArrMe = courseData?.holePars[user?.gender === 'F' ? 'female' : 'male'] || [];
+    const courseParTeammate = parArrTeammate.reduce((a, b) => a + b, 0);
+    const courseParMe = parArrMe.reduce((a, b) => a + b, 0);
+    const diffTeammate = totalTeammate - courseParTeammate;
+    const diffMe = totalMe - courseParMe;
+    
+    return (
+      <div style={{ minHeight: '100vh', padding: '16px', background: '#223B3F' }}>
+        <div className="header" style={{ background: '#223B3F', borderBottom: 'none' }}></div>
+        
+        <div style={{ textAlign: 'center', color: 'white', marginTop: '40px', marginBottom: '32px' }}>
+          <div style={{ fontSize: '24px', fontWeight: '700', marginBottom: '8px' }}>🏌️ 라운드 종료!</div>
+          <div style={{ fontSize: '14px', opacity: 0.8 }}>{booking?.title} - {courseData?.name}</div>
+        </div>
+        
+        <div className="card" style={{ marginBottom: '16px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+            <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--primary-green)' }}>
+              {selectedTeammate?.nickname || selectedTeammate?.name}
+            </div>
+            <div style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>HC: {selectedTeammate?.handicap || '-'}</div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '24px' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '12px', color: '#666' }}>총타수</div>
+              <div style={{ fontSize: '28px', fontWeight: '700' }}>{totalTeammate}</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '12px', color: '#666' }}>오버/언더</div>
+              <div style={{ fontSize: '28px', fontWeight: '700', color: diffTeammate > 0 ? '#e74c3c' : diffTeammate < 0 ? '#27ae60' : '#333' }}>
+                {diffTeammate > 0 ? `+${diffTeammate}` : diffTeammate}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="card" style={{ marginBottom: '24px' }}>
+          <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+            <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--primary-green)' }}>
+              {user?.nickname || user?.name}
+            </div>
+            <div style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>HC: {user?.handicap || '-'}</div>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '24px' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '12px', color: '#666' }}>총타수</div>
+              <div style={{ fontSize: '28px', fontWeight: '700' }}>{totalMe}</div>
+            </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '12px', color: '#666' }}>오버/언더</div>
+              <div style={{ fontSize: '28px', fontWeight: '700', color: diffMe > 0 ? '#e74c3c' : diffMe < 0 ? '#27ae60' : '#333' }}>
+                {diffMe > 0 ? `+${diffMe}` : diffMe}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <button
+          onClick={() => navigate(-1)}
+          style={{
+            width: '100%',
+            padding: '16px',
+            background: 'var(--primary-green)',
+            border: 'none',
+            borderRadius: '8px',
+            color: 'white',
+            fontWeight: '700',
+            fontSize: '16px',
+            cursor: 'pointer'
+          }}
+        >
+          완료
+        </button>
+      </div>
+    );
+  }
+
   const getTime = () => {
     if (!roundStartTime) return '00:00:00';
     const sec = Math.floor((Date.now() - roundStartTime) / 1000);
@@ -482,6 +563,9 @@ function Play() {
             <p style={{ fontSize: '14px', color: '#666', marginBottom: '16px', textAlign: 'center' }}>
               다음 홀에서 점수가 다릅니다:
             </p>
+            <p style={{ fontSize: '13px', color: '#888', marginBottom: '12px', textAlign: 'center' }}>
+              수정할 홀을 선택하세요
+            </p>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px', marginBottom: '20px' }}>
               {mismatchedHoles.map(hole => (
                 <button
@@ -505,21 +589,43 @@ function Play() {
                 </button>
               ))}
             </div>
-            <button
-              onClick={() => setShowMismatches(false)}
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: '#ddd',
-                color: '#000',
-                border: 'none',
-                borderRadius: '6px',
-                fontWeight: '700',
-                cursor: 'pointer'
-              }}
-            >
-              닫기
-            </button>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => setShowMismatches(false)}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: '#ddd',
+                  color: '#000',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontWeight: '700',
+                  cursor: 'pointer'
+                }}
+              >
+                돌아가기
+              </button>
+              <button
+                onClick={() => {
+                  setShowMismatches(false);
+                  if (mismatchedHoles.length === 0) {
+                    setStep('roundComplete');
+                  }
+                }}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'var(--primary-green)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontWeight: '700',
+                  cursor: 'pointer'
+                }}
+              >
+                다시 점검
+              </button>
+            </div>
           </div>
         </div>
       )}
