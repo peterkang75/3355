@@ -290,54 +290,56 @@ function GradeSettings() {
             </div>
           </div>
 
-          {/* Grade D */}
-          <div style={{
-            padding: '16px',
-            border: '1px solid var(--border-color)',
-            borderRadius: '8px',
-            marginBottom: '20px'
-          }}>
-            <div style={{ 
-              fontSize: '16px', 
-              fontWeight: '700', 
-              marginBottom: '12px',
-              color: 'var(--primary-green)'
+          {/* Grade D - Grade C의 까지 값이 있을 때만 표시 */}
+          {gradeSettings.gradeC.max > 0 && (
+            <div style={{
+              padding: '16px',
+              border: '1px solid var(--border-color)',
+              borderRadius: '8px',
+              marginBottom: '20px'
             }}>
-              ▲ 그레이드 D
+              <div style={{ 
+                fontSize: '16px', 
+                fontWeight: '700', 
+                marginBottom: '12px',
+                color: 'var(--primary-green)'
+              }}>
+                ▲ 그레이드 D
+              </div>
+              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <input
+                  type="number"
+                  value={gradeSettings.gradeD.value}
+                  onChange={(e) => setGradeSettings({
+                    ...gradeSettings,
+                    gradeD: { ...gradeSettings.gradeD, value: parseInt(e.target.value) || 0 }
+                  })}
+                  style={{
+                    padding: '10px',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    width: '80px'
+                  }}
+                />
+                <select
+                  value={gradeSettings.gradeD.type}
+                  onChange={(e) => setGradeSettings({
+                    ...gradeSettings,
+                    gradeD: { ...gradeSettings.gradeD, type: e.target.value }
+                  })}
+                  style={{
+                    padding: '10px',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    width: '80px'
+                  }}
+                >
+                  <option value="below">이하</option>
+                  <option value="above">이상</option>
+                </select>
+              </div>
             </div>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-              <input
-                type="number"
-                value={gradeSettings.gradeD.value}
-                onChange={(e) => setGradeSettings({
-                  ...gradeSettings,
-                  gradeD: { ...gradeSettings.gradeD, value: parseInt(e.target.value) || 0 }
-                })}
-                style={{
-                  padding: '10px',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  width: '80px'
-                }}
-              />
-              <select
-                value={gradeSettings.gradeD.type}
-                onChange={(e) => setGradeSettings({
-                  ...gradeSettings,
-                  gradeD: { ...gradeSettings.gradeD, type: e.target.value }
-                })}
-                style={{
-                  padding: '10px',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  width: '80px'
-                }}
-              >
-                <option value="below">이하</option>
-                <option value="above">이상</option>
-              </select>
-            </div>
-          </div>
+          )}
 
           <button
             onClick={handleSave}
