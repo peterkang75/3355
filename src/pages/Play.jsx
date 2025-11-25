@@ -44,9 +44,13 @@ function Play() {
         const userTeam = teams.find(t => t.members?.some(m => m?.phone === user?.phone));
         console.log('👤 사용자 팀:', userTeam);
         if (userTeam && userTeam.members) {
-          const members = userTeam.members.filter(m => m && m.phone !== user?.phone);
-          console.log('🤝 팀원:', members);
-          setTeammates(members);
+          const teamMembers = userTeam.members.filter(m => m && m.phone !== user?.phone);
+          const enrichedTeammates = teamMembers.map(tm => {
+            const fullMember = members?.find(m => m.phone === tm.phone);
+            return fullMember ? { ...tm, ...fullMember } : tm;
+          });
+          console.log('🤝 팀원:', enrichedTeammates);
+          setTeammates(enrichedTeammates);
         } else {
           console.log('⚠️ 팀 정보 없음, 팀원 배열 초기화');
           setTeammates([]);
@@ -62,7 +66,7 @@ function Play() {
 
     const course = courses.find(c => c.name === foundBooking?.courseName);
     if (course) setCourseData(course);
-  }, [bookingId, bookings, user?.phone, courses]);
+  }, [bookingId, bookings, user?.phone, courses, members]);
 
   // 실시간 저장
   useEffect(() => {
