@@ -366,9 +366,10 @@ function Play() {
           onClick={goToPreviousHole}
           onTouchEnd={goToPreviousHole}
           style={{ 
+            flex: 1,
             border: '2px solid white', 
             borderRadius: '8px', 
-            padding: '16px 24px',
+            padding: '11px 16px',
             background: 'white', 
             color: '#223B3F', 
             fontSize: '11px', 
@@ -378,27 +379,27 @@ function Play() {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '8px',
+            gap: '6px',
             WebkitUserSelect: 'none',
             WebkitTapHighlightColor: 'transparent',
-            touchAction: 'manipulation',
-            minWidth: '80px'
+            touchAction: 'manipulation'
           }}
         >
-          <div style={{ fontSize: '20px', fontWeight: '900' }}>←</div>
+          <div style={{ fontSize: '14px', fontWeight: '900' }}>←</div>
           <div>이전홀</div>
         </button>
-        <div style={{ border: '2px solid white', borderRadius: '8px', padding: '16px 32px', textAlign: 'center', fontSize: '11px', background: 'transparent', color: 'white', minWidth: '80px' }}>
+        <div style={{ border: '2px solid white', borderRadius: '8px', padding: '11px 23px', textAlign: 'center', fontSize: '11px', background: 'transparent', color: 'white' }}>
           <div style={{ fontWeight: '700', opacity: 1, fontSize: '11px' }}>HOLE</div>
-          <div style={{ fontSize: '48px', fontWeight: '700', marginTop: '8px' }}>{currentHole}</div>
+          <div style={{ fontSize: '34px', fontWeight: '700', marginTop: '6px' }}>{currentHole}</div>
         </div>
         <button 
           onClick={goToNextHole}
           onTouchEnd={goToNextHole}
           style={{ 
+            flex: 1,
             border: '2px solid white', 
             borderRadius: '8px', 
-            padding: '16px 24px',
+            padding: '11px 16px',
             background: 'white', 
             color: '#223B3F', 
             fontSize: '11px', 
@@ -408,14 +409,13 @@ function Play() {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '8px',
+            gap: '6px',
             WebkitUserSelect: 'none',
             WebkitTapHighlightColor: 'transparent',
-            touchAction: 'manipulation',
-            minWidth: '80px'
+            touchAction: 'manipulation'
           }}
         >
-          <div style={{ fontSize: '20px', fontWeight: '900' }}>→</div>
+          <div style={{ fontSize: '14px', fontWeight: '900' }}>→</div>
           <div>다음홀</div>
         </button>
       </div>
