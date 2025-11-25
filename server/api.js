@@ -536,43 +536,52 @@ router.get('/scores/round-comparison', async (req, res) => {
     }
     
     // 서버에서 불일치 홀 계산 (두 사람 모두 같은 결과를 보도록)
-    // 0도 "다름"으로 인식 (실수로 입력 안 한 경우도 확인 가능하도록)
+    // 4개의 레코드가 모두 있을 때만 비교 (부분 데이터로 비교하지 않음)
     const mismatches = [];
-    
-    console.log('📊 점수 비교 시작:');
-    console.log('  myScoreByMe:', result.myScoreByMe);
-    console.log('  myScoreByTeammate:', result.myScoreByTeammate);
-    console.log('  teammateScoreByMe:', result.teammateScoreByMe);
-    console.log('  teammateScoreByTeammate:', result.teammateScoreByTeammate);
-    
-    for (let i = 0; i < 18; i++) {
-      // A(myId)의 점수: A가 기록한 것 vs B가 기록한 것
-      const myByMe = result.myScoreByMe?.[i] ?? 0;
-      const myByTeammate = result.myScoreByTeammate?.[i] ?? 0;
-      // B(teammateId)의 점수: B가 기록한 것 vs A가 기록한 것
-      const teammateByTeammate = result.teammateScoreByTeammate?.[i] ?? 0;
-      const teammateByMe = result.teammateScoreByMe?.[i] ?? 0;
-      
-      // A의 점수 불일치 (0도 다른 점수로 간주)
-      if (myByMe !== myByTeammate) {
-        console.log(`  홀${i+1} A점수 불일치: ${myByMe} vs ${myByTeammate}`);
-        mismatches.push(i + 1);
-      }
-      // B의 점수 불일치 (0도 다른 점수로 간주)
-      if (teammateByTeammate !== teammateByMe) {
-        console.log(`  홀${i+1} B점수 불일치: ${teammateByTeammate} vs ${teammateByMe}`);
-        if (!mismatches.includes(i + 1)) mismatches.push(i + 1);
-      }
-    }
-    
-    console.log('📊 불일치 홀:', mismatches);
-    
-    result.mismatches = mismatches.sort((a, b) => a - b);
     
     // 팀메이트가 점수를 입력했는지 확인 (데이터가 존재하면 됨)
     const teammateComplete = result.myScoreByTeammate && result.teammateScoreByTeammate;
     result.teammateComplete = !!teammateComplete;
-    console.log('📊 팀메이트 완료:', teammateComplete);
+    
+    // 4개의 데이터가 모두 있을 때만 비교 실행
+    if (result.myScoreByMe && result.myScoreByTeammate && result.teammateScoreByMe && result.teammateScoreByTeammate) {
+      console.log('📊 점수 비교 시작 (4개 레코드 모두 존재):');
+      console.log('  myScoreByMe:', result.myScoreByMe);
+      console.log('  myScoreByTeammate:', result.myScoreByTeammate);
+      console.log('  teammateScoreByMe:', result.teammateScoreByMe);
+      console.log('  teammateScoreByTeammate:', result.teammateScoreByTeammate);
+      
+      for (let i = 0; i < 18; i++) {
+        // A(myId)의 점수: A가 기록한 것 vs B가 기록한 것
+        const myByMe = result.myScoreByMe[i];
+        const myByTeammate = result.myScoreByTeammate[i];
+        // B(teammateId)의 점수: B가 기록한 것 vs A가 기록한 것
+        const teammateByTeammate = result.teammateScoreByTeammate[i];
+        const teammateByMe = result.teammateScoreByMe[i];
+        
+        // A의 점수 불일치 (0도 유효한 값으로 간주)
+        if (myByMe !== myByTeammate) {
+          console.log(`  홀${i+1} A점수 불일치: ${myByMe} vs ${myByTeammate}`);
+          mismatches.push(i + 1);
+        }
+        // B의 점수 불일치 (0도 유효한 값으로 간주)
+        if (teammateByTeammate !== teammateByMe) {
+          console.log(`  홀${i+1} B점수 불일치: ${teammateByTeammate} vs ${teammateByMe}`);
+          if (!mismatches.includes(i + 1)) mismatches.push(i + 1);
+        }
+      }
+      
+      console.log('📊 불일치 홀:', mismatches);
+    } else {
+      console.log('📊 점수 비교 대기 (데이터 부족):', {
+        myScoreByMe: !!result.myScoreByMe,
+        myScoreByTeammate: !!result.myScoreByTeammate,
+        teammateScoreByMe: !!result.teammateScoreByMe,
+        teammateScoreByTeammate: !!result.teammateScoreByTeammate
+      });
+    }
+    
+    result.mismatches = mismatches.sort((a, b) => a - b);
     
     res.json(result);
   } catch (error) {
