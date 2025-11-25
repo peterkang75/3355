@@ -542,6 +542,10 @@ function Fees() {
 
                       const member = members.find(m => m.id === transaction.memberId);
 
+                      const roundingName = transaction.booking 
+                        ? `${transaction.booking.courseName} (${new Date(transaction.booking.date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })})`
+                        : null;
+
                       return (
                         <div 
                           key={transaction.id}
@@ -561,7 +565,8 @@ function Fees() {
                               display: 'flex', 
                               alignItems: 'center',
                               gap: '8px',
-                              marginBottom: '6px'
+                              marginBottom: '6px',
+                              flexWrap: 'wrap'
                             }}>
                               <span style={{
                                 fontSize: '12px',
@@ -579,6 +584,19 @@ function Fees() {
                                 </span>
                               )}
                             </div>
+                            {roundingName && (
+                              <div style={{ 
+                                fontSize: '13px', 
+                                fontWeight: '600',
+                                color: 'var(--primary-green)',
+                                marginBottom: '4px',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                              }}>
+                                <span>⛳</span> {roundingName}
+                              </div>
+                            )}
                             <div style={{ fontSize: '13px', opacity: 0.7 }}>
                               {new Date(transaction.createdAt).toLocaleDateString('ko-KR')}
                             </div>
