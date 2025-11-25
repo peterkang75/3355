@@ -496,6 +496,52 @@ router.get('/scores/booking/:date/:courseName', async (req, res) => {
   }
 });
 
+router.get('/scores/round-comparison', async (req, res) => {
+  try {
+    const { roundingName, date, myId, teammateId } = req.query;
+    
+    if (!roundingName || !date || !myId || !teammateId) {
+      return res.status(400).json({ error: 'Missing required parameters' });
+    }
+    
+    const scores = await prisma.score.findMany({
+      where: {
+        roundingName,
+        date,
+        OR: [
+          { userId: myId },
+          { userId: teammateId }
+        ]
+      }
+    });
+    
+    const result = {
+      myScoreByMe: null,
+      myScoreByTeammate: null,
+      teammateScoreByMe: null,
+      teammateScoreByTeammate: null
+    };
+    
+    for (const score of scores) {
+      const holes = score.holes ? JSON.parse(score.holes) : [];
+      if (score.userId === myId && score.markerId === myId) {
+        result.myScoreByMe = holes;
+      } else if (score.userId === myId && score.markerId === teammateId) {
+        result.myScoreByTeammate = holes;
+      } else if (score.userId === teammateId && score.markerId === myId) {
+        result.teammateScoreByMe = holes;
+      } else if (score.userId === teammateId && score.markerId === teammateId) {
+        result.teammateScoreByTeammate = holes;
+      }
+    }
+    
+    res.json(result);
+  } catch (error) {
+    console.error('Error fetching round comparison:', error);
+    res.status(500).json({ error: 'Failed to fetch round comparison' });
+  }
+});
+
 router.get('/scores/:userId', async (req, res) => {
   try {
     const scores = await prisma.score.findMany({
