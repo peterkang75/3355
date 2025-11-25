@@ -151,6 +151,7 @@ model Course {
   name          String  @unique
   address       String
   holePars      Json?
+  nearHoles     Json?   @default("[]")
   isCompetition Boolean @default(false)
 }
 

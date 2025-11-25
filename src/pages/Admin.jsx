@@ -18,6 +18,7 @@ function Admin() {
     address: '',
     maleHolePars: Array(18).fill(''),
     femaleHolePars: Array(18).fill(''),
+    nearHoles: Array(18).fill(false),
     isCompetition: false
   });
   const [showNewMemberForm, setShowNewMemberForm] = useState(false);
@@ -992,6 +993,7 @@ function Admin() {
           male: newCourse.maleHolePars.map(p => parseInt(p) || null),
           female: newCourse.femaleHolePars.map(p => parseInt(p) || null)
         },
+        nearHoles: newCourse.nearHoles,
         isCompetition: newCourse.isCompetition
       };
       
@@ -1003,6 +1005,7 @@ function Admin() {
         address: '',
         maleHolePars: Array(18).fill(''),
         femaleHolePars: Array(18).fill(''),
+        nearHoles: Array(18).fill(false),
         isCompetition: false
       });
       
@@ -1028,6 +1031,12 @@ function Admin() {
       newHolePars[holeIndex] = parsedValue;
       setNewCourse({ ...newCourse, femaleHolePars: newHolePars });
     }
+  };
+
+  const handleNearHoleChange = (holeIndex) => {
+    const newNearHoles = [...newCourse.nearHoles];
+    newNearHoles[holeIndex] = !newNearHoles[holeIndex];
+    setNewCourse({ ...newCourse, nearHoles: newNearHoles });
   };
 
   const handleEditCourse = (course) => {
@@ -2881,33 +2890,33 @@ function Admin() {
               
               <div style={{ marginBottom: '16px' }}>
                 <h4 style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
-                  각 홀별 PAR 설정 (앞: 남자 / 뒤: 여자)
+                  각 홀별 PAR 설정
                 </h4>
                 <div style={{ 
-                  display: 'grid', 
-                  gridTemplateColumns: 'repeat(3, 1fr)', 
-                  gap: '12px' 
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px'
                 }}>
                   {newCourse.maleHolePars.map((par, index) => (
                     <div 
                       key={`hole-${index}`}
                       style={{
-                        display: 'flex',
+                        display: 'grid',
+                        gridTemplateColumns: '60px 60px 60px 1fr',
                         alignItems: 'center',
                         gap: '8px',
-                        padding: '8px',
+                        padding: '8px 12px',
                         background: 'var(--bg-green)',
                         borderRadius: '6px'
                       }}
                     >
-                      <label style={{ 
+                      <div style={{ 
                         fontSize: '13px', 
                         fontWeight: '600',
-                        minWidth: '40px',
                         color: 'var(--text-dark)'
                       }}>
                         {index + 1}홀
-                      </label>
+                      </div>
                       <input
                         type="number"
                         inputMode="numeric"
@@ -2917,7 +2926,7 @@ function Admin() {
                         min="3"
                         max="6"
                         style={{
-                          width: '45px',
+                          width: '100%',
                           padding: '6px',
                           fontSize: '12px',
                           textAlign: 'center',
@@ -2935,7 +2944,7 @@ function Admin() {
                         min="3"
                         max="6"
                         style={{
-                          width: '45px',
+                          width: '100%',
                           padding: '6px',
                           fontSize: '12px',
                           textAlign: 'center',
@@ -2944,6 +2953,26 @@ function Admin() {
                           fontWeight: '600'
                         }}
                       />
+                      <label style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px',
+                        cursor: 'pointer',
+                        userSelect: 'none'
+                      }}>
+                        <input
+                          type="checkbox"
+                          checked={newCourse.nearHoles[index] || false}
+                          onChange={() => handleNearHoleChange(index)}
+                          style={{
+                            width: '18px',
+                            height: '18px',
+                            cursor: 'pointer',
+                            accentColor: 'var(--primary-green)'
+                          }}
+                        />
+                        <span style={{ fontSize: '12px', fontWeight: '600' }}>니어</span>
+                      </label>
                     </div>
                   ))}
                 </div>
