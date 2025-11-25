@@ -632,7 +632,9 @@ function Play() {
       const totalTeammate = holeScores.teammate.reduce((a, b) => a + b, 0);
       const courseParTeammate = parArr.reduce((a, b) => a + b, 0);
 
-      await Promise.all([
+      console.log('📝 점수 저장 시작:', { userId: user.id, teammateMemberId, roundingName: booking?.title });
+      
+      const [res1, res2] = await Promise.all([
         fetch('/api/scores', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -662,6 +664,11 @@ function Play() {
           })
         })
       ]);
+      
+      const data1 = await res1.json();
+      const data2 = await res2.json();
+      console.log('📝 내 점수 저장 결과:', res1.status, data1);
+      console.log('📝 팀메이트 점수 저장 결과:', res2.status, data2);
     } catch (e) {
       console.error('점수 저장 오류:', e);
     }
