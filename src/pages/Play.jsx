@@ -361,8 +361,8 @@ function Play() {
   return (
     <div 
       style={{ minHeight: '100vh', background: '#223B3F', display: 'flex', flexDirection: 'column', padding: '0' }}
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
+      onTouchStartCapture={handleTouchStart}
+      onTouchEndCapture={handleTouchEnd}
     >
       <div className="header" style={{ background: '#223B3F', borderBottom: 'none' }}></div>
 
@@ -378,6 +378,8 @@ function Play() {
       </div>
 
       <div 
+        onTouchStartCapture={handleTouchStart}
+        onTouchEndCapture={handleTouchEnd}
         style={{ 
           flex: 1, 
           display: 'flex', 
