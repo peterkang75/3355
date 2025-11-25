@@ -130,6 +130,71 @@ function Play() {
     return member?.id || selectedTeammate.phone;
   }, [selectedTeammate, members]);
 
+  const checkTeammateScores = useCallback(async () => {
+    if (!booking || !user) return false;
+    try {
+      const today = new Date().toISOString().split('T')[0];
+      const teammateMemberId = getTeammateMemberId();
+      const res = await fetch(`/api/scores/round-comparison?roundingName=${encodeURIComponent(booking?.title)}&date=${today}&myId=${user.id}&teammateId=${teammateMemberId}`);
+      const data = await res.json();
+      
+      const teammateHasData = data.myScoreByTeammate && data.teammateScoreByTeammate;
+      const teammateComplete = teammateHasData && 
+        data.myScoreByTeammate.every(s => s > 0) && 
+        data.teammateScoreByTeammate.every(s => s > 0);
+      
+      if (teammateComplete) {
+        setTeammateReady(true);
+        
+        const mismatches = [];
+        for (let i = 0; i < 18; i++) {
+          const myScoreByMe = holeScores.me[i];
+          const myScoreByTeammate = data.myScoreByTeammate?.[i];
+          const teammateScoreByMe = holeScores.teammate[i];
+          const teammateScoreByTeammate = data.teammateScoreByTeammate?.[i];
+          
+          if (myScoreByTeammate !== null && myScoreByTeammate !== undefined && myScoreByMe !== myScoreByTeammate) {
+            if (!mismatches.includes(i + 1)) mismatches.push(i + 1);
+          }
+          if (teammateScoreByTeammate !== null && teammateScoreByTeammate !== undefined && teammateScoreByMe !== teammateScoreByTeammate) {
+            if (!mismatches.includes(i + 1)) mismatches.push(i + 1);
+          }
+        }
+        
+        mismatches.sort((a, b) => a - b);
+        setServerMismatches(mismatches);
+        return true;
+      }
+      return false;
+    } catch (e) {
+      console.error('점수 확인 오류:', e);
+      return false;
+    }
+  }, [booking, user, holeScores, getTeammateMemberId]);
+
+  useEffect(() => {
+    if (step !== 'scoreCheck') {
+      if (checkingInterval) {
+        clearInterval(checkingInterval);
+        setCheckingInterval(null);
+      }
+      return;
+    }
+
+    checkTeammateScores();
+    
+    const interval = setInterval(() => {
+      checkTeammateScores();
+    }, 3000);
+    
+    setCheckingInterval(interval);
+    
+    return () => {
+      clearInterval(interval);
+      setCheckingInterval(null);
+    };
+  }, [step, checkTeammateScores]);
+
   if (!bookingId || !booking || !courseData) {
     return (
       <div style={{ minHeight: '100vh', padding: '16px', background: '#223B3F' }}>
@@ -580,70 +645,6 @@ function Play() {
     setServerMismatches([]);
     setStep('scoreCheck');
   };
-
-  const checkTeammateScores = useCallback(async () => {
-    try {
-      const today = new Date().toISOString().split('T')[0];
-      const teammateMemberId = getTeammateMemberId();
-      const res = await fetch(`/api/scores/round-comparison?roundingName=${encodeURIComponent(booking?.title)}&date=${today}&myId=${user.id}&teammateId=${teammateMemberId}`);
-      const data = await res.json();
-      
-      const teammateHasData = data.myScoreByTeammate && data.teammateScoreByTeammate;
-      const teammateComplete = teammateHasData && 
-        data.myScoreByTeammate.every(s => s > 0) && 
-        data.teammateScoreByTeammate.every(s => s > 0);
-      
-      if (teammateComplete) {
-        setTeammateReady(true);
-        
-        const mismatches = [];
-        for (let i = 0; i < 18; i++) {
-          const myScoreByMe = holeScores.me[i];
-          const myScoreByTeammate = data.myScoreByTeammate?.[i];
-          const teammateScoreByMe = holeScores.teammate[i];
-          const teammateScoreByTeammate = data.teammateScoreByTeammate?.[i];
-          
-          if (myScoreByTeammate !== null && myScoreByTeammate !== undefined && myScoreByMe !== myScoreByTeammate) {
-            if (!mismatches.includes(i + 1)) mismatches.push(i + 1);
-          }
-          if (teammateScoreByTeammate !== null && teammateScoreByTeammate !== undefined && teammateScoreByMe !== teammateScoreByTeammate) {
-            if (!mismatches.includes(i + 1)) mismatches.push(i + 1);
-          }
-        }
-        
-        mismatches.sort((a, b) => a - b);
-        setServerMismatches(mismatches);
-        return true;
-      }
-      return false;
-    } catch (e) {
-      console.error('점수 확인 오류:', e);
-      return false;
-    }
-  }, [booking, user, holeScores, getTeammateMemberId]);
-
-  useEffect(() => {
-    if (step !== 'scoreCheck') {
-      if (checkingInterval) {
-        clearInterval(checkingInterval);
-        setCheckingInterval(null);
-      }
-      return;
-    }
-
-    checkTeammateScores();
-    
-    const interval = setInterval(() => {
-      checkTeammateScores();
-    }, 3000);
-    
-    setCheckingInterval(interval);
-    
-    return () => {
-      clearInterval(interval);
-      setCheckingInterval(null);
-    };
-  }, [step, checkTeammateScores]);
 
   return (
     <div 
