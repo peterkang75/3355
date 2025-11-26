@@ -13,7 +13,16 @@ class ApiService {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(memberData)
     });
-    if (!response.ok) throw new Error('Failed to create member');
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      if (response.status === 409 && errorData.error === 'DUPLICATE_PHONE') {
+        const error = new Error(errorData.message);
+        error.code = 'DUPLICATE_PHONE';
+        error.nickname = errorData.nickname;
+        throw error;
+      }
+      throw new Error('Failed to create member');
+    }
     return response.json();
   }
 

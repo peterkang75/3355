@@ -883,7 +883,11 @@ function Admin() {
       alert('회원이 추가되었습니다!');
     } catch (error) {
       console.error('❌ 데이터베이스 저장 실패:', error);
-      alert('회원 추가 중 오류가 발생했습니다. 다시 시도해주세요.');
+      if (error.code === 'DUPLICATE_PHONE') {
+        alert(error.message);
+      } else {
+        alert('회원 추가 중 오류가 발생했습니다. 다시 시도해주세요.');
+      }
     }
   };
 

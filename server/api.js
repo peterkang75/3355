@@ -19,6 +19,19 @@ router.get('/members', async (req, res) => {
 
 router.post('/members', async (req, res) => {
   try {
+    // 이미 존재하는 전화번호인지 확인
+    const existingMember = await prisma.member.findFirst({
+      where: { phone: req.body.phone }
+    });
+    
+    if (existingMember) {
+      return res.status(409).json({ 
+        error: 'DUPLICATE_PHONE',
+        message: `이미 회원가입이 되어있습니다. [${existingMember.nickname || existingMember.name}]`,
+        nickname: existingMember.nickname || existingMember.name
+      });
+    }
+    
     // 회원가입 승인 필요 설정 확인
     const approvalSetting = await prisma.appSettings.findUnique({
       where: { feature: 'memberApprovalRequired' }
