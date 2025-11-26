@@ -3106,22 +3106,23 @@ function Admin() {
           <div>
             {/* 항목별 합계 섹션 */}
             <div className="card" style={{ marginBottom: '16px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
-                  항목별 합계
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'nowrap', gap: '8px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0, whiteSpace: 'nowrap' }}>
+                  항목별 집계
                 </h3>
                 <select
                   value={summaryBookingFilter}
                   onChange={(e) => setSummaryBookingFilter(e.target.value)}
                   style={{ 
-                    padding: '8px 12px',
+                    padding: '6px 8px',
                     borderRadius: '6px',
                     border: '1px solid var(--border-color)',
-                    fontSize: '14px',
-                    minWidth: '180px'
+                    fontSize: '13px',
+                    maxWidth: '150px',
+                    flexShrink: 1
                   }}
                 >
-                  <option value="all">전체 라운딩</option>
+                  <option value="all">전체</option>
                   {[...new Map(allTransactions
                     .filter(t => t.booking)
                     .map(t => [t.booking.id, t.booking])
