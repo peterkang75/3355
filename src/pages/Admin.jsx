@@ -2921,9 +2921,22 @@ function Admin() {
 
             <div className="card">
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
-                  최근 거래 내역 (최근 50건)
-                </h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
+                    최근 거래 내역
+                  </h3>
+                  <span 
+                    onClick={() => setActiveTab('ledger')}
+                    style={{ 
+                      fontSize: '13px', 
+                      color: 'var(--primary-green)',
+                      cursor: 'pointer',
+                      textDecoration: 'underline'
+                    }}
+                  >
+                    전체보기
+                  </span>
+                </div>
                 <div style={{ 
                   fontSize: '14px', 
                   fontWeight: '600', 
