@@ -872,14 +872,7 @@ function Booking() {
             {isPastRoundingDate(booking) && (booking.dailyHandicaps || hasUserScore(booking)) ? (
               <>
                 <button
-                  onClick={() => {
-                    if (booking.dailyHandicaps) {
-                      navigate(`/member-score-entry?id=${booking.id}`);
-                    } else if (hasUserScore(booking)) {
-                      const userScore = getUserScore(booking);
-                      navigate('/score', { state: { scoreId: userScore.id, readonly: true } });
-                    }
-                  }}
+                  onClick={() => navigate(`/member-score-entry?id=${booking.id}`)}
                   style={{
                     flex: 1,
                     padding: '12px',
@@ -892,7 +885,7 @@ function Booking() {
                     cursor: 'pointer'
                   }}
                 >
-                  {booking.dailyHandicaps ? '▲ 결과보기' : '📊 스코어보기'}
+                  ▲ 결과보기
                 </button>
                 {canManageBooking && (
                   <button
@@ -1061,7 +1054,7 @@ function Booking() {
           <button
             onClick={() => booking.dailyHandicaps 
               ? navigate(`/member-score-entry?id=${booking.id}`) 
-              : navigate('/score')}
+              : navigate(`/play?id=${booking.id}`)}
             style={{
               padding: '8px 16px',
               background: 'var(--primary-green)',
