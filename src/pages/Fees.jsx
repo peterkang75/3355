@@ -10,7 +10,6 @@ function Fees() {
   const { user, members, userTransactions } = useApp();
   const [activeTab, setActiveTab] = useState('personal');
   const [allTransactions, setAllTransactions] = useState([]);
-  const [ledgerFilter, setLedgerFilter] = useState({ type: 'all', memberId: 'all' });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -463,39 +462,6 @@ function Fees() {
           </>
         ) : (
           <>
-            <div className="card" style={{ marginBottom: '16px' }}>
-              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
-                필터
-              </h3>
-              
-              <div style={{ display: 'grid', gap: '12px' }}>
-                <select
-                  value={ledgerFilter.type}
-                  onChange={(e) => setLedgerFilter({ ...ledgerFilter, type: e.target.value })}
-                  style={{ marginBottom: '8px' }}
-                >
-                  <option value="all">전체</option>
-                  <option value="charge">참가비 발생</option>
-                  <option value="payment">납부</option>
-                  <option value="expense">클럽 지출</option>
-                  <option value="donation">도네이션</option>
-                </select>
-                
-                <select
-                  value={ledgerFilter.memberId}
-                  onChange={(e) => setLedgerFilter({ ...ledgerFilter, memberId: e.target.value })}
-                  style={{ marginBottom: '8px' }}
-                >
-                  <option value="all">전체 회원</option>
-                  {members.map(member => (
-                    <option key={member.id} value={member.id}>
-                      {member.name} {member.nickname && `(${member.nickname})`}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
             <div className="card">
               <h3 style={{ 
                 fontSize: '16px', 
@@ -503,25 +469,21 @@ function Fees() {
                 marginBottom: '16px',
                 color: 'var(--primary-green)'
               }}>
-                통합 장부
+                최근 거래내역
               </h3>
 
-              {allTransactions.filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
-                .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId).length === 0 ? (
+              {allTransactions.length === 0 ? (
                 <div style={{
                   padding: '40px',
                   textAlign: 'center',
                   opacity: 0.7
                 }}>
                   <div style={{ fontSize: '48px', marginBottom: '16px' }}>📖</div>
-                  <p>조건에 맞는 거래가 없습니다</p>
+                  <p>거래내역이 없습니다</p>
                 </div>
               ) : (
                 <div>
-                  {allTransactions
-                    .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
-                    .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
-                    .map(transaction => {
+                  {allTransactions.slice(0, 50).map(transaction => {
                       const isOtherIncome = transaction.description?.startsWith('기타 - ');
                       const otherItemName = isOtherIncome ? transaction.description.replace('기타 - ', '') : null;
                       
