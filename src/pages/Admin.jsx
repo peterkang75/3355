@@ -2858,15 +2858,11 @@ function Admin() {
                                   onClick={() => setShowReceiptModal(transaction.receiptImage)}
                                   style={{
                                     cursor: 'pointer',
-                                    textDecoration: 'underline',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '4px'
+                                    textDecoration: 'underline'
                                   }}
                                   title="영수증 보기"
                                 >
                                   {sign}${transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
-                                  <span style={{ fontSize: '10px' }}>🧾</span>
                                 </span>
                               ) : (
                                 <span>
