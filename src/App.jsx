@@ -19,6 +19,7 @@ import MemberDetail from './pages/MemberDetail';
 import Play from './pages/Play';
 import Leaderboard from './pages/Leaderboard';
 import BingoGame from './pages/BingoGame';
+import MemberInfoForm from './pages/MemberInfoForm';
 import Navigation from './components/Navigation';
 import InstallPrompt from './components/InstallPrompt';
 import logoImage from './assets/logo-transparent.png';
@@ -61,6 +62,12 @@ function AppRoutes({ user, logout }) {
 
 function App() {
   const { user, loading, login, logout } = useApp();
+
+  const isMemberInfoPath = window.location.pathname === '/member-info';
+
+  if (isMemberInfoPath) {
+    return <MemberInfoForm />;
+  }
 
   if (loading) {
     return (
