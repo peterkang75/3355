@@ -3798,14 +3798,22 @@ function Admin() {
                         {selectedRoundForScore.title}
                       </h3>
                       <div style={{ fontSize: '13px', color: 'var(--text-dark)', opacity: 0.7 }}>
-                        {new Date(selectedRoundForScore.date).toLocaleDateString('ko-KR')} · {selectedRoundForScore.participants?.length || 0}명 참가
+                        {new Date(selectedRoundForScore.date).toLocaleDateString('ko-KR')} · {(selectedRoundForScore.participants || []).length}명 참가
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {(() => {
-                  const participants = selectedRoundForScore.participants || [];
+                  const rawParticipants = selectedRoundForScore.participants || [];
+                  const participants = rawParticipants.map(p => {
+                    try {
+                      return typeof p === 'string' ? JSON.parse(p) : p;
+                    } catch {
+                      return p;
+                    }
+                  }).filter(p => p && typeof p === 'object');
+                  
                   const allParticipants = participants.map(p => {
                     const existingScore = roundScores.find(s => 
                       (s.user?.phone === p.phone) || 
