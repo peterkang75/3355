@@ -342,7 +342,7 @@ function Fees() {
         {activeTab === 'personal' ? (
           <>
             <div className="card" style={{
-              background: '#D96941',
+              background: balance >= 0 ? '#2E5902' : '#D96941',
               color: 'white',
               padding: '16px'
             }}>
