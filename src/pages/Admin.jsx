@@ -3771,37 +3771,225 @@ function Admin() {
                 <div style={{ 
                   display: 'flex', 
                   alignItems: 'center', 
-                  gap: '12px', 
+                  justifyContent: 'space-between',
                   marginBottom: '16px',
                   padding: '0 16px'
                 }}>
-                  <button
-                    onClick={() => {
-                      setScoreManagementView('rounds');
-                      setSelectedRoundForScore(null);
-                      setRoundScores([]);
-                    }}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      fontSize: '24px',
-                      cursor: 'pointer',
-                      padding: '0',
-                      color: 'var(--primary-green)'
-                    }}
-                  >
-                    ‹
-                  </button>
-                  <div>
-                    <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
-                      {selectedRoundForScore.title}
-                    </h3>
-                    <div style={{ fontSize: '13px', color: 'var(--text-dark)', opacity: 0.7 }}>
-                      {new Date(selectedRoundForScore.date).toLocaleDateString('ko-KR')}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <button
+                      onClick={() => {
+                        setScoreManagementView('rounds');
+                        setSelectedRoundForScore(null);
+                        setRoundScores([]);
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        fontSize: '24px',
+                        cursor: 'pointer',
+                        padding: '0',
+                        color: 'var(--primary-green)'
+                      }}
+                    >
+                      ‹
+                    </button>
+                    <div>
+                      <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
+                        {selectedRoundForScore.title}
+                      </h3>
+                      <div style={{ fontSize: '13px', color: 'var(--text-dark)', opacity: 0.7 }}>
+                        {new Date(selectedRoundForScore.date).toLocaleDateString('ko-KR')} · {selectedRoundForScore.participants?.length || 0}명 참가
+                      </div>
                     </div>
                   </div>
                 </div>
 
+                {(() => {
+                  const participants = selectedRoundForScore.participants || [];
+                  const allParticipants = participants.map(p => {
+                    const existingScore = roundScores.find(s => 
+                      (s.user?.phone === p.phone) || 
+                      (s.userId && members.find(m => m.id === s.userId)?.phone === p.phone)
+                    );
+                    const memberInfo = members.find(m => m.phone === p.phone);
+                    return {
+                      ...p,
+                      memberId: memberInfo?.id,
+                      memberInfo,
+                      score: existingScore,
+                      hasScore: !!existingScore
+                    };
+                  });
+                  
+                  const withScores = allParticipants.filter(p => p.hasScore).sort((a, b) => {
+                    const diffA = a.score.totalScore - (a.score.coursePar || 72);
+                    const diffB = b.score.totalScore - (b.score.coursePar || 72);
+                    return diffA - diffB;
+                  });
+                  const withoutScores = allParticipants.filter(p => !p.hasScore);
+                  
+                  return (
+                    <>
+                      {withScores.length > 0 && (
+                        <div style={{ marginBottom: '16px' }}>
+                          <div style={{ padding: '8px 16px', fontSize: '13px', fontWeight: '600', color: 'var(--primary-green)', background: 'var(--bg-green)' }}>
+                            스코어 입력 완료 ({withScores.length}명)
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                            {withScores.map((participant, index) => {
+                              const score = participant.score;
+                              const member = score.user || participant.memberInfo;
+                              const diff = score.totalScore - (score.coursePar || 72);
+                              const diffText = diff > 0 ? `+${diff}` : diff === 0 ? 'E' : String(diff);
+                              return (
+                                <button
+                                  key={score.id}
+                                  onClick={() => {
+                                    setSelectedPlayerForScore({ ...score, member, rank: index + 1 });
+                                    setScoreManagementView('scorecard');
+                                  }}
+                                  style={{
+                                    padding: '16px',
+                                    textAlign: 'left',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    background: 'var(--bg-page)',
+                                    border: 'none',
+                                    borderBottom: '1px solid var(--border-color)'
+                                  }}
+                                >
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{
+                                      width: '32px',
+                                      height: '32px',
+                                      borderRadius: '50%',
+                                      background: index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : index === 2 ? '#CD7F32' : 'var(--primary-green)',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      color: 'white',
+                                      fontWeight: '700',
+                                      fontSize: '14px'
+                                    }}>
+                                      {index + 1}
+                                    </div>
+                                    <div>
+                                      <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-dark)' }}>
+                                        {member?.nickname || member?.name || participant.nickname || participant.name}
+                                      </div>
+                                      <div style={{ fontSize: '12px', color: 'var(--text-dark)', opacity: 0.7 }}>
+                                        HC: {member?.handicap || '-'}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                    <div style={{ textAlign: 'right' }}>
+                                      <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-dark)' }}>
+                                        {score.totalScore}
+                                      </div>
+                                      <div style={{ 
+                                        fontSize: '13px', 
+                                        fontWeight: '600',
+                                        color: diff < 0 ? '#e74c3c' : diff > 0 ? '#3498db' : 'var(--text-dark)'
+                                      }}>
+                                        {diffText}
+                                      </div>
+                                    </div>
+                                    <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.5 }}>›</div>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {withoutScores.length > 0 && (
+                        <div>
+                          <div style={{ padding: '8px 16px', fontSize: '13px', fontWeight: '600', color: '#e67e22', background: '#fef5e7' }}>
+                            스코어 미입력 ({withoutScores.length}명)
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                            {withoutScores.map((participant) => (
+                              <div
+                                key={participant.phone}
+                                style={{
+                                  padding: '16px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'space-between',
+                                  background: 'var(--bg-page)',
+                                  borderBottom: '1px solid var(--border-color)'
+                                }}
+                              >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                  <div style={{
+                                    width: '32px',
+                                    height: '32px',
+                                    borderRadius: '50%',
+                                    background: '#ccc',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: 'white',
+                                    fontWeight: '700',
+                                    fontSize: '14px'
+                                  }}>
+                                    -
+                                  </div>
+                                  <div>
+                                    <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-dark)' }}>
+                                      {participant.nickname || participant.name}
+                                    </div>
+                                    <div style={{ fontSize: '12px', color: 'var(--text-dark)', opacity: 0.7 }}>
+                                      HC: {participant.memberInfo?.handicap || '-'}
+                                    </div>
+                                  </div>
+                                </div>
+                                <button
+                                  onClick={() => {
+                                    setEditingScore({ isNew: true, participant });
+                                    setEditScoreData({
+                                      totalScore: '',
+                                      holes: Array(18).fill('')
+                                    });
+                                  }}
+                                  style={{
+                                    background: 'var(--primary-green)',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    padding: '8px 16px',
+                                    color: 'white',
+                                    fontSize: '14px',
+                                    fontWeight: '600',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  스코어 입력
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {participants.length === 0 && (
+                        <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
+                          <div style={{ fontSize: '48px', marginBottom: '16px' }}>👥</div>
+                          <div style={{ color: 'var(--text-dark)', opacity: 0.7 }}>참가자가 없습니다</div>
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
+            )}
+
+            {/* Legacy leaderboard for scores without participant matching - hidden */}
+            {false && scoreManagementView === 'leaderboard_legacy' && selectedRoundForScore && (
+              <div>
                 {roundScores.length === 0 ? (
                   <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
@@ -4248,139 +4436,211 @@ function Admin() {
                     </div>
                   );
                 })()}
+              </div>
+            )}
 
-                {/* Edit Modal */}
-                {editingScore && (
-                  <div style={{
-                    position: 'fixed',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'rgba(0,0,0,0.8)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    zIndex: 1000,
-                    padding: '20px'
-                  }}>
-                    <div style={{
-                      background: 'white',
-                      borderRadius: '12px',
-                      padding: '20px',
-                      width: '100%',
-                      maxWidth: '400px',
-                      maxHeight: '80vh',
-                      overflow: 'auto'
+            {/* Score Edit/Create Modal - accessible from both leaderboard and scorecard views */}
+            {editingScore && (
+              <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'rgba(0,0,0,0.8)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 1000,
+                padding: '20px'
+              }}>
+                <div style={{
+                  background: 'white',
+                  borderRadius: '12px',
+                  padding: '20px',
+                  width: '100%',
+                  maxWidth: '400px',
+                  maxHeight: '80vh',
+                  overflow: 'auto'
+                }}>
+                  <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
+                    {editingScore.isNew ? '스코어 입력' : '스코어 수정'}
+                  </h3>
+                  {editingScore.isNew && editingScore.participant && (
+                    <div style={{ 
+                      marginBottom: '16px', 
+                      padding: '12px', 
+                      background: 'var(--bg-green)', 
+                      borderRadius: '8px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '12px'
                     }}>
-                      <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
-                        스코어 수정
-                      </h3>
-                      <div style={{ marginBottom: '16px' }}>
-                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
-                          총 타수
-                        </label>
-                        <input
-                          type="number"
-                          value={editScoreData?.totalScore || ''}
-                          onChange={(e) => setEditScoreData(prev => ({ ...prev, totalScore: parseInt(e.target.value) || 0 }))}
-                          style={{
-                            width: '100%',
-                            padding: '12px',
-                            border: '1px solid #ddd',
-                            borderRadius: '8px',
-                            fontSize: '16px'
-                          }}
-                        />
+                      <div style={{
+                        width: '40px',
+                        height: '40px',
+                        borderRadius: '50%',
+                        background: 'var(--primary-green)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        fontWeight: '700'
+                      }}>
+                        {(editingScore.participant.nickname || editingScore.participant.name || '?')[0]}
                       </div>
-                      <div style={{ marginBottom: '16px' }}>
-                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
-                          홀별 타수 (선택)
-                        </label>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px' }}>
-                          {(editScoreData?.holes || []).map((h, idx) => (
-                            <div key={idx} style={{ textAlign: 'center' }}>
-                              <div style={{ fontSize: '11px', color: '#666', marginBottom: '4px' }}>{idx + 1}</div>
-                              <input
-                                type="number"
-                                value={h || ''}
-                                onChange={(e) => {
-                                  const newHoles = [...(editScoreData?.holes || [])];
-                                  newHoles[idx] = parseInt(e.target.value) || 0;
-                                  setEditScoreData(prev => ({ ...prev, holes: newHoles }));
-                                }}
-                                style={{
-                                  width: '100%',
-                                  padding: '8px 4px',
-                                  border: '1px solid #ddd',
-                                  borderRadius: '4px',
-                                  fontSize: '14px',
-                                  textAlign: 'center'
-                                }}
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div style={{ display: 'flex', gap: '12px' }}>
-                        <button
-                          onClick={() => {
-                            setEditingScore(null);
-                            setEditScoreData(null);
-                          }}
-                          style={{
-                            flex: 1,
-                            padding: '12px',
-                            border: '1px solid #ddd',
-                            borderRadius: '8px',
-                            background: 'white',
-                            fontSize: '16px',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          취소
-                        </button>
-                        <button
-                          onClick={async () => {
-                            try {
-                              const res = await fetch(`/api/scores/${editingScore.id}`, {
-                                method: 'PUT',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                  totalScore: editScoreData.totalScore,
-                                  holes: editScoreData.holes
-                                })
-                              });
-                              if (res.ok) {
-                                const updated = await res.json();
-                                setRoundScores(prev => prev.map(s => s.id === updated.id ? updated : s));
-                                setSelectedPlayerForScore(prev => ({ ...prev, ...updated }));
-                                setEditingScore(null);
-                                setEditScoreData(null);
-                              }
-                            } catch (e) {
-                              console.error('수정 에러:', e);
-                              alert('수정에 실패했습니다');
-                            }
-                          }}
-                          style={{
-                            flex: 1,
-                            padding: '12px',
-                            border: 'none',
-                            borderRadius: '8px',
-                            background: 'var(--primary-green)',
-                            color: 'white',
-                            fontSize: '16px',
-                            fontWeight: '600',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          저장
-                        </button>
+                      <div>
+                        <div style={{ fontWeight: '600' }}>{editingScore.participant.nickname || editingScore.participant.name}</div>
+                        <div style={{ fontSize: '12px', opacity: 0.7 }}>HC: {editingScore.participant.memberInfo?.handicap || '-'}</div>
                       </div>
                     </div>
+                  )}
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+                      총 타수 <span style={{ color: '#e74c3c' }}>*</span>
+                    </label>
+                    <input
+                      type="number"
+                      value={editScoreData?.totalScore || ''}
+                      onChange={(e) => setEditScoreData(prev => ({ ...prev, totalScore: parseInt(e.target.value) || 0 }))}
+                      placeholder="예: 85"
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '1px solid #ddd',
+                        borderRadius: '8px',
+                        fontSize: '16px'
+                      }}
+                    />
                   </div>
-                )}
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+                      홀별 타수 (선택)
+                    </label>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px' }}>
+                      {(editScoreData?.holes || []).map((h, idx) => (
+                        <div key={idx} style={{ textAlign: 'center' }}>
+                          <div style={{ fontSize: '11px', color: '#666', marginBottom: '4px' }}>{idx + 1}</div>
+                          <input
+                            type="number"
+                            value={h || ''}
+                            onChange={(e) => {
+                              const newHoles = [...(editScoreData?.holes || [])];
+                              newHoles[idx] = parseInt(e.target.value) || 0;
+                              setEditScoreData(prev => ({ ...prev, holes: newHoles }));
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '8px 4px',
+                              border: '1px solid #ddd',
+                              borderRadius: '4px',
+                              fontSize: '14px',
+                              textAlign: 'center'
+                            }}
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <button
+                      onClick={() => {
+                        setEditingScore(null);
+                        setEditScoreData(null);
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: '12px',
+                        border: '1px solid #ddd',
+                        borderRadius: '8px',
+                        background: 'white',
+                        fontSize: '16px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      취소
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (!editScoreData?.totalScore || editScoreData.totalScore < 1) {
+                          alert('총 타수를 입력해주세요');
+                          return;
+                        }
+                        try {
+                          if (editingScore.isNew) {
+                            const participant = editingScore.participant;
+                            const memberId = participant.memberId || participant.memberInfo?.id;
+                            if (!memberId) {
+                              alert('회원 정보를 찾을 수 없습니다');
+                              return;
+                            }
+                            const dateStr = new Date(selectedRoundForScore.date).toISOString().split('T')[0];
+                            const course = courses.find(c => c.name === selectedRoundForScore.courseName);
+                            const coursePar = course?.holePars?.male?.reduce((a, b) => a + b, 0) || 72;
+                            
+                            const res = await fetch('/api/scores', {
+                              method: 'POST',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                userId: memberId,
+                                markerId: memberId,
+                                roundingName: selectedRoundForScore.title,
+                                date: dateStr,
+                                courseName: selectedRoundForScore.courseName,
+                                totalScore: editScoreData.totalScore,
+                                coursePar: coursePar,
+                                holes: JSON.stringify(editScoreData.holes.map(h => h || 0))
+                              })
+                            });
+                            if (res.ok) {
+                              const newScore = await res.json();
+                              setRoundScores(prev => [...prev, newScore]);
+                              setEditingScore(null);
+                              setEditScoreData(null);
+                            } else {
+                              const err = await res.json();
+                              alert(err.error || '저장에 실패했습니다');
+                            }
+                          } else {
+                            const res = await fetch(`/api/scores/${editingScore.id}`, {
+                              method: 'PUT',
+                              headers: { 'Content-Type': 'application/json' },
+                              body: JSON.stringify({
+                                totalScore: editScoreData.totalScore,
+                                holes: editScoreData.holes
+                              })
+                            });
+                            if (res.ok) {
+                              const updated = await res.json();
+                              setRoundScores(prev => prev.map(s => s.id === updated.id ? updated : s));
+                              if (selectedPlayerForScore) {
+                                setSelectedPlayerForScore(prev => ({ ...prev, ...updated }));
+                              }
+                              setEditingScore(null);
+                              setEditScoreData(null);
+                            }
+                          }
+                        } catch (e) {
+                          console.error('저장 에러:', e);
+                          alert('저장에 실패했습니다');
+                        }
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: '12px',
+                        border: 'none',
+                        borderRadius: '8px',
+                        background: 'var(--primary-green)',
+                        color: 'white',
+                        fontSize: '16px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      저장
+                    </button>
+                  </div>
+                </div>
               </div>
             )}
           </div>
