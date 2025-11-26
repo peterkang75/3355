@@ -342,9 +342,7 @@ function Fees() {
         {activeTab === 'personal' ? (
           <>
             <div className="card" style={{
-              background: balance < 0 
-                ? 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)'
-                : 'linear-gradient(135deg, #28a745 0%, #218838 100%)',
+              background: '#E59879',
               color: 'white',
               padding: '24px'
             }}>
