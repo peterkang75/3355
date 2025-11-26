@@ -76,6 +76,9 @@ function Admin() {
   });
   const [summaryBookingFilter, setSummaryBookingFilter] = useState('all');
   const [selectedSummaryCategories, setSelectedSummaryCategories] = useState([]);
+  const [isTransactionSelectMode, setIsTransactionSelectMode] = useState(false);
+  const [selectedTransactionIds, setSelectedTransactionIds] = useState([]);
+  const [editingTransaction, setEditingTransaction] = useState(null);
 
   const [incomeCategories, setIncomeCategories] = useState([]);
   const [expenseCategories, setExpenseCategories] = useState([]);
@@ -3383,21 +3386,99 @@ function Admin() {
                     클럽 잔액: ${clubBalance.toLocaleString()}
                   </div>
                   {hasFeaturePermission('delete_transaction') && (
-                    <button
-                      onClick={handleDeleteAllTransactions}
-                      style={{
-                        padding: '6px 12px',
-                        background: 'var(--alert-red)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      전체 삭제
-                    </button>
+                    <>
+                      {isTransactionSelectMode ? (
+                        <>
+                          {selectedTransactionIds.length === 1 && (
+                            <button
+                              onClick={() => {
+                                const transaction = allTransactions.find(t => t.id === selectedTransactionIds[0]);
+                                if (transaction) {
+                                  setEditingTransaction(transaction);
+                                }
+                              }}
+                              style={{
+                                padding: '6px 12px',
+                                background: 'var(--primary-green)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontSize: '13px',
+                                fontWeight: '600',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              수정
+                            </button>
+                          )}
+                          {selectedTransactionIds.length >= 1 && (
+                            <button
+                              onClick={async () => {
+                                if (!confirm(`선택한 ${selectedTransactionIds.length}건의 거래를 삭제하시겠습니까?`)) return;
+                                try {
+                                  for (const id of selectedTransactionIds) {
+                                    await apiService.deleteTransaction(id);
+                                  }
+                                  setAllTransactions(prev => prev.filter(t => !selectedTransactionIds.includes(t.id)));
+                                  setSelectedTransactionIds([]);
+                                  setIsTransactionSelectMode(false);
+                                  loadClubFinanceData();
+                                } catch (error) {
+                                  console.error('Failed to delete transactions:', error);
+                                  alert('삭제에 실패했습니다.');
+                                }
+                              }}
+                              style={{
+                                padding: '6px 12px',
+                                background: 'var(--alert-red)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontSize: '13px',
+                                fontWeight: '600',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              삭제 ({selectedTransactionIds.length})
+                            </button>
+                          )}
+                          <button
+                            onClick={() => {
+                              setIsTransactionSelectMode(false);
+                              setSelectedTransactionIds([]);
+                            }}
+                            style={{
+                              padding: '6px 12px',
+                              background: 'var(--border-color)',
+                              color: 'var(--text-primary)',
+                              border: 'none',
+                              borderRadius: '6px',
+                              fontSize: '13px',
+                              fontWeight: '600',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            취소
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={() => setIsTransactionSelectMode(true)}
+                          style={{
+                            padding: '6px 12px',
+                            background: 'var(--primary-green)',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          선택
+                        </button>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -3446,15 +3527,76 @@ function Admin() {
                         background: 'var(--bg-green)',
                         borderBottom: '2px solid var(--primary-green)'
                       }}>
+                        {isTransactionSelectMode && (
+                          <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: '600', width: '40px' }}>
+                            <input
+                              type="checkbox"
+                              checked={(() => {
+                                const filteredIds = allTransactions
+                                  .filter(t => t.type !== 'charge')
+                                  .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
+                                  .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
+                                  .filter(t => {
+                                    if (selectedSummaryCategories.length === 0) return true;
+                                    let catKey = '';
+                                    if (t.type === 'payment') {
+                                      catKey = 'income:라운딩 회비';
+                                    } else if (t.type === 'donation') {
+                                      if (t.description?.startsWith('기타 - ')) {
+                                        catKey = `income:${t.description.replace('기타 - ', '')}`;
+                                      } else {
+                                        catKey = 'income:도네이션';
+                                      }
+                                    } else if (t.type === 'expense') {
+                                      const expenseDesc = t.description || '기타 지출';
+                                      const catName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
+                                      catKey = `expense:${catName}`;
+                                    }
+                                    return selectedSummaryCategories.includes(catKey);
+                                  })
+                                  .map(t => t.id);
+                                return filteredIds.length > 0 && filteredIds.every(id => selectedTransactionIds.includes(id));
+                              })()}
+                              onChange={(e) => {
+                                const filteredIds = allTransactions
+                                  .filter(t => t.type !== 'charge')
+                                  .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
+                                  .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
+                                  .filter(t => {
+                                    if (selectedSummaryCategories.length === 0) return true;
+                                    let catKey = '';
+                                    if (t.type === 'payment') {
+                                      catKey = 'income:라운딩 회비';
+                                    } else if (t.type === 'donation') {
+                                      if (t.description?.startsWith('기타 - ')) {
+                                        catKey = `income:${t.description.replace('기타 - ', '')}`;
+                                      } else {
+                                        catKey = 'income:도네이션';
+                                      }
+                                    } else if (t.type === 'expense') {
+                                      const expenseDesc = t.description || '기타 지출';
+                                      const catName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
+                                      catKey = `expense:${catName}`;
+                                    }
+                                    return selectedSummaryCategories.includes(catKey);
+                                  })
+                                  .map(t => t.id);
+                                if (e.target.checked) {
+                                  setSelectedTransactionIds(prev => [...new Set([...prev, ...filteredIds])]);
+                                } else {
+                                  setSelectedTransactionIds(prev => prev.filter(id => !filteredIds.includes(id)));
+                                }
+                              }}
+                              style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                            />
+                          </th>
+                        )}
                         <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>날짜</th>
                         <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>대화명</th>
                         <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>항목</th>
                         <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>라운딩</th>
                         <th style={{ padding: '10px 8px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap' }}>금액</th>
                         <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>집행자</th>
-                        {hasFeaturePermission('delete_transaction') && (
-                          <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: '600', whiteSpace: 'nowrap' }}>관리</th>
-                        )}
                       </tr>
                     </thead>
                     <tbody>
@@ -3513,9 +3655,26 @@ function Admin() {
                             <tr 
                               key={transaction.id}
                               style={{
-                                borderBottom: '1px solid var(--border-color)'
+                                borderBottom: '1px solid var(--border-color)',
+                                backgroundColor: selectedTransactionIds.includes(transaction.id) ? 'var(--bg-green)' : 'transparent'
                               }}
                             >
+                              {isTransactionSelectMode && (
+                                <td style={{ padding: '8px', textAlign: 'center' }}>
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedTransactionIds.includes(transaction.id)}
+                                    onChange={(e) => {
+                                      if (e.target.checked) {
+                                        setSelectedTransactionIds(prev => [...prev, transaction.id]);
+                                      } else {
+                                        setSelectedTransactionIds(prev => prev.filter(id => id !== transaction.id));
+                                      }
+                                    }}
+                                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                                  />
+                                </td>
+                              )}
                               <td style={{ padding: '8px', whiteSpace: 'nowrap' }}>
                                 {new Date(transaction.date).toLocaleDateString('ko-KR', { 
                                   year: '2-digit',
@@ -3573,24 +3732,6 @@ function Admin() {
                               <td style={{ padding: '8px', fontSize: '11px', opacity: 0.7, whiteSpace: 'nowrap' }}>
                                 by {transaction.executor?.nickname || transaction.executor?.name || '시스템'}
                               </td>
-                              {hasFeaturePermission('delete_transaction') && (
-                                <td style={{ padding: '8px', textAlign: 'center' }}>
-                                  <button
-                                    onClick={() => handleDeleteTransaction(transaction.id)}
-                                    style={{
-                                      background: 'none',
-                                      border: 'none',
-                                      color: 'var(--alert-red)',
-                                      cursor: 'pointer',
-                                      fontSize: '16px',
-                                      padding: '0 4px'
-                                    }}
-                                    title="삭제"
-                                  >
-                                    ×
-                                  </button>
-                                </td>
-                              )}
                             </tr>
                           );
                         })}
