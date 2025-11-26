@@ -14,6 +14,10 @@ function Booking() {
   const [openMenuId, setOpenMenuId] = useState(null);
   const [bookingType, setBookingType] = useState('정기모임');
   const [isRentalLoading, setIsRentalLoading] = useState(null);
+  const [isSavingBooking, setIsSavingBooking] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(null);
+  const [isTogglingAnnounce, setIsTogglingAnnounce] = useState(null);
+  const [isJoining, setIsJoining] = useState(null);
   const [newBooking, setNewBooking] = useState({
     title: '',
     courseName: '',
@@ -199,11 +203,13 @@ function Booking() {
   };
 
   const handleSaveBooking = async () => {
+    if (isSavingBooking) return;
     if (!editBookingData.courseName || !editBookingData.date || !editBookingData.time) {
       alert('골프장, 날짜, 시간을 입력해주세요.');
       return;
     }
 
+    setIsSavingBooking(true);
     try {
       const updatedData = {
         ...editBookingData,
@@ -217,32 +223,39 @@ function Booking() {
       setEditingBooking(null);
       setEditBookingData(null);
     } catch (error) {
-      console.error('라운딩 수정 실패:', error);
       alert('라운딩 수정 중 오류가 발생했습니다.');
+    } finally {
+      setIsSavingBooking(false);
     }
   };
 
   const handleDeleteBooking = async (bookingId) => {
+    if (isDeleting === bookingId) return;
     if (!confirm('정말로 이 라운딩을 삭제하시겠습니까?')) {
       return;
     }
 
+    setIsDeleting(bookingId);
     try {
       await apiService.deleteBooking(bookingId);
       window.location.reload();
     } catch (error) {
-      console.error('라운딩 삭제 실패:', error);
       alert('라운딩 삭제 중 오류가 발생했습니다.');
+    } finally {
+      setIsDeleting(null);
     }
   };
 
   const handleToggleAnnounce = async (bookingId) => {
+    if (isTogglingAnnounce === bookingId) return;
+    setIsTogglingAnnounce(bookingId);
     try {
       await apiService.toggleBookingAnnounce(bookingId);
       window.location.reload();
     } catch (error) {
-      console.error('공지 상태 변경 실패:', error);
       alert('공지 상태 변경 중 오류가 발생했습니다.');
+    } finally {
+      setIsTogglingAnnounce(null);
     }
   };
 
@@ -269,28 +282,35 @@ function Booking() {
     }
   };
 
-  const handleJoinBooking = (bookingId) => {
-    const booking = bookings.find(b => b.id === bookingId);
-    const participants = parseParticipants(booking.participants);
-    const alreadyJoined = participants.some(p => p.phone === user.phone);
+  const handleJoinBooking = async (bookingId) => {
+    if (isJoining === bookingId) return;
     
-    if (alreadyJoined) {
-      const updatedParticipants = participants
-        .filter(p => p.phone !== user.phone)
-        .map(p => JSON.stringify(p));
+    setIsJoining(bookingId);
+    try {
+      const booking = bookings.find(b => b.id === bookingId);
+      const participants = parseParticipants(booking.participants);
+      const alreadyJoined = participants.some(p => p.phone === user.phone);
       
-      updateBooking(bookingId, {
-        participants: updatedParticipants
-      });
-    } else {
-      const updatedParticipants = [
-        ...participants,
-        { name: user.name, nickname: user.nickname, phone: user.phone }
-      ].map(p => JSON.stringify(p));
-      
-      updateBooking(bookingId, {
-        participants: updatedParticipants
-      });
+      if (alreadyJoined) {
+        const updatedParticipants = participants
+          .filter(p => p.phone !== user.phone)
+          .map(p => JSON.stringify(p));
+        
+        await updateBooking(bookingId, {
+          participants: updatedParticipants
+        });
+      } else {
+        const updatedParticipants = [
+          ...participants,
+          { name: user.name, nickname: user.nickname, phone: user.phone }
+        ].map(p => JSON.stringify(p));
+        
+        await updateBooking(bookingId, {
+          participants: updatedParticipants
+        });
+      }
+    } finally {
+      setIsJoining(null);
     }
   };
 
@@ -552,35 +572,39 @@ function Booking() {
               setEditingBooking(null);
               setEditBookingData(null);
             }}
+            disabled={isSavingBooking}
             style={{
               flex: 1,
               padding: '14px 24px',
-              background: '#BD5B43',
+              background: isSavingBooking ? '#ccc' : '#BD5B43',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               fontSize: '16px',
               fontWeight: '600',
-              cursor: 'pointer'
+              cursor: isSavingBooking ? 'not-allowed' : 'pointer',
+              opacity: isSavingBooking ? 0.7 : 1
             }}
           >
             취소하기
           </button>
           <button 
             onClick={onSubmit}
+            disabled={isSavingBooking}
             style={{
               flex: 1,
               padding: '14px 24px',
-              background: 'var(--primary-green)',
+              background: isSavingBooking ? '#999' : 'var(--primary-green)',
               color: 'white',
               border: 'none',
               borderRadius: '8px',
               fontSize: '16px',
               fontWeight: '600',
-              cursor: 'pointer'
+              cursor: isSavingBooking ? 'not-allowed' : 'pointer',
+              opacity: isSavingBooking ? 0.7 : 1
             }}
           >
-            {submitText}
+            {isSavingBooking ? '저장 중...' : submitText}
           </button>
         </div>
       </>
@@ -673,19 +697,21 @@ function Booking() {
                   }}>
                     <button
                       onClick={() => handleToggleAnnounce(booking.id)}
+                      disabled={isTogglingAnnounce === booking.id}
                       style={{
                         display: 'block',
                         width: '100%',
                         padding: '12px 16px',
                         textAlign: 'left',
-                        background: 'transparent',
+                        background: isTogglingAnnounce === booking.id ? '#f0f0f0' : 'transparent',
                         border: 'none',
                         fontSize: '14px',
-                        cursor: 'pointer',
-                        borderBottom: '1px solid var(--border-color)'
+                        cursor: isTogglingAnnounce === booking.id ? 'wait' : 'pointer',
+                        borderBottom: '1px solid var(--border-color)',
+                        opacity: isTogglingAnnounce === booking.id ? 0.7 : 1
                       }}
                     >
-                      {booking.isAnnounced ? '★ 공지 내리기' : '★ 공지 활성화'}
+                      {isTogglingAnnounce === booking.id ? '처리중...' : (booking.isAnnounced ? '★ 공지 내리기' : '★ 공지 활성화')}
                     </button>
                     <button
                       onClick={() => handleEditBooking(booking)}
@@ -708,19 +734,21 @@ function Booking() {
                         handleDeleteBooking(booking.id);
                         setOpenMenuId(null);
                       }}
+                      disabled={isDeleting === booking.id}
                       style={{
                         display: 'block',
                         width: '100%',
                         padding: '12px 16px',
                         textAlign: 'left',
-                        background: 'transparent',
+                        background: isDeleting === booking.id ? '#f0f0f0' : 'transparent',
                         border: 'none',
                         fontSize: '14px',
-                        cursor: 'pointer',
-                        color: 'var(--alert-red)'
+                        cursor: isDeleting === booking.id ? 'wait' : 'pointer',
+                        color: isDeleting === booking.id ? '#999' : 'var(--alert-red)',
+                        opacity: isDeleting === booking.id ? 0.7 : 1
                       }}
                     >
-                      × 삭제
+                      {isDeleting === booking.id ? '삭제중...' : '× 삭제'}
                     </button>
                   </div>
                 )}
@@ -946,38 +974,40 @@ function Booking() {
             ) : (
               <>
                 <button
-                  onClick={(isJoined || isRenting) ? null : () => handleJoinBooking(booking.id)}
+                  onClick={(isJoined || isRenting || isJoining === booking.id) ? null : () => handleJoinBooking(booking.id)}
+                  disabled={isJoining === booking.id}
                   style={{
                     flex: 1,
                     padding: '12px',
-                    background: (isJoined || isRenting) ? '#e0e0e0' : 'var(--primary-green)',
-                    color: (isJoined || isRenting) ? '#999' : 'var(--text-light)',
+                    background: (isJoined || isRenting || isJoining === booking.id) ? '#e0e0e0' : 'var(--primary-green)',
+                    color: (isJoined || isRenting || isJoining === booking.id) ? '#999' : 'var(--text-light)',
                     border: 'none',
                     borderRadius: '6px',
                     fontSize: '16px',
                     fontWeight: '700',
-                    cursor: (isJoined || isRenting) ? 'default' : 'pointer',
-                    opacity: (isJoined || isRenting) ? 0.6 : 1
+                    cursor: (isJoined || isRenting || isJoining === booking.id) ? 'default' : 'pointer',
+                    opacity: (isJoined || isRenting || isJoining === booking.id) ? 0.6 : 1
                   }}
                 >
-                  {isJoined ? '참가중' : '참가하기'}
+                  {isJoining === booking.id ? '처리중...' : (isJoined ? '참가중' : '참가하기')}
                 </button>
                 <button
-                  onClick={(isJoined && !isRenting) ? () => handleJoinBooking(booking.id) : null}
+                  onClick={(isJoined && !isRenting && isJoining !== booking.id) ? () => handleJoinBooking(booking.id) : null}
+                  disabled={isJoining === booking.id}
                   style={{
                     flex: 1,
                     padding: '12px',
-                    background: (isJoined && !isRenting) ? 'var(--alert-red)' : '#e0e0e0',
-                    color: (isJoined && !isRenting) ? 'var(--text-light)' : '#999',
+                    background: isJoining === booking.id ? '#ccc' : ((isJoined && !isRenting) ? 'var(--alert-red)' : '#e0e0e0'),
+                    color: isJoining === booking.id ? '#999' : ((isJoined && !isRenting) ? 'var(--text-light)' : '#999'),
                     border: 'none',
                     borderRadius: '6px',
                     fontSize: '16px',
                     fontWeight: '700',
-                    cursor: (isJoined && !isRenting) ? 'pointer' : 'default',
-                    opacity: (isJoined && !isRenting) ? 1 : 0.6
+                    cursor: isJoining === booking.id ? 'wait' : ((isJoined && !isRenting) ? 'pointer' : 'default'),
+                    opacity: isJoining === booking.id ? 0.7 : ((isJoined && !isRenting) ? 1 : 0.6)
                   }}
                 >
-                  취소하기
+                  {isJoining === booking.id ? '처리중...' : '취소하기'}
                 </button>
                 {booking.type === '컴페티션' && (
                   <button

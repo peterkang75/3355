@@ -22,6 +22,8 @@ function Play() {
   const [serverMismatches, setServerMismatches] = useState([]);
   const [isCheckingScores, setIsCheckingScores] = useState(false);
   const [teammateReady, setTeammateReady] = useState(false);
+  const [isSavingNtp, setIsSavingNtp] = useState(false);
+  const [isStartingRound, setIsStartingRound] = useState(false);
   const [checkingInterval, setCheckingInterval] = useState(null);
   const restoredRef = useRef(false);
   const lastRestoredBookingRef = useRef(null);
@@ -324,8 +326,10 @@ function Play() {
           </div>
           <button
             onClick={async () => {
+              if (isStartingRound) return;
               if (!selectedTeammate) { alert('선택해주세요'); return; }
               
+              setIsStartingRound(true);
               try {
                 const today = new Date().toISOString().split('T')[0];
                 const res = await fetch(`/api/scores/check?memberId=${selectedTeammate.phone}&date=${today}&roundingName=${booking?.title}`);
@@ -346,22 +350,23 @@ function Play() {
               setHoleScores({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
               setShowMismatches(false);
               setStep('scorecard');
+              setIsStartingRound(false);
             }}
-            disabled={!selectedTeammate}
+            disabled={!selectedTeammate || isStartingRound}
             style={{
               width: '100%',
               padding: '16px',
-              background: selectedTeammate ? 'var(--primary-green)' : 'var(--bg-card)',
+              background: (selectedTeammate && !isStartingRound) ? 'var(--primary-green)' : 'var(--bg-card)',
               border: 'none',
               borderRadius: '8px',
               color: 'white',
               fontWeight: '700',
               fontSize: '16px',
-              cursor: selectedTeammate ? 'pointer' : 'not-allowed',
-              opacity: selectedTeammate ? 1 : 0.5
+              cursor: (selectedTeammate && !isStartingRound) ? 'pointer' : 'not-allowed',
+              opacity: (selectedTeammate && !isStartingRound) ? 1 : 0.5
             }}
           >
-            플레이하기
+            {isStartingRound ? '확인 중...' : '플레이하기'}
           </button>
         </div>
       </div>
@@ -1095,10 +1100,12 @@ function Play() {
               </button>
               <button
                 onClick={async () => {
+                  if (isSavingNtp) return;
                   if (!ntpDistance || parseFloat(ntpDistance) <= 0) {
                     alert('거리를 입력해주세요');
                     return;
                   }
+                  setIsSavingNtp(true);
                   try {
                     const response = await fetch('/api/ntp', {
                       method: 'POST',
@@ -1119,21 +1126,25 @@ function Play() {
                   } catch (e) {
                     console.error('NTP 저장 오류:', e);
                     alert('저장 중 오류가 발생했습니다');
+                  } finally {
+                    setIsSavingNtp(false);
                   }
                 }}
+                disabled={isSavingNtp}
                 style={{
                   flex: 1,
                   padding: '14px',
-                  background: '#6399CF',
+                  background: isSavingNtp ? '#999' : '#6399CF',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
                   fontWeight: '700',
                   fontSize: '16px',
-                  cursor: 'pointer'
+                  cursor: isSavingNtp ? 'not-allowed' : 'pointer',
+                  opacity: isSavingNtp ? 0.7 : 1
                 }}
               >
-                저장
+                {isSavingNtp ? '저장 중...' : '저장'}
               </button>
             </div>
           </div>
