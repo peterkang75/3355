@@ -619,14 +619,17 @@ function Play() {
     const isNearHole = !isTeammate && courseData?.nearHoles?.[currentHole - 1];
     
     const iosButtonStyle = { WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation', userSelect: 'none' };
-    const boxStyle = { width: '100%', aspectRatio: '1', padding: '12px', background: 'white', border: '2px solid #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '28px', color: '#000', ...iosButtonStyle };
-    const buttonStyle = { width: '100%', aspectRatio: '1', padding: '12px', border: '2px solid #ccc', background: 'white', color: '#000', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '28px', ...iosButtonStyle };
+    const largeBoxSize = '94px';
+    const boxStyle = { width: largeBoxSize, height: largeBoxSize, padding: '12px', background: 'white', border: '2px solid #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '32px', color: '#000', ...iosButtonStyle };
+    const buttonStyle = { width: largeBoxSize, height: largeBoxSize, padding: '12px', border: '2px solid #ccc', background: 'white', color: '#000', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '32px', ...iosButtonStyle };
     
-    const blinkingStyle = {
-      animation: 'blink 1s infinite',
-      '@keyframes blink': {
-        '0%, 49%': { background: '#6399CF' },
-        '50%, 100%': { background: 'white', color: '#6399CF' }
+    const handleParClick = () => {
+      if (score === par) {
+        setScoreValue(isTeammate, par * 2);
+      } else if (score === par * 2) {
+        // 이미 2배인 경우 더 이상 증가하지 않음
+      } else {
+        setScoreValue(isTeammate, par);
       }
     };
     
@@ -646,17 +649,27 @@ function Play() {
         </div>
 
         <div style={{ background: 'white', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-around', gap: '16px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
-              <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>PAR</div>
-              <button onClick={() => setScoreValue(isTeammate, par)} style={{ ...boxStyle, border: '2px solid #ccc', background: 'white', cursor: 'pointer', width: '55px', height: '55px' }}>{par}</button>
+              <div style={{ fontSize: '14px', fontWeight: '700', color: '#666' }}>PAR</div>
+              <button 
+                onClick={handleParClick} 
+                style={{ 
+                  ...boxStyle, 
+                  border: score === par ? '3px solid #27ae60' : score === par * 2 ? '3px solid #e74c3c' : '2px solid #ccc', 
+                  background: score === par ? '#e8f5e9' : score === par * 2 ? '#ffebee' : 'white', 
+                  cursor: 'pointer' 
+                }}
+              >
+                {par}
+              </button>
             </div>
             
             {isNearHole && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
-                <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>NTP</div>
-                <button onClick={() => { setNtpDistance(''); setShowNtpModal(true); }} style={{ ...buttonStyle, background: '#6399CF', color: 'white', border: 'none', width: '55px', height: '55px', fontSize: '28px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0' }}>
-                  <svg width="32" height="32" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div style={{ fontSize: '14px', fontWeight: '700', color: '#666' }}>NTP</div>
+                <button onClick={() => { setNtpDistance(''); setShowNtpModal(true); }} style={{ ...buttonStyle, background: '#6399CF', color: 'white', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0' }}>
+                  <svg width="40" height="40" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="25" cy="15" r="8" stroke="white" strokeWidth="3"/>
                     <line x1="25" y1="23" x2="25" y2="42" stroke="white" strokeWidth="3" strokeLinecap="round"/>
                   </svg>
@@ -665,13 +678,8 @@ function Play() {
             )}
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
-              <div style={{ fontSize: '12px', fontWeight: '700', color: '#666' }}>양파</div>
-              <button onClick={() => setScoreValue(isTeammate, par * 2)} style={{ ...buttonStyle, width: '55px', height: '55px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{par * 2}</button>
-            </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', alignItems: 'center' }}>
-              <div style={{ fontSize: '12px', fontWeight: '700', color: '#000' }}>TOTAL</div>
-              <div style={{ ...boxStyle, width: '55px', height: '55px' }}>{diffText}</div>
+              <div style={{ fontSize: '14px', fontWeight: '700', color: '#000' }}>TOTAL</div>
+              <div style={{ ...boxStyle }}>{diffText}</div>
             </div>
           </div>
         </div>
