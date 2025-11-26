@@ -391,10 +391,10 @@ function Fees() {
               </h3>
 
               {(() => {
-                const filteredUserTransactions = userTransactions.filter(t => t.type !== 'charge');
+                const allUserTransactions = userTransactions;
                 const chargeTransactions = userTransactions.filter(t => t.type === 'charge' && t.booking);
                 
-                if (filteredUserTransactions.length === 0) {
+                if (allUserTransactions.length === 0) {
                   return (
                     <div style={{ 
                       padding: '40px',
@@ -409,7 +409,7 @@ function Fees() {
                 
                 return (
                   <div>
-                    {filteredUserTransactions.map(transaction => {
+                    {allUserTransactions.map(transaction => {
                       let bookingName = '-';
                       if (transaction.booking) {
                         bookingName = transaction.booking.title || transaction.booking.courseName || '-';
