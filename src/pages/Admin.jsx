@@ -3593,12 +3593,12 @@ function Admin() {
                             />
                           </th>
                         )}
-                        <th style={{ padding: '6px 3px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '11px' }}>날짜</th>
-                        <th style={{ padding: '6px 3px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '11px' }}>회원</th>
-                        <th style={{ padding: '6px 3px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '11px' }}>항목</th>
-                        <th style={{ padding: '6px 3px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '11px' }}>라운딩</th>
-                        <th style={{ padding: '6px 3px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '11px' }}>금액</th>
-                        <th style={{ padding: '6px 3px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap', fontSize: '11px' }}>by</th>
+                        <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>날짜</th>
+                        <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>회원</th>
+                        <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>항목</th>
+                        <th style={{ padding: '6px 4px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap' }}>금액</th>
+                        <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>라운딩</th>
+                        <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>by</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -3662,7 +3662,7 @@ function Admin() {
                               }}
                             >
                               {isTransactionSelectMode && (
-                                <td style={{ padding: '4px 2px', textAlign: 'center' }}>
+                                <td style={{ padding: '6px 4px', textAlign: 'center' }}>
                                   <input
                                     type="checkbox"
                                     checked={selectedTransactionIds.includes(transaction.id)}
@@ -3673,22 +3673,22 @@ function Admin() {
                                         setSelectedTransactionIds(prev => prev.filter(id => id !== transaction.id));
                                       }
                                     }}
-                                    style={{ width: '14px', height: '14px', cursor: 'pointer' }}
+                                    style={{ width: '16px', height: '16px', cursor: 'pointer' }}
                                   />
                                 </td>
                               )}
-                              <td style={{ padding: '6px 3px', whiteSpace: 'nowrap', fontSize: '11px' }}>
+                              <td style={{ padding: '6px 4px', whiteSpace: 'nowrap' }}>
                                 {new Date(transaction.date).toLocaleDateString('ko-KR', { 
                                   month: 'numeric', 
                                   day: 'numeric' 
                                 })}
                               </td>
-                              <td style={{ padding: '6px 3px', whiteSpace: 'nowrap', fontSize: '11px', maxWidth: '50px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              <td style={{ padding: '6px 4px', whiteSpace: 'nowrap', maxWidth: '60px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                 {transaction.member?.nickname || transaction.member?.name || '-'}
                               </td>
-                              <td style={{ padding: '6px 3px', fontSize: '11px' }}>
+                              <td style={{ padding: '6px 4px' }}>
                                 <div style={{ 
-                                  maxWidth: '70px', 
+                                  maxWidth: '80px', 
                                   overflow: 'hidden', 
                                   textOverflow: 'ellipsis',
                                   whiteSpace: 'nowrap'
@@ -3696,23 +3696,12 @@ function Admin() {
                                   {categoryName}
                                 </div>
                               </td>
-                              <td style={{ padding: '6px 3px', fontSize: '11px' }}>
-                                <div style={{ 
-                                  maxWidth: '70px', 
-                                  overflow: 'hidden', 
-                                  textOverflow: 'ellipsis',
-                                  whiteSpace: 'nowrap'
-                                }}>
-                                  {bookingName}
-                                </div>
-                              </td>
                               <td style={{ 
-                                padding: '6px 3px', 
+                                padding: '6px 4px', 
                                 textAlign: 'right',
                                 fontWeight: '600',
                                 color: typeColor,
-                                whiteSpace: 'nowrap',
-                                fontSize: '11px'
+                                whiteSpace: 'nowrap'
                               }}>
                                 {transaction.receiptImage ? (
                                   <span
@@ -3731,7 +3720,17 @@ function Admin() {
                                   </span>
                                 )}
                               </td>
-                              <td style={{ padding: '6px 3px', fontSize: '10px', opacity: 0.7, whiteSpace: 'nowrap', maxWidth: '40px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              <td style={{ padding: '6px 4px' }}>
+                                <div style={{ 
+                                  maxWidth: '70px', 
+                                  overflow: 'hidden', 
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap'
+                                }}>
+                                  {bookingName}
+                                </div>
+                              </td>
+                              <td style={{ padding: '6px 4px', opacity: 0.7, whiteSpace: 'nowrap', maxWidth: '50px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                 {transaction.executor?.nickname || transaction.executor?.name || '-'}
                               </td>
                             </tr>
