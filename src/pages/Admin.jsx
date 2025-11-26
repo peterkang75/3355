@@ -2983,13 +2983,11 @@ function Admin() {
                         background: 'var(--bg-green)',
                         borderBottom: '2px solid var(--primary-green)'
                       }}>
-                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>날짜</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>대화명</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>항목</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>라운딩</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap' }}>금액</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>집행자</th>
-                        <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: '600', whiteSpace: 'nowrap' }}>관리</th>
+                        <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>날짜</th>
+                        <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>회원</th>
+                        <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>항목</th>
+                        <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>금액</th>
+                        <th style={{ padding: '6px 4px 6px 16px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>라운딩</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -3001,11 +2999,9 @@ function Admin() {
                         const sign = 
                           transaction.type === 'payment' || transaction.type === 'donation' ? '+' : '-';
                         
-                        // 라운딩 이름 (라운딩 컬럼용)
                         const bookingName = transaction.booking ? 
                           (transaction.booking.title || transaction.booking.courseName) : '-';
 
-                        // 항목명 (항목 컬럼용)
                         let categoryName = '';
                         if (transaction.type === 'payment') {
                           categoryName = '라운딩 회비';
@@ -3029,19 +3025,18 @@ function Admin() {
                               borderBottom: '1px solid var(--border-color)'
                             }}
                           >
-                            <td style={{ padding: '8px', whiteSpace: 'nowrap' }}>
+                            <td style={{ padding: '6px 4px', whiteSpace: 'nowrap' }}>
                               {new Date(transaction.date).toLocaleDateString('ko-KR', { 
-                                year: '2-digit',
-                                month: '2-digit', 
-                                day: '2-digit' 
+                                month: 'numeric', 
+                                day: 'numeric' 
                               })}
                             </td>
-                            <td style={{ padding: '8px', whiteSpace: 'nowrap' }}>
+                            <td style={{ padding: '6px 4px', whiteSpace: 'nowrap', maxWidth: '60px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                               {transaction.member?.nickname || transaction.member?.name || '-'}
                             </td>
-                            <td style={{ padding: '8px' }}>
+                            <td style={{ padding: '6px 4px' }}>
                               <div style={{ 
-                                maxWidth: '150px', 
+                                maxWidth: '80px', 
                                 overflow: 'hidden', 
                                 textOverflow: 'ellipsis',
                                 whiteSpace: 'nowrap'
@@ -3049,18 +3044,8 @@ function Admin() {
                                 {categoryName}
                               </div>
                             </td>
-                            <td style={{ padding: '8px' }}>
-                              <div style={{ 
-                                maxWidth: '120px', 
-                                overflow: 'hidden', 
-                                textOverflow: 'ellipsis',
-                                whiteSpace: 'nowrap'
-                              }}>
-                                {bookingName}
-                              </div>
-                            </td>
                             <td style={{ 
-                              padding: '8px', 
+                              padding: '6px 4px', 
                               textAlign: 'right',
                               fontWeight: '600',
                               color: typeColor,
@@ -3075,35 +3060,17 @@ function Admin() {
                                   }}
                                   title="영수증 보기"
                                 >
-                                  {sign}${transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                                  {sign}${transaction.amount.toLocaleString()}
                                 </span>
                               ) : (
                                 <span>
-                                  {sign}${transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                                  {sign}${transaction.amount.toLocaleString()}
                                 </span>
                               )}
                             </td>
-                            <td style={{ padding: '8px', fontSize: '11px', opacity: 0.7, whiteSpace: 'nowrap' }}>
-                              by {transaction.executor?.nickname || transaction.executor?.name || '시스템'}
+                            <td style={{ padding: '6px 4px 6px 16px', whiteSpace: 'nowrap' }}>
+                              {bookingName}
                             </td>
-                            {hasFeaturePermission('delete_transaction') && (
-                              <td style={{ padding: '8px', textAlign: 'center' }}>
-                                <button
-                                  onClick={() => handleDeleteTransaction(transaction.id)}
-                                  style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'var(--alert-red)',
-                                    cursor: 'pointer',
-                                    fontSize: '16px',
-                                    padding: '0 4px'
-                                  }}
-                                  title="삭제"
-                                >
-                                  ×
-                                </button>
-                              </td>
-                            )}
                           </tr>
                         );
                       })}
