@@ -619,9 +619,10 @@ function Play() {
     const isNearHole = !isTeammate && courseData?.nearHoles?.[currentHole - 1];
     
     const iosButtonStyle = { WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation', userSelect: 'none' };
-    const largeBoxSize = '94px';
-    const boxStyle = { width: largeBoxSize, height: largeBoxSize, padding: '12px', background: 'white', border: '2px solid #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '32px', color: '#000', ...iosButtonStyle };
-    const buttonStyle = { width: largeBoxSize, height: largeBoxSize, padding: '12px', border: '2px solid #ccc', background: 'white', color: '#000', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '32px', ...iosButtonStyle };
+    const largeBoxSize = '70px';
+    const isFemale = isTeammate ? selectedTeammate?.gender === 'F' : user?.gender === 'F';
+    const boxStyle = { width: largeBoxSize, height: largeBoxSize, padding: '12px', background: 'white', border: '2px solid #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '28px', color: '#000', ...iosButtonStyle };
+    const buttonStyle = { width: largeBoxSize, height: largeBoxSize, padding: '12px', border: '2px solid #ccc', background: 'white', color: '#000', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '28px', ...iosButtonStyle };
     
     const handleParClick = () => {
       if (score === par) {
@@ -656,8 +657,9 @@ function Play() {
                 onClick={handleParClick} 
                 style={{ 
                   ...boxStyle, 
-                  border: score === par ? '3px solid #27ae60' : score === par * 2 ? '3px solid #e74c3c' : '2px solid #ccc', 
-                  background: score === par ? '#e8f5e9' : score === par * 2 ? '#ffebee' : 'white', 
+                  border: score === par * 2 ? '3px solid #A62B1F' : '2px solid #ccc', 
+                  background: isFemale ? '#D96941' : 'white',
+                  color: isFemale ? 'white' : '#000',
                   cursor: 'pointer' 
                 }}
               >
