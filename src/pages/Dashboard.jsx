@@ -321,7 +321,7 @@ function Dashboard() {
           const transactionData = {
             type: 'charge',
             amount: participationFee,
-            description: `라운딩 참가비 청구`,
+            description: `회비 청구`,
             date: new Date().toISOString().split('T')[0],
             memberId: user.id,
             bookingId: bookingId,

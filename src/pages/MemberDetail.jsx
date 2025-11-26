@@ -472,7 +472,7 @@ function MemberDetail() {
               </h3>
               
               {(() => {
-                const filteredTransactions = transactions.filter(t => t.type !== 'charge');
+                const filteredTransactions = transactions;
                 const chargeTransactions = transactions.filter(t => t.type === 'charge' && t.booking);
                 
                 if (filteredTransactions.length === 0) {
@@ -491,13 +491,14 @@ function MemberDetail() {
                 return (
                   <div>
                     {filteredTransactions.map(transaction => {
-                      const typeLabel = transaction.type === 'payment' ? '라운딩 회비' : 
+                      const typeLabel = transaction.type === 'payment' ? '회비 납부' : 
                         transaction.type === 'donation' ? '도네이션' :
                         transaction.type === 'credit' ? '크레딧처리' :
-                        transaction.type === 'expense' ? '환불' : '';
+                        transaction.type === 'expense' ? '환불' :
+                        transaction.type === 'charge' ? '회비 청구' : '';
                       
                       const typeColor =
-                        transaction.type === 'expense' ? 'var(--alert-red)' : 'var(--success-green)';
+                        (transaction.type === 'expense' || transaction.type === 'charge') ? 'var(--alert-red)' : 'var(--success-green)';
 
                       const sign = (transaction.type === 'payment' || transaction.type === 'donation' || transaction.type === 'credit') ? '+' : '-';
                       

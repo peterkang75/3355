@@ -105,23 +105,13 @@ function Fees() {
       return '환불';
     }
     if (transaction.type === 'charge') {
-      if (transaction.description) {
-        const parts = transaction.description.split(' - ');
-        const categoryName = parts[0].replace(/\s*\([^)]*\)$/, '');
-        
-        if (categoryName.includes('라운딩')) {
-          return '참가비';
-        }
-        
-        return categoryName;
-      }
-      return '참가비 발생';
+      return '회비 청구';
     }
     if (transaction.type === 'payment') {
       if (transaction.description && transaction.description.includes('환불')) {
-        return '참가비 환불';
+        return '회비 환불';
       }
-      return '라운딩 회비';
+      return '회비 납부';
     }
     return '';
   };
@@ -554,7 +544,7 @@ function Fees() {
                         
                         const typeLabel = 
                           isOtherIncome ? otherItemName :
-                          transaction.type === 'payment' ? '라운딩 회비' :
+                          transaction.type === 'payment' ? '회비 납부' :
                           transaction.type === 'expense' ? '클럽 지출' : '도네이션';
                         
                         const typeColor =
