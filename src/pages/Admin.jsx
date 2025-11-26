@@ -3111,9 +3111,21 @@ function Admin() {
             {/* 항목별 합계 섹션 */}
             <div className="card" style={{ marginBottom: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
-                  항목별 집계
-                </h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
+                    항목별 집계
+                  </h3>
+                  <div style={{ 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: 'var(--primary-green)',
+                    background: 'var(--bg-green)',
+                    padding: '4px 10px',
+                    borderRadius: '6px'
+                  }}>
+                    잔액: ${clubBalance.toLocaleString()}
+                  </div>
+                </div>
                 {(selectedSummaryCategories.length > 0 || ledgerFilter.memberId !== 'all') && (
                   <button
                     onClick={() => {
