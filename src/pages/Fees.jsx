@@ -631,7 +631,7 @@ function Fees() {
                               <div style={{ fontSize: '13px', opacity: 0.7 }}>
                                 {new Date(transaction.createdAt).toLocaleDateString('ko-KR')}
                               </div>
-                              {transaction.description && !isOtherIncome && (
+                              {transaction.description && !isOtherIncome && transaction.type !== 'payment' && (
                                 <div style={{ fontSize: '12px', opacity: 0.6, marginTop: '4px' }}>
                                   {transaction.description}
                                 </div>

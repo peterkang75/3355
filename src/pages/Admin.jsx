@@ -655,7 +655,7 @@ function Admin() {
       const transactionData = {
         type: 'payment',
         amount: Math.abs(amount),
-        description: '미수금 전액 납부',
+        description: '정모 회비 전액납부',
         date: new Date().toISOString().split('T')[0],
         memberId: memberId,
         bookingId: null,
@@ -663,7 +663,7 @@ function Admin() {
       };
 
       await apiService.createTransaction(transactionData);
-      alert(`${member.nickname || member.name}님의 미수금이 전액 납부되었습니다.`);
+      alert(`${member.nickname || member.name}님의 회비가 전액 납부되었습니다.`);
       
       // 거래 내역 포함 전체 데이터 새로고침
       await Promise.all([
@@ -709,7 +709,7 @@ function Admin() {
       const transactionData = {
         type: 'payment',
         amount: amount,
-        description: '부분 납부',
+        description: '정모 회비 부분납부',
         date: new Date().toISOString().split('T')[0],
         memberId: memberId,
         bookingId: null,
