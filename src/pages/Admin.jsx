@@ -80,6 +80,7 @@ function Admin() {
   const [selectedTransactionIds, setSelectedTransactionIds] = useState([]);
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [viewingTransaction, setViewingTransaction] = useState(null);
+  const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
 
   const [incomeCategories, setIncomeCategories] = useState([]);
   const [expenseCategories, setExpenseCategories] = useState([]);
@@ -767,6 +768,7 @@ function Admin() {
 
   const loadLedgerData = async () => {
     try {
+      setIsLoadingTransactions(true);
       if (refreshMembers) {
         await refreshMembers();
       }
@@ -775,6 +777,8 @@ function Admin() {
     } catch (error) {
       console.error('장부 데이터 로드 실패:', error);
       setAllTransactions([]);
+    } finally {
+      setIsLoadingTransactions(false);
     }
   };
 
@@ -3508,7 +3512,24 @@ function Admin() {
                 </div>
               </div>
 
-              {allTransactions
+              {isLoadingTransactions ? (
+                <div style={{ 
+                  padding: '40px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ 
+                    width: '40px', 
+                    height: '40px', 
+                    border: '4px solid var(--border-color)',
+                    borderTop: '4px solid var(--primary-green)',
+                    borderRadius: '50%',
+                    animation: 'spin 1s linear infinite',
+                    margin: '0 auto 16px'
+                  }} />
+                  <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+                  <p style={{ color: 'var(--text-secondary)' }}>거래내역 불러오는 중...</p>
+                </div>
+              ) : allTransactions
                 .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                 .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
                 .filter(t => {
@@ -3720,7 +3741,7 @@ function Admin() {
                               </td>
                               <td style={{ 
                                 padding: '6px 4px', 
-                                textAlign: 'left',
+                                textAlign: 'right',
                                 fontWeight: '600',
                                 color: typeColor,
                                 whiteSpace: 'nowrap'
