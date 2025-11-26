@@ -6872,6 +6872,187 @@ function Admin() {
         </div>
       )}
 
+      {editingTransaction && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px'
+          }}
+          onClick={() => setEditingTransaction(null)}
+        >
+          <div 
+            style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '20px',
+              width: '90%',
+              maxWidth: '400px',
+              position: 'relative'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>거래 수정</h3>
+            
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', fontSize: '13px', marginBottom: '4px', fontWeight: '600' }}>
+                유형
+              </label>
+              <div style={{ 
+                padding: '10px 12px', 
+                background: 'var(--bg-light)', 
+                borderRadius: '6px',
+                fontSize: '14px'
+              }}>
+                {editingTransaction.type === 'payment' ? '라운딩 회비' :
+                 editingTransaction.type === 'expense' ? '지출' :
+                 editingTransaction.type === 'donation' ? '도네이션' : editingTransaction.type}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', fontSize: '13px', marginBottom: '4px', fontWeight: '600' }}>
+                회원
+              </label>
+              <div style={{ 
+                padding: '10px 12px', 
+                background: 'var(--bg-light)', 
+                borderRadius: '6px',
+                fontSize: '14px'
+              }}>
+                {editingTransaction.member?.nickname || editingTransaction.member?.name || '-'}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', fontSize: '13px', marginBottom: '4px', fontWeight: '600' }}>
+                날짜
+              </label>
+              <input
+                type="date"
+                value={editingTransaction.date?.split('T')[0] || ''}
+                onChange={(e) => setEditingTransaction({
+                  ...editingTransaction,
+                  date: e.target.value
+                })}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border-color)',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', fontSize: '13px', marginBottom: '4px', fontWeight: '600' }}>
+                금액 ($)
+              </label>
+              <input
+                type="number"
+                value={editingTransaction.amount || ''}
+                onChange={(e) => setEditingTransaction({
+                  ...editingTransaction,
+                  amount: parseFloat(e.target.value) || 0
+                })}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border-color)',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+
+            {editingTransaction.type === 'expense' && (
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', fontSize: '13px', marginBottom: '4px', fontWeight: '600' }}>
+                  설명
+                </label>
+                <input
+                  type="text"
+                  value={editingTransaction.description || ''}
+                  onChange={(e) => setEditingTransaction({
+                    ...editingTransaction,
+                    description: e.target.value
+                  })}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid var(--border-color)',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+            )}
+
+            <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+              <button
+                onClick={() => setEditingTransaction(null)}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'var(--border-color)',
+                  color: 'var(--text-primary)',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    const updated = await apiService.updateTransaction(editingTransaction.id, {
+                      amount: editingTransaction.amount,
+                      date: editingTransaction.date,
+                      description: editingTransaction.description
+                    });
+                    setAllTransactions(prev => prev.map(t => 
+                      t.id === updated.id ? updated : t
+                    ));
+                    setEditingTransaction(null);
+                    setSelectedTransactionIds([]);
+                    setIsTransactionSelectMode(false);
+                    loadClubFinanceData();
+                  } catch (error) {
+                    console.error('Failed to update transaction:', error);
+                    alert('수정에 실패했습니다.');
+                  }
+                }}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'var(--primary-green)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                저장
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {showReceiptModal && (
         <div 
           style={{

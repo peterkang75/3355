@@ -1143,6 +1143,63 @@ router.post('/transactions', async (req, res) => {
   }
 });
 
+// 거래 수정
+router.put('/transactions/:id', async (req, res) => {
+  try {
+    const { amount, date, description } = req.body;
+    
+    const existingTransaction = await prisma.transaction.findUnique({
+      where: { id: req.params.id }
+    });
+
+    if (!existingTransaction) {
+      return res.status(404).json({ error: 'Transaction not found' });
+    }
+
+    const updatedTransaction = await prisma.transaction.update({
+      where: { id: req.params.id },
+      data: {
+        amount: amount !== undefined ? parseFloat(amount) : existingTransaction.amount,
+        date: date ? new Date(date) : existingTransaction.date,
+        description: description !== undefined ? description : existingTransaction.description
+      },
+      include: {
+        member: true,
+        booking: true,
+        executor: true
+      }
+    });
+
+    // 회원 잔액 재계산
+    if (updatedTransaction.memberId) {
+      const memberTransactions = await prisma.transaction.findMany({
+        where: { memberId: updatedTransaction.memberId }
+      });
+
+      const newBalance = memberTransactions.reduce((sum, t) => {
+        if (t.type === 'charge') return sum - t.amount;
+        if (t.type === 'payment') return sum + t.amount;
+        if (t.type === 'credit') return sum + t.amount;
+        if (t.type === 'donation') return sum + t.amount;
+        if (t.type === 'expense') return sum - t.amount;
+        return sum;
+      }, 0);
+
+      await prisma.member.update({
+        where: { id: updatedTransaction.memberId },
+        data: { balance: newBalance }
+      });
+    }
+
+    req.io.emit('transactions:updated');
+    req.io.emit('members:updated');
+    res.json(updatedTransaction);
+  } catch (error) {
+    console.error('Error updating transaction:', error);
+    res.status(500).json({ error: 'Failed to update transaction' });
+  }
+});
+
 // 거래 삭제
 router.delete('/transactions/:id', async (req, res) => {
   try {

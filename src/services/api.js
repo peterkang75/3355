@@ -387,6 +387,16 @@ class ApiService {
     return response.json();
   }
 
+  async updateTransaction(id, data) {
+    const response = await fetch(`${API_BASE}/transactions/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    if (!response.ok) throw new Error('Failed to update transaction');
+    return response.json();
+  }
+
   async deleteChargeTransaction(memberId, bookingId) {
     const response = await fetch(`${API_BASE}/transactions/charge/${memberId}/${bookingId}`, {
       method: 'DELETE'
