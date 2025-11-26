@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
+import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 
 function RoundingManagement() {
   const navigate = useNavigate();
@@ -12,6 +13,9 @@ function RoundingManagement() {
   const [showMenu, setShowMenu] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isTogglingAnnounce, setIsTogglingAnnounce] = useState(false);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -55,26 +59,30 @@ function RoundingManagement() {
   const hasAdminAccess = user?.role === '관리자' || user?.role === '방장' || user?.role === '운영진' || user?.role === '클럽운영진' || user?.isAdmin;
 
   const handleDeleteBooking = async () => {
+    if (isDeleting) return;
     if (!confirm('정말로 이 라운딩을 삭제하시겠습니까?')) {
       return;
     }
 
+    setIsDeleting(true);
     try {
       await apiService.deleteBooking(bookingId);
       alert('라운딩이 삭제되었습니다.');
       navigate('/booking');
     } catch (error) {
-      console.error('라운딩 삭제 실패:', error);
       alert('라운딩 삭제에 실패했습니다.');
+      setIsDeleting(false);
     }
   };
 
   const handleSaveEdit = async () => {
+    if (isSaving) return;
     if (!editData.courseName || !editData.date || !editData.time) {
       alert('골프장, 날짜, 시간을 입력해주세요.');
       return;
     }
 
+    setIsSaving(true);
     try {
       const updatedData = {
         ...editData,
@@ -89,20 +97,25 @@ function RoundingManagement() {
       setShowMenu(false);
       alert('라운딩이 수정되었습니다.');
     } catch (error) {
-      console.error('라운딩 수정 실패:', error);
       alert('라운딩 수정에 실패했습니다.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleToggleAnnounce = async () => {
+    if (isTogglingAnnounce) return;
+    
+    setIsTogglingAnnounce(true);
     try {
       await apiService.toggleBookingAnnounce(bookingId);
       await refreshBookings();
       setShowMenu(false);
       alert(booking.isAnnounced ? '공지가 해제되었습니다.' : '공지가 활성화되었습니다.');
     } catch (error) {
-      console.error('공지 상태 변경 실패:', error);
       alert('공지 상태 변경에 실패했습니다.');
+    } finally {
+      setIsTogglingAnnounce(false);
     }
   };
   
@@ -255,8 +268,10 @@ function RoundingManagement() {
                   zIndex: 10,
                   minWidth: '140px'
                 }}>
-                  <button
+                  <LoadingButton
                     onClick={handleToggleAnnounce}
+                    loading={isTogglingAnnounce}
+                    loadingText="처리중..."
                     style={{
                       display: 'block',
                       width: '100%',
@@ -270,7 +285,7 @@ function RoundingManagement() {
                     }}
                   >
                     {booking.isAnnounced ? '★ 공지 내리기' : '★ 공지 활성화'}
-                  </button>
+                  </LoadingButton>
                   <button
                     onClick={() => {
                       setIsEditing(true);
@@ -290,8 +305,10 @@ function RoundingManagement() {
                   >
                     ✏️ 라운딩 수정
                   </button>
-                  <button
+                  <LoadingButton
                     onClick={handleDeleteBooking}
+                    loading={isDeleting}
+                    loadingText="삭제중..."
                     style={{
                       display: 'block',
                       width: '100%',
@@ -305,7 +322,7 @@ function RoundingManagement() {
                     }}
                   >
                     🗑️ 라운딩 삭제
-                  </button>
+                  </LoadingButton>
                 </div>
               )}
             </div>
@@ -418,6 +435,7 @@ function RoundingManagement() {
             <div style={{ display: 'flex', gap: '8px' }}>
               <button 
                 onClick={() => setIsEditing(false)}
+                disabled={isSaving}
                 style={{
                   flex: 1,
                   padding: '14px 24px',
@@ -427,13 +445,16 @@ function RoundingManagement() {
                   borderRadius: '8px',
                   fontSize: '16px',
                   fontWeight: '600',
-                  cursor: 'pointer'
+                  cursor: isSaving ? 'not-allowed' : 'pointer',
+                  opacity: isSaving ? 0.7 : 1
                 }}
               >
                 취소하기
               </button>
-              <button 
+              <LoadingButton 
                 onClick={handleSaveEdit}
+                loading={isSaving}
+                loadingText="저장중..."
                 style={{
                   flex: 1,
                   padding: '14px 24px',
@@ -442,12 +463,11 @@ function RoundingManagement() {
                   border: 'none',
                   borderRadius: '8px',
                   fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer'
+                  fontWeight: '600'
                 }}
               >
                 저장
-              </button>
+              </LoadingButton>
             </div>
           </div>
         )}

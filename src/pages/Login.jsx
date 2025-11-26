@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
 import logoImage from '../assets/logo-new.png';
 import apiService from '../services/api';
+import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 
 function Login({ onLogin }) {
   const { courses, members, refreshMembers } = useApp();
   const [phoneLastSix, setPhoneLastSix] = useState('');
   const [error, setError] = useState('');
   const [showSignup, setShowSignup] = useState(false);
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
+  const [isSigningUp, setIsSigningUp] = useState(false);
   const [newMember, setNewMember] = useState({
     name: '',
     nickname: '',
@@ -25,12 +28,16 @@ function Login({ onLogin }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isLoggingIn) return;
+    
     setError('');
 
     if (phoneLastSix.length !== 6 || !/^\d+$/.test(phoneLastSix)) {
       setError('전화번호 끝 6자리를 정확히 입력해주세요.');
       return;
     }
+
+    setIsLoggingIn(true);
 
     const foundMember = members.find(m => {
       const memberLastSix = String(m.phone).slice(-6);
@@ -39,26 +46,27 @@ function Login({ onLogin }) {
 
     if (!foundMember) {
       setError('등록되지 않은 전화번호입니다. 회원가입을 먼저 진행해주세요.');
+      setIsLoggingIn(false);
       return;
     }
 
     if (foundMember.isActive === false) {
       setError('비활성화된 계정입니다. 관리자에게 문의하세요.');
+      setIsLoggingIn(false);
       return;
     }
 
     if (foundMember.approvalStatus === 'pending') {
       setError('회원가입 승인 대기 중입니다. 운영진의 승인을 기다려주세요.');
+      setIsLoggingIn(false);
       return;
     }
 
     if (foundMember.approvalStatus === 'rejected') {
       setError('회원가입이 거부되었습니다. 관리자에게 문의하세요.');
+      setIsLoggingIn(false);
       return;
     }
-
-    console.log('🔐 로그인 시도:', foundMember.name);
-    console.log('📋 Member 정보:', JSON.stringify(foundMember, null, 2));
     
     localStorage.clear();
     
@@ -66,7 +74,7 @@ function Login({ onLogin }) {
   };
 
   const handleSignup = async () => {
-    console.log('🔵 회원가입 시작');
+    if (isSigningUp) return;
     
     if (!newMember.name || !newMember.nickname || !newMember.phone || !newMember.photo || 
         !newMember.gender || !newMember.birthYear || !newMember.region) {
@@ -92,17 +100,16 @@ function Login({ onLogin }) {
       }
     }
 
+    setIsSigningUp(true);
+
     const userData = {
       ...newMember,
       isAdmin: false,
       balance: 0
     };
-
-    console.log('📤 데이터베이스에 저장 시도:', userData);
     
     try {
       const result = await apiService.createMember(userData);
-      console.log('✅ 저장 결과:', result);
       
       if (refreshMembers) {
         await refreshMembers();
@@ -115,10 +122,11 @@ function Login({ onLogin }) {
       }
       setShowSignup(false);
     } catch (error) {
-      console.error('❌ 저장 실패:', error);
       setError('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
+      setIsSigningUp(false);
       return;
     }
+    setIsSigningUp(false);
     setNewMember({
       name: '',
       nickname: '',
@@ -216,9 +224,15 @@ function Login({ onLogin }) {
             </div>
           )}
 
-          <button type="submit" className="btn-primary">
+          <LoadingButton 
+            type="submit" 
+            className="btn-primary"
+            loading={isLoggingIn}
+            loadingText="로그인 중..."
+            style={{ width: '100%' }}
+          >
             로그인
-          </button>
+          </LoadingButton>
         </form>
 
         <button 
@@ -453,13 +467,15 @@ function Login({ onLogin }) {
                 {error}
               </div>
             )}
-            <button 
+            <LoadingButton 
               onClick={handleSignup}
               className="btn-primary"
+              loading={isSigningUp}
+              loadingText="가입 중..."
               style={{ width: '100%' }}
             >
               가입하기
-            </button>
+            </LoadingButton>
           </div>
         )}
       </div>
