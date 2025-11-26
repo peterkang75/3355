@@ -652,13 +652,18 @@ function Admin() {
       const member = members.find(m => m.id === memberId);
       if (!member) return;
 
+      // 회원의 가장 최근 charge 거래에서 bookingId 찾기
+      const memberTransactions = await apiService.fetchMemberTransactions(memberId);
+      const recentCharge = memberTransactions.find(t => t.type === 'charge' && t.booking);
+      const bookingId = recentCharge?.booking?.id || null;
+
       const transactionData = {
         type: 'payment',
         amount: Math.abs(amount),
-        description: '정모 회비 전액납부',
+        description: '라운딩 회비 전액납부',
         date: new Date().toISOString().split('T')[0],
         memberId: memberId,
-        bookingId: null,
+        bookingId: bookingId,
         createdBy: user.id
       };
 
@@ -706,13 +711,18 @@ function Admin() {
       const member = members.find(m => m.id === memberId);
       if (!member) return;
 
+      // 회원의 가장 최근 charge 거래에서 bookingId 찾기
+      const memberTransactions = await apiService.fetchMemberTransactions(memberId);
+      const recentCharge = memberTransactions.find(t => t.type === 'charge' && t.booking);
+      const bookingId = recentCharge?.booking?.id || null;
+
       const transactionData = {
         type: 'payment',
         amount: amount,
-        description: '정모 회비 부분납부',
+        description: '라운딩 회비 부분납부',
         date: new Date().toISOString().split('T')[0],
         memberId: memberId,
-        bookingId: null,
+        bookingId: bookingId,
         createdBy: user.id
       };
 

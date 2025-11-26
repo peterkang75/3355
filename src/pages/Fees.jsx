@@ -392,6 +392,7 @@ function Fees() {
 
               {(() => {
                 const filteredUserTransactions = userTransactions.filter(t => t.type !== 'charge');
+                const chargeTransactions = userTransactions.filter(t => t.type === 'charge' && t.booking);
                 
                 if (filteredUserTransactions.length === 0) {
                   return (
@@ -409,8 +410,13 @@ function Fees() {
                 return (
                   <div>
                     {filteredUserTransactions.map(transaction => {
-                      const bookingName = transaction.booking ? 
-                        (transaction.booking.title || transaction.booking.courseName) : '-';
+                      let bookingName = '-';
+                      if (transaction.booking) {
+                        bookingName = transaction.booking.title || transaction.booking.courseName || '-';
+                      } else if (transaction.type === 'payment' && chargeTransactions.length > 0) {
+                        const recentCharge = chargeTransactions[0];
+                        bookingName = recentCharge.booking.title || recentCharge.booking.courseName || '-';
+                      }
                       
                       return (
                         <div 

@@ -473,6 +473,7 @@ function MemberDetail() {
               
               {(() => {
                 const filteredTransactions = transactions.filter(t => t.type !== 'charge');
+                const chargeTransactions = transactions.filter(t => t.type === 'charge' && t.booking);
                 
                 if (filteredTransactions.length === 0) {
                   return (
@@ -500,8 +501,13 @@ function MemberDetail() {
 
                       const sign = (transaction.type === 'payment' || transaction.type === 'donation' || transaction.type === 'credit') ? '+' : '-';
                       
-                      const bookingName = transaction.booking ? 
-                        (transaction.booking.title || transaction.booking.courseName) : '-';
+                      let bookingName = '-';
+                      if (transaction.booking) {
+                        bookingName = transaction.booking.title || transaction.booking.courseName || '-';
+                      } else if (transaction.type === 'payment' && chargeTransactions.length > 0) {
+                        const recentCharge = chargeTransactions[0];
+                        bookingName = recentCharge.booking.title || recentCharge.booking.courseName || '-';
+                      }
 
                       return (
                         <div 
