@@ -4020,11 +4020,12 @@ function Admin() {
                   const getScoreColor = (score, par) => {
                     if (!score || score === 0) return 'transparent';
                     const diff = score - par;
-                    if (diff <= -2) return '#2c7873'; // Eagle or better
-                    if (diff === -1) return '#d4a017'; // Birdie (yellow)
-                    if (diff === 0) return 'transparent'; // Par
-                    if (diff === 1) return '#d96941'; // Bogey (orange)
-                    return '#a62b1f'; // Double bogey+ (red)
+                    if (diff <= -3) return '#1a5f5f'; // Ace/Albatross (dark teal)
+                    if (diff === -2) return '#e67e22'; // Eagle (orange)
+                    if (diff === -1) return '#f4d03f'; // Birdie (yellow)
+                    if (diff === 0) return 'transparent'; // Par (white)
+                    if (diff === 1) return '#eb984e'; // Bogey (light orange)
+                    return '#e74c3c'; // Double bogey+ (red)
                   };
 
                   const renderHoleRow = (startHole, endHole, label) => {
@@ -4166,30 +4167,64 @@ function Admin() {
                         display: 'flex',
                         justifyContent: 'center',
                         flexWrap: 'wrap',
-                        gap: '8px',
+                        gap: '6px',
                         marginTop: '20px',
-                        padding: '16px',
-                        borderTop: '1px solid rgba(255,255,255,0.1)'
+                        padding: '16px'
                       }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <div style={{ width: '24px', height: '24px', background: '#2c7873', borderRadius: '4px' }}></div>
-                          <span style={{ color: 'white', fontSize: '11px' }}>Eagle</span>
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          padding: '6px 10px',
+                          background: '#1a5f5f',
+                          borderRadius: '4px'
+                        }}>
+                          <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>Ace/Albatross</span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <div style={{ width: '24px', height: '24px', background: '#d4a017', borderRadius: '4px' }}></div>
-                          <span style={{ color: 'white', fontSize: '11px' }}>Birdie</span>
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          padding: '6px 10px',
+                          background: '#e67e22',
+                          borderRadius: '4px'
+                        }}>
+                          <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>Eagle</span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <div style={{ width: '24px', height: '24px', background: 'rgba(255,255,255,0.2)', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.3)' }}></div>
-                          <span style={{ color: 'white', fontSize: '11px' }}>Par</span>
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          padding: '6px 10px',
+                          background: '#f4d03f',
+                          borderRadius: '4px'
+                        }}>
+                          <span style={{ color: '#333', fontSize: '11px', fontWeight: '600' }}>Birdie</span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <div style={{ width: '24px', height: '24px', background: '#d96941', borderRadius: '4px' }}></div>
-                          <span style={{ color: 'white', fontSize: '11px' }}>Bogey</span>
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          padding: '6px 10px',
+                          background: '#f5f5f5',
+                          borderRadius: '4px',
+                          border: '1px solid #ddd'
+                        }}>
+                          <span style={{ color: '#333', fontSize: '11px', fontWeight: '600' }}>Par</span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <div style={{ width: '24px', height: '24px', background: '#a62b1f', borderRadius: '4px' }}></div>
-                          <span style={{ color: 'white', fontSize: '11px' }}>D.Bogey+</span>
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          padding: '6px 10px',
+                          background: '#eb984e',
+                          borderRadius: '4px'
+                        }}>
+                          <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>Bogey</span>
+                        </div>
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          padding: '6px 10px',
+                          background: '#e74c3c',
+                          borderRadius: '4px'
+                        }}>
+                          <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>D. Bogey +</span>
                         </div>
                       </div>
 
