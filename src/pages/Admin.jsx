@@ -2318,7 +2318,7 @@ function Admin() {
                               try {
                                 const transactionData = {
                                   type: 'donation',
-                                  amount: parseInt(selectedIncome.manualAmount),
+                                  amount: Math.round(parseFloat(selectedIncome.manualAmount) * 10) / 10,
                                   description: `기타 - ${selectedIncome.manualItemName.trim()}`,
                                   date: selectedIncome.date
                                 };

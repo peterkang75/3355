@@ -111,7 +111,7 @@ model Transaction {
   id          String   @id @default(cuid())
   type        String
   category    String?
-  amount      Int
+  amount      Float
   memberId    String?
   member      Member?  @relation(fields: [memberId], references: [id], onDelete: Cascade, name: "MemberTransactions")
   bookingId   String?

@@ -522,7 +522,11 @@ function Fees() {
                     .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                     .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
                     .map(transaction => {
+                      const isOtherIncome = transaction.description?.startsWith('기타 - ');
+                      const otherItemName = isOtherIncome ? transaction.description.replace('기타 - ', '') : null;
+                      
                       const typeLabel = 
+                        isOtherIncome ? otherItemName :
                         transaction.type === 'charge' ? '참가비 발생' :
                         transaction.type === 'payment' ? '납부' :
                         transaction.type === 'expense' ? '클럽 지출' : '도네이션';
@@ -600,7 +604,7 @@ function Fees() {
                             <div style={{ fontSize: '13px', opacity: 0.7 }}>
                               {new Date(transaction.createdAt).toLocaleDateString('ko-KR')}
                             </div>
-                            {transaction.description && (
+                            {transaction.description && !isOtherIncome && (
                               <div style={{ fontSize: '12px', opacity: 0.6, marginTop: '4px' }}>
                                 {transaction.description}
                               </div>
@@ -612,11 +616,11 @@ function Fees() {
                               fontWeight: '700',
                               color: typeColor
                             }}>
-                              {sign}${transaction.amount.toLocaleString()}
+                              {sign}${transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
                             </div>
                             {transaction.balanceAfter !== undefined && (
                               <div style={{ fontSize: '12px', opacity: 0.6, marginTop: '4px' }}>
-                                잔액: ${transaction.balanceAfter.toLocaleString()}
+                                잔액: ${transaction.balanceAfter.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
                               </div>
                             )}
                           </div>
