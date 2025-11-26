@@ -110,6 +110,15 @@ function Admin() {
   const [savedClubRulesText, setSavedClubRulesText] = useState('');
   const [appDescriptionText, setAppDescriptionText] = useState('');
   const [savedAppDescriptionText, setSavedAppDescriptionText] = useState('');
+  
+  // 스코어 관리 상태
+  const [scoreManagementView, setScoreManagementView] = useState('rounds'); // 'rounds', 'leaderboard', 'scorecard'
+  const [selectedRoundForScore, setSelectedRoundForScore] = useState(null);
+  const [selectedPlayerForScore, setSelectedPlayerForScore] = useState(null);
+  const [roundScores, setRoundScores] = useState([]);
+  const [allScores, setAllScores] = useState([]);
+  const [editingScore, setEditingScore] = useState(null);
+  const [editScoreData, setEditScoreData] = useState(null);
 
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
@@ -1340,7 +1349,16 @@ function Admin() {
     <div>
       <div className="header">
         <button
-          onClick={() => activeTab !== 'menu' ? setActiveTab('menu') : navigate(-1)}
+          onClick={() => {
+            if (activeTab !== 'menu') {
+              setActiveTab('menu');
+              setScoreManagementView('rounds');
+              setSelectedRoundForScore(null);
+              setSelectedPlayerForScore(null);
+            } else {
+              navigate(-1);
+            }
+          }}
           style={{
             background: 'none',
             border: 'none',
@@ -1539,6 +1557,39 @@ function Admin() {
                   </div>
                   <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
                     골프장 등록 및 관리
+                  </div>
+                </div>
+              </div>
+              <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.7 }}>›</div>
+            </button>
+
+            <button
+              onClick={() => setActiveTab('scoreManagement')}
+              style={{
+                padding: '16px',
+                textAlign: 'left',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                transition: 'all 0.2s',
+                background: 'var(--bg-page)',
+                borderTop: 'none',
+                borderLeft: 'none',
+                borderRight: 'none',
+                borderBottom: '1px solid var(--border-color)'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-page)'}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>🏌</div>
+                <div>
+                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: 'var(--text-dark)' }}>
+                    스코어 관리
+                  </div>
+                  <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
+                    라운딩별 스코어 조회 및 수정
                   </div>
                 </div>
               </div>
@@ -3642,6 +3693,613 @@ function Admin() {
                 ))
               )}
             </div>
+          </div>
+        )}
+
+        {activeTab === 'scoreManagement' && (
+          <div>
+            {scoreManagementView === 'rounds' && (
+              <div>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', padding: '0 16px' }}>
+                  라운딩별 스코어
+                </h3>
+                {bookings.length === 0 ? (
+                  <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
+                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏌️</div>
+                    <div style={{ color: 'var(--text-dark)', opacity: 0.7 }}>등록된 라운딩이 없습니다</div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                    {bookings.sort((a, b) => new Date(b.date) - new Date(a.date)).map(booking => (
+                      <button
+                        key={booking.id}
+                        onClick={async () => {
+                          setSelectedRoundForScore(booking);
+                          try {
+                            const res = await fetch(`/api/scores/by-rounding/${encodeURIComponent(booking.title)}`);
+                            const data = await res.json();
+                            setRoundScores(Array.isArray(data) ? data : []);
+                          } catch (e) {
+                            console.error('스코어 로드 에러:', e);
+                            setRoundScores([]);
+                          }
+                          setScoreManagementView('leaderboard');
+                        }}
+                        style={{
+                          padding: '16px',
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          background: 'var(--bg-page)',
+                          border: 'none',
+                          borderBottom: '1px solid var(--border-color)'
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '4px', color: 'var(--text-dark)' }}>
+                            {booking.title}
+                          </div>
+                          <div style={{ fontSize: '13px', color: 'var(--text-dark)', opacity: 0.7 }}>
+                            {new Date(booking.date).toLocaleDateString('ko-KR')} · {booking.courseName || '미정'}
+                          </div>
+                        </div>
+                        <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.5 }}>›</div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {scoreManagementView === 'leaderboard' && selectedRoundForScore && (
+              <div>
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '12px', 
+                  marginBottom: '16px',
+                  padding: '0 16px'
+                }}>
+                  <button
+                    onClick={() => {
+                      setScoreManagementView('rounds');
+                      setSelectedRoundForScore(null);
+                      setRoundScores([]);
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      fontSize: '24px',
+                      cursor: 'pointer',
+                      padding: '0',
+                      color: 'var(--primary-green)'
+                    }}
+                  >
+                    ‹
+                  </button>
+                  <div>
+                    <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
+                      {selectedRoundForScore.title}
+                    </h3>
+                    <div style={{ fontSize: '13px', color: 'var(--text-dark)', opacity: 0.7 }}>
+                      {new Date(selectedRoundForScore.date).toLocaleDateString('ko-KR')}
+                    </div>
+                  </div>
+                </div>
+
+                {roundScores.length === 0 ? (
+                  <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
+                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
+                    <div style={{ color: 'var(--text-dark)', opacity: 0.7 }}>등록된 스코어가 없습니다</div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                    {roundScores
+                      .sort((a, b) => {
+                        const diffA = a.totalScore - (a.coursePar || 72);
+                        const diffB = b.totalScore - (b.coursePar || 72);
+                        return diffA - diffB;
+                      })
+                      .map((score, index) => {
+                        const member = members.find(m => m.id === score.memberId);
+                        const diff = score.totalScore - (score.coursePar || 72);
+                        const diffText = diff > 0 ? `+${diff}` : diff === 0 ? 'E' : String(diff);
+                        return (
+                          <button
+                            key={score.id}
+                            onClick={() => {
+                              setSelectedPlayerForScore({ ...score, member, rank: index + 1 });
+                              setScoreManagementView('scorecard');
+                            }}
+                            style={{
+                              padding: '16px',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              background: 'var(--bg-page)',
+                              border: 'none',
+                              borderBottom: '1px solid var(--border-color)'
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                              <div style={{
+                                width: '32px',
+                                height: '32px',
+                                borderRadius: '50%',
+                                background: index === 0 ? '#FFD700' : index === 1 ? '#C0C0C0' : index === 2 ? '#CD7F32' : 'var(--primary-green)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                color: 'white',
+                                fontWeight: '700',
+                                fontSize: '14px'
+                              }}>
+                                {index + 1}
+                              </div>
+                              <div>
+                                <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-dark)' }}>
+                                  {member?.nickname || member?.name || '알 수 없음'}
+                                </div>
+                                <div style={{ fontSize: '12px', color: 'var(--text-dark)', opacity: 0.7 }}>
+                                  HC: {member?.handicap || '-'}
+                                </div>
+                              </div>
+                            </div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                              <div style={{ textAlign: 'right' }}>
+                                <div style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-dark)' }}>
+                                  {score.totalScore}
+                                </div>
+                                <div style={{ 
+                                  fontSize: '13px', 
+                                  fontWeight: '600',
+                                  color: diff < 0 ? '#e74c3c' : diff > 0 ? '#3498db' : 'var(--text-dark)'
+                                }}>
+                                  {diffText}
+                                </div>
+                              </div>
+                              <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.5 }}>›</div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {scoreManagementView === 'scorecard' && selectedPlayerForScore && (
+              <div style={{ background: '#1a1a2e', minHeight: '100vh', margin: '-16px', padding: '16px' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between',
+                  alignItems: 'center', 
+                  marginBottom: '16px'
+                }}>
+                  <button
+                    onClick={() => {
+                      setScoreManagementView('leaderboard');
+                      setSelectedPlayerForScore(null);
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      fontSize: '16px',
+                      cursor: 'pointer',
+                      padding: '8px 0',
+                      color: 'white'
+                    }}
+                  >
+                    ‹ Back
+                  </button>
+                  {['관리자', '방장', '운영진', '클럽운영진'].includes(user.role) && (
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        onClick={() => {
+                          setEditingScore(selectedPlayerForScore);
+                          setEditScoreData({
+                            totalScore: selectedPlayerForScore.totalScore,
+                            holes: selectedPlayerForScore.holes || Array(18).fill('')
+                          });
+                        }}
+                        style={{
+                          background: '#3498db',
+                          border: 'none',
+                          borderRadius: '6px',
+                          padding: '8px 16px',
+                          color: 'white',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        수정
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (window.confirm('이 스코어를 삭제하시겠습니까?')) {
+                            try {
+                              await fetch(`/api/scores/${selectedPlayerForScore.id}`, { method: 'DELETE' });
+                              setRoundScores(prev => prev.filter(s => s.id !== selectedPlayerForScore.id));
+                              setScoreManagementView('leaderboard');
+                              setSelectedPlayerForScore(null);
+                            } catch (e) {
+                              console.error('삭제 에러:', e);
+                              alert('삭제에 실패했습니다');
+                            }
+                          }
+                        }}
+                        style={{
+                          background: '#e74c3c',
+                          border: 'none',
+                          borderRadius: '6px',
+                          padding: '8px 16px',
+                          color: 'white',
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        삭제
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '16px',
+                  borderBottom: '1px solid rgba(255,255,255,0.1)'
+                }}>
+                  <div>
+                    <div style={{ color: 'white', fontSize: '18px', fontWeight: '700' }}>
+                      {selectedPlayerForScore.member?.nickname || selectedPlayerForScore.member?.name || '알 수 없음'}
+                    </div>
+                    <div style={{ 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      gap: '8px',
+                      marginTop: '4px'
+                    }}>
+                      <span style={{
+                        background: 'rgba(255,255,255,0.2)',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        color: 'white'
+                      }}>
+                        HCP: {selectedPlayerForScore.member?.handicap || '-'}
+                      </span>
+                    </div>
+                  </div>
+                  <div style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    padding: '12px 20px',
+                    borderRadius: '8px',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ color: 'white', fontSize: '24px', fontWeight: '700' }}>
+                      {selectedPlayerForScore.totalScore}
+                    </div>
+                    <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '12px' }}>
+                      RANK {selectedPlayerForScore.rank}
+                    </div>
+                  </div>
+                </div>
+
+                {(() => {
+                  const holes = selectedPlayerForScore.holes || [];
+                  const hasHoleData = holes.some(h => h > 0);
+                  const course = courses.find(c => c.name === selectedPlayerForScore.courseName);
+                  const gender = selectedPlayerForScore.member?.gender;
+                  const isFemale = gender === 'F' || gender === '여' || gender === 'female';
+                  const parArr = course?.holePars?.[isFemale ? 'female' : 'male'] || Array(18).fill(4);
+
+                  const getScoreColor = (score, par) => {
+                    if (!score || score === 0) return 'transparent';
+                    const diff = score - par;
+                    if (diff <= -2) return '#2c7873'; // Eagle or better
+                    if (diff === -1) return '#d4a017'; // Birdie (yellow)
+                    if (diff === 0) return 'transparent'; // Par
+                    if (diff === 1) return '#d96941'; // Bogey (orange)
+                    return '#a62b1f'; // Double bogey+ (red)
+                  };
+
+                  const renderHoleRow = (startHole, endHole, label) => {
+                    const holeNumbers = [];
+                    const pars = [];
+                    const scores = [];
+                    const diffs = [];
+
+                    for (let i = startHole; i <= endHole; i++) {
+                      holeNumbers.push(i);
+                      pars.push(parArr[i - 1] || 4);
+                      scores.push(holes[i - 1] || 0);
+                      diffs.push((holes[i - 1] || 0) - (parArr[i - 1] || 4));
+                    }
+
+                    const totalPar = pars.reduce((a, b) => a + b, 0);
+                    const totalScore = scores.reduce((a, b) => a + b, 0);
+                    const totalDiff = scores.filter(s => s > 0).length > 0 
+                      ? scores.reduce((a, b, idx) => a + (b > 0 ? b - pars[idx] : 0), 0)
+                      : 0;
+
+                    return (
+                      <div style={{ marginBottom: '16px' }}>
+                        <div style={{ 
+                          display: 'grid', 
+                          gridTemplateColumns: `repeat(${endHole - startHole + 2}, 1fr)`,
+                          gap: '2px',
+                          fontSize: '13px'
+                        }}>
+                          {/* Hole numbers */}
+                          {holeNumbers.map(h => (
+                            <div key={`hole-${h}`} style={{ 
+                              textAlign: 'center', 
+                              padding: '8px 4px',
+                              color: 'rgba(255,255,255,0.7)'
+                            }}>
+                              {h}
+                            </div>
+                          ))}
+                          <div style={{ textAlign: 'center', padding: '8px 4px', color: 'rgba(255,255,255,0.7)', fontWeight: '600' }}>
+                            {label}
+                          </div>
+
+                          {/* Par row */}
+                          {pars.map((p, idx) => (
+                            <div key={`par-${idx}`} style={{ 
+                              textAlign: 'center', 
+                              padding: '8px 4px',
+                              color: 'white'
+                            }}>
+                              {p}
+                            </div>
+                          ))}
+                          <div style={{ textAlign: 'center', padding: '8px 4px', color: 'white', fontWeight: '600' }}>
+                            {totalPar}
+                          </div>
+
+                          {/* Score row */}
+                          {scores.map((s, idx) => (
+                            <div key={`score-${idx}`} style={{ 
+                              textAlign: 'center', 
+                              padding: '8px 4px',
+                              background: s > 0 ? getScoreColor(s, pars[idx]) : 'transparent',
+                              color: 'white',
+                              borderRadius: '4px',
+                              fontWeight: '600'
+                            }}>
+                              {hasHoleData ? (s > 0 ? s : '-') : '-'}
+                            </div>
+                          ))}
+                          <div style={{ 
+                            textAlign: 'center', 
+                            padding: '8px 4px', 
+                            color: 'white', 
+                            fontWeight: '700',
+                            background: 'rgba(255,255,255,0.1)',
+                            borderRadius: '4px'
+                          }}>
+                            {hasHoleData ? totalScore : '-'}
+                          </div>
+
+                          {/* Diff row */}
+                          {diffs.map((d, idx) => (
+                            <div key={`diff-${idx}`} style={{ 
+                              textAlign: 'center', 
+                              padding: '8px 4px',
+                              color: 'rgba(255,255,255,0.7)',
+                              fontSize: '12px'
+                            }}>
+                              {hasHoleData && scores[idx] > 0 ? d : ''}
+                            </div>
+                          ))}
+                          <div style={{ 
+                            textAlign: 'center', 
+                            padding: '8px 4px', 
+                            color: 'rgba(255,255,255,0.7)',
+                            fontSize: '12px',
+                            fontWeight: '600'
+                          }}>
+                            {hasHoleData && totalScore > 0 ? totalDiff : ''}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  };
+
+                  return (
+                    <div style={{ padding: '16px 0' }}>
+                      {renderHoleRow(1, 9, 'Out')}
+                      {renderHoleRow(10, 18, 'In')}
+
+                      {/* Legend */}
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        flexWrap: 'wrap',
+                        gap: '8px',
+                        marginTop: '20px',
+                        padding: '16px',
+                        borderTop: '1px solid rgba(255,255,255,0.1)'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <div style={{ width: '24px', height: '24px', background: '#2c7873', borderRadius: '4px' }}></div>
+                          <span style={{ color: 'white', fontSize: '11px' }}>Eagle</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <div style={{ width: '24px', height: '24px', background: '#d4a017', borderRadius: '4px' }}></div>
+                          <span style={{ color: 'white', fontSize: '11px' }}>Birdie</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <div style={{ width: '24px', height: '24px', background: 'rgba(255,255,255,0.2)', borderRadius: '4px', border: '1px solid rgba(255,255,255,0.3)' }}></div>
+                          <span style={{ color: 'white', fontSize: '11px' }}>Par</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <div style={{ width: '24px', height: '24px', background: '#d96941', borderRadius: '4px' }}></div>
+                          <span style={{ color: 'white', fontSize: '11px' }}>Bogey</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <div style={{ width: '24px', height: '24px', background: '#a62b1f', borderRadius: '4px' }}></div>
+                          <span style={{ color: 'white', fontSize: '11px' }}>D.Bogey+</span>
+                        </div>
+                      </div>
+
+                      {!hasHoleData && (
+                        <div style={{
+                          textAlign: 'center',
+                          padding: '20px',
+                          color: 'rgba(255,255,255,0.5)',
+                          fontSize: '14px'
+                        }}>
+                          홀별 타수 정보가 없습니다 (총 타수만 입력됨)
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {/* Edit Modal */}
+                {editingScore && (
+                  <div style={{
+                    position: 'fixed',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(0,0,0,0.8)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000,
+                    padding: '20px'
+                  }}>
+                    <div style={{
+                      background: 'white',
+                      borderRadius: '12px',
+                      padding: '20px',
+                      width: '100%',
+                      maxWidth: '400px',
+                      maxHeight: '80vh',
+                      overflow: 'auto'
+                    }}>
+                      <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
+                        스코어 수정
+                      </h3>
+                      <div style={{ marginBottom: '16px' }}>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+                          총 타수
+                        </label>
+                        <input
+                          type="number"
+                          value={editScoreData?.totalScore || ''}
+                          onChange={(e) => setEditScoreData(prev => ({ ...prev, totalScore: parseInt(e.target.value) || 0 }))}
+                          style={{
+                            width: '100%',
+                            padding: '12px',
+                            border: '1px solid #ddd',
+                            borderRadius: '8px',
+                            fontSize: '16px'
+                          }}
+                        />
+                      </div>
+                      <div style={{ marginBottom: '16px' }}>
+                        <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+                          홀별 타수 (선택)
+                        </label>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px' }}>
+                          {(editScoreData?.holes || []).map((h, idx) => (
+                            <div key={idx} style={{ textAlign: 'center' }}>
+                              <div style={{ fontSize: '11px', color: '#666', marginBottom: '4px' }}>{idx + 1}</div>
+                              <input
+                                type="number"
+                                value={h || ''}
+                                onChange={(e) => {
+                                  const newHoles = [...(editScoreData?.holes || [])];
+                                  newHoles[idx] = parseInt(e.target.value) || 0;
+                                  setEditScoreData(prev => ({ ...prev, holes: newHoles }));
+                                }}
+                                style={{
+                                  width: '100%',
+                                  padding: '8px 4px',
+                                  border: '1px solid #ddd',
+                                  borderRadius: '4px',
+                                  fontSize: '14px',
+                                  textAlign: 'center'
+                                }}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', gap: '12px' }}>
+                        <button
+                          onClick={() => {
+                            setEditingScore(null);
+                            setEditScoreData(null);
+                          }}
+                          style={{
+                            flex: 1,
+                            padding: '12px',
+                            border: '1px solid #ddd',
+                            borderRadius: '8px',
+                            background: 'white',
+                            fontSize: '16px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          취소
+                        </button>
+                        <button
+                          onClick={async () => {
+                            try {
+                              const res = await fetch(`/api/scores/${editingScore.id}`, {
+                                method: 'PUT',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                  totalScore: editScoreData.totalScore,
+                                  holes: editScoreData.holes
+                                })
+                              });
+                              if (res.ok) {
+                                const updated = await res.json();
+                                setRoundScores(prev => prev.map(s => s.id === updated.id ? updated : s));
+                                setSelectedPlayerForScore(prev => ({ ...prev, ...updated }));
+                                setEditingScore(null);
+                                setEditScoreData(null);
+                              }
+                            } catch (e) {
+                              console.error('수정 에러:', e);
+                              alert('수정에 실패했습니다');
+                            }
+                          }}
+                          style={{
+                            flex: 1,
+                            padding: '12px',
+                            border: 'none',
+                            borderRadius: '8px',
+                            background: 'var(--primary-green)',
+                            color: 'white',
+                            fontSize: '16px',
+                            fontWeight: '600',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          저장
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
 
