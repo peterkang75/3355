@@ -260,65 +260,69 @@ function BingoGame() {
 
         <div className="card" style={{ marginBottom: '16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '14px', fontWeight: '600' }}>배열 크기:</span>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
-              <button
-                onClick={() => handleGridSizeChange(gridSize - 1)}
-                disabled={!isEditMode || gridSize <= 3}
-                style={{
-                  width: '44px',
-                  height: '44px',
-                  background: (!isEditMode || gridSize <= 3) ? '#ccc' : 'var(--primary-green)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px 0 0 8px',
-                  fontSize: '24px',
-                  fontWeight: '700',
-                  cursor: (!isEditMode || gridSize <= 3) ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                −
-              </button>
-              <div style={{
-                width: '60px',
-                height: '44px',
-                background: 'white',
-                border: '2px solid var(--border-color)',
-                borderLeft: 'none',
-                borderRight: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '20px',
-                fontWeight: '700'
-              }}>
-                {gridSize}
-              </div>
-              <button
-                onClick={() => handleGridSizeChange(gridSize + 1)}
-                disabled={!isEditMode || gridSize >= 10}
-                style={{
-                  width: '44px',
-                  height: '44px',
-                  background: (!isEditMode || gridSize >= 10) ? '#ccc' : 'var(--primary-green)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '0 8px 8px 0',
-                  fontSize: '24px',
-                  fontWeight: '700',
-                  cursor: (!isEditMode || gridSize >= 10) ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-              >
-                +
-              </button>
-            </div>
-            <span style={{ fontSize: '13px', opacity: 0.7 }}>({gridSize} x {gridSize})</span>
+            {['관리자', '방장', '운영진'].includes(user?.role) && (
+              <>
+                <span style={{ fontSize: '14px', fontWeight: '600' }}>배열 크기:</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
+                  <button
+                    onClick={() => handleGridSizeChange(gridSize - 1)}
+                    disabled={!isEditMode || gridSize <= 3}
+                    style={{
+                      width: '44px',
+                      height: '44px',
+                      background: (!isEditMode || gridSize <= 3) ? '#ccc' : 'var(--primary-green)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px 0 0 8px',
+                      fontSize: '24px',
+                      fontWeight: '700',
+                      cursor: (!isEditMode || gridSize <= 3) ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    −
+                  </button>
+                  <div style={{
+                    width: '60px',
+                    height: '44px',
+                    background: 'white',
+                    border: '2px solid var(--border-color)',
+                    borderLeft: 'none',
+                    borderRight: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '20px',
+                    fontWeight: '700'
+                  }}>
+                    {gridSize}
+                  </div>
+                  <button
+                    onClick={() => handleGridSizeChange(gridSize + 1)}
+                    disabled={!isEditMode || gridSize >= 10}
+                    style={{
+                      width: '44px',
+                      height: '44px',
+                      background: (!isEditMode || gridSize >= 10) ? '#ccc' : 'var(--primary-green)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '0 8px 8px 0',
+                      fontSize: '24px',
+                      fontWeight: '700',
+                      cursor: (!isEditMode || gridSize >= 10) ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+                <span style={{ fontSize: '13px', opacity: 0.7 }}>({gridSize} x {gridSize})</span>
+              </>
+            )}
             <button
               onClick={handleReset}
               style={{
