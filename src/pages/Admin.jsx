@@ -104,6 +104,8 @@ function Admin() {
   const [isProcessingRefund, setIsProcessingRefund] = useState(false);
   const [paymentGuideText, setPaymentGuideText] = useState('');
   const [savedPaymentGuideText, setSavedPaymentGuideText] = useState('');
+  const [clubIntroText, setClubIntroText] = useState('');
+  const [savedClubIntroText, setSavedClubIntroText] = useState('');
 
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
@@ -159,6 +161,10 @@ function Admin() {
         if (setting.feature === 'paymentGuideText') {
           setPaymentGuideText(setting.value || '');
           setSavedPaymentGuideText(setting.value || '');
+        }
+        if (setting.feature === 'clubIntroText') {
+          setClubIntroText(setting.value || '');
+          setSavedClubIntroText(setting.value || '');
         }
       });
       
@@ -4047,6 +4053,63 @@ function Admin() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
+                모임 소개문구
+              </h3>
+              <div style={{
+                padding: '10px 12px',
+                background: 'var(--bg-green)',
+                borderRadius: '6px',
+                marginBottom: '12px',
+                fontSize: '12px',
+                color: 'var(--text-dark)', opacity: 0.7
+              }}>
+                • About 페이지에 표시될 모임 소개문구를 작성합니다
+              </div>
+              <textarea
+                value={clubIntroText}
+                onChange={(e) => setClubIntroText(e.target.value)}
+                placeholder="모임 소개문구를 입력해주세요..."
+                style={{
+                  width: '100%',
+                  minHeight: '100px',
+                  padding: '12px',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  resize: 'vertical',
+                  marginBottom: '12px',
+                  boxSizing: 'border-box'
+                }}
+              />
+              <button
+                onClick={async () => {
+                  try {
+                    await apiService.updateSetting('clubIntroText', { value: clubIntroText });
+                    setSavedClubIntroText(clubIntroText);
+                    alert('모임 소개문구가 저장되었습니다.');
+                  } catch (error) {
+                    console.error('모임 소개문구 저장 실패:', error);
+                    alert('저장에 실패했습니다.');
+                  }
+                }}
+                disabled={clubIntroText === savedClubIntroText}
+                style={{
+                  padding: '12px 24px',
+                  background: clubIntroText !== savedClubIntroText ? 'var(--primary-green)' : '#ccc',
+                  color: 'var(--text-light)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: clubIntroText !== savedClubIntroText ? 'pointer' : 'not-allowed'
+                }}
+              >
+                {clubIntroText !== savedClubIntroText ? '저장하기' : '저장됨'}
+              </button>
             </div>
 
             <div className="card" style={{ marginBottom: '16px' }}>

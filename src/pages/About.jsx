@@ -1,11 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
+import apiService from '../services/api';
 import logoImage from '../assets/logo.jpeg';
 
 function About() {
   const navigate = useNavigate();
   const { user } = useApp();
+  const [clubIntroText, setClubIntroText] = useState('');
+  
+  useEffect(() => {
+    const loadIntroText = async () => {
+      try {
+        const settings = await apiService.fetchSettings();
+        const introSetting = settings.find(s => s.feature === 'clubIntroText');
+        if (introSetting && introSetting.value) {
+          setClubIntroText(introSetting.value);
+        }
+      } catch (error) {
+        console.error('소개문구 로드 실패:', error);
+      }
+    };
+    loadIntroText();
+  }, []);
   
   const handleContact = () => {
     window.open('https://open.kakao.com/o/sBvflSoh', '_blank');
@@ -99,6 +116,20 @@ function About() {
           <div style={{ fontSize: '14px', opacity: 0.7 }}>
             Build {__BUILD_NUMBER__}
           </div>
+          {clubIntroText && (
+            <div style={{ 
+              marginTop: '16px', 
+              padding: '16px',
+              background: 'var(--bg-green)',
+              borderRadius: '8px',
+              fontSize: '14px',
+              lineHeight: '1.8',
+              textAlign: 'left',
+              whiteSpace: 'pre-wrap'
+            }}>
+              {clubIntroText}
+            </div>
+          )}
         </div>
 
         <div style={{ 
