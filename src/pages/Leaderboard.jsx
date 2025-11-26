@@ -326,285 +326,331 @@ function Leaderboard() {
         )}
       </div>
 
-      {/* 스코어카드 모달 */}
-      {selectedScore && (
-        <div 
-          onClick={() => setSelectedScore(null)}
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0,0,0,0.8)',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            zIndex: 1000,
-            padding: '16px'
-          }}
-        >
-          <div 
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: '#2a2a4a',
-              borderRadius: '12px',
-              width: '100%',
-              maxWidth: '400px',
-              maxHeight: '80vh',
-              overflow: 'auto'
-            }}
-          >
-            {/* 헤더 */}
-            <div style={{
-              padding: '16px',
-              borderBottom: '1px solid rgba(255,255,255,0.1)',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <div>
-                <div style={{ color: 'white', fontSize: '18px', fontWeight: '700' }}>
-                  {selectedScore.nickname}
-                </div>
-                <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '13px', marginTop: '4px' }}>
-                  핸디 {selectedScore.handicap || 0} | 총 {selectedScore.totalScore}타
-                </div>
-              </div>
-              <button
-                onClick={() => setSelectedScore(null)}
-                style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  border: 'none',
-                  borderRadius: '50%',
-                  width: '32px',
-                  height: '32px',
-                  color: 'white',
-                  fontSize: '18px',
-                  cursor: 'pointer'
-                }}
-              >
-                ✕
-              </button>
-            </div>
+      {/* 스코어카드 모달 - Admin 페이지와 동일한 UI */}
+      {selectedScore && (() => {
+        const holes = selectedScore.holes || [];
+        const hasHoleData = Array.isArray(holes) && holes.some(h => h > 0);
+        const parArr = coursePars.length > 0 ? coursePars : Array(18).fill(4);
+        const rank = filteredScores.findIndex(s => s.odId === selectedScore.odId) + 1;
 
-            {/* 전반 (1-9홀) */}
-            <div style={{ padding: '12px 16px' }}>
-              <div style={{ 
-                color: 'rgba(255,255,255,0.7)', 
-                fontSize: '12px', 
-                fontWeight: '600',
-                marginBottom: '8px'
-              }}>
-                전반 (1-9홀)
-              </div>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(9, 1fr)',
-                gap: '4px',
-                marginBottom: '8px'
-              }}>
-                {[1,2,3,4,5,6,7,8,9].map(hole => (
-                  <div key={`hole-${hole}`} style={{
-                    textAlign: 'center',
-                    fontSize: '11px',
-                    color: 'rgba(255,255,255,0.5)',
-                    padding: '4px 0'
-                  }}>
-                    {hole}
-                  </div>
-                ))}
-              </div>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(9, 1fr)',
-                gap: '4px',
-                marginBottom: '4px'
-              }}>
-                {[0,1,2,3,4,5,6,7,8].map(i => {
-                  const par = coursePars[i] || 4;
-                  return (
-                    <div key={`par-${i}`} style={{
-                      textAlign: 'center',
-                      fontSize: '10px',
-                      color: 'rgba(255,255,255,0.4)',
-                      padding: '2px 0'
-                    }}>
-                      P{par}
-                    </div>
-                  );
-                })}
-              </div>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(9, 1fr)',
-                gap: '4px'
-              }}>
-                {[0,1,2,3,4,5,6,7,8].map(i => {
-                  const score = selectedScore.holes[i] || 0;
-                  const par = coursePars[i] || 4;
-                  const diff = score - par;
-                  let bgColor = 'rgba(255,255,255,0.1)';
-                  let textColor = 'white';
-                  
-                  if (score > 0) {
-                    if (diff <= -2) { bgColor = '#ffd700'; textColor = '#000'; }
-                    else if (diff === -1) { bgColor = '#ff6b6b'; textColor = '#fff'; }
-                    else if (diff === 0) { bgColor = 'rgba(255,255,255,0.2)'; }
-                    else if (diff === 1) { bgColor = '#4dabf7'; textColor = '#fff'; }
-                    else if (diff >= 2) { bgColor = '#1971c2'; textColor = '#fff'; }
-                  }
-                  
-                  return (
-                    <div key={`score-${i}`} style={{
-                      textAlign: 'center',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      padding: '8px 4px',
-                      borderRadius: '6px',
-                      background: bgColor,
-                      color: textColor
-                    }}>
-                      {score > 0 ? score : '-'}
-                    </div>
-                  );
-                })}
-              </div>
-              <div style={{
-                textAlign: 'right',
-                marginTop: '8px',
-                fontSize: '13px',
-                color: 'rgba(255,255,255,0.7)'
-              }}>
-                전반 합계: {selectedScore.holes.slice(0, 9).reduce((a, b) => a + (b || 0), 0)}
-              </div>
-            </div>
+        const getScoreColor = (score, par) => {
+          if (!score || score === 0) return 'transparent';
+          const diff = score - par;
+          if (diff <= -3) return '#1a5f5f';
+          if (diff === -2) return '#e67e22';
+          if (diff === -1) return '#f4d03f';
+          if (diff === 0) return 'transparent';
+          if (diff === 1) return '#eb984e';
+          return '#e74c3c';
+        };
 
-            {/* 후반 (10-18홀) */}
-            <div style={{ padding: '12px 16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-              <div style={{ 
-                color: 'rgba(255,255,255,0.7)', 
-                fontSize: '12px', 
-                fontWeight: '600',
-                marginBottom: '8px'
-              }}>
-                후반 (10-18홀)
-              </div>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(9, 1fr)',
-                gap: '4px',
-                marginBottom: '8px'
-              }}>
-                {[10,11,12,13,14,15,16,17,18].map(hole => (
-                  <div key={`hole-${hole}`} style={{
-                    textAlign: 'center',
-                    fontSize: '11px',
-                    color: 'rgba(255,255,255,0.5)',
-                    padding: '4px 0'
-                  }}>
-                    {hole}
-                  </div>
-                ))}
-              </div>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(9, 1fr)',
-                gap: '4px',
-                marginBottom: '4px'
-              }}>
-                {[9,10,11,12,13,14,15,16,17].map(i => {
-                  const par = coursePars[i] || 4;
-                  return (
-                    <div key={`par-${i}`} style={{
-                      textAlign: 'center',
-                      fontSize: '10px',
-                      color: 'rgba(255,255,255,0.4)',
-                      padding: '2px 0'
-                    }}>
-                      P{par}
-                    </div>
-                  );
-                })}
-              </div>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(9, 1fr)',
-                gap: '4px'
-              }}>
-                {[9,10,11,12,13,14,15,16,17].map(i => {
-                  const score = selectedScore.holes[i] || 0;
-                  const par = coursePars[i] || 4;
-                  const diff = score - par;
-                  let bgColor = 'rgba(255,255,255,0.1)';
-                  let textColor = 'white';
-                  
-                  if (score > 0) {
-                    if (diff <= -2) { bgColor = '#ffd700'; textColor = '#000'; }
-                    else if (diff === -1) { bgColor = '#ff6b6b'; textColor = '#fff'; }
-                    else if (diff === 0) { bgColor = 'rgba(255,255,255,0.2)'; }
-                    else if (diff === 1) { bgColor = '#4dabf7'; textColor = '#fff'; }
-                    else if (diff >= 2) { bgColor = '#1971c2'; textColor = '#fff'; }
-                  }
-                  
-                  return (
-                    <div key={`score-${i}`} style={{
-                      textAlign: 'center',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      padding: '8px 4px',
-                      borderRadius: '6px',
-                      background: bgColor,
-                      color: textColor
-                    }}>
-                      {score > 0 ? score : '-'}
-                    </div>
-                  );
-                })}
-              </div>
-              <div style={{
-                textAlign: 'right',
-                marginTop: '8px',
-                fontSize: '13px',
-                color: 'rgba(255,255,255,0.7)'
-              }}>
-                후반 합계: {selectedScore.holes.slice(9, 18).reduce((a, b) => a + (b || 0), 0)}
-              </div>
-            </div>
+        const renderHoleRow = (startHole, endHole, label) => {
+          const holeNumbers = [];
+          const pars = [];
+          const scoreArr = [];
+          const diffs = [];
 
-            {/* 범례 */}
+          for (let i = startHole; i <= endHole; i++) {
+            holeNumbers.push(i);
+            pars.push(parArr[i - 1] || 4);
+            scoreArr.push(holes[i - 1] || 0);
+            diffs.push((holes[i - 1] || 0) - (parArr[i - 1] || 4));
+          }
+
+          const totalPar = pars.reduce((a, b) => a + b, 0);
+          const totalScore = scoreArr.reduce((a, b) => a + b, 0);
+          const totalDiff = scoreArr.filter(s => s > 0).length > 0 
+            ? scoreArr.reduce((a, b, idx) => a + (b > 0 ? b - pars[idx] : 0), 0)
+            : 0;
+
+          return (
             <div style={{ 
-              padding: '12px 16px', 
-              borderTop: '1px solid rgba(255,255,255,0.1)',
+              marginBottom: '12px',
+              background: 'white',
+              borderRadius: '12px',
+              overflow: 'hidden',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            }}>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: `repeat(${endHole - startHole + 2}, 1fr)`,
+                fontSize: '13px'
+              }}>
+                {holeNumbers.map(h => (
+                  <div key={`hole-${h}`} style={{ 
+                    textAlign: 'center', 
+                    padding: '10px 4px',
+                    background: '#e8f5e9',
+                    color: '#2d5f3f',
+                    fontWeight: '600',
+                    borderBottom: '1px solid #c8e6c9'
+                  }}>
+                    {h}
+                  </div>
+                ))}
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '10px 4px', 
+                  background: '#e8f5e9',
+                  color: '#2d5f3f', 
+                  fontWeight: '700',
+                  borderBottom: '1px solid #c8e6c9'
+                }}>
+                  {label}
+                </div>
+
+                {pars.map((p, idx) => (
+                  <div key={`par-${idx}`} style={{ 
+                    textAlign: 'center', 
+                    padding: '8px 4px',
+                    color: '#666',
+                    fontSize: '12px',
+                    borderBottom: '1px solid #eee'
+                  }}>
+                    {p}
+                  </div>
+                ))}
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '8px 4px', 
+                  color: '#666', 
+                  fontWeight: '600',
+                  fontSize: '12px',
+                  borderBottom: '1px solid #eee'
+                }}>
+                  {totalPar}
+                </div>
+
+                {scoreArr.map((s, idx) => (
+                  <div key={`score-${idx}`} style={{ 
+                    textAlign: 'center', 
+                    padding: '10px 4px',
+                    background: s > 0 ? getScoreColor(s, pars[idx]) : 'transparent',
+                    color: s > 0 && getScoreColor(s, pars[idx]) !== 'transparent' ? 'white' : '#333',
+                    fontWeight: '700',
+                    fontSize: '14px'
+                  }}>
+                    {hasHoleData ? (s > 0 ? s : '-') : '-'}
+                  </div>
+                ))}
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '10px 4px', 
+                  color: '#333', 
+                  fontWeight: '700',
+                  fontSize: '15px',
+                  background: '#f5f5f5'
+                }}>
+                  {hasHoleData ? totalScore : '-'}
+                </div>
+
+                {diffs.map((d, idx) => (
+                  <div key={`diff-${idx}`} style={{ 
+                    textAlign: 'center', 
+                    padding: '6px 4px',
+                    color: d < 0 ? '#e74c3c' : d > 0 ? '#3498db' : '#999',
+                    fontSize: '11px',
+                    fontWeight: '500'
+                  }}>
+                    {hasHoleData && scoreArr[idx] > 0 ? (d > 0 ? `+${d}` : d) : ''}
+                  </div>
+                ))}
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '6px 4px', 
+                  color: totalDiff < 0 ? '#e74c3c' : totalDiff > 0 ? '#3498db' : '#999',
+                  fontSize: '11px',
+                  fontWeight: '600'
+                }}>
+                  {hasHoleData && totalScore > 0 ? (totalDiff > 0 ? `+${totalDiff}` : totalDiff) : ''}
+                </div>
+              </div>
+            </div>
+          );
+        };
+
+        return (
+          <div 
+            onClick={() => setSelectedScore(null)}
+            style={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              background: 'rgba(0,0,0,0.8)',
               display: 'flex',
               justifyContent: 'center',
-              gap: '12px',
-              flexWrap: 'wrap'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <div style={{ width: '16px', height: '16px', borderRadius: '4px', background: '#ffd700' }}></div>
-                <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)' }}>이글이하</span>
+              alignItems: 'flex-start',
+              zIndex: 1000,
+              padding: '16px',
+              overflowY: 'auto'
+            }}
+          >
+            <div 
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                background: '#2d5f3f',
+                borderRadius: '12px',
+                width: '100%',
+                maxWidth: '500px',
+                marginTop: '20px',
+                marginBottom: '20px'
+              }}
+            >
+              {/* 헤더 - Back 버튼 */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '12px 16px',
+                borderBottom: '1px solid rgba(255,255,255,0.1)'
+              }}>
+                <button
+                  onClick={() => setSelectedScore(null)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'white',
+                    fontSize: '16px',
+                    cursor: 'pointer',
+                    padding: '4px 0'
+                  }}
+                >
+                  ‹ Back
+                </button>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <div style={{ width: '16px', height: '16px', borderRadius: '4px', background: '#ff6b6b' }}></div>
-                <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)' }}>버디</span>
+
+              {/* 회원 정보 헤더 */}
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '16px',
+                borderBottom: '1px solid rgba(255,255,255,0.1)'
+              }}>
+                <div>
+                  <div style={{ color: 'white', fontSize: '18px', fontWeight: '700' }}>
+                    {selectedScore.nickname}
+                  </div>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '8px',
+                    marginTop: '4px'
+                  }}>
+                    <span style={{
+                      background: 'rgba(255,255,255,0.2)',
+                      padding: '4px 8px',
+                      borderRadius: '4px',
+                      fontSize: '12px',
+                      color: 'white'
+                    }}>
+                      HCP: {selectedScore.handicap || '-'}
+                    </span>
+                  </div>
+                </div>
+                <div style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  padding: '12px 20px',
+                  borderRadius: '8px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ color: 'white', fontSize: '24px', fontWeight: '700' }}>
+                    {selectedScore.totalScore}
+                  </div>
+                  <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '12px' }}>
+                    RANK {rank}
+                  </div>
+                </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <div style={{ width: '16px', height: '16px', borderRadius: '4px', background: 'rgba(255,255,255,0.2)' }}></div>
-                <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)' }}>파</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <div style={{ width: '16px', height: '16px', borderRadius: '4px', background: '#4dabf7' }}></div>
-                <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)' }}>보기</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <div style={{ width: '16px', height: '16px', borderRadius: '4px', background: '#1971c2' }}></div>
-                <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.6)' }}>더블+</span>
+
+              {/* 스코어카드 */}
+              <div style={{ padding: '16px' }}>
+                {renderHoleRow(1, 9, 'Out')}
+                {renderHoleRow(10, 18, 'In')}
+
+                {/* Legend */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  flexWrap: 'wrap',
+                  gap: '6px',
+                  marginTop: '20px',
+                  padding: '16px'
+                }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    padding: '6px 10px',
+                    background: '#1a5f5f',
+                    borderRadius: '4px'
+                  }}>
+                    <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>Ace/Albatross</span>
+                  </div>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    padding: '6px 10px',
+                    background: '#e67e22',
+                    borderRadius: '4px'
+                  }}>
+                    <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>Eagle</span>
+                  </div>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    padding: '6px 10px',
+                    background: '#f4d03f',
+                    borderRadius: '4px'
+                  }}>
+                    <span style={{ color: '#333', fontSize: '11px', fontWeight: '600' }}>Birdie</span>
+                  </div>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    padding: '6px 10px',
+                    background: '#f5f5f5',
+                    borderRadius: '4px',
+                    border: '1px solid #ddd'
+                  }}>
+                    <span style={{ color: '#333', fontSize: '11px', fontWeight: '600' }}>Par</span>
+                  </div>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    padding: '6px 10px',
+                    background: '#eb984e',
+                    borderRadius: '4px'
+                  }}>
+                    <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>Bogey</span>
+                  </div>
+                  <div style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    padding: '6px 10px',
+                    background: '#e74c3c',
+                    borderRadius: '4px'
+                  }}>
+                    <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>D. Bogey +</span>
+                  </div>
+                </div>
+
+                {!hasHoleData && (
+                  <div style={{
+                    textAlign: 'center',
+                    padding: '20px',
+                    color: 'rgba(255,255,255,0.5)',
+                    fontSize: '14px'
+                  }}>
+                    홀별 타수 정보가 없습니다 (총 타수만 입력됨)
+                  </div>
+                )}
               </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
     </div>
   );
 }
