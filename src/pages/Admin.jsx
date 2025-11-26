@@ -75,6 +75,7 @@ function Admin() {
     memberId: 'all'
   });
   const [summaryBookingFilter, setSummaryBookingFilter] = useState('all');
+  const [selectedSummaryCategories, setSelectedSummaryCategories] = useState([]);
 
   const [incomeCategories, setIncomeCategories] = useState([]);
   const [expenseCategories, setExpenseCategories] = useState([]);
@@ -3106,9 +3107,26 @@ function Admin() {
           <div>
             {/* 항목별 합계 섹션 */}
             <div className="card" style={{ marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0, marginBottom: '12px' }}>
-                항목별 집계
-              </h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
+                  항목별 집계
+                </h3>
+                {selectedSummaryCategories.length > 0 && (
+                  <button
+                    onClick={() => setSelectedSummaryCategories([])}
+                    style={{
+                      padding: '4px 10px',
+                      fontSize: '12px',
+                      background: 'var(--border-color)',
+                      border: 'none',
+                      borderRadius: '4px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    선택 해제
+                  </button>
+                )}
+              </div>
               <select
                 value={summaryBookingFilter}
                 onChange={(e) => setSummaryBookingFilter(e.target.value)}
@@ -3190,16 +3208,37 @@ function Admin() {
                           Object.entries(incomeTotals).map(([category, amount]) => (
                             <div 
                               key={category}
+                              onClick={() => {
+                                const catKey = `income:${category}`;
+                                setSelectedSummaryCategories(prev => 
+                                  prev.includes(catKey) 
+                                    ? prev.filter(c => c !== catKey)
+                                    : [...prev, catKey]
+                                );
+                              }}
                               style={{ 
                                 display: 'flex', 
                                 justifyContent: 'space-between',
                                 fontSize: '13px',
-                                padding: '6px 0',
-                                borderBottom: '1px solid rgba(0,0,0,0.1)'
+                                padding: '6px 8px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                backgroundColor: selectedSummaryCategories.includes(`income:${category}`) 
+                                  ? 'var(--primary-green)' 
+                                  : 'transparent',
+                                color: selectedSummaryCategories.includes(`income:${category}`) 
+                                  ? 'white' 
+                                  : 'inherit',
+                                transition: 'all 0.2s ease'
                               }}
                             >
                               <span>{category}</span>
-                              <span style={{ fontWeight: '600', color: 'var(--success-green)' }}>
+                              <span style={{ 
+                                fontWeight: '600', 
+                                color: selectedSummaryCategories.includes(`income:${category}`) 
+                                  ? 'white' 
+                                  : 'var(--success-green)' 
+                              }}>
                                 +${amount.toLocaleString()}
                               </span>
                             </div>
@@ -3234,16 +3273,37 @@ function Admin() {
                           Object.entries(expenseTotals).map(([category, amount]) => (
                             <div 
                               key={category}
+                              onClick={() => {
+                                const catKey = `expense:${category}`;
+                                setSelectedSummaryCategories(prev => 
+                                  prev.includes(catKey) 
+                                    ? prev.filter(c => c !== catKey)
+                                    : [...prev, catKey]
+                                );
+                              }}
                               style={{ 
                                 display: 'flex', 
                                 justifyContent: 'space-between',
                                 fontSize: '13px',
-                                padding: '6px 0',
-                                borderBottom: '1px solid rgba(0,0,0,0.1)'
+                                padding: '6px 8px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                backgroundColor: selectedSummaryCategories.includes(`expense:${category}`) 
+                                  ? 'var(--alert-red)' 
+                                  : 'transparent',
+                                color: selectedSummaryCategories.includes(`expense:${category}`) 
+                                  ? 'white' 
+                                  : 'inherit',
+                                transition: 'all 0.2s ease'
                               }}
                             >
                               <span>{category}</span>
-                              <span style={{ fontWeight: '600', color: 'var(--alert-red)' }}>
+                              <span style={{ 
+                                fontWeight: '600', 
+                                color: selectedSummaryCategories.includes(`expense:${category}`) 
+                                  ? 'white' 
+                                  : 'var(--alert-red)' 
+                              }}>
                                 -${amount.toLocaleString()}
                               </span>
                             </div>
@@ -3295,6 +3355,26 @@ function Admin() {
                     allTransactions
                       .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                       .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
+                      .filter(t => {
+                        if (selectedSummaryCategories.length === 0) return true;
+                        
+                        let catKey = '';
+                        if (t.type === 'payment') {
+                          catKey = 'income:라운딩 회비납부';
+                        } else if (t.type === 'donation') {
+                          if (t.description?.startsWith('기타 - ')) {
+                            catKey = `income:${t.description.replace('기타 - ', '')}`;
+                          } else {
+                            catKey = 'income:도네이션';
+                          }
+                        } else if (t.type === 'expense') {
+                          const expenseDesc = t.description || '기타 지출';
+                          const catName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
+                          catKey = `expense:${catName}`;
+                        }
+                        
+                        return selectedSummaryCategories.includes(catKey);
+                      })
                       .length
                   }건)
                 </h3>
@@ -3332,6 +3412,26 @@ function Admin() {
               {allTransactions
                 .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                 .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
+                .filter(t => {
+                  if (selectedSummaryCategories.length === 0) return true;
+                  
+                  let catKey = '';
+                  if (t.type === 'payment') {
+                    catKey = 'income:라운딩 회비납부';
+                  } else if (t.type === 'donation') {
+                    if (t.description?.startsWith('기타 - ')) {
+                      catKey = `income:${t.description.replace('기타 - ', '')}`;
+                    } else {
+                      catKey = 'income:도네이션';
+                    }
+                  } else if (t.type === 'expense') {
+                    const expenseDesc = t.description || '기타 지출';
+                    const catName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
+                    catKey = `expense:${catName}`;
+                  }
+                  
+                  return selectedSummaryCategories.includes(catKey);
+                })
                 .length === 0 ? (
                 <div style={{ 
                   padding: '40px',
@@ -3369,6 +3469,26 @@ function Admin() {
                         .filter(t => t.type !== 'charge')
                         .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                         .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
+                        .filter(t => {
+                          if (selectedSummaryCategories.length === 0) return true;
+                          
+                          let catKey = '';
+                          if (t.type === 'payment') {
+                            catKey = 'income:라운딩 회비납부';
+                          } else if (t.type === 'donation') {
+                            if (t.description?.startsWith('기타 - ')) {
+                              catKey = `income:${t.description.replace('기타 - ', '')}`;
+                            } else {
+                              catKey = 'income:도네이션';
+                            }
+                          } else if (t.type === 'expense') {
+                            const expenseDesc = t.description || '기타 지출';
+                            const catName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
+                            catKey = `expense:${catName}`;
+                          }
+                          
+                          return selectedSummaryCategories.includes(catKey);
+                        })
                         .map(transaction => {
                           const typeColor =
                             transaction.type === 'payment' ? 'var(--success-green)' :
