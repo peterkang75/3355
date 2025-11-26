@@ -296,9 +296,13 @@ router.put('/bookings/:id', async (req, res) => {
       const removedPhones = oldPhones.filter(phone => !newPhones.includes(phone));
 
       for (const phone of addedPhones) {
+        console.log('🔵 참가자 추가 감지:', phone);
+        
         const member = await prisma.member.findFirst({
           where: { phone }
         });
+
+        console.log('🔵 회원 조회 결과:', member ? `${member.name} (${member.id})` : '회원 없음');
 
         if (member) {
           const totalAmount = 
@@ -306,8 +310,15 @@ router.put('/bookings/:id', async (req, res) => {
             (booking.cartFee || 0) + 
             (booking.membershipFee || 0);
 
+          console.log('🔵 비용 정보:', {
+            greenFee: booking.greenFee,
+            cartFee: booking.cartFee,
+            membershipFee: booking.membershipFee,
+            totalAmount
+          });
+
           if (totalAmount > 0) {
-            await prisma.transaction.create({
+            const newTransaction = await prisma.transaction.create({
               data: {
                 type: 'charge',
                 amount: totalAmount,
@@ -317,6 +328,9 @@ router.put('/bookings/:id', async (req, res) => {
                 bookingId: booking.id
               }
             });
+            console.log('✅ 참가비 거래 생성됨:', newTransaction.id);
+          } else {
+            console.log('⚠️ 총 금액이 0이므로 참가비 거래 생성 안함');
           }
 
           const memberTransactions = await prisma.transaction.findMany({
