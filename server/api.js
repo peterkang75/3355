@@ -195,7 +195,7 @@ router.post('/posts', async (req, res) => {
       data: postData,
       include: { author: true }
     });
-    console.log('📤 Socket 이벤트 발송: posts:updated');
+
     req.io.emit('posts:updated');
     res.json(post);
   } catch (error) {
@@ -211,7 +211,7 @@ router.put('/posts/:id', async (req, res) => {
       data: req.body,
       include: { author: true }
     });
-    console.log('📤 Socket 이벤트 발송: posts:updated');
+
     req.io.emit('posts:updated');
     res.json(post);
   } catch (error) {
@@ -296,13 +296,9 @@ router.put('/bookings/:id', async (req, res) => {
       const removedPhones = oldPhones.filter(phone => !newPhones.includes(phone));
 
       for (const phone of addedPhones) {
-        console.log('🔵 참가자 추가 감지:', phone);
-        
         const member = await prisma.member.findFirst({
           where: { phone }
         });
-
-        console.log('🔵 회원 조회 결과:', member ? `${member.name} (${member.id})` : '회원 없음');
 
         if (member) {
           const totalAmount = 
@@ -310,15 +306,8 @@ router.put('/bookings/:id', async (req, res) => {
             (booking.cartFee || 0) + 
             (booking.membershipFee || 0);
 
-          console.log('🔵 비용 정보:', {
-            greenFee: booking.greenFee,
-            cartFee: booking.cartFee,
-            membershipFee: booking.membershipFee,
-            totalAmount
-          });
-
           if (totalAmount > 0) {
-            const newTransaction = await prisma.transaction.create({
+            await prisma.transaction.create({
               data: {
                 type: 'charge',
                 amount: totalAmount,
@@ -328,9 +317,6 @@ router.put('/bookings/:id', async (req, res) => {
                 bookingId: booking.id
               }
             });
-            console.log('✅ 참가비 거래 생성됨:', newTransaction.id);
-          } else {
-            console.log('⚠️ 총 금액이 0이므로 참가비 거래 생성 안함');
           }
 
           const memberTransactions = await prisma.transaction.findMany({
@@ -619,42 +605,20 @@ router.get('/scores/round-comparison', async (req, res) => {
     const teammateComplete = result.myScoreByTeammate && result.teammateScoreByTeammate;
     result.teammateComplete = !!teammateComplete;
     
-    // 4개의 데이터가 모두 있을 때만 비교 실행
     if (result.myScoreByMe && result.myScoreByTeammate && result.teammateScoreByMe && result.teammateScoreByTeammate) {
-      console.log('📊 점수 비교 시작 (4개 레코드 모두 존재):');
-      console.log('  myScoreByMe:', result.myScoreByMe);
-      console.log('  myScoreByTeammate:', result.myScoreByTeammate);
-      console.log('  teammateScoreByMe:', result.teammateScoreByMe);
-      console.log('  teammateScoreByTeammate:', result.teammateScoreByTeammate);
-      
       for (let i = 0; i < 18; i++) {
-        // A(myId)의 점수: A가 기록한 것 vs B가 기록한 것
         const myByMe = result.myScoreByMe[i];
         const myByTeammate = result.myScoreByTeammate[i];
-        // B(teammateId)의 점수: B가 기록한 것 vs A가 기록한 것
         const teammateByTeammate = result.teammateScoreByTeammate[i];
         const teammateByMe = result.teammateScoreByMe[i];
         
-        // A의 점수 불일치 (0도 유효한 값으로 간주)
         if (myByMe !== myByTeammate) {
-          console.log(`  홀${i+1} A점수 불일치: ${myByMe} vs ${myByTeammate}`);
           mismatches.push(i + 1);
         }
-        // B의 점수 불일치 (0도 유효한 값으로 간주)
         if (teammateByTeammate !== teammateByMe) {
-          console.log(`  홀${i+1} B점수 불일치: ${teammateByTeammate} vs ${teammateByMe}`);
           if (!mismatches.includes(i + 1)) mismatches.push(i + 1);
         }
       }
-      
-      console.log('📊 불일치 홀:', mismatches);
-    } else {
-      console.log('📊 점수 비교 대기 (데이터 부족):', {
-        myScoreByMe: !!result.myScoreByMe,
-        myScoreByTeammate: !!result.myScoreByTeammate,
-        teammateScoreByMe: !!result.teammateScoreByMe,
-        teammateScoreByTeammate: !!result.teammateScoreByTeammate
-      });
     }
     
     result.mismatches = mismatches.sort((a, b) => a - b);
@@ -926,54 +890,6 @@ router.put('/settings/:feature', async (req, res) => {
   }
 });
 
-router.get('/scores/:memberId', async (req, res) => {
-  try {
-    const scores = await prisma.score.findMany({
-      where: { userId: req.params.memberId },
-      orderBy: { date: 'desc' }
-    });
-    res.json(scores);
-  } catch (error) {
-    console.error('Error fetching scores:', error);
-    res.status(500).json({ error: 'Failed to fetch scores' });
-  }
-});
-
-router.post('/scores', async (req, res) => {
-  try {
-    const { memberId, markerId, roundingName, date, courseName, totalScore, holes, coursePar } = req.body;
-    const score = await prisma.score.upsert({
-      where: {
-        userId_markerId_date_roundingName: {
-          userId: memberId,
-          markerId: markerId || null,
-          date: date,
-          roundingName: roundingName || ''
-        }
-      },
-      update: {
-        courseName,
-        totalScore,
-        coursePar: coursePar || 72,
-        holes: holes ? JSON.stringify(holes) : ''
-      },
-      create: {
-        userId: memberId,
-        markerId: markerId || null,
-        roundingName,
-        date,
-        courseName,
-        totalScore,
-        coursePar: coursePar || 72,
-        holes: holes ? JSON.stringify(holes) : ''
-      }
-    });
-    res.json(score);
-  } catch (error) {
-    console.error('Error creating score:', error);
-    res.status(500).json({ error: 'Failed to create score' });
-  }
-});
 
 // 회원 승인
 router.patch('/members/:id/approve', async (req, res) => {
@@ -1047,13 +963,25 @@ router.get('/transactions', async (req, res) => {
   }
 });
 
-// 회원별 거래 내역 조회
+// 회원별 거래 내역 조회 (최적화)
 router.get('/transactions/member/:memberId', async (req, res) => {
   try {
     const transactions = await prisma.transaction.findMany({
       where: { memberId: req.params.memberId },
-      include: {
-        booking: true
+      select: {
+        id: true,
+        type: true,
+        amount: true,
+        description: true,
+        date: true,
+        receiptImage: true,
+        booking: {
+          select: {
+            id: true,
+            title: true,
+            courseName: true
+          }
+        }
       },
       orderBy: { date: 'desc' }
     });
@@ -1064,11 +992,12 @@ router.get('/transactions/member/:memberId', async (req, res) => {
   }
 });
 
-// 회원 잔액 계산
+// 회원 잔액 계산 (최적화)
 router.get('/transactions/balance/:memberId', async (req, res) => {
   try {
     const transactions = await prisma.transaction.findMany({
-      where: { memberId: req.params.memberId }
+      where: { memberId: req.params.memberId },
+      select: { type: true, amount: true }
     });
 
     const balance = transactions.reduce((sum, t) => {
