@@ -363,10 +363,8 @@ function BingoGame() {
             <div style={{ 
               display: 'flex', 
               flexWrap: 'wrap', 
-              gap: '10px',
-              maxHeight: '200px',
-              overflowY: 'auto',
-              padding: '8px',
+              gap: '6px',
+              padding: '6px',
               background: 'rgba(0,0,0,0.02)',
               borderRadius: '8px'
             }}>
@@ -381,23 +379,23 @@ function BingoGame() {
                     onDragEnd={handleDragEnd}
                     onClick={() => handleMemberSelect(nickname)}
                     style={{
-                      padding: '12px 16px',
+                      padding: '8px 11px',
                       background: isSelected 
                         ? 'linear-gradient(135deg, #FFD700, #FFA500)' 
                         : 'var(--primary-green)',
                       color: 'white',
-                      borderRadius: '25px',
-                      fontSize: '14px',
+                      borderRadius: '18px',
+                      fontSize: '11px',
                       fontWeight: '600',
                       cursor: 'pointer',
                       userSelect: 'none',
                       whiteSpace: 'nowrap',
                       boxShadow: isSelected 
-                        ? '0 4px 15px rgba(255,165,0,0.5)' 
-                        : '0 2px 5px rgba(0,0,0,0.2)',
+                        ? '0 3px 10px rgba(255,165,0,0.5)' 
+                        : '0 1px 3px rgba(0,0,0,0.2)',
                       transform: isSelected ? 'scale(1.05)' : 'scale(1)',
                       transition: 'all 0.2s ease',
-                      border: isSelected ? '3px solid #fff' : '3px solid transparent'
+                      border: isSelected ? '2px solid #fff' : '2px solid transparent'
                     }}
                   >
                     {nickname}
@@ -405,7 +403,7 @@ function BingoGame() {
                 );
               })}
               {availableMembers.length === 0 && (
-                <div style={{ fontSize: '13px', opacity: 0.7, padding: '10px' }}>
+                <div style={{ fontSize: '11px', opacity: 0.7, padding: '8px' }}>
                   모든 회원이 배치되었습니다
                 </div>
               )}
