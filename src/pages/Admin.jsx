@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 import CrownIcon from '../components/CrownIcon';
+import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 
 function Admin() {
   const navigate = useNavigate();
@@ -102,6 +103,16 @@ function Admin() {
   const [showRefundModal, setShowRefundModal] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(null);
   const [isProcessingRefund, setIsProcessingRefund] = useState(false);
+  const [isSavingMember, setIsSavingMember] = useState(false);
+  const [isAddingMember, setIsAddingMember] = useState(false);
+  const [isSavingCourse, setIsSavingCourse] = useState(false);
+  const [isAddingCourse, setIsAddingCourse] = useState(false);
+  const [isSavingPermissions, setIsSavingPermissions] = useState(false);
+  const [isProcessingIncome, setIsProcessingIncome] = useState(false);
+  const [isProcessingExpense, setIsProcessingExpense] = useState(false);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(null);
+  const [isDeletingCategory, setIsDeletingCategory] = useState(null);
+  const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [paymentGuideText, setPaymentGuideText] = useState('');
   const [savedPaymentGuideText, setSavedPaymentGuideText] = useState('');
   const [clubIntroText, setClubIntroText] = useState('');
@@ -895,6 +906,7 @@ function Admin() {
   }, [showPermissionMenu, showCourseMenu]);
 
   const handleAddMember = async () => {
+    if (isAddingMember) return;
     if (!newMember.name || !newMember.phone) {
       alert('이름과 전화번호를 입력해주세요.');
       return;
@@ -910,16 +922,12 @@ function Admin() {
       balance: 0
     };
 
-    console.log('🔵 Admin: 회원 추가 시작');
-    console.log('📤 데이터베이스에 저장 시도:', member);
-    
+    setIsAddingMember(true);
     try {
       const createdMember = await apiService.createMember(member);
-      console.log('✅ 데이터베이스에 저장 완료, 생성된 ID:', createdMember.id);
       
       if (refreshMembers) {
         await refreshMembers();
-        console.log('✅ AppContext 회원 목록 새로고침 완료');
       }
       
       setNewMember({ 
@@ -940,12 +948,13 @@ function Admin() {
       setShowNewMemberForm(false);
       alert('회원이 추가되었습니다!');
     } catch (error) {
-      console.error('❌ 데이터베이스 저장 실패:', error);
       if (error.code === 'DUPLICATE_PHONE') {
         alert(error.message);
       } else {
         alert('회원 추가 중 오류가 발생했습니다. 다시 시도해주세요.');
       }
+    } finally {
+      setIsAddingMember(false);
     }
   };
 
@@ -1032,6 +1041,7 @@ function Admin() {
   };
 
   const handleSaveEdit = async () => {
+    if (isSavingMember) return;
     if (!editMemberData.name || !editMemberData.phone) {
       alert('이름과 전화번호를 입력해주세요.');
       return;
@@ -1042,9 +1052,9 @@ function Admin() {
       return;
     }
 
+    setIsSavingMember(true);
     try {
       await apiService.updateMember(editingMember, editMemberData);
-      console.log('✅ 회원 정보 업데이트 완료');
       
       if (refreshMembers) {
         await refreshMembers();
@@ -1054,8 +1064,9 @@ function Admin() {
       setEditMemberData(null);
       alert('회원 정보가 수정되었습니다.');
     } catch (error) {
-      console.error('❌ 회원 정보 수정 실패:', error);
       alert('회원 정보 수정 중 오류가 발생했습니다.');
+    } finally {
+      setIsSavingMember(false);
     }
   };
 
@@ -1065,11 +1076,13 @@ function Admin() {
   };
 
   const handleAddCourse = async () => {
+    if (isAddingCourse) return;
     if (!newCourse.name) {
       alert('골프장 이름을 입력해주세요.');
       return;
     }
 
+    setIsAddingCourse(true);
     try {
       const courseData = {
         name: newCourse.name,
@@ -1098,8 +1111,9 @@ function Admin() {
         await refreshCourses();
       }
     } catch (error) {
-      console.error('❌ 골프장 등록 실패:', error);
       alert('골프장 등록 중 오류가 발생했습니다.');
+    } finally {
+      setIsAddingCourse(false);
     }
   };
 
