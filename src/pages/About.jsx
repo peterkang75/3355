@@ -194,19 +194,7 @@ function About() {
             </>
           )}
 
-          <h3 style={{ 
-            fontSize: '16px', 
-            fontWeight: '700', 
-            marginBottom: '12px',
-            color: 'var(--primary-green)'
-          }}>
-            개발자 정보
-          </h3>
-          <div style={{ fontSize: '14px', lineHeight: '1.8', opacity: 0.9, marginBottom: '24px' }}>
-            멋짐, 매력, 잘생김 뿜뿜 동백님
-          </div>
-
-          <div style={{ fontSize: '14px', lineHeight: '1.8', opacity: 0.7, paddingTop: '16px', borderTop: '1px solid rgba(0,0,0,0.1)' }}>
+          <div style={{ fontSize: '14px', lineHeight: '1.8', opacity: 0.7 }}>
             <div style={{ marginBottom: '8px' }}>
               <strong>개인정보 처리방침</strong><br/>
               그딴거 없음
