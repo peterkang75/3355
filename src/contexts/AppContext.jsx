@@ -59,7 +59,21 @@ export function AppProvider({ children }) {
           setMembers(membersData);
           
           if (savedUserId) {
-            const currentUser = membersData.find(m => m.id === savedUserId);
+            let currentUser = membersData.find(m => m.id === savedUserId);
+            
+            // ID로 찾지 못한 경우 전화번호로 다시 찾기 (ID 불일치 해결)
+            if (!currentUser && savedUser) {
+              try {
+                const savedUserData = JSON.parse(savedUser);
+                if (savedUserData.phone) {
+                  currentUser = membersData.find(m => m.phone === savedUserData.phone);
+                  if (currentUser) {
+                    console.log('회원 ID 동기화: 전화번호로 매칭됨', currentUser.id);
+                  }
+                }
+              } catch (e) {}
+            }
+            
             if (currentUser) {
               setUser(currentUser);
               try {
