@@ -4047,24 +4047,39 @@ function Admin() {
                       : 0;
 
                     return (
-                      <div style={{ marginBottom: '16px' }}>
+                      <div style={{ 
+                        marginBottom: '12px',
+                        background: 'white',
+                        borderRadius: '12px',
+                        overflow: 'hidden',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                      }}>
                         <div style={{ 
                           display: 'grid', 
                           gridTemplateColumns: `repeat(${endHole - startHole + 2}, 1fr)`,
-                          gap: '2px',
                           fontSize: '13px'
                         }}>
-                          {/* Hole numbers */}
+                          {/* Hole numbers row - light colored background */}
                           {holeNumbers.map(h => (
                             <div key={`hole-${h}`} style={{ 
                               textAlign: 'center', 
-                              padding: '8px 4px',
-                              color: 'rgba(255,255,255,0.7)'
+                              padding: '10px 4px',
+                              background: '#e8f5e9',
+                              color: '#2d5f3f',
+                              fontWeight: '600',
+                              borderBottom: '1px solid #c8e6c9'
                             }}>
                               {h}
                             </div>
                           ))}
-                          <div style={{ textAlign: 'center', padding: '8px 4px', color: 'rgba(255,255,255,0.7)', fontWeight: '600' }}>
+                          <div style={{ 
+                            textAlign: 'center', 
+                            padding: '10px 4px', 
+                            background: '#e8f5e9',
+                            color: '#2d5f3f', 
+                            fontWeight: '700',
+                            borderBottom: '1px solid #c8e6c9'
+                          }}>
                             {label}
                           </div>
 
@@ -4073,12 +4088,21 @@ function Admin() {
                             <div key={`par-${idx}`} style={{ 
                               textAlign: 'center', 
                               padding: '8px 4px',
-                              color: 'white'
+                              color: '#666',
+                              fontSize: '12px',
+                              borderBottom: '1px solid #eee'
                             }}>
                               {p}
                             </div>
                           ))}
-                          <div style={{ textAlign: 'center', padding: '8px 4px', color: 'white', fontWeight: '600' }}>
+                          <div style={{ 
+                            textAlign: 'center', 
+                            padding: '8px 4px', 
+                            color: '#666', 
+                            fontWeight: '600',
+                            fontSize: '12px',
+                            borderBottom: '1px solid #eee'
+                          }}>
                             {totalPar}
                           </div>
 
@@ -4086,22 +4110,22 @@ function Admin() {
                           {scores.map((s, idx) => (
                             <div key={`score-${idx}`} style={{ 
                               textAlign: 'center', 
-                              padding: '8px 4px',
+                              padding: '10px 4px',
                               background: s > 0 ? getScoreColor(s, pars[idx]) : 'transparent',
-                              color: 'white',
-                              borderRadius: '4px',
-                              fontWeight: '600'
+                              color: s > 0 && getScoreColor(s, pars[idx]) !== 'transparent' ? 'white' : '#333',
+                              fontWeight: '700',
+                              fontSize: '14px'
                             }}>
                               {hasHoleData ? (s > 0 ? s : '-') : '-'}
                             </div>
                           ))}
                           <div style={{ 
                             textAlign: 'center', 
-                            padding: '8px 4px', 
-                            color: 'white', 
+                            padding: '10px 4px', 
+                            color: '#333', 
                             fontWeight: '700',
-                            background: 'rgba(255,255,255,0.1)',
-                            borderRadius: '4px'
+                            fontSize: '15px',
+                            background: '#f5f5f5'
                           }}>
                             {hasHoleData ? totalScore : '-'}
                           </div>
@@ -4110,21 +4134,22 @@ function Admin() {
                           {diffs.map((d, idx) => (
                             <div key={`diff-${idx}`} style={{ 
                               textAlign: 'center', 
-                              padding: '8px 4px',
-                              color: 'rgba(255,255,255,0.7)',
-                              fontSize: '12px'
+                              padding: '6px 4px',
+                              color: d < 0 ? '#e74c3c' : d > 0 ? '#3498db' : '#999',
+                              fontSize: '11px',
+                              fontWeight: '500'
                             }}>
-                              {hasHoleData && scores[idx] > 0 ? d : ''}
+                              {hasHoleData && scores[idx] > 0 ? (d > 0 ? `+${d}` : d) : ''}
                             </div>
                           ))}
                           <div style={{ 
                             textAlign: 'center', 
-                            padding: '8px 4px', 
-                            color: 'rgba(255,255,255,0.7)',
-                            fontSize: '12px',
+                            padding: '6px 4px', 
+                            color: totalDiff < 0 ? '#e74c3c' : totalDiff > 0 ? '#3498db' : '#999',
+                            fontSize: '11px',
                             fontWeight: '600'
                           }}>
-                            {hasHoleData && totalScore > 0 ? totalDiff : ''}
+                            {hasHoleData && totalScore > 0 ? (totalDiff > 0 ? `+${totalDiff}` : totalDiff) : ''}
                           </div>
                         </div>
                       </div>
