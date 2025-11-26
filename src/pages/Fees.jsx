@@ -297,7 +297,6 @@ function Fees() {
         display: 'flex',
         gap: '0',
         background: 'var(--bg-page)',
-        borderBottom: '2px solid var(--border-color)',
         position: 'sticky',
         top: '64px',
         zIndex: 100
