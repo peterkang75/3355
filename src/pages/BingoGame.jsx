@@ -360,22 +360,6 @@ function BingoGame() {
               💡 칸을 다시 터치하면 이름이 제거됩니다
             </div>
             
-            {selectedMember && (
-              <div style={{
-                padding: '12px',
-                background: 'linear-gradient(135deg, #FFD700, #FFA500)',
-                borderRadius: '8px',
-                marginBottom: '12px',
-                textAlign: 'center',
-                color: 'white',
-                fontWeight: '700',
-                fontSize: '16px',
-                boxShadow: '0 2px 10px rgba(255,165,0,0.4)'
-              }}>
-                ✓ "{selectedMember}" 선택됨 - 칸을 터치하세요!
-              </div>
-            )}
-            
             <div style={{ 
               display: 'flex', 
               flexWrap: 'wrap', 
@@ -434,23 +418,42 @@ function BingoGame() {
 
         <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
           {isEditMode ? (
-            <button
-              onClick={handleSave}
-              style={{
-                flex: 1,
-                padding: '14px 20px',
-                background: 'var(--primary-green)',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: '700',
-                cursor: 'pointer',
-                boxShadow: '0 2px 8px rgba(0,128,0,0.3)'
-              }}
-            >
-              저장 및 게임 시작
-            </button>
+            selectedMember ? (
+              <div
+                style={{
+                  flex: 1,
+                  padding: '14px 20px',
+                  background: 'linear-gradient(135deg, #FFD700, #FFA500)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  textAlign: 'center',
+                  boxShadow: '0 2px 10px rgba(255,165,0,0.4)'
+                }}
+              >
+                ✓ "{selectedMember}" 선택됨 - 칸을 터치하세요!
+              </div>
+            ) : (
+              <button
+                onClick={handleSave}
+                style={{
+                  flex: 1,
+                  padding: '14px 20px',
+                  background: 'var(--primary-green)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  boxShadow: '0 2px 8px rgba(0,128,0,0.3)'
+                }}
+              >
+                저장 및 게임 시작
+              </button>
+            )
           ) : (
             <>
               <button
