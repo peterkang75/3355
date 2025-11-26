@@ -79,6 +79,7 @@ function Admin() {
   const [isTransactionSelectMode, setIsTransactionSelectMode] = useState(false);
   const [selectedTransactionIds, setSelectedTransactionIds] = useState([]);
   const [editingTransaction, setEditingTransaction] = useState(null);
+  const [viewingTransaction, setViewingTransaction] = useState(null);
 
   const [incomeCategories, setIncomeCategories] = useState([]);
   const [expenseCategories, setExpenseCategories] = useState([]);
@@ -3392,26 +3393,48 @@ function Admin() {
                       {isTransactionSelectMode ? (
                         <>
                           {selectedTransactionIds.length === 1 && (
-                            <button
-                              onClick={() => {
-                                const transaction = allTransactions.find(t => t.id === selectedTransactionIds[0]);
-                                if (transaction) {
-                                  setEditingTransaction(transaction);
-                                }
-                              }}
-                              style={{
-                                padding: '6px 12px',
-                                background: 'var(--primary-green)',
-                                color: 'white',
-                                border: 'none',
-                                borderRadius: '6px',
-                                fontSize: '13px',
-                                fontWeight: '600',
-                                cursor: 'pointer'
-                              }}
-                            >
-                              수정
-                            </button>
+                            <>
+                              <button
+                                onClick={() => {
+                                  const transaction = allTransactions.find(t => t.id === selectedTransactionIds[0]);
+                                  if (transaction) {
+                                    setViewingTransaction(transaction);
+                                  }
+                                }}
+                                style={{
+                                  padding: '6px 12px',
+                                  background: '#6366f1',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '6px',
+                                  fontSize: '13px',
+                                  fontWeight: '600',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                상세
+                              </button>
+                              <button
+                                onClick={() => {
+                                  const transaction = allTransactions.find(t => t.id === selectedTransactionIds[0]);
+                                  if (transaction) {
+                                    setEditingTransaction(transaction);
+                                  }
+                                }}
+                                style={{
+                                  padding: '6px 12px',
+                                  background: 'var(--primary-green)',
+                                  color: 'white',
+                                  border: 'none',
+                                  borderRadius: '6px',
+                                  fontSize: '13px',
+                                  fontWeight: '600',
+                                  cursor: 'pointer'
+                                }}
+                              >
+                                수정
+                              </button>
+                            </>
                           )}
                           {selectedTransactionIds.length >= 1 && (
                             <button
@@ -6868,6 +6891,187 @@ function Admin() {
                 {isProcessingRefund ? '처리 중...' : '환불 처리'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {viewingTransaction && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px'
+          }}
+          onClick={() => setViewingTransaction(null)}
+        >
+          <div 
+            style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '20px',
+              width: '90%',
+              maxWidth: '450px',
+              maxHeight: '80vh',
+              overflow: 'auto',
+              position: 'relative'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700' }}>거래 상세</h3>
+              <button
+                onClick={() => setViewingTransaction(null)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  color: 'var(--text-secondary)'
+                }}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+                <span style={{ width: '100px', fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>거래 ID</span>
+                <span style={{ fontSize: '13px', wordBreak: 'break-all' }}>{viewingTransaction.id}</span>
+              </div>
+              
+              <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+                <span style={{ width: '100px', fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>유형</span>
+                <span style={{ fontSize: '13px' }}>
+                  {viewingTransaction.type === 'payment' ? '라운딩 회비' :
+                   viewingTransaction.type === 'expense' ? '지출' :
+                   viewingTransaction.type === 'donation' ? '도네이션' :
+                   viewingTransaction.type === 'charge' ? '청구' :
+                   viewingTransaction.type === 'credit' ? '크레딧' : viewingTransaction.type}
+                </span>
+              </div>
+              
+              <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+                <span style={{ width: '100px', fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>금액</span>
+                <span style={{ fontSize: '13px', fontWeight: '600', color: viewingTransaction.type === 'expense' || viewingTransaction.type === 'charge' ? '#ef4444' : '#22c55e' }}>
+                  {viewingTransaction.type === 'expense' || viewingTransaction.type === 'charge' ? '-' : '+'}${viewingTransaction.amount}
+                </span>
+              </div>
+              
+              <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+                <span style={{ width: '100px', fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>거래 날짜</span>
+                <span style={{ fontSize: '13px' }}>
+                  {new Date(viewingTransaction.date).toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit' })}
+                </span>
+              </div>
+              
+              <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+                <span style={{ width: '100px', fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>회원</span>
+                <span style={{ fontSize: '13px' }}>{viewingTransaction.member?.nickname || viewingTransaction.member?.name || '-'}</span>
+              </div>
+              
+              {viewingTransaction.booking && (
+                <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+                  <span style={{ width: '100px', fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>라운딩</span>
+                  <span style={{ fontSize: '13px' }}>{viewingTransaction.booking.name}</span>
+                </div>
+              )}
+              
+              {viewingTransaction.description && (
+                <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+                  <span style={{ width: '100px', fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>설명</span>
+                  <span style={{ fontSize: '13px' }}>{viewingTransaction.description}</span>
+                </div>
+              )}
+              
+              {viewingTransaction.executor && (
+                <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+                  <span style={{ width: '100px', fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>집행자</span>
+                  <span style={{ fontSize: '13px' }}>{viewingTransaction.executor.nickname || viewingTransaction.executor.name}</span>
+                </div>
+              )}
+              
+              <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+                <span style={{ width: '100px', fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>생성일시</span>
+                <span style={{ fontSize: '13px' }}>
+                  {new Date(viewingTransaction.createdAt).toLocaleString('ko-KR', { 
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                  })}
+                </span>
+              </div>
+              
+              <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+                <span style={{ width: '100px', fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>수정일시</span>
+                <span style={{ fontSize: '13px' }}>
+                  {new Date(viewingTransaction.updatedAt).toLocaleString('ko-KR', { 
+                    year: 'numeric', month: '2-digit', day: '2-digit',
+                    hour: '2-digit', minute: '2-digit', second: '2-digit'
+                  })}
+                </span>
+              </div>
+              
+              {viewingTransaction.receiptUrl && (
+                <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+                  <span style={{ width: '100px', fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>영수증</span>
+                  <button
+                    onClick={() => {
+                      setViewingTransaction(null);
+                      setShowReceiptModal(viewingTransaction.receiptUrl);
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      color: '#6366f1',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      textDecoration: 'underline'
+                    }}
+                  >
+                    영수증 보기
+                  </button>
+                </div>
+              )}
+              
+              {viewingTransaction.memberId && (
+                <div style={{ display: 'flex', paddingBottom: '8px' }}>
+                  <span style={{ width: '100px', fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>회원 ID</span>
+                  <span style={{ fontSize: '12px', color: 'var(--text-secondary)', wordBreak: 'break-all' }}>{viewingTransaction.memberId}</span>
+                </div>
+              )}
+              
+              {viewingTransaction.bookingId && (
+                <div style={{ display: 'flex', paddingBottom: '8px' }}>
+                  <span style={{ width: '100px', fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>라운딩 ID</span>
+                  <span style={{ fontSize: '12px', color: 'var(--text-secondary)', wordBreak: 'break-all' }}>{viewingTransaction.bookingId}</span>
+                </div>
+              )}
+            </div>
+            
+            <button
+              onClick={() => setViewingTransaction(null)}
+              style={{
+                width: '100%',
+                marginTop: '16px',
+                padding: '12px',
+                background: 'var(--primary-green)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              닫기
+            </button>
           </div>
         </div>
       )}
