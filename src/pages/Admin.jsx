@@ -3641,7 +3641,7 @@ function Admin() {
                         <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>회원</th>
                         <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>항목</th>
                         <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>금액</th>
-                        <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>라운딩</th>
+                        <th style={{ padding: '6px 4px 6px 16px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>라운딩</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -3763,7 +3763,7 @@ function Admin() {
                                   </span>
                                 )}
                               </td>
-                              <td style={{ padding: '6px 4px', whiteSpace: 'nowrap' }}>
+                              <td style={{ padding: '6px 4px 6px 16px', whiteSpace: 'nowrap' }}>
                                 {bookingName}
                               </td>
                             </tr>
