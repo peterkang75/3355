@@ -6944,7 +6944,7 @@ function Admin() {
                   date: e.target.value
                 })}
                 style={{
-                  width: '100%',
+                  width: '50%',
                   padding: '10px 12px',
                   borderRadius: '6px',
                   border: '1px solid var(--border-color)',
