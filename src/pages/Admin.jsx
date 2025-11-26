@@ -3728,7 +3728,8 @@ function Admin() {
                         onClick={async () => {
                           setSelectedRoundForScore(booking);
                           try {
-                            const res = await fetch(`/api/scores/by-rounding/${encodeURIComponent(booking.title)}`);
+                            const dateStr = new Date(booking.date).toISOString().split('T')[0];
+                            const res = await fetch(`/api/scores/booking/${encodeURIComponent(dateStr)}/${encodeURIComponent(booking.courseName)}`);
                             const data = await res.json();
                             setRoundScores(Array.isArray(data) ? data : []);
                           } catch (e) {
@@ -3815,7 +3816,7 @@ function Admin() {
                         return diffA - diffB;
                       })
                       .map((score, index) => {
-                        const member = members.find(m => m.id === score.memberId);
+                        const member = score.user || members.find(m => m.id === score.userId);
                         const diff = score.totalScore - (score.coursePar || 72);
                         const diffText = diff > 0 ? `+${diff}` : diff === 0 ? 'E' : String(diff);
                         return (
