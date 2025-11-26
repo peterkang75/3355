@@ -4007,8 +4007,11 @@ function Admin() {
                 </div>
 
                 {(() => {
-                  const holes = selectedPlayerForScore.holes || [];
-                  const hasHoleData = holes.some(h => h > 0);
+                  let holes = selectedPlayerForScore.holes || [];
+                  if (typeof holes === 'string') {
+                    try { holes = JSON.parse(holes); } catch (e) { holes = []; }
+                  }
+                  const hasHoleData = Array.isArray(holes) && holes.some(h => h > 0);
                   const course = courses.find(c => c.name === selectedPlayerForScore.courseName);
                   const gender = selectedPlayerForScore.member?.gender;
                   const isFemale = gender === 'F' || gender === '여' || gender === 'female';
