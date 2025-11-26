@@ -490,7 +490,7 @@ function Leaderboard() {
             <div 
               onClick={(e) => e.stopPropagation()}
               style={{
-                background: '#2d5f3f',
+                background: '#1a1a2e',
                 borderRadius: '12px',
                 width: '100%',
                 maxWidth: '500px',
