@@ -4590,14 +4590,14 @@ function Admin() {
                               method: 'POST',
                               headers: { 'Content-Type': 'application/json' },
                               body: JSON.stringify({
-                                userId: memberId,
+                                memberId: memberId,
                                 markerId: memberId,
                                 roundingName: selectedRoundForScore.title,
                                 date: dateStr,
                                 courseName: selectedRoundForScore.courseName,
                                 totalScore: editScoreData.totalScore,
                                 coursePar: coursePar,
-                                holes: JSON.stringify(editScoreData.holes.map(h => h || 0))
+                                holes: editScoreData.holes.map(h => h || 0)
                               })
                             });
                             if (res.ok) {
