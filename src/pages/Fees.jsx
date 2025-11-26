@@ -93,11 +93,9 @@ function Fees() {
       return '도네이션';
     }
     if (transaction.type === 'credit') {
-      // description을 그대로 표시 (예: "크레딧처리")
       return transaction.description || '크레딧처리';
     }
     if (transaction.type === 'expense') {
-      // description에서 "환불" 추출
       if (transaction.description) {
         const parts = transaction.description.split(' - ');
         if (parts[0].includes('환불')) {
@@ -107,31 +105,39 @@ function Fees() {
       return '환불';
     }
     if (transaction.type === 'charge') {
-      // description에서 항목명 추출
       if (transaction.description) {
         const parts = transaction.description.split(' - ');
-        const categoryName = parts[0].replace(/\s*\([^)]*\)$/, ''); // 괄호 내용 제거
+        const categoryName = parts[0].replace(/\s*\([^)]*\)$/, '');
         
-        // "라운딩"이 포함된 경우만 "참가비"로 표시
         if (categoryName.includes('라운딩')) {
           return '참가비';
         }
         
-        // 그 외에는 항목명 그대로 표시 (예: "회식비청구" 등)
         return categoryName;
       }
       return '참가비 발생';
     }
     if (transaction.type === 'payment') {
-      // description에서 전액납부/부분납부/참가비 환불 구분
-      if (transaction.description && transaction.description.includes('전액')) {
-        return '전액납부';
-      } else if (transaction.description && transaction.description.includes('부분')) {
-        return '부분납부';
-      } else if (transaction.description && transaction.description.includes('환불')) {
+      if (transaction.description && transaction.description.includes('환불')) {
         return '참가비 환불';
       }
-      return '납부';
+      
+      if (transaction.booking) {
+        const bookingName = transaction.booking.title || transaction.booking.courseName || '';
+        if (transaction.description && transaction.description.includes('전액')) {
+          return `${bookingName} 전액납부`;
+        } else if (transaction.description && transaction.description.includes('부분')) {
+          return `${bookingName} 부분납부`;
+        }
+        return `${bookingName} 참가비납부`;
+      }
+      
+      if (transaction.description && transaction.description.includes('전액')) {
+        return '정모 회비납부';
+      } else if (transaction.description && transaction.description.includes('부분')) {
+        return '정모 부분납부';
+      }
+      return '정모 회비납부';
     }
     return '';
   };
@@ -412,10 +418,6 @@ function Fees() {
               ) : (
                 <div>
                   {userTransactions.map(transaction => {
-                    // 라운딩 이름 추출
-                    const bookingName = transaction.booking ? 
-                      (transaction.booking.title || transaction.booking.courseName) : '-';
-                    
                     return (
                       <div 
                         key={transaction.id}
@@ -429,9 +431,9 @@ function Fees() {
                         }}
                       >
                         <div style={{ 
-                          width: '80px',
+                          flex: '1',
                           fontWeight: '600',
-                          flexShrink: 0,
+                          minWidth: '0',
                           overflow: 'hidden',
                           textOverflow: 'ellipsis',
                           whiteSpace: 'nowrap'
@@ -439,17 +441,7 @@ function Fees() {
                           {getTransactionLabel(transaction)}
                         </div>
                         <div style={{ 
-                          flex: '1',
-                          minWidth: '0',
-                          opacity: 0.7,
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap'
-                        }}>
-                          {bookingName}
-                        </div>
-                        <div style={{ 
-                          width: '70px',
+                          width: '60px',
                           flexShrink: 0,
                           opacity: 0.7,
                           textAlign: 'center'
@@ -549,9 +541,17 @@ function Fees() {
                         const isOtherIncome = transaction.description?.startsWith('기타 - ');
                         const otherItemName = isOtherIncome ? transaction.description.replace('기타 - ', '') : null;
                         
+                        const getPaymentLabel = () => {
+                          if (transaction.booking) {
+                            const bookingName = transaction.booking.title || transaction.booking.courseName || '';
+                            return `${bookingName} 참가비납부`;
+                          }
+                          return '정모 회비납부';
+                        };
+                        
                         const typeLabel = 
                           isOtherIncome ? otherItemName :
-                          transaction.type === 'payment' ? '납부' :
+                          transaction.type === 'payment' ? getPaymentLabel() :
                           transaction.type === 'expense' ? '클럽 지출' : '도네이션';
                         
                         const typeColor =
