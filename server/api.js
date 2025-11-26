@@ -848,10 +848,11 @@ router.get('/settings', async (req, res) => {
 
 router.put('/settings/:feature', async (req, res) => {
   try {
-    const { minRole, enabled } = req.body;
+    const { minRole, enabled, value } = req.body;
     const updateData = {};
     if (minRole !== undefined) updateData.minRole = minRole;
     if (enabled !== undefined) updateData.enabled = enabled;
+    if (value !== undefined) updateData.value = value;
     
     const setting = await prisma.appSettings.upsert({
       where: { feature: req.params.feature },

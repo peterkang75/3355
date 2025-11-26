@@ -15,6 +15,7 @@ function Fees() {
   const [showReceiptModal, setShowReceiptModal] = useState(null);
   const [clubBalance, setClubBalance] = useState(0);
   const [outstandingCount, setOutstandingCount] = useState(0);
+  const [paymentGuideText, setPaymentGuideText] = useState('');
   const ITEMS_PER_PAGE = 10;
   const MAX_PAGES = 10;
 
@@ -26,12 +27,28 @@ function Fees() {
   }, [location]);
 
   useEffect(() => {
+    loadPaymentGuide();
+  }, []);
+
+  useEffect(() => {
     if (activeTab === 'personal') {
       setLoading(false);
     } else {
       loadLedgerData();
     }
   }, [user.id, activeTab]);
+
+  const loadPaymentGuide = async () => {
+    try {
+      const settings = await apiService.fetchSettings();
+      const guideSetting = settings.find(s => s.feature === 'paymentGuideText');
+      if (guideSetting && guideSetting.value) {
+        setPaymentGuideText(guideSetting.value);
+      }
+    } catch (error) {
+      console.error('납부안내 로드 실패:', error);
+    }
+  };
 
   const loadLedgerData = async () => {
     try {
@@ -460,15 +477,16 @@ function Fees() {
               )}
             </div>
 
-            <div className="card" style={{ padding: '16px', background: '#f8f9fa' }}>
-              <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: 'var(--primary-green)' }}>
-                ⓘ 납부 안내
+            {paymentGuideText && (
+              <div className="card" style={{ padding: '16px', background: '#f8f9fa' }}>
+                <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: 'var(--primary-green)' }}>
+                  ⓘ 납부 안내
+                </div>
+                <p style={{ fontSize: '13px', lineHeight: '1.6', opacity: 0.8, margin: 0, whiteSpace: 'pre-wrap' }}>
+                  {paymentGuideText}
+                </p>
               </div>
-              <p style={{ fontSize: '13px', lineHeight: '1.6', opacity: 0.8, margin: 0 }}>
-                참가비 납부는 관리자에게 문의해주세요. 
-                납부 완료 후 관리자가 처리하면 자동으로 잔액에 반영됩니다.
-              </p>
-            </div>
+            )}
           </>
         ) : (
           <>

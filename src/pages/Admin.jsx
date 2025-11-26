@@ -102,6 +102,8 @@ function Admin() {
   const [showRefundModal, setShowRefundModal] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(null);
   const [isProcessingRefund, setIsProcessingRefund] = useState(false);
+  const [paymentGuideText, setPaymentGuideText] = useState('');
+  const [savedPaymentGuideText, setSavedPaymentGuideText] = useState('');
 
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
@@ -153,6 +155,10 @@ function Admin() {
         }
         if (setting.feature === 'member_approval') {
           setApprovalPermission(setting.minRole || '관리자');
+        }
+        if (setting.feature === 'paymentGuideText') {
+          setPaymentGuideText(setting.value || '');
+          setSavedPaymentGuideText(setting.value || '');
         }
       });
       
@@ -4041,6 +4047,63 @@ function Admin() {
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
+                개인 회비 납부안내 문구
+              </h3>
+              <div style={{
+                padding: '10px 12px',
+                background: 'var(--bg-green)',
+                borderRadius: '6px',
+                marginBottom: '12px',
+                fontSize: '12px',
+                color: 'var(--text-dark)', opacity: 0.7
+              }}>
+                • 참가비 - 개인참가비 내역 탭에 표시될 납부안내 문구를 작성합니다
+              </div>
+              <textarea
+                value={paymentGuideText}
+                onChange={(e) => setPaymentGuideText(e.target.value)}
+                placeholder="납부안내 문구를 입력해주세요..."
+                style={{
+                  width: '100%',
+                  minHeight: '100px',
+                  padding: '12px',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  resize: 'vertical',
+                  marginBottom: '12px',
+                  boxSizing: 'border-box'
+                }}
+              />
+              <button
+                onClick={async () => {
+                  try {
+                    await apiService.updateSetting('paymentGuideText', { value: paymentGuideText });
+                    setSavedPaymentGuideText(paymentGuideText);
+                    alert('납부안내 문구가 저장되었습니다.');
+                  } catch (error) {
+                    console.error('납부안내 문구 저장 실패:', error);
+                    alert('저장에 실패했습니다.');
+                  }
+                }}
+                disabled={paymentGuideText === savedPaymentGuideText}
+                style={{
+                  padding: '12px 24px',
+                  background: paymentGuideText !== savedPaymentGuideText ? 'var(--primary-green)' : '#ccc',
+                  color: 'var(--text-light)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: paymentGuideText !== savedPaymentGuideText ? 'pointer' : 'not-allowed'
+                }}
+              >
+                {paymentGuideText !== savedPaymentGuideText ? '저장하기' : '저장됨'}
+              </button>
             </div>
 
             <div className="card">
