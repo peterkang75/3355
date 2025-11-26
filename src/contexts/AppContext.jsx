@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import apiService from '../services/api';
 import { calculateHandicap } from '../utils/handicap';
@@ -15,6 +15,14 @@ export function AppProvider({ children }) {
   const [courses, setCourses] = useState([]);
   const [userTransactions, setUserTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  // 소켓 이벤트 핸들러에서 최신 user 값을 참조하기 위한 ref
+  const userRef = useRef(null);
+  
+  // user 변경 시 ref 동기화
+  useEffect(() => {
+    userRef.current = user;
+  }, [user]);
 
   useEffect(() => {
     const initApp = async () => {
@@ -259,16 +267,21 @@ export function AppProvider({ children }) {
 
     socket.on('transactions:updated', async () => {
       console.log('📢 거래 데이터 업데이트 이벤트 수신');
-      // user 거래 내역 갱신
-      if (user?.id) {
+      // user 거래 내역 갱신 (userRef를 사용하여 최신 user 값 참조)
+      const currentUser = userRef.current;
+      if (currentUser?.id) {
         try {
-          const transactionsData = await apiService.fetchMemberTransactions(user.id);
+          console.log('🔄 거래 내역 갱신 시작:', currentUser.id);
+          const transactionsData = await apiService.fetchMemberTransactions(currentUser.id);
           if (transactionsData) {
+            console.log('✅ 거래 내역 갱신 완료:', transactionsData.length, '건');
             setUserTransactions(transactionsData);
           }
         } catch (error) {
           console.error('거래 내역 갱신 실패:', error);
         }
+      } else {
+        console.log('⚠️ 거래 내역 갱신 건너뜀: 사용자 미로그인');
       }
     });
 
