@@ -963,6 +963,7 @@ router.get('/transactions', async (req, res) => {
         booking: {
           select: {
             id: true,
+            title: true,
             courseName: true,
             date: true
           }
