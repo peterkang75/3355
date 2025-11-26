@@ -3111,9 +3111,12 @@ function Admin() {
                 <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
                   항목별 집계
                 </h3>
-                {selectedSummaryCategories.length > 0 && (
+                {(selectedSummaryCategories.length > 0 || ledgerFilter.memberId !== 'all') && (
                   <button
-                    onClick={() => setSelectedSummaryCategories([])}
+                    onClick={() => {
+                      setSelectedSummaryCategories([]);
+                      setLedgerFilter({ ...ledgerFilter, memberId: 'all' });
+                    }}
                     style={{
                       padding: '4px 10px',
                       fontSize: '12px',
