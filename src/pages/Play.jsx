@@ -621,7 +621,10 @@ function Play() {
     const iosButtonStyle = { WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation', userSelect: 'none' };
     const largeBoxSize = '70px';
     const currentUserMember = members?.find(m => m.phone === user?.phone);
-    const isFemale = isTeammate ? selectedTeammate?.gender === 'F' : (user?.gender === 'F' || currentUserMember?.gender === 'F');
+    const checkFemale = (gender) => gender === 'F' || gender === '여' || gender === 'female';
+    const isFemale = isTeammate 
+      ? checkFemale(selectedTeammate?.gender) 
+      : (checkFemale(user?.gender) || checkFemale(currentUserMember?.gender));
     const boxStyle = { width: largeBoxSize, height: largeBoxSize, padding: '12px', background: 'white', border: '2px solid #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: '28px', color: '#000', ...iosButtonStyle };
     const buttonStyle = { width: largeBoxSize, height: largeBoxSize, padding: '12px', border: '2px solid #ccc', background: 'white', color: '#000', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: '28px', ...iosButtonStyle };
     
