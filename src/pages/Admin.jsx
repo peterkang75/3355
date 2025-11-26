@@ -2996,7 +2996,7 @@ function Admin() {
                         // 항목명 (항목 컬럼용)
                         let categoryName = '';
                         if (transaction.type === 'payment') {
-                          categoryName = '라운딩 회비납부';
+                          categoryName = '라운딩 회비';
                         } else if (transaction.type === 'expense') {
                           const expenseDesc = transaction.description || '클럽 지출';
                           categoryName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
@@ -3158,7 +3158,7 @@ function Admin() {
                 // 수입 합계 계산 (payment, donation)
                 const incomeTotals = {};
                 filteredForSummary.filter(t => t.type === 'payment').forEach(t => {
-                  const catName = '라운딩 회비납부';
+                  const catName = '라운딩 회비';
                   incomeTotals[catName] = (incomeTotals[catName] || 0) + t.amount;
                 });
                 filteredForSummary.filter(t => t.type === 'donation').forEach(t => {
@@ -3360,7 +3360,7 @@ function Admin() {
                         
                         let catKey = '';
                         if (t.type === 'payment') {
-                          catKey = 'income:라운딩 회비납부';
+                          catKey = 'income:라운딩 회비';
                         } else if (t.type === 'donation') {
                           if (t.description?.startsWith('기타 - ')) {
                             catKey = `income:${t.description.replace('기타 - ', '')}`;
@@ -3417,7 +3417,7 @@ function Admin() {
                   
                   let catKey = '';
                   if (t.type === 'payment') {
-                    catKey = 'income:라운딩 회비납부';
+                    catKey = 'income:라운딩 회비';
                   } else if (t.type === 'donation') {
                     if (t.description?.startsWith('기타 - ')) {
                       catKey = `income:${t.description.replace('기타 - ', '')}`;
@@ -3474,7 +3474,7 @@ function Admin() {
                           
                           let catKey = '';
                           if (t.type === 'payment') {
-                            catKey = 'income:라운딩 회비납부';
+                            catKey = 'income:라운딩 회비';
                           } else if (t.type === 'donation') {
                             if (t.description?.startsWith('기타 - ')) {
                               catKey = `income:${t.description.replace('기타 - ', '')}`;
@@ -3502,7 +3502,7 @@ function Admin() {
 
                           let categoryName = '';
                           if (transaction.type === 'payment') {
-                            categoryName = '라운딩 회비납부';
+                            categoryName = '라운딩 회비';
                           } else if (transaction.type === 'expense') {
                             const expenseDesc = transaction.description || '클럽 지출';
                             categoryName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;

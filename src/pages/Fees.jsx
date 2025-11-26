@@ -121,7 +121,7 @@ function Fees() {
       if (transaction.description && transaction.description.includes('환불')) {
         return '참가비 환불';
       }
-      return '라운딩 회비납부';
+      return '라운딩 회비';
     }
     return '';
   };
@@ -554,7 +554,7 @@ function Fees() {
                         
                         const typeLabel = 
                           isOtherIncome ? otherItemName :
-                          transaction.type === 'payment' ? '라운딩 회비납부' :
+                          transaction.type === 'payment' ? '라운딩 회비' :
                           transaction.type === 'expense' ? '클럽 지출' : '도네이션';
                         
                         const typeColor =
