@@ -107,34 +107,6 @@ function About() {
           margin: '20px 0'
         }} />
 
-        <div className="card" style={{ marginBottom: '20px' }}>
-          <button
-            onClick={() => navigate('/bingo')}
-            style={{
-              width: '100%',
-              padding: '16px 20px',
-              background: 'linear-gradient(135deg, #FFD700, #FFA500)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '18px',
-              fontWeight: '700',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-              boxShadow: '0 4px 15px rgba(255, 165, 0, 0.4)',
-              transition: 'transform 0.2s ease'
-            }}
-          >
-            🎯 빙고 게임하기
-          </button>
-          <div style={{ fontSize: '12px', opacity: 0.6, textAlign: 'center', marginTop: '8px' }}>
-            회원 대화명으로 빙고 게임을 즐겨보세요!
-          </div>
-        </div>
-
         <div className="card">
           <h3 style={{ 
             fontSize: '16px', 
@@ -216,6 +188,34 @@ function About() {
             borderTop: '1px solid rgba(0,0,0,0.05)'
           }}>
             Made with ❤️ by 동백
+          </div>
+        </div>
+
+        <div className="card" style={{ marginTop: '20px' }}>
+          <button
+            onClick={() => navigate('/bingo')}
+            style={{
+              width: '100%',
+              padding: '16px 20px',
+              background: 'linear-gradient(135deg, #FFD700, #FFA500)',
+              color: 'white',
+              border: 'none',
+              borderRadius: '12px',
+              fontSize: '18px',
+              fontWeight: '700',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              boxShadow: '0 4px 15px rgba(255, 165, 0, 0.4)',
+              transition: 'transform 0.2s ease'
+            }}
+          >
+            🎯 빙고 게임하기
+          </button>
+          <div style={{ fontSize: '12px', opacity: 0.6, textAlign: 'center', marginTop: '8px' }}>
+            회원 대화명으로 빙고 게임을 즐겨보세요!
           </div>
         </div>
       </div>
