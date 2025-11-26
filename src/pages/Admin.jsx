@@ -3375,16 +3375,6 @@ function Admin() {
                   }건)
                 </h3>
                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                  <div style={{ 
-                    fontSize: '14px', 
-                    fontWeight: '600', 
-                    color: 'var(--primary-green)',
-                    background: 'var(--bg-green)',
-                    padding: '6px 12px',
-                    borderRadius: '6px'
-                  }}>
-                    클럽 잔액: ${clubBalance.toLocaleString()}
-                  </div>
                   {hasFeaturePermission('delete_transaction') && (
                     <>
                       {isTransactionSelectMode ? (
