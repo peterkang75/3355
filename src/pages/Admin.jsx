@@ -2463,7 +2463,7 @@ function Admin() {
                       value={selectedIncome.date}
                       onChange={(e) => setSelectedIncome({...selectedIncome, date: e.target.value})}
                       style={{
-                        width: '100%',
+                        width: '50%',
                         padding: '12px',
                         border: '1px solid var(--border-color)',
                         borderRadius: '8px',
@@ -2808,7 +2808,7 @@ function Admin() {
                       value={selectedExpense.date}
                       onChange={(e) => setSelectedExpense({...selectedExpense, date: e.target.value})}
                       style={{
-                        width: '100%',
+                        width: '50%',
                         padding: '12px',
                         border: '1px solid var(--border-color)',
                         borderRadius: '8px',
