@@ -3104,38 +3104,6 @@ function Admin() {
 
         {activeTab === 'ledger' && (
           <div>
-            <div className="card" style={{ marginBottom: '16px' }}>
-              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
-                필터
-              </h3>
-              
-              <div style={{ display: 'grid', gap: '12px' }}>
-                <select
-                  value={ledgerFilter.type}
-                  onChange={(e) => setLedgerFilter({ ...ledgerFilter, type: e.target.value })}
-                  style={{ marginBottom: '8px' }}
-                >
-                  <option value="all">전체 거래</option>
-                  <option value="charge">참가비 발생</option>
-                  <option value="payment">납부</option>
-                  <option value="expense">클럽 지출</option>
-                  <option value="donation">도네이션</option>
-                </select>
-
-                <select
-                  value={ledgerFilter.memberId}
-                  onChange={(e) => setLedgerFilter({ ...ledgerFilter, memberId: e.target.value })}
-                >
-                  <option value="all">전체 회원</option>
-                  {members.map(member => (
-                    <option key={member.id} value={member.id}>
-                      {member.name} ({member.nickname})
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
             {/* 항목별 합계 섹션 */}
             <div className="card" style={{ marginBottom: '16px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
@@ -3287,6 +3255,38 @@ function Admin() {
                   </div>
                 );
               })()}
+            </div>
+
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
+                필터
+              </h3>
+              
+              <div style={{ display: 'grid', gap: '12px' }}>
+                <select
+                  value={ledgerFilter.type}
+                  onChange={(e) => setLedgerFilter({ ...ledgerFilter, type: e.target.value })}
+                  style={{ marginBottom: '8px' }}
+                >
+                  <option value="all">전체 거래</option>
+                  <option value="charge">참가비 발생</option>
+                  <option value="payment">납부</option>
+                  <option value="expense">클럽 지출</option>
+                  <option value="donation">도네이션</option>
+                </select>
+
+                <select
+                  value={ledgerFilter.memberId}
+                  onChange={(e) => setLedgerFilter({ ...ledgerFilter, memberId: e.target.value })}
+                >
+                  <option value="all">전체 회원</option>
+                  {members.map(member => (
+                    <option key={member.id} value={member.id}>
+                      {member.name} ({member.nickname})
+                    </option>
+                  ))}
+                </select>
+              </div>
             </div>
 
             <div className="card">
