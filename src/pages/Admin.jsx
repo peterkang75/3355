@@ -2316,13 +2316,18 @@ function Admin() {
                                 return;
                               }
                               try {
-                                await api.createTransaction({
+                                const transactionData = {
                                   type: 'donation',
                                   amount: parseInt(selectedIncome.manualAmount),
                                   description: `기타 - ${selectedIncome.manualItemName.trim()}`,
-                                  date: selectedIncome.date,
-                                  createdBy: user.id
-                                });
+                                  date: selectedIncome.date
+                                };
+                                if (user?.id) {
+                                  transactionData.createdBy = user.id;
+                                }
+                                console.log('기타 입금 데이터:', transactionData);
+                                const result = await api.createTransaction(transactionData);
+                                console.log('기타 입금 결과:', result);
                                 alert(`기타 입금이 저장되었습니다: ${selectedIncome.manualItemName.trim()} ($${selectedIncome.manualAmount})`);
                                 setSelectedIncome({
                                   ...selectedIncome,
@@ -2333,7 +2338,8 @@ function Admin() {
                                 loadFeeData();
                               } catch (error) {
                                 console.error('기타 입금 저장 실패:', error);
-                                alert('저장에 실패했습니다.');
+                                console.error('에러 상세:', error.message);
+                                alert('저장에 실패했습니다: ' + (error.message || '알 수 없는 오류'));
                               }
                             }}
                             style={{
