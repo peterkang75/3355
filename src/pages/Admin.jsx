@@ -106,6 +106,8 @@ function Admin() {
   const [savedPaymentGuideText, setSavedPaymentGuideText] = useState('');
   const [clubIntroText, setClubIntroText] = useState('');
   const [savedClubIntroText, setSavedClubIntroText] = useState('');
+  const [clubRulesText, setClubRulesText] = useState('');
+  const [savedClubRulesText, setSavedClubRulesText] = useState('');
 
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
@@ -165,6 +167,10 @@ function Admin() {
         if (setting.feature === 'clubIntroText') {
           setClubIntroText(setting.value || '');
           setSavedClubIntroText(setting.value || '');
+        }
+        if (setting.feature === 'clubRulesText') {
+          setClubRulesText(setting.value || '');
+          setSavedClubRulesText(setting.value || '');
         }
       });
       
@@ -4109,6 +4115,63 @@ function Admin() {
                 }}
               >
                 {clubIntroText !== savedClubIntroText ? '저장하기' : '저장됨'}
+              </button>
+            </div>
+
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
+                모임 회칙
+              </h3>
+              <div style={{
+                padding: '10px 12px',
+                background: 'var(--bg-green)',
+                borderRadius: '6px',
+                marginBottom: '12px',
+                fontSize: '12px',
+                color: 'var(--text-dark)', opacity: 0.7
+              }}>
+                • About 페이지에서 "회칙보기" 버튼을 통해 표시될 모임 회칙을 작성합니다
+              </div>
+              <textarea
+                value={clubRulesText}
+                onChange={(e) => setClubRulesText(e.target.value)}
+                placeholder="모임 회칙을 입력해주세요..."
+                style={{
+                  width: '100%',
+                  minHeight: '200px',
+                  padding: '12px',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  resize: 'vertical',
+                  marginBottom: '12px',
+                  boxSizing: 'border-box'
+                }}
+              />
+              <button
+                onClick={async () => {
+                  try {
+                    await apiService.updateSetting('clubRulesText', { value: clubRulesText });
+                    setSavedClubRulesText(clubRulesText);
+                    alert('모임 회칙이 저장되었습니다.');
+                  } catch (error) {
+                    console.error('모임 회칙 저장 실패:', error);
+                    alert('저장에 실패했습니다.');
+                  }
+                }}
+                disabled={clubRulesText === savedClubRulesText}
+                style={{
+                  padding: '12px 24px',
+                  background: clubRulesText !== savedClubRulesText ? 'var(--primary-green)' : '#ccc',
+                  color: 'var(--text-light)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: clubRulesText !== savedClubRulesText ? 'pointer' : 'not-allowed'
+                }}
+              >
+                {clubRulesText !== savedClubRulesText ? '저장하기' : '저장됨'}
               </button>
             </div>
 

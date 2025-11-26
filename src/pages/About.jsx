@@ -8,20 +8,26 @@ function About() {
   const navigate = useNavigate();
   const { user } = useApp();
   const [clubIntroText, setClubIntroText] = useState('');
+  const [clubRulesText, setClubRulesText] = useState('');
+  const [showRulesModal, setShowRulesModal] = useState(false);
   
   useEffect(() => {
-    const loadIntroText = async () => {
+    const loadSettings = async () => {
       try {
         const settings = await apiService.fetchSettings();
         const introSetting = settings.find(s => s.feature === 'clubIntroText');
         if (introSetting && introSetting.value) {
           setClubIntroText(introSetting.value);
         }
+        const rulesSetting = settings.find(s => s.feature === 'clubRulesText');
+        if (rulesSetting && rulesSetting.value) {
+          setClubRulesText(rulesSetting.value);
+        }
       } catch (error) {
-        console.error('소개문구 로드 실패:', error);
+        console.error('설정 로드 실패:', error);
       }
     };
-    loadIntroText();
+    loadSettings();
   }, []);
   
   const handleContact = () => {
@@ -128,6 +134,28 @@ function About() {
               whiteSpace: 'pre-wrap'
             }}>
               {clubIntroText}
+            </div>
+          )}
+          {clubRulesText && (
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
+              <button
+                onClick={() => setShowRulesModal(true)}
+                style={{
+                  padding: '8px 16px',
+                  background: 'var(--primary-green)',
+                  color: 'var(--text-light)',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}
+              >
+                📋 모임 회칙보기
+              </button>
             </div>
           )}
         </div>
@@ -250,6 +278,95 @@ function About() {
           </div>
         </div>
       </div>
+
+      {showRulesModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          zIndex: 1000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <div style={{
+            background: 'var(--bg-card)',
+            borderRadius: '16px',
+            width: '100%',
+            maxWidth: '600px',
+            maxHeight: '80vh',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column'
+          }}>
+            <div style={{
+              padding: '16px 20px',
+              borderBottom: '1px solid var(--border-color)',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              background: 'var(--primary-green)'
+            }}>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '700', color: 'var(--text-light)' }}>
+                📋 3355 골프모임 회칙
+              </h3>
+              <button
+                onClick={() => setShowRulesModal(false)}
+                style={{
+                  background: 'rgba(255,255,255,0.2)',
+                  border: 'none',
+                  color: 'var(--text-light)',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  width: '32px',
+                  height: '32px',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                ×
+              </button>
+            </div>
+            <div style={{
+              padding: '20px',
+              overflowY: 'auto',
+              flex: 1,
+              fontSize: '14px',
+              lineHeight: '1.8',
+              whiteSpace: 'pre-wrap'
+            }}>
+              {clubRulesText}
+            </div>
+            <div style={{
+              padding: '16px 20px',
+              borderTop: '1px solid var(--border-color)',
+              textAlign: 'center'
+            }}>
+              <button
+                onClick={() => setShowRulesModal(false)}
+                style={{
+                  padding: '12px 40px',
+                  background: 'var(--primary-green)',
+                  color: 'var(--text-light)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
