@@ -43,8 +43,14 @@ function GradeSettings() {
     setIsSaving(true);
     try {
       await apiService.updateBookingGradeSettings(bookingId, gradeSettings);
+      
+      try {
+        await refreshData();
+      } catch (e) {
+        console.log('데이터 새로고침 중 오류 (무시됨):', e);
+      }
+      
       alert('그레이드 설정이 저장되었습니다!');
-      await refreshData();
       navigate(`/rounding-management?id=${bookingId}`);
     } catch (error) {
       console.error('그레이드 설정 저장 실패:', error);
