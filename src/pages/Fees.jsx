@@ -307,13 +307,13 @@ function Fees() {
           style={{
             flex: 1,
             padding: '16px',
-            background: activeTab === 'personal' ? '#E59879' : 'transparent',
+            background: activeTab === 'personal' ? '#D96941' : 'transparent',
             color: activeTab === 'personal' ? 'white' : 'var(--text-dark)',
             border: 'none',
             fontSize: '16px',
             fontWeight: '600',
             cursor: 'pointer',
-            borderBottom: activeTab === 'personal' ? '3px solid #d18a6b' : '3px solid transparent',
+            borderBottom: activeTab === 'personal' ? '3px solid #c25a35' : '3px solid transparent',
             transition: 'all 0.2s'
           }}
         >
@@ -342,7 +342,7 @@ function Fees() {
         {activeTab === 'personal' ? (
           <>
             <div className="card" style={{
-              background: '#E59879',
+              background: '#D96941',
               color: 'white',
               padding: '16px'
             }}>
