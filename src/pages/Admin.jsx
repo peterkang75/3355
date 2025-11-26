@@ -3123,7 +3123,7 @@ function Admin() {
                     padding: '4px 10px',
                     borderRadius: '6px'
                   }}>
-                    잔액: ${clubBalance.toLocaleString()}
+                    클럽잔액: ${clubBalance.toLocaleString()}
                   </div>
                 </div>
                 {(selectedSummaryCategories.length > 0 || ledgerFilter.memberId !== 'all') && (
