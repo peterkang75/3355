@@ -826,6 +826,37 @@ function Admin() {
     }
   };
 
+  const handleDeleteAllTransactions = async () => {
+    const filteredTransactions = allTransactions
+      .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
+      .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId);
+    
+    if (filteredTransactions.length === 0) {
+      alert('삭제할 거래가 없습니다.');
+      return;
+    }
+
+    const confirmMsg = ledgerFilter.type === 'all' && ledgerFilter.memberId === 'all'
+      ? `정말 모든 거래 내역 ${filteredTransactions.length}건을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`
+      : `필터링된 거래 내역 ${filteredTransactions.length}건을 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`;
+
+    if (!confirm(confirmMsg)) {
+      return;
+    }
+
+    try {
+      for (const transaction of filteredTransactions) {
+        await apiService.deleteTransaction(transaction.id);
+      }
+      await loadLedgerData();
+      await loadFeeData();
+      alert(`${filteredTransactions.length}건의 거래가 삭제되었습니다.`);
+    } catch (error) {
+      console.error('거래 전체 삭제 실패:', error);
+      alert('거래 삭제 중 오류가 발생했습니다.');
+    }
+  };
+
   const handleApprovalToggle = async () => {
     const newValue = !approvalRequired;
     setApprovalRequired(newValue);
@@ -3075,14 +3106,45 @@ function Admin() {
             </div>
 
             <div className="card">
-              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
-                거래 내역 ({
-                  allTransactions
-                    .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
-                    .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
-                    .length
-                }건)
-              </h3>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
+                  거래 내역 ({
+                    allTransactions
+                      .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
+                      .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
+                      .length
+                  }건)
+                </h3>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <div style={{ 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: 'var(--primary-green)',
+                    background: 'var(--bg-green)',
+                    padding: '6px 12px',
+                    borderRadius: '6px'
+                  }}>
+                    클럽 잔액: ${clubBalance.toLocaleString()}
+                  </div>
+                  {hasFeaturePermission('delete_transaction') && (
+                    <button
+                      onClick={handleDeleteAllTransactions}
+                      style={{
+                        padding: '6px 12px',
+                        background: 'var(--alert-red)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      전체 삭제
+                    </button>
+                  )}
+                </div>
+              </div>
 
               {allTransactions
                 .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
@@ -3097,87 +3159,150 @@ function Admin() {
                   <p>조건에 맞는 거래가 없습니다</p>
                 </div>
               ) : (
-                <div>
-                  {allTransactions
-                    .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
-                    .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
-                    .map(transaction => {
-                      const typeLabel = 
-                        transaction.type === 'charge' ? '참가비 발생' :
-                        transaction.type === 'payment' ? '납부' :
-                        transaction.type === 'expense' ? '클럽 지출' : '도네이션';
-                      
-                      const typeColor =
-                        transaction.type === 'charge' ? 'var(--alert-red)' :
-                        transaction.type === 'payment' ? 'var(--success-green)' :
-                        transaction.type === 'expense' ? 'var(--alert-red)' : 'var(--success-green)';
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{
+                    width: '100%',
+                    borderCollapse: 'collapse',
+                    fontSize: '12px'
+                  }}>
+                    <thead>
+                      <tr style={{
+                        background: 'var(--bg-green)',
+                        borderBottom: '2px solid var(--primary-green)'
+                      }}>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>날짜</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>대화명</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>항목</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>라운딩</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap' }}>금액</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>집행자</th>
+                        {hasFeaturePermission('delete_transaction') && (
+                          <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: '600', whiteSpace: 'nowrap' }}>관리</th>
+                        )}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {allTransactions
+                        .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
+                        .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
+                        .map(transaction => {
+                          const typeLabel = 
+                            transaction.type === 'charge' ? '참가비 발생' :
+                            transaction.type === 'payment' ? '납부' :
+                            transaction.type === 'expense' ? '클럽 지출' : '도네이션';
+                          
+                          const typeColor =
+                            transaction.type === 'charge' ? 'var(--success-green)' :
+                            transaction.type === 'payment' ? 'var(--success-green)' :
+                            transaction.type === 'expense' ? 'var(--alert-red)' : 'var(--success-green)';
 
-                      const sign = 
-                        transaction.type === 'payment' || transaction.type === 'donation' ? '+' : '-';
+                          const sign = 
+                            transaction.type === 'payment' || transaction.type === 'donation' ? '+' : '-';
+                          
+                          const bookingName = transaction.booking ? 
+                            (transaction.booking.title || transaction.booking.courseName) : '-';
 
-                      const bgColor = 
-                        transaction.type === 'payment' || transaction.type === 'donation' 
-                          ? 'rgba(40, 167, 69, 0.05)' 
-                          : 'rgba(220, 53, 69, 0.05)';
+                          let categoryName = typeLabel;
+                          if (transaction.description) {
+                            if (transaction.description.startsWith('기타 - ')) {
+                              categoryName = transaction.description.replace('기타 - ', '');
+                            } else {
+                              const parts = transaction.description.split(' - ');
+                              categoryName = parts[0].replace(/\s*\([^)]*\)$/, '');
+                            }
+                          }
+                          
+                          if (categoryName.includes('라운딩') && transaction.type === 'charge') {
+                            categoryName = '참가비';
+                          }
 
-                      return (
-                        <div 
-                          key={transaction.id}
-                          style={{
-                            padding: '16px',
-                            borderBottom: '1px solid var(--border-color)',
-                            borderRadius: '8px',
-                            marginBottom: '8px',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            background: bgColor
-                          }}
-                        >
-                          <div style={{ flex: 1 }}>
-                            <div style={{ 
-                              display: 'flex', 
-                              alignItems: 'center',
-                              gap: '8px',
-                              marginBottom: '6px'
-                            }}>
-                              <div style={{
-                                fontSize: '12px',
-                                padding: '3px 8px',
-                                borderRadius: '4px',
-                                background: typeColor,
-                                color: 'white',
-                                fontWeight: '600'
-                              }}>
-                                {typeLabel}
-                              </div>
-                              {transaction.member && (
-                                <div style={{ fontSize: '14px', fontWeight: '600' }}>
-                                  {transaction.member.name} ({transaction.member.nickname})
+                          return (
+                            <tr 
+                              key={transaction.id}
+                              style={{
+                                borderBottom: '1px solid var(--border-color)'
+                              }}
+                            >
+                              <td style={{ padding: '8px', whiteSpace: 'nowrap' }}>
+                                {new Date(transaction.date).toLocaleDateString('ko-KR', { 
+                                  year: '2-digit',
+                                  month: '2-digit', 
+                                  day: '2-digit' 
+                                })}
+                              </td>
+                              <td style={{ padding: '8px', whiteSpace: 'nowrap' }}>
+                                {transaction.member?.nickname || transaction.member?.name || '-'}
+                              </td>
+                              <td style={{ padding: '8px' }}>
+                                <div style={{ 
+                                  maxWidth: '150px', 
+                                  overflow: 'hidden', 
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap'
+                                }}>
+                                  {categoryName}
                                 </div>
+                              </td>
+                              <td style={{ padding: '8px' }}>
+                                <div style={{ 
+                                  maxWidth: '120px', 
+                                  overflow: 'hidden', 
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap'
+                                }}>
+                                  {bookingName}
+                                </div>
+                              </td>
+                              <td style={{ 
+                                padding: '8px', 
+                                textAlign: 'right',
+                                fontWeight: '600',
+                                color: typeColor,
+                                whiteSpace: 'nowrap'
+                              }}>
+                                {transaction.receiptImage ? (
+                                  <span
+                                    onClick={() => setShowReceiptModal(transaction.receiptImage)}
+                                    style={{
+                                      cursor: 'pointer',
+                                      textDecoration: 'underline'
+                                    }}
+                                    title="영수증 보기"
+                                  >
+                                    {sign}${transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                                  </span>
+                                ) : (
+                                  <span>
+                                    {sign}${transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                                  </span>
+                                )}
+                              </td>
+                              <td style={{ padding: '8px', fontSize: '11px', opacity: 0.7, whiteSpace: 'nowrap' }}>
+                                by {transaction.executor?.nickname || transaction.executor?.name || '시스템'}
+                              </td>
+                              {hasFeaturePermission('delete_transaction') && (
+                                <td style={{ padding: '8px', textAlign: 'center' }}>
+                                  <button
+                                    onClick={() => handleDeleteTransaction(transaction.id)}
+                                    style={{
+                                      background: 'none',
+                                      border: 'none',
+                                      color: 'var(--alert-red)',
+                                      cursor: 'pointer',
+                                      fontSize: '16px',
+                                      padding: '0 4px'
+                                    }}
+                                    title="삭제"
+                                  >
+                                    ×
+                                  </button>
+                                </td>
                               )}
-                            </div>
-                            <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                              {new Date(transaction.date).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })}
-                            </div>
-                            {transaction.description && (
-                              <div style={{ fontSize: '13px', opacity: 0.8, marginTop: '6px' }}>
-                                {transaction.description}
-                              </div>
-                            )}
-                          </div>
-                          <div style={{
-                            fontSize: '20px',
-                            fontWeight: '700',
-                            color: typeColor,
-                            minWidth: '100px',
-                            textAlign: 'right'
-                          }}>
-                            {sign}${transaction.amount.toLocaleString()}
-                          </div>
-                        </div>
-                      );
-                    })}
+                            </tr>
+                          );
+                        })}
+                    </tbody>
+                  </table>
                 </div>
               )}
             </div>
