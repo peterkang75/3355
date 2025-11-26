@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
+import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 
 function ParticipantManagement() {
   const navigate = useNavigate();
@@ -13,6 +14,7 @@ function ParticipantManagement() {
   const [availableMembers, setAvailableMembers] = useState([]);
   const [selectedToAdd, setSelectedToAdd] = useState([]);
   const [isAddingParticipants, setIsAddingParticipants] = useState(false);
+  const [removingPhone, setRemovingPhone] = useState(null);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -59,6 +61,7 @@ function ParticipantManagement() {
   };
 
   const handleConfirmAdd = async () => {
+    if (isAddingParticipants) return;
     if (selectedToAdd.length === 0) {
       alert('추가할 참가자를 선택해주세요.');
       return;
@@ -75,12 +78,6 @@ function ParticipantManagement() {
 
       const updatedParticipants = [...participants, ...newParticipants];
       
-      console.log('🔵 참가자 일괄 추가 시도:', {
-        bookingId,
-        addCount: newParticipants.length,
-        updatedParticipants
-      });
-      
       const response = await fetch(`/api/bookings/${bookingId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
@@ -89,37 +86,28 @@ function ParticipantManagement() {
         })
       });
 
-      console.log('📡 응답 상태:', response.status);
-
       if (response.ok) {
-        console.log('✅ 참가자 일괄 추가 성공');
         setShowAddModal(false);
         setSelectedToAdd([]);
         refreshBookings();
       } else {
         const errorData = await response.text();
-        console.error('❌ 서버 오류:', errorData);
-        setIsAddingParticipants(false);
         alert(`참가자 추가에 실패했습니다: ${errorData}`);
       }
     } catch (error) {
-      console.error('❌ 참가자 추가 오류:', error.message, error);
-      setIsAddingParticipants(false);
       alert(`참가자 추가 중 오류가 발생했습니다: ${error.message}`);
+    } finally {
+      setIsAddingParticipants(false);
     }
   };
 
   const handleRemoveParticipant = async (phoneToRemove) => {
+    if (removingPhone) return;
     if (!confirm('이 참가자를 삭제하시겠습니까?')) return;
 
+    setRemovingPhone(phoneToRemove);
     try {
       const updatedParticipants = participants.filter(p => p.phone !== phoneToRemove);
-      
-      console.log('🔵 참가자 삭제 시도:', {
-        bookingId,
-        phoneToRemove,
-        updatedParticipants
-      });
       
       const response = await fetch(`/api/bookings/${bookingId}`, {
         method: 'PUT',
@@ -129,20 +117,16 @@ function ParticipantManagement() {
         })
       });
 
-      console.log('📡 응답 상태:', response.status);
-
       if (response.ok) {
-        const result = await response.json();
-        console.log('✅ 참가자 삭제 성공:', result);
         await refreshBookings();
       } else {
         const errorData = await response.text();
-        console.error('❌ 서버 오류:', errorData);
         alert(`참가자 삭제에 실패했습니다: ${errorData}`);
       }
     } catch (error) {
-      console.error('❌ 참가자 삭제 오류:', error.message, error);
       alert(`참가자 삭제 중 오류가 발생했습니다: ${error.message}`);
+    } finally {
+      setRemovingPhone(null);
     }
   };
 
@@ -269,8 +253,10 @@ function ParticipantManagement() {
                         {participant.name}
                       </div>
                     </div>
-                    <button
+                    <LoadingButton
                       onClick={() => handleRemoveParticipant(participant.phone)}
+                      loading={removingPhone === participant.phone}
+                      loadingText="삭제중..."
                       style={{
                         padding: '6px 12px',
                         background: 'var(--alert-red)',
@@ -278,12 +264,11 @@ function ParticipantManagement() {
                         border: 'none',
                         borderRadius: '6px',
                         fontSize: '13px',
-                        fontWeight: '600',
-                        cursor: 'pointer'
+                        fontWeight: '600'
                       }}
                     >
                       삭제
-                    </button>
+                    </LoadingButton>
                   </div>
                 );
               })}
@@ -515,9 +500,11 @@ function ParticipantManagement() {
               >
                 취소
               </button>
-              <button
+              <LoadingButton
                 onClick={handleConfirmAdd}
                 disabled={selectedToAdd.length === 0}
+                loading={isAddingParticipants}
+                loadingText="추가중..."
                 style={{
                   flex: 1,
                   padding: '12px',
@@ -526,13 +513,11 @@ function ParticipantManagement() {
                   border: 'none',
                   borderRadius: '8px',
                   fontSize: '15px',
-                  fontWeight: '600',
-                  cursor: selectedToAdd.length === 0 ? 'not-allowed' : 'pointer',
-                  opacity: selectedToAdd.length === 0 ? 0.6 : 1
+                  fontWeight: '600'
                 }}
               >
                 확인 ({selectedToAdd.length}명)
-              </button>
+              </LoadingButton>
             </div>
           </div>
         </div>

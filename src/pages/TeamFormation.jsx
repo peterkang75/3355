@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
+import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 
 function TeamFormation() {
   const navigate = useNavigate();
@@ -16,6 +17,8 @@ function TeamFormation() {
   const [selectedSlot, setSelectedSlot] = useState(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [selectedParticipants, setSelectedParticipants] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isAutoAssigning, setIsAutoAssigning] = useState(false);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -214,6 +217,9 @@ function TeamFormation() {
   };
 
   const handleSaveTeams = async () => {
+    if (isSaving) return;
+    
+    setIsSaving(true);
     try {
       await apiService.updateBooking(bookingId, {
         teams: JSON.stringify(teams)
@@ -221,12 +227,19 @@ function TeamFormation() {
       setHasUnsavedChanges(false);
       alert('조편성이 저장되었습니다!');
     } catch (error) {
-      console.error('Failed to save teams:', error);
       alert('저장에 실패했습니다.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
-  const handleAutoAssign = () => {
+  const handleAutoAssign = async () => {
+    if (isAutoAssigning) return;
+    
+    setIsAutoAssigning(true);
+    
+    await new Promise(resolve => setTimeout(resolve, 300));
+    
     const allMembers = [...unassigned];
     
     teams.forEach(team => {
@@ -254,6 +267,7 @@ function TeamFormation() {
     setTeams(newTeams);
     setUnassigned([]);
     setHasUnsavedChanges(true);
+    setIsAutoAssigning(false);
   };
 
   const hasAdminAccess = user?.role === '관리자' || user?.role === '방장' || user?.role === '운영진' || user?.role === '클럽운영진' || user?.isAdmin;
@@ -356,15 +370,19 @@ function TeamFormation() {
 
         {hasAdminAccess && (
           <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-            <button
+            <LoadingButton
               onClick={handleAutoAssign}
+              loading={isAutoAssigning}
+              loadingText="배정중..."
               className="btn-outline"
               style={{ flex: 1 }}
             >
               ⚡ 자동 배정
-            </button>
-            <button
+            </LoadingButton>
+            <LoadingButton
               onClick={handleSaveTeams}
+              loading={isSaving}
+              loadingText="저장중..."
               style={{ 
                 flex: 1,
                 padding: '12px 24px',
@@ -373,12 +391,11 @@ function TeamFormation() {
                 border: 'none',
                 borderRadius: '8px',
                 fontSize: '16px',
-                fontWeight: '600',
-                cursor: 'pointer'
+                fontWeight: '600'
               }}
             >
               {hasUnsavedChanges ? '× 저장안됨' : '✓ 저장됨'}
-            </button>
+            </LoadingButton>
           </div>
         )}
 
