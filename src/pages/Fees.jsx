@@ -307,13 +307,13 @@ function Fees() {
           style={{
             flex: 1,
             padding: '16px',
-            background: activeTab === 'personal' ? '#D96941' : 'transparent',
+            background: activeTab === 'personal' ? '#193C40' : 'transparent',
             color: activeTab === 'personal' ? 'white' : 'var(--text-dark)',
             border: 'none',
             fontSize: '16px',
             fontWeight: '600',
             cursor: 'pointer',
-            borderBottom: activeTab === 'personal' ? '3px solid #c25a35' : '3px solid transparent',
+            borderBottom: activeTab === 'personal' ? '3px solid #122a2d' : '3px solid transparent',
             transition: 'all 0.2s'
           }}
         >
@@ -374,12 +374,12 @@ function Fees() {
               </div>
             </div>
 
-            <div className="card" style={{ background: '#193C40', color: 'white' }}>
+            <div className="card">
               <h3 style={{ 
                 fontSize: '16px', 
                 fontWeight: '700',
                 marginBottom: '16px',
-                color: 'white'
+                color: 'var(--primary-green)'
               }}>
                 거래 내역
               </h3>
@@ -405,7 +405,7 @@ function Fees() {
                         key={transaction.id}
                         style={{
                           padding: '10px 12px',
-                          borderBottom: '1px solid rgba(255,255,255,0.2)',
+                          borderBottom: '1px solid var(--border-color)',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '8px',
