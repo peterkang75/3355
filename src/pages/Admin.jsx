@@ -2326,7 +2326,7 @@ function Admin() {
                                   transactionData.createdBy = user.id;
                                 }
                                 console.log('기타 입금 데이터:', transactionData);
-                                const result = await api.createTransaction(transactionData);
+                                const result = await apiService.createTransaction(transactionData);
                                 console.log('기타 입금 결과:', result);
                                 alert(`기타 입금이 저장되었습니다: ${selectedIncome.manualItemName.trim()} ($${selectedIncome.manualAmount})`);
                                 setSelectedIncome({
