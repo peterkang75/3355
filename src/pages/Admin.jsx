@@ -3621,7 +3621,6 @@ function Admin() {
                         <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>항목</th>
                         <th style={{ padding: '6px 4px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap' }}>금액</th>
                         <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>라운딩</th>
-                        <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>by</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -3752,9 +3751,6 @@ function Admin() {
                                 }}>
                                   {bookingName}
                                 </div>
-                              </td>
-                              <td style={{ padding: '6px 4px', opacity: 0.7, whiteSpace: 'nowrap', maxWidth: '50px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                {transaction.executor?.nickname || transaction.executor?.name || '-'}
                               </td>
                             </tr>
                           );
