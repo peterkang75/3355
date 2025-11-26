@@ -11,6 +11,12 @@ function Fees() {
   const [activeTab, setActiveTab] = useState('personal');
   const [allTransactions, setAllTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showReceiptModal, setShowReceiptModal] = useState(null);
+  const [clubBalance, setClubBalance] = useState(0);
+  const [outstandingCount, setOutstandingCount] = useState(0);
+  const ITEMS_PER_PAGE = 10;
+  const MAX_PAGES = 10;
 
   useEffect(() => {
     if (location.state?.reset) {
@@ -30,8 +36,15 @@ function Fees() {
   const loadLedgerData = async () => {
     try {
       setLoading(true);
-      const transactionsData = await apiService.fetchTransactions();
+      const [transactionsData, balanceData, outstandingData] = await Promise.all([
+        apiService.fetchTransactions(),
+        apiService.fetchClubBalance(),
+        apiService.fetchOutstandingBalances()
+      ]);
       setAllTransactions(transactionsData || []);
+      setClubBalance(balanceData?.balance || 0);
+      setOutstandingCount(outstandingData?.length || 0);
+      setCurrentPage(1);
     } catch (error) {
       console.error('장부 데이터 로드 실패:', error);
       setAllTransactions([]);
@@ -462,6 +475,39 @@ function Fees() {
           </>
         ) : (
           <>
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: '1fr 1fr', 
+                gap: '16px'
+              }}>
+                <div style={{
+                  padding: '16px',
+                  background: 'linear-gradient(135deg, var(--primary-green), var(--accent-bright-green))',
+                  borderRadius: '12px',
+                  color: 'white',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '4px' }}>클럽 잔액</div>
+                  <div style={{ fontSize: '24px', fontWeight: '700' }}>
+                    ${clubBalance.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                  </div>
+                </div>
+                <div style={{
+                  padding: '16px',
+                  background: outstandingCount > 0 ? 'linear-gradient(135deg, #dc3545, #ff6b6b)' : 'linear-gradient(135deg, #6c757d, #adb5bd)',
+                  borderRadius: '12px',
+                  color: 'white',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '4px' }}>미납자</div>
+                  <div style={{ fontSize: '24px', fontWeight: '700' }}>
+                    {outstandingCount}명
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div className="card">
               <h3 style={{ 
                 fontSize: '16px', 
@@ -472,129 +518,234 @@ function Fees() {
                 최근 거래내역
               </h3>
 
-              {allTransactions.length === 0 ? (
-                <div style={{
-                  padding: '40px',
-                  textAlign: 'center',
-                  opacity: 0.7
-                }}>
-                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>📖</div>
-                  <p>거래내역이 없습니다</p>
-                </div>
-              ) : (
-                <div>
-                  {allTransactions.slice(0, 50).map(transaction => {
-                      const isOtherIncome = transaction.description?.startsWith('기타 - ');
-                      const otherItemName = isOtherIncome ? transaction.description.replace('기타 - ', '') : null;
-                      
-                      const typeLabel = 
-                        isOtherIncome ? otherItemName :
-                        transaction.type === 'charge' ? '참가비 발생' :
-                        transaction.type === 'payment' ? '납부' :
-                        transaction.type === 'expense' ? '클럽 지출' : '도네이션';
-                      
-                      const typeColor =
-                        transaction.type === 'charge' ? 'var(--alert-red)' :
-                        transaction.type === 'payment' ? 'var(--success-green)' :
-                        transaction.type === 'expense' ? 'var(--alert-red)' : 'var(--success-green)';
+              {(() => {
+                const filteredTransactions = allTransactions.filter(t => t.type !== 'charge');
+                const totalPages = Math.min(Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE), MAX_PAGES);
+                const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+                const paginatedTransactions = filteredTransactions.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
-                      const sign = 
-                        transaction.type === 'payment' || transaction.type === 'donation' ? '+' : '-';
+                if (filteredTransactions.length === 0) {
+                  return (
+                    <div style={{
+                      padding: '40px',
+                      textAlign: 'center',
+                      opacity: 0.7
+                    }}>
+                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>📖</div>
+                      <p>거래내역이 없습니다</p>
+                    </div>
+                  );
+                }
 
-                      const bgColor = 
-                        transaction.type === 'payment' || transaction.type === 'donation' 
-                          ? 'rgba(40, 167, 69, 0.05)' 
-                          : 'rgba(220, 53, 69, 0.05)';
+                return (
+                  <>
+                    <div>
+                      {paginatedTransactions.map(transaction => {
+                        const isOtherIncome = transaction.description?.startsWith('기타 - ');
+                        const otherItemName = isOtherIncome ? transaction.description.replace('기타 - ', '') : null;
+                        
+                        const typeLabel = 
+                          isOtherIncome ? otherItemName :
+                          transaction.type === 'payment' ? '납부' :
+                          transaction.type === 'expense' ? '클럽 지출' : '도네이션';
+                        
+                        const typeColor =
+                          transaction.type === 'payment' ? 'var(--success-green)' :
+                          transaction.type === 'expense' ? 'var(--alert-red)' : 'var(--success-green)';
 
-                      const member = members.find(m => m.id === transaction.memberId);
+                        const sign = 
+                          transaction.type === 'payment' || transaction.type === 'donation' ? '+' : '-';
 
-                      const roundingName = transaction.booking 
-                        ? `${transaction.booking.courseName} (${new Date(transaction.booking.date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })})`
-                        : null;
+                        const bgColor = 
+                          transaction.type === 'payment' || transaction.type === 'donation' 
+                            ? 'rgba(40, 167, 69, 0.05)' 
+                            : 'rgba(220, 53, 69, 0.05)';
 
-                      return (
-                        <div 
-                          key={transaction.id}
-                          style={{
-                            padding: '16px',
-                            borderBottom: '1px solid var(--border-color)',
-                            borderRadius: '8px',
-                            marginBottom: '8px',
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            background: bgColor
-                          }}
-                        >
-                          <div style={{ flex: 1 }}>
-                            <div style={{ 
-                              display: 'flex', 
+                        const member = members.find(m => m.id === transaction.memberId);
+
+                        const roundingName = transaction.booking 
+                          ? `${transaction.booking.courseName} (${new Date(transaction.booking.date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' })})`
+                          : null;
+
+                        return (
+                          <div 
+                            key={transaction.id}
+                            onClick={() => transaction.receiptImage && setShowReceiptModal(transaction.receiptImage)}
+                            style={{
+                              padding: '16px',
+                              borderBottom: '1px solid var(--border-color)',
+                              borderRadius: '8px',
+                              marginBottom: '8px',
+                              display: 'flex',
+                              justifyContent: 'space-between',
                               alignItems: 'center',
-                              gap: '8px',
-                              marginBottom: '6px',
-                              flexWrap: 'wrap'
-                            }}>
-                              <span style={{
-                                fontSize: '12px',
-                                fontWeight: '600',
-                                padding: '2px 8px',
-                                borderRadius: '4px',
-                                background: typeColor,
-                                color: 'white'
+                              background: bgColor,
+                              cursor: transaction.receiptImage ? 'pointer' : 'default'
+                            }}
+                          >
+                            <div style={{ flex: 1 }}>
+                              <div style={{ 
+                                display: 'flex', 
+                                alignItems: 'center',
+                                gap: '8px',
+                                marginBottom: '6px',
+                                flexWrap: 'wrap'
                               }}>
-                                {typeLabel}
-                              </span>
-                              {member && (
-                                <span style={{ fontSize: '13px', fontWeight: '600' }}>
-                                  {member.name} {member.nickname && `(${member.nickname})`}
+                                <span style={{
+                                  fontSize: '12px',
+                                  fontWeight: '600',
+                                  padding: '2px 8px',
+                                  borderRadius: '4px',
+                                  background: typeColor,
+                                  color: 'white'
+                                }}>
+                                  {typeLabel}
                                 </span>
+                                {member && (
+                                  <span style={{ fontSize: '13px', fontWeight: '600' }}>
+                                    {member.name} {member.nickname && `(${member.nickname})`}
+                                  </span>
+                                )}
+                                {transaction.receiptImage && (
+                                  <span style={{ fontSize: '11px', opacity: 0.7 }}>📎</span>
+                                )}
+                              </div>
+                              {roundingName && (
+                                <div style={{ 
+                                  fontSize: '13px', 
+                                  fontWeight: '600',
+                                  color: 'var(--primary-green)',
+                                  marginBottom: '4px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '4px'
+                                }}>
+                                  <span>⛳</span> {roundingName}
+                                </div>
+                              )}
+                              <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                                {new Date(transaction.createdAt).toLocaleDateString('ko-KR')}
+                              </div>
+                              {transaction.description && !isOtherIncome && (
+                                <div style={{ fontSize: '12px', opacity: 0.6, marginTop: '4px' }}>
+                                  {transaction.description}
+                                </div>
                               )}
                             </div>
-                            {roundingName && (
-                              <div style={{ 
-                                fontSize: '13px', 
-                                fontWeight: '600',
-                                color: 'var(--primary-green)',
-                                marginBottom: '4px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '4px'
+                            <div style={{ textAlign: 'right' }}>
+                              <div style={{
+                                fontSize: '18px',
+                                fontWeight: '700',
+                                color: typeColor
                               }}>
-                                <span>⛳</span> {roundingName}
+                                {sign}${transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
                               </div>
-                            )}
-                            <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                              {new Date(transaction.createdAt).toLocaleDateString('ko-KR')}
                             </div>
-                            {transaction.description && !isOtherIncome && (
-                              <div style={{ fontSize: '12px', opacity: 0.6, marginTop: '4px' }}>
-                                {transaction.description}
-                              </div>
-                            )}
                           </div>
-                          <div style={{ textAlign: 'right' }}>
-                            <div style={{
-                              fontSize: '18px',
-                              fontWeight: '700',
-                              color: typeColor
-                            }}>
-                              {sign}${transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
-                            </div>
-                            {transaction.balanceAfter !== undefined && (
-                              <div style={{ fontSize: '12px', opacity: 0.6, marginTop: '4px' }}>
-                                잔액: ${transaction.balanceAfter.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })}
-                </div>
-              )}
+                        );
+                      })}
+                    </div>
+
+                    {totalPages > 1 && (
+                      <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        marginTop: '16px',
+                        flexWrap: 'wrap'
+                      }}>
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                          <button
+                            key={page}
+                            onClick={() => setCurrentPage(page)}
+                            style={{
+                              width: '36px',
+                              height: '36px',
+                              border: 'none',
+                              borderRadius: '8px',
+                              background: currentPage === page ? 'var(--primary-green)' : '#e9ecef',
+                              color: currentPage === page ? 'white' : 'var(--text-dark)',
+                              fontWeight: '600',
+                              cursor: 'pointer',
+                              fontSize: '14px'
+                            }}
+                          >
+                            {page}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </>
         )}
       </div>
+
+      {showReceiptModal && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px'
+          }}
+          onClick={() => setShowReceiptModal(null)}
+        >
+          <div 
+            style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '16px',
+              maxWidth: '90%',
+              maxHeight: '90%',
+              overflow: 'auto',
+              position: 'relative'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowReceiptModal(null)}
+              style={{
+                position: 'absolute',
+                top: '8px',
+                right: '8px',
+                background: 'var(--primary-green)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50%',
+                width: '32px',
+                height: '32px',
+                fontSize: '18px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              ×
+            </button>
+            <h3 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: '600' }}>영수증</h3>
+            <img 
+              src={showReceiptModal} 
+              alt="영수증" 
+              style={{ 
+                maxWidth: '100%', 
+                maxHeight: '70vh',
+                borderRadius: '8px'
+              }} 
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
