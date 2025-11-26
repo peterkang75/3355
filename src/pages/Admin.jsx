@@ -110,6 +110,7 @@ function Admin() {
     { id: 'participant_management', name: '참가자 관리' },
     { id: 'score_entry', name: '스코어 입력' },
     { id: 'fee_management', name: '클럽회계관리' },
+    { id: 'delete_transaction', name: '거래내역 삭제' },
     { id: 'course_management', name: '골프장 관리' },
     { id: 'create_post', name: '게시판 작성' },
     { id: 'member_approval', name: '회원 승인' }
@@ -1211,6 +1212,17 @@ function Admin() {
   };
 
   const hasAdminAccess = user.role === '관리자' || user.role === '방장' || user.role === '운영진' || user.role === '클럽운영진' || user.isAdmin;
+  
+  const roleHierarchy = ['관리자', '방장', '운영진', '클럽운영진', '회원'];
+  
+  const hasFeaturePermission = (featureId) => {
+    if (user.isAdmin) return true;
+    const requiredRole = permissions[featureId] || '관리자';
+    const userRoleIndex = roleHierarchy.indexOf(user.role);
+    const requiredRoleIndex = roleHierarchy.indexOf(requiredRole);
+    if (userRoleIndex === -1) return false;
+    return userRoleIndex <= requiredRoleIndex;
+  };
   
   if (!hasAdminAccess) {
     return (
@@ -2873,22 +2885,24 @@ function Admin() {
                             <td style={{ padding: '8px', fontSize: '11px', opacity: 0.7, whiteSpace: 'nowrap' }}>
                               by {transaction.executor?.nickname || transaction.executor?.name || '시스템'}
                             </td>
-                            <td style={{ padding: '8px', textAlign: 'center' }}>
-                              <button
-                                onClick={() => handleDeleteTransaction(transaction.id)}
-                                style={{
-                                  background: 'none',
-                                  border: 'none',
-                                  color: 'var(--alert-red)',
-                                  cursor: 'pointer',
-                                  fontSize: '16px',
-                                  padding: '0 4px'
-                                }}
-                                title="삭제"
-                              >
-                                ×
-                              </button>
-                            </td>
+                            {hasFeaturePermission('delete_transaction') && (
+                              <td style={{ padding: '8px', textAlign: 'center' }}>
+                                <button
+                                  onClick={() => handleDeleteTransaction(transaction.id)}
+                                  style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'var(--alert-red)',
+                                    cursor: 'pointer',
+                                    fontSize: '16px',
+                                    padding: '0 4px'
+                                  }}
+                                  title="삭제"
+                                >
+                                  ×
+                                </button>
+                              </td>
+                            )}
                           </tr>
                         );
                       })}
