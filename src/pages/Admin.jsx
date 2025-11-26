@@ -3619,7 +3619,7 @@ function Admin() {
                         <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>날짜</th>
                         <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>회원</th>
                         <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>항목</th>
-                        <th style={{ padding: '6px 4px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap' }}>금액</th>
+                        <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>금액</th>
                         <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>라운딩</th>
                       </tr>
                     </thead>
@@ -3720,7 +3720,7 @@ function Admin() {
                               </td>
                               <td style={{ 
                                 padding: '6px 4px', 
-                                textAlign: 'right',
+                                textAlign: 'left',
                                 fontWeight: '600',
                                 color: typeColor,
                                 whiteSpace: 'nowrap'
@@ -3742,15 +3742,8 @@ function Admin() {
                                   </span>
                                 )}
                               </td>
-                              <td style={{ padding: '6px 4px' }}>
-                                <div style={{ 
-                                  maxWidth: '70px', 
-                                  overflow: 'hidden', 
-                                  textOverflow: 'ellipsis',
-                                  whiteSpace: 'nowrap'
-                                }}>
-                                  {bookingName}
-                                </div>
+                              <td style={{ padding: '6px 4px', whiteSpace: 'nowrap' }}>
+                                {bookingName}
                               </td>
                             </tr>
                           );
