@@ -9,6 +9,7 @@ function About() {
   const { user } = useApp();
   const [clubIntroText, setClubIntroText] = useState('');
   const [clubRulesText, setClubRulesText] = useState('');
+  const [appDescriptionText, setAppDescriptionText] = useState('');
   const [showRulesModal, setShowRulesModal] = useState(false);
   
   useEffect(() => {
@@ -22,6 +23,10 @@ function About() {
         const rulesSetting = settings.find(s => s.feature === 'clubRulesText');
         if (rulesSetting && rulesSetting.value) {
           setClubRulesText(rulesSetting.value);
+        }
+        const appDescSetting = settings.find(s => s.feature === 'appDescriptionText');
+        if (appDescSetting && appDescSetting.value) {
+          setAppDescriptionText(appDescSetting.value);
         }
       } catch (error) {
         console.error('설정 로드 실패:', error);
@@ -167,53 +172,27 @@ function About() {
         }} />
 
         <div className="card">
-          <h3 style={{ 
-            fontSize: '16px', 
-            fontWeight: '700', 
-            marginBottom: '12px',
-            color: 'var(--primary-green)'
-          }}>
-            주요 기능
-          </h3>
-          <div style={{ fontSize: '14px', lineHeight: '1.8', opacity: 0.9, marginBottom: '20px' }}>
-            • 회원관리<br/>
-            • 라운딩 관리<br/>
-            <div style={{ paddingLeft: '16px', marginTop: '4px' }}>
-              - 라운딩 생성 (정기모임, 스트라컴)<br/>
-              - 참가신청, 번호대여(스트라컴)<br/>
-              - 조편성<br/>
-              - 스코어 입력, 리더보드<br/>
-              - 순위집계<br/>
-              - 하우스 핸디 자동 생성
-            </div>
-          </div>
-
-          <h3 style={{ 
-            fontSize: '16px', 
-            fontWeight: '700', 
-            marginBottom: '12px',
-            marginTop: '24px',
-            color: 'var(--primary-green)'
-          }}>
-            예정된 업데이트
-          </h3>
-          <div style={{ fontSize: '14px', lineHeight: '1.8', opacity: 0.9, marginBottom: '24px' }}>
-            • 회비관리<br/>
-            • 실시간 스코어 입력 (Miscore 와 동일 UI)
-          </div>
-
-          <button
-            onClick={handleContact}
-            className="btn-primary"
-            style={{ 
-              width: '100%',
-              marginBottom: '24px',
-              background: 'var(--primary-green)',
-              borderBottom: '3px solid var(--primary-dark)'
-            }}
-          >
-            💬 피드백, 버그신고, 동백님 찬양하기
-          </button>
+          {appDescriptionText && (
+            <>
+              <h3 style={{ 
+                fontSize: '16px', 
+                fontWeight: '700', 
+                marginBottom: '12px',
+                color: 'var(--primary-green)'
+              }}>
+                앱 소개
+              </h3>
+              <div style={{ 
+                fontSize: '14px', 
+                lineHeight: '1.8', 
+                opacity: 0.9, 
+                marginBottom: '24px',
+                whiteSpace: 'pre-wrap'
+              }}>
+                {appDescriptionText}
+              </div>
+            </>
+          )}
 
           <h3 style={{ 
             fontSize: '16px', 
@@ -248,6 +227,19 @@ function About() {
           }}>
             Made with ❤️ by 동백
           </div>
+
+          <button
+            onClick={handleContact}
+            className="btn-primary"
+            style={{ 
+              width: '100%',
+              marginTop: '20px',
+              background: 'var(--primary-green)',
+              borderBottom: '3px solid var(--primary-dark)'
+            }}
+          >
+            💬 피드백, 버그신고, 동백님 찬양하기
+          </button>
         </div>
 
         <div className="card" style={{ marginTop: '20px' }}>

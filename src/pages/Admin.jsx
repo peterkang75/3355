@@ -108,6 +108,8 @@ function Admin() {
   const [savedClubIntroText, setSavedClubIntroText] = useState('');
   const [clubRulesText, setClubRulesText] = useState('');
   const [savedClubRulesText, setSavedClubRulesText] = useState('');
+  const [appDescriptionText, setAppDescriptionText] = useState('');
+  const [savedAppDescriptionText, setSavedAppDescriptionText] = useState('');
 
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
@@ -171,6 +173,10 @@ function Admin() {
         if (setting.feature === 'clubRulesText') {
           setClubRulesText(setting.value || '');
           setSavedClubRulesText(setting.value || '');
+        }
+        if (setting.feature === 'appDescriptionText') {
+          setAppDescriptionText(setting.value || '');
+          setSavedAppDescriptionText(setting.value || '');
         }
       });
       
@@ -4176,6 +4182,63 @@ function Admin() {
                 }}
               >
                 {clubRulesText !== savedClubRulesText ? '저장하기' : '저장됨'}
+              </button>
+            </div>
+
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
+                앱 소개문구
+              </h3>
+              <div style={{
+                padding: '10px 12px',
+                background: 'var(--bg-green)',
+                borderRadius: '6px',
+                marginBottom: '12px',
+                fontSize: '12px',
+                color: 'var(--text-dark)', opacity: 0.7
+              }}>
+                • About 페이지에서 "앱 소개" 섹션에 표시될 문구를 작성합니다
+              </div>
+              <textarea
+                value={appDescriptionText}
+                onChange={(e) => setAppDescriptionText(e.target.value)}
+                placeholder="앱 소개문구를 입력해주세요..."
+                style={{
+                  width: '100%',
+                  minHeight: '200px',
+                  padding: '12px',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  resize: 'vertical',
+                  marginBottom: '12px',
+                  boxSizing: 'border-box'
+                }}
+              />
+              <button
+                onClick={async () => {
+                  try {
+                    await apiService.updateSetting('appDescriptionText', { value: appDescriptionText });
+                    setSavedAppDescriptionText(appDescriptionText);
+                    alert('앱 소개문구가 저장되었습니다.');
+                  } catch (error) {
+                    console.error('앱 소개문구 저장 실패:', error);
+                    alert('저장에 실패했습니다.');
+                  }
+                }}
+                disabled={appDescriptionText === savedAppDescriptionText}
+                style={{
+                  padding: '12px 24px',
+                  background: appDescriptionText !== savedAppDescriptionText ? 'var(--primary-green)' : '#ccc',
+                  color: 'var(--text-light)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: appDescriptionText !== savedAppDescriptionText ? 'pointer' : 'not-allowed'
+                }}
+              >
+                {appDescriptionText !== savedAppDescriptionText ? '저장하기' : '저장됨'}
               </button>
             </div>
 
