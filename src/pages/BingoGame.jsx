@@ -15,11 +15,13 @@ function BingoGame() {
   const [usedMembers, setUsedMembers] = useState([]);
   const [selectedMember, setSelectedMember] = useState(null);
   const [dragOverCell, setDragOverCell] = useState(null);
+  const [bingoTargetLines, setBingoTargetLines] = useState(1);
 
   useEffect(() => {
     const savedGrid = localStorage.getItem('bingoGrid');
     const savedSize = localStorage.getItem('bingoGridSize');
     const savedUsedMembers = localStorage.getItem('bingoUsedMembers');
+    const savedTargetLines = localStorage.getItem('bingoTargetLines');
     
     if (savedGrid && savedSize) {
       const size = parseInt(savedSize);
@@ -27,6 +29,9 @@ function BingoGame() {
       setBingoGrid(JSON.parse(savedGrid));
       if (savedUsedMembers) {
         setUsedMembers(JSON.parse(savedUsedMembers));
+      }
+      if (savedTargetLines) {
+        setBingoTargetLines(parseInt(savedTargetLines));
       }
     } else {
       initializeGrid(5);
@@ -140,6 +145,7 @@ function BingoGame() {
     localStorage.setItem('bingoGrid', JSON.stringify(bingoGrid));
     localStorage.setItem('bingoGridSize', gridSize.toString());
     localStorage.setItem('bingoUsedMembers', JSON.stringify(usedMembers));
+    localStorage.setItem('bingoTargetLines', bingoTargetLines.toString());
   };
 
   const handleReset = () => {
@@ -202,7 +208,7 @@ function BingoGame() {
     }
 
     setBingoLines(lines);
-    if (lines.length > 0 && !showBingo) {
+    if (lines.length >= bingoTargetLines && !showBingo) {
       setShowBingo(true);
     }
   };
@@ -258,23 +264,23 @@ function BingoGame() {
           </div>
         )}
 
-        <div className="card" style={{ marginBottom: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px', flexWrap: 'wrap' }}>
-            {['관리자', '방장', '운영진'].includes(user?.role) && (
-              <>
-                <span style={{ fontSize: '14px', fontWeight: '600' }}>배열 크기:</span>
+        {['관리자', '방장', '운영진'].includes(user?.role) && (
+          <div className="card" style={{ marginBottom: '16px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '13px', fontWeight: '600' }}>배열:</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
                   <button
                     onClick={() => handleGridSizeChange(gridSize - 1)}
                     disabled={!isEditMode || gridSize <= 3}
                     style={{
-                      width: '44px',
-                      height: '44px',
+                      width: '36px',
+                      height: '36px',
                       background: (!isEditMode || gridSize <= 3) ? '#ccc' : 'var(--primary-green)',
                       color: 'white',
                       border: 'none',
-                      borderRadius: '8px 0 0 8px',
-                      fontSize: '24px',
+                      borderRadius: '6px 0 0 6px',
+                      fontSize: '20px',
                       fontWeight: '700',
                       cursor: (!isEditMode || gridSize <= 3) ? 'not-allowed' : 'pointer',
                       display: 'flex',
@@ -285,8 +291,8 @@ function BingoGame() {
                     −
                   </button>
                   <div style={{
-                    width: '60px',
-                    height: '44px',
+                    width: '40px',
+                    height: '36px',
                     background: 'white',
                     border: '2px solid var(--border-color)',
                     borderLeft: 'none',
@@ -294,7 +300,7 @@ function BingoGame() {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '20px',
+                    fontSize: '16px',
                     fontWeight: '700'
                   }}>
                     {gridSize}
@@ -303,13 +309,13 @@ function BingoGame() {
                     onClick={() => handleGridSizeChange(gridSize + 1)}
                     disabled={!isEditMode || gridSize >= 10}
                     style={{
-                      width: '44px',
-                      height: '44px',
+                      width: '36px',
+                      height: '36px',
                       background: (!isEditMode || gridSize >= 10) ? '#ccc' : 'var(--primary-green)',
                       color: 'white',
                       border: 'none',
-                      borderRadius: '0 8px 8px 0',
-                      fontSize: '24px',
+                      borderRadius: '0 6px 6px 0',
+                      fontSize: '20px',
                       fontWeight: '700',
                       cursor: (!isEditMode || gridSize >= 10) ? 'not-allowed' : 'pointer',
                       display: 'flex',
@@ -320,33 +326,93 @@ function BingoGame() {
                     +
                   </button>
                 </div>
-                <span style={{ fontSize: '13px', opacity: 0.7 }}>({gridSize} x {gridSize})</span>
-              </>
-            )}
-            <button
-              onClick={handleReset}
-              style={{
-                padding: '8px 16px',
-                background: '#dc3545',
-                color: 'white',
-                border: 'none',
-                borderRadius: '6px',
-                fontSize: '13px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                marginLeft: 'auto'
-              }}
-            >
-              초기화
-            </button>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '13px', fontWeight: '600' }}>빙고 줄수:</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
+                  <button
+                    onClick={() => setBingoTargetLines(prev => Math.max(1, prev - 1))}
+                    disabled={!isEditMode || bingoTargetLines <= 1}
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      background: (!isEditMode || bingoTargetLines <= 1) ? '#ccc' : 'var(--primary-green)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px 0 0 6px',
+                      fontSize: '20px',
+                      fontWeight: '700',
+                      cursor: (!isEditMode || bingoTargetLines <= 1) ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    −
+                  </button>
+                  <div style={{
+                    width: '40px',
+                    height: '36px',
+                    background: 'white',
+                    border: '2px solid var(--border-color)',
+                    borderLeft: 'none',
+                    borderRight: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '16px',
+                    fontWeight: '700'
+                  }}>
+                    {bingoTargetLines}
+                  </div>
+                  <button
+                    onClick={() => setBingoTargetLines(prev => prev + 1)}
+                    disabled={!isEditMode}
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      background: !isEditMode ? '#ccc' : 'var(--primary-green)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '0 6px 6px 0',
+                      fontSize: '20px',
+                      fontWeight: '700',
+                      cursor: !isEditMode ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    +
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
 
         {isEditMode && (
           <div className="card" style={{ marginBottom: '16px' }}>
-            <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: 'var(--primary-green)' }}>
-              회원 목록
-            </h4>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)', margin: 0 }}>
+                회원 목록
+              </h4>
+              <button
+                onClick={handleReset}
+                style={{
+                  padding: '6px 12px',
+                  background: '#dc3545',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                초기화
+              </button>
+            </div>
             <div style={{ 
               fontSize: '12px', 
               opacity: 0.7, 
