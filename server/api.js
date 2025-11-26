@@ -325,8 +325,41 @@ router.put('/bookings/:id', async (req, res) => {
         }
       }
 
-      // removedPhones는 Dashboard에서 credit 트랜잭션 생성으로 처리됨
-      // 기존 charge 거래는 삭제하지 않음
+      // 참가 취소된 회원의 청구 트랜잭션 삭제 및 잔액 업데이트
+      for (const phone of removedPhones) {
+        const member = await prisma.member.findFirst({
+          where: { phone }
+        });
+
+        if (member) {
+          // 해당 라운딩의 청구 트랜잭션 삭제
+          await prisma.transaction.deleteMany({
+            where: {
+              memberId: member.id,
+              bookingId: booking.id,
+              type: 'charge'
+            }
+          });
+
+          // 잔액 재계산
+          const memberTransactions = await prisma.transaction.findMany({
+            where: { memberId: member.id }
+          });
+
+          const newBalance = memberTransactions.reduce((sum, t) => {
+            if (t.type === 'charge') return sum - t.amount;
+            if (t.type === 'payment') return sum + t.amount;
+            if (t.type === 'credit') return sum + t.amount;
+            if (t.type === 'donation') return sum + t.amount;
+            return sum;
+          }, 0);
+
+          await prisma.member.update({
+            where: { id: member.id },
+            data: { balance: newBalance }
+          });
+        }
+      }
     }
 
     req.io.emit('bookings:updated');
