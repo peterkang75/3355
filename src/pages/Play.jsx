@@ -133,7 +133,12 @@ function Play() {
         const totalTeammate = holeScores.teammate.reduce((a, b) => a + b, 0);
         const courseParTeammate = parArr.reduce((a, b) => a + b, 0);
 
-        const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.phone;
+        const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
+        
+        if (!user?.id || !teammateMemberId || !booking?.title) {
+          console.log('⚠️ 스코어 저장 스킵 - 필수 데이터 없음:', { userId: user?.id, teammateMemberId, bookingTitle: booking?.title });
+          return;
+        }
         
         await Promise.all([
           fetch('/api/scores', {
@@ -142,9 +147,9 @@ function Play() {
             body: JSON.stringify({
               memberId: user.id,
               markerId: user.id,
-              roundingName: booking?.title,
+              roundingName: booking.title,
               date: scoreDate,
-              courseName: booking?.courseName,
+              courseName: booking.courseName,
               totalScore: totalMe,
               coursePar,
               holes: holeScores.me
@@ -156,9 +161,9 @@ function Play() {
             body: JSON.stringify({
               memberId: teammateMemberId,
               markerId: user.id,
-              roundingName: booking?.title,
+              roundingName: booking.title,
               date: scoreDate,
-              courseName: booking?.courseName,
+              courseName: booking.courseName,
               totalScore: totalTeammate,
               coursePar: courseParTeammate,
               holes: holeScores.teammate
@@ -753,12 +758,17 @@ function Play() {
       const parArr = courseData?.holePars?.[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
       const userParArr = courseData?.holePars?.[user?.gender === 'F' ? 'female' : 'male'] || [];
       const today = new Date().toISOString().split('T')[0];
-      const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.phone;
+      const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
 
       const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
       const coursePar = userParArr.reduce((a, b) => a + b, 0);
       const totalTeammate = holeScores.teammate.reduce((a, b) => a + b, 0);
       const courseParTeammate = parArr.reduce((a, b) => a + b, 0);
+
+      if (!user?.id || !teammateMemberId || !booking?.title) {
+        console.log('⚠️ 스코어 체크 저장 스킵 - 필수 데이터 없음:', { userId: user?.id, teammateMemberId, bookingTitle: booking?.title });
+        return;
+      }
 
       await Promise.all([
         fetch('/api/scores', {
@@ -767,7 +777,7 @@ function Play() {
           body: JSON.stringify({
             memberId: user.id,
             markerId: user.id,
-            roundingName: booking?.title,
+            roundingName: booking.title,
             date: today,
             courseName: courseData?.name,
             totalScore: totalMe,
@@ -781,7 +791,7 @@ function Play() {
           body: JSON.stringify({
             memberId: teammateMemberId,
             markerId: user.id,
-            roundingName: booking?.title,
+            roundingName: booking.title,
             date: today,
             courseName: courseData?.name,
             totalScore: totalTeammate,
