@@ -473,35 +473,25 @@ function Fees() {
           </>
         ) : (
           <>
-            <div className="card" style={{ marginBottom: '16px' }}>
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: '1fr 1fr', 
-                gap: '16px'
-              }}>
-                <div style={{
-                  padding: '16px',
-                  background: 'linear-gradient(135deg, var(--primary-green), var(--accent-bright-green))',
-                  borderRadius: '12px',
-                  color: 'white',
-                  textAlign: 'center'
-                }}>
-                  <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '4px' }}>클럽 잔액</div>
-                  <div style={{ fontSize: '24px', fontWeight: '700' }}>
-                    ${clubBalance.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
-                  </div>
+            <div style={{
+              background: 'linear-gradient(135deg, #E59879, #f0b89a)',
+              borderRadius: '12px',
+              padding: '16px',
+              marginBottom: '16px',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <div>
+                <div style={{ fontSize: '12px', color: '#333', opacity: 0.8, marginBottom: '4px' }}>클럽 잔액</div>
+                <div style={{ fontSize: '28px', fontWeight: '700', color: '#000' }}>
+                  ${clubBalance.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
                 </div>
-                <div style={{
-                  padding: '16px',
-                  background: outstandingCount > 0 ? 'linear-gradient(135deg, #dc3545, #ff6b6b)' : 'linear-gradient(135deg, #6c757d, #adb5bd)',
-                  borderRadius: '12px',
-                  color: 'white',
-                  textAlign: 'center'
-                }}>
-                  <div style={{ fontSize: '12px', opacity: 0.9, marginBottom: '4px' }}>미납자</div>
-                  <div style={{ fontSize: '24px', fontWeight: '700' }}>
-                    {outstandingCount}명
-                  </div>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontSize: '12px', color: '#333', opacity: 0.8, marginBottom: '4px' }}>미수금 회원</div>
+                <div style={{ fontSize: '28px', fontWeight: '700', color: '#000' }}>
+                  {outstandingCount}명
                 </div>
               </div>
             </div>
