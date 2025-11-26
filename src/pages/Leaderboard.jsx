@@ -56,12 +56,31 @@ function Leaderboard() {
         const handicap = dailyHandicaps[score.userId] || member?.handicap || 0;
         
         let grade = 'ALL';
-        if (gradeSettings && gradeSettings.useGrades) {
+        if (gradeSettings) {
           const hcp = Number(handicap) || 0;
-          if (hcp <= (gradeSettings.gradeA || 10)) grade = 'A';
-          else if (hcp <= (gradeSettings.gradeB || 18)) grade = 'B';
-          else if (hcp <= (gradeSettings.gradeC || 27)) grade = 'C';
-          else grade = 'D';
+          const gradeA = gradeSettings.gradeA || { type: 'below', value: '' };
+          const gradeB = gradeSettings.gradeB || { min: '', max: '' };
+          const gradeC = gradeSettings.gradeC || { min: '', max: '' };
+          const gradeD = gradeSettings.gradeD || { type: 'above', value: '' };
+          
+          if (gradeA.value !== '' && gradeA.value !== null) {
+            if ((gradeA.type === 'below' && hcp <= gradeA.value) || 
+                (gradeA.type === 'above' && hcp >= gradeA.value)) {
+              grade = 'A';
+            }
+          }
+          if (grade === 'ALL' && gradeB.min !== '' && gradeB.max !== '' && gradeB.min !== null && gradeB.max !== null) {
+            if (hcp >= gradeB.min && hcp <= gradeB.max) grade = 'B';
+          }
+          if (grade === 'ALL' && gradeC.min !== '' && gradeC.max !== '' && gradeC.min !== null && gradeC.max !== null) {
+            if (hcp >= gradeC.min && hcp <= gradeC.max) grade = 'C';
+          }
+          if (grade === 'ALL' && gradeD.value !== '' && gradeD.value !== null) {
+            if ((gradeD.type === 'below' && hcp <= gradeD.value) || 
+                (gradeD.type === 'above' && hcp >= gradeD.value)) {
+              grade = 'D';
+            }
+          }
         }
 
         const holesArray = typeof score.holes === 'string' ? JSON.parse(score.holes) : score.holes;

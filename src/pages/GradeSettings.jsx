@@ -10,10 +10,10 @@ function GradeSettings() {
   const { user, bookings, refreshData } = useApp();
   const [booking, setBooking] = useState(null);
   const [gradeSettings, setGradeSettings] = useState({
-    gradeA: { type: 'below', value: 10 },
-    gradeB: { min: 11, max: 22 },
+    gradeA: { type: 'below', value: '' },
+    gradeB: { min: '', max: '' },
     gradeC: { min: '', max: '' },
-    gradeD: { type: 'above', value: 31 }
+    gradeD: { type: 'above', value: '' }
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -150,8 +150,9 @@ function GradeSettings() {
                 value={gradeSettings.gradeA.value}
                 onChange={(e) => setGradeSettings({
                   ...gradeSettings,
-                  gradeA: { ...gradeSettings.gradeA, value: parseInt(e.target.value) || 0 }
+                  gradeA: { ...gradeSettings.gradeA, value: e.target.value === '' ? '' : parseInt(e.target.value) }
                 })}
+                placeholder=""
                 style={{
                   padding: '10px',
                   borderRadius: '6px',
@@ -201,8 +202,9 @@ function GradeSettings() {
                   value={gradeSettings.gradeB.min}
                   onChange={(e) => setGradeSettings({
                     ...gradeSettings,
-                    gradeB: { ...gradeSettings.gradeB, min: parseInt(e.target.value) || 0 }
+                    gradeB: { ...gradeSettings.gradeB, min: e.target.value === '' ? '' : parseInt(e.target.value) }
                   })}
+                  placeholder=""
                   style={{
                     padding: '10px',
                     border: '1px solid var(--border-color)',
@@ -219,8 +221,9 @@ function GradeSettings() {
                   value={gradeSettings.gradeB.max}
                   onChange={(e) => setGradeSettings({
                     ...gradeSettings,
-                    gradeB: { ...gradeSettings.gradeB, max: parseInt(e.target.value) || 0 }
+                    gradeB: { ...gradeSettings.gradeB, max: e.target.value === '' ? '' : parseInt(e.target.value) }
                   })}
+                  placeholder=""
                   style={{
                     padding: '10px',
                     border: '1px solid var(--border-color)',
@@ -312,8 +315,9 @@ function GradeSettings() {
                   value={gradeSettings.gradeD.value}
                   onChange={(e) => setGradeSettings({
                     ...gradeSettings,
-                    gradeD: { ...gradeSettings.gradeD, value: parseInt(e.target.value) || 0 }
+                    gradeD: { ...gradeSettings.gradeD, value: e.target.value === '' ? '' : parseInt(e.target.value) }
                   })}
+                  placeholder=""
                   style={{
                     padding: '10px',
                     borderRadius: '6px',

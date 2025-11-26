@@ -139,17 +139,28 @@ function MemberScoreEntry() {
     
     const hc = parseFloat(handicap) || 0;
     
-    const gradeA = gradeSettings.gradeA || { type: 'below', value: 10 };
-    const gradeB = gradeSettings.gradeB || { min: 11, max: 22 };
-    const gradeC = gradeSettings.gradeC || { type: 'above', value: 23 };
+    const gradeA = gradeSettings.gradeA || { type: 'below', value: '' };
+    const gradeB = gradeSettings.gradeB || { min: '', max: '' };
+    const gradeC = gradeSettings.gradeC || { min: '', max: '' };
+    const gradeD = gradeSettings.gradeD || { type: 'above', value: '' };
     
-    if (gradeA.type === 'below' && hc <= gradeA.value) return 'A';
-    if (gradeA.type === 'above' && hc >= gradeA.value) return 'A';
+    if (gradeA.value !== '' && gradeA.value !== null) {
+      if (gradeA.type === 'below' && hc <= gradeA.value) return 'A';
+      if (gradeA.type === 'above' && hc >= gradeA.value) return 'A';
+    }
     
-    if (hc >= gradeB.min && hc <= gradeB.max) return 'B';
+    if (gradeB.min !== '' && gradeB.max !== '' && gradeB.min !== null && gradeB.max !== null) {
+      if (hc >= gradeB.min && hc <= gradeB.max) return 'B';
+    }
     
-    if (gradeC.type === 'below' && hc <= gradeC.value) return 'C';
-    if (gradeC.type === 'above' && hc >= gradeC.value) return 'C';
+    if (gradeC.min !== '' && gradeC.max !== '' && gradeC.min !== null && gradeC.max !== null) {
+      if (hc >= gradeC.min && hc <= gradeC.max) return 'C';
+    }
+    
+    if (gradeD.value !== '' && gradeD.value !== null) {
+      if (gradeD.type === 'below' && hc <= gradeD.value) return 'D';
+      if (gradeD.type === 'above' && hc >= gradeD.value) return 'D';
+    }
     
     return 'C';
   };

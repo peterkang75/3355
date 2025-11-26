@@ -465,10 +465,11 @@ router.patch('/bookings/:id/grade-settings', async (req, res) => {
     
     const updated = await prisma.booking.update({
       where: { id: req.params.id },
-      data: { gradeSettings },
+      data: { gradeSettings: JSON.stringify(gradeSettings) },
       include: { organizer: true }
     });
     
+    req.io.emit('bookings:updated');
     res.json(updated);
   } catch (error) {
     console.error('Error updating grade settings:', error);
