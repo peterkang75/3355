@@ -3914,9 +3914,16 @@ function Admin() {
                       <button
                         onClick={() => {
                           setEditingScore(selectedPlayerForScore);
+                          let holesData = selectedPlayerForScore.holes || [];
+                          if (typeof holesData === 'string') {
+                            try { holesData = JSON.parse(holesData); } catch (e) { holesData = []; }
+                          }
+                          if (!Array.isArray(holesData) || holesData.length === 0) {
+                            holesData = Array(18).fill('');
+                          }
                           setEditScoreData({
                             totalScore: selectedPlayerForScore.totalScore,
-                            holes: selectedPlayerForScore.holes || Array(18).fill('')
+                            holes: holesData
                           });
                         }}
                         style={{
