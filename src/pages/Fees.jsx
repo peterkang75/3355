@@ -121,23 +121,7 @@ function Fees() {
       if (transaction.description && transaction.description.includes('환불')) {
         return '참가비 환불';
       }
-      
-      if (transaction.booking) {
-        const bookingName = transaction.booking.title || transaction.booking.courseName || '';
-        if (transaction.description && transaction.description.includes('전액')) {
-          return `${bookingName} 전액납부`;
-        } else if (transaction.description && transaction.description.includes('부분')) {
-          return `${bookingName} 부분납부`;
-        }
-        return `${bookingName} 참가비납부`;
-      }
-      
-      if (transaction.description && transaction.description.includes('전액')) {
-        return '정모 회비납부';
-      } else if (transaction.description && transaction.description.includes('부분')) {
-        return '정모 부분납부';
-      }
-      return '정모 회비납부';
+      return '라운딩 회비납부';
     }
     return '';
   };
@@ -406,67 +390,88 @@ function Fees() {
                 거래 내역
               </h3>
 
-              {userTransactions.length === 0 ? (
-                <div style={{ 
-                  padding: '40px',
-                  textAlign: 'center',
-                  opacity: 0.7
-                }}>
-                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>$</div>
-                  <p>아직 거래 내역이 없습니다</p>
-                </div>
-              ) : (
-                <div>
-                  {userTransactions.map(transaction => {
-                    return (
-                      <div 
-                        key={transaction.id}
-                        style={{
-                          padding: '10px 12px',
-                          borderBottom: '1px solid var(--border-color)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '8px',
-                          fontSize: '13px'
-                        }}
-                      >
-                        <div style={{ 
-                          flex: '1',
-                          fontWeight: '600',
-                          minWidth: '0',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis',
-                          whiteSpace: 'nowrap'
-                        }}>
-                          {getTransactionLabel(transaction)}
+              {(() => {
+                const filteredUserTransactions = userTransactions.filter(t => t.type !== 'charge');
+                
+                if (filteredUserTransactions.length === 0) {
+                  return (
+                    <div style={{ 
+                      padding: '40px',
+                      textAlign: 'center',
+                      opacity: 0.7
+                    }}>
+                      <div style={{ fontSize: '48px', marginBottom: '16px' }}>$</div>
+                      <p>아직 거래 내역이 없습니다</p>
+                    </div>
+                  );
+                }
+                
+                return (
+                  <div>
+                    {filteredUserTransactions.map(transaction => {
+                      const bookingName = transaction.booking ? 
+                        (transaction.booking.title || transaction.booking.courseName) : '-';
+                      
+                      return (
+                        <div 
+                          key={transaction.id}
+                          style={{
+                            padding: '10px 12px',
+                            borderBottom: '1px solid var(--border-color)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            fontSize: '13px'
+                          }}
+                        >
+                          <div style={{ 
+                            width: '90px',
+                            fontWeight: '600',
+                            flexShrink: 0,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {getTransactionLabel(transaction)}
+                          </div>
+                          <div style={{ 
+                            flex: '1',
+                            minWidth: '0',
+                            opacity: 0.7,
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}>
+                            {bookingName}
+                          </div>
+                          <div style={{ 
+                            width: '55px',
+                            flexShrink: 0,
+                            opacity: 0.7,
+                            textAlign: 'center'
+                          }}>
+                            {new Date(transaction.date).toLocaleDateString('ko-KR', { 
+                              month: 'short', 
+                              day: 'numeric' 
+                            })}
+                          </div>
+                          <div style={{
+                            width: '75px',
+                            fontSize: '15px',
+                            fontWeight: '700',
+                            color: getTransactionColor(transaction),
+                            textAlign: 'right',
+                            flexShrink: 0
+                          }}>
+                            {getTransactionSign(transaction)}
+                            ${transaction.amount.toLocaleString()}
+                          </div>
                         </div>
-                        <div style={{ 
-                          width: '60px',
-                          flexShrink: 0,
-                          opacity: 0.7,
-                          textAlign: 'center'
-                        }}>
-                          {new Date(transaction.date).toLocaleDateString('ko-KR', { 
-                            month: 'short', 
-                            day: 'numeric' 
-                          })}
-                        </div>
-                        <div style={{
-                          width: '80px',
-                          fontSize: '15px',
-                          fontWeight: '700',
-                          color: getTransactionColor(transaction),
-                          textAlign: 'right',
-                          flexShrink: 0
-                        }}>
-                          {getTransactionSign(transaction)}
-                          ${transaction.amount.toLocaleString()}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </div>
 
             {paymentGuideText && (
@@ -541,17 +546,9 @@ function Fees() {
                         const isOtherIncome = transaction.description?.startsWith('기타 - ');
                         const otherItemName = isOtherIncome ? transaction.description.replace('기타 - ', '') : null;
                         
-                        const getPaymentLabel = () => {
-                          if (transaction.booking) {
-                            const bookingName = transaction.booking.title || transaction.booking.courseName || '';
-                            return `${bookingName} 참가비납부`;
-                          }
-                          return '정모 회비납부';
-                        };
-                        
                         const typeLabel = 
                           isOtherIncome ? otherItemName :
-                          transaction.type === 'payment' ? getPaymentLabel() :
+                          transaction.type === 'payment' ? '라운딩 회비납부' :
                           transaction.type === 'expense' ? '클럽 지출' : '도네이션';
                         
                         const typeColor =
