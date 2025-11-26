@@ -243,13 +243,14 @@ function MemberScoreEntry() {
           dailyHandicaps[member.phone] = currentHandicap;
           
           scoresToSave.push({
-            userId: member.id,
+            memberId: member.id,
             markerId: user.id,
-            date: booking.date,
+            roundingName: booking.title || '',
+            date: new Date(booking.date).toISOString().split('T')[0],
             courseName: booking.courseName,
             totalScore: totalScore,
             coursePar: 72,
-            holes: JSON.stringify([])
+            holes: []
           });
         }
       }
