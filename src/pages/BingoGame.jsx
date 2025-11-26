@@ -527,7 +527,7 @@ function BingoGame() {
                             : '2px dashed var(--border-color)' 
                           : '1px solid var(--border-color)',
                       borderRadius: '8px',
-                      fontSize: gridSize > 6 ? '9px' : gridSize > 4 ? '11px' : '13px',
+                      fontSize: gridSize > 7 ? '11px' : gridSize > 5 ? '13px' : '15px',
                       fontWeight: '600',
                       cursor: 'pointer',
                       background: isDragOver
