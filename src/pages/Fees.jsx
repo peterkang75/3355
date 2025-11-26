@@ -344,30 +344,30 @@ function Fees() {
             <div className="card" style={{
               background: '#E59879',
               color: 'white',
-              padding: '24px'
+              padding: '16px'
             }}>
-              <div style={{ fontSize: '14px', marginBottom: '8px', opacity: 0.9 }}>
+              <div style={{ fontSize: '12px', marginBottom: '4px', opacity: 0.9 }}>
                 현재 잔액
               </div>
-              <div style={{ fontSize: '36px', fontWeight: '700', marginBottom: '16px' }}>
+              <div style={{ fontSize: '28px', fontWeight: '700', marginBottom: '10px' }}>
                 ${balance.toLocaleString()}
               </div>
               <div style={{ 
                 display: 'flex', 
                 justifyContent: 'space-between',
-                paddingTop: '16px',
+                paddingTop: '10px',
                 borderTop: '1px solid rgba(255,255,255,0.3)',
-                fontSize: '14px'
+                fontSize: '12px'
               }}>
                 <div>
                   <div style={{ opacity: 0.9 }}>총 납부(도네이션 포함)</div>
-                  <div style={{ fontWeight: '600', marginTop: '4px' }}>
+                  <div style={{ fontWeight: '600', marginTop: '2px' }}>
                     ${totalPayments.toLocaleString()}
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <div style={{ opacity: 0.9 }}>총 회비</div>
-                  <div style={{ fontWeight: '600', marginTop: '4px' }}>
+                  <div style={{ fontWeight: '600', marginTop: '2px' }}>
                     ${totalCharges.toLocaleString()}
                   </div>
                 </div>
