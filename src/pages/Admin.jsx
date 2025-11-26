@@ -157,7 +157,19 @@ function Admin() {
     if (activeTab === 'ledger') {
       loadLedgerData();
     }
+    if (activeTab === 'scoreManagement') {
+      loadBookingsForScoreManagement();
+    }
   }, [activeTab]);
+
+  const loadBookingsForScoreManagement = async () => {
+    try {
+      const bookingsData = await apiService.fetchBookings();
+      setBookings(bookingsData || []);
+    } catch (error) {
+      console.error('라운딩 데이터 로드 실패:', error);
+    }
+  };
 
   const loadPermissions = async () => {
     try {
