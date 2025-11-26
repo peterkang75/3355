@@ -24,7 +24,24 @@ function Play() {
   const [teammateReady, setTeammateReady] = useState(false);
   const [checkingInterval, setCheckingInterval] = useState(null);
 
+  // 리더보드에서 돌아왔을 때 상태 복원
   useEffect(() => {
+    const savedState = sessionStorage.getItem(`play_state_${bookingId}`);
+    if (savedState) {
+      try {
+        const parsed = JSON.parse(savedState);
+        if (parsed.currentHole) setCurrentHole(parsed.currentHole);
+        if (parsed.holeScores) setHoleScores(parsed.holeScores);
+        if (parsed.selectedTeammate) setSelectedTeammate(parsed.selectedTeammate);
+        if (parsed.step) setStep(parsed.step);
+        if (parsed.roundStartTime) setRoundStartTime(parsed.roundStartTime);
+        sessionStorage.removeItem(`play_state_${bookingId}`);
+        console.log('🔄 저장된 상태 복원:', parsed.currentHole, '번 홀');
+        return;
+      } catch (e) {
+        console.error('상태 복원 에러:', e);
+      }
+    }
     setSelectedTeammate(null);
     setStep('selectMember');
   }, [bookingId]);
@@ -791,7 +808,19 @@ function Play() {
           {booking?.title}
         </div>
         <button
-          onClick={() => navigate(`/leaderboard?id=${bookingId}`)}
+          onClick={() => {
+            // 현재 상태 저장
+            const stateToSave = {
+              currentHole,
+              holeScores,
+              selectedTeammate,
+              step,
+              roundStartTime
+            };
+            sessionStorage.setItem(`play_state_${bookingId}`, JSON.stringify(stateToSave));
+            console.log('💾 상태 저장:', currentHole, '번 홀');
+            navigate(`/leaderboard?id=${bookingId}`);
+          }}
           style={{
             background: '#d69e2e',
             border: 'none',
