@@ -186,35 +186,12 @@ function About() {
                 fontSize: '14px', 
                 lineHeight: '1.8', 
                 opacity: 0.9, 
-                marginBottom: '24px',
                 whiteSpace: 'pre-wrap'
               }}>
                 {appDescriptionText}
               </div>
             </>
           )}
-
-          <div style={{ fontSize: '14px', lineHeight: '1.8', opacity: 0.7 }}>
-            <div style={{ marginBottom: '8px' }}>
-              <strong>개인정보 처리방침</strong><br/>
-              그딴거 없음
-            </div>
-            <div>
-              <strong>이용약관</strong><br/>
-              그런것도 없음
-            </div>
-          </div>
-
-          <div style={{ 
-            textAlign: 'center', 
-            fontSize: '12px', 
-            opacity: 0.5,
-            marginTop: '24px',
-            paddingTop: '16px',
-            borderTop: '1px solid rgba(0,0,0,0.05)'
-          }}>
-            Made with ❤️ by 동백
-          </div>
 
           <button
             onClick={handleContact}
