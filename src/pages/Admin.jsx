@@ -3193,41 +3193,50 @@ function Admin() {
                         <span>수입</span>
                         <span style={{ fontSize: '16px' }}>${totalIncome.toLocaleString()}</span>
                       </h4>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        {Object.keys(incomeTotals).length === 0 ? (
-                          <div style={{ opacity: 0.6, fontSize: '13px' }}>수입 내역이 없습니다</div>
-                        ) : (
-                          Object.entries(incomeTotals).map(([category, amount]) => {
-                            const isSelected = selectedSummaryCategories.includes(`income:${category}`);
-                            return (
-                              <div 
-                                key={category}
-                                onClick={() => handleCategoryToggle(category, 'income')}
-                                style={{ 
-                                  display: 'flex', 
-                                  justifyContent: 'space-between',
-                                  alignItems: 'center',
-                                  fontSize: '13px',
-                                  padding: '8px 10px',
-                                  borderRadius: '6px',
-                                  cursor: 'pointer',
-                                  background: isSelected ? 'var(--primary-green)' : 'transparent',
-                                  color: isSelected ? 'white' : 'inherit',
-                                  transition: 'all 0.2s ease'
-                                }}
-                              >
-                                <span>{category}</span>
-                                <span style={{ 
-                                  fontWeight: '600', 
-                                  color: isSelected ? 'white' : 'var(--success-green)' 
-                                }}>
-                                  +${amount.toLocaleString()}
-                                </span>
-                              </div>
-                            );
-                          })
-                        )}
-                      </div>
+                      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <tbody>
+                          {Object.keys(incomeTotals).length === 0 ? (
+                            <tr>
+                              <td style={{ opacity: 0.6, fontSize: '13px', padding: '8px 0' }}>수입 내역이 없습니다</td>
+                            </tr>
+                          ) : (
+                            Object.entries(incomeTotals).map(([category, amount]) => {
+                              const isSelected = selectedSummaryCategories.includes(`income:${category}`);
+                              return (
+                                <tr 
+                                  key={category}
+                                  onClick={() => handleCategoryToggle(category, 'income')}
+                                  style={{ 
+                                    cursor: 'pointer',
+                                    background: isSelected ? 'var(--primary-green)' : 'transparent',
+                                    color: isSelected ? 'white' : 'inherit',
+                                    transition: 'all 0.2s ease'
+                                  }}
+                                >
+                                  <td style={{ 
+                                    padding: '8px 10px',
+                                    fontSize: '13px',
+                                    borderRadius: '6px 0 0 6px'
+                                  }}>
+                                    {category}
+                                  </td>
+                                  <td style={{ 
+                                    padding: '8px 10px',
+                                    fontSize: '13px',
+                                    fontWeight: '600',
+                                    textAlign: 'right',
+                                    whiteSpace: 'nowrap',
+                                    color: isSelected ? 'white' : 'var(--success-green)',
+                                    borderRadius: '0 6px 6px 0'
+                                  }}>
+                                    +${amount.toLocaleString()}
+                                  </td>
+                                </tr>
+                              );
+                            })
+                          )}
+                        </tbody>
+                      </table>
                     </div>
                     
                     {/* 지출 섹션 */}
@@ -3249,41 +3258,50 @@ function Admin() {
                         <span>지출</span>
                         <span style={{ fontSize: '16px' }}>${totalExpense.toLocaleString()}</span>
                       </h4>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                        {Object.keys(expenseTotals).length === 0 ? (
-                          <div style={{ opacity: 0.6, fontSize: '13px' }}>지출 내역이 없습니다</div>
-                        ) : (
-                          Object.entries(expenseTotals).map(([category, amount]) => {
-                            const isSelected = selectedSummaryCategories.includes(`expense:${category}`);
-                            return (
-                              <div 
-                                key={category}
-                                onClick={() => handleCategoryToggle(category, 'expense')}
-                                style={{ 
-                                  display: 'flex', 
-                                  justifyContent: 'space-between',
-                                  alignItems: 'center',
-                                  fontSize: '13px',
-                                  padding: '8px 10px',
-                                  borderRadius: '6px',
-                                  cursor: 'pointer',
-                                  background: isSelected ? 'var(--alert-red)' : 'transparent',
-                                  color: isSelected ? 'white' : 'inherit',
-                                  transition: 'all 0.2s ease'
-                                }}
-                              >
-                                <span>{category}</span>
-                                <span style={{ 
-                                  fontWeight: '600', 
-                                  color: isSelected ? 'white' : 'var(--alert-red)' 
-                                }}>
-                                  -${amount.toLocaleString()}
-                                </span>
-                              </div>
-                            );
-                          })
-                        )}
-                      </div>
+                      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                        <tbody>
+                          {Object.keys(expenseTotals).length === 0 ? (
+                            <tr>
+                              <td style={{ opacity: 0.6, fontSize: '13px', padding: '8px 0' }}>지출 내역이 없습니다</td>
+                            </tr>
+                          ) : (
+                            Object.entries(expenseTotals).map(([category, amount]) => {
+                              const isSelected = selectedSummaryCategories.includes(`expense:${category}`);
+                              return (
+                                <tr 
+                                  key={category}
+                                  onClick={() => handleCategoryToggle(category, 'expense')}
+                                  style={{ 
+                                    cursor: 'pointer',
+                                    background: isSelected ? 'var(--alert-red)' : 'transparent',
+                                    color: isSelected ? 'white' : 'inherit',
+                                    transition: 'all 0.2s ease'
+                                  }}
+                                >
+                                  <td style={{ 
+                                    padding: '8px 10px',
+                                    fontSize: '13px',
+                                    borderRadius: '6px 0 0 6px'
+                                  }}>
+                                    {category}
+                                  </td>
+                                  <td style={{ 
+                                    padding: '8px 10px',
+                                    fontSize: '13px',
+                                    fontWeight: '600',
+                                    textAlign: 'right',
+                                    whiteSpace: 'nowrap',
+                                    color: isSelected ? 'white' : 'var(--alert-red)',
+                                    borderRadius: '0 6px 6px 0'
+                                  }}>
+                                    -${amount.toLocaleString()}
+                                  </td>
+                                </tr>
+                              );
+                            })
+                          )}
+                        </tbody>
+                      </table>
                     </div>
                   </div>
                 );
