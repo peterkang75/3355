@@ -307,13 +307,13 @@ function Fees() {
           style={{
             flex: 1,
             padding: '16px',
-            background: activeTab === 'personal' ? 'var(--primary-green)' : 'transparent',
+            background: activeTab === 'personal' ? '#E59879' : 'transparent',
             color: activeTab === 'personal' ? 'white' : 'var(--text-dark)',
             border: 'none',
             fontSize: '16px',
             fontWeight: '600',
             cursor: 'pointer',
-            borderBottom: activeTab === 'personal' ? '3px solid var(--accent-bright-green)' : '3px solid transparent',
+            borderBottom: activeTab === 'personal' ? '3px solid #d18a6b' : '3px solid transparent',
             transition: 'all 0.2s'
           }}
         >
@@ -324,13 +324,13 @@ function Fees() {
           style={{
             flex: 1,
             padding: '16px',
-            background: activeTab === 'club' ? 'var(--primary-green)' : 'transparent',
+            background: activeTab === 'club' ? '#E59879' : 'transparent',
             color: activeTab === 'club' ? 'white' : 'var(--text-dark)',
             border: 'none',
             fontSize: '16px',
             fontWeight: '600',
             cursor: 'pointer',
-            borderBottom: activeTab === 'club' ? '3px solid var(--accent-bright-green)' : '3px solid transparent',
+            borderBottom: activeTab === 'club' ? '3px solid #d18a6b' : '3px solid transparent',
             transition: 'all 0.2s'
           }}
         >
