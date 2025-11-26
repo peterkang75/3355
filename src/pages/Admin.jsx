@@ -130,11 +130,11 @@ function Admin() {
   const [savedAppDescriptionText, setSavedAppDescriptionText] = useState('');
   
   // 스코어 관리 상태
-  const [scoreManagementView, setScoreManagementView] = useState('rounds'); // 'rounds', 'leaderboard', 'scorecard'
+  const [scoreManagementView, setScoreManagementView] = useState('rounds'); // 'rounds', 'leaderboard', 'scorecard', 'allScores'
+  const [allScoresData, setAllScoresData] = useState([]);
   const [selectedRoundForScore, setSelectedRoundForScore] = useState(null);
   const [selectedPlayerForScore, setSelectedPlayerForScore] = useState(null);
   const [roundScores, setRoundScores] = useState([]);
-  const [allScores, setAllScores] = useState([]);
   const [editingScore, setEditingScore] = useState(null);
   const [editScoreData, setEditScoreData] = useState(null);
 
@@ -4274,6 +4274,58 @@ function Admin() {
 
         {activeTab === 'scoreManagement' && (
           <div>
+            {(scoreManagementView === 'rounds' || scoreManagementView === 'allScores') && (
+              <div style={{ 
+                display: 'flex', 
+                gap: '8px', 
+                marginBottom: '16px',
+                padding: '0 16px'
+              }}>
+                <button
+                  onClick={() => setScoreManagementView('rounds')}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: scoreManagementView === 'rounds' ? 'var(--primary-green)' : 'white',
+                    color: scoreManagementView === 'rounds' ? 'white' : 'var(--text-dark)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  라운딩별 스코어
+                </button>
+                <button
+                  onClick={async () => {
+                    setScoreManagementView('allScores');
+                    try {
+                      const res = await fetch('/api/scores/all');
+                      const data = await res.json();
+                      setAllScoresData(Array.isArray(data) ? data : []);
+                    } catch (e) {
+                      console.error('전체 스코어 로드 에러:', e);
+                      setAllScoresData([]);
+                    }
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: scoreManagementView === 'allScores' ? 'var(--primary-green)' : 'white',
+                    color: scoreManagementView === 'allScores' ? 'white' : 'var(--text-dark)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  전체 스코어
+                </button>
+              </div>
+            )}
+
             {scoreManagementView === 'rounds' && (
               <div>
                 <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', padding: '0 16px' }}>
@@ -4325,6 +4377,81 @@ function Admin() {
                         <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.5 }}>›</div>
                       </button>
                     ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {scoreManagementView === 'allScores' && (
+              <div>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', padding: '0 16px' }}>
+                  전체 스코어 ({allScoresData.length}건)
+                </h3>
+                {allScoresData.length === 0 ? (
+                  <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
+                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
+                    <div style={{ color: 'var(--text-dark)', opacity: 0.7 }}>등록된 스코어가 없습니다</div>
+                  </div>
+                ) : (
+                  <div className="card" style={{ padding: '0', overflow: 'hidden' }}>
+                    <div style={{ overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                        <thead>
+                          <tr style={{ background: 'var(--bg-green)', borderBottom: '2px solid var(--primary-green)' }}>
+                            <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600' }}>날짜</th>
+                            <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600' }}>회원</th>
+                            <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600' }}>라운딩명</th>
+                            <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600' }}>골프장</th>
+                            <th style={{ padding: '10px 8px', textAlign: 'right', fontWeight: '600' }}>스코어</th>
+                            <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: '600' }}>삭제</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {allScoresData.map(score => (
+                            <tr key={score.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                              <td style={{ padding: '10px 8px', whiteSpace: 'nowrap' }}>
+                                {score.date ? new Date(score.date).toLocaleDateString('ko-KR') : '-'}
+                              </td>
+                              <td style={{ padding: '10px 8px', whiteSpace: 'nowrap' }}>
+                                {score.user?.nickname || score.user?.name || '-'}
+                              </td>
+                              <td style={{ padding: '10px 8px' }}>
+                                {score.roundingName || '-'}
+                              </td>
+                              <td style={{ padding: '10px 8px' }}>
+                                {score.courseName || '-'}
+                              </td>
+                              <td style={{ padding: '10px 8px', textAlign: 'right', fontWeight: '600' }}>
+                                {score.totalScore || '-'}
+                              </td>
+                              <td style={{ padding: '10px 8px', textAlign: 'center' }}>
+                                <button
+                                  onClick={async () => {
+                                    if (!confirm('이 스코어를 삭제하시겠습니까?')) return;
+                                    try {
+                                      await fetch(`/api/scores/${score.id}`, { method: 'DELETE' });
+                                      setAllScoresData(prev => prev.filter(s => s.id !== score.id));
+                                    } catch (e) {
+                                      console.error('스코어 삭제 에러:', e);
+                                      alert('삭제에 실패했습니다.');
+                                    }
+                                  }}
+                                  style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'var(--alert-red)',
+                                    cursor: 'pointer',
+                                    fontSize: '16px'
+                                  }}
+                                >
+                                  ×
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 )}
               </div>

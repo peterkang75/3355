@@ -525,6 +525,19 @@ router.delete('/fees/:id', async (req, res) => {
   }
 });
 
+router.get('/scores/all', async (req, res) => {
+  try {
+    const scores = await prisma.score.findMany({
+      include: { user: true },
+      orderBy: { date: 'desc' }
+    });
+    res.json(scores);
+  } catch (error) {
+    console.error('Error fetching all scores:', error);
+    res.status(500).json({ error: 'Failed to fetch all scores' });
+  }
+});
+
 router.get('/scores/booking/:date/:courseName', async (req, res) => {
   try {
     const { date, courseName } = req.params;
