@@ -2222,7 +2222,7 @@ function Admin() {
                       {incomeCategories.map(cat => (
                         <button
                           key={cat.id}
-                          onClick={() => setSelectedIncome({...selectedIncome, categoryId: cat.id})}
+                          onClick={() => setSelectedIncome({...selectedIncome, categoryId: cat.id, manualItemName: '', manualAmount: ''})}
                           style={{
                             padding: '8px 12px',
                             border: 'none',
@@ -2261,18 +2261,126 @@ function Admin() {
                     />
                   </div>
 
+                  {(() => {
+                    const selectedCategory = incomeCategories.find(c => c.id === selectedIncome.categoryId);
+                    const isOther = selectedCategory?.name === '기타';
+                    
+                    if (isOther) {
+                      return (
+                        <div style={{ 
+                          display: 'flex', 
+                          gap: '8px', 
+                          alignItems: 'flex-end',
+                          flexWrap: 'wrap'
+                        }}>
+                          <div style={{ flex: '1', minWidth: '120px' }}>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                              항목명 *
+                            </label>
+                            <input
+                              type="text"
+                              placeholder="입금 항목 입력..."
+                              value={selectedIncome.manualItemName || ''}
+                              onChange={(e) => setSelectedIncome({...selectedIncome, manualItemName: e.target.value})}
+                              style={{
+                                width: '100%',
+                                padding: '12px',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '8px',
+                                fontSize: '14px'
+                              }}
+                            />
+                          </div>
+                          <div style={{ flex: '1', minWidth: '100px' }}>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                              금액 *
+                            </label>
+                            <input
+                              type="number"
+                              placeholder="0"
+                              value={selectedIncome.manualAmount || ''}
+                              onChange={(e) => setSelectedIncome({...selectedIncome, manualAmount: e.target.value})}
+                              style={{
+                                width: '100%',
+                                padding: '12px',
+                                border: '1px solid var(--border-color)',
+                                borderRadius: '8px',
+                                fontSize: '14px'
+                              }}
+                            />
+                          </div>
+                          <button
+                            onClick={async () => {
+                              if (!selectedIncome.manualItemName?.trim() || !selectedIncome.manualAmount) {
+                                alert('항목명과 금액을 입력해주세요.');
+                                return;
+                              }
+                              try {
+                                await api.createTransaction({
+                                  type: 'donation',
+                                  amount: parseFloat(selectedIncome.manualAmount),
+                                  description: `기타 - ${selectedIncome.manualItemName.trim()}`,
+                                  date: selectedIncome.date,
+                                  memberId: null,
+                                  bookingId: null,
+                                  executorId: user.id
+                                });
+                                alert(`기타 입금이 저장되었습니다: ${selectedIncome.manualItemName.trim()} ($${selectedIncome.manualAmount})`);
+                                setSelectedIncome({
+                                  ...selectedIncome,
+                                  manualItemName: '',
+                                  manualAmount: '',
+                                  categoryId: ''
+                                });
+                                loadFeeData();
+                              } catch (error) {
+                                console.error('기타 입금 저장 실패:', error);
+                                alert('저장에 실패했습니다.');
+                              }
+                            }}
+                            style={{
+                              padding: '12px 24px',
+                              background: 'var(--primary-green)',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '8px',
+                              fontSize: '14px',
+                              fontWeight: '600',
+                              cursor: 'pointer',
+                              whiteSpace: 'nowrap'
+                            }}
+                          >
+                            저장
+                          </button>
+                        </div>
+                      );
+                    }
+                    
+                    return null;
+                  })()}
+
                   <button
                     onClick={handleOpenIncomeModal}
+                    disabled={(() => {
+                      const selectedCategory = incomeCategories.find(c => c.id === selectedIncome.categoryId);
+                      return selectedCategory?.name === '기타';
+                    })()}
                     style={{
                       width: '100%',
                       padding: '14px',
-                      background: 'var(--primary-green)',
+                      background: (() => {
+                        const selectedCategory = incomeCategories.find(c => c.id === selectedIncome.categoryId);
+                        return selectedCategory?.name === '기타' ? '#ccc' : 'var(--primary-green)';
+                      })(),
                       color: 'white',
                       border: 'none',
                       borderRadius: '8px',
                       fontSize: '16px',
                       fontWeight: '600',
-                      cursor: 'pointer'
+                      cursor: (() => {
+                        const selectedCategory = incomeCategories.find(c => c.id === selectedIncome.categoryId);
+                        return selectedCategory?.name === '기타' ? 'not-allowed' : 'pointer';
+                      })()
                     }}
                   >
                     회원&금액 선택
