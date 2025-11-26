@@ -374,12 +374,12 @@ function Fees() {
               </div>
             </div>
 
-            <div className="card">
+            <div className="card" style={{ background: '#193C40', color: 'white' }}>
               <h3 style={{ 
                 fontSize: '16px', 
                 fontWeight: '700',
                 marginBottom: '16px',
-                color: 'var(--primary-green)'
+                color: 'white'
               }}>
                 거래 내역
               </h3>
@@ -405,7 +405,7 @@ function Fees() {
                         key={transaction.id}
                         style={{
                           padding: '10px 12px',
-                          borderBottom: '1px solid var(--border-color)',
+                          borderBottom: '1px solid rgba(255,255,255,0.2)',
                           display: 'flex',
                           alignItems: 'center',
                           gap: '8px',
