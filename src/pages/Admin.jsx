@@ -772,8 +772,12 @@ function Admin() {
       if (refreshMembers) {
         await refreshMembers();
       }
-      const transactionsData = await apiService.fetchTransactions();
+      const [transactionsData, balanceData] = await Promise.all([
+        apiService.fetchTransactions(),
+        apiService.fetchClubBalance()
+      ]);
       setAllTransactions(transactionsData || []);
+      setClubBalance(balanceData.balance);
     } catch (error) {
       console.error('장부 데이터 로드 실패:', error);
       setAllTransactions([]);
