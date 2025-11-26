@@ -3117,10 +3117,12 @@ function Admin() {
                     style={{
                       padding: '4px 10px',
                       fontSize: '12px',
-                      background: 'var(--border-color)',
+                      background: 'var(--alert-red)',
+                      color: 'white',
                       border: 'none',
                       borderRadius: '4px',
-                      cursor: 'pointer'
+                      cursor: 'pointer',
+                      fontWeight: '600'
                     }}
                   >
                     선택 해제
