@@ -65,7 +65,19 @@ function Play() {
     }
 
     const course = courses.find(c => c.name === foundBooking?.courseName);
-    if (course) setCourseData(course);
+    console.log('⛳ 코스 찾기:', foundBooking?.courseName, '→', course?.name || '없음');
+    if (course) {
+      setCourseData(course);
+    } else {
+      // 기본 par 설정 (코스가 없을 때)
+      setCourseData({
+        name: foundBooking?.courseName || '미등록 코스',
+        holePars: {
+          male: [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4],
+          female: [4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4]
+        }
+      });
+    }
   }, [bookingId, bookings, user?.phone, courses, members]);
 
   // 실시간 저장
@@ -74,8 +86,8 @@ function Play() {
 
     const saveScore = async () => {
       try {
-        const parArr = courseData?.holePars[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
-        const userParArr = courseData?.holePars[user?.gender === 'F' ? 'female' : 'male'] || [];
+        const parArr = courseData?.holePars?.[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
+        const userParArr = courseData?.holePars?.[user?.gender === 'F' ? 'female' : 'male'] || [];
         const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
 
         const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
@@ -285,6 +297,7 @@ function Play() {
                 console.error('점수 확인 오류:', e);
               }
               
+              console.log('🎮 스코어카드 시작:', { teammate: selectedTeammate?.name, courseData: courseData?.name });
               setRoundStartTime(Date.now());
               setCurrentHole(1);
               setHoleScores({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
@@ -458,8 +471,8 @@ function Play() {
   if (step === 'roundComplete') {
     const totalTeammate = holeScores.teammate.reduce((a, b) => a + b, 0);
     const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
-    const parArrTeammate = courseData?.holePars[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
-    const parArrMe = courseData?.holePars[user?.gender === 'F' ? 'female' : 'male'] || [];
+    const parArrTeammate = courseData?.holePars?.[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
+    const parArrMe = courseData?.holePars?.[user?.gender === 'F' ? 'female' : 'male'] || [];
     const courseParTeammate = parArrTeammate.reduce((a, b) => a + b, 0);
     const courseParMe = parArrMe.reduce((a, b) => a + b, 0);
     const diffTeammate = totalTeammate - courseParTeammate;
@@ -536,6 +549,24 @@ function Play() {
     );
   }
 
+  if (step === 'scorecard' && !courseData) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: '#223B3F', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        color: 'white'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ fontSize: '18px', marginBottom: '8px' }}>로딩 중...</div>
+          <div style={{ fontSize: '14px', opacity: 0.7 }}>코스 정보를 불러오고 있습니다</div>
+        </div>
+      </div>
+    );
+  }
+
   const getTime = () => {
     if (!roundStartTime) return '00:00:00';
     const sec = Math.floor((Date.now() - roundStartTime) / 1000);
@@ -545,8 +576,8 @@ function Play() {
     return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   };
 
-  const parArr = courseData?.holePars[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
-  const userParArr = courseData?.holePars[user?.gender === 'F' ? 'female' : 'male'] || [];
+  const parArr = courseData?.holePars?.[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
+  const userParArr = courseData?.holePars?.[user?.gender === 'F' ? 'female' : 'male'] || [];
   
   let tmateUnder = 0, tmatePar = 0, myUnder = 0, myPar = 0;
   for (let i = 0; i < currentHole; i++) {
@@ -573,8 +604,8 @@ function Play() {
   const ScoreSection = ({ title, isTeammate }) => {
     const score = isTeammate ? holeScores.teammate[currentHole - 1] : holeScores.me[currentHole - 1];
     const par = isTeammate 
-      ? courseData?.holePars[selectedTeammate?.gender === 'F' ? 'female' : 'male']?.[currentHole - 1]
-      : courseData?.holePars[user?.gender === 'F' ? 'female' : 'male']?.[currentHole - 1];
+      ? courseData?.holePars?.[selectedTeammate?.gender === 'F' ? 'female' : 'male']?.[currentHole - 1]
+      : courseData?.holePars?.[user?.gender === 'F' ? 'female' : 'male']?.[currentHole - 1];
     
     const parArrForCalc = isTeammate ? parArr : userParArr;
     let totalScore = 0, totalPar = 0;
@@ -667,8 +698,8 @@ function Play() {
   const handleScoreCheck = async () => {
     // 먼저 현재 점수를 저장
     try {
-      const parArr = courseData?.holePars[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
-      const userParArr = courseData?.holePars[user?.gender === 'F' ? 'female' : 'male'] || [];
+      const parArr = courseData?.holePars?.[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
+      const userParArr = courseData?.holePars?.[user?.gender === 'F' ? 'female' : 'male'] || [];
       const today = new Date().toISOString().split('T')[0];
       const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.phone;
 
