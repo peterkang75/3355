@@ -138,7 +138,7 @@ function Admin() {
   }, [contextMembers]);
 
   useEffect(() => {
-    if (activeTab === 'settings') {
+    if (activeTab === 'settings' || activeTab === 'developer') {
       loadPermissions();
       loadCategories();
     }
@@ -1545,7 +1545,7 @@ function Admin() {
               <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.7 }}>›</div>
             </button>
 
-            {user.role === '관리자' && (
+            {['관리자', '방장', '운영진'].includes(user.role) && (
               <button
                 onClick={() => setActiveTab('settings')}
                 style={{
@@ -1573,6 +1573,41 @@ function Admin() {
                     </div>
                     <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
                       앱 기본 설정 관리
+                    </div>
+                  </div>
+                </div>
+                <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.7 }}>›</div>
+              </button>
+            )}
+
+            {user.role === '관리자' && (
+              <button
+                onClick={() => setActiveTab('developer')}
+                style={{
+                  padding: '16px',
+                  textAlign: 'left',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  transition: 'all 0.2s',
+                  background: 'var(--bg-page)',
+                  borderTop: 'none',
+                  borderLeft: 'none',
+                  borderRight: 'none',
+                  borderBottom: '1px solid var(--border-color)'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
+                onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-page)'}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                  <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>🔧</div>
+                  <div>
+                    <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: 'var(--text-dark)' }}>
+                      개발자 메뉴
+                    </div>
+                    <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
+                      권한 설정 및 앱 소개문구 관리
                     </div>
                   </div>
                 </div>
@@ -3659,135 +3694,6 @@ function Admin() {
             </div>
 
             <div className="card" style={{ marginBottom: '16px' }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '20px'
-              }}>
-                <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
-                  기능별 권한 설정
-                </h3>
-                <button
-                  onClick={handleSavePermissions}
-                  disabled={!hasChanges}
-                  style={{
-                    padding: '10px 20px',
-                    background: hasChanges ? 'var(--primary-green)' : '#ccc',
-                    color: 'var(--text-light)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    fontSize: '14px',
-                    fontWeight: '600',
-                    cursor: hasChanges ? 'pointer' : 'not-allowed'
-                  }}
-                >
-                  {hasChanges ? '✓ 저장하기' : '✓ 저장됨'}
-                </button>
-              </div>
-
-              <div style={{
-                padding: '10px 12px',
-                background: 'var(--bg-green)',
-                borderRadius: '6px',
-                marginBottom: '12px',
-                fontSize: '12px',
-                color: 'var(--text-dark)', opacity: 0.7
-              }}>
-                • 각 기능의 최소 권한을 설정하세요<br/>
-                • 클럽운영진은 자신의 클럽 컴페티션만 관리할 수 있습니다
-              </div>
-
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '140px repeat(5, 1fr)',
-                gap: '8px',
-                padding: '8px 12px',
-                background: 'var(--bg-card)',
-                borderRadius: '6px',
-                marginBottom: '8px',
-                fontSize: '11px',
-                fontWeight: '600',
-                color: 'var(--primary-green)',
-                borderBottom: '2px solid var(--primary-green)'
-              }}>
-                <div style={{ textAlign: 'left' }}>기능</div>
-                <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
-                  <CrownIcon role="관리자" size={14} />
-                  <span>관리자</span>
-                </div>
-                <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
-                  <CrownIcon role="방장" size={14} />
-                  <span>방장</span>
-                </div>
-                <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
-                  <CrownIcon role="운영진" size={14} />
-                  <span>운영진</span>
-                </div>
-                <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
-                  <CrownIcon role="클럽운영진" size={14} />
-                  <span>클럽운영진</span>
-                </div>
-                <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
-                  <div style={{ height: '14px' }}></div>
-                  <span>회원</span>
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gap: '8px' }}>
-                {features.map(feature => {
-                  const roles = ['관리자', '방장', '운영진', '클럽운영진', '회원'];
-                  const selectedRole = permissions[feature.id] || '관리자';
-                  const selectedIndex = roles.indexOf(selectedRole);
-                  
-                  return (
-                    <div
-                      key={feature.id}
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns: '140px repeat(5, 1fr)',
-                        gap: '8px',
-                        alignItems: 'center',
-                        padding: '10px 12px',
-                        background: 'var(--bg-card)',
-                        borderBottom: '1px solid var(--border-color)',
-                        borderRadius: '6px'
-                      }}
-                    >
-                      <div style={{
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        color: 'var(--primary-green)'
-                      }}>
-                        {feature.name}
-                      </div>
-                      
-                      {roles.map((role, index) => {
-                        const isActive = index <= selectedIndex;
-                        
-                        return (
-                          <div
-                            key={role}
-                            onClick={() => handlePermissionChange(feature.id, role)}
-                            style={{
-                              height: '18px',
-                              background: isActive ? 'var(--primary-green)' : '#f0f0f0',
-                              borderRadius: '3px',
-                              cursor: 'pointer',
-                              transition: 'all 0.15s',
-                              border: '1px solid var(--border-color)'
-                            }}
-                            title={`${role}로 설정`}
-                          />
-                        );
-                      })}
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="card" style={{ marginBottom: '16px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
                 클럽회계관리 권한
               </h3>
@@ -4187,64 +4093,6 @@ function Admin() {
 
             <div className="card" style={{ marginBottom: '16px' }}>
               <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
-                앱 소개문구
-              </h3>
-              <div style={{
-                padding: '10px 12px',
-                background: 'var(--bg-green)',
-                borderRadius: '6px',
-                marginBottom: '12px',
-                fontSize: '12px',
-                color: 'var(--text-dark)', opacity: 0.7
-              }}>
-                • About 페이지에서 "앱 소개" 섹션에 표시될 문구를 작성합니다<br/>
-                • 타이틀 작성: <strong>##타이틀##</strong> 형식으로 작성하면 크고 두껍게 표시됩니다
-              </div>
-              <textarea
-                value={appDescriptionText}
-                onChange={(e) => setAppDescriptionText(e.target.value)}
-                placeholder="앱 소개문구를 입력해주세요..."
-                style={{
-                  width: '100%',
-                  minHeight: '200px',
-                  padding: '12px',
-                  border: '1px solid var(--border-color)',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  resize: 'vertical',
-                  marginBottom: '12px',
-                  boxSizing: 'border-box'
-                }}
-              />
-              <button
-                onClick={async () => {
-                  try {
-                    await apiService.updateSetting('appDescriptionText', { value: appDescriptionText });
-                    setSavedAppDescriptionText(appDescriptionText);
-                    alert('앱 소개문구가 저장되었습니다.');
-                  } catch (error) {
-                    console.error('앱 소개문구 저장 실패:', error);
-                    alert('저장에 실패했습니다.');
-                  }
-                }}
-                disabled={appDescriptionText === savedAppDescriptionText}
-                style={{
-                  padding: '12px 24px',
-                  background: appDescriptionText !== savedAppDescriptionText ? 'var(--primary-green)' : '#ccc',
-                  color: 'var(--text-light)',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: appDescriptionText !== savedAppDescriptionText ? 'pointer' : 'not-allowed'
-                }}
-              >
-                {appDescriptionText !== savedAppDescriptionText ? '저장하기' : '저장됨'}
-              </button>
-            </div>
-
-            <div className="card" style={{ marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
                 개인 회비 납부안내 문구
               </h3>
               <div style={{
@@ -4331,6 +4179,197 @@ function Admin() {
                 <div style={{ marginBottom: '8px', fontWeight: '600' }}>3355 골프 클럽</div>
                 <div>버전 1.0.0</div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'developer' && (
+          <div>
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '20px'
+              }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
+                  기능별 권한 설정
+                </h3>
+                <button
+                  onClick={handleSavePermissions}
+                  disabled={!hasChanges}
+                  style={{
+                    padding: '10px 20px',
+                    background: hasChanges ? 'var(--primary-green)' : '#ccc',
+                    color: 'var(--text-light)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: hasChanges ? 'pointer' : 'not-allowed'
+                  }}
+                >
+                  {hasChanges ? '✓ 저장하기' : '✓ 저장됨'}
+                </button>
+              </div>
+
+              <div style={{
+                padding: '10px 12px',
+                background: 'var(--bg-green)',
+                borderRadius: '6px',
+                marginBottom: '12px',
+                fontSize: '12px',
+                color: 'var(--text-dark)', opacity: 0.7
+              }}>
+                • 각 기능의 최소 권한을 설정하세요<br/>
+                • 클럽운영진은 자신의 클럽 컴페티션만 관리할 수 있습니다
+              </div>
+
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '140px repeat(5, 1fr)',
+                gap: '8px',
+                padding: '8px 12px',
+                background: 'var(--bg-card)',
+                borderRadius: '6px',
+                marginBottom: '8px',
+                fontSize: '11px',
+                fontWeight: '600',
+                color: 'var(--primary-green)',
+                borderBottom: '2px solid var(--primary-green)'
+              }}>
+                <div style={{ textAlign: 'left' }}>기능</div>
+                <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                  <CrownIcon role="관리자" size={14} />
+                  <span>관리자</span>
+                </div>
+                <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                  <CrownIcon role="방장" size={14} />
+                  <span>방장</span>
+                </div>
+                <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                  <CrownIcon role="운영진" size={14} />
+                  <span>운영진</span>
+                </div>
+                <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                  <CrownIcon role="클럽운영진" size={14} />
+                  <span>클럽운영진</span>
+                </div>
+                <div style={{ textAlign: 'center', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '2px' }}>
+                  <div style={{ height: '14px' }}></div>
+                  <span>회원</span>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gap: '8px' }}>
+                {features.map(feature => {
+                  const roles = ['관리자', '방장', '운영진', '클럽운영진', '회원'];
+                  const selectedRole = permissions[feature.id] || '관리자';
+                  const selectedIndex = roles.indexOf(selectedRole);
+                  
+                  return (
+                    <div
+                      key={feature.id}
+                      style={{
+                        display: 'grid',
+                        gridTemplateColumns: '140px repeat(5, 1fr)',
+                        gap: '8px',
+                        alignItems: 'center',
+                        padding: '10px 12px',
+                        background: 'var(--bg-card)',
+                        borderBottom: '1px solid var(--border-color)',
+                        borderRadius: '6px'
+                      }}
+                    >
+                      <div style={{
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        color: 'var(--primary-green)'
+                      }}>
+                        {feature.name}
+                      </div>
+                      
+                      {roles.map((role, index) => {
+                        const isActive = index <= selectedIndex;
+                        
+                        return (
+                          <div
+                            key={role}
+                            onClick={() => handlePermissionChange(feature.id, role)}
+                            style={{
+                              height: '18px',
+                              background: isActive ? 'var(--primary-green)' : '#f0f0f0',
+                              borderRadius: '3px',
+                              cursor: 'pointer',
+                              transition: 'all 0.15s',
+                              border: '1px solid var(--border-color)'
+                            }}
+                            title={`${role}로 설정`}
+                          />
+                        );
+                      })}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
+                앱 소개문구
+              </h3>
+              <div style={{
+                padding: '10px 12px',
+                background: 'var(--bg-green)',
+                borderRadius: '6px',
+                marginBottom: '12px',
+                fontSize: '12px',
+                color: 'var(--text-dark)', opacity: 0.7
+              }}>
+                • About 페이지에서 "앱 소개" 섹션에 표시될 문구를 작성합니다<br/>
+                • 타이틀 작성: <strong>##타이틀##</strong> 형식으로 작성하면 크고 두껍게 표시됩니다
+              </div>
+              <textarea
+                value={appDescriptionText}
+                onChange={(e) => setAppDescriptionText(e.target.value)}
+                placeholder="앱 소개문구를 입력해주세요..."
+                style={{
+                  width: '100%',
+                  minHeight: '200px',
+                  padding: '12px',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  resize: 'vertical',
+                  marginBottom: '12px',
+                  boxSizing: 'border-box'
+                }}
+              />
+              <button
+                onClick={async () => {
+                  try {
+                    await apiService.updateSetting('appDescriptionText', { value: appDescriptionText });
+                    setSavedAppDescriptionText(appDescriptionText);
+                    alert('앱 소개문구가 저장되었습니다.');
+                  } catch (error) {
+                    console.error('앱 소개문구 저장 실패:', error);
+                    alert('저장에 실패했습니다.');
+                  }
+                }}
+                disabled={appDescriptionText === savedAppDescriptionText}
+                style={{
+                  padding: '12px 24px',
+                  background: appDescriptionText !== savedAppDescriptionText ? 'var(--primary-green)' : '#ccc',
+                  color: 'var(--text-light)',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: appDescriptionText !== savedAppDescriptionText ? 'pointer' : 'not-allowed'
+                }}
+              >
+                {appDescriptionText !== savedAppDescriptionText ? '저장하기' : '저장됨'}
+              </button>
             </div>
           </div>
         )}
