@@ -4197,7 +4197,8 @@ function Admin() {
                 fontSize: '12px',
                 color: 'var(--text-dark)', opacity: 0.7
               }}>
-                • About 페이지에서 "앱 소개" 섹션에 표시될 문구를 작성합니다
+                • About 페이지에서 "앱 소개" 섹션에 표시될 문구를 작성합니다<br/>
+                • 타이틀 작성: <strong>##타이틀##</strong> 형식으로 작성하면 크고 두껍게 표시됩니다
               </div>
               <textarea
                 value={appDescriptionText}

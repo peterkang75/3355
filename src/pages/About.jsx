@@ -11,6 +11,28 @@ function About() {
   const [clubRulesText, setClubRulesText] = useState('');
   const [appDescriptionText, setAppDescriptionText] = useState('');
   const [showRulesModal, setShowRulesModal] = useState(false);
+
+  const renderFormattedText = (text) => {
+    if (!text) return null;
+    const parts = text.split(/(##[^#]+##)/g);
+    return parts.map((part, index) => {
+      if (part.startsWith('##') && part.endsWith('##')) {
+        const title = part.slice(2, -2);
+        return (
+          <div key={index} style={{
+            fontSize: '16px',
+            fontWeight: '700',
+            color: 'var(--primary-green)',
+            marginTop: index > 0 ? '16px' : '0',
+            marginBottom: '8px'
+          }}>
+            {title}
+          </div>
+        );
+      }
+      return <span key={index}>{part}</span>;
+    });
+  };
   
   useEffect(() => {
     const loadSettings = async () => {
@@ -173,24 +195,14 @@ function About() {
 
         <div className="card">
           {appDescriptionText && (
-            <>
-              <h3 style={{ 
-                fontSize: '16px', 
-                fontWeight: '700', 
-                marginBottom: '12px',
-                color: 'var(--primary-green)'
-              }}>
-                앱 소개
-              </h3>
-              <div style={{ 
-                fontSize: '14px', 
-                lineHeight: '1.8', 
-                opacity: 0.9, 
-                whiteSpace: 'pre-wrap'
-              }}>
-                {appDescriptionText}
-              </div>
-            </>
+            <div style={{ 
+              fontSize: '14px', 
+              lineHeight: '1.8', 
+              opacity: 0.9, 
+              whiteSpace: 'pre-wrap'
+            }}>
+              {renderFormattedText(appDescriptionText)}
+            </div>
           )}
 
           <button
