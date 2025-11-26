@@ -368,24 +368,97 @@ function Fees() {
               <div style={{ fontSize: '28px', fontWeight: '700', marginBottom: '10px' }}>
                 ${balance.toLocaleString()}
               </div>
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between',
-                paddingTop: '10px',
-                borderTop: '1px solid rgba(255,255,255,0.3)',
-                fontSize: '12px'
+            </div>
+
+            <div className="card" style={{ padding: '16px' }}>
+              <h3 style={{ 
+                fontSize: '16px', 
+                fontWeight: '700',
+                marginBottom: '16px',
+                color: 'var(--primary-green)'
               }}>
-                <div>
-                  <div style={{ opacity: 0.9 }}>총 납부(도네이션 포함)</div>
-                  <div style={{ fontWeight: '600', marginTop: '2px' }}>
-                    ${totalPayments.toLocaleString()}
-                  </div>
+                잔액 상세 내역
+              </h3>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '10px 12px',
+                  background: 'rgba(40, 167, 69, 0.1)',
+                  borderRadius: '8px'
+                }}>
+                  <span style={{ fontSize: '14px', color: 'var(--text-dark)' }}>총 납부 (도네이션 포함)</span>
+                  <span style={{ fontSize: '16px', fontWeight: '700', color: 'var(--success-green)' }}>
+                    +${totalPayments.toLocaleString()}
+                  </span>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ opacity: 0.9 }}>총 회비</div>
-                  <div style={{ fontWeight: '600', marginTop: '2px' }}>
-                    ${totalCharges.toLocaleString()}
+                
+                {totalCredits > 0 && (
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '10px 12px',
+                    background: 'rgba(40, 167, 69, 0.1)',
+                    borderRadius: '8px'
+                  }}>
+                    <span style={{ fontSize: '14px', color: 'var(--text-dark)' }}>크레딧</span>
+                    <span style={{ fontSize: '16px', fontWeight: '700', color: 'var(--success-green)' }}>
+                      +${totalCredits.toLocaleString()}
+                    </span>
                   </div>
+                )}
+                
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '10px 12px',
+                  background: 'rgba(220, 53, 69, 0.1)',
+                  borderRadius: '8px'
+                }}>
+                  <span style={{ fontSize: '14px', color: 'var(--text-dark)' }}>총 참가비</span>
+                  <span style={{ fontSize: '16px', fontWeight: '700', color: 'var(--alert-red)' }}>
+                    -${totalCharges.toLocaleString()}
+                  </span>
+                </div>
+                
+                {totalExpenses > 0 && (
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    padding: '10px 12px',
+                    background: 'rgba(220, 53, 69, 0.1)',
+                    borderRadius: '8px'
+                  }}>
+                    <span style={{ fontSize: '14px', color: 'var(--text-dark)' }}>환불</span>
+                    <span style={{ fontSize: '16px', fontWeight: '700', color: 'var(--alert-red)' }}>
+                      -${totalExpenses.toLocaleString()}
+                    </span>
+                  </div>
+                )}
+                
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '12px',
+                  background: balance >= 0 ? 'rgba(40, 167, 69, 0.15)' : 'rgba(220, 53, 69, 0.15)',
+                  borderRadius: '8px',
+                  borderTop: '2px solid var(--border-color)',
+                  marginTop: '4px'
+                }}>
+                  <span style={{ fontSize: '15px', fontWeight: '600', color: 'var(--text-dark)' }}>잔액</span>
+                  <span style={{ 
+                    fontSize: '18px', 
+                    fontWeight: '700', 
+                    color: balance >= 0 ? 'var(--success-green)' : 'var(--alert-red)' 
+                  }}>
+                    ${balance.toLocaleString()}
+                  </span>
                 </div>
               </div>
             </div>
