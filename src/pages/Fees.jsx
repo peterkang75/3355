@@ -324,13 +324,13 @@ function Fees() {
           style={{
             flex: 1,
             padding: '16px',
-            background: activeTab === 'club' ? '#E59879' : 'transparent',
+            background: activeTab === 'club' ? '#223B3F' : 'transparent',
             color: activeTab === 'club' ? 'white' : 'var(--text-dark)',
             border: 'none',
             fontSize: '16px',
             fontWeight: '600',
             cursor: 'pointer',
-            borderBottom: activeTab === 'club' ? '3px solid #d18a6b' : '3px solid transparent',
+            borderBottom: activeTab === 'club' ? '3px solid #1a2d30' : '3px solid transparent',
             transition: 'all 0.2s'
           }}
         >
@@ -474,7 +474,7 @@ function Fees() {
         ) : (
           <>
             <div style={{
-              background: 'linear-gradient(135deg, #E59879, #f0b89a)',
+              background: 'linear-gradient(135deg, #223B3F, #2d4f54)',
               borderRadius: '12px',
               padding: '16px',
               marginBottom: '16px',
@@ -483,14 +483,14 @@ function Fees() {
               alignItems: 'center'
             }}>
               <div>
-                <div style={{ fontSize: '12px', color: '#333', opacity: 0.8, marginBottom: '4px' }}>클럽 잔액</div>
-                <div style={{ fontSize: '28px', fontWeight: '700', color: '#000' }}>
+                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', marginBottom: '4px' }}>클럽 잔액</div>
+                <div style={{ fontSize: '28px', fontWeight: '700', color: 'white' }}>
                   ${clubBalance.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
                 </div>
               </div>
               <div style={{ textAlign: 'right' }}>
-                <div style={{ fontSize: '12px', color: '#333', opacity: 0.8, marginBottom: '4px' }}>미수금 회원</div>
-                <div style={{ fontSize: '28px', fontWeight: '700', color: '#000' }}>
+                <div style={{ fontSize: '12px', color: 'rgba(255,255,255,0.8)', marginBottom: '4px' }}>미수금 회원</div>
+                <div style={{ fontSize: '28px', fontWeight: '700', color: 'white' }}>
                   {outstandingCount}명
                 </div>
               </div>
