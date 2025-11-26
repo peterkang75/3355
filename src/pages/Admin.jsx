@@ -132,6 +132,7 @@ function Admin() {
   // 스코어 관리 상태
   const [scoreManagementView, setScoreManagementView] = useState('rounds'); // 'rounds', 'leaderboard', 'scorecard', 'allScores'
   const [allScoresData, setAllScoresData] = useState([]);
+  const [selectedScoreIds, setSelectedScoreIds] = useState([]);
   const [selectedRoundForScore, setSelectedRoundForScore] = useState(null);
   const [selectedPlayerForScore, setSelectedPlayerForScore] = useState(null);
   const [roundScores, setRoundScores] = useState([]);
@@ -4384,9 +4385,46 @@ function Admin() {
 
             {scoreManagementView === 'allScores' && (
               <div>
-                <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', padding: '0 16px' }}>
-                  전체 스코어 ({allScoresData.length}건)
-                </h3>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between', 
+                  alignItems: 'center',
+                  marginBottom: '16px', 
+                  padding: '0 16px' 
+                }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
+                    전체 스코어 ({allScoresData.length}건)
+                  </h3>
+                  {selectedScoreIds.length > 0 && (
+                    <button
+                      onClick={async () => {
+                        if (!confirm(`선택한 ${selectedScoreIds.length}개의 스코어를 삭제하시겠습니까?`)) return;
+                        try {
+                          for (const id of selectedScoreIds) {
+                            await fetch(`/api/scores/${id}`, { method: 'DELETE' });
+                          }
+                          setAllScoresData(prev => prev.filter(s => !selectedScoreIds.includes(s.id)));
+                          setSelectedScoreIds([]);
+                        } catch (e) {
+                          console.error('스코어 삭제 에러:', e);
+                          alert('삭제에 실패했습니다.');
+                        }
+                      }}
+                      style={{
+                        padding: '8px 16px',
+                        background: 'var(--alert-red)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      선택 삭제 ({selectedScoreIds.length})
+                    </button>
+                  )}
+                </div>
                 {allScoresData.length === 0 ? (
                   <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
@@ -4398,17 +4436,50 @@ function Admin() {
                       <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                         <thead>
                           <tr style={{ background: 'var(--bg-green)', borderBottom: '2px solid var(--primary-green)' }}>
+                            <th style={{ padding: '10px 8px', textAlign: 'center', width: '40px' }}>
+                              <input
+                                type="checkbox"
+                                checked={selectedScoreIds.length === allScoresData.length && allScoresData.length > 0}
+                                onChange={(e) => {
+                                  if (e.target.checked) {
+                                    setSelectedScoreIds(allScoresData.map(s => s.id));
+                                  } else {
+                                    setSelectedScoreIds([]);
+                                  }
+                                }}
+                                style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                              />
+                            </th>
                             <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600' }}>날짜</th>
                             <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600' }}>회원</th>
                             <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600' }}>라운딩명</th>
                             <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600' }}>골프장</th>
                             <th style={{ padding: '10px 8px', textAlign: 'right', fontWeight: '600' }}>스코어</th>
-                            <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: '600' }}>삭제</th>
                           </tr>
                         </thead>
                         <tbody>
                           {allScoresData.map(score => (
-                            <tr key={score.id} style={{ borderBottom: '1px solid var(--border-color)' }}>
+                            <tr 
+                              key={score.id} 
+                              style={{ 
+                                borderBottom: '1px solid var(--border-color)',
+                                backgroundColor: selectedScoreIds.includes(score.id) ? 'var(--bg-green)' : 'transparent'
+                              }}
+                            >
+                              <td style={{ padding: '10px 8px', textAlign: 'center' }}>
+                                <input
+                                  type="checkbox"
+                                  checked={selectedScoreIds.includes(score.id)}
+                                  onChange={(e) => {
+                                    if (e.target.checked) {
+                                      setSelectedScoreIds(prev => [...prev, score.id]);
+                                    } else {
+                                      setSelectedScoreIds(prev => prev.filter(id => id !== score.id));
+                                    }
+                                  }}
+                                  style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                                />
+                              </td>
                               <td style={{ padding: '10px 8px', whiteSpace: 'nowrap' }}>
                                 {score.date ? new Date(score.date).toLocaleDateString('ko-KR') : '-'}
                               </td>
@@ -4423,29 +4494,6 @@ function Admin() {
                               </td>
                               <td style={{ padding: '10px 8px', textAlign: 'right', fontWeight: '600' }}>
                                 {score.totalScore || '-'}
-                              </td>
-                              <td style={{ padding: '10px 8px', textAlign: 'center' }}>
-                                <button
-                                  onClick={async () => {
-                                    if (!confirm('이 스코어를 삭제하시겠습니까?')) return;
-                                    try {
-                                      await fetch(`/api/scores/${score.id}`, { method: 'DELETE' });
-                                      setAllScoresData(prev => prev.filter(s => s.id !== score.id));
-                                    } catch (e) {
-                                      console.error('스코어 삭제 에러:', e);
-                                      alert('삭제에 실패했습니다.');
-                                    }
-                                  }}
-                                  style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    color: 'var(--alert-red)',
-                                    cursor: 'pointer',
-                                    fontSize: '16px'
-                                  }}
-                                >
-                                  ×
-                                </button>
                               </td>
                             </tr>
                           ))}
