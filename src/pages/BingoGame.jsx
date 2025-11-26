@@ -32,9 +32,12 @@ function BingoGame() {
       }
       if (savedTargetLines) {
         setBingoTargetLines(parseInt(savedTargetLines));
+      } else {
+        setBingoTargetLines(size);
       }
     } else {
       initializeGrid(5);
+      setBingoTargetLines(5);
     }
   }, []);
 
@@ -58,6 +61,7 @@ function BingoGame() {
   const handleGridSizeChange = (newSize) => {
     if (newSize >= 3 && newSize <= 10) {
       setGridSize(newSize);
+      setBingoTargetLines(newSize);
       initializeGrid(newSize);
     }
   };
