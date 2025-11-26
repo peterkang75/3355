@@ -74,6 +74,7 @@ function Admin() {
     type: 'all',
     memberId: 'all'
   });
+  const [summaryBookingFilter, setSummaryBookingFilter] = useState('all');
 
   const [incomeCategories, setIncomeCategories] = useState([]);
   const [expenseCategories, setExpenseCategories] = useState([]);
@@ -3133,6 +3134,159 @@ function Admin() {
                   ))}
                 </select>
               </div>
+            </div>
+
+            {/* 항목별 합계 섹션 */}
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
+                  항목별 합계
+                </h3>
+                <select
+                  value={summaryBookingFilter}
+                  onChange={(e) => setSummaryBookingFilter(e.target.value)}
+                  style={{ 
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid var(--border-color)',
+                    fontSize: '14px',
+                    minWidth: '180px'
+                  }}
+                >
+                  <option value="all">전체 라운딩</option>
+                  {[...new Map(allTransactions
+                    .filter(t => t.booking)
+                    .map(t => [t.booking.id, t.booking])
+                  ).values()].map(booking => (
+                    <option key={booking.id} value={booking.id}>
+                      {booking.title || booking.courseName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              
+              {(() => {
+                const filteredForSummary = allTransactions.filter(t => 
+                  summaryBookingFilter === 'all' || t.bookingId === summaryBookingFilter
+                );
+                
+                // 수입 합계 계산 (payment, donation)
+                const incomeTotals = {};
+                filteredForSummary.filter(t => t.type === 'payment').forEach(t => {
+                  const catName = '라운딩 회비납부';
+                  incomeTotals[catName] = (incomeTotals[catName] || 0) + t.amount;
+                });
+                filteredForSummary.filter(t => t.type === 'donation').forEach(t => {
+                  let catName = '도네이션';
+                  if (t.description?.startsWith('기타 - ')) {
+                    catName = t.description.replace('기타 - ', '');
+                  }
+                  incomeTotals[catName] = (incomeTotals[catName] || 0) + t.amount;
+                });
+                
+                // 지출 합계 계산 (expense)
+                const expenseTotals = {};
+                filteredForSummary.filter(t => t.type === 'expense').forEach(t => {
+                  const expenseDesc = t.description || '기타 지출';
+                  const catName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
+                  expenseTotals[catName] = (expenseTotals[catName] || 0) + t.amount;
+                });
+                
+                const totalIncome = Object.values(incomeTotals).reduce((sum, val) => sum + val, 0);
+                const totalExpense = Object.values(expenseTotals).reduce((sum, val) => sum + val, 0);
+                
+                return (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+                    {/* 수입 섹션 */}
+                    <div style={{ 
+                      background: 'var(--bg-green)', 
+                      borderRadius: '8px', 
+                      padding: '16px',
+                      border: '1px solid var(--primary-green)'
+                    }}>
+                      <h4 style={{ 
+                        fontSize: '15px', 
+                        fontWeight: '700', 
+                        marginBottom: '12px',
+                        color: 'var(--primary-green)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <span>수입</span>
+                        <span style={{ fontSize: '16px' }}>${totalIncome.toLocaleString()}</span>
+                      </h4>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {Object.keys(incomeTotals).length === 0 ? (
+                          <div style={{ opacity: 0.6, fontSize: '13px' }}>수입 내역이 없습니다</div>
+                        ) : (
+                          Object.entries(incomeTotals).map(([category, amount]) => (
+                            <div 
+                              key={category}
+                              style={{ 
+                                display: 'flex', 
+                                justifyContent: 'space-between',
+                                fontSize: '13px',
+                                padding: '6px 0',
+                                borderBottom: '1px solid rgba(0,0,0,0.1)'
+                              }}
+                            >
+                              <span>{category}</span>
+                              <span style={{ fontWeight: '600', color: 'var(--success-green)' }}>
+                                +${amount.toLocaleString()}
+                              </span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                    
+                    {/* 지출 섹션 */}
+                    <div style={{ 
+                      background: '#fff5f5', 
+                      borderRadius: '8px', 
+                      padding: '16px',
+                      border: '1px solid var(--alert-red)'
+                    }}>
+                      <h4 style={{ 
+                        fontSize: '15px', 
+                        fontWeight: '700', 
+                        marginBottom: '12px',
+                        color: 'var(--alert-red)',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center'
+                      }}>
+                        <span>지출</span>
+                        <span style={{ fontSize: '16px' }}>${totalExpense.toLocaleString()}</span>
+                      </h4>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {Object.keys(expenseTotals).length === 0 ? (
+                          <div style={{ opacity: 0.6, fontSize: '13px' }}>지출 내역이 없습니다</div>
+                        ) : (
+                          Object.entries(expenseTotals).map(([category, amount]) => (
+                            <div 
+                              key={category}
+                              style={{ 
+                                display: 'flex', 
+                                justifyContent: 'space-between',
+                                fontSize: '13px',
+                                padding: '6px 0',
+                                borderBottom: '1px solid rgba(0,0,0,0.1)'
+                              }}
+                            >
+                              <span>{category}</span>
+                              <span style={{ fontWeight: '600', color: 'var(--alert-red)' }}>
+                                -${amount.toLocaleString()}
+                              </span>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
 
             <div className="card">
