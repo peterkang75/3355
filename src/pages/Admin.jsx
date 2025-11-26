@@ -3792,7 +3792,7 @@ function Admin() {
                 • 참가비 메뉴에서 참가비 내역을 확인하고 관리할 수 있는 권한을 부여합니다
               </div>
               <div style={{ display: 'grid', gap: '8px' }}>
-                {members.filter(m => m.isActive).map(member => (
+                {members.filter(m => m.isActive && ['관리자', '방장', '운영진', '클럽운영진'].includes(m.role)).map(member => (
                   <div
                     key={member.id}
                     style={{
