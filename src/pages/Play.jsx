@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 
@@ -23,27 +23,48 @@ function Play() {
   const [isCheckingScores, setIsCheckingScores] = useState(false);
   const [teammateReady, setTeammateReady] = useState(false);
   const [checkingInterval, setCheckingInterval] = useState(null);
+  const restoredRef = useRef(false);
+  const lastRestoredBookingRef = useRef(null);
 
   // 리더보드에서 돌아왔을 때 상태 복원
   useEffect(() => {
+    // 이미 복원된 bookingId면 스킵
+    if (lastRestoredBookingRef.current === bookingId && restoredRef.current) {
+      console.log('🔄 이미 복원된 상태, 스킵');
+      return;
+    }
+    
     const savedState = sessionStorage.getItem(`play_state_${bookingId}`);
     if (savedState) {
       try {
         const parsed = JSON.parse(savedState);
-        if (parsed.currentHole) setCurrentHole(parsed.currentHole);
-        if (parsed.holeScores) setHoleScores(parsed.holeScores);
-        if (parsed.selectedTeammate) setSelectedTeammate(parsed.selectedTeammate);
-        if (parsed.step) setStep(parsed.step);
-        if (parsed.roundStartTime) setRoundStartTime(parsed.roundStartTime);
-        sessionStorage.removeItem(`play_state_${bookingId}`);
-        console.log('🔄 저장된 상태 복원:', parsed.currentHole, '번 홀');
+        console.log('🔄 저장된 상태 복원 시작:', parsed);
+        setCurrentHole(parsed.currentHole || 1);
+        setHoleScores(parsed.holeScores || { teammate: Array(18).fill(0), me: Array(18).fill(0) });
+        setSelectedTeammate(parsed.selectedTeammate || null);
+        setStep(parsed.step || 'selectMember');
+        setRoundStartTime(parsed.roundStartTime || null);
+        restoredRef.current = true;
+        lastRestoredBookingRef.current = bookingId;
+        // 약간의 딜레이 후 삭제 (StrictMode 대응)
+        setTimeout(() => {
+          sessionStorage.removeItem(`play_state_${bookingId}`);
+        }, 100);
+        console.log('🔄 저장된 상태 복원 완료:', parsed.currentHole, '번 홀, step:', parsed.step);
         return;
       } catch (e) {
         console.error('상태 복원 에러:', e);
+        restoredRef.current = false;
       }
     }
-    setSelectedTeammate(null);
-    setStep('selectMember');
+    
+    // 복원된 상태가 아니고 새로운 bookingId일 때만 초기화
+    if (!restoredRef.current || lastRestoredBookingRef.current !== bookingId) {
+      setSelectedTeammate(null);
+      setStep('selectMember');
+      restoredRef.current = false;
+      lastRestoredBookingRef.current = bookingId;
+    }
   }, [bookingId]);
 
   useEffect(() => {
