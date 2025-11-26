@@ -3,6 +3,7 @@ import { useApp } from '../contexts/AppContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import apiService from '../services/api';
 import CrownIcon from '../components/CrownIcon';
+import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 
 function Dashboard() {
   const { user, members, scores, bookings, posts, fees, userTransactions, addPost, updatePost, deletePost, updateBooking, refreshBookings, refreshAllData, refreshMembers } = useApp();
@@ -20,6 +21,11 @@ function Dashboard() {
   const [editingComment, setEditingComment] = useState(null);
   const [isRentalLoading, setIsRentalLoading] = useState(null);
   const [recentTransactions, setRecentTransactions] = useState([]);
+  const [joiningBookingId, setJoiningBookingId] = useState(null);
+  const [isCreatingPost, setIsCreatingPost] = useState(false);
+  const [isAddingComment, setIsAddingComment] = useState(null);
+  const [isSavingPost, setIsSavingPost] = useState(false);
+  const [isSavingComment, setIsSavingComment] = useState(false);
 
   useEffect(() => {
     if (location.state?.reset) {
@@ -98,42 +104,58 @@ function Dashboard() {
     };
   }, [openMenuCommentId]);
 
-  const handleCreatePost = () => {
+  const handleCreatePost = async () => {
+    if (isCreatingPost) return;
     if (!newPost.title || !newPost.content) {
       alert('제목과 내용을 입력해주세요.');
       return;
     }
 
-    const post = {
-      title: newPost.title,
-      content: newPost.content,
-      authorId: user.id
-    };
+    setIsCreatingPost(true);
+    try {
+      const post = {
+        title: newPost.title,
+        content: newPost.content,
+        authorId: user.id
+      };
 
-    addPost(post);
-    setNewPost({ title: '', content: '' });
-    setShowNewPost(false);
+      await addPost(post);
+      setNewPost({ title: '', content: '' });
+      setShowNewPost(false);
+    } catch (error) {
+      alert('게시글 작성에 실패했습니다.');
+    } finally {
+      setIsCreatingPost(false);
+    }
   };
 
-  const handleAddComment = (postId) => {
+  const handleAddComment = async (postId) => {
+    if (isAddingComment === postId) return;
     if (!newComment.trim()) {
       alert('댓글 내용을 입력해주세요.');
       return;
     }
 
-    const post = posts.find(p => p.id === postId);
-    const updatedComments = [...(post.comments || []), {
-      id: Date.now(),
-      content: newComment,
-      author: user.nickname || user.name,
-      authorId: user.id,
-      authorPhoto: user.photo,
-      date: new Date().toISOString(),
-      likes: []
-    }];
+    setIsAddingComment(postId);
+    try {
+      const post = posts.find(p => p.id === postId);
+      const updatedComments = [...(post.comments || []), {
+        id: Date.now(),
+        content: newComment,
+        author: user.nickname || user.name,
+        authorId: user.id,
+        authorPhoto: user.photo,
+        date: new Date().toISOString(),
+        likes: []
+      }];
 
-    updatePost(postId, { comments: updatedComments });
-    setNewComment('');
+      await updatePost(postId, { comments: updatedComments });
+      setNewComment('');
+    } catch (error) {
+      alert('댓글 작성에 실패했습니다.');
+    } finally {
+      setIsAddingComment(null);
+    }
   };
 
   const handleLikeComment = (postId, commentId) => {
@@ -263,16 +285,17 @@ function Dashboard() {
   };
 
   const handleJoinBooking = async (bookingId) => {
+    if (joiningBookingId === bookingId) return;
+    
+    setJoiningBookingId(bookingId);
     try {
       const booking = bookings.find(b => b.id === bookingId);
       const participants = parseParticipants(booking.participants);
       const alreadyJoined = participants.some(p => p.phone === user.phone);
       
-      // 참가비 계산
       const participationFee = (booking.greenFee || 0) + (booking.cartFee || 0) + (booking.membershipFee || 0);
       
       if (alreadyJoined) {
-        // 참가 취소 - 참가자 목록에서 제거하고 청구 트랜잭션 삭제
         const updatedParticipants = participants
           .filter(p => p.phone !== user.phone)
           .map(p => JSON.stringify(p));
@@ -281,12 +304,10 @@ function Dashboard() {
           participants: updatedParticipants
         });
         
-        // 해당 라운딩에 대한 청구 트랜잭션 삭제
         if (participationFee > 0) {
           await apiService.deleteChargeTransaction(user.id, bookingId);
         }
       } else {
-        // 참가 신청 - 참가비 청구
         const updatedParticipants = [
           ...participants,
           { name: user.name, nickname: user.nickname, phone: user.phone }
@@ -296,7 +317,6 @@ function Dashboard() {
           participants: updatedParticipants
         });
         
-        // 참가비가 있는 경우 청구 트랜잭션 생성
         if (participationFee > 0) {
           const transactionData = {
             type: 'charge',
@@ -311,11 +331,11 @@ function Dashboard() {
         }
       }
       
-      // 데이터 새로고침
       await refreshBookings();
     } catch (error) {
-      console.error('참가/참가 취소 처리 실패:', error);
       alert('참가/참가 취소 처리에 실패했습니다.');
+    } finally {
+      setJoiningBookingId(null);
     }
   };
 
@@ -568,9 +588,14 @@ function Dashboard() {
                 rows={6}
                 style={{ marginBottom: '10px', resize: 'vertical', width: '100%' }}
               />
-              <button onClick={handleCreatePost} className="btn-primary">
+              <LoadingButton 
+                onClick={handleCreatePost} 
+                className="btn-primary"
+                loading={isCreatingPost}
+                loadingText="게시중..."
+              >
                 게시하기
-              </button>
+              </LoadingButton>
             </div>
           )}
 
@@ -1435,8 +1460,11 @@ function Dashboard() {
                       </>
                     ) : (
                       <>
-                        <button
+                        <LoadingButton
                           onClick={(isJoined || (booking.numberRentals && booking.numberRentals.includes(user.phone))) ? null : () => handleJoinBooking(booking.id)}
+                          disabled={isJoined || (booking.numberRentals && booking.numberRentals.includes(user.phone))}
+                          loading={joiningBookingId === booking.id && !isJoined}
+                          loadingText="참가중..."
                           style={{
                             flex: 1,
                             padding: '12px',
@@ -1445,15 +1473,16 @@ function Dashboard() {
                             border: 'none',
                             borderRadius: '6px',
                             fontSize: '14px',
-                            fontWeight: '700',
-                            cursor: (isJoined || (booking.numberRentals && booking.numberRentals.includes(user.phone))) ? 'default' : 'pointer',
-                            opacity: (isJoined || (booking.numberRentals && booking.numberRentals.includes(user.phone))) ? 0.6 : 1
+                            fontWeight: '700'
                           }}
                         >
                           {isJoined ? '참가중' : '참가하기'}
-                        </button>
-                        <button
+                        </LoadingButton>
+                        <LoadingButton
                           onClick={(isJoined && !(booking.numberRentals && booking.numberRentals.includes(user.phone))) ? () => handleJoinBooking(booking.id) : null}
+                          disabled={!(isJoined && !(booking.numberRentals && booking.numberRentals.includes(user.phone)))}
+                          loading={joiningBookingId === booking.id && isJoined}
+                          loadingText="취소중..."
                           style={{
                             flex: 1,
                             padding: '12px',
@@ -1462,32 +1491,29 @@ function Dashboard() {
                             border: 'none',
                             borderRadius: '6px',
                             fontSize: '14px',
-                            fontWeight: '700',
-                            cursor: (isJoined && !(booking.numberRentals && booking.numberRentals.includes(user.phone))) ? 'pointer' : 'default',
-                            opacity: (isJoined && !(booking.numberRentals && booking.numberRentals.includes(user.phone))) ? 1 : 0.6
+                            fontWeight: '700'
                           }}
                         >
                           취소하기
-                        </button>
+                        </LoadingButton>
                         {booking.type === '컴페티션' && (
-                          <button
+                          <LoadingButton
                             onClick={() => handleToggleNumberRental(booking.id)}
-                            disabled={isRentalLoading === booking.id}
+                            loading={isRentalLoading === booking.id}
+                            loadingText="처리중..."
                             style={{
                               flex: 1,
                               padding: '12px',
-                              background: isRentalLoading === booking.id ? '#ccc' : '#E6AA68',
+                              background: '#E6AA68',
                               color: '#fff',
                               border: 'none',
                               borderRadius: '6px',
                               fontSize: '14px',
-                              fontWeight: '700',
-                              cursor: isRentalLoading === booking.id ? 'wait' : 'pointer',
-                              opacity: isRentalLoading === booking.id ? 0.7 : 1
+                              fontWeight: '700'
                             }}
                           >
-                            {isRentalLoading === booking.id ? '처리중...' : ((booking.numberRentals && booking.numberRentals.includes(user.phone)) ? '✓ 번호대여중' : '번호대여')}
-                          </button>
+                            {(booking.numberRentals && booking.numberRentals.includes(user.phone)) ? '✓ 번호대여중' : '번호대여'}
+                          </LoadingButton>
                         )}
                         {user.isAdmin && (
                           <button
