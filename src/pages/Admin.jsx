@@ -2726,8 +2726,13 @@ function Admin() {
                         // 항목명 추출 (항목 컬럼용)
                         let categoryName = typeLabel;
                         if (transaction.description) {
-                          const parts = transaction.description.split(' - ');
-                          categoryName = parts[0].replace(/\s*\([^)]*\)$/, ''); // 괄호 내용 제거
+                          // "기타 - 항목명" 형식인 경우 항목명만 표시
+                          if (transaction.description.startsWith('기타 - ')) {
+                            categoryName = transaction.description.replace('기타 - ', '');
+                          } else {
+                            const parts = transaction.description.split(' - ');
+                            categoryName = parts[0].replace(/\s*\([^)]*\)$/, ''); // 괄호 내용 제거
+                          }
                         }
                         
                         // 라운딩 참가 버튼으로 생성된 거래만 "참가비"로 표시
@@ -2780,7 +2785,7 @@ function Admin() {
                               color: typeColor,
                               whiteSpace: 'nowrap'
                             }}>
-                              {sign}${transaction.amount.toLocaleString()}
+                              {sign}${transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
                             </td>
                             <td style={{ padding: '8px', fontSize: '11px', opacity: 0.7, whiteSpace: 'nowrap' }}>
                               by {transaction.executor?.nickname || transaction.executor?.name || '시스템'}
