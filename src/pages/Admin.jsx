@@ -2956,14 +2956,8 @@ function Admin() {
                       </tr>
                     </thead>
                     <tbody>
-                      {recentTransactions.map(transaction => {
-                        const typeLabel = 
-                          transaction.type === 'charge' ? '참가비 발생' :
-                          transaction.type === 'payment' ? '납부' :
-                          transaction.type === 'expense' ? '클럽 지출' : '도네이션';
-                        
+                      {recentTransactions.filter(t => t.type !== 'charge').map(transaction => {
                         const typeColor =
-                          transaction.type === 'charge' ? 'var(--success-green)' :
                           transaction.type === 'payment' ? 'var(--success-green)' :
                           transaction.type === 'expense' ? 'var(--alert-red)' : 'var(--success-green)';
 
@@ -2974,22 +2968,20 @@ function Admin() {
                         const bookingName = transaction.booking ? 
                           (transaction.booking.title || transaction.booking.courseName) : '-';
 
-                        // 항목명 추출 (항목 컬럼용)
-                        let categoryName = typeLabel;
-                        if (transaction.description) {
-                          // "기타 - 항목명" 형식인 경우 항목명만 표시
-                          if (transaction.description.startsWith('기타 - ')) {
+                        // 항목명 (항목 컬럼용)
+                        let categoryName = '';
+                        if (transaction.type === 'payment') {
+                          categoryName = '라운딩 회비납부';
+                        } else if (transaction.type === 'expense') {
+                          categoryName = '클럽 지출';
+                        } else if (transaction.type === 'donation') {
+                          if (transaction.description?.startsWith('기타 - ')) {
                             categoryName = transaction.description.replace('기타 - ', '');
                           } else {
-                            const parts = transaction.description.split(' - ');
-                            categoryName = parts[0].replace(/\s*\([^)]*\)$/, ''); // 괄호 내용 제거
+                            categoryName = '도네이션';
                           }
-                        }
-                        
-                        // 라운딩 참가 버튼으로 생성된 거래만 "참가비"로 표시
-                        // (description에 "라운딩"이 포함된 경우만 참가비)
-                        if (categoryName.includes('라운딩') && transaction.type === 'charge') {
-                          categoryName = '참가비';
+                        } else {
+                          categoryName = transaction.type;
                         }
 
                         return (
@@ -3197,16 +3189,11 @@ function Admin() {
                     </thead>
                     <tbody>
                       {allTransactions
+                        .filter(t => t.type !== 'charge')
                         .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                         .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
                         .map(transaction => {
-                          const typeLabel = 
-                            transaction.type === 'charge' ? '참가비 발생' :
-                            transaction.type === 'payment' ? '납부' :
-                            transaction.type === 'expense' ? '클럽 지출' : '도네이션';
-                          
                           const typeColor =
-                            transaction.type === 'charge' ? 'var(--success-green)' :
                             transaction.type === 'payment' ? 'var(--success-green)' :
                             transaction.type === 'expense' ? 'var(--alert-red)' : 'var(--success-green)';
 
@@ -3216,18 +3203,19 @@ function Admin() {
                           const bookingName = transaction.booking ? 
                             (transaction.booking.title || transaction.booking.courseName) : '-';
 
-                          let categoryName = typeLabel;
-                          if (transaction.description) {
-                            if (transaction.description.startsWith('기타 - ')) {
+                          let categoryName = '';
+                          if (transaction.type === 'payment') {
+                            categoryName = '라운딩 회비납부';
+                          } else if (transaction.type === 'expense') {
+                            categoryName = '클럽 지출';
+                          } else if (transaction.type === 'donation') {
+                            if (transaction.description?.startsWith('기타 - ')) {
                               categoryName = transaction.description.replace('기타 - ', '');
                             } else {
-                              const parts = transaction.description.split(' - ');
-                              categoryName = parts[0].replace(/\s*\([^)]*\)$/, '');
+                              categoryName = '도네이션';
                             }
-                          }
-                          
-                          if (categoryName.includes('라운딩') && transaction.type === 'charge') {
-                            categoryName = '참가비';
+                          } else {
+                            categoryName = transaction.type;
                           }
 
                           return (

@@ -471,63 +471,73 @@ function MemberDetail() {
                 거래 내역
               </h3>
               
-              {transactions.length === 0 ? (
-                <div style={{ 
-                  padding: '24px',
-                  textAlign: 'center',
-                  opacity: 0.7
-                }}>
-                  <div style={{ fontSize: '32px', marginBottom: '8px' }}>$</div>
-                  <p style={{ fontSize: '14px' }}>거래 내역이 없습니다</p>
-                </div>
-              ) : (
-                <div>
-                  {transactions.map(transaction => {
-                    const typeLabel = 
-                      transaction.type === 'charge' ? '참가비 발생' :
-                      transaction.type === 'payment' ? '납부' : '';
-                    
-                    const typeColor =
-                      transaction.type === 'charge' ? 'var(--alert-red)' : 'var(--success-green)';
+              {(() => {
+                const filteredTransactions = transactions.filter(t => t.type !== 'charge');
+                
+                if (filteredTransactions.length === 0) {
+                  return (
+                    <div style={{ 
+                      padding: '24px',
+                      textAlign: 'center',
+                      opacity: 0.7
+                    }}>
+                      <div style={{ fontSize: '32px', marginBottom: '8px' }}>$</div>
+                      <p style={{ fontSize: '14px' }}>거래 내역이 없습니다</p>
+                    </div>
+                  );
+                }
+                
+                return (
+                  <div>
+                    {filteredTransactions.map(transaction => {
+                      const typeLabel = transaction.type === 'payment' ? '라운딩 회비납부' : 
+                        transaction.type === 'donation' ? '도네이션' :
+                        transaction.type === 'credit' ? '크레딧처리' :
+                        transaction.type === 'expense' ? '환불' : '';
+                      
+                      const typeColor =
+                        transaction.type === 'expense' ? 'var(--alert-red)' : 'var(--success-green)';
 
-                    const sign = transaction.type === 'payment' ? '+' : '-';
+                      const sign = (transaction.type === 'payment' || transaction.type === 'donation' || transaction.type === 'credit') ? '+' : '-';
+                      
+                      const bookingName = transaction.booking ? 
+                        (transaction.booking.title || transaction.booking.courseName) : '-';
 
-                    return (
-                      <div 
-                        key={transaction.id}
-                        style={{
-                          padding: '12px',
-                          borderBottom: '1px solid var(--border-color)',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center'
-                        }}
-                      >
-                        <div>
-                          <div style={{ fontWeight: '600', marginBottom: '4px' }}>
-                            {typeLabel}
-                          </div>
-                          <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                            {new Date(transaction.date).toLocaleDateString('ko-KR')}
-                          </div>
-                          {transaction.description && (
-                            <div style={{ fontSize: '12px', opacity: 0.6, marginTop: '4px' }}>
-                              {transaction.description}
+                      return (
+                        <div 
+                          key={transaction.id}
+                          style={{
+                            padding: '12px',
+                            borderBottom: '1px solid var(--border-color)',
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center'
+                          }}
+                        >
+                          <div>
+                            <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                              {typeLabel}
                             </div>
-                          )}
+                            <div style={{ fontSize: '13px', opacity: 0.7, marginBottom: '2px' }}>
+                              {bookingName}
+                            </div>
+                            <div style={{ fontSize: '12px', opacity: 0.6 }}>
+                              {new Date(transaction.date).toLocaleDateString('ko-KR')}
+                            </div>
+                          </div>
+                          <div style={{
+                            fontSize: '18px',
+                            fontWeight: '700',
+                            color: typeColor
+                          }}>
+                            {sign}${transaction.amount.toLocaleString()}
+                          </div>
                         </div>
-                        <div style={{
-                          fontSize: '18px',
-                          fontWeight: '700',
-                          color: typeColor
-                        }}>
-                          {sign}${transaction.amount.toLocaleString()}
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
+                      );
+                    })}
+                  </div>
+                );
+              })()}
             </div>
 
             {isAdmin && (
