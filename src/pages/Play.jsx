@@ -619,7 +619,7 @@ function Play() {
     const isNearHole = !isTeammate && courseData?.nearHoles?.[currentHole - 1];
     
     const iosButtonStyle = { WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation', userSelect: 'none' };
-    const largeBoxSize = '70px';
+    const largeBoxSize = '75px';
     const currentUserMember = members?.find(m => m.phone === user?.phone);
     const checkFemale = (gender) => gender === 'F' || gender === '여' || gender === 'female';
     const isFemale = isTeammate 
@@ -646,9 +646,9 @@ function Play() {
         
         <div style={{ background: 'white', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: '8px', padding: '20px 16px 1px 16px', borderBottom: '1px solid #e0e0e0' }}>
           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '20px' }}>
-            <button onClick={() => updateScore(isTeammate, -1)} style={{ width: '42px', height: '42px', border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: '22px', fontWeight: '700', cursor: 'pointer', color: '#666', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>−</button>
+            <button onClick={() => updateScore(isTeammate, -1)} style={{ width: '46px', height: '46px', border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: '24px', fontWeight: '700', cursor: 'pointer', color: '#666', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>−</button>
             <div style={{ fontSize: '58px', fontWeight: '600', minWidth: '64px', textAlign: 'center', color: '#000' }}>{score}</div>
-            <button onClick={() => updateScore(isTeammate, 1)} style={{ width: '42px', height: '42px', border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: '22px', fontWeight: '700', cursor: 'pointer', color: '#666', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>+</button>
+            <button onClick={() => updateScore(isTeammate, 1)} style={{ width: '46px', height: '46px', border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: '24px', fontWeight: '700', cursor: 'pointer', color: '#666', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>+</button>
           </div>
           <div style={{ fontSize: '13px', color: '#666', fontWeight: '400' }}>{score} points</div>
         </div>
