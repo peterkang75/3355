@@ -2318,12 +2318,10 @@ function Admin() {
                               try {
                                 await api.createTransaction({
                                   type: 'donation',
-                                  amount: parseFloat(selectedIncome.manualAmount),
+                                  amount: parseInt(selectedIncome.manualAmount),
                                   description: `기타 - ${selectedIncome.manualItemName.trim()}`,
                                   date: selectedIncome.date,
-                                  memberId: null,
-                                  bookingId: null,
-                                  executorId: user.id
+                                  createdBy: user.id
                                 });
                                 alert(`기타 입금이 저장되었습니다: ${selectedIncome.manualItemName.trim()} ($${selectedIncome.manualAmount})`);
                                 setSelectedIncome({
