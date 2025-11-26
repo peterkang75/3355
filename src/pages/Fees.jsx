@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import CrownIcon from '../components/CrownIcon';
-import api from '../services/api';
+import apiService from '../services/api';
 
 function Fees() {
   const navigate = useNavigate();
@@ -31,7 +31,7 @@ function Fees() {
   const loadLedgerData = async () => {
     try {
       setLoading(true);
-      const transactionsData = await api.fetchTransactions();
+      const transactionsData = await apiService.fetchTransactions();
       setAllTransactions(transactionsData || []);
     } catch (error) {
       console.error('장부 데이터 로드 실패:', error);

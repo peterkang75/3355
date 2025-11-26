@@ -96,9 +96,11 @@ function Admin() {
     memberId: null,
     amount: '',
     date: new Date().toISOString().split('T')[0],
-    description: ''
+    description: '',
+    receiptImage: ''
   });
   const [showRefundModal, setShowRefundModal] = useState(false);
+  const [showReceiptModal, setShowReceiptModal] = useState(null);
   const [isProcessingRefund, setIsProcessingRefund] = useState(false);
 
   const features = [
@@ -547,6 +549,7 @@ function Admin() {
         date: selectedExpense.date,
         memberId: category?.name === '환불' ? selectedExpense.memberId : null,
         bookingId: selectedExpense.bookingId || null,
+        receiptImage: selectedExpense.receiptImage || null,
         createdBy: user.id
       };
 
@@ -558,7 +561,8 @@ function Admin() {
         memberId: null,
         amount: '',
         date: new Date().toISOString().split('T')[0],
-        description: ''
+        description: '',
+        receiptImage: ''
       });
       
       // 병렬로 데이터 새로고침
@@ -2526,6 +2530,70 @@ function Admin() {
 
                   <div>
                     <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                      영수증 이미지 (선택사항)
+                    </label>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => {
+                          const file = e.target.files[0];
+                          if (file) {
+                            if (file.size > 5 * 1024 * 1024) {
+                              alert('이미지 크기는 5MB 이하여야 합니다.');
+                              return;
+                            }
+                            const reader = new FileReader();
+                            reader.onloadend = () => {
+                              setSelectedExpense({...selectedExpense, receiptImage: reader.result});
+                            };
+                            reader.readAsDataURL(file);
+                          }
+                        }}
+                        style={{
+                          flex: 1,
+                          padding: '10px',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: '8px',
+                          fontSize: '14px',
+                          background: 'white'
+                        }}
+                      />
+                      {selectedExpense.receiptImage && (
+                        <button
+                          onClick={() => setSelectedExpense({...selectedExpense, receiptImage: ''})}
+                          style={{
+                            padding: '10px 12px',
+                            background: '#dc3545',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            fontSize: '12px'
+                          }}
+                        >
+                          삭제
+                        </button>
+                      )}
+                    </div>
+                    {selectedExpense.receiptImage && (
+                      <div style={{ marginTop: '8px' }}>
+                        <img 
+                          src={selectedExpense.receiptImage} 
+                          alt="영수증 미리보기" 
+                          style={{ 
+                            maxWidth: '100%', 
+                            maxHeight: '150px', 
+                            borderRadius: '8px',
+                            border: '1px solid var(--border-color)'
+                          }} 
+                        />
+                      </div>
+                    )}
+                  </div>
+
+                  <div>
+                    <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
                       날짜
                     </label>
                     <input
@@ -2785,7 +2853,26 @@ function Admin() {
                               color: typeColor,
                               whiteSpace: 'nowrap'
                             }}>
-                              {sign}${transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                              {transaction.receiptImage ? (
+                                <span
+                                  onClick={() => setShowReceiptModal(transaction.receiptImage)}
+                                  style={{
+                                    cursor: 'pointer',
+                                    textDecoration: 'underline',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '4px'
+                                  }}
+                                  title="영수증 보기"
+                                >
+                                  {sign}${transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                                  <span style={{ fontSize: '10px' }}>🧾</span>
+                                </span>
+                              ) : (
+                                <span>
+                                  {sign}${transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
+                                </span>
+                              )}
                             </td>
                             <td style={{ padding: '8px', fontSize: '11px', opacity: 0.7, whiteSpace: 'nowrap' }}>
                               by {transaction.executor?.nickname || transaction.executor?.name || '시스템'}
@@ -4906,6 +4993,70 @@ function Admin() {
                 {isProcessingRefund ? '처리 중...' : '환불 처리'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {showReceiptModal && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.8)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px'
+          }}
+          onClick={() => setShowReceiptModal(null)}
+        >
+          <div 
+            style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '16px',
+              maxWidth: '90%',
+              maxHeight: '90%',
+              overflow: 'auto',
+              position: 'relative'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowReceiptModal(null)}
+              style={{
+                position: 'absolute',
+                top: '8px',
+                right: '8px',
+                background: 'var(--primary-green)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50%',
+                width: '32px',
+                height: '32px',
+                fontSize: '18px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              ×
+            </button>
+            <h3 style={{ marginBottom: '12px', fontSize: '16px', fontWeight: '600' }}>영수증</h3>
+            <img 
+              src={showReceiptModal} 
+              alt="영수증" 
+              style={{ 
+                maxWidth: '100%', 
+                maxHeight: '70vh',
+                borderRadius: '8px'
+              }} 
+            />
           </div>
         </div>
       )}

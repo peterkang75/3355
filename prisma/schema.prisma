@@ -108,20 +108,21 @@ model Fee {
 }
 
 model Transaction {
-  id          String   @id @default(cuid())
-  type        String
-  category    String?
-  amount      Float
-  memberId    String?
-  member      Member?  @relation(fields: [memberId], references: [id], onDelete: Cascade, name: "MemberTransactions")
-  bookingId   String?
-  booking     Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
-  description String?
-  date        String
-  createdBy   String?
-  executor    Member?  @relation(fields: [createdBy], references: [id], onDelete: SetNull, name: "ExecutorTransactions")
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id           String   @id @default(cuid())
+  type         String
+  category     String?
+  amount       Float
+  memberId     String?
+  member       Member?  @relation(fields: [memberId], references: [id], onDelete: Cascade, name: "MemberTransactions")
+  bookingId    String?
+  booking      Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
+  description  String?
+  receiptImage String?
+  date         String
+  createdBy    String?
+  executor     Member?  @relation(fields: [createdBy], references: [id], onDelete: SetNull, name: "ExecutorTransactions")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([memberId])
   @@index([bookingId])
