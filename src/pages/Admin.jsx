@@ -75,7 +75,6 @@ function Admin() {
     memberId: 'all'
   });
   const [summaryBookingFilter, setSummaryBookingFilter] = useState('all');
-  const [selectedSummaryCategories, setSelectedSummaryCategories] = useState([]);
 
   const [incomeCategories, setIncomeCategories] = useState([]);
   const [expenseCategories, setExpenseCategories] = useState([]);
@@ -3163,15 +3162,6 @@ function Admin() {
                 const totalIncome = Object.values(incomeTotals).reduce((sum, val) => sum + val, 0);
                 const totalExpense = Object.values(expenseTotals).reduce((sum, val) => sum + val, 0);
                 
-                const handleCategoryToggle = (category, type) => {
-                  const key = `${type}:${category}`;
-                  setSelectedSummaryCategories(prev => 
-                    prev.includes(key) 
-                      ? prev.filter(c => c !== key)
-                      : [...prev, key]
-                  );
-                };
-                
                 return (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                     {/* 수입 섹션 */}
@@ -3193,40 +3183,27 @@ function Admin() {
                         <span>수입</span>
                         <span style={{ fontSize: '16px' }}>${totalIncome.toLocaleString()}</span>
                       </h4>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {Object.keys(incomeTotals).length === 0 ? (
-                          <div style={{ opacity: 0.6, fontSize: '13px', padding: '8px 0' }}>수입 내역이 없습니다</div>
+                          <div style={{ opacity: 0.6, fontSize: '13px' }}>수입 내역이 없습니다</div>
                         ) : (
-                          Object.entries(incomeTotals).map(([category, amount]) => {
-                            const isSelected = selectedSummaryCategories.includes(`income:${category}`);
-                            return (
-                              <div 
-                                key={category}
-                                onClick={() => handleCategoryToggle(category, 'income')}
-                                style={{ 
-                                  display: 'flex',
-                                  justifyContent: 'space-between',
-                                  alignItems: 'center',
-                                  cursor: 'pointer',
-                                  background: isSelected ? 'var(--primary-green)' : 'transparent',
-                                  color: isSelected ? 'white' : 'inherit',
-                                  transition: 'all 0.2s ease',
-                                  padding: '8px 10px',
-                                  borderRadius: '6px'
-                                }}
-                              >
-                                <span style={{ fontSize: '13px' }}>{category}</span>
-                                <span style={{ 
-                                  fontSize: '13px',
-                                  fontWeight: '600',
-                                  marginLeft: '12px',
-                                  color: isSelected ? 'white' : 'var(--success-green)'
-                                }}>
-                                  +${amount.toLocaleString()}
-                                </span>
-                              </div>
-                            );
-                          })
+                          Object.entries(incomeTotals).map(([category, amount]) => (
+                            <div 
+                              key={category}
+                              style={{ 
+                                display: 'flex', 
+                                justifyContent: 'space-between',
+                                fontSize: '13px',
+                                padding: '6px 0',
+                                borderBottom: '1px solid rgba(0,0,0,0.1)'
+                              }}
+                            >
+                              <span>{category}</span>
+                              <span style={{ fontWeight: '600', color: 'var(--success-green)' }}>
+                                +${amount.toLocaleString()}
+                              </span>
+                            </div>
+                          ))
                         )}
                       </div>
                     </div>
@@ -3250,40 +3227,27 @@ function Admin() {
                         <span>지출</span>
                         <span style={{ fontSize: '16px' }}>${totalExpense.toLocaleString()}</span>
                       </h4>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         {Object.keys(expenseTotals).length === 0 ? (
-                          <div style={{ opacity: 0.6, fontSize: '13px', padding: '8px 0' }}>지출 내역이 없습니다</div>
+                          <div style={{ opacity: 0.6, fontSize: '13px' }}>지출 내역이 없습니다</div>
                         ) : (
-                          Object.entries(expenseTotals).map(([category, amount]) => {
-                            const isSelected = selectedSummaryCategories.includes(`expense:${category}`);
-                            return (
-                              <div 
-                                key={category}
-                                onClick={() => handleCategoryToggle(category, 'expense')}
-                                style={{ 
-                                  display: 'flex',
-                                  justifyContent: 'space-between',
-                                  alignItems: 'center',
-                                  cursor: 'pointer',
-                                  background: isSelected ? 'var(--alert-red)' : 'transparent',
-                                  color: isSelected ? 'white' : 'inherit',
-                                  transition: 'all 0.2s ease',
-                                  padding: '8px 10px',
-                                  borderRadius: '6px'
-                                }}
-                              >
-                                <span style={{ fontSize: '13px' }}>{category}</span>
-                                <span style={{ 
-                                  fontSize: '13px',
-                                  fontWeight: '600',
-                                  marginLeft: '12px',
-                                  color: isSelected ? 'white' : 'var(--alert-red)'
-                                }}>
-                                  -${amount.toLocaleString()}
-                                </span>
-                              </div>
-                            );
-                          })
+                          Object.entries(expenseTotals).map(([category, amount]) => (
+                            <div 
+                              key={category}
+                              style={{ 
+                                display: 'flex', 
+                                justifyContent: 'space-between',
+                                fontSize: '13px',
+                                padding: '6px 0',
+                                borderBottom: '1px solid rgba(0,0,0,0.1)'
+                              }}
+                            >
+                              <span>{category}</span>
+                              <span style={{ fontWeight: '600', color: 'var(--alert-red)' }}>
+                                -${amount.toLocaleString()}
+                              </span>
+                            </div>
+                          ))
                         )}
                       </div>
                     </div>
@@ -3325,115 +3289,87 @@ function Admin() {
             </div>
 
             <div className="card">
-              {(() => {
-                const getCategoryName = (t) => {
-                  if (t.type === 'payment') return 'income:라운딩 회비납부';
-                  if (t.type === 'donation') {
-                    if (t.description?.startsWith('기타 - ')) {
-                      return `income:${t.description.replace('기타 - ', '')}`;
-                    }
-                    return 'income:도네이션';
-                  }
-                  if (t.type === 'expense') {
-                    const expenseDesc = t.description || '기타 지출';
-                    const catName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
-                    return `expense:${catName}`;
-                  }
-                  return '';
-                };
-                
-                const filteredTransactions = allTransactions
-                  .filter(t => t.type !== 'charge')
-                  .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
-                  .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
-                  .filter(t => selectedSummaryCategories.length === 0 || selectedSummaryCategories.includes(getCategoryName(t)));
-                
-                return (
-                  <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-                      <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
-                        거래 내역 ({filteredTransactions.length}건)
-                        {selectedSummaryCategories.length > 0 && (
-                          <span 
-                            onClick={() => setSelectedSummaryCategories([])}
-                            style={{ 
-                              fontSize: '12px', 
-                              color: 'var(--primary-green)', 
-                              marginLeft: '8px',
-                              cursor: 'pointer',
-                              textDecoration: 'underline',
-                              fontWeight: '500'
-                            }}
-                          >
-                            필터 초기화
-                          </span>
-                        )}
-                      </h3>
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                        <div style={{ 
-                          fontSize: '14px', 
-                          fontWeight: '600', 
-                          color: 'var(--primary-green)',
-                          background: 'var(--bg-green)',
-                          padding: '6px 12px',
-                          borderRadius: '6px'
-                        }}>
-                          클럽 잔액: ${clubBalance.toLocaleString()}
-                        </div>
-                        {hasFeaturePermission('delete_transaction') && (
-                          <button
-                            onClick={handleDeleteAllTransactions}
-                            style={{
-                              padding: '6px 12px',
-                              background: 'var(--alert-red)',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '6px',
-                              fontSize: '13px',
-                              fontWeight: '600',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            전체 삭제
-                          </button>
-                        )}
-                      </div>
-                    </div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
+                  거래 내역 ({
+                    allTransactions
+                      .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
+                      .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
+                      .length
+                  }건)
+                </h3>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <div style={{ 
+                    fontSize: '14px', 
+                    fontWeight: '600', 
+                    color: 'var(--primary-green)',
+                    background: 'var(--bg-green)',
+                    padding: '6px 12px',
+                    borderRadius: '6px'
+                  }}>
+                    클럽 잔액: ${clubBalance.toLocaleString()}
+                  </div>
+                  {hasFeaturePermission('delete_transaction') && (
+                    <button
+                      onClick={handleDeleteAllTransactions}
+                      style={{
+                        padding: '6px 12px',
+                        background: 'var(--alert-red)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      전체 삭제
+                    </button>
+                  )}
+                </div>
+              </div>
 
-                    {filteredTransactions.length === 0 ? (
-                      <div style={{ 
-                        padding: '40px',
-                        textAlign: 'center',
-                        opacity: 0.7
+              {allTransactions
+                .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
+                .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
+                .length === 0 ? (
+                <div style={{ 
+                  padding: '40px',
+                  textAlign: 'center',
+                  opacity: 0.7
+                }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>📖</div>
+                  <p>조건에 맞는 거래가 없습니다</p>
+                </div>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{
+                    width: '100%',
+                    borderCollapse: 'collapse',
+                    fontSize: '12px'
+                  }}>
+                    <thead>
+                      <tr style={{
+                        background: 'var(--bg-green)',
+                        borderBottom: '2px solid var(--primary-green)'
                       }}>
-                        <div style={{ fontSize: '48px', marginBottom: '16px' }}>📖</div>
-                        <p>조건에 맞는 거래가 없습니다</p>
-                      </div>
-                    ) : (
-                      <div style={{ overflowX: 'auto' }}>
-                        <table style={{
-                          width: '100%',
-                          borderCollapse: 'collapse',
-                          fontSize: '12px'
-                        }}>
-                          <thead>
-                            <tr style={{
-                              background: 'var(--bg-green)',
-                              borderBottom: '2px solid var(--primary-green)'
-                            }}>
-                              <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>날짜</th>
-                              <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>대화명</th>
-                              <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>항목</th>
-                              <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>라운딩</th>
-                              <th style={{ padding: '10px 8px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap' }}>금액</th>
-                              <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>집행자</th>
-                              {hasFeaturePermission('delete_transaction') && (
-                                <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: '600', whiteSpace: 'nowrap' }}>관리</th>
-                              )}
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {filteredTransactions.map(transaction => {
+                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>날짜</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>대화명</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>항목</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>라운딩</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'right', fontWeight: '600', whiteSpace: 'nowrap' }}>금액</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600', whiteSpace: 'nowrap' }}>집행자</th>
+                        {hasFeaturePermission('delete_transaction') && (
+                          <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: '600', whiteSpace: 'nowrap' }}>관리</th>
+                        )}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {allTransactions
+                        .filter(t => t.type !== 'charge')
+                        .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
+                        .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
+                        .map(transaction => {
                           const typeColor =
                             transaction.type === 'payment' ? 'var(--success-green)' :
                             transaction.type === 'expense' ? 'var(--alert-red)' : 'var(--success-green)';
@@ -3543,15 +3479,12 @@ function Admin() {
                                 </td>
                               )}
                             </tr>
-                              );
-                            })}
-                          </tbody>
-                        </table>
-                      </div>
-                    )}
-                  </>
-                );
-              })()}
+                          );
+                        })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         )}
