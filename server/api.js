@@ -975,7 +975,7 @@ router.get('/transactions', async (req, res) => {
           }
         }
       },
-      orderBy: { date: 'desc' },
+      orderBy: { createdAt: 'desc' },
       take: limit
     });
     res.json(transactions);
