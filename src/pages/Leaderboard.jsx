@@ -220,23 +220,25 @@ function Leaderboard() {
       <div style={{ 
         display: 'flex', 
         justifyContent: 'center', 
-        gap: '8px', 
-        padding: '16px',
-        flexWrap: 'wrap'
+        gap: '4px', 
+        padding: '12px 8px'
       }}>
         {gradeFilters.map(g => (
           <button
             key={g}
             onClick={() => setFilter(g)}
             style={{
-              padding: '8px 16px',
+              flex: '1',
+              maxWidth: '70px',
+              padding: '8px 4px',
               borderRadius: '4px',
               border: filter === g ? '2px solid white' : '1px solid rgba(255,255,255,0.3)',
               background: filter === g ? 'rgba(255,255,255,0.2)' : 'transparent',
               color: 'white',
-              fontSize: '13px',
+              fontSize: '11px',
               fontWeight: filter === g ? '600' : '400',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              whiteSpace: 'nowrap'
             }}
           >
             {g}
