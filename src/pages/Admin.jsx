@@ -2996,7 +2996,8 @@ function Admin() {
                         if (transaction.type === 'payment') {
                           categoryName = '라운딩 회비납부';
                         } else if (transaction.type === 'expense') {
-                          categoryName = '클럽 지출';
+                          const expenseDesc = transaction.description || '클럽 지출';
+                          categoryName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
                         } else if (transaction.type === 'donation') {
                           if (transaction.description?.startsWith('기타 - ')) {
                             categoryName = transaction.description.replace('기타 - ', '');
@@ -3230,7 +3231,8 @@ function Admin() {
                           if (transaction.type === 'payment') {
                             categoryName = '라운딩 회비납부';
                           } else if (transaction.type === 'expense') {
-                            categoryName = '클럽 지출';
+                            const expenseDesc = transaction.description || '클럽 지출';
+                            categoryName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
                           } else if (transaction.type === 'donation') {
                             if (transaction.description?.startsWith('기타 - ')) {
                               categoryName = transaction.description.replace('기타 - ', '');
