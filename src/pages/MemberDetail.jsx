@@ -559,7 +559,7 @@ function MemberDetail() {
               color: 'var(--primary-green)',
               textAlign: 'center'
             }}>
-              핸디: {member.handicap || handicapValue}
+              핸디: {member.club ? `GA[${member.handicap || handicapValue}]` : `HH[${member.handicap || handicapValue}]`}
             </div>
             <div style={{
               fontSize: '13px',
@@ -619,7 +619,7 @@ function MemberDetail() {
                 <InfoRow label="지역" value={member.region || '-'} />
                 <InfoRow label="클럽" value={member.club || '-'} />
                 <InfoRow label="Golflink 번호" value={member.golflinkNumber || '-'} />
-                <InfoRow label="GA 핸디캡" value={member.gaHandy || '-'} />
+                <InfoRow label="핸디캡" value={member.handicap ? (member.club ? `GA[${member.handicap}]` : `HH[${member.handicap}]`) : '-'} />
                 <InfoRow label="클럽 회원번호" value={member.clubMemberNumber || '-'} />
                 <InfoRow label="클럽 회원 여부" value={member.isClubMember || '-'} />
               </div>
