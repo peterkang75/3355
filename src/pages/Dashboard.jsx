@@ -1630,7 +1630,7 @@ function Dashboard() {
                             fontSize: '14px',
                             fontWeight: '600'
                           }}>
-                            {score.courseName}
+                            {score.roundingName || '개인 라운딩'}
                           </div>
                           <div style={{
                             fontSize: '18px',
@@ -1646,7 +1646,7 @@ function Dashboard() {
                           fontSize: '12px',
                           opacity: 0.7
                         }}>
-                          <span>{new Date(score.date).toLocaleDateString('ko-KR')}</span>
+                          <span>{score.courseName} · {new Date(score.date).toLocaleDateString('ko-KR')}</span>
                           <span>{score.totalScore} ({score.coursePar})</span>
                         </div>
                       </div>
