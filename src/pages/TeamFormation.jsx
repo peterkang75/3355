@@ -133,14 +133,19 @@ function TeamFormation() {
     const member = members.find(m => m.phone === participant.phone);
     if (!member) return '';
     
+    const parts = [];
+    
     if (member.gaHandy) {
-      return `GA ${member.gaHandy}`;
+      parts.push(`GA${member.gaHandy}`);
     } else if (member.golflinkNumber && member.handicap) {
-      return `GA ${member.handicap}`;
-    } else if (member.houseHandy) {
-      return `HH ${member.houseHandy}`;
+      parts.push(`GA${member.handicap}`);
     }
-    return '';
+    
+    if (member.houseHandy) {
+      parts.push(`HH${member.houseHandy}`);
+    }
+    
+    return parts.join(', ');
   };
 
   const handleSlotClick = (teamIndex, slotIndex, currentMember) => {
