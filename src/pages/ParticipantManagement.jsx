@@ -15,6 +15,9 @@ function ParticipantManagement() {
   const [selectedToAdd, setSelectedToAdd] = useState([]);
   const [isAddingParticipants, setIsAddingParticipants] = useState(false);
   const [removingPhone, setRemovingPhone] = useState(null);
+  const [showGuestModal, setShowGuestModal] = useState(false);
+  const [guestFormData, setGuestFormData] = useState({ memberNumber: '', name: '' });
+  const [isAddingGuest, setIsAddingGuest] = useState(false);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -98,6 +101,49 @@ function ParticipantManagement() {
       alert(`참가자 추가 중 오류가 발생했습니다: ${error.message}`);
     } finally {
       setIsAddingParticipants(false);
+    }
+  };
+
+  const handleAddGuest = async () => {
+    if (isAddingGuest) return;
+    if (!guestFormData.name.trim()) {
+      alert('이름을 입력해주세요.');
+      return;
+    }
+
+    setIsAddingGuest(true);
+    try {
+      const guestPhone = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const newGuest = {
+        name: guestFormData.name.trim(),
+        nickname: guestFormData.name.trim(),
+        phone: guestPhone,
+        memberNumber: guestFormData.memberNumber.trim() || '',
+        isGuest: true
+      };
+
+      const updatedParticipants = [...participants, newGuest];
+      
+      const response = await fetch(`/api/bookings/${bookingId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          participants: updatedParticipants.map(p => JSON.stringify(p))
+        })
+      });
+
+      if (response.ok) {
+        setShowGuestModal(false);
+        setGuestFormData({ memberNumber: '', name: '' });
+        refreshBookings();
+      } else {
+        const errorData = await response.text();
+        alert(`게스트 추가에 실패했습니다: ${errorData}`);
+      }
+    } catch (error) {
+      alert(`게스트 추가 중 오류가 발생했습니다: ${error.message}`);
+    } finally {
+      setIsAddingGuest(false);
     }
   };
 
@@ -205,21 +251,38 @@ function ParticipantManagement() {
             <h3 style={{ fontSize: '16px', fontWeight: '700', color: 'var(--primary-green)' }}>
               참가자 목록 ({participants.length}명)
             </h3>
-            <button
-              onClick={() => setShowAddModal(true)}
-              style={{
-                padding: '8px 16px',
-                background: 'var(--primary-green)',
-                color: 'var(--text-light)',
-                border: 'none',
-                borderRadius: '6px',
-                fontSize: '14px',
-                fontWeight: '600',
-                cursor: 'pointer'
-              }}
-            >
-              + 참가자 추가
-            </button>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <button
+                onClick={() => setShowGuestModal(true)}
+                style={{
+                  padding: '8px 12px',
+                  background: '#87CEEB',
+                  color: '#1a3a4a',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                + 외부게스트
+              </button>
+              <button
+                onClick={() => setShowAddModal(true)}
+                style={{
+                  padding: '8px 12px',
+                  background: 'var(--primary-green)',
+                  color: 'var(--text-light)',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                + 참가자
+              </button>
+            </div>
           </div>
 
           {participants.length === 0 ? (
@@ -230,8 +293,11 @@ function ParticipantManagement() {
             <div style={{ display: 'grid', gap: '8px' }}>
               {participants.map((participant, index) => {
                 const memberInfo = members.find(m => m.phone === participant.phone);
-                const memberNumberText = booking?.type === '컴페티션' && memberInfo?.clubMemberNumber ? 
-                  ` (${memberInfo.clubMemberNumber})` : '';
+                const isGuest = participant.isGuest === true;
+                const memberNumberText = isGuest && participant.memberNumber 
+                  ? ` (${participant.memberNumber})`
+                  : (booking?.type === '컴페티션' && memberInfo?.clubMemberNumber ? 
+                    ` (${memberInfo.clubMemberNumber})` : '');
                 
                 return (
                   <div
@@ -242,12 +308,34 @@ function ParticipantManagement() {
                       alignItems: 'center',
                       padding: '16px',
                       borderRadius: '8px',
-                      border: '2px solid var(--border-color)'
+                      border: isGuest ? '2px solid #87CEEB' : '2px solid var(--border-color)',
+                      background: isGuest ? 'rgba(135, 206, 235, 0.15)' : 'transparent'
                     }}
                   >
                     <div>
-                      <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '4px' }}>
-                        {participant.nickname}{memberNumberText}
+                      <div style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px',
+                        fontSize: '16px', 
+                        fontWeight: '600', 
+                        marginBottom: '4px' 
+                      }}>
+                        <span style={{ color: isGuest ? '#4A90A4' : 'inherit' }}>
+                          {participant.nickname}{memberNumberText}
+                        </span>
+                        {isGuest && (
+                          <span style={{
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            background: '#87CEEB',
+                            color: '#1a3a4a',
+                            padding: '2px 6px',
+                            borderRadius: '4px'
+                          }}>
+                            외부게스트
+                          </span>
+                        )}
                       </div>
                       <div style={{ fontSize: '13px', opacity: 0.7 }}>
                         {participant.name}
@@ -517,6 +605,157 @@ function ParticipantManagement() {
                 }}
               >
                 확인 ({selectedToAdd.length}명)
+              </LoadingButton>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showGuestModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '16px'
+        }}>
+          <div style={{
+            background: 'var(--bg-card)',
+            border: '2px solid #87CEEB',
+            borderRadius: '12px',
+            width: '100%',
+            maxWidth: '400px',
+            overflow: 'hidden'
+          }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              padding: '24px 24px 16px 24px',
+              borderBottom: '1px solid var(--border-color)',
+              background: 'rgba(135, 206, 235, 0.15)'
+            }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0, color: '#4A90A4' }}>
+                외부게스트 추가
+              </h3>
+              <button
+                onClick={() => {
+                  setShowGuestModal(false);
+                  setGuestFormData({ memberNumber: '', name: '' });
+                }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  opacity: 0.7,
+                  padding: 0
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ padding: '24px' }}>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ 
+                  display: 'block', 
+                  fontSize: '14px', 
+                  fontWeight: '600', 
+                  marginBottom: '8px',
+                  color: '#4A90A4'
+                }}>
+                  회원번호 (선택)
+                </label>
+                <input
+                  type="text"
+                  placeholder="회원번호 입력"
+                  value={guestFormData.memberNumber}
+                  onChange={(e) => setGuestFormData({ ...guestFormData, memberNumber: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '2px solid var(--border-color)',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ 
+                  display: 'block', 
+                  fontSize: '14px', 
+                  fontWeight: '600', 
+                  marginBottom: '8px',
+                  color: '#4A90A4'
+                }}>
+                  이름 *
+                </label>
+                <input
+                  type="text"
+                  placeholder="이름 입력"
+                  value={guestFormData.name}
+                  onChange={(e) => setGuestFormData({ ...guestFormData, name: e.target.value })}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    border: '2px solid var(--border-color)',
+                    borderRadius: '8px',
+                    fontSize: '15px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+            </div>
+
+            <div style={{
+              padding: '16px 24px 24px 24px',
+              borderTop: '1px solid var(--border-color)',
+              display: 'flex',
+              gap: '12px'
+            }}>
+              <button
+                onClick={() => {
+                  setShowGuestModal(false);
+                  setGuestFormData({ memberNumber: '', name: '' });
+                }}
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px',
+                  fontSize: '15px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                취소
+              </button>
+              <LoadingButton
+                onClick={handleAddGuest}
+                disabled={!guestFormData.name.trim()}
+                loading={isAddingGuest}
+                loadingText="추가중..."
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  background: !guestFormData.name.trim() ? '#999' : '#87CEEB',
+                  color: '#1a3a4a',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '15px',
+                  fontWeight: '600'
+                }}
+              >
+                추가
               </LoadingButton>
             </div>
           </div>

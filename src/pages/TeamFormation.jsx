@@ -108,6 +108,12 @@ function TeamFormation() {
 
   const getParticipantDisplayName = (participant) => {
     if (!participant) return '';
+    
+    if (participant.isGuest) {
+      const memberNumber = participant.memberNumber ? ` (${participant.memberNumber})` : '';
+      return `${participant.nickname || participant.name}${memberNumber}`;
+    }
+    
     const member = members.find(m => m.phone === participant.phone);
     const nickname = (member && member.nickname) ? member.nickname : (participant.nickname || participant.name);
     
@@ -116,6 +122,10 @@ function TeamFormation() {
     }
     
     return nickname;
+  };
+
+  const isGuestParticipant = (participant) => {
+    return participant && participant.isGuest === true;
   };
 
   const getHandicapDisplay = (participant) => {
@@ -448,24 +458,54 @@ function TeamFormation() {
             ) : (
               unassigned.map((member, index) => {
                 const isRenting = booking?.numberRentals && booking.numberRentals.includes(member.phone);
+                const isGuest = isGuestParticipant(member);
                 const handicapText = getHandicapDisplay(member);
+                
+                let bgColor = 'transparent';
+                let textColor = 'var(--primary-green)';
+                let borderColor = 'var(--border-color)';
+                
+                if (isGuest) {
+                  bgColor = 'rgba(135, 206, 235, 0.3)';
+                  textColor = '#4A90A4';
+                  borderColor = '#87CEEB';
+                } else if (isRenting) {
+                  bgColor = '#E6AA68';
+                  textColor = '#fff';
+                }
+                
                 return (
                   <div
                     key={index}
                     style={{
                       padding: '10px 14px',
                       borderRadius: '6px',
-                      border: '2px solid var(--border-color)',
-                      background: isRenting ? '#E6AA68' : 'transparent',
+                      border: `2px solid ${borderColor}`,
+                      background: bgColor,
                       fontSize: '14px',
                       fontWeight: '600',
-                      color: isRenting ? '#fff' : 'var(--primary-green)',
+                      color: textColor,
                       whiteSpace: 'nowrap',
-                      flexShrink: 0
+                      flexShrink: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px'
                     }}
                   >
                     {getParticipantDisplayName(member)}
-                    {handicapText && <span style={{ fontSize: '12px', opacity: 0.8, marginLeft: '4px' }}>({handicapText})</span>}
+                    {isGuest && (
+                      <span style={{
+                        fontSize: '10px',
+                        fontWeight: '600',
+                        background: '#87CEEB',
+                        color: '#1a3a4a',
+                        padding: '2px 4px',
+                        borderRadius: '3px'
+                      }}>
+                        게스트
+                      </span>
+                    )}
+                    {handicapText && <span style={{ fontSize: '12px', opacity: 0.8 }}>({handicapText})</span>}
                   </div>
                 );
               })
@@ -490,17 +530,37 @@ function TeamFormation() {
             }}>
               {team.members.map((member, slotIndex) => {
                 const isRenting = member && booking?.numberRentals && booking.numberRentals.includes(member.phone);
+                const isGuest = isGuestParticipant(member);
                 const handicapText = member ? getHandicapDisplay(member) : '';
+                
+                let bgColor = 'var(--bg-card)';
+                let textColor = 'var(--text-dark)';
+                let borderColor = 'var(--border-color)';
+                
+                if (member) {
+                  if (isGuest) {
+                    bgColor = '#87CEEB';
+                    textColor = '#1a3a4a';
+                    borderColor = '#5BA3C0';
+                  } else if (isRenting) {
+                    bgColor = '#E6AA68';
+                    textColor = '#fff';
+                  } else {
+                    bgColor = 'var(--primary-green)';
+                    textColor = 'var(--text-light)';
+                  }
+                }
+                
                 return (
                   <button
                     key={slotIndex}
                     onClick={() => handleSlotClick(teamIndex, slotIndex, member)}
                     style={{
                       minHeight: '60px',
-                      background: member ? (isRenting ? '#E6AA68' : 'var(--primary-green)') : 'var(--bg-card)',
-                      color: member ? (isRenting ? '#fff' : 'var(--text-light)') : 'var(--text-dark)',
+                      background: bgColor,
+                      color: textColor,
                       borderRadius: '8px',
-                      border: '2px solid var(--border-color)',
+                      border: `2px solid ${borderColor}`,
                       opacity: member ? 1 : 0.7,
                       display: 'flex',
                       flexDirection: 'column',
@@ -513,7 +573,21 @@ function TeamFormation() {
                       gap: '2px'
                     }}
                   >
-                    <span>{member ? getParticipantDisplayName(member) : '+ 추가'}</span>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <span>{member ? getParticipantDisplayName(member) : '+ 추가'}</span>
+                      {isGuest && (
+                        <span style={{
+                          fontSize: '9px',
+                          fontWeight: '700',
+                          background: 'rgba(255,255,255,0.4)',
+                          color: '#1a3a4a',
+                          padding: '1px 3px',
+                          borderRadius: '2px'
+                        }}>
+                          G
+                        </span>
+                      )}
+                    </div>
                     {handicapText && <span style={{ fontSize: '11px', opacity: 0.85 }}>{handicapText}</span>}
                   </button>
                 );
@@ -613,11 +687,18 @@ function TeamFormation() {
                   {unassigned.map((participant, index) => {
                     const isSelected = selectedParticipants.some(p => p.phone === participant.phone);
                     const isRenting = booking?.numberRentals && booking.numberRentals.includes(participant.phone);
+                    const isGuest = isGuestParticipant(participant);
                     
-                    let bgColor, textColor;
+                    let bgColor, textColor, borderColor;
+                    borderColor = 'var(--border-color)';
                     if (isSelected) {
-                      bgColor = 'var(--primary-green)';
+                      bgColor = isGuest ? '#5BA3C0' : 'var(--primary-green)';
                       textColor = 'white';
+                      borderColor = isGuest ? '#87CEEB' : 'var(--primary-green)';
+                    } else if (isGuest) {
+                      bgColor = 'rgba(135, 206, 235, 0.3)';
+                      textColor = '#4A90A4';
+                      borderColor = '#87CEEB';
                     } else if (isRenting) {
                       bgColor = '#E6AA68';
                       textColor = '#fff';
@@ -634,7 +715,7 @@ function TeamFormation() {
                         style={{
                           padding: '12px 14px',
                           background: bgColor,
-                          border: '2px solid var(--border-color)',
+                          border: `2px solid ${borderColor}`,
                           borderRadius: '8px',
                           cursor: 'pointer',
                           textAlign: 'center',
@@ -661,9 +742,23 @@ function TeamFormation() {
                             ✓
                           </span>
                         )}
-                        <span>
-                          {getParticipantDisplayName(participant)}
-                        </span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span>
+                            {getParticipantDisplayName(participant)}
+                          </span>
+                          {isGuest && (
+                            <span style={{
+                              fontSize: '10px',
+                              fontWeight: '600',
+                              background: isSelected ? 'rgba(255,255,255,0.3)' : '#87CEEB',
+                              color: isSelected ? '#fff' : '#1a3a4a',
+                              padding: '2px 4px',
+                              borderRadius: '3px'
+                            }}>
+                              게스트
+                            </span>
+                          )}
+                        </div>
                         {handicapText && <span style={{ fontSize: '11px', opacity: 0.8 }}>{handicapText}</span>}
                       </button>
                     );
