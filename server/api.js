@@ -301,17 +301,24 @@ router.put('/bookings/:id', async (req, res) => {
         });
 
         if (member) {
-          const totalAmount = 
-            (booking.greenFee || 0) + 
-            (booking.cartFee || 0) + 
-            (booking.membershipFee || 0);
+          let totalAmount;
+          if (member.isFeeExempt) {
+            totalAmount = (booking.greenFee || 0) + (booking.cartFee || 0);
+          } else {
+            totalAmount = 
+              (booking.greenFee || 0) + 
+              (booking.cartFee || 0) + 
+              (booking.membershipFee || 0);
+          }
 
           if (totalAmount > 0) {
             await prisma.transaction.create({
               data: {
                 type: 'charge',
                 amount: totalAmount,
-                description: `${booking.courseName} 라운딩`,
+                description: member.isFeeExempt 
+                  ? `${booking.courseName} 라운딩 (참가비 면제)`
+                  : `${booking.courseName} 라운딩`,
                 date: new Date().toISOString().split('T')[0],
                 memberId: member.id,
                 bookingId: booking.id
