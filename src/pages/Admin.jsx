@@ -100,6 +100,7 @@ function Admin() {
     manualName: ''
   });
   const [selectedMembers, setSelectedMembers] = useState([]);
+  const [selectedGuests, setSelectedGuests] = useState([]);
   const [selectedExpense, setSelectedExpense] = useState({
     categoryId: '',
     bookingId: null,
@@ -405,12 +406,51 @@ function Admin() {
       return;
     }
     setSelectedMembers([]);
+    setSelectedGuests([]);
     setShowIncomeModal(true);
   };
 
   const handleCloseIncomeModal = () => {
     setShowIncomeModal(false);
     setSelectedMembers([]);
+    setSelectedGuests([]);
+  };
+
+  const getGuestsFromBooking = () => {
+    if (!selectedIncome.bookingId) return [];
+    const selectedBooking = bookings.find(b => b.id === selectedIncome.bookingId);
+    if (!selectedBooking) return [];
+    
+    const participantData = selectedBooking.participants || [];
+    const guests = [];
+    
+    participantData.forEach(p => {
+      let participant = p;
+      if (typeof p === 'string') {
+        try {
+          participant = JSON.parse(p);
+        } catch (e) {
+          return;
+        }
+      }
+      if (participant?.isGuest) {
+        guests.push({
+          phone: participant.phone,
+          name: participant.name || participant.nickname || '게스트',
+          memberNumber: participant.memberNumber || ''
+        });
+      }
+    });
+    
+    return guests;
+  };
+
+  const handleToggleGuest = (guestPhone) => {
+    setSelectedGuests(prev => 
+      prev.includes(guestPhone) 
+        ? prev.filter(phone => phone !== guestPhone)
+        : [...prev, guestPhone]
+    );
   };
 
   const handleOpenRefundModal = () => {
@@ -471,6 +511,7 @@ function Admin() {
     const allMembers = contextMembers || members || [];
     const sortedMembers = getSortedMembers();
     const selectedBooking = bookings.find(b => b.id === selectedIncome.bookingId);
+    const guests = getGuestsFromBooking();
     
     if (selectedIncome.bookingId && selectedBooking) {
       const participantData = selectedBooking.participants || [];
@@ -487,12 +528,17 @@ function Admin() {
       });
       
       const participantMembers = allMembers.filter(m => m.isActive && participantPhones.includes(m.phone));
+      const totalSelected = selectedMembers.length + selectedGuests.length;
+      const totalParticipants = participantMembers.length + guests.length;
       
-      if (selectedMembers.length === participantMembers.length && 
-          participantMembers.every(m => selectedMembers.includes(m.id))) {
+      if (totalSelected === totalParticipants && 
+          participantMembers.every(m => selectedMembers.includes(m.id)) &&
+          guests.every(g => selectedGuests.includes(g.phone))) {
         setSelectedMembers([]);
+        setSelectedGuests([]);
       } else {
         setSelectedMembers(participantMembers.map(m => m.id));
+        setSelectedGuests(guests.map(g => g.phone));
       }
     } else {
       if (selectedMembers.length === sortedMembers.length) {
@@ -500,6 +546,7 @@ function Admin() {
       } else {
         setSelectedMembers(sortedMembers.map(m => m.id));
       }
+      setSelectedGuests([]);
     }
   };
 
@@ -529,10 +576,12 @@ function Admin() {
         await apiService.createTransaction(transactionData);
         alert(`${selectedIncome.manualName.trim()}님의 ${isDonation ? '도네이션' : '입금'}이 클럽 잔고에 추가되었습니다.`);
       } 
-      // 회원 선택이 있는 경우
-      else if (selectedMembers.length > 0) {
-        // 병렬 처리로 속도 개선
-        const transactionPromises = selectedMembers.map(memberId => {
+      // 회원 또는 게스트 선택이 있는 경우
+      else if (selectedMembers.length > 0 || selectedGuests.length > 0) {
+        const transactionPromises = [];
+        
+        // 회원 거래 처리
+        selectedMembers.forEach(memberId => {
           const member = members.find(m => m.id === memberId);
           const transactionData = {
             type: isDonation ? 'donation' : 'charge',
@@ -543,18 +592,45 @@ function Admin() {
             bookingId: selectedIncome.bookingId || null,
             createdBy: user.id
           };
-          return apiService.createTransaction(transactionData);
+          transactionPromises.push(apiService.createTransaction(transactionData));
+        });
+        
+        // 게스트 거래 처리 (memberId 없이 payment 타입으로 클럽 잔액에만 반영)
+        const guests = getGuestsFromBooking();
+        selectedGuests.forEach(guestPhone => {
+          const guest = guests.find(g => g.phone === guestPhone);
+          if (guest) {
+            const transactionData = {
+              type: 'payment',
+              amount: parseFloat(selectedIncome.amount),
+              description: `${category?.name}${booking ? ` - ${booking.courseName}` : ''} (외부게스트: ${guest.name})`,
+              date: selectedIncome.date,
+              memberId: null,
+              bookingId: selectedIncome.bookingId || null,
+              createdBy: user.id
+            };
+            transactionPromises.push(apiService.createTransaction(transactionData));
+          }
         });
 
         await Promise.all(transactionPromises);
 
+        const totalCount = selectedMembers.length + selectedGuests.length;
         if (isDonation) {
           alert(`${selectedMembers.length}명의 회원 도네이션이 클럽 잔고에 추가되었습니다.`);
         } else {
-          alert(`${selectedMembers.length}명의 회원에게 참가비가 청구되었습니다.`);
+          let message = '';
+          if (selectedMembers.length > 0) {
+            message += `${selectedMembers.length}명의 회원에게 참가비가 청구되었습니다.`;
+          }
+          if (selectedGuests.length > 0) {
+            if (message) message += '\n';
+            message += `${selectedGuests.length}명의 외부게스트 납부가 클럽 잔고에 추가되었습니다.`;
+          }
+          alert(message);
         }
       } else {
-        alert('회원을 선택하거나 이름을 수동으로 입력해주세요.');
+        alert('회원 또는 게스트를 선택하거나 이름을 수동으로 입력해주세요.');
         return;
       }
       
@@ -6580,6 +6656,7 @@ function Admin() {
                     const allMembers = contextMembers || members || [];
                     const sortedMembers = getSortedMembers();
                     const selectedBooking = bookings.find(b => b.id === selectedIncome.bookingId);
+                    const guests = getGuestsFromBooking();
                     
                     if (selectedIncome.bookingId && selectedBooking) {
                       const participantData = selectedBooking.participants || [];
@@ -6596,9 +6673,12 @@ function Admin() {
                       });
                       
                       const participantMembers = allMembers.filter(m => m.isActive && participantPhones.includes(m.phone));
-                      return selectedMembers.length === participantMembers.length && 
+                      const totalSelected = selectedMembers.length + selectedGuests.length;
+                      const totalParticipants = participantMembers.length + guests.length;
+                      return totalSelected === totalParticipants && 
                              participantMembers.every(m => selectedMembers.includes(m.id)) &&
-                             participantMembers.length > 0;
+                             guests.every(g => selectedGuests.includes(g.phone)) &&
+                             totalParticipants > 0;
                     } else {
                       return selectedMembers.length === sortedMembers.length && sortedMembers.length > 0;
                     }
@@ -6617,6 +6697,7 @@ function Admin() {
                     const allMembers = contextMembers || members || [];
                     const sortedMembers = getSortedMembers();
                     const selectedBooking = bookings.find(b => b.id === selectedIncome.bookingId);
+                    const guests = getGuestsFromBooking();
                     
                     if (selectedIncome.bookingId && selectedBooking) {
                       const participantData = selectedBooking.participants || [];
@@ -6633,8 +6714,9 @@ function Admin() {
                       });
                       
                       const participantMembers = allMembers.filter(m => m.isActive && participantPhones.includes(m.phone));
-                      const selectedParticipants = participantMembers.filter(m => selectedMembers.includes(m.id));
-                      return `${selectedParticipants.length} / ${participantMembers.length}`;
+                      const selectedParticipantsCount = selectedMembers.filter(id => participantMembers.some(m => m.id === id)).length + selectedGuests.length;
+                      const totalParticipants = participantMembers.length + guests.length;
+                      return `${selectedParticipantsCount} / ${totalParticipants}`;
                     } else {
                       return `${selectedMembers.length} / ${sortedMembers.length}`;
                     }
@@ -6717,7 +6799,58 @@ function Admin() {
                         </div>
                       ))}
                       
-                      {hasBooking && participantMembers.length > 0 && nonParticipantMembers.length > 0 && (
+                      {/* 외부 게스트 표시 */}
+                      {hasBooking && getGuestsFromBooking().map(guest => (
+                        <div
+                          key={guest.phone}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            padding: '12px',
+                            borderBottom: '1px solid #87CEEB',
+                            cursor: 'pointer',
+                            background: 'rgba(135, 206, 235, 0.15)'
+                          }}
+                          onClick={() => handleToggleGuest(guest.phone)}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={selectedGuests.includes(guest.phone)}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              handleToggleGuest(guest.phone);
+                            }}
+                            style={{
+                              width: '18px',
+                              height: '18px',
+                              marginRight: '12px',
+                              cursor: 'pointer'
+                            }}
+                          />
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: '15px', fontWeight: '600', color: '#4A90A4' }}>
+                              {guest.name}
+                            </div>
+                            {guest.memberNumber && (
+                              <div style={{ fontSize: '13px', opacity: 0.7, color: '#4A90A4' }}>
+                                {guest.memberNumber}
+                              </div>
+                            )}
+                          </div>
+                          <div style={{
+                            fontSize: '12px',
+                            padding: '4px 8px',
+                            background: '#87CEEB',
+                            color: '#1a3a4a',
+                            borderRadius: '4px',
+                            fontWeight: '600'
+                          }}>
+                            외부게스트
+                          </div>
+                        </div>
+                      ))}
+                      
+                      {hasBooking && (participantMembers.length > 0 || getGuestsFromBooking().length > 0) && nonParticipantMembers.length > 0 && (
                         <div style={{
                           padding: '10px 12px',
                           background: 'var(--bg-card)',
