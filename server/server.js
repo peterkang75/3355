@@ -16,6 +16,50 @@ const io = new Server(server, {
 
 const PORT = process.env.NODE_ENV === 'production' ? 5000 : 3001;
 
+async function checkAndUpdatePlayStatus() {
+  try {
+    const now = new Date();
+    const todayStr = now.toISOString().split('T')[0];
+    
+    const bookings = await prisma.booking.findMany({
+      where: {
+        date: todayStr
+      }
+    });
+    
+    for (const booking of bookings) {
+      const [hours, minutes] = booking.time.split(':').map(Number);
+      const roundingTime = new Date(booking.date);
+      roundingTime.setHours(hours, minutes, 0, 0);
+      
+      const thirtyMinBefore = new Date(roundingTime.getTime() - 30 * 60 * 1000);
+      const sevenHoursAfter = new Date(roundingTime.getTime() + 7 * 60 * 60 * 1000);
+      
+      const shouldBeEnabled = now >= thirtyMinBefore && now < sevenHoursAfter;
+      
+      if (shouldBeEnabled && !booking.playEnabled) {
+        await prisma.booking.update({
+          where: { id: booking.id },
+          data: { playEnabled: true }
+        });
+        console.log(`⛳ 플레이 활성화: ${booking.courseName} (${booking.date})`);
+        io.emit('bookings:updated');
+      } else if (!shouldBeEnabled && booking.playEnabled && now >= sevenHoursAfter) {
+        await prisma.booking.update({
+          where: { id: booking.id },
+          data: { playEnabled: false }
+        });
+        console.log(`⛳ 플레이 비활성화: ${booking.courseName} (${booking.date})`);
+        io.emit('bookings:updated');
+      }
+    }
+  } catch (error) {
+    console.error('플레이 상태 체크 오류:', error);
+  }
+}
+
+setInterval(checkAndUpdatePlayStatus, 60 * 1000);
+
 async function initializeDefaultCategories() {
   try {
     const incomeCount = await prisma.incomeCategory.count();

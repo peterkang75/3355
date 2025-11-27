@@ -427,6 +427,30 @@ router.patch('/bookings/:id/toggle-announce', async (req, res) => {
   }
 });
 
+router.patch('/bookings/:id/toggle-play', async (req, res) => {
+  try {
+    const booking = await prisma.booking.findUnique({
+      where: { id: req.params.id }
+    });
+    
+    if (!booking) {
+      return res.status(404).json({ error: 'Booking not found' });
+    }
+    
+    const updated = await prisma.booking.update({
+      where: { id: req.params.id },
+      data: { playEnabled: !booking.playEnabled },
+      include: { organizer: true }
+    });
+    
+    req.io.emit('bookings:updated');
+    res.json(updated);
+  } catch (error) {
+    console.error('Error toggling play status:', error);
+    res.status(500).json({ error: 'Failed to toggle play status' });
+  }
+});
+
 router.patch('/bookings/:id/toggle-number-rental', async (req, res) => {
   try {
     const { userPhone } = req.body;

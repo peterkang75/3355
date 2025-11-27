@@ -209,6 +209,15 @@ class ApiService {
     return response.json();
   }
 
+  async togglePlayEnabled(id) {
+    const response = await fetch(`${API_BASE}/bookings/${id}/toggle-play`, {
+      method: 'PATCH'
+    });
+    if (!response.ok) throw new Error('Failed to toggle play status');
+    this.invalidateCache('bookings');
+    return response.json();
+  }
+
   async toggleNumberRental(id, userPhone) {
     const response = await fetch(`${API_BASE}/bookings/${id}/toggle-number-rental`, {
       method: 'PATCH',

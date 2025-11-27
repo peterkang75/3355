@@ -16,6 +16,7 @@ function RoundingManagement() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isTogglingAnnounce, setIsTogglingAnnounce] = useState(false);
+  const [isTogglingPlay, setIsTogglingPlay] = useState(false);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -116,6 +117,20 @@ function RoundingManagement() {
       alert('공지 상태 변경에 실패했습니다.');
     } finally {
       setIsTogglingAnnounce(false);
+    }
+  };
+
+  const handleTogglePlay = async () => {
+    if (isTogglingPlay) return;
+    
+    setIsTogglingPlay(true);
+    try {
+      await apiService.togglePlayEnabled(bookingId);
+      await refreshBookings();
+    } catch (error) {
+      alert('플레이 활성화 상태 변경에 실패했습니다.');
+    } finally {
+      setIsTogglingPlay(false);
     }
   };
   
@@ -539,33 +554,58 @@ function RoundingManagement() {
               </div>
             </button>
 
-            <button
-              onClick={() => navigate(`/play?id=${bookingId}`)}
+            <div
               style={{
                 padding: '20px',
                 border: 'none',
                 borderBottom: '1px solid var(--border-color)',
                 borderRadius: '0',
-                fontSize: '16px',
-                fontWeight: '600',
-                color: '#2196F3',
-                cursor: 'pointer',
-                textAlign: 'left',
                 display: 'flex',
                 alignItems: 'center',
+                justifyContent: 'space-between',
                 gap: '12px'
               }}
             >
-              <span style={{ fontSize: '24px', color: '#2196F3' }}>⛳</span>
-              <div>
-                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
-                  플레이하기
-                </div>
-                <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                  홀별 스코어를 입력합니다
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '24px', color: '#2196F3' }}>⛳</span>
+                <div>
+                  <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px', color: '#2196F3' }}>
+                    플레이 활성화
+                  </div>
+                  <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                    {booking.playEnabled ? '외부에 플레이하기 버튼이 표시됩니다' : '라운딩 30분 전 자동 활성화'}
+                  </div>
                 </div>
               </div>
-            </button>
+              <button
+                onClick={handleTogglePlay}
+                disabled={isTogglingPlay}
+                style={{
+                  width: '52px',
+                  height: '28px',
+                  borderRadius: '14px',
+                  border: 'none',
+                  background: booking.playEnabled ? '#4CAF50' : '#ccc',
+                  cursor: isTogglingPlay ? 'not-allowed' : 'pointer',
+                  position: 'relative',
+                  transition: 'background 0.2s',
+                  opacity: isTogglingPlay ? 0.7 : 1,
+                  flexShrink: 0
+                }}
+              >
+                <div style={{
+                  width: '22px',
+                  height: '22px',
+                  borderRadius: '50%',
+                  background: 'white',
+                  position: 'absolute',
+                  top: '3px',
+                  left: booking.playEnabled ? '27px' : '3px',
+                  transition: 'left 0.2s',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                }} />
+              </button>
+            </div>
 
             <button
               onClick={() => navigate(`/member-score-entry?id=${bookingId}`)}

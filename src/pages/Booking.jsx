@@ -949,6 +949,44 @@ function Booking() {
                 >
                   📋 조편성 보기
                 </button>
+                {booking.type === '컴페티션' && (
+                  <button
+                    onClick={() => handleToggleNumberRental(booking.id)}
+                    disabled={isRentalLoading === booking.id}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: isRentalLoading === booking.id ? '#ccc' : '#E6AA68',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      fontWeight: '700',
+                      cursor: isRentalLoading === booking.id ? 'wait' : 'pointer',
+                      opacity: isRentalLoading === booking.id ? 0.7 : 1
+                    }}
+                  >
+                    {isRentalLoading === booking.id ? '처리중...' : (isRenting ? '✓ 번호대여중' : '번호대여')}
+                  </button>
+                )}
+                {booking.playEnabled && (
+                  <button
+                    onClick={() => navigate(`/play?id=${booking.id}`)}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: '#2196F3',
+                      color: 'var(--text-light)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    ⛳ 플레이하기
+                  </button>
+                )}
                 {canManageBooking && (
                   <button
                     onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
@@ -1026,6 +1064,24 @@ function Booking() {
                     {isRentalLoading === booking.id ? '처리중...' : (isRenting ? '✓ 번호대여중' : '번호대여')}
                   </button>
                 )}
+                {booking.playEnabled && (
+                  <button
+                    onClick={() => navigate(`/play?id=${booking.id}`)}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: '#2196F3',
+                      color: 'var(--text-light)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    ⛳ 플레이하기
+                  </button>
+                )}
                 {canManageBooking && (
                   <button
                     onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
@@ -1078,24 +1134,41 @@ function Booking() {
         </div>
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <button
-            onClick={() => booking.dailyHandicaps 
-              ? navigate(`/member-score-entry?id=${booking.id}`) 
-              : navigate(`/play?id=${booking.id}`)}
-            style={{
-              padding: '8px 16px',
-              background: 'var(--primary-green)',
-              color: 'var(--text-light)',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '13px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {booking.dailyHandicaps ? '▲ 결과보기' : '⛳ 플레이하기'}
-          </button>
+          {booking.dailyHandicaps ? (
+            <button
+              onClick={() => navigate(`/member-score-entry?id=${booking.id}`)}
+              style={{
+                padding: '8px 16px',
+                background: 'var(--primary-green)',
+                color: 'var(--text-light)',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              ▲ 결과보기
+            </button>
+          ) : booking.playEnabled ? (
+            <button
+              onClick={() => navigate(`/play?id=${booking.id}`)}
+              style={{
+                padding: '8px 16px',
+                background: '#2196F3',
+                color: 'var(--text-light)',
+                border: 'none',
+                borderRadius: '6px',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              ⛳ 플레이하기
+            </button>
+          ) : null}
           {canManageBooking && (
             <button
               onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
