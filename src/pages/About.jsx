@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
-import logoImage from '../assets/logo.jpeg';
+import defaultLogoImage from '../assets/logo.jpeg';
 
 function About() {
   const navigate = useNavigate();
-  const { user } = useApp();
+  const { user, clubLogo } = useApp();
+  const logoImage = clubLogo || defaultLogoImage;
   const [clubIntroText, setClubIntroText] = useState('');
   const [clubRulesText, setClubRulesText] = useState('');
   const [appDescriptionText, setAppDescriptionText] = useState('');

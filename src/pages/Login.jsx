@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
-import logoImage from '../assets/logo-new.png';
+import defaultLogoImage from '../assets/logo-new.png';
 import apiService from '../services/api';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 
 function Login({ onLogin }) {
-  const { courses, members, refreshMembers } = useApp();
+  const { courses, members, refreshMembers, clubLogo } = useApp();
+  const logoImage = clubLogo || defaultLogoImage;
   const [phoneLastSix, setPhoneLastSix] = useState('');
   const [error, setError] = useState('');
   const [showSignup, setShowSignup] = useState(false);

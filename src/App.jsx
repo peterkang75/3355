@@ -22,7 +22,7 @@ import BingoGame from './pages/BingoGame';
 import MemberInfoForm from './pages/MemberInfoForm';
 import Navigation from './components/Navigation';
 import InstallPrompt from './components/InstallPrompt';
-import logoImage from './assets/logo-transparent.png';
+import defaultLogoImage from './assets/logo-transparent.png';
 
 function AppRoutes({ user, logout, requiresProfileComplete }) {
   const navigate = useNavigate();
@@ -71,7 +71,8 @@ function AppRoutes({ user, logout, requiresProfileComplete }) {
 }
 
 function App() {
-  const { user, loading, login, logout, requiresProfileComplete } = useApp();
+  const { user, loading, login, logout, requiresProfileComplete, clubLogo } = useApp();
+  const logoImage = clubLogo || defaultLogoImage;
 
   const isMemberInfoPath = window.location.pathname === '/member-info';
 
@@ -84,7 +85,7 @@ function App() {
       <div className="loading-screen">
         <div className="loading-content">
           <img 
-            src={logoImage} 
+            src={defaultLogoImage} 
             alt="3355 골프 클럽" 
             className="loading-logo"
           />

@@ -9,7 +9,7 @@ import SearchableDropdown from '../components/SearchableDropdown';
 function Admin() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, addFee, courses, addCourse, refreshMembers, refreshCourses, members: contextMembers } = useApp();
+  const { user, addFee, courses, addCourse, refreshMembers, refreshCourses, members: contextMembers, clubLogo, updateClubLogo } = useApp();
   const [activeTab, setActiveTab] = useState('menu');
   const [members, setMembers] = useState([]);
   const [memberSearchTerm, setMemberSearchTerm] = useState('');
@@ -6293,6 +6293,128 @@ function Admin() {
               >
                 {appDescriptionText !== savedAppDescriptionText ? '저장하기' : '저장됨'}
               </button>
+            </div>
+
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
+                클럽 로고
+              </h3>
+              <div style={{
+                padding: '10px 12px',
+                background: 'var(--bg-green)',
+                borderRadius: '6px',
+                marginBottom: '12px',
+                fontSize: '12px',
+                color: 'var(--text-dark)', opacity: 0.7
+              }}>
+                • 업로드한 로고가 로그인 화면, 로딩 화면, About 페이지에 표시됩니다<br/>
+                • 권장 크기: 200x200 픽셀 이상의 정사각형 이미지
+              </div>
+              
+              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+                {clubLogo && (
+                  <div style={{ 
+                    width: '80px', 
+                    height: '80px', 
+                    borderRadius: '50%', 
+                    overflow: 'hidden',
+                    border: '2px solid var(--primary-green)',
+                    flexShrink: 0
+                  }}>
+                    <img 
+                      src={clubLogo} 
+                      alt="현재 로고" 
+                      style={{ 
+                        width: '100%', 
+                        height: '100%', 
+                        objectFit: 'cover' 
+                      }} 
+                    />
+                  </div>
+                )}
+                <div style={{ flex: 1 }}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        const reader = new FileReader();
+                        reader.onload = async (event) => {
+                          const img = new Image();
+                          img.onload = async () => {
+                            const canvas = document.createElement('canvas');
+                            const MAX_SIZE = 300;
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > height) {
+                              if (width > MAX_SIZE) {
+                                height *= MAX_SIZE / width;
+                                width = MAX_SIZE;
+                              }
+                            } else {
+                              if (height > MAX_SIZE) {
+                                width *= MAX_SIZE / height;
+                                height = MAX_SIZE;
+                              }
+                            }
+
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+                            
+                            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                            const success = await updateClubLogo(compressedDataUrl);
+                            if (success) {
+                              alert('로고가 저장되었습니다.');
+                            } else {
+                              alert('로고 저장에 실패했습니다.');
+                            }
+                          };
+                          img.src = event.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }}
+                    style={{ 
+                      width: '100%',
+                      padding: '10px',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '8px',
+                      fontSize: '14px'
+                    }}
+                  />
+                </div>
+              </div>
+              
+              {clubLogo && (
+                <button
+                  onClick={async () => {
+                    if (confirm('로고를 삭제하시겠습니까? 기본 로고로 복원됩니다.')) {
+                      const success = await updateClubLogo(null);
+                      if (success) {
+                        alert('로고가 삭제되었습니다.');
+                      } else {
+                        alert('로고 삭제에 실패했습니다.');
+                      }
+                    }
+                  }}
+                  style={{
+                    padding: '10px 16px',
+                    background: 'var(--bg-card)',
+                    color: 'var(--alert-red)',
+                    border: '1px solid var(--alert-red)',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  로고 삭제
+                </button>
+              )}
             </div>
 
             <div className="card">

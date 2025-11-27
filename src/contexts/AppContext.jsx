@@ -34,6 +34,7 @@ export function AppProvider({ children }) {
   const [userTransactions, setUserTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [requiresProfileComplete, setRequiresProfileComplete] = useState(false);
+  const [clubLogo, setClubLogo] = useState(null);
   
   // 소켓 이벤트 핸들러에서 최신 user 값을 참조하기 위한 ref
   const userRef = useRef(null);
@@ -66,13 +67,21 @@ export function AppProvider({ children }) {
       }
       
       try {
-        const [membersData, postsData, bookingsData, feesData, coursesData] = await Promise.all([
+        const [membersData, postsData, bookingsData, feesData, coursesData, settingsData] = await Promise.all([
           apiService.fetchMembers().catch(() => []),
           apiService.fetchPosts().catch(() => []),
           apiService.fetchBookings().catch(() => []),
           apiService.fetchFees().catch(() => []),
-          apiService.fetchCourses().catch(() => [])
+          apiService.fetchCourses().catch(() => []),
+          apiService.fetchSettings().catch(() => [])
         ]);
+
+        if (settingsData?.length > 0) {
+          const logoSetting = settingsData.find(s => s.feature === 'clubLogo');
+          if (logoSetting && logoSetting.value) {
+            setClubLogo(logoSetting.value);
+          }
+        }
 
         if (membersData?.length > 0) {
           setMembers(membersData);
@@ -482,6 +491,17 @@ export function AppProvider({ children }) {
   const isOperator = () => user?.role === '운영진' || user?.role === '관리자' || user?.role === '방장' || user?.role === '클럽운영진';
   const isMember = () => user?.role === '회원';
 
+  const updateClubLogo = async (logoData) => {
+    try {
+      await apiService.updateSetting('clubLogo', { value: logoData });
+      setClubLogo(logoData);
+      return true;
+    } catch (error) {
+      console.error('로고 업데이트 실패:', error);
+      return false;
+    }
+  };
+
   const value = {
     user,
     members,
@@ -513,7 +533,9 @@ export function AppProvider({ children }) {
     isMember,
     requiresProfileComplete,
     clearRequiresProfileComplete,
-    checkRequiredFields
+    checkRequiredFields,
+    clubLogo,
+    updateClubLogo
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
