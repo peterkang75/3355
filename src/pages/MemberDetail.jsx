@@ -909,33 +909,51 @@ function MemberDetail() {
             
             <input
               type="text"
-              placeholder="이름"
+              placeholder="이름 *"
               value={editData.name}
               onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-              style={{ marginBottom: '12px' }}
+              style={{ 
+                marginBottom: '12px',
+                borderColor: !editData.name?.trim() ? '#e74c3c' : undefined,
+                boxShadow: !editData.name?.trim() ? '0 0 0 1px #e74c3c' : undefined
+              }}
             />
             <input
               type="text"
-              placeholder="대화명 (닉네임)"
+              placeholder="대화명 (닉네임) *"
               value={editData.nickname || ''}
               onChange={(e) => setEditData({ ...editData, nickname: e.target.value })}
-              style={{ marginBottom: '12px' }}
+              style={{ 
+                marginBottom: '12px',
+                borderColor: !editData.nickname?.trim() ? '#e74c3c' : undefined,
+                boxShadow: !editData.nickname?.trim() ? '0 0 0 1px #e74c3c' : undefined
+              }}
             />
             <input
               type="tel"
               inputMode="numeric"
-              placeholder="전화번호"
+              placeholder="전화번호 *"
               value={editData.phone}
               onChange={(e) => {
                 const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
                 setEditData({ ...editData, phone: digits });
               }}
-              style={{ marginBottom: '12px' }}
+              style={{ 
+                marginBottom: '12px',
+                borderColor: !editData.phone?.trim() ? '#e74c3c' : undefined,
+                boxShadow: !editData.phone?.trim() ? '0 0 0 1px #e74c3c' : undefined
+              }}
             />
             
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                사진 (본인)
+            <div style={{ 
+              marginBottom: '12px',
+              padding: !editData.photo ? '8px' : undefined,
+              border: !editData.photo ? '2px solid #e74c3c' : undefined,
+              borderRadius: !editData.photo ? '8px' : undefined,
+              background: !editData.photo ? '#fff5f5' : undefined
+            }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: !editData.photo ? '#e74c3c' : undefined }}>
+                사진 (본인) *
               </label>
               <input
                 type="file"
@@ -1000,15 +1018,25 @@ function MemberDetail() {
             <input
               type="number"
               inputMode="numeric"
-              placeholder="핸디캡"
+              placeholder="핸디캡 *"
               value={editData.handicap || ''}
               onChange={(e) => setEditData({ ...editData, handicap: e.target.value })}
-              style={{ marginBottom: '12px' }}
+              style={{ 
+                marginBottom: '12px',
+                borderColor: !editData.handicap?.toString().trim() ? '#e74c3c' : undefined,
+                boxShadow: !editData.handicap?.toString().trim() ? '0 0 0 1px #e74c3c' : undefined
+              }}
             />
 
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                클럽 멤버이신가요?
+            <div style={{ 
+              marginBottom: '12px',
+              padding: (!editData.isClubMember || editData.isClubMember === '') ? '8px' : undefined,
+              border: (!editData.isClubMember || editData.isClubMember === '') ? '2px solid #e74c3c' : undefined,
+              borderRadius: (!editData.isClubMember || editData.isClubMember === '') ? '8px' : undefined,
+              background: (!editData.isClubMember || editData.isClubMember === '') ? '#fff5f5' : undefined
+            }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: (!editData.isClubMember || editData.isClubMember === '') ? '#e74c3c' : undefined }}>
+                클럽 멤버이신가요? *
               </label>
               <div style={{ display: 'flex', gap: '16px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
@@ -1036,36 +1064,56 @@ function MemberDetail() {
 
             {editData.isClubMember === 'yes' && (
               <>
-                <div style={{ marginBottom: '12px' }}>
+                <div style={{ 
+                  marginBottom: '12px',
+                  border: !editData.club?.trim() ? '2px solid #e74c3c' : undefined,
+                  borderRadius: !editData.club?.trim() ? '8px' : undefined,
+                  padding: !editData.club?.trim() ? '4px' : undefined,
+                  background: !editData.club?.trim() ? '#fff5f5' : undefined
+                }}>
                   <SearchableDropdown
                     options={courses}
                     value={editData.club || ''}
                     onChange={(value) => setEditData({ ...editData, club: value })}
-                    placeholder="소속 클럽 선택 (검색 가능)"
+                    placeholder="소속 클럽 선택 * (검색 가능)"
                     displayKey="name"
                     valueKey="name"
                   />
                 </div>
                 <input
                   type="text"
-                  placeholder="Golflink 번호"
+                  placeholder="Golflink 번호 *"
                   value={editData.golflinkNumber || ''}
                   onChange={(e) => setEditData({ ...editData, golflinkNumber: e.target.value })}
-                  style={{ marginBottom: '12px' }}
+                  style={{ 
+                    marginBottom: '12px',
+                    borderColor: !editData.golflinkNumber?.trim() ? '#e74c3c' : undefined,
+                    boxShadow: !editData.golflinkNumber?.trim() ? '0 0 0 1px #e74c3c' : undefined
+                  }}
                 />
                 <input
                   type="text"
-                  placeholder="클럽 회원번호"
+                  placeholder="클럽 회원번호 *"
                   value={editData.clubMemberNumber || ''}
                   onChange={(e) => setEditData({ ...editData, clubMemberNumber: e.target.value })}
-                  style={{ marginBottom: '12px' }}
+                  style={{ 
+                    marginBottom: '12px',
+                    borderColor: !editData.clubMemberNumber?.trim() ? '#e74c3c' : undefined,
+                    boxShadow: !editData.clubMemberNumber?.trim() ? '0 0 0 1px #e74c3c' : undefined
+                  }}
                 />
               </>
             )}
             
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                성별
+            <div style={{ 
+              marginBottom: '12px',
+              padding: !editData.gender ? '8px' : undefined,
+              border: !editData.gender ? '2px solid #e74c3c' : undefined,
+              borderRadius: !editData.gender ? '8px' : undefined,
+              background: !editData.gender ? '#fff5f5' : undefined
+            }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: !editData.gender ? '#e74c3c' : undefined }}>
+                성별 *
               </label>
               <div style={{ display: 'flex', gap: '16px' }}>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
@@ -1094,17 +1142,25 @@ function MemberDetail() {
             <input
               type="number"
               inputMode="numeric"
-              placeholder="출생연도"
+              placeholder="출생연도 *"
               value={editData.birthYear || ''}
               onChange={(e) => setEditData({ ...editData, birthYear: e.target.value })}
-              style={{ marginBottom: '12px' }}
+              style={{ 
+                marginBottom: '12px',
+                borderColor: !editData.birthYear?.toString().trim() ? '#e74c3c' : undefined,
+                boxShadow: !editData.birthYear?.toString().trim() ? '0 0 0 1px #e74c3c' : undefined
+              }}
             />
             <input
               type="text"
-              placeholder="지역"
+              placeholder="사는 지역 *"
               value={editData.region || ''}
               onChange={(e) => setEditData({ ...editData, region: e.target.value })}
-              style={{ marginBottom: '12px' }}
+              style={{ 
+                marginBottom: '12px',
+                borderColor: !editData.region?.trim() ? '#e74c3c' : undefined,
+                boxShadow: !editData.region?.trim() ? '0 0 0 1px #e74c3c' : undefined
+              }}
             />
 
             {requiresProfileComplete && (
