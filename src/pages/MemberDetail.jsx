@@ -32,6 +32,7 @@ function MemberDetail() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSavingScore, setIsSavingScore] = useState(false);
+  const [isTogglingFeeExempt, setIsTogglingFeeExempt] = useState(false);
   const [validationError, setValidationError] = useState('');
   const [permissions, setPermissions] = useState({});
 
@@ -222,6 +223,8 @@ function MemberDetail() {
   };
 
   const handleFeeExemptChange = async () => {
+    if (isTogglingFeeExempt) return;
+    setIsTogglingFeeExempt(true);
     try {
       const newValue = !member.isFeeExempt;
       await apiService.updateMember(id, { isFeeExempt: newValue });
@@ -230,6 +233,8 @@ function MemberDetail() {
     } catch (error) {
       console.error('회비면제 변경 실패:', error);
       alert('회비면제 변경에 실패했습니다.');
+    } finally {
+      setIsTogglingFeeExempt(false);
     }
   };
 
@@ -886,25 +891,29 @@ function MemberDetail() {
                       padding: '12px',
                       background: member.isFeeExempt ? 'rgba(45, 95, 63, 0.1)' : '#f8f8f8',
                       borderRadius: '10px',
-                      border: member.isFeeExempt ? '1px solid var(--primary-green)' : '1px solid #e0e0e0'
+                      border: member.isFeeExempt ? '1px solid var(--primary-green)' : '1px solid #e0e0e0',
+                      opacity: isTogglingFeeExempt ? 0.7 : 1
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <span style={{ fontSize: '20px' }}>💰</span>
                         <div>
                           <div style={{ fontSize: '14px', fontWeight: '600' }}>회비면제</div>
-                          <div style={{ fontSize: '12px', opacity: 0.7 }}>라운딩 참가 시 참가비 제외</div>
+                          <div style={{ fontSize: '12px', opacity: 0.7 }}>
+                            {isTogglingFeeExempt ? '처리중...' : '라운딩 참가 시 참가비 제외'}
+                          </div>
                         </div>
                       </div>
                       <div
-                        onClick={handleFeeExemptChange}
+                        onClick={isTogglingFeeExempt ? undefined : handleFeeExemptChange}
                         style={{
                           width: '50px',
                           height: '28px',
                           borderRadius: '14px',
                           background: member.isFeeExempt ? 'var(--primary-green)' : '#ccc',
                           position: 'relative',
-                          cursor: 'pointer',
-                          transition: 'all 0.3s'
+                          cursor: isTogglingFeeExempt ? 'not-allowed' : 'pointer',
+                          transition: 'all 0.3s',
+                          opacity: isTogglingFeeExempt ? 0.6 : 1
                         }}
                       >
                         <div style={{
