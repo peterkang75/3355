@@ -73,25 +73,28 @@ function SearchableDropdown({
         }}
         style={{
           width: '100%',
-          padding: '12px',
-          fontSize: '14px',
-          border: '2px solid #ddd',
-          borderRadius: '6px',
+          padding: '12px 4px',
+          fontSize: '16px',
+          border: 'none',
+          borderBottom: '1px solid var(--border-color)',
+          borderRadius: '0',
           boxSizing: 'border-box',
-          background: disabled ? '#f5f5f5' : 'white',
+          background: 'transparent',
           cursor: disabled ? 'not-allowed' : 'pointer',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          minHeight: '48px'
+          minHeight: '48px',
+          color: 'var(--text-dark)'
         }}
       >
         <span style={{ 
-          color: displayValue ? '#000' : '#999',
+          color: displayValue ? 'var(--text-dark)' : 'var(--text-gray)',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
           whiteSpace: 'nowrap',
-          flex: 1
+          flex: 1,
+          opacity: displayValue ? 1 : 0.6
         }}>
           {displayValue || placeholder}
         </span>
