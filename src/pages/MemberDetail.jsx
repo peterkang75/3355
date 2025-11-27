@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
@@ -1651,4 +1651,4 @@ function InfoRow({ label, value }) {
   );
 }
 
-export default MemberDetail;
+export default memo(MemberDetail);
