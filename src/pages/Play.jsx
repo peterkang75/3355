@@ -27,6 +27,7 @@ function Play() {
   const [checkingInterval, setCheckingInterval] = useState(null);
   const [showEndRoundModal, setShowEndRoundModal] = useState(false);
   const [isEndingRound, setIsEndingRound] = useState(false);
+  const skipAutoSaveRef = useRef(false);
   const restoredRef = useRef(false);
   const lastRestoredBookingRef = useRef(null);
 
@@ -125,8 +126,10 @@ function Play() {
   // 실시간 저장
   useEffect(() => {
     if (step !== 'scorecard' || !booking || !selectedTeammate || !courseData) return;
+    if (skipAutoSaveRef.current) return;
 
     const saveScore = async () => {
+      if (skipAutoSaveRef.current) return;
       try {
         const parArr = courseData?.holePars?.[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
         const userParArr = courseData?.holePars?.[user?.gender === 'F' ? 'female' : 'male'] || [];
@@ -1134,10 +1137,14 @@ function Play() {
                     return;
                   }
                   
+                  skipAutoSaveRef.current = true;
                   setIsEndingRound(true);
+                  
                   try {
                     const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
                     const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
+                    
+                    await new Promise(resolve => setTimeout(resolve, 600));
                     
                     await fetch(`/api/scores/member/${encodeURIComponent(teammateMemberId)}/${encodeURIComponent(user.id)}/${encodeURIComponent(scoreDate)}/${encodeURIComponent(booking?.title || '')}`, {
                       method: 'DELETE'
@@ -1149,6 +1156,7 @@ function Play() {
                   } catch (e) {
                     console.error('스코어 삭제 오류:', e);
                     alert('처리 중 오류가 발생했습니다.');
+                    skipAutoSaveRef.current = false;
                   } finally {
                     setIsEndingRound(false);
                   }
