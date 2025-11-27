@@ -29,6 +29,7 @@ model Member {
   isActive         Boolean  @default(true)
   approvalStatus   String   @default("approved")
   canManageFees    Boolean  @default(false)
+  isFeeExempt      Boolean  @default(false)
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 
