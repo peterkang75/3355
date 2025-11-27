@@ -1402,24 +1402,6 @@ function Dashboard() {
                         >
                           ▲ 결과보기
                         </button>
-                        {user.isAdmin && (
-                          <button
-                            onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
-                            style={{
-                              flex: 1,
-                              padding: '12px',
-                              background: '#214001',
-                              color: 'var(--text-light)',
-                              border: 'none',
-                              borderRadius: '6px',
-                              fontSize: '14px',
-                              fontWeight: '700',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            ◉ 라운딩 관리
-                          </button>
-                        )}
                       </>
                     ) : isRegistrationClosed(booking) && !isPastRoundingDate(booking) ? (
                       <>
@@ -1455,24 +1437,6 @@ function Dashboard() {
                             }}
                           >
                             ⛳ 플레이하기
-                          </button>
-                        )}
-                        {user.isAdmin && (
-                          <button
-                            onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
-                            style={{
-                              flex: 1,
-                              padding: '12px',
-                              background: '#214001',
-                              color: 'var(--text-light)',
-                              border: 'none',
-                              borderRadius: '6px',
-                              fontSize: '14px',
-                              fontWeight: '700',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            ◉ 라운딩 관리
                           </button>
                         )}
                       </>
@@ -1549,24 +1513,6 @@ function Dashboard() {
                             }}
                           >
                             ⛳ 플레이하기
-                          </button>
-                        )}
-                        {user.isAdmin && (
-                          <button
-                            onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
-                            style={{
-                              flex: 1,
-                              padding: '12px',
-                              background: '#214001',
-                              color: 'var(--text-light)',
-                              border: 'none',
-                              borderRadius: '6px',
-                              fontSize: '14px',
-                              fontWeight: '700',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            ◉ 라운딩 관리
                           </button>
                         )}
                       </>

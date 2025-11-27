@@ -728,6 +728,25 @@ function Booking() {
                     </button>
                     <button
                       onClick={() => {
+                        navigate(`/rounding-management?id=${booking.id}`);
+                        setOpenMenuId(null);
+                      }}
+                      style={{
+                        display: 'block',
+                        width: '100%',
+                        padding: '12px 16px',
+                        textAlign: 'left',
+                        background: 'transparent',
+                        border: 'none',
+                        fontSize: '14px',
+                        cursor: 'pointer',
+                        borderBottom: '1px solid var(--border-color)'
+                      }}
+                    >
+                      ◉ 라운딩 관리
+                    </button>
+                    <button
+                      onClick={() => {
                         handleDeleteBooking(booking.id);
                         setOpenMenuId(null);
                       }}
@@ -912,24 +931,6 @@ function Booking() {
                 >
                   ▲ 결과보기
                 </button>
-                {canManageBooking && (
-                  <button
-                    onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      background: 'var(--primary-green)',
-                      color: 'var(--text-light)',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '16px',
-                      fontWeight: '700',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    ◉ 라운딩 관리
-                  </button>
-                )}
               </>
             ) : isRegistrationClosed(booking) && !isPastRoundingDate(booking) ? (
               <>
@@ -985,24 +986,6 @@ function Booking() {
                     }}
                   >
                     ⛳ 플레이하기
-                  </button>
-                )}
-                {canManageBooking && (
-                  <button
-                    onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      background: 'var(--primary-green)',
-                      color: 'var(--text-light)',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '16px',
-                      fontWeight: '700',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    ◉ 라운딩 관리
                   </button>
                 )}
               </>
@@ -1082,24 +1065,6 @@ function Booking() {
                     ⛳ 플레이하기
                   </button>
                 )}
-                {canManageBooking && (
-                  <button
-                    onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      background: 'var(--primary-green)',
-                      color: 'var(--text-light)',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '16px',
-                      fontWeight: '700',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    ◉ 라운딩 관리
-                  </button>
-                )}
               </>
             )}
           </div>
@@ -1169,24 +1134,6 @@ function Booking() {
               ⛳ 플레이하기
             </button>
           ) : null}
-          {canManageBooking && (
-            <button
-              onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
-              style={{
-                padding: '8px 16px',
-                background: 'var(--primary-green)',
-                color: 'var(--text-light)',
-                border: 'none',
-                borderRadius: '6px',
-                fontSize: '13px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap'
-              }}
-            >
-              ◉ 라운딩 관리
-            </button>
-          )}
         </div>
       </div>
     );
