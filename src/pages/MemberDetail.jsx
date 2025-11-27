@@ -122,7 +122,11 @@ function MemberDetail() {
       if (requiresProfileComplete) {
         setValidationError('모든 정보를 입력해야 앱 사용이 가능합니다.');
       } else {
-        setValidationError('이름, 대화명, 사진, 성별, 출생연도, 지역은 필수 입력 항목입니다.');
+        if (editData.isClubMember === 'yes') {
+          setValidationError('모든 필수 항목을 입력해주세요. (이름, 대화명, 사진, 전화번호, 핸디캡, 성별, 출생연도, 지역, 소속클럽, Golflink번호, 회원번호)');
+        } else {
+          setValidationError('모든 필수 항목을 입력해주세요. (이름, 대화명, 사진, 전화번호, 핸디캡, 성별, 출생연도, 지역, 클럽가입 여부)');
+        }
       }
       return;
     }
@@ -133,10 +137,11 @@ function MemberDetail() {
         name: editData.name,
         nickname: editData.nickname,
         phone: editData.phone,
-        club: editData.club,
+        isClubMember: editData.isClubMember,
+        club: editData.isClubMember === 'yes' ? editData.club : null,
         handicap: editData.handicap,
-        golflinkNumber: editData.golflinkNumber,
-        clubMemberNumber: editData.clubMemberNumber,
+        golflinkNumber: editData.isClubMember === 'yes' ? editData.golflinkNumber : null,
+        clubMemberNumber: editData.isClubMember === 'yes' ? editData.clubMemberNumber : null,
         photo: editData.photo,
         gender: editData.gender,
         birthYear: editData.birthYear,
@@ -927,16 +932,71 @@ function MemberDetail() {
               }}
               style={{ marginBottom: '12px' }}
             />
+            
             <div style={{ marginBottom: '12px' }}>
-              <SearchableDropdown
-                options={courses}
-                value={editData.club || ''}
-                onChange={(value) => setEditData({ ...editData, club: value })}
-                placeholder="소속 클럽 선택 (검색 가능)"
-                displayKey="name"
-                valueKey="name"
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                사진 (본인)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      const img = new Image();
+                      img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 400;
+                        const MAX_HEIGHT = 400;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                          if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                          }
+                        } else {
+                          if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                          }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                        setEditData({ ...editData, photo: compressedDataUrl });
+                      };
+                      img.src = event.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                  }
+                }}
+                style={{ marginBottom: '8px', width: '100%' }}
               />
+              {editData.photo && (
+                <div style={{ marginTop: '8px' }}>
+                  <img 
+                    src={editData.photo} 
+                    alt="미리보기" 
+                    style={{ 
+                      width: '100px', 
+                      height: '100px', 
+                      objectFit: 'cover', 
+                      borderRadius: '8px',
+                      border: '1px solid var(--border-color)'
+                    }} 
+                  />
+                </div>
+              )}
             </div>
+
             <input
               type="number"
               inputMode="numeric"
@@ -945,20 +1005,63 @@ function MemberDetail() {
               onChange={(e) => setEditData({ ...editData, handicap: e.target.value })}
               style={{ marginBottom: '12px' }}
             />
-            <input
-              type="text"
-              placeholder="Golflink 번호"
-              value={editData.golflinkNumber || ''}
-              onChange={(e) => setEditData({ ...editData, golflinkNumber: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
-            <input
-              type="text"
-              placeholder="클럽 회원번호"
-              value={editData.clubMemberNumber || ''}
-              onChange={(e) => setEditData({ ...editData, clubMemberNumber: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            />
+
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                클럽 멤버이신가요?
+              </label>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="isClubMember"
+                    value="yes"
+                    checked={editData.isClubMember === 'yes'}
+                    onChange={(e) => setEditData({ ...editData, isClubMember: e.target.value })}
+                  />
+                  <span>예</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="isClubMember"
+                    value="no"
+                    checked={editData.isClubMember === 'no'}
+                    onChange={(e) => setEditData({ ...editData, isClubMember: e.target.value })}
+                  />
+                  <span>아니오</span>
+                </label>
+              </div>
+            </div>
+
+            {editData.isClubMember === 'yes' && (
+              <>
+                <div style={{ marginBottom: '12px' }}>
+                  <SearchableDropdown
+                    options={courses}
+                    value={editData.club || ''}
+                    onChange={(value) => setEditData({ ...editData, club: value })}
+                    placeholder="소속 클럽 선택 (검색 가능)"
+                    displayKey="name"
+                    valueKey="name"
+                  />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Golflink 번호"
+                  value={editData.golflinkNumber || ''}
+                  onChange={(e) => setEditData({ ...editData, golflinkNumber: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+                <input
+                  type="text"
+                  placeholder="클럽 회원번호"
+                  value={editData.clubMemberNumber || ''}
+                  onChange={(e) => setEditData({ ...editData, clubMemberNumber: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
+              </>
+            )}
             
             <div style={{ marginBottom: '12px' }}>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
