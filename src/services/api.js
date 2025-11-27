@@ -1,10 +1,47 @@
 const API_BASE = '/api';
 
+const cache = new Map();
+const CACHE_DURATION = 5000;
+const pendingRequests = new Map();
+
 class ApiService {
+  async cachedFetch(key, fetchFn, duration = CACHE_DURATION) {
+    const cached = cache.get(key);
+    if (cached && Date.now() - cached.timestamp < duration) {
+      return cached.data;
+    }
+    
+    if (pendingRequests.has(key)) {
+      return pendingRequests.get(key);
+    }
+    
+    const promise = fetchFn().then(data => {
+      cache.set(key, { data, timestamp: Date.now() });
+      pendingRequests.delete(key);
+      return data;
+    }).catch(err => {
+      pendingRequests.delete(key);
+      throw err;
+    });
+    
+    pendingRequests.set(key, promise);
+    return promise;
+  }
+
+  invalidateCache(prefix) {
+    for (const key of cache.keys()) {
+      if (key.startsWith(prefix)) {
+        cache.delete(key);
+      }
+    }
+  }
+
   async fetchMembers() {
-    const response = await fetch(`${API_BASE}/members`);
-    if (!response.ok) throw new Error('Failed to fetch members');
-    return response.json();
+    return this.cachedFetch('members', async () => {
+      const response = await fetch(`${API_BASE}/members`);
+      if (!response.ok) throw new Error('Failed to fetch members');
+      return response.json();
+    });
   }
 
   async createMember(memberData) {
@@ -23,6 +60,7 @@ class ApiService {
       }
       throw new Error('Failed to create member');
     }
+    this.invalidateCache('members');
     return response.json();
   }
 
@@ -33,6 +71,7 @@ class ApiService {
       body: JSON.stringify(memberData)
     });
     if (!response.ok) throw new Error('Failed to update member');
+    this.invalidateCache('members');
     return response.json();
   }
 
@@ -41,6 +80,7 @@ class ApiService {
       method: 'DELETE'
     });
     if (!response.ok) throw new Error('Failed to delete member');
+    this.invalidateCache('members');
     return response.json();
   }
 
@@ -49,6 +89,7 @@ class ApiService {
       method: 'PATCH'
     });
     if (!response.ok) throw new Error('Failed to toggle admin status');
+    this.invalidateCache('members');
     return response.json();
   }
 
@@ -57,6 +98,7 @@ class ApiService {
       method: 'PATCH'
     });
     if (!response.ok) throw new Error('Failed to toggle active status');
+    this.invalidateCache('members');
     return response.json();
   }
 
@@ -65,6 +107,7 @@ class ApiService {
       method: 'PATCH'
     });
     if (!response.ok) throw new Error('Failed to toggle fees permission');
+    this.invalidateCache('members');
     return response.json();
   }
 
@@ -75,13 +118,16 @@ class ApiService {
       body: JSON.stringify({ role })
     });
     if (!response.ok) throw new Error('Failed to update member role');
+    this.invalidateCache('members');
     return response.json();
   }
 
   async fetchPosts() {
-    const response = await fetch(`${API_BASE}/posts`);
-    if (!response.ok) throw new Error('Failed to fetch posts');
-    return response.json();
+    return this.cachedFetch('posts', async () => {
+      const response = await fetch(`${API_BASE}/posts`);
+      if (!response.ok) throw new Error('Failed to fetch posts');
+      return response.json();
+    });
   }
 
   async createPost(postData) {
@@ -91,6 +137,7 @@ class ApiService {
       body: JSON.stringify(postData)
     });
     if (!response.ok) throw new Error('Failed to create post');
+    this.invalidateCache('posts');
     return response.json();
   }
 
@@ -101,6 +148,7 @@ class ApiService {
       body: JSON.stringify(postData)
     });
     if (!response.ok) throw new Error('Failed to update post');
+    this.invalidateCache('posts');
     return response.json();
   }
 
@@ -109,13 +157,16 @@ class ApiService {
       method: 'DELETE'
     });
     if (!response.ok) throw new Error('Failed to delete post');
+    this.invalidateCache('posts');
     return response.json();
   }
 
   async fetchBookings() {
-    const response = await fetch(`${API_BASE}/bookings`);
-    if (!response.ok) throw new Error('Failed to fetch bookings');
-    return response.json();
+    return this.cachedFetch('bookings', async () => {
+      const response = await fetch(`${API_BASE}/bookings`);
+      if (!response.ok) throw new Error('Failed to fetch bookings');
+      return response.json();
+    });
   }
 
   async createBooking(bookingData) {
@@ -125,6 +176,7 @@ class ApiService {
       body: JSON.stringify(bookingData)
     });
     if (!response.ok) throw new Error('Failed to create booking');
+    this.invalidateCache('bookings');
     return response.json();
   }
 
@@ -135,6 +187,7 @@ class ApiService {
       body: JSON.stringify(bookingData)
     });
     if (!response.ok) throw new Error('Failed to update booking');
+    this.invalidateCache('bookings');
     return response.json();
   }
 
@@ -143,6 +196,7 @@ class ApiService {
       method: 'DELETE'
     });
     if (!response.ok) throw new Error('Failed to delete booking');
+    this.invalidateCache('bookings');
     return response.json();
   }
 
@@ -151,6 +205,7 @@ class ApiService {
       method: 'PATCH'
     });
     if (!response.ok) throw new Error('Failed to toggle booking announce status');
+    this.invalidateCache('bookings');
     return response.json();
   }
 
@@ -257,9 +312,11 @@ class ApiService {
   }
 
   async fetchCourses() {
-    const response = await fetch(`${API_BASE}/courses`);
-    if (!response.ok) throw new Error('Failed to fetch courses');
-    return response.json();
+    return this.cachedFetch('courses', async () => {
+      const response = await fetch(`${API_BASE}/courses`);
+      if (!response.ok) throw new Error('Failed to fetch courses');
+      return response.json();
+    }, 30000);
   }
 
   async createCourse(courseData) {
@@ -269,6 +326,7 @@ class ApiService {
       body: JSON.stringify(courseData)
     });
     if (!response.ok) throw new Error('Failed to create course');
+    this.invalidateCache('courses');
     return response.json();
   }
 
@@ -279,6 +337,7 @@ class ApiService {
       body: JSON.stringify(courseData)
     });
     if (!response.ok) throw new Error('Failed to update course');
+    this.invalidateCache('courses');
     return response.json();
   }
 
@@ -287,13 +346,16 @@ class ApiService {
       method: 'DELETE'
     });
     if (!response.ok) throw new Error('Failed to delete course');
+    this.invalidateCache('courses');
     return response.json();
   }
 
   async fetchSettings() {
-    const response = await fetch(`${API_BASE}/settings`);
-    if (!response.ok) throw new Error('Failed to fetch settings');
-    return response.json();
+    return this.cachedFetch('settings', async () => {
+      const response = await fetch(`${API_BASE}/settings`);
+      if (!response.ok) throw new Error('Failed to fetch settings');
+      return response.json();
+    }, 10000);
   }
 
   async updateSetting(feature, data) {
@@ -303,6 +365,7 @@ class ApiService {
       body: JSON.stringify(data)
     });
     if (!response.ok) throw new Error('Failed to update setting');
+    this.invalidateCache('settings');
     return response.json();
   }
 
