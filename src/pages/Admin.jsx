@@ -4,6 +4,7 @@ import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 import CrownIcon from '../components/CrownIcon';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
+import SearchableDropdown from '../components/SearchableDropdown';
 
 function Admin() {
   const navigate = useNavigate();
@@ -2076,13 +2077,16 @@ function Admin() {
                   onChange={(e) => setEditMemberData({ ...editMemberData, region: e.target.value })}
                   style={{ marginBottom: '12px' }}
                 />
-                <input
-                  type="text"
-                  placeholder="소속 클럽"
-                  value={editMemberData.club}
-                  onChange={(e) => setEditMemberData({ ...editMemberData, club: e.target.value })}
-                  style={{ marginBottom: '12px' }}
-                />
+                <div style={{ marginBottom: '12px' }}>
+                  <SearchableDropdown
+                    options={courses}
+                    value={editMemberData.club || ''}
+                    onChange={(value) => setEditMemberData({ ...editMemberData, club: value })}
+                    placeholder="소속 클럽 선택 (검색 가능)"
+                    displayKey="name"
+                    valueKey="name"
+                  />
+                </div>
                 <input
                   type="number"
                   inputMode="numeric"
@@ -6246,25 +6250,14 @@ function Admin() {
                 }}>
                   골프장 *
                 </label>
-                <select
+                <SearchableDropdown
+                  options={courses}
                   value={scoreFormData.courseName}
-                  onChange={(e) => setScoreFormData({ ...scoreFormData, courseName: e.target.value })}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    fontSize: '14px',
-                    border: '2px solid #ddd',
-                    borderRadius: '6px',
-                    boxSizing: 'border-box'
-                  }}
-                >
-                  <option value="">골프장 선택</option>
-                  {courses.map(course => (
-                    <option key={course.id} value={course.name}>
-                      {course.name}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(value) => setScoreFormData({ ...scoreFormData, courseName: value })}
+                  placeholder="골프장 선택 (검색 가능)"
+                  displayKey="name"
+                  valueKey="name"
+                />
               </div>
 
               <div>

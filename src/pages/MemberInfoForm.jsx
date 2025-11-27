@@ -3,6 +3,7 @@ import { useApp } from '../contexts/AppContext';
 import logoImage from '../assets/logo-new.png';
 import apiService from '../services/api';
 import LoadingButton from '../components/LoadingButton';
+import SearchableDropdown from '../components/SearchableDropdown';
 
 function MemberInfoForm() {
   const { courses, members, refreshMembers } = useApp();
@@ -386,18 +387,14 @@ function MemberInfoForm() {
                 <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '600' }}>
                   소속 클럽 *
                 </label>
-                <select
+                <SearchableDropdown
+                  options={courses}
                   value={formData.club}
-                  onChange={(e) => setFormData({ ...formData, club: e.target.value })}
-                  style={{ width: '100%' }}
-                >
-                  <option value="">클럽 선택</option>
-                  {courses.map(course => (
-                    <option key={course.id} value={course.name}>
-                      {course.name}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(value) => setFormData({ ...formData, club: value })}
+                  placeholder="클럽 선택 (검색 가능)"
+                  displayKey="name"
+                  valueKey="name"
+                />
               </div>
 
               <div style={{ marginBottom: '16px' }}>

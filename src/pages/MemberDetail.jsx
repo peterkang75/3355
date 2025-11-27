@@ -7,6 +7,7 @@ import adminIcon from '../assets/role-admin.png';
 import bangjangIcon from '../assets/role-bangjang.png';
 import staffIcon from '../assets/role-staff.png';
 import clubStaffIcon from '../assets/role-club-staff.png';
+import SearchableDropdown from '../components/SearchableDropdown';
 
 function MemberDetail() {
   const { id } = useParams();
@@ -842,18 +843,16 @@ function MemberDetail() {
               }}
               style={{ marginBottom: '12px' }}
             />
-            <select
-              value={editData.club || ''}
-              onChange={(e) => setEditData({ ...editData, club: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            >
-              <option value="">소속 클럽 선택</option>
-              {courses.map(course => (
-                <option key={course.id} value={course.name}>
-                  {course.name}
-                </option>
-              ))}
-            </select>
+            <div style={{ marginBottom: '12px' }}>
+              <SearchableDropdown
+                options={courses}
+                value={editData.club || ''}
+                onChange={(value) => setEditData({ ...editData, club: value })}
+                placeholder="소속 클럽 선택 (검색 가능)"
+                displayKey="name"
+                valueKey="name"
+              />
+            </div>
             <input
               type="number"
               inputMode="numeric"
@@ -1286,18 +1285,16 @@ function MemberDetail() {
               onChange={(e) => setScoreFormData({ ...scoreFormData, date: e.target.value })}
               style={{ marginBottom: '12px' }}
             />
-            <select
-              value={scoreFormData.courseName}
-              onChange={(e) => setScoreFormData({ ...scoreFormData, courseName: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            >
-              <option value="">골프장 선택</option>
-              {courses.map((course, index) => (
-                <option key={index} value={course.name}>
-                  {course.name} {course.address && `- ${course.address}`}
-                </option>
-              ))}
-            </select>
+            <div style={{ marginBottom: '12px' }}>
+              <SearchableDropdown
+                options={courses}
+                value={scoreFormData.courseName}
+                onChange={(value) => setScoreFormData({ ...scoreFormData, courseName: value })}
+                placeholder="골프장 선택 (검색 가능)"
+                displayKey="name"
+                valueKey="name"
+              />
+            </div>
             <input
               type="number"
               inputMode="numeric"

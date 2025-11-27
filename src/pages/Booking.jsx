@@ -3,6 +3,7 @@ import { useApp } from '../contexts/AppContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import apiService from '../services/api';
 import CrownIcon from '../components/CrownIcon';
+import SearchableDropdown from '../components/SearchableDropdown';
 
 function Booking() {
   const { user, members, bookings, courses, scores, addBooking, updateBooking, refreshBookings } = useApp();
@@ -409,18 +410,16 @@ function Booking() {
             <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
               골프장 * (컴페티션)
             </label>
-            <select
-              value={data.courseName}
-              onChange={(e) => setData({ ...data, courseName: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            >
-              <option value="">골프장 선택</option>
-              {courses.filter(course => course.isCompetition === true).map(course => (
-                <option key={course.id} value={course.name}>
-                  {course.name}
-                </option>
-              ))}
-            </select>
+            <div style={{ marginBottom: '12px' }}>
+              <SearchableDropdown
+                options={courses.filter(course => course.isCompetition === true)}
+                value={data.courseName}
+                onChange={(value) => setData({ ...data, courseName: value })}
+                placeholder="골프장 선택 (검색 가능)"
+                displayKey="name"
+                valueKey="name"
+              />
+            </div>
 
             <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
               라운딩 날짜 *
@@ -448,18 +447,16 @@ function Booking() {
             <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
               골프장 *
             </label>
-            <select
-              value={data.courseName}
-              onChange={(e) => setData({ ...data, courseName: e.target.value })}
-              style={{ marginBottom: '12px' }}
-            >
-              <option value="">골프장 선택</option>
-              {courses.map(course => (
-                <option key={course.id} value={course.name}>
-                  {course.name}
-                </option>
-              ))}
-            </select>
+            <div style={{ marginBottom: '12px' }}>
+              <SearchableDropdown
+                options={courses}
+                value={data.courseName}
+                onChange={(value) => setData({ ...data, courseName: value })}
+                placeholder="골프장 선택 (검색 가능)"
+                displayKey="name"
+                valueKey="name"
+              />
+            </div>
 
             <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
               라운딩 날짜 *
