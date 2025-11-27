@@ -12,6 +12,7 @@ function Admin() {
   const { user, addFee, courses, addCourse, refreshMembers, refreshCourses, members: contextMembers } = useApp();
   const [activeTab, setActiveTab] = useState('menu');
   const [members, setMembers] = useState([]);
+  const [memberSearchTerm, setMemberSearchTerm] = useState('');
   const [showPermissionMenu, setShowPermissionMenu] = useState(null);
   const [showInactive, setShowInactive] = useState(false);
   const menuRefs = useRef({});
@@ -1753,12 +1754,72 @@ function Admin() {
 
         {activeTab === 'members' && (
           <div>
-            {members.filter(m => m.approvalStatus === 'pending').length > 0 && (
+            {/* 회원 검색 */}
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{ position: 'relative' }}>
+                <input
+                  type="text"
+                  placeholder="이름 또는 대화명으로 검색..."
+                  value={memberSearchTerm}
+                  onChange={(e) => setMemberSearchTerm(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '14px 16px',
+                    paddingLeft: '44px',
+                    fontSize: '15px',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '12px',
+                    background: 'var(--bg-card)',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                <span style={{
+                  position: 'absolute',
+                  left: '14px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  fontSize: '18px',
+                  opacity: 0.5
+                }}>
+                  🔍
+                </span>
+                {memberSearchTerm && (
+                  <button
+                    onClick={() => setMemberSearchTerm('')}
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      fontSize: '18px',
+                      cursor: 'pointer',
+                      color: '#999',
+                      padding: '4px'
+                    }}
+                  >
+                    ✕
+                  </button>
+                )}
+              </div>
+            </div>
+
+            {members.filter(m => m.approvalStatus === 'pending' && 
+              (memberSearchTerm === '' || 
+               m.name?.toLowerCase().includes(memberSearchTerm.toLowerCase()) || 
+               m.nickname?.toLowerCase().includes(memberSearchTerm.toLowerCase()))).length > 0 && (
               <div className="card" style={{ marginBottom: '16px', background: '#FFF3E0', border: '2px solid #FF9800' }}>
                 <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', color: '#FF9800' }}>
-                  승인 대기 중 ({members.filter(m => m.approvalStatus === 'pending').length})
+                  승인 대기 중 ({members.filter(m => m.approvalStatus === 'pending' && 
+                    (memberSearchTerm === '' || 
+                     m.name?.toLowerCase().includes(memberSearchTerm.toLowerCase()) || 
+                     m.nickname?.toLowerCase().includes(memberSearchTerm.toLowerCase()))).length})
                 </h3>
-                {members.filter(m => m.approvalStatus === 'pending').map(member => (
+                {members.filter(m => m.approvalStatus === 'pending' && 
+                  (memberSearchTerm === '' || 
+                   m.name?.toLowerCase().includes(memberSearchTerm.toLowerCase()) || 
+                   m.nickname?.toLowerCase().includes(memberSearchTerm.toLowerCase()))).map(member => (
                   <div
                     key={member.id}
                     style={{
@@ -1886,7 +1947,11 @@ function Admin() {
                 marginBottom: '16px' 
               }}>
                 <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
-                  전체 회원 ({showInactive ? members.length : members.filter(m => m.isActive !== false).length})
+                  전체 회원 ({members.filter(m => 
+                    (showInactive || m.isActive !== false) &&
+                    (memberSearchTerm === '' || 
+                     m.name?.toLowerCase().includes(memberSearchTerm.toLowerCase()) || 
+                     m.nickname?.toLowerCase().includes(memberSearchTerm.toLowerCase()))).length})
                 </h3>
                 <button
                   onClick={() => setShowInactive(!showInactive)}
@@ -1904,7 +1969,11 @@ function Admin() {
                   {showInactive ? '✓ 비활성 회원 포함' : '활성 회원만 보기'}
                 </button>
               </div>
-              {members.filter(member => showInactive || member.isActive !== false).map(member => {
+              {members.filter(member => 
+                (showInactive || member.isActive !== false) &&
+                (memberSearchTerm === '' || 
+                 member.name?.toLowerCase().includes(memberSearchTerm.toLowerCase()) || 
+                 member.nickname?.toLowerCase().includes(memberSearchTerm.toLowerCase()))).map(member => {
                 const handicapDisplay = member.golflinkNumber 
                   ? `GA(${member.handicap})` 
                   : `HH(${member.handicap})`;
