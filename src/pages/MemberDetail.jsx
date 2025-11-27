@@ -29,6 +29,7 @@ function MemberDetail() {
   });
   const [transactions, setTransactions] = useState([]);
   const [memberBalance, setMemberBalance] = useState(0);
+  const [showMemberMenu, setShowMemberMenu] = useState(false);
 
   useEffect(() => {
     loadMemberData();
@@ -55,16 +56,19 @@ function MemberDetail() {
       if (openMenuId !== null) {
         setOpenMenuId(null);
       }
+      if (showMemberMenu) {
+        setShowMemberMenu(false);
+      }
     };
 
-    if (openMenuId !== null) {
+    if (openMenuId !== null || showMemberMenu) {
       document.addEventListener('click', handleClickOutside);
     }
 
     return () => {
       document.removeEventListener('click', handleClickOutside);
     };
-  }, [openMenuId]);
+  }, [openMenuId, showMemberMenu]);
 
   const loadMemberData = () => {
     const foundMember = members.find(m => m.id === id);
@@ -287,7 +291,101 @@ function MemberDetail() {
         <h1 style={{ flex: 1, marginLeft: '12px' }}>
           회원 상세
         </h1>
-        <div style={{ width: '24px' }}></div>
+        {isAdmin && (
+          <div style={{ position: 'relative' }}>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowMemberMenu(!showMemberMenu);
+              }}
+              style={{
+                background: 'none',
+                border: 'none',
+                fontSize: '20px',
+                cursor: 'pointer',
+                padding: '4px 8px',
+                color: 'var(--text-light)'
+              }}
+            >
+              ⋮
+            </button>
+            {showMemberMenu && (
+              <div 
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  background: 'var(--bg-card)',
+                  borderRadius: '8px',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                  minWidth: '140px',
+                  zIndex: 1000,
+                  overflow: 'hidden',
+                  border: '1px solid var(--border-color)'
+                }}
+              >
+                <button
+                  onClick={() => {
+                    setShowMemberMenu(false);
+                    setIsEditing(true);
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    background: 'none',
+                    border: 'none',
+                    borderBottom: '1px solid var(--border-color)',
+                    textAlign: 'left',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    color: 'var(--text-dark)'
+                  }}
+                >
+                  수정
+                </button>
+                <button
+                  onClick={() => {
+                    setShowMemberMenu(false);
+                    handleToggleActive();
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    background: 'none',
+                    border: 'none',
+                    borderBottom: '1px solid var(--border-color)',
+                    textAlign: 'left',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    color: 'var(--text-dark)'
+                  }}
+                >
+                  {member.isActive === false ? '활성화' : '비활성화'}
+                </button>
+                <button
+                  onClick={() => {
+                    setShowMemberMenu(false);
+                    handleDelete();
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    background: 'none',
+                    border: 'none',
+                    textAlign: 'left',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    color: 'var(--alert-red)'
+                  }}
+                >
+                  삭제
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+        {!isAdmin && <div style={{ width: '24px' }}></div>}
       </div>
 
       <div className="page-content">
@@ -297,32 +395,120 @@ function MemberDetail() {
             position: 'relative',
             marginBottom: '16px'
           }}>
-            {member.photo ? (
-              <img 
-                src={member.photo} 
-                alt={member.name}
-                style={{
+            <input
+              type="file"
+              id="photoUpload"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = async () => {
+                      try {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 400;
+                        const MAX_HEIGHT = 400;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                          if (width > MAX_WIDTH) {
+                            height *= MAX_WIDTH / width;
+                            width = MAX_WIDTH;
+                          }
+                        } else {
+                          if (height > MAX_HEIGHT) {
+                            width *= MAX_HEIGHT / height;
+                            height = MAX_HEIGHT;
+                          }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        if (!ctx) {
+                          alert('이미지 처리 중 오류가 발생했습니다.');
+                          return;
+                        }
+                        ctx.drawImage(img, 0, 0, width, height);
+
+                        const resizedBase64 = canvas.toDataURL('image/jpeg', 0.8);
+                        
+                        await apiService.updateMember(id, { photo: resizedBase64 });
+                        await refreshMembers();
+                        alert('사진이 변경되었습니다!');
+                      } catch (error) {
+                        console.error('사진 업로드 실패:', error);
+                        alert('사진 업로드에 실패했습니다.');
+                      }
+                    };
+                    img.onerror = () => {
+                      alert('이미지를 불러오는 중 오류가 발생했습니다.');
+                    };
+                    img.src = event.target.result;
+                  };
+                  reader.onerror = () => {
+                    alert('파일을 읽는 중 오류가 발생했습니다.');
+                  };
+                  reader.readAsDataURL(file);
+                }
+                e.target.value = '';
+              }}
+            />
+            <label 
+              htmlFor={isAdmin ? "photoUpload" : undefined}
+              style={{ 
+                cursor: isAdmin ? 'pointer' : 'default',
+                display: 'block',
+                position: 'relative'
+              }}
+            >
+              {member.photo ? (
+                <img 
+                  src={member.photo} 
+                  alt={member.name}
+                  style={{
+                    width: '120px',
+                    height: '120px',
+                    objectFit: 'cover',
+                    borderRadius: '50%'
+                  }}
+                />
+              ) : (
+                <div style={{
                   width: '120px',
                   height: '120px',
-                  objectFit: 'cover',
-                  borderRadius: '50%'
-                }}
-              />
-            ) : (
-              <div style={{
-                width: '120px',
-                height: '120px',
-                background: '#ddd',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '60px',
-                color: '#999'
-              }}>
-                ●
-              </div>
-            )}
+                  background: '#ddd',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '60px',
+                  color: '#999'
+                }}>
+                  ●
+                </div>
+              )}
+              {isAdmin && (
+                <div style={{
+                  position: 'absolute',
+                  bottom: '0',
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  background: 'rgba(0,0,0,0.6)',
+                  color: 'white',
+                  padding: '4px 10px',
+                  borderRadius: '12px',
+                  fontSize: '11px',
+                  fontWeight: '500'
+                }}>
+                  사진 변경
+                </div>
+              )}
+            </label>
             
             {member.role && ['관리자', '방장', '운영진', '클럽운영진'].includes(member.role) && (
               <div style={{
@@ -673,36 +859,6 @@ function MemberDetail() {
                     gap: '8px'
                   }}>
                     <button
-                      onClick={() => setIsEditing(true)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '14px 16px',
-                        background: '#f8f8f8',
-                        border: '1px solid #e0e0e0',
-                        borderRadius: '10px',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        textAlign: 'left'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'var(--bg-green)';
-                        e.currentTarget.style.borderColor = 'var(--primary-green)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = '#f8f8f8';
-                        e.currentTarget.style.borderColor = '#e0e0e0';
-                      }}
-                    >
-                      <span style={{ fontSize: '24px', width: '30px', textAlign: 'center', color: '#333' }}>✎</span>
-                      <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-dark)', flex: 1 }}>
-                        정보 수정
-                      </span>
-                      <span style={{ fontSize: '18px', opacity: 0.5 }}>›</span>
-                    </button>
-
-                    <button
                       onClick={() => {
                         setEditingScoreId(null);
                         setScoreFormData({
@@ -739,68 +895,6 @@ function MemberDetail() {
                         스코어 기록
                       </span>
                       <span style={{ fontSize: '18px', opacity: 0.5 }}>›</span>
-                    </button>
-
-                    <button
-                      onClick={handleToggleActive}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '14px 16px',
-                        background: '#f8f8f8',
-                        border: '1px solid #e0e0e0',
-                        borderRadius: '10px',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        textAlign: 'left'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = '#f0f0f0';
-                        e.currentTarget.style.borderColor = '#ccc';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = '#f8f8f8';
-                        e.currentTarget.style.borderColor = '#e0e0e0';
-                      }}
-                    >
-                      <span style={{ fontSize: '24px', width: '30px', textAlign: 'center', color: '#333' }}>
-                        {member.isActive === false ? '○' : '●'}
-                      </span>
-                      <span style={{ fontSize: '16px', fontWeight: '600', color: '#666', flex: 1 }}>
-                        {member.isActive === false ? '활성화' : '비활성화'}
-                      </span>
-                      <span style={{ fontSize: '18px', opacity: 0.5 }}>›</span>
-                    </button>
-
-                    <button
-                      onClick={handleDelete}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '14px 16px',
-                        background: '#fff5f5',
-                        border: '1px solid #ffcccc',
-                        borderRadius: '10px',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        textAlign: 'left'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = '#ffe5e5';
-                        e.currentTarget.style.borderColor = '#ff9999';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = '#fff5f5';
-                        e.currentTarget.style.borderColor = '#ffcccc';
-                      }}
-                    >
-                      <span style={{ fontSize: '24px', width: '30px', textAlign: 'center', color: '#333' }}>×</span>
-                      <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--alert-red)', flex: 1 }}>
-                        회원 삭제
-                      </span>
-                      <span style={{ fontSize: '18px', opacity: 0.5, color: 'var(--alert-red)' }}>›</span>
                     </button>
                   </div>
                 </div>
@@ -875,85 +969,6 @@ function MemberDetail() {
               onChange={(e) => setEditData({ ...editData, clubMemberNumber: e.target.value })}
               style={{ marginBottom: '12px' }}
             />
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                사진 (본인)
-              </label>
-              {editData.photo && (
-                <div style={{ marginBottom: '12px', textAlign: 'center' }}>
-                  <img 
-                    src={editData.photo} 
-                    alt="현재 사진" 
-                    style={{
-                      width: '120px',
-                      height: '120px',
-                      objectFit: 'cover',
-                      borderRadius: '50%',
-                      border: '3px solid var(--primary-green)'
-                    }}
-                  />
-                </div>
-              )}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                      const img = new Image();
-                      img.onload = () => {
-                        try {
-                          const canvas = document.createElement('canvas');
-                          const MAX_WIDTH = 400;
-                          const MAX_HEIGHT = 400;
-                          let width = img.width;
-                          let height = img.height;
-
-                          if (width > height) {
-                            if (width > MAX_WIDTH) {
-                              height *= MAX_WIDTH / width;
-                              width = MAX_WIDTH;
-                            }
-                          } else {
-                            if (height > MAX_HEIGHT) {
-                              width *= MAX_HEIGHT / height;
-                              height = MAX_HEIGHT;
-                            }
-                          }
-
-                          canvas.width = width;
-                          canvas.height = height;
-                          const ctx = canvas.getContext('2d');
-                          if (!ctx) {
-                            alert('이미지 처리 중 오류가 발생했습니다. 다시 시도해주세요.');
-                            return;
-                          }
-                          ctx.drawImage(img, 0, 0, width, height);
-
-                          const resizedBase64 = canvas.toDataURL('image/jpeg', 0.8);
-                          setEditData(prev => ({ ...prev, photo: resizedBase64 }));
-                        } catch (error) {
-                          console.error('이미지 리사이징 실패:', error);
-                          alert('이미지 처리 중 오류가 발생했습니다. 다른 이미지를 선택해주세요.');
-                        }
-                      };
-                      img.onerror = (error) => {
-                        console.error('이미지 로딩 실패:', error);
-                        alert('이미지를 불러오는 중 오류가 발생했습니다. 다른 파일을 선택해주세요.');
-                      };
-                      img.src = event.target.result;
-                    };
-                    reader.onerror = () => {
-                      alert('파일을 읽는 중 오류가 발생했습니다. 다시 시도해주세요.');
-                    };
-                    reader.readAsDataURL(file);
-                  }
-                }}
-                style={{ width: '100%' }}
-              />
-            </div>
             
             <div style={{ marginBottom: '12px' }}>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
