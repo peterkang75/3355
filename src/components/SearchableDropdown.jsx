@@ -129,9 +129,9 @@ function SearchableDropdown({
           top: '100%',
           left: 0,
           right: 0,
-          background: 'white',
-          border: '2px solid #ddd',
-          borderRadius: '6px',
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border-color)',
+          borderRadius: '8px',
           marginTop: '4px',
           zIndex: 1000,
           maxHeight: '300px',
@@ -140,10 +140,10 @@ function SearchableDropdown({
         }}>
           <div style={{
             padding: '8px',
-            borderBottom: '1px solid #eee',
+            borderBottom: '1px solid var(--border-color)',
             position: 'sticky',
             top: 0,
-            background: 'white'
+            background: 'var(--bg-card)'
           }}>
             <input
               ref={inputRef}
@@ -156,10 +156,11 @@ function SearchableDropdown({
                 width: '100%',
                 padding: '10px 12px',
                 fontSize: '14px',
-                border: '1px solid #ddd',
-                borderRadius: '4px',
+                border: '1px solid var(--border-color)',
+                borderRadius: '6px',
                 boxSizing: 'border-box',
-                outline: 'none'
+                outline: 'none',
+                background: 'var(--bg-card)'
               }}
             />
           </div>
@@ -172,8 +173,9 @@ function SearchableDropdown({
               <div style={{
                 padding: '16px',
                 textAlign: 'center',
-                color: '#999',
-                fontSize: '14px'
+                color: 'var(--text-gray)',
+                fontSize: '14px',
+                opacity: 0.7
               }}>
                 검색 결과가 없습니다
               </div>
@@ -190,19 +192,19 @@ function SearchableDropdown({
                     style={{
                       padding: '12px 16px',
                       cursor: 'pointer',
-                      background: isSelected ? 'var(--primary-green)' : 'white',
-                      color: isSelected ? 'white' : '#000',
-                      borderBottom: index < filteredOptions.length - 1 ? '1px solid #f0f0f0' : 'none',
+                      background: isSelected ? 'var(--primary-green)' : 'var(--bg-card)',
+                      color: isSelected ? 'var(--text-light)' : 'var(--text-dark)',
+                      borderBottom: index < filteredOptions.length - 1 ? '1px solid var(--border-color)' : 'none',
                       transition: 'background 0.15s'
                     }}
                     onMouseEnter={(e) => {
                       if (!isSelected) {
-                        e.target.style.background = '#f5f5f5';
+                        e.target.style.background = 'rgba(0,0,0,0.05)';
                       }
                     }}
                     onMouseLeave={(e) => {
                       if (!isSelected) {
-                        e.target.style.background = 'white';
+                        e.target.style.background = 'var(--bg-card)';
                       }
                     }}
                   >
