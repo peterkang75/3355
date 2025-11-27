@@ -859,7 +859,7 @@ function Play() {
             whiteSpace: 'nowrap'
           }}
         >
-          종료
+          라운드 종료
         </button>
         <div style={{ flex: 1, textAlign: 'center', color: 'white', fontSize: '14px', fontWeight: '600' }}>
           {booking?.title}
