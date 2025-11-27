@@ -690,8 +690,27 @@ function Booking() {
                     background: 'var(--bg-card)',
                     borderRadius: '8px',
                     zIndex: 10,
-                    minWidth: '140px'
+                    minWidth: '140px',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
                   }}>
+                    <button
+                      onClick={() => {
+                        navigate(`/rounding-management?id=${booking.id}`);
+                        setOpenMenuId(null);
+                      }}
+                      style={{
+                        display: 'block',
+                        width: '100%',
+                        padding: '12px 16px',
+                        textAlign: 'left',
+                        background: 'transparent',
+                        border: 'none',
+                        fontSize: '14px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      ◉ 라운딩 관리
+                    </button>
                     <button
                       onClick={() => handleToggleAnnounce(booking.id)}
                       disabled={isTogglingAnnounce === booking.id}
@@ -704,7 +723,6 @@ function Booking() {
                         border: 'none',
                         fontSize: '14px',
                         cursor: isTogglingAnnounce === booking.id ? 'wait' : 'pointer',
-                        borderBottom: '1px solid var(--border-color)',
                         opacity: isTogglingAnnounce === booking.id ? 0.7 : 1
                       }}
                     >
@@ -720,30 +738,10 @@ function Booking() {
                         background: 'transparent',
                         border: 'none',
                         fontSize: '14px',
-                        cursor: 'pointer',
-                        borderBottom: '1px solid var(--border-color)'
+                        cursor: 'pointer'
                       }}
                     >
                       ✎ 수정
-                    </button>
-                    <button
-                      onClick={() => {
-                        navigate(`/rounding-management?id=${booking.id}`);
-                        setOpenMenuId(null);
-                      }}
-                      style={{
-                        display: 'block',
-                        width: '100%',
-                        padding: '12px 16px',
-                        textAlign: 'left',
-                        background: 'transparent',
-                        border: 'none',
-                        fontSize: '14px',
-                        cursor: 'pointer',
-                        borderBottom: '1px solid var(--border-color)'
-                      }}
-                    >
-                      ◉ 라운딩 관리
                     </button>
                     <button
                       onClick={() => {
