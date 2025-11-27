@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect, useRef } from 'react';
+import React, { createContext, useState, useContext, useEffect, useRef, useMemo, useCallback } from 'react';
 import { io } from 'socket.io-client';
 import apiService from '../services/api';
 import { calculateHandicap } from '../utils/handicap';
@@ -266,7 +266,7 @@ export function AppProvider({ children }) {
     } catch (error) {}
   };
 
-  const login = (userData) => {
+  const login = useCallback((userData) => {
     setUser(userData);
     localStorage.setItem('golfUser', JSON.stringify(userData));
     loadUserData(userData.id);
@@ -276,40 +276,42 @@ export function AppProvider({ children }) {
     } else {
       setRequiresProfileComplete(false);
     }
-  };
+  }, []);
   
-  const clearRequiresProfileComplete = () => {
+  const clearRequiresProfileComplete = useCallback(() => {
     setRequiresProfileComplete(false);
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setUser(null);
     localStorage.removeItem('golfUser');
     setScores([]);
-  };
+  }, []);
 
-  const updateUser = (updates) => {
+  const updateUser = useCallback((updates) => {
     setUser(prevUser => {
       const updatedUser = { ...prevUser, ...updates };
       localStorage.setItem('golfUser', JSON.stringify(updatedUser));
       return updatedUser;
     });
-  };
+  }, []);
 
-  const saveScore = async (scoreData) => {
+  const saveScore = useCallback(async (scoreData) => {
     try {
       const score = await apiService.createScore({
         ...scoreData,
         holes: JSON.stringify(scoreData.holes)
       });
       
-      const newScores = [...scores, { ...score, holes: JSON.parse(score.holes) }];
-      setScores(newScores);
+      setScores(prevScores => {
+        const newScores = [...prevScores, { ...score, holes: JSON.parse(score.holes) }];
+        return newScores;
+      });
       
       setUser(prevUser => {
         if (!prevUser) return null;
         
-        const handicapData = calculateHandicap(prevUser, newScores);
+        const handicapData = calculateHandicap(prevUser, []);
         const updatedUser = { 
           ...prevUser, 
           calculatedHandicap: handicapData.value,
@@ -325,129 +327,133 @@ export function AppProvider({ children }) {
       console.error('Score save failed:', error);
       throw error;
     }
-  };
+  }, []);
 
-  const addPost = async (postData) => {
+  const addPost = useCallback(async (postData) => {
     try {
       const post = await apiService.createPost(postData);
-      setPosts([post, ...posts]);
+      setPosts(prevPosts => [post, ...prevPosts]);
       return post;
     } catch (error) {
       console.error('Post creation failed:', error);
       throw error;
     }
-  };
+  }, []);
 
-  const updatePost = async (postId, updates) => {
+  const updatePost = useCallback(async (postId, updates) => {
     try {
       const post = await apiService.updatePost(postId, updates);
-      setPosts(posts.map(p => p.id === postId ? post : p));
+      setPosts(prevPosts => prevPosts.map(p => p.id === postId ? post : p));
       return post;
     } catch (error) {
       console.error('Post update failed:', error);
       throw error;
     }
-  };
+  }, []);
 
-  const deletePost = async (postId) => {
+  const deletePost = useCallback(async (postId) => {
     try {
       await apiService.deletePost(postId);
-      setPosts(posts.filter(p => p.id !== postId));
+      setPosts(prevPosts => prevPosts.filter(p => p.id !== postId));
     } catch (error) {
       console.error('Post deletion failed:', error);
       throw error;
     }
-  };
+  }, []);
 
-  const addBooking = async (bookingData) => {
+  const addBooking = useCallback(async (bookingData) => {
     try {
       const booking = await apiService.createBooking(bookingData);
-      setBookings([booking, ...bookings]);
+      setBookings(prevBookings => [booking, ...prevBookings]);
       return booking;
     } catch (error) {
       console.error('Booking creation failed:', error);
       throw error;
     }
-  };
+  }, []);
 
-  const updateBooking = async (bookingId, updates) => {
+  const updateBooking = useCallback(async (bookingId, updates) => {
     try {
       const booking = await apiService.updateBooking(bookingId, updates);
-      setBookings(bookings.map(b => b.id === bookingId ? booking : b));
+      setBookings(prevBookings => prevBookings.map(b => b.id === bookingId ? booking : b));
       return booking;
     } catch (error) {
       console.error('Booking update failed:', error);
       throw error;
     }
-  };
+  }, []);
 
-  const addFee = async (feeData) => {
+  const addFee = useCallback(async (feeData) => {
     try {
       const fee = await apiService.createFee(feeData);
-      setFees([fee, ...fees]);
-      
-      if (user && (fee.appliesTo === 'all' || fee.appliesTo.includes(user.id))) {
-        if (fee.type === 'income') {
-          updateUser({ balance: (user.balance || 0) - fee.amount });
-        }
-      }
-      
+      setFees(prevFees => [fee, ...prevFees]);
       return fee;
     } catch (error) {
       console.error('Fee creation failed:', error);
       throw error;
     }
-  };
+  }, []);
 
-  const payFee = (feeId) => {
-    const fee = fees.find(f => f.id === feeId);
-    if (fee && fee.type === 'income') {
-      updateUser({ balance: (user.balance || 0) + fee.amount });
-    }
-  };
+  const payFee = useCallback((feeId) => {
+    setFees(prevFees => {
+      const fee = prevFees.find(f => f.id === feeId);
+      if (fee && fee.type === 'income') {
+        setUser(prevUser => {
+          if (!prevUser) return null;
+          const updatedUser = { ...prevUser, balance: (prevUser.balance || 0) + fee.amount };
+          localStorage.setItem('golfUser', JSON.stringify(updatedUser));
+          return updatedUser;
+        });
+      }
+      return prevFees;
+    });
+  }, []);
 
-  const addCourse = async (courseData) => {
+  const addCourse = useCallback(async (courseData) => {
     try {
       const course = await apiService.createCourse(courseData);
-      setCourses([...courses, course]);
+      setCourses(prevCourses => [...prevCourses, course]);
       return course;
     } catch (error) {
       console.error('Course creation failed:', error);
       throw error;
     }
-  };
+  }, []);
 
-  const refreshMembers = async () => {
+  const refreshMembers = useCallback(async () => {
     try {
       const membersData = await apiService.fetchMembers();
       if (membersData) {
         setMembers(membersData);
-        if (user) {
-          const updatedUser = membersData.find(m => m.id === user.id);
-          if (updatedUser) {
-            setUser(updatedUser);
-            try { localStorage.setItem('golfUser', JSON.stringify(updatedUser)); } catch (e) {}
+        setUser(prevUser => {
+          if (prevUser) {
+            const updatedUser = membersData.find(m => m.id === prevUser.id);
+            if (updatedUser) {
+              try { localStorage.setItem('golfUser', JSON.stringify(updatedUser)); } catch (e) {}
+              return updatedUser;
+            }
           }
-        }
+          return prevUser;
+        });
       }
     } catch (error) {}
-  };
+  }, []);
 
-  const refreshCourses = async () => {
+  const refreshCourses = useCallback(async () => {
     try {
       const coursesData = await apiService.fetchCourses();
       if (coursesData) setCourses(coursesData);
     } catch (error) {}
-  };
+  }, []);
 
-  const refreshBookings = async () => {
+  const refreshBookings = useCallback(async () => {
     try {
       const bookingsData = await apiService.fetchBookings();
       if (bookingsData) setBookings(bookingsData);
     } catch (error) {}
-  };
+  }, []);
 
-  const refreshAllData = async () => {
+  const refreshAllData = useCallback(async () => {
     setLoading(true);
     
     try {
@@ -461,13 +467,16 @@ export function AppProvider({ children }) {
       
       if (Array.isArray(membersData)) {
         setMembers(membersData);
-        if (user) {
-          const updatedUser = membersData.find(m => m.id === user.id);
-          if (updatedUser) {
-            setUser(updatedUser);
-            try { localStorage.setItem('golfUser', JSON.stringify(updatedUser)); } catch (e) {}
+        setUser(prevUser => {
+          if (prevUser) {
+            const updatedUser = membersData.find(m => m.id === prevUser.id);
+            if (updatedUser) {
+              try { localStorage.setItem('golfUser', JSON.stringify(updatedUser)); } catch (e) {}
+              return updatedUser;
+            }
           }
-        }
+          return prevUser;
+        });
       }
 
       if (Array.isArray(postsData)) setPosts(postsData);
@@ -475,23 +484,19 @@ export function AppProvider({ children }) {
       if (Array.isArray(feesData)) setFees(feesData);
       if (Array.isArray(coursesData)) setCourses(coursesData);
 
-      if (user) {
-        try { await loadUserData(user.id); } catch (err) {}
-      }
-
       setLoading(false);
       return true;
     } catch (error) {
       setLoading(false);
       return false;
     }
-  };
+  }, []);
 
-  const isAdmin = () => user?.role === '관리자';
-  const isOperator = () => user?.role === '운영진' || user?.role === '관리자' || user?.role === '방장' || user?.role === '클럽운영진';
-  const isMember = () => user?.role === '회원';
+  const isAdmin = useCallback(() => user?.role === '관리자', [user?.role]);
+  const isOperator = useCallback(() => user?.role === '운영진' || user?.role === '관리자' || user?.role === '방장' || user?.role === '클럽운영진', [user?.role]);
+  const isMember = useCallback(() => user?.role === '회원', [user?.role]);
 
-  const updateClubLogo = async (logoData) => {
+  const updateClubLogo = useCallback(async (logoData) => {
     try {
       await apiService.updateSetting('clubLogo', { value: logoData });
       setClubLogo(logoData);
@@ -500,9 +505,9 @@ export function AppProvider({ children }) {
       console.error('로고 업데이트 실패:', error);
       return false;
     }
-  };
+  }, []);
 
-  const value = {
+  const value = useMemo(() => ({
     user,
     members,
     posts,
@@ -536,7 +541,40 @@ export function AppProvider({ children }) {
     checkRequiredFields,
     clubLogo,
     updateClubLogo
-  };
+  }), [
+    user,
+    members,
+    posts,
+    bookings,
+    scores,
+    fees,
+    courses,
+    userTransactions,
+    loading,
+    login,
+    logout,
+    updateUser,
+    saveScore,
+    addPost,
+    updatePost,
+    deletePost,
+    addBooking,
+    updateBooking,
+    addFee,
+    payFee,
+    addCourse,
+    refreshMembers,
+    refreshCourses,
+    refreshBookings,
+    refreshAllData,
+    isAdmin,
+    isOperator,
+    isMember,
+    requiresProfileComplete,
+    clearRequiresProfileComplete,
+    clubLogo,
+    updateClubLogo
+  ]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 }
