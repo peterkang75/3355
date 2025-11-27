@@ -698,12 +698,17 @@ router.post('/scores/complete', async (req, res) => {
 router.delete('/scores/member/:memberId/:markerId/:date/:roundingName', async (req, res) => {
   try {
     const { memberId, markerId, date, roundingName } = req.params;
+    const decodedMemberId = decodeURIComponent(memberId);
+    const decodedMarkerId = decodeURIComponent(markerId);
+    const decodedDate = decodeURIComponent(date);
+    const decodedRoundingName = decodeURIComponent(roundingName);
     
     await prisma.score.deleteMany({
       where: {
         OR: [
-          { userId: decodeURIComponent(memberId), markerId: decodeURIComponent(markerId), date: decodeURIComponent(date), roundingName: decodeURIComponent(roundingName) },
-          { userId: decodeURIComponent(markerId), markerId: decodeURIComponent(memberId), date: decodeURIComponent(date), roundingName: decodeURIComponent(roundingName) }
+          { userId: decodedMemberId, markerId: decodedMarkerId, date: decodedDate, roundingName: decodedRoundingName },
+          { userId: decodedMarkerId, markerId: decodedMemberId, date: decodedDate, roundingName: decodedRoundingName },
+          { userId: decodedMarkerId, markerId: decodedMarkerId, date: decodedDate, roundingName: decodedRoundingName }
         ]
       }
     });
