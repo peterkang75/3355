@@ -667,10 +667,51 @@ router.get('/scores/check', async (req, res) => {
       }
     });
     
-    res.json({ exists: !!score });
+    res.json({ exists: !!score, completed: score?.completed || false });
   } catch (error) {
     console.error('Error checking score:', error);
     res.status(500).json({ error: 'Failed to check score' });
+  }
+});
+
+router.post('/scores/complete', async (req, res) => {
+  try {
+    const { memberId, markerId, date, roundingName } = req.body;
+    
+    await prisma.score.updateMany({
+      where: {
+        OR: [
+          { userId: memberId, markerId: markerId, date, roundingName },
+          { userId: markerId, markerId: memberId, date, roundingName }
+        ]
+      },
+      data: { completed: true }
+    });
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error completing score:', error);
+    res.status(500).json({ error: 'Failed to complete score' });
+  }
+});
+
+router.delete('/scores/member/:memberId/:markerId/:date/:roundingName', async (req, res) => {
+  try {
+    const { memberId, markerId, date, roundingName } = req.params;
+    
+    await prisma.score.deleteMany({
+      where: {
+        OR: [
+          { userId: decodeURIComponent(memberId), markerId: decodeURIComponent(markerId), date: decodeURIComponent(date), roundingName: decodeURIComponent(roundingName) },
+          { userId: decodeURIComponent(markerId), markerId: decodeURIComponent(memberId), date: decodeURIComponent(date), roundingName: decodeURIComponent(roundingName) }
+        ]
+      }
+    });
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting member scores:', error);
+    res.status(500).json({ error: 'Failed to delete member scores' });
   }
 });
 

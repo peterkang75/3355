@@ -143,6 +143,7 @@ model Score {
   totalScore   Int
   coursePar    Int      @default(72)
   holes        String?
+  completed    Boolean  @default(false)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

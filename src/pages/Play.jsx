@@ -25,6 +25,8 @@ function Play() {
   const [isSavingNtp, setIsSavingNtp] = useState(false);
   const [isStartingRound, setIsStartingRound] = useState(false);
   const [checkingInterval, setCheckingInterval] = useState(null);
+  const [showEndRoundModal, setShowEndRoundModal] = useState(false);
+  const [isEndingRound, setIsEndingRound] = useState(false);
   const restoredRef = useRef(false);
   const lastRestoredBookingRef = useRef(null);
 
@@ -331,13 +333,14 @@ function Play() {
               
               setIsStartingRound(true);
               try {
-                const today = new Date().toISOString().split('T')[0];
-                const res = await fetch(`/api/scores/check?memberId=${selectedTeammate.phone}&date=${today}&roundingName=${booking?.title}`);
+                const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+                const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
+                const res = await fetch(`/api/scores/check?memberId=${teammateMemberId}&date=${scoreDate}&roundingName=${encodeURIComponent(booking?.title || '')}`);
                 const data = await res.json();
                 
-                if (data.exists) {
-                  alert('이미 점수가 저장되어있습니다.');
-                  navigate(-1);
+                if (data.exists && data.completed) {
+                  alert('이미 점수가 입력되었습니다.');
+                  setIsStartingRound(false);
                   return;
                 }
               } catch (e) {
@@ -839,13 +842,27 @@ function Play() {
         alignItems: 'center',
         padding: '0 16px'
       }}>
-        <div style={{ width: '40px' }}></div>
+        <button
+          onClick={() => setShowEndRoundModal(true)}
+          style={{
+            background: '#e74c3c',
+            border: 'none',
+            borderRadius: '6px',
+            padding: '8px 10px',
+            color: 'white',
+            fontSize: '11px',
+            fontWeight: '700',
+            cursor: 'pointer',
+            whiteSpace: 'nowrap'
+          }}
+        >
+          종료
+        </button>
         <div style={{ flex: 1, textAlign: 'center', color: 'white', fontSize: '14px', fontWeight: '600' }}>
           {booking?.title}
         </div>
         <button
           onClick={() => {
-            // 현재 상태 저장
             const stateToSave = {
               currentHole,
               holeScores,
@@ -1032,6 +1049,140 @@ function Play() {
                 }}
               >
                 다시 점검
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showEndRoundModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0, 0, 0, 0.7)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '24px',
+            width: '90%',
+            maxWidth: '340px'
+          }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', textAlign: 'center' }}>
+              라운드 종료
+            </h3>
+            <p style={{ fontSize: '14px', color: '#666', marginBottom: '24px', textAlign: 'center' }}>
+              라운드를 어떻게 종료하시겠습니까?
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <button
+                onClick={async () => {
+                  if (isEndingRound) return;
+                  setIsEndingRound(true);
+                  try {
+                    const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+                    const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
+                    
+                    await fetch('/api/scores/complete', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        memberId: teammateMemberId,
+                        markerId: user.id,
+                        date: scoreDate,
+                        roundingName: booking?.title
+                      })
+                    });
+                    
+                    sessionStorage.removeItem(`play_state_${bookingId}`);
+                    setShowEndRoundModal(false);
+                    navigate(-1);
+                  } catch (e) {
+                    console.error('라운드 완료 오류:', e);
+                    alert('처리 중 오류가 발생했습니다.');
+                  } finally {
+                    setIsEndingRound(false);
+                  }
+                }}
+                disabled={isEndingRound}
+                style={{
+                  padding: '14px',
+                  background: isEndingRound ? '#999' : 'var(--primary-green)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: '700',
+                  fontSize: '15px',
+                  cursor: isEndingRound ? 'not-allowed' : 'pointer',
+                  opacity: isEndingRound ? 0.7 : 1
+                }}
+              >
+                {isEndingRound ? '처리중...' : '스코어 저장하고 종료하기'}
+              </button>
+              <button
+                onClick={async () => {
+                  if (isEndingRound) return;
+                  
+                  if (!confirm('저장하지 않고 종료하면 현재까지 입력한 점수가 모두 삭제됩니다. 계속하시겠습니까?')) {
+                    return;
+                  }
+                  
+                  setIsEndingRound(true);
+                  try {
+                    const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+                    const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
+                    
+                    await fetch(`/api/scores/member/${encodeURIComponent(teammateMemberId)}/${encodeURIComponent(user.id)}/${encodeURIComponent(scoreDate)}/${encodeURIComponent(booking?.title || '')}`, {
+                      method: 'DELETE'
+                    });
+                    
+                    sessionStorage.removeItem(`play_state_${bookingId}`);
+                    setShowEndRoundModal(false);
+                    navigate(-1);
+                  } catch (e) {
+                    console.error('스코어 삭제 오류:', e);
+                    alert('처리 중 오류가 발생했습니다.');
+                  } finally {
+                    setIsEndingRound(false);
+                  }
+                }}
+                disabled={isEndingRound}
+                style={{
+                  padding: '14px',
+                  background: isEndingRound ? '#999' : '#e74c3c',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: '700',
+                  fontSize: '15px',
+                  cursor: isEndingRound ? 'not-allowed' : 'pointer',
+                  opacity: isEndingRound ? 0.7 : 1
+                }}
+              >
+                {isEndingRound ? '처리중...' : '저장하지않고 종료하기'}
+              </button>
+              <button
+                onClick={() => setShowEndRoundModal(false)}
+                disabled={isEndingRound}
+                style={{
+                  padding: '14px',
+                  background: '#f0f0f0',
+                  color: '#333',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  fontSize: '15px',
+                  cursor: isEndingRound ? 'not-allowed' : 'pointer'
+                }}
+              >
+                취소
               </button>
             </div>
           </div>
