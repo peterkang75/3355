@@ -142,6 +142,8 @@ function MemberDetail() {
         handicap: editData.handicap,
         golflinkNumber: editData.isClubMember === 'yes' ? editData.golflinkNumber : null,
         clubMemberNumber: editData.isClubMember === 'yes' ? editData.clubMemberNumber : null,
+        gaHandy: editData.isClubMember === 'yes' ? editData.gaHandy : null,
+        houseHandy: editData.isClubMember === 'no' ? editData.houseHandy : null,
         photo: editData.photo,
         gender: editData.gender,
         birthYear: editData.birthYear,
@@ -1102,7 +1104,24 @@ function MemberDetail() {
                     boxShadow: !editData.clubMemberNumber?.trim() ? '0 0 0 1px #e74c3c' : undefined
                   }}
                 />
+                <input
+                  type="text"
+                  placeholder="GA 핸디캡"
+                  value={editData.gaHandy || ''}
+                  onChange={(e) => setEditData({ ...editData, gaHandy: e.target.value })}
+                  style={{ marginBottom: '12px' }}
+                />
               </>
+            )}
+
+            {editData.isClubMember === 'no' && (
+              <input
+                type="text"
+                placeholder="HH 핸디캡 (하우스 핸디)"
+                value={editData.houseHandy || ''}
+                onChange={(e) => setEditData({ ...editData, houseHandy: e.target.value })}
+                style={{ marginBottom: '12px' }}
+              />
             )}
             
             <div style={{ 
