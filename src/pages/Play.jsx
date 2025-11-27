@@ -310,24 +310,41 @@ function Play() {
         <div className="card" style={{ marginTop: '16px' }}>
           <h2 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>내가 마크할 회원을 선택하세요</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
-            {teammates.map(teammate => (
-              <div
-                key={teammate.phone}
-                onClick={() => setSelectedTeammate(teammate)}
-                style={{
-                  padding: '16px',
-                  border: selectedTeammate?.phone === teammate.phone ? '2px solid var(--primary-green)' : '1px solid var(--border-color)',
-                  borderRadius: '8px',
-                  background: selectedTeammate?.phone === teammate.phone ? 'var(--bg-green)' : 'var(--text-light)',
-                  cursor: 'pointer'
-                }}
-              >
-                <div style={{ fontWeight: '600', fontSize: '16px' }}>{teammate.nickname || teammate.name}</div>
-                <div style={{ fontSize: '14px', color: 'var(--text-dark)', marginTop: '4px' }}>
-                  핸디캡 : {teammate.gaHandy ? `GA${teammate.gaHandy}` : teammate.golflinkNumber && teammate.handicap ? `GA${teammate.handicap}` : teammate.houseHandy ? `HH${teammate.houseHandy}` : teammate.handicap || '-'}
+            {teammates.map(teammate => {
+              const isSelected = selectedTeammate?.phone === teammate.phone;
+              return (
+                <div
+                  key={teammate.phone}
+                  onClick={() => setSelectedTeammate(teammate)}
+                  style={{
+                    padding: '16px',
+                    border: isSelected ? '2px solid #2196F3' : '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    background: isSelected ? '#E3F2FD' : 'var(--text-light)',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center'
+                  }}
+                >
+                  <div>
+                    <div style={{ fontWeight: '600', fontSize: '16px', color: isSelected ? '#1565C0' : 'inherit' }}>
+                      {teammate.nickname || teammate.name}
+                    </div>
+                    <div style={{ fontSize: '14px', color: isSelected ? '#1976D2' : 'var(--text-dark)', marginTop: '4px' }}>
+                      핸디캡 : {teammate.gaHandy ? `GA${teammate.gaHandy}` : teammate.golflinkNumber && teammate.handicap ? `GA${teammate.handicap}` : teammate.houseHandy ? `HH${teammate.houseHandy}` : teammate.handicap || '-'}
+                    </div>
+                  </div>
+                  <div style={{ 
+                    fontSize: '20px', 
+                    color: isSelected ? '#2196F3' : '#ccc',
+                    fontWeight: '600'
+                  }}>
+                    ›
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
           <button
             onClick={async () => {
