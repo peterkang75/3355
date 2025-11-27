@@ -3177,8 +3177,7 @@ function Admin() {
                           <tr 
                             key={transaction.id}
                             style={{
-                              borderBottom: isGuestTransaction ? '1px solid #87CEEB' : '1px solid var(--border-color)',
-                              background: isGuestTransaction ? 'rgba(135, 206, 235, 0.15)' : 'transparent'
+                              borderBottom: '1px solid var(--border-color)'
                             }}
                           >
                             <td style={{ padding: '6px 4px', whiteSpace: 'nowrap' }}>
@@ -3853,10 +3852,8 @@ function Admin() {
                             <tr 
                               key={transaction.id}
                               style={{
-                                borderBottom: isGuestTx ? '1px solid #87CEEB' : '1px solid var(--border-color)',
-                                backgroundColor: selectedTransactionIds.includes(transaction.id) 
-                                  ? 'var(--bg-green)' 
-                                  : isGuestTx ? 'rgba(135, 206, 235, 0.15)' : 'transparent'
+                                borderBottom: '1px solid var(--border-color)',
+                                backgroundColor: selectedTransactionIds.includes(transaction.id) ? 'var(--bg-green)' : 'transparent'
                               }}
                             >
                               {isTransactionSelectMode && (

@@ -560,7 +560,6 @@ function Fees() {
                           transaction.type === 'payment' || transaction.type === 'donation' ? '+' : '-';
 
                         const bgColor = 
-                          isGuestTransaction ? 'rgba(135, 206, 235, 0.15)' :
                           transaction.type === 'payment' || transaction.type === 'donation' 
                             ? 'rgba(40, 167, 69, 0.05)' 
                             : 'rgba(220, 53, 69, 0.05)';
@@ -577,7 +576,7 @@ function Fees() {
                             onClick={() => transaction.receiptImage && setShowReceiptModal(transaction.receiptImage)}
                             style={{
                               padding: '16px',
-                              borderBottom: isGuestTransaction ? '1px solid #87CEEB' : '1px solid var(--border-color)',
+                              borderBottom: '1px solid var(--border-color)',
                               borderRadius: '8px',
                               marginBottom: '8px',
                               display: 'flex',
