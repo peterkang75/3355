@@ -327,7 +327,6 @@ router.put('/bookings/:id', async (req, res) => {
             if (t.type === 'charge') return sum - t.amount;
             if (t.type === 'payment') return sum + t.amount;
             if (t.type === 'credit') return sum + t.amount;
-            if (t.type === 'donation') return sum + t.amount;
             return sum;
           }, 0);
 
@@ -363,7 +362,6 @@ router.put('/bookings/:id', async (req, res) => {
             if (t.type === 'charge') return sum - t.amount;
             if (t.type === 'payment') return sum + t.amount;
             if (t.type === 'credit') return sum + t.amount;
-            if (t.type === 'donation') return sum + t.amount;
             return sum;
           }, 0);
 
@@ -1006,7 +1004,7 @@ router.get('/transactions/member/:memberId', async (req, res) => {
   }
 });
 
-// 회원 잔액 계산 (최적화)
+// 회원 잔액 계산 (최적화) - 도네이션은 개인 잔액에 영향 없음
 router.get('/transactions/balance/:memberId', async (req, res) => {
   try {
     const transactions = await prisma.transaction.findMany({
@@ -1018,7 +1016,6 @@ router.get('/transactions/balance/:memberId', async (req, res) => {
       if (t.type === 'charge') return sum - t.amount;
       if (t.type === 'payment') return sum + t.amount;
       if (t.type === 'credit') return sum + t.amount;
-      if (t.type === 'donation') return sum + t.amount;
       if (t.type === 'expense') return sum - t.amount;
       return sum;
     }, 0);
@@ -1093,7 +1090,7 @@ router.get('/transactions/outstanding', async (req, res) => {
       }
       if (t.type === 'charge') {
         balanceByMember[t.memberId] -= t.amount;
-      } else if (t.type === 'payment' || t.type === 'credit' || t.type === 'donation') {
+      } else if (t.type === 'payment' || t.type === 'credit') {
         balanceByMember[t.memberId] += t.amount;
       } else if (t.type === 'expense') {
         balanceByMember[t.memberId] -= t.amount;
@@ -1127,7 +1124,7 @@ router.post('/transactions', async (req, res) => {
       }
     });
     
-    // 회원 잔액 업데이트
+    // 회원 잔액 업데이트 - 도네이션은 개인 잔액에 영향 없음
     if (transaction.memberId) {
       const memberTransactions = await prisma.transaction.findMany({
         where: { memberId: transaction.memberId }
@@ -1137,7 +1134,6 @@ router.post('/transactions', async (req, res) => {
         if (t.type === 'charge') return sum - t.amount;
         if (t.type === 'payment') return sum + t.amount;
         if (t.type === 'credit') return sum + t.amount;
-        if (t.type === 'donation') return sum + t.amount;
         if (t.type === 'expense') return sum - t.amount;
         return sum;
       }, 0);
@@ -1184,7 +1180,7 @@ router.put('/transactions/:id', async (req, res) => {
       }
     });
 
-    // 회원 잔액 재계산
+    // 회원 잔액 재계산 - 도네이션은 개인 잔액에 영향 없음
     if (updatedTransaction.memberId) {
       const memberTransactions = await prisma.transaction.findMany({
         where: { memberId: updatedTransaction.memberId }
@@ -1194,7 +1190,6 @@ router.put('/transactions/:id', async (req, res) => {
         if (t.type === 'charge') return sum - t.amount;
         if (t.type === 'payment') return sum + t.amount;
         if (t.type === 'credit') return sum + t.amount;
-        if (t.type === 'donation') return sum + t.amount;
         if (t.type === 'expense') return sum - t.amount;
         return sum;
       }, 0);
@@ -1229,7 +1224,7 @@ router.delete('/transactions/:id', async (req, res) => {
       where: { id: req.params.id }
     });
 
-    // 회원 잔액 재계산
+    // 회원 잔액 재계산 - 도네이션은 개인 잔액에 영향 없음
     if (transaction.memberId) {
       const memberTransactions = await prisma.transaction.findMany({
         where: { memberId: transaction.memberId }
@@ -1239,7 +1234,6 @@ router.delete('/transactions/:id', async (req, res) => {
         if (t.type === 'charge') return sum - t.amount;
         if (t.type === 'payment') return sum + t.amount;
         if (t.type === 'credit') return sum + t.amount;
-        if (t.type === 'donation') return sum + t.amount;
         if (t.type === 'expense') return sum - t.amount;
         return sum;
       }, 0);

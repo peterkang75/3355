@@ -75,7 +75,7 @@ function Fees() {
     .reduce((sum, t) => sum + t.amount, 0);
 
   const totalPayments = userTransactions
-    .filter(t => t.type === 'payment' || t.type === 'donation')
+    .filter(t => t.type === 'payment')
     .reduce((sum, t) => sum + t.amount, 0);
   
   const totalCredits = userTransactions
