@@ -1754,7 +1754,7 @@ function Dashboard() {
                           fontSize: '12px',
                           opacity: 0.7
                         }}>
-                          <span>{new Date(transaction.createdAt).toLocaleDateString('ko-KR')}</span>
+                          <span>{transaction.date || (transaction.createdAt ? new Date(transaction.createdAt).toLocaleDateString('ko-KR') : '')}</span>
                           <span>잔액: {formatCurrency(transaction.balanceAfter)}</span>
                         </div>
                       </div>
