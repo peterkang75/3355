@@ -756,7 +756,7 @@ function MemberDetail() {
                   <h3 style={{ 
                     fontSize: '14px', 
                     fontWeight: '600',
-                    marginBottom: '16px',
+                    marginBottom: '12px',
                     opacity: 0.7,
                     textTransform: 'uppercase',
                     letterSpacing: '0.5px'
@@ -766,92 +766,40 @@ function MemberDetail() {
                   
                   <div style={{ 
                     display: 'flex',
-                    flexDirection: 'column',
-                    gap: '10px'
+                    flexWrap: 'wrap',
+                    gap: '8px'
                   }}>
-                    {['관리자', '방장', '운영진', '클럽운영진', '회원'].map((role) => {
+                    {[
+                      { role: '회원', icon: '👤' },
+                      { role: '클럽운영진', icon: '⛳' },
+                      { role: '운영진', icon: '🔧' },
+                      { role: '방장', icon: '📋' },
+                      { role: '관리자', icon: '👑' }
+                    ].map(({ role, icon }) => {
                       const isSelected = member.role === role || (!member.role && role === '회원');
-                      const icons = {
-                        '관리자': adminIcon,
-                        '방장': bangjangIcon,
-                        '운영진': staffIcon,
-                        '클럽운영진': clubStaffIcon
-                      };
                       
                       return (
-                        <label
+                        <button
                           key={role}
                           onClick={() => handleChangeRole(role)}
                           style={{
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '12px',
-                            padding: '14px 16px',
-                            background: isSelected ? 'var(--bg-green)' : '#f8f8f8',
+                            gap: '6px',
+                            padding: '8px 14px',
+                            background: isSelected ? 'var(--primary-green)' : '#f5f5f5',
                             border: isSelected ? '2px solid var(--primary-green)' : '2px solid #e0e0e0',
-                            borderRadius: '10px',
+                            borderRadius: '20px',
                             cursor: 'pointer',
                             transition: 'all 0.2s',
-                            position: 'relative'
-                          }}
-                          onMouseEnter={(e) => {
-                            if (!isSelected) {
-                              e.currentTarget.style.background = '#f0f0f0';
-                              e.currentTarget.style.borderColor = '#ccc';
-                            }
-                          }}
-                          onMouseLeave={(e) => {
-                            if (!isSelected) {
-                              e.currentTarget.style.background = '#f8f8f8';
-                              e.currentTarget.style.borderColor = '#e0e0e0';
-                            }
+                            fontSize: '14px',
+                            fontWeight: isSelected ? '700' : '500',
+                            color: isSelected ? 'white' : 'var(--text-dark)'
                           }}
                         >
-                          {icons[role] && (
-                            <img 
-                              src={icons[role]} 
-                              alt={role} 
-                              style={{ 
-                                width: '28px', 
-                                height: '28px', 
-                                borderRadius: '50%',
-                                flexShrink: 0
-                              }} 
-                            />
-                          )}
-                          {!icons[role] && (
-                            <div style={{
-                              width: '28px',
-                              height: '28px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              fontSize: '20px',
-                              flexShrink: 0
-                            }}>
-                              ●
-                            </div>
-                          )}
-                          
-                          <span style={{
-                            fontSize: '16px',
-                            fontWeight: isSelected ? '700' : '600',
-                            color: isSelected ? 'var(--primary-green)' : 'var(--text-dark)',
-                            flex: 1
-                          }}>
-                            {role}
-                          </span>
-                          
-                          <div style={{
-                            width: '24px',
-                            height: '24px',
-                            borderRadius: '50%',
-                            border: isSelected ? '7px solid var(--primary-green)' : '2px solid #ccc',
-                            background: 'white',
-                            flexShrink: 0,
-                            transition: 'all 0.2s'
-                          }} />
-                        </label>
+                          <span style={{ fontSize: '16px' }}>{icon}</span>
+                          <span>{role}</span>
+                        </button>
                       );
                     })}
                   </div>
