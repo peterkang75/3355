@@ -12,7 +12,7 @@ import SearchableDropdown from '../components/SearchableDropdown';
 function MemberDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user, refreshMembers, members, courses } = useApp();
+  const { user, refreshMembers, members, courses, requiresProfileComplete, clearRequiresProfileComplete, checkRequiredFields } = useApp();
   const [member, setMember] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(null);
@@ -33,10 +33,17 @@ function MemberDetail() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSavingScore, setIsSavingScore] = useState(false);
+  const [validationError, setValidationError] = useState('');
 
   useEffect(() => {
     loadMemberData();
   }, [id, members]);
+
+  useEffect(() => {
+    if (requiresProfileComplete && member && user?.id === member.id) {
+      setIsEditing(true);
+    }
+  }, [requiresProfileComplete, member, user?.id]);
 
   useEffect(() => {
     if (member) {
@@ -108,6 +115,18 @@ function MemberDetail() {
 
   const handleSave = async () => {
     if (isSaving) return;
+    
+    setValidationError('');
+    
+    if (!checkRequiredFields(editData)) {
+      if (requiresProfileComplete) {
+        setValidationError('모든 정보를 입력해야 앱 사용이 가능합니다.');
+      } else {
+        setValidationError('이름, 대화명, 사진, 성별, 출생연도, 지역은 필수 입력 항목입니다.');
+      }
+      return;
+    }
+    
     setIsSaving(true);
     try {
       const updateData = {
@@ -126,7 +145,14 @@ function MemberDetail() {
       await apiService.updateMember(id, updateData);
       await refreshMembers();
       setIsEditing(false);
-      alert('회원 정보가 수정되었습니다!');
+      
+      if (requiresProfileComplete) {
+        clearRequiresProfileComplete();
+        navigate('/');
+        alert('회원 정보가 저장되었습니다!');
+      } else {
+        alert('회원 정보가 수정되었습니다!');
+      }
     } catch (error) {
       console.error('회원 정보 수정 실패:', error);
       alert('회원 정보 수정에 실패했습니다.');
@@ -978,26 +1004,59 @@ function MemberDetail() {
               style={{ marginBottom: '12px' }}
             />
 
+            {requiresProfileComplete && (
+              <div style={{
+                padding: '12px 16px',
+                background: '#fff3cd',
+                border: '1px solid #ffc107',
+                borderRadius: '8px',
+                marginBottom: '12px',
+                fontSize: '14px',
+                color: '#856404',
+                textAlign: 'center'
+              }}>
+                필수 정보를 모두 입력해주세요.
+              </div>
+            )}
+
+            {validationError && (
+              <div style={{
+                padding: '12px 16px',
+                background: '#f8d7da',
+                border: '1px solid #f5c6cb',
+                borderRadius: '8px',
+                marginBottom: '12px',
+                fontSize: '14px',
+                color: '#721c24',
+                textAlign: 'center'
+              }}>
+                {validationError}
+              </div>
+            )}
+
             <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-              <button
-                onClick={() => {
-                  setIsEditing(false);
-                  setEditData(member);
-                }}
-                style={{
-                  flex: 1,
-                  padding: '14px 24px',
-                  background: '#BD5B43',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
-              >
-                취소하기
-              </button>
+              {!requiresProfileComplete && (
+                <button
+                  onClick={() => {
+                    setIsEditing(false);
+                    setEditData(member);
+                    setValidationError('');
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '14px 24px',
+                    background: '#BD5B43',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  취소하기
+                </button>
+              )}
               <button
                 onClick={handleSave}
                 disabled={isSaving}

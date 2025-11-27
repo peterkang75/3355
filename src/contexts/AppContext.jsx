@@ -5,6 +5,12 @@ import { calculateHandicap } from '../utils/handicap';
 
 export const AppContext = createContext();
 
+const checkRequiredFields = (member) => {
+  if (!member) return false;
+  const requiredFields = ['name', 'nickname', 'photo', 'gender', 'birthYear', 'region'];
+  return requiredFields.every(field => member[field] && String(member[field]).trim() !== '');
+};
+
 export function AppProvider({ children }) {
   const [user, setUser] = useState(null);
   const [members, setMembers] = useState([]);
@@ -15,6 +21,7 @@ export function AppProvider({ children }) {
   const [courses, setCourses] = useState([]);
   const [userTransactions, setUserTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [requiresProfileComplete, setRequiresProfileComplete] = useState(false);
   
   // 소켓 이벤트 핸들러에서 최신 user 값을 참조하기 위한 ref
   const userRef = useRef(null);
@@ -242,6 +249,16 @@ export function AppProvider({ children }) {
     setUser(userData);
     localStorage.setItem('golfUser', JSON.stringify(userData));
     loadUserData(userData.id);
+    
+    if (!checkRequiredFields(userData)) {
+      setRequiresProfileComplete(true);
+    } else {
+      setRequiresProfileComplete(false);
+    }
+  };
+  
+  const clearRequiresProfileComplete = () => {
+    setRequiresProfileComplete(false);
   };
 
   const logout = () => {
@@ -481,7 +498,10 @@ export function AppProvider({ children }) {
     refreshAllData,
     isAdmin,
     isOperator,
-    isMember
+    isMember,
+    requiresProfileComplete,
+    clearRequiresProfileComplete,
+    checkRequiredFields
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

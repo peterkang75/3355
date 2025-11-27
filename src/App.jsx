@@ -24,13 +24,23 @@ import Navigation from './components/Navigation';
 import InstallPrompt from './components/InstallPrompt';
 import logoImage from './assets/logo-transparent.png';
 
-function AppRoutes({ user, logout }) {
+function AppRoutes({ user, logout, requiresProfileComplete }) {
   const navigate = useNavigate();
   const location = useLocation();
 
   useEffect(() => {
-    navigate('/');
+    if (requiresProfileComplete && user?.id) {
+      navigate(`/member/${user.id}`);
+    } else {
+      navigate('/');
+    }
   }, []);
+
+  useEffect(() => {
+    if (requiresProfileComplete && user?.id && location.pathname !== `/member/${user.id}`) {
+      navigate(`/member/${user.id}`);
+    }
+  }, [requiresProfileComplete, user?.id, location.pathname]);
 
   return (
     <div className="app">
@@ -61,7 +71,7 @@ function AppRoutes({ user, logout }) {
 }
 
 function App() {
-  const { user, loading, login, logout } = useApp();
+  const { user, loading, login, logout, requiresProfileComplete } = useApp();
 
   const isMemberInfoPath = window.location.pathname === '/member-info';
 
@@ -92,7 +102,7 @@ function App() {
 
   return (
     <Router>
-      <AppRoutes user={user} logout={logout} />
+      <AppRoutes user={user} logout={logout} requiresProfileComplete={requiresProfileComplete} />
     </Router>
   );
 }
