@@ -1439,6 +1439,24 @@ function Dashboard() {
                         >
                           📋 조편성 보기
                         </button>
+                        {booking.playEnabled && (
+                          <button
+                            onClick={() => navigate(`/play?id=${booking.id}`)}
+                            style={{
+                              flex: 1,
+                              padding: '12px',
+                              background: '#2196F3',
+                              color: 'var(--text-light)',
+                              border: 'none',
+                              borderRadius: '6px',
+                              fontSize: '14px',
+                              fontWeight: '700',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            ⛳ 플레이하기
+                          </button>
+                        )}
                         {user.isAdmin && (
                           <button
                             onClick={() => navigate(`/rounding-management?id=${booking.id}`)}
@@ -1514,6 +1532,24 @@ function Dashboard() {
                           >
                             {(booking.numberRentals && booking.numberRentals.includes(user.phone)) ? '✓ 번호대여중' : '번호대여'}
                           </LoadingButton>
+                        )}
+                        {booking.playEnabled && (
+                          <button
+                            onClick={() => navigate(`/play?id=${booking.id}`)}
+                            style={{
+                              flex: 1,
+                              padding: '12px',
+                              background: '#2196F3',
+                              color: 'var(--text-light)',
+                              border: 'none',
+                              borderRadius: '6px',
+                              fontSize: '14px',
+                              fontWeight: '700',
+                              cursor: 'pointer'
+                            }}
+                          >
+                            ⛳ 플레이하기
+                          </button>
                         )}
                         {user.isAdmin && (
                           <button
