@@ -39,7 +39,8 @@ function MyPage() {
   }, [user]);
 
   const isCompleteScore = (score) => {
-    if (!score.holes) return score.totalScore >= 36;
+    if (score.totalScore >= 36) return true;
+    if (!score.holes) return false;
     const holes = typeof score.holes === 'string' ? JSON.parse(score.holes) : score.holes;
     const filledHoles = holes.filter(h => h > 0).length;
     return filledHoles >= 9;
