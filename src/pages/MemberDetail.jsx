@@ -30,6 +30,9 @@ function MemberDetail() {
   const [transactions, setTransactions] = useState([]);
   const [memberBalance, setMemberBalance] = useState(0);
   const [showMemberMenu, setShowMemberMenu] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isSavingScore, setIsSavingScore] = useState(false);
 
   useEffect(() => {
     loadMemberData();
@@ -104,6 +107,8 @@ function MemberDetail() {
   };
 
   const handleSave = async () => {
+    if (isSaving) return;
+    setIsSaving(true);
     try {
       const updateData = {
         name: editData.name,
@@ -125,12 +130,16 @@ function MemberDetail() {
     } catch (error) {
       console.error('회원 정보 수정 실패:', error);
       alert('회원 정보 수정에 실패했습니다.');
+    } finally {
+      setIsSaving(false);
     }
   };
 
   const handleDelete = async () => {
+    if (isDeleting) return;
     if (!confirm('정말로 이 회원을 삭제하시겠습니까?')) return;
     
+    setIsDeleting(true);
     try {
       await apiService.deleteMember(id);
       await refreshMembers();
@@ -139,6 +148,8 @@ function MemberDetail() {
     } catch (error) {
       console.error('회원 삭제 실패:', error);
       alert('회원 삭제에 실패했습니다.');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -171,6 +182,9 @@ function MemberDetail() {
       return;
     }
 
+    if (isSavingScore) return;
+    setIsSavingScore(true);
+    
     try {
       if (editingScoreId) {
         await apiService.updateScore(editingScoreId, {
@@ -210,6 +224,8 @@ function MemberDetail() {
     } catch (error) {
       console.error('스코어 기록 실패:', error);
       alert('스코어 기록에 실패했습니다.');
+    } finally {
+      setIsSavingScore(false);
     }
   };
 
@@ -1036,19 +1052,21 @@ function MemberDetail() {
               </button>
               <button
                 onClick={handleSave}
+                disabled={isSaving}
                 style={{
                   flex: 1,
                   padding: '14px 24px',
-                  background: 'var(--primary-green)',
+                  background: isSaving ? '#999' : 'var(--primary-green)',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
                   fontSize: '16px',
                   fontWeight: '600',
-                  cursor: 'pointer'
+                  cursor: isSaving ? 'not-allowed' : 'pointer',
+                  opacity: isSaving ? 0.7 : 1
                 }}
               >
-                저장
+                {isSaving ? '처리중...' : '저장'}
               </button>
             </div>
           </div>
@@ -1321,10 +1339,16 @@ function MemberDetail() {
 
             <button
               onClick={handleAddScore}
+              disabled={isSavingScore}
               className="btn-primary"
-              style={{ width: '100%' }}
+              style={{ 
+                width: '100%',
+                background: isSavingScore ? '#999' : undefined,
+                cursor: isSavingScore ? 'not-allowed' : 'pointer',
+                opacity: isSavingScore ? 0.7 : 1
+              }}
             >
-              ◆ 스코어 저장
+              {isSavingScore ? '처리중...' : '◆ 스코어 저장'}
             </button>
           </div>
         </div>
