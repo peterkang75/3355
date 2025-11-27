@@ -542,6 +542,11 @@ function Fees() {
                         const isOtherIncome = transaction.description?.startsWith('기타 - ');
                         const otherItemName = isOtherIncome ? transaction.description.replace('기타 - ', '') : null;
                         
+                        const isGuestTransaction = transaction.description?.includes('(외부게스트:');
+                        const guestName = isGuestTransaction 
+                          ? transaction.description.match(/\(외부게스트:\s*([^)]+)\)/)?.[1] 
+                          : null;
+                        
                         const typeLabel = 
                           isOtherIncome ? otherItemName :
                           transaction.type === 'payment' ? '회비 납부' :
@@ -555,6 +560,7 @@ function Fees() {
                           transaction.type === 'payment' || transaction.type === 'donation' ? '+' : '-';
 
                         const bgColor = 
+                          isGuestTransaction ? 'rgba(135, 206, 235, 0.15)' :
                           transaction.type === 'payment' || transaction.type === 'donation' 
                             ? 'rgba(40, 167, 69, 0.05)' 
                             : 'rgba(220, 53, 69, 0.05)';
@@ -571,7 +577,7 @@ function Fees() {
                             onClick={() => transaction.receiptImage && setShowReceiptModal(transaction.receiptImage)}
                             style={{
                               padding: '16px',
-                              borderBottom: '1px solid var(--border-color)',
+                              borderBottom: isGuestTransaction ? '1px solid #87CEEB' : '1px solid var(--border-color)',
                               borderRadius: '8px',
                               marginBottom: '8px',
                               display: 'flex',
@@ -599,7 +605,28 @@ function Fees() {
                                 }}>
                                   {typeLabel}
                                 </span>
-                                {member && (
+                                {isGuestTransaction && guestName ? (
+                                  <span style={{ 
+                                    fontSize: '13px', 
+                                    fontWeight: '600',
+                                    color: '#4A90A4',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px'
+                                  }}>
+                                    {guestName}
+                                    <span style={{
+                                      fontSize: '10px',
+                                      fontWeight: '600',
+                                      background: '#87CEEB',
+                                      color: '#1a3a4a',
+                                      padding: '2px 6px',
+                                      borderRadius: '4px'
+                                    }}>
+                                      외부게스트
+                                    </span>
+                                  </span>
+                                ) : member && (
                                   <span style={{ fontSize: '13px', fontWeight: '600' }}>
                                     {member.name} {member.nickname && `(${member.nickname})`}
                                   </span>

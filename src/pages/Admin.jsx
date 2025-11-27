@@ -3152,6 +3152,11 @@ function Admin() {
                         const bookingName = transaction.booking ? 
                           (transaction.booking.title || transaction.booking.courseName) : '-';
 
+                        const isGuestTransaction = transaction.description?.includes('(외부게스트:');
+                        const guestName = isGuestTransaction 
+                          ? transaction.description.match(/\(외부게스트:\s*([^)]+)\)/)?.[1] 
+                          : null;
+
                         let categoryName = '';
                         if (transaction.type === 'payment') {
                           categoryName = '회비 납부';
@@ -3172,7 +3177,8 @@ function Admin() {
                           <tr 
                             key={transaction.id}
                             style={{
-                              borderBottom: '1px solid var(--border-color)'
+                              borderBottom: isGuestTransaction ? '1px solid #87CEEB' : '1px solid var(--border-color)',
+                              background: isGuestTransaction ? 'rgba(135, 206, 235, 0.15)' : 'transparent'
                             }}
                           >
                             <td style={{ padding: '6px 4px', whiteSpace: 'nowrap' }}>
@@ -3181,8 +3187,29 @@ function Admin() {
                                 day: 'numeric' 
                               })}
                             </td>
-                            <td style={{ padding: '6px 4px', whiteSpace: 'nowrap', maxWidth: '60px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {transaction.member?.nickname || transaction.member?.name || '-'}
+                            <td style={{ 
+                              padding: '6px 4px', 
+                              whiteSpace: 'nowrap', 
+                              maxWidth: '80px', 
+                              overflow: 'hidden', 
+                              textOverflow: 'ellipsis',
+                              color: isGuestTransaction ? '#4A90A4' : 'inherit'
+                            }}>
+                              {isGuestTransaction && guestName ? (
+                                <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  {guestName}
+                                  <span style={{
+                                    fontSize: '9px',
+                                    fontWeight: '600',
+                                    background: '#87CEEB',
+                                    color: '#1a3a4a',
+                                    padding: '1px 4px',
+                                    borderRadius: '3px'
+                                  }}>G</span>
+                                </span>
+                              ) : (
+                                transaction.member?.nickname || transaction.member?.name || '-'
+                              )}
                             </td>
                             <td style={{ padding: '6px 4px' }}>
                               <div style={{ 
@@ -3801,6 +3828,11 @@ function Admin() {
                           const bookingName = transaction.booking ? 
                             (transaction.booking.title || transaction.booking.courseName) : '-';
 
+                          const isGuestTx = transaction.description?.includes('(외부게스트:');
+                          const guestTxName = isGuestTx 
+                            ? transaction.description.match(/\(외부게스트:\s*([^)]+)\)/)?.[1] 
+                            : null;
+
                           let categoryName = '';
                           if (transaction.type === 'payment') {
                             categoryName = '회비 납부';
@@ -3821,8 +3853,10 @@ function Admin() {
                             <tr 
                               key={transaction.id}
                               style={{
-                                borderBottom: '1px solid var(--border-color)',
-                                backgroundColor: selectedTransactionIds.includes(transaction.id) ? 'var(--bg-green)' : 'transparent'
+                                borderBottom: isGuestTx ? '1px solid #87CEEB' : '1px solid var(--border-color)',
+                                backgroundColor: selectedTransactionIds.includes(transaction.id) 
+                                  ? 'var(--bg-green)' 
+                                  : isGuestTx ? 'rgba(135, 206, 235, 0.15)' : 'transparent'
                               }}
                             >
                               {isTransactionSelectMode && (
@@ -3847,8 +3881,29 @@ function Admin() {
                                   day: 'numeric' 
                                 })}
                               </td>
-                              <td style={{ padding: '6px 4px', whiteSpace: 'nowrap', maxWidth: '60px', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                                {transaction.member?.nickname || transaction.member?.name || '-'}
+                              <td style={{ 
+                                padding: '6px 4px', 
+                                whiteSpace: 'nowrap', 
+                                maxWidth: '80px', 
+                                overflow: 'hidden', 
+                                textOverflow: 'ellipsis',
+                                color: isGuestTx ? '#4A90A4' : 'inherit'
+                              }}>
+                                {isGuestTx && guestTxName ? (
+                                  <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    {guestTxName}
+                                    <span style={{
+                                      fontSize: '9px',
+                                      fontWeight: '600',
+                                      background: '#87CEEB',
+                                      color: '#1a3a4a',
+                                      padding: '1px 4px',
+                                      borderRadius: '3px'
+                                    }}>G</span>
+                                  </span>
+                                ) : (
+                                  transaction.member?.nickname || transaction.member?.name || '-'
+                                )}
                               </td>
                               <td style={{ padding: '6px 4px' }}>
                                 <div style={{ 
