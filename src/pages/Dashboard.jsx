@@ -1580,8 +1580,15 @@ function Dashboard() {
             </button>
           </div>
           {(() => {
+            const isCompleteScore = (score) => {
+              if (!score.holes) return score.totalScore >= 36;
+              const holes = typeof score.holes === 'string' ? JSON.parse(score.holes) : score.holes;
+              const filledHoles = holes.filter(h => h > 0).length;
+              return filledHoles >= 9;
+            };
+
             const userScores = scores
-              .filter(score => score.userId === user.id)
+              .filter(score => score.userId === user.id && isCompleteScore(score))
               .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
               .slice(0, 3);
 
