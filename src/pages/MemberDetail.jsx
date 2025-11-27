@@ -5,8 +5,7 @@ import apiService from '../services/api';
 import { calculateHandicap } from '../utils/handicap';
 import adminIcon from '../assets/role-admin.png';
 import bangjangIcon from '../assets/role-bangjang.png';
-import staffIcon from '../assets/role-staff.png';
-import clubStaffIcon from '../assets/role-club-staff.png';
+import CrownIcon from '../components/CrownIcon';
 import SearchableDropdown from '../components/SearchableDropdown';
 
 function MemberDetail() {
@@ -34,10 +33,35 @@ function MemberDetail() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSavingScore, setIsSavingScore] = useState(false);
   const [validationError, setValidationError] = useState('');
+  const [permissions, setPermissions] = useState({});
 
   useEffect(() => {
     loadMemberData();
+    loadPermissions();
   }, [id, members]);
+
+  const loadPermissions = async () => {
+    try {
+      const settings = await apiService.fetchSettings();
+      const permissionsObj = {};
+      settings.forEach(setting => {
+        permissionsObj[setting.feature] = setting.minRole;
+      });
+      setPermissions(permissionsObj);
+    } catch (error) {
+      console.error('권한 설정 로드 실패:', error);
+    }
+  };
+
+  const roleHierarchy = ['관리자', '방장', '운영진', '클럽운영진', '회원'];
+
+  const hasFeaturePermission = (featureId) => {
+    const minRole = permissions[featureId] || '관리자';
+    const userRole = user?.role || '회원';
+    const minRoleIndex = roleHierarchy.indexOf(minRole);
+    const userRoleIndex = roleHierarchy.indexOf(userRole);
+    return userRoleIndex <= minRoleIndex;
+  };
 
   useEffect(() => {
     if (requiresProfileComplete && member && user?.id === member.id) {
@@ -194,6 +218,18 @@ function MemberDetail() {
     } catch (error) {
       console.error('권한 변경 실패:', error);
       alert('권한 변경에 실패했습니다.');
+    }
+  };
+
+  const handleFeeExemptChange = async () => {
+    try {
+      const newValue = !member.isFeeExempt;
+      await apiService.updateMember(id, { isFeeExempt: newValue });
+      await refreshMembers();
+      alert(newValue ? '회비면제가 활성화되었습니다.' : '회비면제가 해제되었습니다.');
+    } catch (error) {
+      console.error('회비면제 변경 실패:', error);
+      alert('회비면제 변경에 실패했습니다.');
     }
   };
 
@@ -800,15 +836,16 @@ function MemberDetail() {
                   <div style={{ 
                     display: 'flex',
                     flexWrap: 'wrap',
-                    gap: '8px'
+                    gap: '8px',
+                    marginBottom: '16px'
                   }}>
                     {[
-                      { role: '회원', icon: '👤' },
-                      { role: '클럽운영진', icon: '⛳' },
-                      { role: '운영진', icon: '🔧' },
-                      { role: '방장', icon: '📋' },
-                      { role: '관리자', icon: '👑' }
-                    ].map(({ role, icon }) => {
+                      { role: '회원' },
+                      { role: '클럽운영진' },
+                      { role: '운영진' },
+                      { role: '방장' },
+                      { role: '관리자' }
+                    ].map(({ role }) => {
                       const isSelected = member.role === role || (!member.role && role === '회원');
                       
                       return (
@@ -830,12 +867,60 @@ function MemberDetail() {
                             color: isSelected ? 'white' : 'var(--text-dark)'
                           }}
                         >
-                          <span style={{ fontSize: '16px' }}>{icon}</span>
+                          {role !== '회원' ? (
+                            <CrownIcon role={role} size={18} />
+                          ) : (
+                            <span style={{ fontSize: '16px' }}>👤</span>
+                          )}
                           <span>{role}</span>
                         </button>
                       );
                     })}
                   </div>
+
+                  {hasFeaturePermission('fee_exemption') && (
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '12px',
+                      background: member.isFeeExempt ? 'rgba(45, 95, 63, 0.1)' : '#f8f8f8',
+                      borderRadius: '10px',
+                      border: member.isFeeExempt ? '1px solid var(--primary-green)' : '1px solid #e0e0e0'
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '20px' }}>💰</span>
+                        <div>
+                          <div style={{ fontSize: '14px', fontWeight: '600' }}>회비면제</div>
+                          <div style={{ fontSize: '12px', opacity: 0.7 }}>라운딩 참가 시 참가비 제외</div>
+                        </div>
+                      </div>
+                      <div
+                        onClick={handleFeeExemptChange}
+                        style={{
+                          width: '50px',
+                          height: '28px',
+                          borderRadius: '14px',
+                          background: member.isFeeExempt ? 'var(--primary-green)' : '#ccc',
+                          position: 'relative',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s'
+                        }}
+                      >
+                        <div style={{
+                          width: '24px',
+                          height: '24px',
+                          borderRadius: '50%',
+                          background: 'white',
+                          position: 'absolute',
+                          top: '2px',
+                          left: member.isFeeExempt ? '24px' : '2px',
+                          transition: 'left 0.3s',
+                          boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                        }} />
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="card" style={{ marginBottom: '16px' }}>
