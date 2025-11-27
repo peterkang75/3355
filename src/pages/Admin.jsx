@@ -6097,32 +6097,6 @@ function Admin() {
               </button>
             </div>
 
-            <div className="card">
-              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--alert-red)' }}>
-                위험 구역
-              </h3>
-              <button
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  background: 'var(--bg-card)',
-                  color: 'var(--alert-red)',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  marginBottom: '8px'
-                }}
-                onClick={() => {
-                  if (confirm('정말로 모든 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-                    alert('데이터 초기화 기능은 준비 중입니다.');
-                  }
-                }}
-              >
-                × 모든 데이터 초기화
-              </button>
-            </div>
-
             <div className="card" style={{ background: 'var(--bg-green)', border: 'none' }}>
               <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7, textAlign: 'center' }}>
                 <div style={{ marginBottom: '8px', fontWeight: '600' }}>3355 골프 클럽</div>
@@ -6318,6 +6292,32 @@ function Admin() {
                 }}
               >
                 {appDescriptionText !== savedAppDescriptionText ? '저장하기' : '저장됨'}
+              </button>
+            </div>
+
+            <div className="card">
+              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--alert-red)' }}>
+                위험 구역
+              </h3>
+              <button
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  background: 'var(--bg-card)',
+                  color: 'var(--alert-red)',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  marginBottom: '8px'
+                }}
+                onClick={() => {
+                  if (confirm('정말로 모든 데이터를 초기화하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+                    alert('데이터 초기화 기능은 준비 중입니다.');
+                  }
+                }}
+              >
+                × 모든 데이터 초기화
               </button>
             </div>
           </div>
