@@ -1177,7 +1177,7 @@ function Fees() {
                     .sort((a, b) => new Date(b.date) - new Date(a.date))
                     .map(booking => (
                       <option key={booking.id} value={booking.id}>
-                        {booking.courseName} ({new Date(booking.date).toLocaleDateString('ko-KR')})
+                        {booking.title || booking.courseName} ({new Date(booking.date).toLocaleDateString('ko-KR')})
                       </option>
                     ))
                   }
