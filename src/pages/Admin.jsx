@@ -3605,7 +3605,7 @@ function Admin() {
                                   setAllTransactions(prev => prev.filter(t => !selectedTransactionIds.includes(t.id)));
                                   setSelectedTransactionIds([]);
                                   setIsTransactionSelectMode(false);
-                                  loadClubFinanceData();
+                                  loadLedgerData();
                                 } catch (error) {
                                   console.error('Failed to delete transactions:', error);
                                   alert('삭제에 실패했습니다.');
@@ -7993,7 +7993,7 @@ function Admin() {
                     setEditingTransaction(null);
                     setSelectedTransactionIds([]);
                     setIsTransactionSelectMode(false);
-                    loadClubFinanceData();
+                    loadLedgerData();
                   } catch (error) {
                     console.error('Failed to update transaction:', error);
                     alert('수정에 실패했습니다.');

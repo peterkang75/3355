@@ -1235,11 +1235,21 @@ router.put('/transactions/:id', async (req, res) => {
   try {
     const { amount, date, description, bookingId, receiptImage, receiptImages } = req.body;
     
+    console.log('📝 Transaction update request:', { 
+      id: req.params.id, 
+      amount, 
+      date, 
+      bookingId,
+      hasReceiptImage: !!receiptImage,
+      receiptImagesCount: receiptImages?.length || 0
+    });
+    
     const existingTransaction = await prisma.transaction.findUnique({
       where: { id: req.params.id }
     });
 
     if (!existingTransaction) {
+      console.log('❌ Transaction not found:', req.params.id);
       return res.status(404).json({ error: 'Transaction not found' });
     }
 
@@ -1261,6 +1271,8 @@ router.put('/transactions/:id', async (req, res) => {
       updateData.receiptImages = receiptImages || [];
     }
 
+    console.log('📝 Update data:', { ...updateData, receiptImage: updateData.receiptImage ? '[BASE64]' : null, receiptImages: updateData.receiptImages?.length || 0 });
+
     const updatedTransaction = await prisma.transaction.update({
       where: { id: req.params.id },
       data: updateData,
@@ -1270,6 +1282,8 @@ router.put('/transactions/:id', async (req, res) => {
         executor: true
       }
     });
+    
+    console.log('✅ Transaction updated successfully:', updatedTransaction.id);
 
     // 회원 잔액 재계산 - 도네이션은 개인 잔액에 영향 없음
     if (updatedTransaction.memberId) {
