@@ -83,6 +83,8 @@ function Admin() {
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [viewingTransaction, setViewingTransaction] = useState(null);
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
+  const [editImageUploading, setEditImageUploading] = useState(false);
+  const [isUpdatingTransaction, setIsUpdatingTransaction] = useState(false);
 
   const [incomeCategories, setIncomeCategories] = useState([]);
   const [expenseCategories, setExpenseCategories] = useState([]);
@@ -7626,6 +7628,8 @@ function Admin() {
               padding: '20px',
               width: '90%',
               maxWidth: '400px',
+              maxHeight: '90vh',
+              overflow: 'auto',
               position: 'relative'
             }}
             onClick={(e) => e.stopPropagation()}
@@ -7704,28 +7708,244 @@ function Admin() {
               />
             </div>
 
-            {editingTransaction.type === 'expense' && (
-              <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', fontSize: '13px', marginBottom: '4px', fontWeight: '600' }}>
-                  설명
-                </label>
-                <input
-                  type="text"
-                  value={editingTransaction.description || ''}
-                  onChange={(e) => setEditingTransaction({
-                    ...editingTransaction,
-                    description: e.target.value
-                  })}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', fontSize: '13px', marginBottom: '4px', fontWeight: '600' }}>
+                라운딩 선택
+              </label>
+              <select
+                value={editingTransaction.bookingId || ''}
+                onChange={(e) => setEditingTransaction({
+                  ...editingTransaction,
+                  bookingId: e.target.value || null
+                })}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border-color)',
+                  fontSize: '14px',
+                  background: 'white'
+                }}
+              >
+                <option value="">라운딩 선택 안함</option>
+                {bookings
+                  .sort((a, b) => new Date(b.date) - new Date(a.date))
+                  .map(booking => (
+                    <option key={booking.id} value={booking.id}>
+                      {booking.courseName} ({new Date(booking.date).toLocaleDateString('ko-KR')})
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', fontSize: '13px', marginBottom: '4px', fontWeight: '600' }}>
+                설명
+              </label>
+              <input
+                type="text"
+                value={editingTransaction.description || ''}
+                onChange={(e) => setEditingTransaction({
+                  ...editingTransaction,
+                  description: e.target.value
+                })}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border-color)',
+                  fontSize: '14px'
+                }}
+                placeholder="설명 입력 (선택)"
+              />
+            </div>
+
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', fontSize: '13px', marginBottom: '4px', fontWeight: '600' }}>
+                이미지 (영수증) {editingTransaction.type === 'expense' && <span style={{ fontWeight: '400', color: '#666' }}>- 여러 장 가능</span>}
+              </label>
+              {editingTransaction.type === 'expense' ? (
+                <div>
+                  {(editingTransaction.receiptImages || []).length > 0 && (
+                    <div style={{ 
+                      display: 'grid', 
+                      gridTemplateColumns: 'repeat(3, 1fr)', 
+                      gap: '8px',
+                      marginBottom: '8px'
+                    }}>
+                      {(editingTransaction.receiptImages || []).map((img, index) => (
+                        <div key={index} style={{ position: 'relative' }}>
+                          <img 
+                            src={img} 
+                            alt={`영수증 ${index + 1}`}
+                            onClick={() => setShowReceiptModal(img)}
+                            style={{ 
+                              width: '100%', 
+                              height: '70px', 
+                              objectFit: 'cover',
+                              borderRadius: '6px',
+                              border: '1px solid var(--border-color)',
+                              cursor: 'pointer'
+                            }} 
+                          />
+                          <button
+                            onClick={() => {
+                              const newImages = [...(editingTransaction.receiptImages || [])];
+                              newImages.splice(index, 1);
+                              setEditingTransaction({
+                                ...editingTransaction,
+                                receiptImages: newImages
+                              });
+                            }}
+                            style={{
+                              position: 'absolute',
+                              top: '2px',
+                              right: '2px',
+                              background: 'var(--alert-red)',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '50%',
+                              width: '20px',
+                              height: '20px',
+                              fontSize: '12px',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center'
+                            }}
+                          >
+                            ×
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '12px',
+                    border: '2px dashed var(--border-color)',
                     borderRadius: '6px',
-                    border: '1px solid var(--border-color)',
-                    fontSize: '14px'
-                  }}
-                />
-              </div>
-            )}
+                    cursor: 'pointer',
+                    background: '#f9f9f9'
+                  }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        if (file.size > 5 * 1024 * 1024) {
+                          alert('이미지 크기는 5MB 이하여야 합니다.');
+                          return;
+                        }
+                        setEditImageUploading(true);
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setEditingTransaction(prev => ({
+                            ...prev,
+                            receiptImages: [...(prev.receiptImages || []), reader.result]
+                          }));
+                          setEditImageUploading(false);
+                        };
+                        reader.readAsDataURL(file);
+                        e.target.value = '';
+                      }}
+                      style={{ display: 'none' }}
+                    />
+                    {editImageUploading ? (
+                      <span style={{ color: '#666', fontSize: '13px' }}>업로드 중...</span>
+                    ) : (
+                      <span style={{ color: '#666', fontSize: '13px' }}>📷 이미지 추가</span>
+                    )}
+                  </label>
+                </div>
+              ) : (
+                editingTransaction.receiptImage ? (
+                  <div style={{ position: 'relative' }}>
+                    <img 
+                      src={editingTransaction.receiptImage} 
+                      alt="영수증" 
+                      onClick={() => setShowReceiptModal(editingTransaction.receiptImage)}
+                      style={{ 
+                        width: '100%', 
+                        maxHeight: '120px', 
+                        objectFit: 'cover',
+                        borderRadius: '6px',
+                        border: '1px solid var(--border-color)',
+                        cursor: 'pointer'
+                      }} 
+                    />
+                    <button
+                      onClick={() => setEditingTransaction({
+                        ...editingTransaction,
+                        receiptImage: ''
+                      })}
+                      style={{
+                        position: 'absolute',
+                        top: '4px',
+                        right: '4px',
+                        background: 'var(--alert-red)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '24px',
+                        height: '24px',
+                        fontSize: '14px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ) : (
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '16px',
+                    border: '2px dashed var(--border-color)',
+                    borderRadius: '6px',
+                    cursor: 'pointer',
+                    background: '#f9f9f9'
+                  }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+                        if (file.size > 5 * 1024 * 1024) {
+                          alert('이미지 크기는 5MB 이하여야 합니다.');
+                          return;
+                        }
+                        setEditImageUploading(true);
+                        const reader = new FileReader();
+                        reader.onloadend = () => {
+                          setEditingTransaction(prev => ({
+                            ...prev,
+                            receiptImage: reader.result
+                          }));
+                          setEditImageUploading(false);
+                        };
+                        reader.readAsDataURL(file);
+                      }}
+                      style={{ display: 'none' }}
+                    />
+                    {editImageUploading ? (
+                      <span style={{ color: '#666', fontSize: '13px' }}>업로드 중...</span>
+                    ) : (
+                      <span style={{ color: '#666', fontSize: '13px' }}>📷 이미지 업로드</span>
+                    )}
+                  </label>
+                )
+              )}
+            </div>
 
             <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
               <button
@@ -7745,13 +7965,24 @@ function Admin() {
                 취소
               </button>
               <button
+                disabled={isUpdatingTransaction}
                 onClick={async () => {
+                  setIsUpdatingTransaction(true);
                   try {
-                    const updated = await apiService.updateTransaction(editingTransaction.id, {
+                    const updateData = {
                       amount: editingTransaction.amount,
                       date: editingTransaction.date,
-                      description: editingTransaction.description
-                    });
+                      description: editingTransaction.description,
+                      bookingId: editingTransaction.bookingId || null
+                    };
+                    
+                    if (editingTransaction.type === 'expense') {
+                      updateData.receiptImages = editingTransaction.receiptImages || [];
+                    } else {
+                      updateData.receiptImage = editingTransaction.receiptImage || null;
+                    }
+                    
+                    const updated = await apiService.updateTransaction(editingTransaction.id, updateData);
                     setAllTransactions(prev => prev.map(t => 
                       t.id === updated.id ? updated : t
                     ));
@@ -7762,21 +7993,23 @@ function Admin() {
                   } catch (error) {
                     console.error('Failed to update transaction:', error);
                     alert('수정에 실패했습니다.');
+                  } finally {
+                    setIsUpdatingTransaction(false);
                   }
                 }}
                 style={{
                   flex: 1,
                   padding: '12px',
-                  background: 'var(--primary-green)',
+                  background: isUpdatingTransaction ? '#ccc' : 'var(--primary-green)',
                   color: 'white',
                   border: 'none',
                   borderRadius: '6px',
                   fontSize: '14px',
                   fontWeight: '600',
-                  cursor: 'pointer'
+                  cursor: isUpdatingTransaction ? 'not-allowed' : 'pointer'
                 }}
               >
-                저장
+                {isUpdatingTransaction ? '저장 중...' : '저장'}
               </button>
             </div>
           </div>
