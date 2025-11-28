@@ -7,7 +7,7 @@ import apiService from '../services/api';
 function Fees() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, members, userTransactions } = useApp();
+  const { user, members, userTransactions, bookings } = useApp();
   const [activeTab, setActiveTab] = useState('personal');
   const [allTransactions, setAllTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -16,8 +16,20 @@ function Fees() {
   const [clubBalance, setClubBalance] = useState(0);
   const [outstandingCount, setOutstandingCount] = useState(0);
   const [paymentGuideText, setPaymentGuideText] = useState('');
+  const [editingTransaction, setEditingTransaction] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    amount: '',
+    date: '',
+    description: '',
+    bookingId: '',
+    receiptImage: ''
+  });
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [imageUploading, setImageUploading] = useState(false);
   const ITEMS_PER_PAGE = 10;
   const MAX_PAGES = 10;
+  
+  const canManageFees = user?.isAdmin || user?.canManageFees;
 
   useEffect(() => {
     if (location.state?.reset) {
@@ -67,6 +79,84 @@ function Fees() {
       setAllTransactions([]);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleOpenEditModal = (transaction) => {
+    setEditingTransaction(transaction);
+    setEditFormData({
+      amount: transaction.amount.toString(),
+      date: transaction.date || new Date(transaction.createdAt).toISOString().split('T')[0],
+      description: transaction.description || '',
+      bookingId: transaction.bookingId || '',
+      receiptImage: transaction.receiptImage || ''
+    });
+  };
+
+  const handleCloseEditModal = () => {
+    setEditingTransaction(null);
+    setEditFormData({
+      amount: '',
+      date: '',
+      description: '',
+      bookingId: '',
+      receiptImage: ''
+    });
+  };
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('이미지 크기는 5MB 이하여야 합니다.');
+      return;
+    }
+
+    setImageUploading(true);
+    try {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setEditFormData(prev => ({ ...prev, receiptImage: reader.result }));
+        setImageUploading(false);
+      };
+      reader.readAsDataURL(file);
+    } catch (error) {
+      console.error('이미지 업로드 실패:', error);
+      setImageUploading(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setEditFormData(prev => ({ ...prev, receiptImage: '' }));
+  };
+
+  const handleUpdateTransaction = async () => {
+    if (!editingTransaction) return;
+
+    if (!editFormData.amount || parseFloat(editFormData.amount) <= 0) {
+      alert('금액을 입력해주세요.');
+      return;
+    }
+
+    setIsUpdating(true);
+    try {
+      await apiService.updateTransaction(editingTransaction.id, {
+        amount: parseFloat(editFormData.amount),
+        date: editFormData.date,
+        description: editFormData.description,
+        bookingId: editFormData.bookingId || null,
+        receiptImage: editFormData.receiptImage || null
+      });
+
+      await loadLedgerData();
+      handleCloseEditModal();
+      alert('거래내역이 수정되었습니다.');
+    } catch (error) {
+      console.error('거래 수정 실패:', error);
+      alert('거래 수정에 실패했습니다.');
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -656,7 +746,7 @@ function Fees() {
                                 </div>
                               )}
                             </div>
-                            <div style={{ textAlign: 'right' }}>
+                            <div style={{ textAlign: 'right', display: 'flex', alignItems: 'center', gap: '12px' }}>
                               <div style={{
                                 fontSize: '18px',
                                 fontWeight: '700',
@@ -664,6 +754,26 @@ function Fees() {
                               }}>
                                 {sign}${transaction.amount.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
                               </div>
+                              {canManageFees && (
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleOpenEditModal(transaction);
+                                  }}
+                                  style={{
+                                    background: 'var(--primary-green)',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '6px',
+                                    padding: '6px 10px',
+                                    fontSize: '12px',
+                                    fontWeight: '600',
+                                    cursor: 'pointer'
+                                  }}
+                                >
+                                  수정
+                                </button>
+                              )}
                             </div>
                           </div>
                         );
@@ -767,6 +877,251 @@ function Fees() {
                 borderRadius: '8px'
               }} 
             />
+          </div>
+        </div>
+      )}
+
+      {editingTransaction && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px'
+          }}
+          onClick={handleCloseEditModal}
+        >
+          <div 
+            style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '20px',
+              width: '100%',
+              maxWidth: '400px',
+              maxHeight: '90vh',
+              overflow: 'auto'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              marginBottom: '20px'
+            }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>거래내역 수정</h3>
+              <button
+                onClick={handleCloseEditModal}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  padding: '0',
+                  color: '#666'
+                }}
+              >
+                ×
+              </button>
+            </div>
+
+            <div style={{ display: 'grid', gap: '16px' }}>
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px' }}>
+                  금액 ($)
+                </label>
+                <input
+                  type="number"
+                  value={editFormData.amount}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, amount: e.target.value }))}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    boxSizing: 'border-box'
+                  }}
+                  placeholder="금액 입력"
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px' }}>
+                  날짜
+                </label>
+                <input
+                  type="date"
+                  value={editFormData.date}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, date: e.target.value }))}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px' }}>
+                  라운딩 선택
+                </label>
+                <select
+                  value={editFormData.bookingId}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, bookingId: e.target.value }))}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    boxSizing: 'border-box',
+                    background: 'white'
+                  }}
+                >
+                  <option value="">라운딩 선택 안함</option>
+                  {bookings
+                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .map(booking => (
+                      <option key={booking.id} value={booking.id}>
+                        {booking.courseName} ({new Date(booking.date).toLocaleDateString('ko-KR')})
+                      </option>
+                    ))
+                  }
+                </select>
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px' }}>
+                  설명
+                </label>
+                <input
+                  type="text"
+                  value={editFormData.description}
+                  onChange={(e) => setEditFormData(prev => ({ ...prev, description: e.target.value }))}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    boxSizing: 'border-box'
+                  }}
+                  placeholder="설명 입력 (선택)"
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px' }}>
+                  이미지 (영수증)
+                </label>
+                {editFormData.receiptImage ? (
+                  <div style={{ position: 'relative' }}>
+                    <img 
+                      src={editFormData.receiptImage} 
+                      alt="영수증" 
+                      style={{ 
+                        width: '100%', 
+                        maxHeight: '150px', 
+                        objectFit: 'cover',
+                        borderRadius: '8px',
+                        border: '1px solid var(--border-color)'
+                      }} 
+                    />
+                    <button
+                      onClick={handleRemoveImage}
+                      style={{
+                        position: 'absolute',
+                        top: '8px',
+                        right: '8px',
+                        background: 'var(--alert-red)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '50%',
+                        width: '28px',
+                        height: '28px',
+                        fontSize: '16px',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ) : (
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '20px',
+                    border: '2px dashed var(--border-color)',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    background: '#f9f9f9'
+                  }}>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                      style={{ display: 'none' }}
+                    />
+                    {imageUploading ? (
+                      <span style={{ color: '#666' }}>업로드 중...</span>
+                    ) : (
+                      <span style={{ color: '#666' }}>📷 이미지 업로드</span>
+                    )}
+                  </label>
+                )}
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+                <button
+                  onClick={handleCloseEditModal}
+                  style={{
+                    flex: 1,
+                    padding: '14px',
+                    background: '#e9ecef',
+                    color: '#333',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleUpdateTransaction}
+                  disabled={isUpdating}
+                  style={{
+                    flex: 1,
+                    padding: '14px',
+                    background: isUpdating ? '#ccc' : 'var(--primary-green)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    cursor: isUpdating ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {isUpdating ? '저장 중...' : '저장'}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

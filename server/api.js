@@ -1233,7 +1233,7 @@ router.post('/transactions', async (req, res) => {
 // 거래 수정
 router.put('/transactions/:id', async (req, res) => {
   try {
-    const { amount, date, description } = req.body;
+    const { amount, date, description, bookingId, receiptImage } = req.body;
     
     const existingTransaction = await prisma.transaction.findUnique({
       where: { id: req.params.id }
@@ -1243,13 +1243,23 @@ router.put('/transactions/:id', async (req, res) => {
       return res.status(404).json({ error: 'Transaction not found' });
     }
 
+    const updateData = {
+      amount: amount !== undefined ? parseFloat(amount) : existingTransaction.amount,
+      date: date || existingTransaction.date,
+      description: description !== undefined ? description : existingTransaction.description
+    };
+
+    if (bookingId !== undefined) {
+      updateData.bookingId = bookingId || null;
+    }
+
+    if (receiptImage !== undefined) {
+      updateData.receiptImage = receiptImage || null;
+    }
+
     const updatedTransaction = await prisma.transaction.update({
       where: { id: req.params.id },
-      data: {
-        amount: amount !== undefined ? parseFloat(amount) : existingTransaction.amount,
-        date: date ? new Date(date) : existingTransaction.date,
-        description: description !== undefined ? description : existingTransaction.description
-      },
+      data: updateData,
       include: {
         member: true,
         booking: true,
