@@ -181,8 +181,12 @@ function Admin() {
     }
     if (activeTab === 'ledger') {
       loadLedgerData();
+      loadBookingsForScoreManagement();
     }
     if (activeTab === 'scoreManagement') {
+      loadBookingsForScoreManagement();
+    }
+    if (activeTab === 'clubFinance') {
       loadBookingsForScoreManagement();
     }
   }, [activeTab]);
