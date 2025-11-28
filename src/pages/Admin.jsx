@@ -7993,11 +7993,12 @@ function Admin() {
                     setEditingTransaction(null);
                     setSelectedTransactionIds([]);
                     setIsTransactionSelectMode(false);
-                    loadLedgerData();
+                    setIsUpdatingTransaction(false);
+                    loadLedgerData().catch(err => console.error('Reload error:', err));
+                    return;
                   } catch (error) {
                     console.error('Failed to update transaction:', error);
                     alert('수정에 실패했습니다.');
-                  } finally {
                     setIsUpdatingTransaction(false);
                   }
                 }}
