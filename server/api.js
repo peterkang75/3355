@@ -1233,7 +1233,7 @@ router.post('/transactions', async (req, res) => {
 // 거래 수정
 router.put('/transactions/:id', async (req, res) => {
   try {
-    const { amount, date, description, bookingId, receiptImage } = req.body;
+    const { amount, date, description, bookingId, receiptImage, receiptImages } = req.body;
     
     const existingTransaction = await prisma.transaction.findUnique({
       where: { id: req.params.id }
@@ -1255,6 +1255,10 @@ router.put('/transactions/:id', async (req, res) => {
 
     if (receiptImage !== undefined) {
       updateData.receiptImage = receiptImage || null;
+    }
+
+    if (receiptImages !== undefined) {
+      updateData.receiptImages = receiptImages || [];
     }
 
     const updatedTransaction = await prisma.transaction.update({

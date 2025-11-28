@@ -13,6 +13,8 @@ function Fees() {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [showReceiptModal, setShowReceiptModal] = useState(null);
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [galleryIndex, setGalleryIndex] = useState(0);
   const [clubBalance, setClubBalance] = useState(0);
   const [outstandingCount, setOutstandingCount] = useState(0);
   const [paymentGuideText, setPaymentGuideText] = useState('');
@@ -22,7 +24,8 @@ function Fees() {
     date: '',
     description: '',
     bookingId: '',
-    receiptImage: ''
+    receiptImage: '',
+    receiptImages: []
   });
   const [isUpdating, setIsUpdating] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
@@ -84,12 +87,14 @@ function Fees() {
 
   const handleOpenEditModal = (transaction) => {
     setEditingTransaction(transaction);
+    const images = transaction.receiptImages || [];
     setEditFormData({
       amount: transaction.amount.toString(),
       date: transaction.date || new Date(transaction.createdAt).toISOString().split('T')[0],
       description: transaction.description || '',
       bookingId: transaction.bookingId || '',
-      receiptImage: transaction.receiptImage || ''
+      receiptImage: transaction.receiptImage || '',
+      receiptImages: Array.isArray(images) ? images : []
     });
   };
 
@@ -100,7 +105,8 @@ function Fees() {
       date: '',
       description: '',
       bookingId: '',
-      receiptImage: ''
+      receiptImage: '',
+      receiptImages: []
     });
   };
 
@@ -117,7 +123,14 @@ function Fees() {
     try {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setEditFormData(prev => ({ ...prev, receiptImage: reader.result }));
+        if (editingTransaction?.type === 'expense') {
+          setEditFormData(prev => ({ 
+            ...prev, 
+            receiptImages: [...prev.receiptImages, reader.result] 
+          }));
+        } else {
+          setEditFormData(prev => ({ ...prev, receiptImage: reader.result }));
+        }
         setImageUploading(false);
       };
       reader.readAsDataURL(file);
@@ -127,8 +140,15 @@ function Fees() {
     }
   };
 
-  const handleRemoveImage = () => {
-    setEditFormData(prev => ({ ...prev, receiptImage: '' }));
+  const handleRemoveImage = (index) => {
+    if (editingTransaction?.type === 'expense' && typeof index === 'number') {
+      setEditFormData(prev => ({
+        ...prev,
+        receiptImages: prev.receiptImages.filter((_, i) => i !== index)
+      }));
+    } else {
+      setEditFormData(prev => ({ ...prev, receiptImage: '' }));
+    }
   };
 
   const handleUpdateTransaction = async () => {
@@ -141,13 +161,20 @@ function Fees() {
 
     setIsUpdating(true);
     try {
-      await apiService.updateTransaction(editingTransaction.id, {
+      const updateData = {
         amount: parseFloat(editFormData.amount),
         date: editFormData.date,
         description: editFormData.description,
-        bookingId: editFormData.bookingId || null,
-        receiptImage: editFormData.receiptImage || null
-      });
+        bookingId: editFormData.bookingId || null
+      };
+
+      if (editingTransaction.type === 'expense') {
+        updateData.receiptImages = editFormData.receiptImages;
+      } else {
+        updateData.receiptImage = editFormData.receiptImage || null;
+      }
+
+      await apiService.updateTransaction(editingTransaction.id, updateData);
 
       await loadLedgerData();
       handleCloseEditModal();
@@ -663,7 +690,14 @@ function Fees() {
                         return (
                           <div 
                             key={transaction.id}
-                            onClick={() => transaction.receiptImage && setShowReceiptModal(transaction.receiptImage)}
+                            onClick={() => {
+                              if (transaction.receiptImages && transaction.receiptImages.length > 0) {
+                                setGalleryImages(transaction.receiptImages);
+                                setGalleryIndex(0);
+                              } else if (transaction.receiptImage) {
+                                setShowReceiptModal(transaction.receiptImage);
+                              }
+                            }}
                             style={{
                               padding: '16px',
                               borderBottom: '1px solid var(--border-color)',
@@ -673,7 +707,7 @@ function Fees() {
                               justifyContent: 'space-between',
                               alignItems: 'center',
                               background: bgColor,
-                              cursor: transaction.receiptImage ? 'pointer' : 'default'
+                              cursor: (transaction.receiptImage || (transaction.receiptImages && transaction.receiptImages.length > 0)) ? 'pointer' : 'default'
                             }}
                           >
                             <div style={{ flex: 1 }}>
@@ -720,8 +754,10 @@ function Fees() {
                                     {member.name} {member.nickname && `(${member.nickname})`}
                                   </span>
                                 )}
-                                {transaction.receiptImage && (
-                                  <span style={{ fontSize: '11px', opacity: 0.7 }}>📎</span>
+                                {(transaction.receiptImage || (transaction.receiptImages && transaction.receiptImages.length > 0)) && (
+                                  <span style={{ fontSize: '11px', opacity: 0.7 }}>
+                                    📎{transaction.receiptImages?.length > 1 ? ` ${transaction.receiptImages.length}` : ''}
+                                  </span>
                                 )}
                               </div>
                               {roundingName && (
@@ -881,6 +917,153 @@ function Fees() {
         </div>
       )}
 
+      {galleryImages.length > 0 && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0,0,0,0.9)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '20px'
+          }}
+          onClick={() => {
+            setGalleryImages([]);
+            setGalleryIndex(0);
+          }}
+        >
+          <div style={{
+            position: 'absolute',
+            top: '16px',
+            right: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '12px'
+          }}>
+            <span style={{ color: 'white', fontSize: '14px' }}>
+              {galleryIndex + 1} / {galleryImages.length}
+            </span>
+            <button
+              onClick={() => {
+                setGalleryImages([]);
+                setGalleryIndex(0);
+              }}
+              style={{
+                background: 'var(--primary-green)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+                fontSize: '20px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              ×
+            </button>
+          </div>
+          
+          <div 
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '20px',
+              maxWidth: '100%',
+              maxHeight: '80vh'
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {galleryImages.length > 1 && (
+              <button
+                onClick={() => setGalleryIndex(prev => prev > 0 ? prev - 1 : galleryImages.length - 1)}
+                style={{
+                  background: 'rgba(255,255,255,0.2)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '48px',
+                  height: '48px',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                ‹
+              </button>
+            )}
+            
+            <img 
+              src={galleryImages[galleryIndex]} 
+              alt={`영수증 ${galleryIndex + 1}`}
+              style={{ 
+                maxWidth: 'calc(100vw - 160px)', 
+                maxHeight: '75vh',
+                borderRadius: '8px',
+                objectFit: 'contain'
+              }} 
+            />
+            
+            {galleryImages.length > 1 && (
+              <button
+                onClick={() => setGalleryIndex(prev => prev < galleryImages.length - 1 ? prev + 1 : 0)}
+                style={{
+                  background: 'rgba(255,255,255,0.2)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '48px',
+                  height: '48px',
+                  fontSize: '24px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                ›
+              </button>
+            )}
+          </div>
+          
+          {galleryImages.length > 1 && (
+            <div style={{
+              display: 'flex',
+              gap: '8px',
+              marginTop: '16px'
+            }}>
+              {galleryImages.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setGalleryIndex(index);
+                  }}
+                  style={{
+                    width: '10px',
+                    height: '10px',
+                    borderRadius: '50%',
+                    border: 'none',
+                    background: index === galleryIndex ? 'var(--primary-green)' : 'rgba(255,255,255,0.4)',
+                    cursor: 'pointer'
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {editingTransaction && (
         <div 
           style={{
@@ -1023,66 +1206,140 @@ function Fees() {
 
               <div>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px' }}>
-                  이미지 (영수증)
+                  이미지 (영수증) {editingTransaction?.type === 'expense' && <span style={{ fontWeight: '400', color: '#666' }}>- 여러 장 가능</span>}
                 </label>
-                {editFormData.receiptImage ? (
-                  <div style={{ position: 'relative' }}>
-                    <img 
-                      src={editFormData.receiptImage} 
-                      alt="영수증" 
-                      style={{ 
-                        width: '100%', 
-                        maxHeight: '150px', 
-                        objectFit: 'cover',
-                        borderRadius: '8px',
-                        border: '1px solid var(--border-color)'
-                      }} 
-                    />
-                    <button
-                      onClick={handleRemoveImage}
-                      style={{
-                        position: 'absolute',
-                        top: '8px',
-                        right: '8px',
-                        background: 'var(--alert-red)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '50%',
-                        width: '28px',
-                        height: '28px',
-                        fontSize: '16px',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      ×
-                    </button>
+                {editingTransaction?.type === 'expense' ? (
+                  <div>
+                    {editFormData.receiptImages.length > 0 && (
+                      <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: 'repeat(3, 1fr)', 
+                        gap: '8px',
+                        marginBottom: '12px'
+                      }}>
+                        {editFormData.receiptImages.map((img, index) => (
+                          <div key={index} style={{ position: 'relative' }}>
+                            <img 
+                              src={img} 
+                              alt={`영수증 ${index + 1}`}
+                              onClick={() => setShowReceiptModal(img)}
+                              style={{ 
+                                width: '100%', 
+                                height: '80px', 
+                                objectFit: 'cover',
+                                borderRadius: '8px',
+                                border: '1px solid var(--border-color)',
+                                cursor: 'pointer'
+                              }} 
+                            />
+                            <button
+                              onClick={() => handleRemoveImage(index)}
+                              style={{
+                                position: 'absolute',
+                                top: '4px',
+                                right: '4px',
+                                background: 'var(--alert-red)',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '50%',
+                                width: '22px',
+                                height: '22px',
+                                fontSize: '14px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                            >
+                              ×
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <label style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '16px',
+                      border: '2px dashed var(--border-color)',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      background: '#f9f9f9'
+                    }}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        style={{ display: 'none' }}
+                      />
+                      {imageUploading ? (
+                        <span style={{ color: '#666' }}>업로드 중...</span>
+                      ) : (
+                        <span style={{ color: '#666' }}>📷 이미지 추가</span>
+                      )}
+                    </label>
                   </div>
                 ) : (
-                  <label style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '20px',
-                    border: '2px dashed var(--border-color)',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    background: '#f9f9f9'
-                  }}>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      style={{ display: 'none' }}
-                    />
-                    {imageUploading ? (
-                      <span style={{ color: '#666' }}>업로드 중...</span>
-                    ) : (
-                      <span style={{ color: '#666' }}>📷 이미지 업로드</span>
-                    )}
-                  </label>
+                  editFormData.receiptImage ? (
+                    <div style={{ position: 'relative' }}>
+                      <img 
+                        src={editFormData.receiptImage} 
+                        alt="영수증" 
+                        style={{ 
+                          width: '100%', 
+                          maxHeight: '150px', 
+                          objectFit: 'cover',
+                          borderRadius: '8px',
+                          border: '1px solid var(--border-color)'
+                        }} 
+                      />
+                      <button
+                        onClick={() => handleRemoveImage()}
+                        style={{
+                          position: 'absolute',
+                          top: '8px',
+                          right: '8px',
+                          background: 'var(--alert-red)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '50%',
+                          width: '28px',
+                          height: '28px',
+                          fontSize: '16px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center'
+                        }}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ) : (
+                    <label style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '20px',
+                      border: '2px dashed var(--border-color)',
+                      borderRadius: '8px',
+                      cursor: 'pointer',
+                      background: '#f9f9f9'
+                    }}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        style={{ display: 'none' }}
+                      />
+                      {imageUploading ? (
+                        <span style={{ color: '#666' }}>업로드 중...</span>
+                      ) : (
+                        <span style={{ color: '#666' }}>📷 이미지 업로드</span>
+                      )}
+                    </label>
+                  )
                 )}
               </div>
 
