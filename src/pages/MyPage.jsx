@@ -9,7 +9,7 @@ import staffIcon from '../assets/role-staff.png';
 import clubStaffIcon from '../assets/role-club-staff.png';
 
 function MyPage() {
-  const { user, logout, refreshMembers, courses } = useApp();
+  const { user, logout, refreshMembers, courses, bookings } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
   const [isEditing, setIsEditing] = useState(false);
@@ -637,46 +637,64 @@ function MyPage() {
             </div>
           ) : (
             <div style={{ display: 'grid', gap: '8px' }}>
-              {scores.map((score, index) => (
-                <div
-                  key={index}
-                  style={{
-                    padding: '12px',
-                    background: 'var(--bg-green)',
-                    borderRadius: '6px',
-                    borderBottom: '1px solid var(--border-color)'
-                  }}
-                >
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '6px'
-                  }}>
+              {scores.map((score, index) => {
+                const matchingBooking = bookings.find(b => b.title === score.roundingName);
+                const handleScoreClick = () => {
+                  if (matchingBooking) {
+                    navigate(`/leaderboard?id=${matchingBooking.id}&userId=${user.id}`);
+                  }
+                };
+                
+                return (
+                  <div
+                    key={index}
+                    onClick={handleScoreClick}
+                    style={{
+                      padding: '12px',
+                      background: 'var(--bg-green)',
+                      borderRadius: '6px',
+                      borderBottom: '1px solid var(--border-color)',
+                      cursor: matchingBooking ? 'pointer' : 'default',
+                      transition: 'transform 0.1s ease'
+                    }}
+                  >
                     <div style={{
-                      fontSize: '15px',
-                      fontWeight: '700',
-                      color: 'var(--primary-green)'
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginBottom: '6px'
                     }}>
-                      {score.roundingName}
+                      <div style={{
+                        fontSize: '15px',
+                        fontWeight: '700',
+                        color: 'var(--primary-green)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        {score.roundingName}
+                        {matchingBooking && (
+                          <span style={{ fontSize: '10px', color: 'var(--primary-green)' }}>→</span>
+                        )}
+                      </div>
+                      <div style={{
+                        fontSize: '18px',
+                        fontWeight: '700',
+                        color: 'var(--primary-green)'
+                      }}>
+                        {score.totalScore}
+                      </div>
                     </div>
                     <div style={{
-                      fontSize: '18px',
-                      fontWeight: '700',
-                      color: 'var(--primary-green)'
+                      fontSize: '13px',
+                      color: 'var(--text-dark)',
+                      opacity: 0.7
                     }}>
-                      {score.totalScore}
+                      {score.courseName} · {new Date(score.date).toLocaleDateString('ko-KR')}
                     </div>
                   </div>
-                  <div style={{
-                    fontSize: '13px',
-                    color: 'var(--text-dark)',
-                    opacity: 0.7
-                  }}>
-                    {score.courseName} · {new Date(score.date).toLocaleDateString('ko-KR')}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
