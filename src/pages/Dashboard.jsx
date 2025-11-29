@@ -1563,7 +1563,7 @@ function Dashboard() {
           </div>
           {(() => {
             const userScores = scores
-              .filter(score => score.userId === user.id)
+              .filter(score => score.userId === user.id && score.totalScore >= 1)
               .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
               .slice(0, 3);
 

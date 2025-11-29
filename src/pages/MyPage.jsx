@@ -42,7 +42,8 @@ function MyPage() {
     if (!user?.id) return;
     try {
       const response = await apiService.fetchScores(user.id);
-      setScores(response || []);
+      const validScores = (response || []).filter(score => score.totalScore >= 1);
+      setScores(validScores);
     } catch (error) {
       console.error('스코어 로드 실패:', error);
       setScores([]);
