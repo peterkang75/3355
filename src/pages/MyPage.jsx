@@ -38,20 +38,11 @@ function MyPage() {
     }
   }, [user]);
 
-  const isCompleteScore = (score) => {
-    if (score.totalScore >= 36) return true;
-    if (!score.holes) return false;
-    const holes = typeof score.holes === 'string' ? JSON.parse(score.holes) : score.holes;
-    const filledHoles = holes.filter(h => h > 0).length;
-    return filledHoles >= 9;
-  };
-
   const loadScores = async () => {
     if (!user?.id) return;
     try {
       const response = await apiService.fetchScores(user.id);
-      const completeScores = (response || []).filter(isCompleteScore);
-      setScores(completeScores);
+      setScores(response || []);
     } catch (error) {
       console.error('스코어 로드 실패:', error);
       setScores([]);
