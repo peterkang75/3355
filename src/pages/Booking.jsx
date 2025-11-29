@@ -353,6 +353,14 @@ function Booking() {
     return today > bookingDate;
   };
 
+  const isRoundingDay = (booking) => {
+    const bookingDate = new Date(booking.date);
+    const today = new Date();
+    bookingDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    return today.getTime() === bookingDate.getTime();
+  };
+
   const canViewBooking = (booking) => {
     if (booking.type === '컴페티션') {
       return user.club === booking.courseName;
@@ -930,7 +938,7 @@ function Booking() {
                   ▲ 결과보기
                 </button>
               </>
-            ) : isRegistrationClosed(booking) && !isPastRoundingDate(booking) ? (
+            ) : isRoundingDay(booking) ? (
               <>
                 <button
                   onClick={() => navigate(`/team-formation?id=${booking.id}`)}
@@ -948,26 +956,6 @@ function Booking() {
                 >
                   📋 조편성 보기
                 </button>
-                {booking.type === '컴페티션' && (
-                  <button
-                    onClick={() => handleToggleNumberRental(booking.id)}
-                    disabled={isRentalLoading === booking.id}
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      background: isRentalLoading === booking.id ? '#ccc' : '#E6AA68',
-                      color: '#fff',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '16px',
-                      fontWeight: '700',
-                      cursor: isRentalLoading === booking.id ? 'wait' : 'pointer',
-                      opacity: isRentalLoading === booking.id ? 0.7 : 1
-                    }}
-                  >
-                    {isRentalLoading === booking.id ? '처리중...' : (isRenting ? '✓ 번호대여중' : '번호대여')}
-                  </button>
-                )}
                 {booking.playEnabled && (
                   <button
                     onClick={() => navigate(`/play?id=${booking.id}`)}
@@ -986,6 +974,25 @@ function Booking() {
                     ⛳ 플레이하기
                   </button>
                 )}
+              </>
+            ) : isRegistrationClosed(booking) && !isPastRoundingDate(booking) ? (
+              <>
+                <button
+                  onClick={() => navigate(`/team-formation?id=${booking.id}`)}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: 'var(--primary-green)',
+                    color: 'var(--text-light)',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                >
+                  📋 조편성 보기
+                </button>
               </>
             ) : (
               <>
@@ -1043,24 +1050,6 @@ function Booking() {
                     }}
                   >
                     {isRentalLoading === booking.id ? '처리중...' : (isRenting ? '✓ 번호대여중' : '번호대여')}
-                  </button>
-                )}
-                {booking.playEnabled && (
-                  <button
-                    onClick={() => navigate(`/play?id=${booking.id}`)}
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      background: '#2196F3',
-                      color: 'var(--text-light)',
-                      border: 'none',
-                      borderRadius: '6px',
-                      fontSize: '16px',
-                      fontWeight: '700',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    ⛳ 플레이하기
                   </button>
                 )}
               </>

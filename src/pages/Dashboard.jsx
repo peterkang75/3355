@@ -417,6 +417,14 @@ function Dashboard() {
     return today > bookingDate;
   };
 
+  const isRoundingDay = (booking) => {
+    const bookingDate = new Date(booking.date);
+    const today = new Date();
+    bookingDate.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0);
+    return today.getTime() === bookingDate.getTime();
+  };
+
   const handleRefreshData = async () => {
     setIsRefreshing(true);
     try {
@@ -1403,7 +1411,7 @@ function Dashboard() {
                           ▲ 결과보기
                         </button>
                       </>
-                    ) : isRegistrationClosed(booking) && !isPastRoundingDate(booking) ? (
+                    ) : isRoundingDay(booking) ? (
                       <>
                         <button
                           onClick={() => navigate(`/team-formation?id=${booking.id}`)}
@@ -1439,6 +1447,25 @@ function Dashboard() {
                             ⛳ 플레이하기
                           </button>
                         )}
+                      </>
+                    ) : isRegistrationClosed(booking) && !isPastRoundingDate(booking) ? (
+                      <>
+                        <button
+                          onClick={() => navigate(`/team-formation?id=${booking.id}`)}
+                          style={{
+                            flex: 1,
+                            padding: '12px',
+                            background: '#214001',
+                            color: 'var(--text-light)',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '14px',
+                            fontWeight: '700',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          📋 조편성 보기
+                        </button>
                       </>
                     ) : (
                       <>
@@ -1496,24 +1523,6 @@ function Dashboard() {
                           >
                             {(booking.numberRentals && booking.numberRentals.includes(user.phone)) ? '✓ 번호대여중' : '번호대여'}
                           </LoadingButton>
-                        )}
-                        {booking.playEnabled && (
-                          <button
-                            onClick={() => navigate(`/play?id=${booking.id}`)}
-                            style={{
-                              flex: 1,
-                              padding: '12px',
-                              background: '#2196F3',
-                              color: 'var(--text-light)',
-                              border: 'none',
-                              borderRadius: '6px',
-                              fontSize: '14px',
-                              fontWeight: '700',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            ⛳ 플레이하기
-                          </button>
                         )}
                       </>
                     )}
