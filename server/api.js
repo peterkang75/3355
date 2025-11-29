@@ -1487,4 +1487,130 @@ router.delete('/expense-categories/:id', async (req, res) => {
   }
 });
 
+// 빙고 설정 조회
+router.get('/bingo-settings', async (req, res) => {
+  try {
+    let settings = await prisma.bingoSettings.findFirst();
+    if (!settings) {
+      settings = await prisma.bingoSettings.create({
+        data: {
+          gridSize: 5,
+          bingoTargetLines: 5,
+          bingoGrid: [],
+          usedMembers: [],
+          selectedCells: [],
+          isEditMode: true
+        }
+      });
+    }
+    res.json(settings);
+  } catch (error) {
+    console.error('Error fetching bingo settings:', error);
+    res.status(500).json({ error: 'Failed to fetch bingo settings' });
+  }
+});
+
+// 빙고 설정 저장 (운영자 전용)
+router.post('/bingo-settings', async (req, res) => {
+  try {
+    const { gridSize, bingoTargetLines, bingoGrid, usedMembers, selectedCells, isEditMode } = req.body;
+    
+    let settings = await prisma.bingoSettings.findFirst();
+    
+    if (settings) {
+      settings = await prisma.bingoSettings.update({
+        where: { id: settings.id },
+        data: {
+          gridSize,
+          bingoTargetLines,
+          bingoGrid,
+          usedMembers,
+          selectedCells,
+          isEditMode
+        }
+      });
+    } else {
+      settings = await prisma.bingoSettings.create({
+        data: {
+          gridSize,
+          bingoTargetLines,
+          bingoGrid,
+          usedMembers,
+          selectedCells,
+          isEditMode
+        }
+      });
+    }
+    
+    req.io.emit('bingo:updated', settings);
+    res.json(settings);
+  } catch (error) {
+    console.error('Error saving bingo settings:', error);
+    res.status(500).json({ error: 'Failed to save bingo settings' });
+  }
+});
+
+// 빙고 선택 셀 업데이트 (운영자 전용)
+router.post('/bingo-settings/select-cell', async (req, res) => {
+  try {
+    const { selectedCells } = req.body;
+    
+    let settings = await prisma.bingoSettings.findFirst();
+    if (settings) {
+      settings = await prisma.bingoSettings.update({
+        where: { id: settings.id },
+        data: { selectedCells }
+      });
+      req.io.emit('bingo:updated', settings);
+      res.json(settings);
+    } else {
+      res.status(404).json({ error: 'Bingo settings not found' });
+    }
+  } catch (error) {
+    console.error('Error updating bingo cells:', error);
+    res.status(500).json({ error: 'Failed to update bingo cells' });
+  }
+});
+
+// 빙고 초기화 (운영자 전용)
+router.post('/bingo-settings/reset', async (req, res) => {
+  try {
+    const { gridSize, bingoTargetLines } = req.body;
+    
+    let settings = await prisma.bingoSettings.findFirst();
+    const emptyGrid = Array(gridSize).fill(null).map(() => Array(gridSize).fill(''));
+    
+    if (settings) {
+      settings = await prisma.bingoSettings.update({
+        where: { id: settings.id },
+        data: {
+          gridSize,
+          bingoTargetLines,
+          bingoGrid: emptyGrid,
+          usedMembers: [],
+          selectedCells: [],
+          isEditMode: true
+        }
+      });
+    } else {
+      settings = await prisma.bingoSettings.create({
+        data: {
+          gridSize,
+          bingoTargetLines,
+          bingoGrid: emptyGrid,
+          usedMembers: [],
+          selectedCells: [],
+          isEditMode: true
+        }
+      });
+    }
+    
+    req.io.emit('bingo:updated', settings);
+    res.json(settings);
+  } catch (error) {
+    console.error('Error resetting bingo:', error);
+    res.status(500).json({ error: 'Failed to reset bingo' });
+  }
+});
+
 module.exports = router;
