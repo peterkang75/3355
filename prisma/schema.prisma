@@ -203,3 +203,15 @@ model NtpRecord {
   @@unique([bookingId, memberId, holeNumber])
   @@index([bookingId])
 }
+
+model BingoSettings {
+  id              String   @id @default(cuid())
+  gridSize        Int      @default(5)
+  bingoTargetLines Int     @default(5)
+  bingoGrid       Json     @default("[]")
+  usedMembers     Json     @default("[]")
+  selectedCells   Json     @default("[]")
+  isEditMode      Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
