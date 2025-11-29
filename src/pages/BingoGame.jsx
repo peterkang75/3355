@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
+import { io } from 'socket.io-client';
 
 function BingoGame() {
   const navigate = useNavigate();
   const { user, members } = useApp();
+  const socketRef = useRef(null);
   
   const [gridSize, setGridSize] = useState(5);
   const [bingoGrid, setBingoGrid] = useState([]);
@@ -16,36 +18,62 @@ function BingoGame() {
   const [selectedMember, setSelectedMember] = useState(null);
   const [dragOverCell, setDragOverCell] = useState(null);
   const [bingoTargetLines, setBingoTargetLines] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+
+  const isOperator = ['관리자', '방장', '운영진'].includes(user?.role);
 
   useEffect(() => {
-    const savedGrid = localStorage.getItem('bingoGrid');
-    const savedSize = localStorage.getItem('bingoGridSize');
-    const savedUsedMembers = localStorage.getItem('bingoUsedMembers');
-    const savedTargetLines = localStorage.getItem('bingoTargetLines');
+    loadBingoSettings();
     
-    if (savedGrid && savedSize) {
-      const size = parseInt(savedSize);
-      setGridSize(size);
-      setBingoGrid(JSON.parse(savedGrid));
-      if (savedUsedMembers) {
-        setUsedMembers(JSON.parse(savedUsedMembers));
+    const socket = io();
+    socketRef.current = socket;
+    
+    socket.on('bingo:updated', (settings) => {
+      if (settings) {
+        setGridSize(settings.gridSize);
+        setBingoTargetLines(settings.bingoTargetLines);
+        setBingoGrid(settings.bingoGrid || []);
+        setUsedMembers(settings.usedMembers || []);
+        setSelectedCells(settings.selectedCells || []);
+        setIsEditMode(settings.isEditMode);
       }
-      if (savedTargetLines) {
-        setBingoTargetLines(parseInt(savedTargetLines));
-      } else {
-        setBingoTargetLines(size);
-      }
-    } else {
-      initializeGrid(5);
-      setBingoTargetLines(5);
-    }
+    });
+    
+    return () => {
+      socket.disconnect();
+    };
   }, []);
 
   useEffect(() => {
-    if (!isEditMode) {
+    if (!isEditMode && bingoGrid.length > 0) {
       checkBingo();
     }
-  }, [selectedCells, isEditMode]);
+  }, [selectedCells, isEditMode, bingoGrid]);
+
+  const loadBingoSettings = async () => {
+    try {
+      const response = await fetch('/api/bingo-settings');
+      if (response.ok) {
+        const settings = await response.json();
+        setGridSize(settings.gridSize);
+        setBingoTargetLines(settings.bingoTargetLines);
+        setBingoGrid(settings.bingoGrid || initializeEmptyGrid(settings.gridSize));
+        setUsedMembers(settings.usedMembers || []);
+        setSelectedCells(settings.selectedCells || []);
+        setIsEditMode(settings.isEditMode);
+      }
+    } catch (error) {
+      console.error('Error loading bingo settings:', error);
+      initializeGrid(5);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const initializeEmptyGrid = (size) => {
+    return Array(size).fill(null).map(() => Array(size).fill(''));
+  };
 
   const initializeGrid = (size) => {
     const newGrid = Array(size).fill(null).map(() => Array(size).fill(''));
@@ -58,15 +86,28 @@ function BingoGame() {
     setSelectedMember(null);
   };
 
-  const handleGridSizeChange = (newSize) => {
-    if (newSize >= 3 && newSize <= 10) {
+  const handleGridSizeChange = async (newSize) => {
+    if (newSize >= 3 && newSize <= 10 && isOperator) {
       setGridSize(newSize);
       setBingoTargetLines(newSize);
-      initializeGrid(newSize);
+      const newGrid = initializeEmptyGrid(newSize);
+      setBingoGrid(newGrid);
+      setSelectedCells([]);
+      setBingoLines([]);
+      setShowBingo(false);
+      setUsedMembers([]);
+      setSelectedMember(null);
+    }
+  };
+
+  const handleTargetLinesChange = (newLines) => {
+    if (isOperator) {
+      setBingoTargetLines(newLines);
     }
   };
 
   const handleMemberSelect = (nickname) => {
+    if (!isOperator || !isEditMode) return;
     if (selectedMember === nickname) {
       setSelectedMember(null);
     } else {
@@ -74,8 +115,10 @@ function BingoGame() {
     }
   };
 
-  const handleCellClick = (row, col) => {
+  const handleCellClick = async (row, col) => {
     if (isEditMode) {
+      if (!isOperator) return;
+      
       if (selectedMember) {
         const newGrid = bingoGrid.map(r => [...r]);
         const oldValue = newGrid[row][col];
@@ -94,18 +137,33 @@ function BingoGame() {
         setUsedMembers(prev => prev.filter(m => m !== removedMember));
       }
     } else {
+      if (!isOperator) return;
+      
       const cellKey = `${row}-${col}`;
       if (bingoGrid[row][col]) {
+        let newSelectedCells;
         if (selectedCells.includes(cellKey)) {
-          setSelectedCells(selectedCells.filter(c => c !== cellKey));
+          newSelectedCells = selectedCells.filter(c => c !== cellKey);
         } else {
-          setSelectedCells([...selectedCells, cellKey]);
+          newSelectedCells = [...selectedCells, cellKey];
+        }
+        setSelectedCells(newSelectedCells);
+        
+        try {
+          await fetch('/api/bingo-settings/select-cell', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ selectedCells: newSelectedCells })
+          });
+        } catch (error) {
+          console.error('Error updating selected cells:', error);
         }
       }
     }
   };
 
   const handleDragStart = (e, nickname) => {
+    if (!isOperator || !isEditMode) return;
     setSelectedMember(nickname);
     e.dataTransfer.effectAllowed = 'move';
     e.dataTransfer.setData('text/plain', nickname);
@@ -116,6 +174,7 @@ function BingoGame() {
   };
 
   const handleDragOver = (e, row, col) => {
+    if (!isOperator || !isEditMode) return;
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
     setDragOverCell(`${row}-${col}`);
@@ -126,6 +185,7 @@ function BingoGame() {
   };
 
   const handleDrop = (e, row, col) => {
+    if (!isOperator || !isEditMode) return;
     e.preventDefault();
     setDragOverCell(null);
     const nickname = e.dataTransfer.getData('text/plain') || selectedMember;
@@ -143,20 +203,87 @@ function BingoGame() {
     }
   };
 
-  const handleSave = () => {
-    setIsEditMode(false);
-    setSelectedMember(null);
-    localStorage.setItem('bingoGrid', JSON.stringify(bingoGrid));
-    localStorage.setItem('bingoGridSize', gridSize.toString());
-    localStorage.setItem('bingoUsedMembers', JSON.stringify(usedMembers));
-    localStorage.setItem('bingoTargetLines', bingoTargetLines.toString());
+  const handleSave = async () => {
+    if (!isOperator) return;
+    
+    setIsSaving(true);
+    try {
+      await fetch('/api/bingo-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          gridSize,
+          bingoTargetLines,
+          bingoGrid,
+          usedMembers,
+          selectedCells: [],
+          isEditMode: false
+        })
+      });
+      setIsEditMode(false);
+      setSelectedMember(null);
+      setSelectedCells([]);
+    } catch (error) {
+      console.error('Error saving bingo settings:', error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleReset = () => {
-    initializeGrid(gridSize);
-    localStorage.removeItem('bingoGrid');
-    localStorage.removeItem('bingoGridSize');
-    localStorage.removeItem('bingoUsedMembers');
+  const handleReset = async () => {
+    if (!isOperator) return;
+    
+    setIsSaving(true);
+    try {
+      await fetch('/api/bingo-settings/reset', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ gridSize, bingoTargetLines: gridSize })
+      });
+    } catch (error) {
+      console.error('Error resetting bingo:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleEditMode = async () => {
+    if (!isOperator) return;
+    
+    try {
+      await fetch('/api/bingo-settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          gridSize,
+          bingoTargetLines,
+          bingoGrid,
+          usedMembers,
+          selectedCells,
+          isEditMode: true
+        })
+      });
+      setIsEditMode(true);
+    } catch (error) {
+      console.error('Error switching to edit mode:', error);
+    }
+  };
+
+  const handleClearSelection = async () => {
+    if (!isOperator) return;
+    
+    try {
+      await fetch('/api/bingo-settings/select-cell', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ selectedCells: [] })
+      });
+      setSelectedCells([]);
+      setBingoLines([]);
+      setShowBingo(false);
+    } catch (error) {
+      console.error('Error clearing selection:', error);
+    }
   };
 
   const checkBingo = () => {
@@ -166,7 +293,7 @@ function BingoGame() {
     for (let row = 0; row < size; row++) {
       let complete = true;
       for (let col = 0; col < size; col++) {
-        if (!selectedCells.includes(`${row}-${col}`) || !bingoGrid[row][col]) {
+        if (!selectedCells.includes(`${row}-${col}`) || !bingoGrid[row]?.[col]) {
           complete = false;
           break;
         }
@@ -179,7 +306,7 @@ function BingoGame() {
     for (let col = 0; col < size; col++) {
       let complete = true;
       for (let row = 0; row < size; row++) {
-        if (!selectedCells.includes(`${row}-${col}`) || !bingoGrid[row][col]) {
+        if (!selectedCells.includes(`${row}-${col}`) || !bingoGrid[row]?.[col]) {
           complete = false;
           break;
         }
@@ -191,7 +318,7 @@ function BingoGame() {
 
     let diag1Complete = true;
     for (let i = 0; i < size; i++) {
-      if (!selectedCells.includes(`${i}-${i}`) || !bingoGrid[i][i]) {
+      if (!selectedCells.includes(`${i}-${i}`) || !bingoGrid[i]?.[i]) {
         diag1Complete = false;
         break;
       }
@@ -202,7 +329,7 @@ function BingoGame() {
 
     let diag2Complete = true;
     for (let i = 0; i < size; i++) {
-      if (!selectedCells.includes(`${i}-${size - 1 - i}`) || !bingoGrid[i][size - 1 - i]) {
+      if (!selectedCells.includes(`${i}-${size - 1 - i}`) || !bingoGrid[i]?.[size - 1 - i]) {
         diag2Complete = false;
         break;
       }
@@ -228,6 +355,14 @@ function BingoGame() {
   };
 
   const availableMembers = members.filter(m => !usedMembers.includes(m.nickname || m.name));
+
+  if (isLoading) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'var(--bg-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div style={{ color: 'var(--text-light)' }}>로딩중...</div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg-dark)' }}>
@@ -268,7 +403,7 @@ function BingoGame() {
           </div>
         )}
 
-        {['관리자', '방장', '운영진'].includes(user?.role) && (
+        {isOperator && (
           <div className="card" style={{ marginBottom: '16px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -335,7 +470,7 @@ function BingoGame() {
                 <span style={{ fontSize: '13px', fontWeight: '600' }}>빙고 줄수:</span>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0' }}>
                   <button
-                    onClick={() => setBingoTargetLines(prev => Math.max(1, prev - 1))}
+                    onClick={() => handleTargetLinesChange(Math.max(1, bingoTargetLines - 1))}
                     disabled={!isEditMode || bingoTargetLines <= 1}
                     style={{
                       width: '36px',
@@ -370,7 +505,7 @@ function BingoGame() {
                     {bingoTargetLines}
                   </div>
                   <button
-                    onClick={() => setBingoTargetLines(prev => prev + 1)}
+                    onClick={() => handleTargetLinesChange(bingoTargetLines + 1)}
                     disabled={!isEditMode}
                     style={{
                       width: '36px',
@@ -395,7 +530,15 @@ function BingoGame() {
           </div>
         )}
 
-        {isEditMode && (
+        {!isOperator && (
+          <div className="card" style={{ marginBottom: '16px', background: 'rgba(0,128,0,0.1)' }}>
+            <div style={{ fontSize: '13px', color: 'var(--primary-green)', fontWeight: '600', textAlign: 'center' }}>
+              {isEditMode ? '⏳ 운영자가 빙고판을 준비 중입니다...' : `🎮 ${gridSize}x${gridSize} 빙고 / 목표: ${bingoTargetLines}줄`}
+            </div>
+          </div>
+        )}
+
+        {isEditMode && isOperator && (
           <div className="card" style={{ marginBottom: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
               <h4 style={{ fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)', margin: 0 }}>
@@ -403,18 +546,19 @@ function BingoGame() {
               </h4>
               <button
                 onClick={handleReset}
+                disabled={isSaving}
                 style={{
                   padding: '6px 12px',
-                  background: '#dc3545',
+                  background: isSaving ? '#ccc' : '#dc3545',
                   color: 'white',
                   border: 'none',
                   borderRadius: '6px',
                   fontSize: '12px',
                   fontWeight: '600',
-                  cursor: 'pointer'
+                  cursor: isSaving ? 'not-allowed' : 'pointer'
                 }}
               >
-                초기화
+                {isSaving ? '처리중...' : '초기화'}
               </button>
             </div>
             <div style={{ 
@@ -484,84 +628,83 @@ function BingoGame() {
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
-          {isEditMode ? (
-            selectedMember ? (
-              <div
-                style={{
-                  flex: 1,
-                  padding: '14px 20px',
-                  background: 'linear-gradient(135deg, #FFD700, #FFA500)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontWeight: '700',
-                  textAlign: 'center',
-                  boxShadow: '0 2px 10px rgba(255,165,0,0.4)'
-                }}
-              >
-                ✓ "{selectedMember}" 선택됨 - 칸을 터치하세요!
-              </div>
+        {isOperator && (
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+            {isEditMode ? (
+              selectedMember ? (
+                <div
+                  style={{
+                    flex: 1,
+                    padding: '14px 20px',
+                    background: 'linear-gradient(135deg, #FFD700, #FFA500)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    textAlign: 'center',
+                    boxShadow: '0 2px 10px rgba(255,165,0,0.4)'
+                  }}
+                >
+                  ✓ "{selectedMember}" 선택됨 - 칸을 터치하세요!
+                </div>
+              ) : (
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  style={{
+                    flex: 1,
+                    padding: '14px 20px',
+                    background: isSaving ? '#ccc' : 'var(--primary-green)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    cursor: isSaving ? 'not-allowed' : 'pointer',
+                    boxShadow: '0 2px 8px rgba(0,128,0,0.3)'
+                  }}
+                >
+                  {isSaving ? '저장 중...' : '저장 및 게임 시작'}
+                </button>
+              )
             ) : (
-              <button
-                onClick={handleSave}
-                style={{
-                  flex: 1,
-                  padding: '14px 20px',
-                  background: 'var(--primary-green)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  boxShadow: '0 2px 8px rgba(0,128,0,0.3)'
-                }}
-              >
-                저장 및 게임 시작
-              </button>
-            )
-          ) : (
-            <>
-              <button
-                onClick={() => setIsEditMode(true)}
-                style={{
-                  flex: 1,
-                  padding: '14px 20px',
-                  background: '#666',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontWeight: '700',
-                  cursor: 'pointer'
-                }}
-              >
-                편집 모드
-              </button>
-              <button
-                onClick={() => {
-                  setSelectedCells([]);
-                  setBingoLines([]);
-                  setShowBingo(false);
-                }}
-                style={{
-                  padding: '14px 20px',
-                  background: '#6c757d',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
-              >
-                선택 초기화
-              </button>
-            </>
-          )}
-        </div>
+              <>
+                <button
+                  onClick={handleEditMode}
+                  style={{
+                    flex: 1,
+                    padding: '14px 20px',
+                    background: '#666',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    cursor: 'pointer'
+                  }}
+                >
+                  편집 모드
+                </button>
+                <button
+                  onClick={handleClearSelection}
+                  style={{
+                    padding: '14px 20px',
+                    background: '#6c757d',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  선택 초기화
+                </button>
+              </>
+            )}
+          </div>
+        )}
 
         <div className="card">
           <div style={{
@@ -576,15 +719,16 @@ function BingoGame() {
                 const isSelected = selectedCells.includes(cellKey);
                 const isInBingoLine = isCellInBingoLine(rowIndex, colIndex);
                 const isDragOver = dragOverCell === cellKey;
-                const canDrop = isEditMode && selectedMember;
+                const canDrop = isEditMode && selectedMember && isOperator;
+                const canClick = isOperator && (isEditMode || (!isEditMode && bingoGrid[rowIndex][colIndex]));
                 
                 return (
                   <div
                     key={cellKey}
                     onClick={() => handleCellClick(rowIndex, colIndex)}
-                    onDragOver={isEditMode ? (e) => handleDragOver(e, rowIndex, colIndex) : undefined}
+                    onDragOver={isEditMode && isOperator ? (e) => handleDragOver(e, rowIndex, colIndex) : undefined}
                     onDragLeave={handleDragLeave}
-                    onDrop={isEditMode ? (e) => handleDrop(e, rowIndex, colIndex) : undefined}
+                    onDrop={isEditMode && isOperator ? (e) => handleDrop(e, rowIndex, colIndex) : undefined}
                     style={{
                       aspectRatio: '1',
                       display: 'flex',
@@ -600,7 +744,7 @@ function BingoGame() {
                       borderRadius: '8px',
                       fontSize: gridSize > 7 ? '11px' : gridSize > 5 ? '13px' : '15px',
                       fontWeight: '800',
-                      cursor: 'pointer',
+                      cursor: canClick ? 'pointer' : 'default',
                       background: isDragOver
                         ? 'rgba(255, 215, 0, 0.3)'
                         : isInBingoLine 
@@ -619,24 +763,29 @@ function BingoGame() {
                       wordBreak: 'break-all',
                       overflow: 'hidden',
                       minHeight: '50px',
-                      boxShadow: isDragOver ? '0 0 10px rgba(255,215,0,0.5)' : 'none'
+                      lineHeight: '1.2'
                     }}
                   >
-                    {cell || (isEditMode ? <span style={{ opacity: 0.3, fontSize: '20px' }}>+</span> : '')}
+                    {cell}
                   </div>
                 );
               })
             )}
           </div>
 
-          <div style={{ fontSize: '12px', opacity: 0.7, textAlign: 'center' }}>
-            {isEditMode ? (
-              selectedMember 
-                ? <span style={{ color: 'var(--primary-green)', fontWeight: '600' }}>칸을 터치하여 "{selectedMember}" 배치하세요</span>
-                : <span>회원을 선택한 후 칸을 터치하세요</span>
-            ) : (
-              <span>선택된 칸: {selectedCells.length}개 | 완성된 빙고: {bingoLines.length}줄</span>
-            )}
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'space-between', 
+            alignItems: 'center',
+            paddingTop: '8px',
+            borderTop: '1px solid var(--border-color)'
+          }}>
+            <div style={{ fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
+              현재 빙고: {bingoLines.length}줄
+            </div>
+            <div style={{ fontSize: '14px', fontWeight: '600', color: '#666' }}>
+              목표: {bingoTargetLines}줄
+            </div>
           </div>
         </div>
       </div>
