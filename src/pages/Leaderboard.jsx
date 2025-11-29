@@ -338,12 +338,12 @@ function Leaderboard() {
         const getScoreColor = (score, par) => {
           if (!score || score === 0) return 'transparent';
           const diff = score - par;
-          if (diff <= -3) return '#1a5f5f';
-          if (diff === -2) return '#e67e22';
-          if (diff === -1) return '#f4d03f';
+          if (diff <= -3) return '#A62B1F';
+          if (diff === -2) return '#60B0DF';
+          if (diff === -1) return '#a7d6e5';
           if (diff === 0) return 'transparent';
-          if (diff === 1) return '#eb984e';
-          return '#e74c3c';
+          if (diff === 1) return '#F19E38';
+          return '#BC411E';
         };
 
         const renderHoleRow = (startHole, endHole, label) => {
@@ -585,7 +585,7 @@ function Leaderboard() {
                     display: 'flex', 
                     alignItems: 'center', 
                     padding: '6px 10px',
-                    background: '#1a5f5f',
+                    background: '#A62B1F',
                     borderRadius: '4px'
                   }}>
                     <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>Ace/Albatross</span>
@@ -594,7 +594,7 @@ function Leaderboard() {
                     display: 'flex', 
                     alignItems: 'center', 
                     padding: '6px 10px',
-                    background: '#e67e22',
+                    background: '#60B0DF',
                     borderRadius: '4px'
                   }}>
                     <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>Eagle</span>
@@ -603,7 +603,7 @@ function Leaderboard() {
                     display: 'flex', 
                     alignItems: 'center', 
                     padding: '6px 10px',
-                    background: '#f4d03f',
+                    background: '#a7d6e5',
                     borderRadius: '4px'
                   }}>
                     <span style={{ color: '#333', fontSize: '11px', fontWeight: '600' }}>Birdie</span>
@@ -622,7 +622,7 @@ function Leaderboard() {
                     display: 'flex', 
                     alignItems: 'center', 
                     padding: '6px 10px',
-                    background: '#eb984e',
+                    background: '#F19E38',
                     borderRadius: '4px'
                   }}>
                     <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>Bogey</span>
@@ -631,7 +631,7 @@ function Leaderboard() {
                     display: 'flex', 
                     alignItems: 'center', 
                     padding: '6px 10px',
-                    background: '#e74c3c',
+                    background: '#BC411E',
                     borderRadius: '4px'
                   }}>
                     <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>D. Bogey +</span>

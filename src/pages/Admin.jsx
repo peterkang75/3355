@@ -5170,12 +5170,12 @@ function Admin() {
                   const getScoreColor = (score, par) => {
                     if (!score || score === 0) return 'transparent';
                     const diff = score - par;
-                    if (diff <= -3) return '#1a5f5f'; // Ace/Albatross (dark teal)
-                    if (diff === -2) return '#e67e22'; // Eagle (orange)
-                    if (diff === -1) return '#f4d03f'; // Birdie (yellow)
+                    if (diff <= -3) return '#A62B1F'; // Ace/Albatross
+                    if (diff === -2) return '#60B0DF'; // Eagle
+                    if (diff === -1) return '#a7d6e5'; // Birdie
                     if (diff === 0) return 'transparent'; // Par (white)
-                    if (diff === 1) return '#eb984e'; // Bogey (light orange)
-                    return '#e74c3c'; // Double bogey+ (red)
+                    if (diff === 1) return '#F19E38'; // Bogey
+                    return '#BC411E'; // Double bogey+
                   };
 
                   const renderHoleRow = (startHole, endHole, label) => {
@@ -5325,7 +5325,7 @@ function Admin() {
                           display: 'flex', 
                           alignItems: 'center', 
                           padding: '6px 10px',
-                          background: '#1a5f5f',
+                          background: '#A62B1F',
                           borderRadius: '4px'
                         }}>
                           <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>Ace/Albatross</span>
@@ -5334,7 +5334,7 @@ function Admin() {
                           display: 'flex', 
                           alignItems: 'center', 
                           padding: '6px 10px',
-                          background: '#e67e22',
+                          background: '#60B0DF',
                           borderRadius: '4px'
                         }}>
                           <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>Eagle</span>
@@ -5343,7 +5343,7 @@ function Admin() {
                           display: 'flex', 
                           alignItems: 'center', 
                           padding: '6px 10px',
-                          background: '#f4d03f',
+                          background: '#a7d6e5',
                           borderRadius: '4px'
                         }}>
                           <span style={{ color: '#333', fontSize: '11px', fontWeight: '600' }}>Birdie</span>
@@ -5362,7 +5362,7 @@ function Admin() {
                           display: 'flex', 
                           alignItems: 'center', 
                           padding: '6px 10px',
-                          background: '#eb984e',
+                          background: '#F19E38',
                           borderRadius: '4px'
                         }}>
                           <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>Bogey</span>
@@ -5371,7 +5371,7 @@ function Admin() {
                           display: 'flex', 
                           alignItems: 'center', 
                           padding: '6px 10px',
-                          background: '#e74c3c',
+                          background: '#BC411E',
                           borderRadius: '4px'
                         }}>
                           <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>D. Bogey +</span>
