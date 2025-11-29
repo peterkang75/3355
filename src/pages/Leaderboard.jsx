@@ -6,6 +6,7 @@ function Leaderboard() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const bookingId = searchParams.get('id');
+  const autoSelectUserId = searchParams.get('userId');
   const { bookings, members, courses } = useApp();
   
   const [booking, setBooking] = useState(null);
@@ -14,6 +15,7 @@ function Leaderboard() {
   const [loading, setLoading] = useState(true);
   const [selectedScore, setSelectedScore] = useState(null);
   const [coursePars, setCoursePars] = useState([]);
+  const [autoSelectApplied, setAutoSelectApplied] = useState(false);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -114,6 +116,14 @@ function Leaderboard() {
       });
 
       setScores(processedScores);
+      
+      if (autoSelectUserId && !autoSelectApplied) {
+        const userScore = processedScores.find(s => s.odId === autoSelectUserId);
+        if (userScore) {
+          setSelectedScore(userScore);
+          setAutoSelectApplied(true);
+        }
+      }
     } catch (error) {
       console.error('스코어 로드 실패:', error);
     } finally {

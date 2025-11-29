@@ -1595,13 +1595,25 @@ function Dashboard() {
                   const overPar = score.totalScore - score.coursePar;
                   const displayScore = overPar > 0 ? `+${overPar}` : overPar === 0 ? 'E' : overPar;
                   
+                  const matchingBooking = bookings.find(b => b.title === score.roundingName);
+                  const handleScoreClick = () => {
+                    if (matchingBooking) {
+                      navigate(`/leaderboard?id=${matchingBooking.id}&userId=${user.id}`);
+                    }
+                  };
+                  
                   return (
                     <div key={score.id}>
-                      <div style={{
-                        padding: '12px',
-                        background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(59, 64, 26, 0.05) 100%)',
-                        borderRadius: '8px'
-                      }}>
+                      <div 
+                        onClick={handleScoreClick}
+                        style={{
+                          padding: '12px',
+                          background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(59, 64, 26, 0.05) 100%)',
+                          borderRadius: '8px',
+                          cursor: matchingBooking ? 'pointer' : 'default',
+                          transition: 'transform 0.1s ease'
+                        }}
+                      >
                         <div style={{ 
                           display: 'flex',
                           justifyContent: 'space-between',
@@ -1610,9 +1622,15 @@ function Dashboard() {
                         }}>
                           <div style={{ 
                             fontSize: '14px',
-                            fontWeight: '600'
+                            fontWeight: '600',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '6px'
                           }}>
                             {score.roundingName || '개인 라운딩'}
+                            {matchingBooking && (
+                              <span style={{ fontSize: '10px', color: 'var(--primary-green)' }}>→</span>
+                            )}
                           </div>
                           <div style={{
                             fontSize: '18px',
