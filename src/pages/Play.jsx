@@ -131,52 +131,31 @@ function Play() {
     const saveScore = async () => {
       if (skipAutoSaveRef.current) return;
       try {
-        const parArr = courseData?.holePars?.[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
         const userParArr = courseData?.holePars?.[user?.gender === 'F' ? 'female' : 'male'] || [];
         const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
 
         const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
         const coursePar = userParArr.reduce((a, b) => a + b, 0);
-        const totalTeammate = holeScores.teammate.reduce((a, b) => a + b, 0);
-        const courseParTeammate = parArr.reduce((a, b) => a + b, 0);
-
-        const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
         
-        if (!user?.id || !teammateMemberId || !booking?.title) {
-          console.log('⚠️ 스코어 저장 스킵 - 필수 데이터 없음:', { userId: user?.id, teammateMemberId, bookingTitle: booking?.title });
+        if (!user?.id || !booking?.title) {
+          console.log('⚠️ 스코어 저장 스킵 - 필수 데이터 없음:', { userId: user?.id, bookingTitle: booking?.title });
           return;
         }
         
-        await Promise.all([
-          fetch('/api/scores', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              memberId: user.id,
-              markerId: user.id,
-              roundingName: booking.title,
-              date: scoreDate,
-              courseName: booking.courseName,
-              totalScore: totalMe,
-              coursePar,
-              holes: holeScores.me
-            })
-          }),
-          fetch('/api/scores', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              memberId: teammateMemberId,
-              markerId: user.id,
-              roundingName: booking.title,
-              date: scoreDate,
-              courseName: booking.courseName,
-              totalScore: totalTeammate,
-              coursePar: courseParTeammate,
-              holes: holeScores.teammate
-            })
+        await fetch('/api/scores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            memberId: user.id,
+            markerId: user.id,
+            roundingName: booking.title,
+            date: scoreDate,
+            courseName: booking.courseName,
+            totalScore: totalMe,
+            coursePar,
+            holes: holeScores.me
           })
-        ]);
+        });
       } catch (e) {
         console.error('저장 오류:', e);
       }
@@ -238,23 +217,42 @@ function Play() {
   const checkTeammateScores = useCallback(async () => {
     if (!booking || !user) return false;
     try {
-      const today = new Date().toISOString().split('T')[0];
+      const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
       const teammateMemberId = getTeammateMemberId();
-      const res = await fetch(`/api/scores/round-comparison?roundingName=${encodeURIComponent(booking?.title)}&date=${today}&myId=${user.id}&teammateId=${teammateMemberId}`);
+      
+      const res = await fetch('/api/scores/verify-round', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roundingName: booking.title,
+          date: scoreDate,
+          myId: user.id,
+          teammateId: teammateMemberId,
+          myHoles: holeScores.me,
+          teammateHolesRecordedByMe: holeScores.teammate
+        })
+      });
       const data = await res.json();
       
-      // 서버에서 계산한 teammateComplete와 mismatches 사용
-      if (data.teammateComplete) {
-        setTeammateReady(true);
-        setServerMismatches(data.mismatches || []);
-        return true;
+      if (data.error === 'TEAMMATE_NOT_READY') {
+        setTeammateReady(false);
+        return false;
       }
-      return false;
+      
+      setTeammateReady(true);
+      
+      if (data.verified) {
+        setServerMismatches([]);
+      } else {
+        setServerMismatches(data.mismatches || []);
+      }
+      
+      return true;
     } catch (e) {
       console.error('점수 확인 오류:', e);
       return false;
     }
-  }, [booking, user, getTeammateMemberId]);
+  }, [booking, user, getTeammateMemberId, holeScores]);
 
   useEffect(() => {
     if (step !== 'scoreCheck') {
@@ -781,53 +779,32 @@ function Play() {
   };
 
   const handleScoreCheck = async () => {
-    // 먼저 현재 점수를 저장
     try {
-      const parArr = courseData?.holePars?.[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || [];
       const userParArr = courseData?.holePars?.[user?.gender === 'F' ? 'female' : 'male'] || [];
-      const today = new Date().toISOString().split('T')[0];
-      const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
+      const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
 
       const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
       const coursePar = userParArr.reduce((a, b) => a + b, 0);
-      const totalTeammate = holeScores.teammate.reduce((a, b) => a + b, 0);
-      const courseParTeammate = parArr.reduce((a, b) => a + b, 0);
 
-      if (!user?.id || !teammateMemberId || !booking?.title) {
-        console.log('⚠️ 스코어 체크 저장 스킵 - 필수 데이터 없음:', { userId: user?.id, teammateMemberId, bookingTitle: booking?.title });
+      if (!user?.id || !booking?.title) {
+        console.log('⚠️ 스코어 체크 저장 스킵 - 필수 데이터 없음:', { userId: user?.id, bookingTitle: booking?.title });
         return;
       }
 
-      await Promise.all([
-        fetch('/api/scores', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            memberId: user.id,
-            markerId: user.id,
-            roundingName: booking.title,
-            date: today,
-            courseName: courseData?.name,
-            totalScore: totalMe,
-            coursePar,
-            holes: holeScores.me
-          })
-        }),
-        fetch('/api/scores', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            memberId: teammateMemberId,
-            markerId: user.id,
-            roundingName: booking.title,
-            date: today,
-            courseName: courseData?.name,
-            totalScore: totalTeammate,
-            coursePar: courseParTeammate,
-            holes: holeScores.teammate
-          })
+      await fetch('/api/scores', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          memberId: user.id,
+          markerId: user.id,
+          roundingName: booking.title,
+          date: scoreDate,
+          courseName: courseData?.name,
+          totalScore: totalMe,
+          coursePar,
+          holes: holeScores.me
         })
-      ]);
+      });
     } catch (e) {
       console.error('점수 저장 오류:', e);
     }

@@ -613,63 +613,89 @@ router.get('/scores/round-comparison', async (req, res) => {
       where: {
         roundingName,
         date,
-        OR: [
-          { userId: myId },
-          { userId: teammateId }
-        ]
+        userId: { in: [myId, teammateId] }
       }
     });
     
+    const myScore = scores.find(s => s.userId === myId);
+    const teammateScore = scores.find(s => s.userId === teammateId);
+    
     const result = {
-      myScoreByMe: null,
-      myScoreByTeammate: null,
-      teammateScoreByMe: null,
-      teammateScoreByTeammate: null
+      myScore: myScore ? JSON.parse(myScore.holes || '[]') : null,
+      teammateScore: teammateScore ? JSON.parse(teammateScore.holes || '[]') : null,
+      myVerified: myScore?.verified || false,
+      teammateVerified: teammateScore?.verified || false,
+      teammateComplete: !!teammateScore,
+      mismatches: []
     };
-    
-    for (const score of scores) {
-      const holes = score.holes ? JSON.parse(score.holes) : [];
-      if (score.userId === myId && score.markerId === myId) {
-        result.myScoreByMe = holes;
-      } else if (score.userId === myId && score.markerId === teammateId) {
-        result.myScoreByTeammate = holes;
-      } else if (score.userId === teammateId && score.markerId === myId) {
-        result.teammateScoreByMe = holes;
-      } else if (score.userId === teammateId && score.markerId === teammateId) {
-        result.teammateScoreByTeammate = holes;
-      }
-    }
-    
-    // 서버에서 불일치 홀 계산 (두 사람 모두 같은 결과를 보도록)
-    // 4개의 레코드가 모두 있을 때만 비교 (부분 데이터로 비교하지 않음)
-    const mismatches = [];
-    
-    // 팀메이트가 점수를 입력했는지 확인 (데이터가 존재하면 됨)
-    const teammateComplete = result.myScoreByTeammate && result.teammateScoreByTeammate;
-    result.teammateComplete = !!teammateComplete;
-    
-    if (result.myScoreByMe && result.myScoreByTeammate && result.teammateScoreByMe && result.teammateScoreByTeammate) {
-      for (let i = 0; i < 18; i++) {
-        const myByMe = result.myScoreByMe[i];
-        const myByTeammate = result.myScoreByTeammate[i];
-        const teammateByTeammate = result.teammateScoreByTeammate[i];
-        const teammateByMe = result.teammateScoreByMe[i];
-        
-        if (myByMe !== myByTeammate) {
-          mismatches.push(i + 1);
-        }
-        if (teammateByTeammate !== teammateByMe) {
-          if (!mismatches.includes(i + 1)) mismatches.push(i + 1);
-        }
-      }
-    }
-    
-    result.mismatches = mismatches.sort((a, b) => a - b);
     
     res.json(result);
   } catch (error) {
     console.error('Error fetching round comparison:', error);
     res.status(500).json({ error: 'Failed to fetch round comparison' });
+  }
+});
+
+router.post('/scores/verify-round', async (req, res) => {
+  try {
+    const { roundingName, date, myId, teammateId, myHoles, teammateHolesRecordedByMe } = req.body;
+    
+    if (!roundingName || !date || !myId || !teammateId) {
+      return res.status(400).json({ error: 'Missing required parameters' });
+    }
+    
+    const teammateScore = await prisma.score.findUnique({
+      where: {
+        userId_date_roundingName: {
+          userId: teammateId,
+          date,
+          roundingName
+        }
+      }
+    });
+    
+    if (!teammateScore) {
+      return res.json({ 
+        success: false, 
+        error: 'TEAMMATE_NOT_READY',
+        message: '팀메이트가 아직 스코어를 입력하지 않았습니다.'
+      });
+    }
+    
+    const teammateHoles = JSON.parse(teammateScore.holes || '[]');
+    const mismatches = [];
+    
+    for (let i = 0; i < 18; i++) {
+      if (teammateHoles[i] !== teammateHolesRecordedByMe[i]) {
+        mismatches.push(i + 1);
+      }
+    }
+    
+    if (mismatches.length === 0) {
+      await prisma.score.update({
+        where: { id: teammateScore.id },
+        data: { 
+          verified: true, 
+          verifiedBy: myId 
+        }
+      });
+      
+      return res.json({ 
+        success: true, 
+        verified: true,
+        message: '팀메이트 스코어가 검증되었습니다.'
+      });
+    } else {
+      return res.json({ 
+        success: true, 
+        verified: false,
+        mismatches,
+        message: `${mismatches.length}개 홀의 점수가 일치하지 않습니다.`
+      });
+    }
+  } catch (error) {
+    console.error('Error verifying round:', error);
+    res.status(500).json({ error: 'Failed to verify round' });
   }
 });
 
@@ -726,21 +752,20 @@ router.post('/scores/complete', async (req, res) => {
   }
 });
 
-router.delete('/scores/member/:memberId/:markerId/:date/:roundingName', async (req, res) => {
+router.delete('/scores/member/:memberId/:date/:roundingName', async (req, res) => {
   try {
-    const { memberId, markerId, date, roundingName } = req.params;
+    const { memberId, date, roundingName } = req.params;
     const decodedMemberId = decodeURIComponent(memberId);
-    const decodedMarkerId = decodeURIComponent(markerId);
     const decodedDate = decodeURIComponent(date);
     const decodedRoundingName = decodeURIComponent(roundingName);
     
-    await prisma.score.deleteMany({
+    await prisma.score.delete({
       where: {
-        OR: [
-          { userId: decodedMemberId, markerId: decodedMarkerId, date: decodedDate, roundingName: decodedRoundingName },
-          { userId: decodedMarkerId, markerId: decodedMemberId, date: decodedDate, roundingName: decodedRoundingName },
-          { userId: decodedMarkerId, markerId: decodedMarkerId, date: decodedDate, roundingName: decodedRoundingName }
-        ]
+        userId_date_roundingName: {
+          userId: decodedMemberId,
+          date: decodedDate,
+          roundingName: decodedRoundingName
+        }
       }
     });
     
@@ -753,14 +778,56 @@ router.delete('/scores/member/:memberId/:markerId/:date/:roundingName', async (r
 
 router.post('/scores', async (req, res) => {
   try {
-    const { memberId, markerId, roundingName, date, courseName, totalScore, coursePar, holes } = req.body;
+    const { memberId, markerId, roundingName, date, courseName, totalScore, coursePar, holes, isVerification } = req.body;
     
-    // upsert로 중복 방지 및 업데이트
+    const isSelfEntry = !markerId || markerId === memberId;
+    
+    if (isVerification && !isSelfEntry) {
+      const existingScore = await prisma.score.findUnique({
+        where: {
+          userId_date_roundingName: {
+            userId: memberId,
+            date: date,
+            roundingName: roundingName || ''
+          }
+        }
+      });
+      
+      if (!existingScore) {
+        return res.status(400).json({ 
+          error: 'PLAYER_SCORE_NOT_FOUND',
+          message: '플레이어가 아직 스코어를 입력하지 않았습니다.'
+        });
+      }
+      
+      if (existingScore.totalScore !== totalScore) {
+        return res.status(400).json({ 
+          error: 'SCORE_MISMATCH',
+          message: `점수가 일치하지 않습니다. 플레이어 입력: ${existingScore.totalScore}타, 마커 입력: ${totalScore}타`,
+          playerScore: existingScore.totalScore,
+          markerScore: totalScore
+        });
+      }
+      
+      const verifiedScore = await prisma.score.update({
+        where: { id: existingScore.id },
+        data: {
+          verified: true,
+          verifiedBy: markerId
+        }
+      });
+      
+      return res.json({ 
+        ...verifiedScore, 
+        verificationSuccess: true,
+        message: '스코어가 검증되었습니다.'
+      });
+    }
+    
     const score = await prisma.score.upsert({
       where: {
-        userId_markerId_date_roundingName: {
+        userId_date_roundingName: {
           userId: memberId,
-          markerId: markerId || memberId,
           date: date,
           roundingName: roundingName || ''
         }
@@ -769,17 +836,21 @@ router.post('/scores', async (req, res) => {
         courseName,
         totalScore,
         coursePar,
-        holes: JSON.stringify(holes)
+        holes: JSON.stringify(holes),
+        markerId: isSelfEntry ? memberId : markerId,
+        verified: false,
+        verifiedBy: null
       },
       create: {
         userId: memberId,
-        markerId: markerId || memberId,
+        markerId: isSelfEntry ? memberId : markerId,
         roundingName: roundingName || '',
         date,
         courseName,
         totalScore,
         coursePar,
-        holes: JSON.stringify(holes)
+        holes: JSON.stringify(holes),
+        verified: false
       }
     });
     res.json(score);
