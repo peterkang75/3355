@@ -762,7 +762,7 @@ function Admin() {
       const transactionData = {
         type: 'payment',
         amount: Math.abs(amount),
-        description: `${categoryName} 납부 (전액)`,
+        description: `${categoryName} (전액)`,
         date: new Date().toISOString().split('T')[0],
         memberId: memberId,
         bookingId: bookingId,
@@ -830,7 +830,7 @@ function Admin() {
       const transactionData = {
         type: 'payment',
         amount: amount,
-        description: `${categoryName} 납부 (부분)`,
+        description: `${categoryName} (부분)`,
         date: new Date().toISOString().split('T')[0],
         memberId: memberId,
         bookingId: bookingId,
