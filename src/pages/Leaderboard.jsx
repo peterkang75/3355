@@ -4,9 +4,10 @@ import { useApp } from '../contexts/AppContext';
 
 function Leaderboard() {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const bookingId = searchParams.get('id');
   const autoSelectUserId = searchParams.get('userId');
+  const openScorecard = searchParams.get('openScorecard') === 'true';
   const { bookings, members, courses } = useApp();
   
   const [booking, setBooking] = useState(null);
@@ -117,11 +118,14 @@ function Leaderboard() {
 
       setScores(processedScores);
       
-      if (autoSelectUserId && !autoSelectApplied) {
+      if (autoSelectUserId && openScorecard && !autoSelectApplied) {
         const userScore = processedScores.find(s => s.odId === autoSelectUserId);
         if (userScore) {
           setSelectedScore(userScore);
           setAutoSelectApplied(true);
+          const newParams = new URLSearchParams(searchParams);
+          newParams.delete('openScorecard');
+          setSearchParams(newParams, { replace: true });
         }
       }
     } catch (error) {

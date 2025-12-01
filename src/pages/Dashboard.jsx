@@ -1599,7 +1599,7 @@ function Dashboard() {
                   const matchingBooking = bookings.find(b => b.title === score.roundingName);
                   const handleScoreClick = () => {
                     if (matchingBooking) {
-                      navigate(`/leaderboard?id=${matchingBooking.id}&userId=${user.id}`);
+                      navigate(`/leaderboard?id=${matchingBooking.id}&userId=${user.id}&openScorecard=true`);
                     }
                   };
                   
