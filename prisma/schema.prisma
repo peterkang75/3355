@@ -119,6 +119,7 @@ model Transaction {
   bookingId     String?
   booking       Booking? @relation(fields: [bookingId], references: [id], onDelete: SetNull)
   description   String?
+  memo          String?
   receiptImage  String?
   receiptImages Json?
   date          String
