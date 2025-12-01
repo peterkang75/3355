@@ -770,11 +770,27 @@ function MemberDetail() {
                 return (
                   <div>
                     {filteredTransactions.map(transaction => {
-                      const typeLabel = transaction.type === 'payment' ? '회비 납부' : 
-                        transaction.type === 'donation' ? '도네이션' :
-                        transaction.type === 'credit' ? '크레딧처리' :
-                        transaction.type === 'expense' ? '환불' :
-                        transaction.type === 'charge' ? '회비 청구' : '';
+                      let typeLabel = '';
+                      if (transaction.type === 'payment') {
+                        const paymentDesc = transaction.description || '회비 납부';
+                        if (paymentDesc.includes(' - ')) {
+                          typeLabel = paymentDesc.split(' - ')[0];
+                        } else if (paymentDesc.includes(' (')) {
+                          typeLabel = paymentDesc.split(' (')[0];
+                        } else {
+                          typeLabel = paymentDesc;
+                        }
+                      } else if (transaction.type === 'donation') {
+                        typeLabel = '도네이션';
+                      } else if (transaction.type === 'credit') {
+                        typeLabel = '크레딧처리';
+                      } else if (transaction.type === 'expense') {
+                        typeLabel = '환불';
+                      } else if (transaction.type === 'charge') {
+                        typeLabel = '회비 청구';
+                      } else {
+                        typeLabel = '';
+                      }
                       
                       const typeColor =
                         (transaction.type === 'expense' || transaction.type === 'charge') ? 'var(--alert-red)' : 'var(--success-green)';

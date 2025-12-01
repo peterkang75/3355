@@ -228,7 +228,13 @@ function Fees() {
       if (transaction.description && transaction.description.includes('환불')) {
         return '회비 환불';
       }
-      return '회비 납부';
+      const paymentDesc = transaction.description || '회비 납부';
+      if (paymentDesc.includes(' - ')) {
+        return paymentDesc.split(' - ')[0];
+      } else if (paymentDesc.includes(' (')) {
+        return paymentDesc.split(' (')[0];
+      }
+      return paymentDesc;
     }
     return '';
   };
@@ -664,10 +670,23 @@ function Fees() {
                           ? transaction.description.match(/\(외부게스트:\s*([^)]+)\)/)?.[1] 
                           : null;
                         
-                        const typeLabel = 
-                          isOtherIncome ? otherItemName :
-                          transaction.type === 'payment' ? '회비 납부' :
-                          transaction.type === 'expense' ? '클럽 지출' : '도네이션';
+                        let typeLabel = '';
+                        if (isOtherIncome) {
+                          typeLabel = otherItemName;
+                        } else if (transaction.type === 'payment') {
+                          const paymentDesc = transaction.description || '회비 납부';
+                          if (paymentDesc.includes(' - ')) {
+                            typeLabel = paymentDesc.split(' - ')[0];
+                          } else if (paymentDesc.includes(' (')) {
+                            typeLabel = paymentDesc.split(' (')[0];
+                          } else {
+                            typeLabel = paymentDesc;
+                          }
+                        } else if (transaction.type === 'expense') {
+                          typeLabel = '클럽 지출';
+                        } else {
+                          typeLabel = '도네이션';
+                        }
                         
                         const typeColor =
                           transaction.type === 'payment' ? 'var(--success-green)' :

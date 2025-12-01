@@ -3166,7 +3166,14 @@ function Admin() {
 
                         let categoryName = '';
                         if (transaction.type === 'payment') {
-                          categoryName = '회비 납부';
+                          const paymentDesc = transaction.description || '회비 납부';
+                          if (paymentDesc.includes(' - ')) {
+                            categoryName = paymentDesc.split(' - ')[0];
+                          } else if (paymentDesc.includes(' (')) {
+                            categoryName = paymentDesc.split(' (')[0];
+                          } else {
+                            categoryName = paymentDesc;
+                          }
                         } else if (transaction.type === 'expense') {
                           const expenseDesc = transaction.description || '클럽 지출';
                           categoryName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
@@ -3841,7 +3848,14 @@ function Admin() {
 
                           let categoryName = '';
                           if (transaction.type === 'payment') {
-                            categoryName = '회비 납부';
+                            const paymentDesc = transaction.description || '회비 납부';
+                            if (paymentDesc.includes(' - ')) {
+                              categoryName = paymentDesc.split(' - ')[0];
+                            } else if (paymentDesc.includes(' (')) {
+                              categoryName = paymentDesc.split(' (')[0];
+                            } else {
+                              categoryName = paymentDesc;
+                            }
                           } else if (transaction.type === 'expense') {
                             const expenseDesc = transaction.description || '클럽 지출';
                             categoryName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
