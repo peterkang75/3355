@@ -3344,7 +3344,13 @@ function Admin() {
                 // 수입 합계 계산 (payment, donation)
                 const incomeTotals = {};
                 filteredForSummary.filter(t => t.type === 'payment').forEach(t => {
-                  const catName = '회비 납부';
+                  const paymentDesc = t.description || '회비 납부';
+                  let catName = paymentDesc;
+                  if (paymentDesc.includes(' - ')) {
+                    catName = paymentDesc.split(' - ')[0];
+                  } else if (paymentDesc.includes(' (')) {
+                    catName = paymentDesc.split(' (')[0];
+                  }
                   incomeTotals[catName] = (incomeTotals[catName] || 0) + t.amount;
                 });
                 filteredForSummary.filter(t => t.type === 'donation').forEach(t => {
@@ -3534,7 +3540,14 @@ function Admin() {
                         
                         let catKey = '';
                         if (t.type === 'payment') {
-                          catKey = 'income:회비 납부';
+                          const paymentDesc = t.description || '회비 납부';
+                          let catName = paymentDesc;
+                          if (paymentDesc.includes(' - ')) {
+                            catName = paymentDesc.split(' - ')[0];
+                          } else if (paymentDesc.includes(' (')) {
+                            catName = paymentDesc.split(' (')[0];
+                          }
+                          catKey = `income:${catName}`;
                         } else if (t.type === 'donation') {
                           if (t.description?.startsWith('기타 - ')) {
                             catKey = `income:${t.description.replace('기타 - ', '')}`;
@@ -3698,7 +3711,14 @@ function Admin() {
                   
                   let catKey = '';
                   if (t.type === 'payment') {
-                    catKey = 'income:회비 납부';
+                    const paymentDesc = t.description || '회비 납부';
+                    let catName = paymentDesc;
+                    if (paymentDesc.includes(' - ')) {
+                      catName = paymentDesc.split(' - ')[0];
+                    } else if (paymentDesc.includes(' (')) {
+                      catName = paymentDesc.split(' (')[0];
+                    }
+                    catKey = `income:${catName}`;
                   } else if (t.type === 'donation') {
                     if (t.description?.startsWith('기타 - ')) {
                       catKey = `income:${t.description.replace('기타 - ', '')}`;
@@ -3747,7 +3767,14 @@ function Admin() {
                                     if (selectedSummaryCategories.length === 0) return true;
                                     let catKey = '';
                                     if (t.type === 'payment') {
-                                      catKey = 'income:회비 납부';
+                                      const paymentDesc = t.description || '회비 납부';
+                                      let catName = paymentDesc;
+                                      if (paymentDesc.includes(' - ')) {
+                                        catName = paymentDesc.split(' - ')[0];
+                                      } else if (paymentDesc.includes(' (')) {
+                                        catName = paymentDesc.split(' (')[0];
+                                      }
+                                      catKey = `income:${catName}`;
                                     } else if (t.type === 'donation') {
                                       if (t.description?.startsWith('기타 - ')) {
                                         catKey = `income:${t.description.replace('기타 - ', '')}`;
@@ -3773,7 +3800,14 @@ function Admin() {
                                     if (selectedSummaryCategories.length === 0) return true;
                                     let catKey = '';
                                     if (t.type === 'payment') {
-                                      catKey = 'income:회비 납부';
+                                      const paymentDesc = t.description || '회비 납부';
+                                      let catName = paymentDesc;
+                                      if (paymentDesc.includes(' - ')) {
+                                        catName = paymentDesc.split(' - ')[0];
+                                      } else if (paymentDesc.includes(' (')) {
+                                        catName = paymentDesc.split(' (')[0];
+                                      }
+                                      catKey = `income:${catName}`;
                                     } else if (t.type === 'donation') {
                                       if (t.description?.startsWith('기타 - ')) {
                                         catKey = `income:${t.description.replace('기타 - ', '')}`;
@@ -3815,7 +3849,14 @@ function Admin() {
                           
                           let catKey = '';
                           if (t.type === 'payment') {
-                            catKey = 'income:회비 납부';
+                            const paymentDesc = t.description || '회비 납부';
+                            let catName = paymentDesc;
+                            if (paymentDesc.includes(' - ')) {
+                              catName = paymentDesc.split(' - ')[0];
+                            } else if (paymentDesc.includes(' (')) {
+                              catName = paymentDesc.split(' (')[0];
+                            }
+                            catKey = `income:${catName}`;
                           } else if (t.type === 'donation') {
                             if (t.description?.startsWith('기타 - ')) {
                               catKey = `income:${t.description.replace('기타 - ', '')}`;
