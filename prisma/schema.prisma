@@ -147,10 +147,12 @@ model Score {
   coursePar    Int      @default(72)
   holes        String?
   completed    Boolean  @default(false)
+  verified     Boolean  @default(false)
+  verifiedBy   String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  @@unique([userId, markerId, date, roundingName])
+  @@unique([userId, date, roundingName])
   @@index([userId])
   @@index([markerId])
   @@index([date])
