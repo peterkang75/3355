@@ -745,15 +745,24 @@ function Admin() {
       const member = members.find(m => m.id === memberId);
       if (!member) return;
 
-      // 회원의 가장 최근 charge 거래에서 bookingId 찾기
+      // 회원의 가장 최근 charge 거래에서 bookingId와 카테고리 찾기
       const memberTransactions = await apiService.fetchMemberTransactions(memberId);
       const recentCharge = memberTransactions.find(t => t.type === 'charge' && t.booking);
       const bookingId = recentCharge?.booking?.id || null;
+      
+      // 청구 설명에서 카테고리 추출 (예: "회식비청구 - ..." -> "회식비")
+      let categoryName = '참가비';
+      if (recentCharge?.description) {
+        const chargeDesc = recentCharge.description;
+        if (chargeDesc.includes('청구')) {
+          categoryName = chargeDesc.split('청구')[0];
+        }
+      }
 
       const transactionData = {
         type: 'payment',
         amount: Math.abs(amount),
-        description: '회비 납부 (전액)',
+        description: `${categoryName} 납부 (전액)`,
         date: new Date().toISOString().split('T')[0],
         memberId: memberId,
         bookingId: bookingId,
@@ -761,7 +770,7 @@ function Admin() {
       };
 
       await apiService.createTransaction(transactionData);
-      alert(`${member.nickname || member.name}님의 회비가 전액 납부되었습니다.`);
+      alert(`${member.nickname || member.name}님의 ${categoryName}가 전액 납부되었습니다.`);
       
       // 거래 내역 포함 전체 데이터 새로고침
       await Promise.all([
@@ -804,15 +813,24 @@ function Admin() {
       const member = members.find(m => m.id === memberId);
       if (!member) return;
 
-      // 회원의 가장 최근 charge 거래에서 bookingId 찾기
+      // 회원의 가장 최근 charge 거래에서 bookingId와 카테고리 찾기
       const memberTransactions = await apiService.fetchMemberTransactions(memberId);
       const recentCharge = memberTransactions.find(t => t.type === 'charge' && t.booking);
       const bookingId = recentCharge?.booking?.id || null;
+      
+      // 청구 설명에서 카테고리 추출 (예: "회식비청구 - ..." -> "회식비")
+      let categoryName = '참가비';
+      if (recentCharge?.description) {
+        const chargeDesc = recentCharge.description;
+        if (chargeDesc.includes('청구')) {
+          categoryName = chargeDesc.split('청구')[0];
+        }
+      }
 
       const transactionData = {
         type: 'payment',
         amount: amount,
-        description: '회비 납부 (부분)',
+        description: `${categoryName} 납부 (부분)`,
         date: new Date().toISOString().split('T')[0],
         memberId: memberId,
         bookingId: bookingId,
@@ -820,7 +838,7 @@ function Admin() {
       };
 
       await apiService.createTransaction(transactionData);
-      alert(`${member.nickname || member.name}님의 ${amount.toLocaleString()}원이 납부 처리되었습니다.`);
+      alert(`${member.nickname || member.name}님의 ${amount.toLocaleString()}불이 납부 처리되었습니다.`);
       
       // 거래 내역 포함 전체 데이터 새로고침
       await Promise.all([
