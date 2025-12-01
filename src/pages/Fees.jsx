@@ -23,6 +23,8 @@ function Fees() {
     amount: '',
     date: '',
     description: '',
+    category: '',
+    memo: '',
     bookingId: '',
     receiptImage: '',
     receiptImages: []
@@ -92,6 +94,8 @@ function Fees() {
       amount: transaction.amount.toString(),
       date: transaction.date || new Date(transaction.createdAt).toISOString().split('T')[0],
       description: transaction.description || '',
+      category: transaction.category || '',
+      memo: transaction.memo || '',
       bookingId: transaction.bookingId || '',
       receiptImage: transaction.receiptImage || '',
       receiptImages: Array.isArray(images) ? images : []
@@ -104,6 +108,8 @@ function Fees() {
       amount: '',
       date: '',
       description: '',
+      category: '',
+      memo: '',
       bookingId: '',
       receiptImage: '',
       receiptImages: []
@@ -169,6 +175,8 @@ function Fees() {
       };
 
       if (editingTransaction.type === 'expense') {
+        updateData.category = editFormData.category || null;
+        updateData.memo = editFormData.memo || null;
         updateData.receiptImages = editFormData.receiptImages;
       } else {
         updateData.receiptImage = editFormData.receiptImage || null;
@@ -213,13 +221,17 @@ function Fees() {
       return transaction.description || '크레딧처리';
     }
     if (transaction.type === 'expense') {
+      if (transaction.category) {
+        return transaction.category;
+      }
       if (transaction.description) {
         const parts = transaction.description.split(' - ');
         if (parts[0].includes('환불')) {
           return '환불';
         }
+        return parts[0];
       }
-      return '환불';
+      return '클럽 지출';
     }
     if (transaction.type === 'charge') {
       return '회비 청구';
@@ -683,7 +695,7 @@ function Fees() {
                             typeLabel = paymentDesc;
                           }
                         } else if (transaction.type === 'expense') {
-                          typeLabel = '클럽 지출';
+                          typeLabel = transaction.category || transaction.description || '클럽 지출';
                         } else {
                           typeLabel = '도네이션';
                         }
@@ -1203,25 +1215,80 @@ function Fees() {
                 </select>
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px' }}>
-                  설명
-                </label>
-                <input
-                  type="text"
-                  value={editFormData.description}
-                  onChange={(e) => setEditFormData(prev => ({ ...prev, description: e.target.value }))}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '8px',
-                    fontSize: '16px',
-                    boxSizing: 'border-box'
-                  }}
-                  placeholder="설명 입력 (선택)"
-                />
-              </div>
+              {editingTransaction?.type === 'expense' ? (
+                <>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px' }}>
+                      지출항목 *
+                    </label>
+                    <select
+                      value={editFormData.category}
+                      onChange={(e) => setEditFormData(prev => ({ 
+                        ...prev, 
+                        category: e.target.value,
+                        description: e.target.value 
+                      }))}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        boxSizing: 'border-box',
+                        background: 'white'
+                      }}
+                    >
+                      <option value="">항목 선택</option>
+                      <option value="골프장 그린피">골프장 그린피</option>
+                      <option value="점심값">점심값</option>
+                      <option value="음료수">음료수</option>
+                      <option value="상품">상품</option>
+                      <option value="회식비">회식비</option>
+                      <option value="환불">환불</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px' }}>
+                      메모 (선택)
+                    </label>
+                    <textarea
+                      value={editFormData.memo}
+                      onChange={(e) => setEditFormData(prev => ({ ...prev, memo: e.target.value }))}
+                      rows={2}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        boxSizing: 'border-box',
+                        resize: 'vertical'
+                      }}
+                      placeholder="메모 입력 (선택)"
+                    />
+                  </div>
+                </>
+              ) : (
+                <div>
+                  <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px' }}>
+                    설명
+                  </label>
+                  <input
+                    type="text"
+                    value={editFormData.description}
+                    onChange={(e) => setEditFormData(prev => ({ ...prev, description: e.target.value }))}
+                    style={{
+                      width: '100%',
+                      padding: '12px',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                      boxSizing: 'border-box'
+                    }}
+                    placeholder="설명 입력 (선택)"
+                  />
+                </div>
+              )}
 
               <div>
                 <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px' }}>

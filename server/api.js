@@ -1304,12 +1304,14 @@ router.post('/transactions', async (req, res) => {
 // 거래 수정
 router.put('/transactions/:id', async (req, res) => {
   try {
-    const { amount, date, description, bookingId, receiptImage, receiptImages } = req.body;
+    const { amount, date, description, category, memo, bookingId, receiptImage, receiptImages } = req.body;
     
     console.log('📝 Transaction update request:', { 
       id: req.params.id, 
       amount, 
       date, 
+      category,
+      memo,
       bookingId,
       hasReceiptImage: !!receiptImage,
       receiptImagesCount: receiptImages?.length || 0
@@ -1329,6 +1331,14 @@ router.put('/transactions/:id', async (req, res) => {
       date: date || existingTransaction.date,
       description: description !== undefined ? description : existingTransaction.description
     };
+
+    if (category !== undefined) {
+      updateData.category = category || null;
+    }
+
+    if (memo !== undefined) {
+      updateData.memo = memo || null;
+    }
 
     if (bookingId !== undefined) {
       updateData.bookingId = bookingId || null;

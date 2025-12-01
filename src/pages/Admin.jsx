@@ -109,7 +109,7 @@ function Admin() {
     memberId: null,
     amount: '',
     date: new Date().toISOString().split('T')[0],
-    description: '',
+    memo: '',
     receiptImage: ''
   });
   const [showRefundModal, setShowRefundModal] = useState(false);
@@ -695,7 +695,9 @@ function Admin() {
       const transactionData = {
         type: 'expense',
         amount: parseFloat(selectedExpense.amount),
-        description: `${category?.name}${booking ? ` - ${booking.courseName}` : ''}${member ? ` (${member.nickname || member.name})` : ''}${selectedExpense.description ? ` - ${selectedExpense.description}` : ''}`,
+        category: category?.name,
+        memo: selectedExpense.memo || null,
+        description: category?.name,
         date: selectedExpense.date,
         memberId: category?.name === '환불' ? selectedExpense.memberId : null,
         bookingId: selectedExpense.bookingId || null,
@@ -711,7 +713,7 @@ function Admin() {
         memberId: null,
         amount: '',
         date: new Date().toISOString().split('T')[0],
-        description: '',
+        memo: '',
         receiptImage: ''
       });
       
@@ -2895,17 +2897,18 @@ function Admin() {
                     <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
                       메모 (선택사항)
                     </label>
-                    <input
-                      type="text"
-                      value={selectedExpense.description}
-                      onChange={(e) => setSelectedExpense({...selectedExpense, description: e.target.value})}
+                    <textarea
+                      value={selectedExpense.memo}
+                      onChange={(e) => setSelectedExpense({...selectedExpense, memo: e.target.value})}
                       placeholder="추가 설명을 입력하세요"
+                      rows={2}
                       style={{
                         width: '100%',
                         padding: '12px',
                         border: '1px solid var(--border-color)',
                         borderRadius: '8px',
-                        fontSize: '14px'
+                        fontSize: '14px',
+                        resize: 'vertical'
                       }}
                     />
                   </div>
@@ -3193,8 +3196,7 @@ function Admin() {
                             categoryName = paymentDesc;
                           }
                         } else if (transaction.type === 'expense') {
-                          const expenseDesc = transaction.description || '클럽 지출';
-                          categoryName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
+                          categoryName = transaction.category || transaction.description || '클럽 지출';
                         } else if (transaction.type === 'donation') {
                           if (transaction.description?.startsWith('기타 - ')) {
                             categoryName = transaction.description.replace('기타 - ', '');
@@ -3382,8 +3384,7 @@ function Admin() {
                 // 지출 합계 계산 (expense)
                 const expenseTotals = {};
                 filteredForSummary.filter(t => t.type === 'expense').forEach(t => {
-                  const expenseDesc = t.description || '기타 지출';
-                  const catName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
+                  const catName = t.category || t.description || '기타 지출';
                   expenseTotals[catName] = (expenseTotals[catName] || 0) + t.amount;
                 });
                 
@@ -3573,8 +3574,7 @@ function Admin() {
                             catKey = 'income:도네이션';
                           }
                         } else if (t.type === 'expense') {
-                          const expenseDesc = t.description || '기타 지출';
-                          const catName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
+                          const catName = t.category || t.description || '기타 지출';
                           catKey = `expense:${catName}`;
                         }
                         
@@ -3744,8 +3744,7 @@ function Admin() {
                       catKey = 'income:도네이션';
                     }
                   } else if (t.type === 'expense') {
-                    const expenseDesc = t.description || '기타 지출';
-                    const catName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
+                    const catName = t.category || t.description || '기타 지출';
                     catKey = `expense:${catName}`;
                   }
                   
@@ -3800,8 +3799,7 @@ function Admin() {
                                         catKey = 'income:도네이션';
                                       }
                                     } else if (t.type === 'expense') {
-                                      const expenseDesc = t.description || '기타 지출';
-                                      const catName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
+                                      const catName = t.category || t.description || '기타 지출';
                                       catKey = `expense:${catName}`;
                                     }
                                     return selectedSummaryCategories.includes(catKey);
@@ -3833,8 +3831,7 @@ function Admin() {
                                         catKey = 'income:도네이션';
                                       }
                                     } else if (t.type === 'expense') {
-                                      const expenseDesc = t.description || '기타 지출';
-                                      const catName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
+                                      const catName = t.category || t.description || '기타 지출';
                                       catKey = `expense:${catName}`;
                                     }
                                     return selectedSummaryCategories.includes(catKey);
@@ -3882,8 +3879,7 @@ function Admin() {
                               catKey = 'income:도네이션';
                             }
                           } else if (t.type === 'expense') {
-                            const expenseDesc = t.description || '기타 지출';
-                            const catName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
+                            const catName = t.category || t.description || '기타 지출';
                             catKey = `expense:${catName}`;
                           }
                           
@@ -3916,8 +3912,7 @@ function Admin() {
                               categoryName = paymentDesc;
                             }
                           } else if (transaction.type === 'expense') {
-                            const expenseDesc = transaction.description || '클럽 지출';
-                            categoryName = expenseDesc.includes(' - ') ? expenseDesc.split(' - ')[0] : expenseDesc;
+                            categoryName = transaction.category || transaction.description || '클럽 지출';
                           } else if (transaction.type === 'donation') {
                             if (transaction.description?.startsWith('기타 - ')) {
                               categoryName = transaction.description.replace('기타 - ', '');
@@ -7589,7 +7584,21 @@ function Admin() {
                 </div>
               )}
               
-              {viewingTransaction.description && (
+              {viewingTransaction.type === 'expense' && viewingTransaction.category && (
+                <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+                  <span style={{ width: '100px', fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>지출항목</span>
+                  <span style={{ fontSize: '13px' }}>{viewingTransaction.category}</span>
+                </div>
+              )}
+              
+              {viewingTransaction.type === 'expense' && viewingTransaction.memo && (
+                <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
+                  <span style={{ width: '100px', fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>메모</span>
+                  <span style={{ fontSize: '13px' }}>{viewingTransaction.memo}</span>
+                </div>
+              )}
+              
+              {viewingTransaction.type !== 'expense' && viewingTransaction.description && (
                 <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
                   <span style={{ width: '100px', fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>설명</span>
                   <span style={{ fontSize: '13px' }}>{viewingTransaction.description}</span>
@@ -7816,27 +7825,81 @@ function Admin() {
               </select>
             </div>
 
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', fontSize: '13px', marginBottom: '4px', fontWeight: '600' }}>
-                설명
-              </label>
-              <input
-                type="text"
-                value={editingTransaction.description || ''}
-                onChange={(e) => setEditingTransaction({
-                  ...editingTransaction,
-                  description: e.target.value
-                })}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  borderRadius: '6px',
-                  border: '1px solid var(--border-color)',
-                  fontSize: '14px'
-                }}
-                placeholder="설명 입력 (선택)"
-              />
-            </div>
+            {editingTransaction.type === 'expense' && (
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', fontSize: '13px', marginBottom: '4px', fontWeight: '600' }}>
+                  지출항목 *
+                </label>
+                <select
+                  value={editingTransaction.category || ''}
+                  onChange={(e) => setEditingTransaction({
+                    ...editingTransaction,
+                    category: e.target.value,
+                    description: e.target.value
+                  })}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid var(--border-color)',
+                    fontSize: '14px',
+                    background: 'white'
+                  }}
+                >
+                  <option value="">항목 선택</option>
+                  {expenseCategories.map(cat => (
+                    <option key={cat.id} value={cat.name}>{cat.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+
+            {editingTransaction.type === 'expense' ? (
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', fontSize: '13px', marginBottom: '4px', fontWeight: '600' }}>
+                  메모 (선택)
+                </label>
+                <textarea
+                  value={editingTransaction.memo || ''}
+                  onChange={(e) => setEditingTransaction({
+                    ...editingTransaction,
+                    memo: e.target.value
+                  })}
+                  rows={2}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid var(--border-color)',
+                    fontSize: '14px',
+                    resize: 'vertical'
+                  }}
+                  placeholder="메모 입력 (선택)"
+                />
+              </div>
+            ) : (
+              <div style={{ marginBottom: '12px' }}>
+                <label style={{ display: 'block', fontSize: '13px', marginBottom: '4px', fontWeight: '600' }}>
+                  설명
+                </label>
+                <input
+                  type="text"
+                  value={editingTransaction.description || ''}
+                  onChange={(e) => setEditingTransaction({
+                    ...editingTransaction,
+                    description: e.target.value
+                  })}
+                  style={{
+                    width: '100%',
+                    padding: '10px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid var(--border-color)',
+                    fontSize: '14px'
+                  }}
+                  placeholder="설명 입력 (선택)"
+                />
+              </div>
+            )}
 
             <div style={{ marginBottom: '12px' }}>
               <label style={{ display: 'block', fontSize: '13px', marginBottom: '4px', fontWeight: '600' }}>
@@ -8054,6 +8117,8 @@ function Admin() {
                     };
                     
                     if (editingTransaction.type === 'expense') {
+                      updateData.category = editingTransaction.category || null;
+                      updateData.memo = editingTransaction.memo || null;
                       updateData.receiptImages = editingTransaction.receiptImages || [];
                     } else {
                       updateData.receiptImage = editingTransaction.receiptImage || null;
