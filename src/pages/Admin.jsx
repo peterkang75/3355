@@ -5048,7 +5048,8 @@ function Admin() {
                                     setEditingScore({ isNew: true, participant });
                                     setEditScoreData({
                                       totalScore: '',
-                                      holes: Array(18).fill('')
+                                      holes: Array(18).fill(0),
+                                      inputMode: 'total'
                                     });
                                   }}
                                   style={{
@@ -5202,11 +5203,13 @@ function Admin() {
                             try { holesData = JSON.parse(holesData); } catch (e) { holesData = []; }
                           }
                           if (!Array.isArray(holesData) || holesData.length === 0) {
-                            holesData = Array(18).fill('');
+                            holesData = Array(18).fill(0);
                           }
+                          const hasHoleData = holesData.some(h => h > 0);
                           setEditScoreData({
                             totalScore: selectedPlayerForScore.totalScore,
-                            holes: holesData
+                            holes: holesData,
+                            inputMode: hasHoleData ? 'holes' : 'total'
                           });
                         }}
                         style={{
@@ -5591,28 +5594,99 @@ function Admin() {
                     </div>
                   )}
                   <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
+                    <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                      <label style={{ 
+                        flex: 1, 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px',
+                        padding: '10px 12px',
+                        border: editScoreData?.inputMode === 'total' ? '2px solid var(--primary-green)' : '1px solid #ddd',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        background: editScoreData?.inputMode === 'total' ? 'var(--bg-green)' : 'white'
+                      }}>
+                        <input
+                          type="radio"
+                          name="scoreInputMode"
+                          checked={editScoreData?.inputMode === 'total'}
+                          onChange={() => setEditScoreData(prev => ({ 
+                            ...prev, 
+                            inputMode: 'total',
+                            holes: Array(18).fill(0)
+                          }))}
+                          style={{ accentColor: 'var(--primary-green)' }}
+                        />
+                        <span style={{ fontWeight: '600', fontSize: '14px' }}>총타수 입력</span>
+                      </label>
+                      <label style={{ 
+                        flex: 1, 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        gap: '8px',
+                        padding: '10px 12px',
+                        border: editScoreData?.inputMode === 'holes' ? '2px solid var(--primary-green)' : '1px solid #ddd',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        background: editScoreData?.inputMode === 'holes' ? 'var(--bg-green)' : 'white'
+                      }}>
+                        <input
+                          type="radio"
+                          name="scoreInputMode"
+                          checked={editScoreData?.inputMode === 'holes'}
+                          onChange={() => setEditScoreData(prev => ({ 
+                            ...prev, 
+                            inputMode: 'holes',
+                            totalScore: (prev?.holes || []).reduce((a, b) => a + (b || 0), 0)
+                          }))}
+                          style={{ accentColor: 'var(--primary-green)' }}
+                        />
+                        <span style={{ fontWeight: '600', fontSize: '14px' }}>홀별타수 입력</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div style={{ marginBottom: '16px' }}>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: editScoreData?.inputMode === 'holes' ? '#999' : 'inherit' }}>
                       총 타수 <span style={{ color: '#e74c3c' }}>*</span>
+                      {editScoreData?.inputMode === 'holes' && (
+                        <span style={{ fontSize: '12px', fontWeight: '400', marginLeft: '8px', color: 'var(--primary-green)' }}>
+                          (홀별 합계 자동 계산)
+                        </span>
+                      )}
                     </label>
                     <input
                       type="number"
                       value={editScoreData?.totalScore || ''}
                       onChange={(e) => setEditScoreData(prev => ({ ...prev, totalScore: parseInt(e.target.value) || 0 }))}
                       placeholder="예: 85"
+                      disabled={editScoreData?.inputMode === 'holes'}
                       style={{
                         width: '100%',
                         padding: '12px',
                         border: '1px solid #ddd',
                         borderRadius: '8px',
-                        fontSize: '16px'
+                        fontSize: '16px',
+                        background: editScoreData?.inputMode === 'holes' ? '#f5f5f5' : 'white',
+                        color: editScoreData?.inputMode === 'holes' ? '#666' : 'inherit'
                       }}
                     />
                   </div>
                   <div style={{ marginBottom: '16px' }}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600' }}>
-                      홀별 타수 (선택)
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: editScoreData?.inputMode === 'total' ? '#999' : 'inherit' }}>
+                      홀별 타수
+                      {editScoreData?.inputMode === 'total' && (
+                        <span style={{ fontSize: '12px', fontWeight: '400', marginLeft: '8px', color: '#999' }}>
+                          (비활성화)
+                        </span>
+                      )}
                     </label>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: '8px' }}>
+                    <div style={{ 
+                      display: 'grid', 
+                      gridTemplateColumns: 'repeat(6, 1fr)', 
+                      gap: '8px',
+                      opacity: editScoreData?.inputMode === 'total' ? 0.5 : 1,
+                      pointerEvents: editScoreData?.inputMode === 'total' ? 'none' : 'auto'
+                    }}>
                       {(editScoreData?.holes || []).map((h, idx) => (
                         <div key={idx} style={{ textAlign: 'center' }}>
                           <div style={{ fontSize: '11px', color: '#666', marginBottom: '4px' }}>{idx + 1}</div>
@@ -5622,15 +5696,18 @@ function Admin() {
                             onChange={(e) => {
                               const newHoles = [...(editScoreData?.holes || [])];
                               newHoles[idx] = parseInt(e.target.value) || 0;
-                              setEditScoreData(prev => ({ ...prev, holes: newHoles }));
+                              const newTotal = newHoles.reduce((a, b) => a + (b || 0), 0);
+                              setEditScoreData(prev => ({ ...prev, holes: newHoles, totalScore: newTotal }));
                             }}
+                            disabled={editScoreData?.inputMode === 'total'}
                             style={{
                               width: '100%',
                               padding: '8px 4px',
                               border: '1px solid #ddd',
                               borderRadius: '4px',
                               fontSize: '14px',
-                              textAlign: 'center'
+                              textAlign: 'center',
+                              background: editScoreData?.inputMode === 'total' ? '#f5f5f5' : 'white'
                             }}
                           />
                         </div>
