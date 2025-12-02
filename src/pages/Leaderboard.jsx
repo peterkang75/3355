@@ -17,6 +17,7 @@ function Leaderboard() {
   const [selectedScore, setSelectedScore] = useState(null);
   const [coursePars, setCoursePars] = useState([]);
   const [autoSelectApplied, setAutoSelectApplied] = useState(false);
+  const [bookingGradeSettings, setBookingGradeSettings] = useState(null);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -52,6 +53,8 @@ function Leaderboard() {
       const gradeSettings = booking.gradeSettings
         ? (typeof booking.gradeSettings === 'string' ? JSON.parse(booking.gradeSettings) : booking.gradeSettings)
         : null;
+      
+      setBookingGradeSettings(gradeSettings);
 
       const course = courses.find(c => c.name === booking.courseName);
       const holePars = course?.holePars?.male || Array(18).fill(4);
@@ -146,7 +149,32 @@ function Leaderboard() {
     ? scores 
     : scores.filter(s => s.grade === filter.replace('Grade ', ''));
 
-  const gradeFilters = ['ALL', 'Grade A', 'Grade B', 'Grade C', 'Grade D'];
+  const getAvailableGradeFilters = () => {
+    const filters = ['ALL'];
+    if (!bookingGradeSettings) return filters;
+    
+    const gradeA = bookingGradeSettings.gradeA || { type: 'below', value: '' };
+    const gradeB = bookingGradeSettings.gradeB || { min: '', max: '' };
+    const gradeC = bookingGradeSettings.gradeC || { min: '', max: '' };
+    const gradeD = bookingGradeSettings.gradeD || { type: 'above', value: '' };
+    
+    if (gradeA.value !== '' && gradeA.value !== null) {
+      filters.push('Grade A');
+    }
+    if (gradeB.min !== '' && gradeB.max !== '' && gradeB.min !== null && gradeB.max !== null) {
+      filters.push('Grade B');
+    }
+    if (gradeC.min !== '' && gradeC.max !== '' && gradeC.min !== null && gradeC.max !== null) {
+      filters.push('Grade C');
+    }
+    if (gradeD.value !== '' && gradeD.value !== null) {
+      filters.push('Grade D');
+    }
+    
+    return filters;
+  };
+  
+  const gradeFilters = getAvailableGradeFilters();
 
   if (loading) {
     return (
