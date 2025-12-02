@@ -4665,14 +4665,14 @@ function Admin() {
                 <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', padding: '0 16px' }}>
                   라운딩별 스코어
                 </h3>
-                {bookings.length === 0 ? (
+                {bookings.filter(b => !b.title?.startsWith('클럽 컴페티션')).length === 0 ? (
                   <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏌️</div>
                     <div style={{ color: 'var(--text-dark)', opacity: 0.7 }}>등록된 라운딩이 없습니다</div>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-                    {bookings.sort((a, b) => new Date(b.date) - new Date(a.date)).map(booking => (
+                    {bookings.filter(b => !b.title?.startsWith('클럽 컴페티션')).sort((a, b) => new Date(b.date) - new Date(a.date)).map(booking => (
                       <button
                         key={booking.id}
                         onClick={async () => {
