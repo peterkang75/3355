@@ -993,6 +993,24 @@ function Booking() {
                 >
                   📋 조편성 보기
                 </button>
+                {booking.playEnabled && (
+                  <button
+                    onClick={() => navigate(`/play?id=${booking.id}`)}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: '#2196F3',
+                      color: 'var(--text-light)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    ⛳ 플레이하기
+                  </button>
+                )}
               </>
             ) : (
               <>
@@ -1050,6 +1068,24 @@ function Booking() {
                     }}
                   >
                     {isRentalLoading === booking.id ? '처리중...' : (isRenting ? '✓ 번호대여중' : '번호대여')}
+                  </button>
+                )}
+                {booking.playEnabled && (
+                  <button
+                    onClick={() => navigate(`/play?id=${booking.id}`)}
+                    style={{
+                      flex: 1,
+                      padding: '12px',
+                      background: '#2196F3',
+                      color: 'var(--text-light)',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '16px',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    ⛳ 플레이하기
                   </button>
                 )}
               </>
