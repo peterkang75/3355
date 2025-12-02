@@ -173,8 +173,11 @@ function Admin() {
   }, [contextMembers]);
 
   useEffect(() => {
+    loadPermissions();
+  }, []);
+
+  useEffect(() => {
     if (activeTab === 'settings' || activeTab === 'developer') {
-      loadPermissions();
       loadCategories();
     }
     if (activeTab === 'fees') {
