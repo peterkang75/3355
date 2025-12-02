@@ -5135,9 +5135,35 @@ function Admin() {
                   onClick={async () => {
                     if (isSavingMemberScore) return;
                     
-                    const finalScore = memberScoreData.inputMode === 'total' 
-                      ? parseInt(memberScoreData.totalScore) || 0
-                      : memberScoreData.holes.reduce((a, b) => a + b, 0);
+                    const holesSum = memberScoreData.holes.reduce((a, b) => a + b, 0);
+                    const originalTotal = parseInt(memberScoreData.totalScore) || 0;
+                    
+                    let finalScore;
+                    let finalHoles;
+                    
+                    if (memberScoreData.inputMode === 'total') {
+                      finalScore = originalTotal;
+                      finalHoles = Array(18).fill(0);
+                    } else {
+                      if (existingMemberScore && originalTotal > 0 && holesSum > 0 && originalTotal !== holesSum) {
+                        const choice = window.confirm(
+                          `기존 총타수(${originalTotal}타)와 홀별 합계(${holesSum}타)가 다릅니다.\n\n` +
+                          `[확인] → 홀별 합계(${holesSum}타)로 저장\n` +
+                          `[취소] → 기존 총타수(${originalTotal}타) 유지`
+                        );
+                        
+                        if (choice) {
+                          finalScore = holesSum;
+                          finalHoles = memberScoreData.holes;
+                        } else {
+                          finalScore = originalTotal;
+                          finalHoles = memberScoreData.holes;
+                        }
+                      } else {
+                        finalScore = holesSum;
+                        finalHoles = memberScoreData.holes;
+                      }
+                    }
                     
                     if (finalScore <= 0) {
                       alert('스코어를 입력해주세요.');
@@ -5157,7 +5183,7 @@ function Admin() {
                         date: new Date(memberScoreBooking.date).toISOString().split('T')[0],
                         courseName: memberScoreBooking.courseName,
                         totalScore: finalScore,
-                        holes: memberScoreData.inputMode === 'holes' ? memberScoreData.holes : Array(18).fill(0),
+                        holes: finalHoles,
                         coursePar: coursePar
                       };
 
