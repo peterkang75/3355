@@ -4847,6 +4847,16 @@ function Admin() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
                       {bookings
                         .filter(b => !b.title?.startsWith('클럽 컴페티션'))
+                        .filter(b => {
+                          // 선택된 회원이 참여한 라운딩만 표시
+                          if (!b.participants) return false;
+                          try {
+                            const participants = typeof b.participants === 'string' ? JSON.parse(b.participants) : b.participants;
+                            return participants.some(p => p.phone === selectedMemberForScore.phone);
+                          } catch (e) {
+                            return false;
+                          }
+                        })
                         .sort((a, b) => new Date(b.date) - new Date(a.date))
                         .map(booking => (
                           <button
