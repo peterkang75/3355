@@ -136,7 +136,7 @@ function Admin() {
   const [savedAppDescriptionText, setSavedAppDescriptionText] = useState('');
   
   // 스코어 관리 상태
-  const [scoreManagementView, setScoreManagementView] = useState('rounds'); // 'rounds', 'leaderboard', 'scorecard', 'allScores'
+  const [scoreManagementView, setScoreManagementView] = useState('rounds'); // 'rounds', 'memberScores', 'leaderboard', 'scorecard', 'allScores', 'memberScoreInput'
   const [allScoresData, setAllScoresData] = useState([]);
   const [selectedScoreIds, setSelectedScoreIds] = useState([]);
   const [selectedRoundForScore, setSelectedRoundForScore] = useState(null);
@@ -144,6 +144,13 @@ function Admin() {
   const [roundScores, setRoundScores] = useState([]);
   const [editingScore, setEditingScore] = useState(null);
   const [editScoreData, setEditScoreData] = useState(null);
+  
+  // 회원별 스코어 관리 상태
+  const [selectedMemberForScore, setSelectedMemberForScore] = useState(null);
+  const [memberScoreBooking, setMemberScoreBooking] = useState(null);
+  const [memberScoreData, setMemberScoreData] = useState({ totalScore: '', holes: Array(18).fill(0), inputMode: 'total' });
+  const [isSavingMemberScore, setIsSavingMemberScore] = useState(false);
+  const [memberSearchText, setMemberSearchText] = useState('');
 
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
@@ -4608,10 +4615,10 @@ function Admin() {
 
         {activeTab === 'scoreManagement' && (
           <div>
-            {(scoreManagementView === 'rounds' || scoreManagementView === 'allScores') && (
+            {(scoreManagementView === 'rounds' || scoreManagementView === 'memberScores' || scoreManagementView === 'allScores') && (
               <div style={{ 
                 display: 'flex', 
-                gap: '8px', 
+                gap: '6px', 
                 marginBottom: '16px',
                 padding: '0 16px'
               }}>
@@ -4619,17 +4626,38 @@ function Admin() {
                   onClick={() => setScoreManagementView('rounds')}
                   style={{
                     flex: 1,
-                    padding: '12px',
+                    padding: '10px 8px',
                     background: scoreManagementView === 'rounds' ? 'var(--primary-green)' : 'white',
                     color: scoreManagementView === 'rounds' ? 'white' : 'var(--text-dark)',
                     border: '1px solid var(--border-color)',
                     borderRadius: '8px',
-                    fontSize: '14px',
+                    fontSize: '13px',
                     fontWeight: '600',
                     cursor: 'pointer'
                   }}
                 >
-                  라운딩별 스코어
+                  라운딩별
+                </button>
+                <button
+                  onClick={() => {
+                    setScoreManagementView('memberScores');
+                    setSelectedMemberForScore(null);
+                    setMemberScoreBooking(null);
+                    setMemberSearchText('');
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '10px 8px',
+                    background: scoreManagementView === 'memberScores' ? 'var(--primary-green)' : 'white',
+                    color: scoreManagementView === 'memberScores' ? 'white' : 'var(--text-dark)',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  회원별
                 </button>
                 <button
                   onClick={async () => {
@@ -4645,17 +4673,17 @@ function Admin() {
                   }}
                   style={{
                     flex: 1,
-                    padding: '12px',
+                    padding: '10px 8px',
                     background: scoreManagementView === 'allScores' ? 'var(--primary-green)' : 'white',
                     color: scoreManagementView === 'allScores' ? 'white' : 'var(--text-dark)',
                     border: '1px solid var(--border-color)',
                     borderRadius: '8px',
-                    fontSize: '14px',
+                    fontSize: '13px',
                     fontWeight: '600',
                     cursor: 'pointer'
                   }}
                 >
-                  전체 스코어
+                  전체
                 </button>
               </div>
             )}
@@ -4713,6 +4741,417 @@ function Admin() {
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+
+            {scoreManagementView === 'memberScores' && (
+              <div>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', padding: '0 16px' }}>
+                  회원별 스코어 입력
+                </h3>
+                
+                {!selectedMemberForScore ? (
+                  <div style={{ padding: '0 16px' }}>
+                    <input
+                      type="text"
+                      placeholder="회원 이름 또는 닉네임 검색..."
+                      value={memberSearchText}
+                      onChange={(e) => setMemberSearchText(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        border: '1px solid var(--border-color)',
+                        fontSize: '14px',
+                        marginBottom: '12px',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                      {members
+                        .filter(m => m.isActive)
+                        .filter(m => {
+                          if (!memberSearchText) return true;
+                          const search = memberSearchText.toLowerCase();
+                          return (m.name?.toLowerCase().includes(search) || m.nickname?.toLowerCase().includes(search));
+                        })
+                        .sort((a, b) => (a.nickname || a.name || '').localeCompare(b.nickname || b.name || '', 'ko'))
+                        .map(member => (
+                          <button
+                            key={member.id}
+                            onClick={() => setSelectedMemberForScore(member)}
+                            style={{
+                              padding: '14px 16px',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              background: 'var(--bg-page)',
+                              border: 'none',
+                              borderBottom: '1px solid var(--border-color)'
+                            }}
+                          >
+                            <div>
+                              <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-dark)' }}>
+                                {member.nickname || member.name}
+                              </div>
+                              <div style={{ fontSize: '13px', color: 'var(--text-dark)', opacity: 0.7 }}>
+                                {member.name !== member.nickname && member.name} · HCP {member.handicap || '-'}
+                              </div>
+                            </div>
+                            <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.5 }}>›</div>
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+                ) : !memberScoreBooking ? (
+                  <div>
+                    <button
+                      onClick={() => setSelectedMemberForScore(null)}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        padding: '8px 16px',
+                        fontSize: '14px',
+                        color: 'var(--primary-green)',
+                        cursor: 'pointer',
+                        marginBottom: '8px'
+                      }}
+                    >
+                      ‹ 회원 선택으로 돌아가기
+                    </button>
+                    <div style={{ 
+                      padding: '12px 16px', 
+                      background: 'var(--bg-green)', 
+                      marginBottom: '12px',
+                      borderRadius: '8px',
+                      marginLeft: '16px',
+                      marginRight: '16px'
+                    }}>
+                      <span style={{ fontWeight: '600' }}>{selectedMemberForScore.nickname || selectedMemberForScore.name}</span>
+                      <span style={{ color: 'var(--text-gray)', marginLeft: '8px' }}>님의 라운딩 선택</span>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
+                      {bookings
+                        .filter(b => !b.title?.startsWith('클럽 컴페티션'))
+                        .sort((a, b) => new Date(b.date) - new Date(a.date))
+                        .map(booking => (
+                          <button
+                            key={booking.id}
+                            onClick={() => {
+                              setMemberScoreBooking(booking);
+                              setMemberScoreData({ totalScore: '', holes: Array(18).fill(0), inputMode: 'total' });
+                              setScoreManagementView('memberScoreInput');
+                            }}
+                            style={{
+                              padding: '16px',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              background: 'var(--bg-page)',
+                              border: 'none',
+                              borderBottom: '1px solid var(--border-color)'
+                            }}
+                          >
+                            <div>
+                              <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '4px', color: 'var(--text-dark)' }}>
+                                {booking.title}
+                              </div>
+                              <div style={{ fontSize: '13px', color: 'var(--text-dark)', opacity: 0.7 }}>
+                                {new Date(booking.date).toLocaleDateString('ko-KR')} · {booking.courseName || '미정'}
+                              </div>
+                            </div>
+                            <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.5 }}>›</div>
+                          </button>
+                        ))}
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+            )}
+
+            {scoreManagementView === 'memberScoreInput' && selectedMemberForScore && memberScoreBooking && (
+              <div style={{ background: '#1a1a2e', minHeight: '100vh', margin: '-16px', padding: '16px' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'space-between',
+                  alignItems: 'center', 
+                  marginBottom: '16px'
+                }}>
+                  <button
+                    onClick={() => {
+                      setScoreManagementView('memberScores');
+                      setMemberScoreBooking(null);
+                    }}
+                    style={{
+                      background: 'none',
+                      border: 'none',
+                      fontSize: '16px',
+                      cursor: 'pointer',
+                      padding: '8px 0',
+                      color: 'white'
+                    }}
+                  >
+                    ‹ Back
+                  </button>
+                </div>
+
+                <div style={{
+                  background: 'rgba(255,255,255,0.1)',
+                  padding: '16px',
+                  borderRadius: '12px',
+                  marginBottom: '16px'
+                }}>
+                  <div style={{ color: 'white', fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>
+                    {selectedMemberForScore.nickname || selectedMemberForScore.name}
+                  </div>
+                  <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', marginBottom: '8px' }}>
+                    HCP: {selectedMemberForScore.handicap || '-'}
+                  </div>
+                  <div style={{ color: '#4a9d6a', fontSize: '14px', fontWeight: '600' }}>
+                    {memberScoreBooking.title}
+                  </div>
+                  <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>
+                    {new Date(memberScoreBooking.date).toLocaleDateString('ko-KR')} · {memberScoreBooking.courseName}
+                  </div>
+                </div>
+
+                <div style={{ marginBottom: '16px' }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    gap: '8px', 
+                    marginBottom: '16px' 
+                  }}>
+                    <button
+                      onClick={() => setMemberScoreData(prev => ({ ...prev, inputMode: 'total', holes: Array(18).fill(0) }))}
+                      style={{
+                        flex: 1,
+                        padding: '10px',
+                        background: memberScoreData.inputMode === 'total' ? '#4a9d6a' : 'rgba(255,255,255,0.1)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      총타수 입력
+                    </button>
+                    <button
+                      onClick={() => setMemberScoreData(prev => ({ ...prev, inputMode: 'holes', totalScore: '' }))}
+                      style={{
+                        flex: 1,
+                        padding: '10px',
+                        background: memberScoreData.inputMode === 'holes' ? '#4a9d6a' : 'rgba(255,255,255,0.1)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      홀별 입력
+                    </button>
+                  </div>
+
+                  {memberScoreData.inputMode === 'total' ? (
+                    <div style={{ 
+                      background: 'rgba(255,255,255,0.05)', 
+                      padding: '20px', 
+                      borderRadius: '12px',
+                      textAlign: 'center'
+                    }}>
+                      <label style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', marginBottom: '12px', display: 'block' }}>
+                        총타수
+                      </label>
+                      <input
+                        type="number"
+                        value={memberScoreData.totalScore}
+                        onChange={(e) => setMemberScoreData(prev => ({ ...prev, totalScore: e.target.value }))}
+                        placeholder="예: 85"
+                        style={{
+                          width: '120px',
+                          padding: '16px',
+                          fontSize: '28px',
+                          fontWeight: '700',
+                          textAlign: 'center',
+                          borderRadius: '12px',
+                          border: '2px solid rgba(255,255,255,0.2)',
+                          background: 'rgba(255,255,255,0.1)',
+                          color: 'white'
+                        }}
+                      />
+                    </div>
+                  ) : (
+                    <div>
+                      {(() => {
+                        const course = courses.find(c => c.name === memberScoreBooking.courseName);
+                        const isFemale = selectedMemberForScore.gender === 'F' || selectedMemberForScore.gender === '여';
+                        const parArr = course?.holePars?.[isFemale ? 'female' : 'male'] || Array(18).fill(4);
+
+                        const renderHoleInputRow = (startHole, endHole, label) => {
+                          const holesInRow = [];
+                          for (let i = startHole; i <= endHole; i++) {
+                            holesInRow.push(i);
+                          }
+                          const rowTotal = holesInRow.reduce((sum, h) => sum + (memberScoreData.holes[h - 1] || 0), 0);
+                          const rowPar = holesInRow.reduce((sum, h) => sum + (parArr[h - 1] || 4), 0);
+
+                          return (
+                            <div key={label} style={{ marginBottom: '12px' }}>
+                              <div style={{ 
+                                display: 'flex', 
+                                justifyContent: 'space-between', 
+                                alignItems: 'center',
+                                marginBottom: '8px',
+                                padding: '0 4px'
+                              }}>
+                                <span style={{ color: 'white', fontWeight: '600' }}>{label}</span>
+                                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px' }}>
+                                  PAR {rowPar} / 합계: {rowTotal}
+                                </span>
+                              </div>
+                              <div style={{ 
+                                display: 'grid', 
+                                gridTemplateColumns: 'repeat(9, 1fr)', 
+                                gap: '4px' 
+                              }}>
+                                {holesInRow.map(holeNum => (
+                                  <div key={holeNum} style={{ textAlign: 'center' }}>
+                                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '10px', marginBottom: '2px' }}>
+                                      {holeNum}
+                                    </div>
+                                    <input
+                                      type="number"
+                                      min="0"
+                                      max="15"
+                                      value={memberScoreData.holes[holeNum - 1] || ''}
+                                      onChange={(e) => {
+                                        const newHoles = [...memberScoreData.holes];
+                                        newHoles[holeNum - 1] = parseInt(e.target.value) || 0;
+                                        setMemberScoreData(prev => ({ ...prev, holes: newHoles }));
+                                      }}
+                                      style={{
+                                        width: '100%',
+                                        padding: '8px 2px',
+                                        fontSize: '14px',
+                                        fontWeight: '600',
+                                        textAlign: 'center',
+                                        borderRadius: '6px',
+                                        border: '1px solid rgba(255,255,255,0.2)',
+                                        background: 'rgba(255,255,255,0.1)',
+                                        color: 'white'
+                                      }}
+                                    />
+                                    <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '9px', marginTop: '2px' }}>
+                                      P{parArr[holeNum - 1] || 4}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          );
+                        };
+
+                        const totalHolesScore = memberScoreData.holes.reduce((a, b) => a + b, 0);
+
+                        return (
+                          <div style={{ 
+                            background: 'rgba(255,255,255,0.05)', 
+                            padding: '16px', 
+                            borderRadius: '12px' 
+                          }}>
+                            {renderHoleInputRow(1, 9, 'OUT')}
+                            {renderHoleInputRow(10, 18, 'IN')}
+                            <div style={{ 
+                              textAlign: 'center', 
+                              padding: '12px', 
+                              background: 'rgba(74, 157, 106, 0.3)',
+                              borderRadius: '8px',
+                              marginTop: '12px'
+                            }}>
+                              <span style={{ color: 'rgba(255,255,255,0.7)', marginRight: '8px' }}>총타수:</span>
+                              <span style={{ color: 'white', fontSize: '24px', fontWeight: '700' }}>{totalHolesScore}</span>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={async () => {
+                    if (isSavingMemberScore) return;
+                    
+                    const finalScore = memberScoreData.inputMode === 'total' 
+                      ? parseInt(memberScoreData.totalScore) || 0
+                      : memberScoreData.holes.reduce((a, b) => a + b, 0);
+                    
+                    if (finalScore <= 0) {
+                      alert('스코어를 입력해주세요.');
+                      return;
+                    }
+
+                    setIsSavingMemberScore(true);
+                    try {
+                      const course = courses.find(c => c.name === memberScoreBooking.courseName);
+                      const isFemale = selectedMemberForScore.gender === 'F' || selectedMemberForScore.gender === '여';
+                      const parArr = course?.holePars?.[isFemale ? 'female' : 'male'] || Array(18).fill(4);
+                      const coursePar = parArr.reduce((a, b) => a + b, 0);
+
+                      const scoreData = {
+                        userId: selectedMemberForScore.id,
+                        roundingName: memberScoreBooking.title,
+                        date: new Date(memberScoreBooking.date).toISOString().split('T')[0],
+                        courseName: memberScoreBooking.courseName,
+                        totalScore: finalScore,
+                        holes: memberScoreData.inputMode === 'holes' ? memberScoreData.holes : Array(18).fill(0),
+                        coursePar: coursePar
+                      };
+
+                      const res = await fetch('/api/scores', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(scoreData)
+                      });
+
+                      if (res.ok) {
+                        alert('스코어가 저장되었습니다.');
+                        setScoreManagementView('memberScores');
+                        setMemberScoreBooking(null);
+                        setMemberScoreData({ totalScore: '', holes: Array(18).fill(0), inputMode: 'total' });
+                      } else {
+                        const err = await res.json();
+                        alert(err.error || '저장에 실패했습니다.');
+                      }
+                    } catch (e) {
+                      console.error('스코어 저장 에러:', e);
+                      alert('저장에 실패했습니다.');
+                    } finally {
+                      setIsSavingMemberScore(false);
+                    }
+                  }}
+                  disabled={isSavingMemberScore}
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    background: isSavingMemberScore ? '#666' : '#4a9d6a',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    cursor: isSavingMemberScore ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {isSavingMemberScore ? '저장 중...' : '스코어 저장'}
+                </button>
               </div>
             )}
 
