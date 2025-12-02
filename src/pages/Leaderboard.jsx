@@ -61,24 +61,7 @@ function Leaderboard() {
       const processedScores = bookingScores.map(score => {
         const member = score.user || members.find(m => m.id === score.userId || m.phone === score.userId);
         const nickname = member?.nickname || member?.name || score.userId;
-        
-        let handicap = 0;
-        let handicapType = '';
-        
-        if (dailyHandicaps[score.userId]) {
-          handicap = dailyHandicaps[score.userId];
-          handicapType = '';
-        } else if (member) {
-          if (member.golflinkNumber && member.golflinkNumber.trim()) {
-            const gaValue = parseFloat(member.gaHandy) || parseFloat(member.handicap) || 0;
-            handicap = gaValue;
-            handicapType = 'GA';
-          } else {
-            const hhValue = parseFloat(member.handicap) || 0;
-            handicap = hhValue;
-            handicapType = 'HH';
-          }
-        }
+        const handicap = dailyHandicaps[score.userId] || member?.handicap || 0;
         
         let grade = 'ALL';
         if (gradeSettings) {
@@ -121,8 +104,6 @@ function Leaderboard() {
           odId: score.userId,
           nickname,
           handicap,
-          handicapType,
-          handicapDisplay: handicapType ? `${handicapType}${handicap}` : handicap,
           grade,
           thru,
           totalScore,
@@ -347,7 +328,7 @@ function Leaderboard() {
                 color: 'rgba(255,255,255,0.8)',
                 fontSize: '12px'
               }}>
-                {score.handicapDisplay || '-'}
+                {score.handicap || '-'}
               </div>
               <div style={{ 
                 textAlign: 'center', 
@@ -632,7 +613,7 @@ function Leaderboard() {
                       fontSize: '12px',
                       color: 'white'
                     }}>
-                      HCP: {selectedScore.handicapDisplay || '-'}
+                      HCP: {selectedScore.handicap || '-'}
                     </span>
                   </div>
                 </div>
