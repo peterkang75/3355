@@ -27,14 +27,14 @@ function InstallPrompt() {
       e.preventDefault();
       setDeferredPrompt(e);
       if (shouldShowAgain) {
-        setTimeout(() => setShowPrompt(true), 2000);
+        setTimeout(() => setShowPrompt(true), 1000);
       }
     };
 
     window.addEventListener('beforeinstallprompt', handler);
 
     if (checkIOS && shouldShowAgain) {
-      setTimeout(() => setShowPrompt(true), 3000);
+      setTimeout(() => setShowPrompt(true), 1000);
     }
 
     return () => {
