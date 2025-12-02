@@ -596,7 +596,24 @@ router.get('/scores/by-rounding/:roundingName', async (req, res) => {
       where: { 
         roundingName: decodeURIComponent(roundingName)
       },
-      include: { user: true }
+      select: {
+        id: true,
+        userId: true,
+        totalScore: true,
+        coursePar: true,
+        holes: true,
+        courseName: true,
+        date: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            nickname: true,
+            handicap: true,
+            gender: true
+          }
+        }
+      }
     });
     res.json(scores);
   } catch (error) {

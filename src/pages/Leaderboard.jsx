@@ -31,13 +31,14 @@ function Leaderboard() {
   useEffect(() => {
     if (!booking) return;
     const interval = setInterval(() => {
-      fetchScores(booking);
-    }, 10000);
+      fetchScores(booking, true);
+    }, 30000);
     return () => clearInterval(interval);
   }, [booking]);
 
-  const fetchScores = async (booking) => {
+  const fetchScores = async (booking, silent = false) => {
     try {
+      if (!silent) setLoading(true);
       let bookingScores = [];
       const res = await fetch(`/api/scores/by-rounding/${encodeURIComponent(booking.title)}`);
       if (res.ok) {
