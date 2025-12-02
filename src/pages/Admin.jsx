@@ -1421,7 +1421,7 @@ function Admin() {
 
     try {
       const scoreData = {
-        userId: member.id,
+        memberId: member.id,
         markerId: user.id,
         date: scoreFormData.date,
         courseName: scoreFormData.courseName,
@@ -5260,7 +5260,7 @@ function Admin() {
                       const coursePar = parArr.reduce((a, b) => a + b, 0);
 
                       const scoreData = {
-                        userId: selectedMemberForScore.id,
+                        memberId: selectedMemberForScore.id,
                         roundingName: memberScoreBooking.title,
                         date: new Date(memberScoreBooking.date).toISOString().split('T')[0],
                         courseName: memberScoreBooking.courseName,
