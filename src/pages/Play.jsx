@@ -731,6 +731,15 @@ function Play() {
     const diff = totalScore - totalPar;
     const diffText = diff > 0 ? '+' + diff : diff === 0 ? 'E' : String(diff);
     
+    // OUT (1-9홀) / IN (10-18홀) 계산
+    let outScore = 0, inScore = 0;
+    for (let i = 0; i < 9; i++) {
+      if (scoreArr[i] > 0) outScore += scoreArr[i];
+    }
+    for (let i = 9; i < 18; i++) {
+      if (scoreArr[i] > 0) inScore += scoreArr[i];
+    }
+    
     const isNearHole = !isTeammate && courseData?.nearHoles?.[currentHole - 1];
     
     const iosButtonStyle = { WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation', userSelect: 'none' };
@@ -769,7 +778,7 @@ function Play() {
         </div>
 
         <div style={{ background: 'white', padding: `${s(10, 4)}px ${s(16, 10)}px`, display: 'flex', flexDirection: 'column', gap: `${s(10, 4)}px`, flexShrink: 0 }}>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: `${s(18, 10)}px`, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: `${s(14, 8)}px`, flexWrap: 'wrap' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: `${s(5, 2)}px`, alignItems: 'center' }}>
               <div style={{ fontSize: `${s(13, 9)}px`, fontWeight: '700', color: '#666' }}>PAR</div>
               <button 
@@ -797,6 +806,21 @@ function Play() {
                 </button>
               </div>
             )}
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: `${s(5, 2)}px`, alignItems: 'center' }}>
+              <div style={{ fontSize: `${s(13, 9)}px`, fontWeight: '700', color: '#666' }}>OUT/IN</div>
+              <div style={{ 
+                ...boxStyle, 
+                flexDirection: 'column',
+                justifyContent: 'center',
+                gap: '0px',
+                padding: `${s(4, 2)}px`
+              }}>
+                <div style={{ fontSize: `${s(16, 11)}px`, fontWeight: '700', color: '#000', lineHeight: 1.2 }}>{outScore || '-'}</div>
+                <div style={{ width: '70%', height: '1px', background: '#ccc', margin: `${s(2, 1)}px 0` }}></div>
+                <div style={{ fontSize: `${s(16, 11)}px`, fontWeight: '700', color: '#000', lineHeight: 1.2 }}>{inScore || '-'}</div>
+              </div>
+            </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: `${s(5, 2)}px`, alignItems: 'center' }}>
               <div style={{ fontSize: `${s(13, 9)}px`, fontWeight: '700', color: '#000' }}>TOTAL</div>
