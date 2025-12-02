@@ -151,6 +151,7 @@ function Admin() {
   const [memberScoreData, setMemberScoreData] = useState({ totalScore: '', holes: Array(18).fill(0), inputMode: 'total' });
   const [isSavingMemberScore, setIsSavingMemberScore] = useState(false);
   const [memberSearchText, setMemberSearchText] = useState('');
+  const [existingMemberScore, setExistingMemberScore] = useState(null);
 
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
@@ -4839,9 +4840,39 @@ function Admin() {
                         .map(booking => (
                           <button
                             key={booking.id}
-                            onClick={() => {
+                            onClick={async () => {
                               setMemberScoreBooking(booking);
-                              setMemberScoreData({ totalScore: '', holes: Array(18).fill(0), inputMode: 'total' });
+                              setExistingMemberScore(null);
+                              
+                              try {
+                                const dateStr = new Date(booking.date).toISOString().split('T')[0];
+                                const res = await fetch(`/api/scores/member/${selectedMemberForScore.id}/${encodeURIComponent(booking.title)}`);
+                                if (res.ok) {
+                                  const existingScore = await res.json();
+                                  if (existingScore && existingScore.id) {
+                                    setExistingMemberScore(existingScore);
+                                    let holesData = existingScore.holes || [];
+                                    if (typeof holesData === 'string') {
+                                      try { holesData = JSON.parse(holesData); } catch (e) { holesData = []; }
+                                    }
+                                    if (!Array.isArray(holesData)) holesData = Array(18).fill(0);
+                                    const hasHoleData = holesData.some(h => h > 0);
+                                    setMemberScoreData({
+                                      totalScore: existingScore.totalScore || '',
+                                      holes: holesData.length === 18 ? holesData : Array(18).fill(0),
+                                      inputMode: hasHoleData ? 'holes' : 'total'
+                                    });
+                                  } else {
+                                    setMemberScoreData({ totalScore: '', holes: Array(18).fill(0), inputMode: 'total' });
+                                  }
+                                } else {
+                                  setMemberScoreData({ totalScore: '', holes: Array(18).fill(0), inputMode: 'total' });
+                                }
+                              } catch (e) {
+                                console.error('기존 스코어 확인 에러:', e);
+                                setMemberScoreData({ totalScore: '', holes: Array(18).fill(0), inputMode: 'total' });
+                              }
+                              
                               setScoreManagementView('memberScoreInput');
                             }}
                             style={{
@@ -5085,6 +5116,21 @@ function Admin() {
                   )}
                 </div>
 
+                {existingMemberScore && (
+                  <div style={{
+                    background: 'rgba(52, 152, 219, 0.2)',
+                    border: '1px solid rgba(52, 152, 219, 0.5)',
+                    borderRadius: '8px',
+                    padding: '10px 16px',
+                    marginBottom: '12px',
+                    textAlign: 'center'
+                  }}>
+                    <span style={{ color: '#3498db', fontSize: '14px' }}>
+                      기존 스코어가 있습니다. 수정 모드입니다.
+                    </span>
+                  </div>
+                )}
+
                 <button
                   onClick={async () => {
                     if (isSavingMemberScore) return;
@@ -5115,17 +5161,27 @@ function Admin() {
                         coursePar: coursePar
                       };
 
-                      const res = await fetch('/api/scores', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(scoreData)
-                      });
+                      let res;
+                      if (existingMemberScore && existingMemberScore.id) {
+                        res = await fetch(`/api/scores/${existingMemberScore.id}`, {
+                          method: 'PUT',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(scoreData)
+                        });
+                      } else {
+                        res = await fetch('/api/scores', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify(scoreData)
+                        });
+                      }
 
                       if (res.ok) {
-                        alert('스코어가 저장되었습니다.');
+                        alert(existingMemberScore ? '스코어가 수정되었습니다.' : '스코어가 저장되었습니다.');
                         setScoreManagementView('memberScores');
                         setMemberScoreBooking(null);
                         setMemberScoreData({ totalScore: '', holes: Array(18).fill(0), inputMode: 'total' });
+                        setExistingMemberScore(null);
                       } else {
                         const err = await res.json();
                         alert(err.error || '저장에 실패했습니다.');
@@ -5141,7 +5197,7 @@ function Admin() {
                   style={{
                     width: '100%',
                     padding: '16px',
-                    background: isSavingMemberScore ? '#666' : '#4a9d6a',
+                    background: isSavingMemberScore ? '#666' : (existingMemberScore ? '#3498db' : '#4a9d6a'),
                     color: 'white',
                     border: 'none',
                     borderRadius: '12px',
@@ -5150,7 +5206,7 @@ function Admin() {
                     cursor: isSavingMemberScore ? 'not-allowed' : 'pointer'
                   }}
                 >
-                  {isSavingMemberScore ? '저장 중...' : '스코어 저장'}
+                  {isSavingMemberScore ? '저장 중...' : (existingMemberScore ? '스코어 수정' : '스코어 저장')}
                 </button>
               </div>
             )}

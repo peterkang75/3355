@@ -720,6 +720,26 @@ router.post('/scores/verify-round', async (req, res) => {
   }
 });
 
+router.get('/scores/member/:memberId/:roundingName', async (req, res) => {
+  try {
+    const { memberId, roundingName } = req.params;
+    const score = await prisma.score.findFirst({
+      where: {
+        userId: memberId,
+        roundingName: decodeURIComponent(roundingName)
+      }
+    });
+    if (score) {
+      res.json(score);
+    } else {
+      res.json(null);
+    }
+  } catch (error) {
+    console.error('Error fetching member score:', error);
+    res.status(500).json({ error: 'Failed to fetch member score' });
+  }
+});
+
 router.get('/scores/:userId', async (req, res) => {
   try {
     const scores = await prisma.score.findMany({
