@@ -5136,13 +5136,13 @@ function Admin() {
                     if (isSavingMemberScore) return;
                     
                     const holesSum = memberScoreData.holes.reduce((a, b) => a + b, 0);
-                    const originalTotal = parseInt(memberScoreData.totalScore) || 0;
+                    const originalTotal = existingMemberScore ? (parseInt(existingMemberScore.totalScore) || 0) : (parseInt(memberScoreData.totalScore) || 0);
                     
                     let finalScore;
                     let finalHoles;
                     
                     if (memberScoreData.inputMode === 'total') {
-                      finalScore = originalTotal;
+                      finalScore = parseInt(memberScoreData.totalScore) || 0;
                       finalHoles = Array(18).fill(0);
                     } else {
                       if (existingMemberScore && originalTotal > 0 && holesSum > 0 && originalTotal !== holesSum) {
