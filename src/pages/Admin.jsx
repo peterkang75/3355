@@ -152,6 +152,7 @@ function Admin() {
   const [isSavingMemberScore, setIsSavingMemberScore] = useState(false);
   const [memberSearchText, setMemberSearchText] = useState('');
   const [existingMemberScore, setExistingMemberScore] = useState(null);
+  const [showScoreMenu, setShowScoreMenu] = useState(false);
 
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
@@ -4934,13 +4935,91 @@ function Admin() {
                   background: 'rgba(255,255,255,0.1)',
                   padding: '16px',
                   borderRadius: '12px',
-                  marginBottom: '16px'
+                  marginBottom: '16px',
+                  position: 'relative'
                 }}>
-                  <div style={{ color: 'white', fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>
-                    {selectedMemberForScore.nickname || selectedMemberForScore.name}
-                  </div>
-                  <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', marginBottom: '8px' }}>
-                    HCP: {selectedMemberForScore.handicap || '-'}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div>
+                      <div style={{ color: 'white', fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>
+                        {selectedMemberForScore.nickname || selectedMemberForScore.name}
+                      </div>
+                      <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', marginBottom: '8px' }}>
+                        HCP: {selectedMemberForScore.handicap || '-'}
+                      </div>
+                    </div>
+                    {existingMemberScore && (
+                      <div style={{ position: 'relative' }}>
+                        <button
+                          onClick={() => setShowScoreMenu(!showScoreMenu)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: 'white',
+                            fontSize: '20px',
+                            cursor: 'pointer',
+                            padding: '4px 8px',
+                            lineHeight: 1
+                          }}
+                        >
+                          ⋮
+                        </button>
+                        {showScoreMenu && (
+                          <div style={{
+                            position: 'absolute',
+                            top: '100%',
+                            right: 0,
+                            background: 'white',
+                            borderRadius: '8px',
+                            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                            overflow: 'hidden',
+                            zIndex: 100,
+                            minWidth: '100px'
+                          }}>
+                            <button
+                              onClick={async () => {
+                                setShowScoreMenu(false);
+                                if (!confirm('이 스코어를 삭제하시겠습니까?')) return;
+                                
+                                setIsSavingMemberScore(true);
+                                try {
+                                  const res = await fetch(`/api/scores/${existingMemberScore.id}`, {
+                                    method: 'DELETE'
+                                  });
+                                  
+                                  if (res.ok) {
+                                    alert('스코어가 삭제되었습니다.');
+                                    setScoreManagementView('memberScores');
+                                    setMemberScoreBooking(null);
+                                    setMemberScoreData({ totalScore: '', holes: Array(18).fill(0), inputMode: 'total' });
+                                    setExistingMemberScore(null);
+                                  } else {
+                                    alert('삭제에 실패했습니다.');
+                                  }
+                                } catch (e) {
+                                  console.error('스코어 삭제 에러:', e);
+                                  alert('삭제에 실패했습니다.');
+                                } finally {
+                                  setIsSavingMemberScore(false);
+                                }
+                              }}
+                              style={{
+                                width: '100%',
+                                padding: '12px 16px',
+                                background: 'white',
+                                border: 'none',
+                                color: '#dc3545',
+                                fontSize: '14px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                textAlign: 'left'
+                              }}
+                            >
+                              삭제
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                   <div style={{ color: '#4a9d6a', fontSize: '14px', fontWeight: '600' }}>
                     {memberScoreBooking.title}
@@ -5131,7 +5210,6 @@ function Admin() {
                   </div>
                 )}
 
-                <div style={{ display: 'flex', gap: '12px' }}>
                 <button
                   onClick={async () => {
                     if (isSavingMemberScore) return;
@@ -5223,9 +5301,9 @@ function Admin() {
                   }}
                   disabled={isSavingMemberScore}
                   style={{
-                    flex: 1,
+                    width: '100%',
                     padding: '16px',
-                    background: isSavingMemberScore ? '#666' : (existingMemberScore ? '#3498db' : '#4a9d6a'),
+                    background: isSavingMemberScore ? '#666' : '#4a9d6a',
                     color: 'white',
                     border: 'none',
                     borderRadius: '12px',
@@ -5234,52 +5312,8 @@ function Admin() {
                     cursor: isSavingMemberScore ? 'not-allowed' : 'pointer'
                   }}
                 >
-                  {isSavingMemberScore ? '저장 중...' : (existingMemberScore ? '수정' : '저장')}
+                  {isSavingMemberScore ? '저장 중...' : '저장'}
                 </button>
-                
-                {existingMemberScore && (
-                  <button
-                    onClick={async () => {
-                      if (!confirm('이 스코어를 삭제하시겠습니까?')) return;
-                      
-                      setIsSavingMemberScore(true);
-                      try {
-                        const res = await fetch(`/api/scores/${existingMemberScore.id}`, {
-                          method: 'DELETE'
-                        });
-                        
-                        if (res.ok) {
-                          alert('스코어가 삭제되었습니다.');
-                          setScoreManagementView('memberScores');
-                          setMemberScoreBooking(null);
-                          setMemberScoreData({ totalScore: '', holes: Array(18).fill(0), inputMode: 'total' });
-                          setExistingMemberScore(null);
-                        } else {
-                          alert('삭제에 실패했습니다.');
-                        }
-                      } catch (e) {
-                        console.error('스코어 삭제 에러:', e);
-                        alert('삭제에 실패했습니다.');
-                      } finally {
-                        setIsSavingMemberScore(false);
-                      }
-                    }}
-                    disabled={isSavingMemberScore}
-                    style={{
-                      padding: '16px 24px',
-                      background: isSavingMemberScore ? '#666' : '#dc3545',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '12px',
-                      fontSize: '16px',
-                      fontWeight: '700',
-                      cursor: isSavingMemberScore ? 'not-allowed' : 'pointer'
-                    }}
-                  >
-                    삭제
-                  </button>
-                )}
-                </div>
               </div>
             )}
 
