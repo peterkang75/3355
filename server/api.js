@@ -866,9 +866,14 @@ router.post('/scores', async (req, res) => {
 
 router.put('/scores/:id', async (req, res) => {
   try {
+    const { totalScore, holes } = req.body;
+    const updateData = { totalScore };
+    if (holes) {
+      updateData.holes = JSON.stringify(holes);
+    }
     const score = await prisma.score.update({
       where: { id: req.params.id },
-      data: req.body
+      data: updateData
     });
     res.json(score);
   } catch (error) {
