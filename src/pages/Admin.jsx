@@ -4874,6 +4874,21 @@ function Admin() {
                       </div>
                     </div>
                   </div>
+                  <button
+                    onClick={() => navigate(`/leaderboard?id=${selectedRoundForScore.id}`)}
+                    style={{
+                      background: '#d69e2e',
+                      border: 'none',
+                      borderRadius: '6px',
+                      padding: '8px 12px',
+                      color: 'white',
+                      fontSize: '12px',
+                      fontWeight: '700',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    Leaderboard
+                  </button>
                 </div>
 
                 {(() => {
