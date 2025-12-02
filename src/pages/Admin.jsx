@@ -4957,7 +4957,7 @@ function Admin() {
                     marginBottom: '16px' 
                   }}>
                     <button
-                      onClick={() => setMemberScoreData(prev => ({ ...prev, inputMode: 'total', holes: Array(18).fill(0) }))}
+                      onClick={() => setMemberScoreData(prev => ({ ...prev, inputMode: 'total' }))}
                       style={{
                         flex: 1,
                         padding: '10px',
@@ -4973,7 +4973,7 @@ function Admin() {
                       총타수 입력
                     </button>
                     <button
-                      onClick={() => setMemberScoreData(prev => ({ ...prev, inputMode: 'holes', totalScore: '' }))}
+                      onClick={() => setMemberScoreData(prev => ({ ...prev, inputMode: 'holes' }))}
                       style={{
                         flex: 1,
                         padding: '10px',
