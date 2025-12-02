@@ -5,17 +5,24 @@ function InstallPrompt() {
   const [showPrompt, setShowPrompt] = useState(false);
   const [showIOSGuide, setShowIOSGuide] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
+  const [isSafari, setIsSafari] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
 
   useEffect(() => {
-    const checkIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    const ua = navigator.userAgent.toLowerCase();
+    const checkIOS = /iphone|ipad|ipod/.test(ua);
+    const checkSafari = checkIOS && /safari/.test(ua) && !/crios|fxios|opios|mercury/.test(ua);
     const checkStandalone = window.matchMedia('(display-mode: standalone)').matches || 
                            window.navigator.standalone === true;
     
     setIsIOS(checkIOS);
+    setIsSafari(checkSafari);
     setIsStandalone(checkStandalone);
 
+    console.log('PWA Install Check:', { checkIOS, checkSafari, checkStandalone, ua });
+
     if (checkStandalone) {
+      console.log('Already in standalone mode, skipping install prompt');
       return;
     }
 
@@ -23,18 +30,29 @@ function InstallPrompt() {
     const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
     const shouldShowAgain = !dismissedTime || (Date.now() - parseInt(dismissedTime)) > SEVEN_DAYS;
 
+    console.log('Should show again:', shouldShowAgain, 'dismissedTime:', dismissedTime);
+
+    let promptShown = false;
+
     const handler = (e) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      if (shouldShowAgain) {
+      console.log('beforeinstallprompt fired');
+      if (shouldShowAgain && !promptShown) {
+        promptShown = true;
         setTimeout(() => setShowPrompt(true), 1000);
       }
     };
 
     window.addEventListener('beforeinstallprompt', handler);
 
-    if (checkIOS && shouldShowAgain) {
-      setTimeout(() => setShowPrompt(true), 1000);
+    if (checkIOS && shouldShowAgain && !promptShown) {
+      console.log('iOS detected, showing prompt in 1 second');
+      promptShown = true;
+      setTimeout(() => {
+        console.log('Showing iOS install prompt now');
+        setShowPrompt(true);
+      }, 1000);
     }
 
     return () => {
