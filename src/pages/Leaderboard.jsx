@@ -460,27 +460,55 @@ function Leaderboard() {
                   {totalPar}
                 </div>
 
-                {scoreArr.map((s, idx) => (
-                  <div key={`score-${idx}`} style={{ 
-                    textAlign: 'center', 
-                    padding: '10px 4px',
-                    background: s > 0 ? getScoreColor(s, pars[idx]) : 'transparent',
-                    color: s > 0 && getScoreColor(s, pars[idx]) !== 'transparent' ? 'white' : '#333',
-                    fontWeight: '700',
-                    fontSize: '14px'
-                  }}>
-                    {hasHoleData ? (s > 0 ? s : '-') : '-'}
-                  </div>
-                ))}
+                {scoreArr.map((s, idx) => {
+                  const bgColor = s > 0 ? getScoreColor(s, pars[idx]) : 'transparent';
+                  const hasColor = bgColor !== 'transparent';
+                  return (
+                    <div key={`score-${idx}`} style={{ 
+                      textAlign: 'center', 
+                      padding: '8px 2px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        width: '28px',
+                        height: '28px',
+                        background: bgColor,
+                        borderRadius: '4px',
+                        color: hasColor ? 'white' : '#333',
+                        fontWeight: '700',
+                        fontSize: '14px'
+                      }}>
+                        {hasHoleData ? (s > 0 ? s : '-') : '-'}
+                      </span>
+                    </div>
+                  );
+                })}
                 <div style={{ 
                   textAlign: 'center', 
-                  padding: '10px 4px', 
-                  color: '#333', 
-                  fontWeight: '700',
-                  fontSize: '15px',
-                  background: '#f5f5f5'
+                  padding: '8px 2px', 
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
                 }}>
-                  {hasHoleData ? totalScore : '-'}
+                  <span style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: '28px',
+                    height: '28px',
+                    background: '#f5f5f5',
+                    borderRadius: '4px',
+                    color: '#333', 
+                    fontWeight: '700',
+                    fontSize: '15px'
+                  }}>
+                    {hasHoleData ? totalScore : '-'}
+                  </span>
                 </div>
 
                 {diffs.map((d, idx) => (
