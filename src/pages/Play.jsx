@@ -27,6 +27,7 @@ function Play() {
   const [checkingInterval, setCheckingInterval] = useState(null);
   const [showEndRoundModal, setShowEndRoundModal] = useState(false);
   const [isEndingRound, setIsEndingRound] = useState(false);
+  const [showHoleSelector, setShowHoleSelector] = useState(false);
   const [screenHeight, setScreenHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 800);
   const skipAutoSaveRef = useRef(false);
   const restoredRef = useRef(false);
@@ -941,18 +942,23 @@ function Play() {
           <div style={{ fontSize: isTinyScreen ? '10px' : isSmallScreen ? '12px' : '14px', fontWeight: '900' }}>←</div>
           <div>이전홀</div>
         </button>
-        <div style={{ 
-          border: '2px solid white', 
-          borderRadius: '8px', 
-          padding: isTinyScreen ? '4px 12px' : isSmallScreen ? '8px 18px' : '11px 23px', 
-          textAlign: 'center', 
-          fontSize: isTinyScreen ? '9px' : isSmallScreen ? '10px' : '11px', 
-          background: 'transparent', 
-          color: 'white' 
-        }}>
-          <div style={{ fontWeight: '700', opacity: 1, fontSize: isTinyScreen ? '9px' : isSmallScreen ? '10px' : '11px' }}>HOLE</div>
+        <button 
+          onClick={() => setShowHoleSelector(true)}
+          style={{ 
+            border: '2px solid white', 
+            borderRadius: '8px', 
+            padding: isTinyScreen ? '4px 12px' : isSmallScreen ? '8px 18px' : '11px 23px', 
+            textAlign: 'center', 
+            fontSize: isTinyScreen ? '9px' : isSmallScreen ? '10px' : '11px', 
+            background: 'transparent', 
+            color: 'white',
+            cursor: 'pointer',
+            WebkitTapHighlightColor: 'transparent'
+          }}
+        >
+          <div style={{ fontWeight: '700', opacity: 1, fontSize: isTinyScreen ? '9px' : isSmallScreen ? '10px' : '11px' }}>HOLE ▼</div>
           <div style={{ fontSize: isTinyScreen ? '20px' : isSmallScreen ? '28px' : '34px', fontWeight: '700', marginTop: isTinyScreen ? '2px' : isSmallScreen ? '4px' : '6px' }}>{currentHole}</div>
-        </div>
+        </button>
         <button 
           onClick={currentHole === 18 ? handleScoreCheck : goToNextHole}
           style={{ 
@@ -997,6 +1003,90 @@ function Play() {
 
       </div>
 
+      {/* 홀 선택 모달 */}
+      {showHoleSelector && (
+        <div 
+          onClick={() => setShowHoleSelector(false)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.7)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: '#1a1a2e',
+              borderRadius: '16px',
+              padding: '20px',
+              width: '90%',
+              maxWidth: '320px'
+            }}
+          >
+            <div style={{ 
+              color: 'white', 
+              fontSize: '16px', 
+              fontWeight: '700', 
+              textAlign: 'center',
+              marginBottom: '16px'
+            }}>
+              홀 선택
+            </div>
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(6, 1fr)', 
+              gap: '8px'
+            }}>
+              {Array.from({ length: 18 }, (_, i) => i + 1).map(hole => (
+                <button
+                  key={hole}
+                  onClick={() => {
+                    setCurrentHole(hole);
+                    setShowHoleSelector(false);
+                  }}
+                  style={{
+                    padding: '12px 8px',
+                    background: currentHole === hole ? '#4a9d6a' : 'rgba(255,255,255,0.1)',
+                    color: 'white',
+                    border: currentHole === hole ? '2px solid #4a9d6a' : '2px solid rgba(255,255,255,0.2)',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    WebkitTapHighlightColor: 'transparent'
+                  }}
+                >
+                  {hole}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowHoleSelector(false)}
+              style={{
+                width: '100%',
+                marginTop: '16px',
+                padding: '12px',
+                background: 'rgba(255,255,255,0.1)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer'
+              }}
+            >
+              닫기
+            </button>
+          </div>
+        </div>
+      )}
 
       {showMismatches && serverMismatches.length > 0 && (
         <div style={{
