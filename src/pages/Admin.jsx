@@ -776,7 +776,7 @@ function Admin() {
       const transactionData = {
         type: 'payment',
         amount: Math.abs(amount),
-        description: `${categoryName} (전액)`,
+        description: '회비납부',
         date: new Date().toISOString().split('T')[0],
         memberId: memberId,
         bookingId: bookingId,
@@ -784,7 +784,7 @@ function Admin() {
       };
 
       await apiService.createTransaction(transactionData);
-      alert(`${member.nickname || member.name}님의 ${categoryName}가 전액 납부되었습니다.`);
+      alert(`${member.nickname || member.name}님의 회비가 납부 처리되었습니다.`);
       
       // 거래 내역 포함 전체 데이터 새로고침
       await Promise.all([
@@ -844,7 +844,7 @@ function Admin() {
       const transactionData = {
         type: 'payment',
         amount: amount,
-        description: `${categoryName} (부분)`,
+        description: '회비납부',
         date: new Date().toISOString().split('T')[0],
         memberId: memberId,
         bookingId: bookingId,
@@ -852,7 +852,7 @@ function Admin() {
       };
 
       await apiService.createTransaction(transactionData);
-      alert(`${member.nickname || member.name}님의 ${amount.toLocaleString()}불이 납부 처리되었습니다.`);
+      alert(`${member.nickname || member.name}님의 회비 ${amount.toLocaleString()}불이 납부 처리되었습니다.`);
       
       // 거래 내역 포함 전체 데이터 새로고침
       await Promise.all([
