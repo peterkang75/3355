@@ -4947,79 +4947,81 @@ function Admin() {
                         HCP: {selectedMemberForScore.handicap || '-'}
                       </div>
                     </div>
-                    {existingMemberScore && (
-                      <div style={{ position: 'relative' }}>
-                        <button
-                          onClick={() => setShowScoreMenu(!showScoreMenu)}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            color: 'white',
-                            fontSize: '20px',
-                            cursor: 'pointer',
-                            padding: '4px 8px',
-                            lineHeight: 1
-                          }}
-                        >
-                          ⋮
-                        </button>
-                        {showScoreMenu && (
-                          <div style={{
-                            position: 'absolute',
-                            top: '100%',
-                            right: 0,
-                            background: 'white',
-                            borderRadius: '8px',
-                            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
-                            overflow: 'hidden',
-                            zIndex: 100,
-                            minWidth: '100px'
-                          }}>
-                            <button
-                              onClick={async () => {
-                                setShowScoreMenu(false);
-                                if (!confirm('이 스코어를 삭제하시겠습니까?')) return;
+                    <div style={{ position: 'relative' }}>
+                      <button
+                        onClick={() => setShowScoreMenu(!showScoreMenu)}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: 'white',
+                          fontSize: '20px',
+                          cursor: 'pointer',
+                          padding: '4px 8px',
+                          lineHeight: 1
+                        }}
+                      >
+                        ⋮
+                      </button>
+                      {showScoreMenu && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '100%',
+                          right: 0,
+                          background: 'white',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+                          overflow: 'hidden',
+                          zIndex: 100,
+                          minWidth: '100px'
+                        }}>
+                          <button
+                            onClick={async () => {
+                              setShowScoreMenu(false);
+                              if (!existingMemberScore) {
+                                alert('삭제할 스코어가 없습니다.');
+                                return;
+                              }
+                              if (!confirm('이 스코어를 삭제하시겠습니까?')) return;
+                              
+                              setIsSavingMemberScore(true);
+                              try {
+                                const res = await fetch(`/api/scores/${existingMemberScore.id}`, {
+                                  method: 'DELETE'
+                                });
                                 
-                                setIsSavingMemberScore(true);
-                                try {
-                                  const res = await fetch(`/api/scores/${existingMemberScore.id}`, {
-                                    method: 'DELETE'
-                                  });
-                                  
-                                  if (res.ok) {
-                                    alert('스코어가 삭제되었습니다.');
-                                    setScoreManagementView('memberScores');
-                                    setMemberScoreBooking(null);
-                                    setMemberScoreData({ totalScore: '', holes: Array(18).fill(0), inputMode: 'total' });
-                                    setExistingMemberScore(null);
-                                  } else {
-                                    alert('삭제에 실패했습니다.');
-                                  }
-                                } catch (e) {
-                                  console.error('스코어 삭제 에러:', e);
+                                if (res.ok) {
+                                  alert('스코어가 삭제되었습니다.');
+                                  setScoreManagementView('memberScores');
+                                  setMemberScoreBooking(null);
+                                  setMemberScoreData({ totalScore: '', holes: Array(18).fill(0), inputMode: 'total' });
+                                  setExistingMemberScore(null);
+                                } else {
                                   alert('삭제에 실패했습니다.');
-                                } finally {
-                                  setIsSavingMemberScore(false);
                                 }
-                              }}
-                              style={{
-                                width: '100%',
-                                padding: '12px 16px',
-                                background: 'white',
-                                border: 'none',
-                                color: '#dc3545',
-                                fontSize: '14px',
-                                fontWeight: '600',
-                                cursor: 'pointer',
-                                textAlign: 'left'
-                              }}
-                            >
-                              삭제
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                              } catch (e) {
+                                console.error('스코어 삭제 에러:', e);
+                                alert('삭제에 실패했습니다.');
+                              } finally {
+                                setIsSavingMemberScore(false);
+                              }
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '12px 16px',
+                              background: 'white',
+                              border: 'none',
+                              color: existingMemberScore ? '#dc3545' : '#ccc',
+                              fontSize: '14px',
+                              fontWeight: '600',
+                              cursor: existingMemberScore ? 'pointer' : 'not-allowed',
+                              textAlign: 'left'
+                            }}
+                          >
+                            삭제
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div style={{ color: '#4a9d6a', fontSize: '14px', fontWeight: '600' }}>
                     {memberScoreBooking.title}
