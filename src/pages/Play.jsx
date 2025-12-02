@@ -823,7 +823,7 @@ function Play() {
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: `${s(5, 2)}px`, alignItems: 'center' }}>
-              <div style={{ fontSize: `${s(13, 9)}px`, fontWeight: '700', color: '#000' }}>TOTAL</div>
+              <div style={{ fontSize: `${s(13, 9)}px`, fontWeight: '700', color: '#000' }}>+/−</div>
               <div style={{ ...boxStyle }}>{diffText}</div>
             </div>
           </div>
