@@ -165,6 +165,18 @@ function MemberScoreEntry() {
     return 'C';
   };
 
+  const getMemberHandicap = (member) => {
+    if (!member) return { value: 0, type: '', display: '0' };
+    
+    if (member.golflinkNumber && member.golflinkNumber.trim()) {
+      const gaValue = parseFloat(member.gaHandy) || parseFloat(member.handicap) || 0;
+      return { value: gaValue, type: 'GA', display: `GA${gaValue}` };
+    } else {
+      const hhValue = parseFloat(member.handicap) || 0;
+      return { value: hhValue, type: 'HH', display: `HH${hhValue}` };
+    }
+  };
+
   const calculateLeaderboard = (savedScores, dailyHandicaps, gradeSettings) => {
     const coursePar = 72;
     
@@ -172,7 +184,18 @@ function MemberScoreEntry() {
       const member = members.find(m => m.id === score.userId);
       if (!member) return null;
       
-      const dailyHandicap = dailyHandicaps[member.phone] || 0;
+      let dailyHandicap = 0;
+      let handicapDisplay = '0';
+      
+      if (dailyHandicaps && dailyHandicaps[member.phone]) {
+        dailyHandicap = parseFloat(dailyHandicaps[member.phone]) || 0;
+        handicapDisplay = String(dailyHandicap);
+      } else {
+        const hcData = getMemberHandicap(member);
+        dailyHandicap = hcData.value;
+        handicapDisplay = hcData.display;
+      }
+      
       const totalScore = score.totalScore;
       const overUnder = totalScore - coursePar;
       const finalScore = overUnder - dailyHandicap;
@@ -181,6 +204,7 @@ function MemberScoreEntry() {
       return {
         nickname: member.nickname || member.name,
         dailyHandicap,
+        handicapDisplay,
         totalScore,
         overUnder,
         finalScore,
@@ -554,7 +578,7 @@ function MemberScoreEntry() {
                             {player.nickname}
                           </td>
                           <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
-                            {player.dailyHandicap}
+                            {player.handicapDisplay}
                           </td>
                           <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {player.totalScore}
@@ -612,7 +636,7 @@ function MemberScoreEntry() {
                             {player.nickname}
                           </td>
                           <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
-                            {player.dailyHandicap}
+                            {player.handicapDisplay}
                           </td>
                           <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {player.totalScore}
@@ -670,7 +694,7 @@ function MemberScoreEntry() {
                             {player.nickname}
                           </td>
                           <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
-                            {player.dailyHandicap}
+                            {player.handicapDisplay}
                           </td>
                           <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {player.totalScore}
