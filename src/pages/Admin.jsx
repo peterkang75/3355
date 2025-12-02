@@ -5136,38 +5136,39 @@ function Admin() {
                     if (isSavingMemberScore) return;
                     
                     const holesSum = memberScoreData.holes.reduce((a, b) => a + b, 0);
-                    const originalTotal = existingMemberScore ? (parseInt(existingMemberScore.totalScore) || 0) : (parseInt(memberScoreData.totalScore) || 0);
+                    const inputTotal = parseInt(memberScoreData.totalScore) || 0;
+                    const originalTotal = existingMemberScore ? (parseInt(existingMemberScore.totalScore) || 0) : 0;
                     
                     let finalScore;
                     let finalHoles;
                     
                     if (memberScoreData.inputMode === 'total') {
-                      finalScore = parseInt(memberScoreData.totalScore) || 0;
+                      if (inputTotal <= 0) {
+                        alert('총타수를 입력해주세요.');
+                        return;
+                      }
+                      finalScore = inputTotal;
                       finalHoles = Array(18).fill(0);
                     } else {
-                      if (existingMemberScore && originalTotal > 0 && holesSum > 0 && originalTotal !== holesSum) {
+                      if (holesSum <= 0) {
+                        alert('홀별 타수를 입력해주세요.');
+                        return;
+                      }
+                      
+                      if (existingMemberScore && originalTotal > 0 && originalTotal !== holesSum) {
                         const choice = window.confirm(
-                          `기존 총타수(${originalTotal}타)와 홀별 합계(${holesSum}타)가 다릅니다.\n\n` +
-                          `[확인] → 홀별 합계(${holesSum}타)로 저장\n` +
-                          `[취소] → 기존 총타수(${originalTotal}타) 유지`
+                          `기존 총타수(${originalTotal}타)와 새로 입력한 홀별 합계(${holesSum}타)가 다릅니다.\n\n` +
+                          `[확인] → 새 스코어(${holesSum}타)로 저장\n` +
+                          `[취소] → 저장하지 않고 수정화면으로 돌아가기`
                         );
                         
-                        if (choice) {
-                          finalScore = holesSum;
-                          finalHoles = memberScoreData.holes;
-                        } else {
-                          finalScore = originalTotal;
-                          finalHoles = memberScoreData.holes;
+                        if (!choice) {
+                          return;
                         }
-                      } else {
-                        finalScore = holesSum;
-                        finalHoles = memberScoreData.holes;
                       }
-                    }
-                    
-                    if (finalScore <= 0) {
-                      alert('스코어를 입력해주세요.');
-                      return;
+                      
+                      finalScore = holesSum;
+                      finalHoles = memberScoreData.holes;
                     }
 
                     setIsSavingMemberScore(true);
