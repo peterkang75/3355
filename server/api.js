@@ -437,9 +437,13 @@ router.patch('/bookings/:id/toggle-play', async (req, res) => {
       return res.status(404).json({ error: 'Booking not found' });
     }
     
+    const newPlayEnabled = !booking.playEnabled;
     const updated = await prisma.booking.update({
       where: { id: req.params.id },
-      data: { playEnabled: !booking.playEnabled },
+      data: { 
+        playEnabled: newPlayEnabled,
+        playManuallyDisabled: !newPlayEnabled
+      },
       include: { organizer: true }
     });
     

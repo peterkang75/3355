@@ -35,21 +35,25 @@ async function checkAndUpdatePlayStatus() {
       const thirtyMinBefore = new Date(roundingTime.getTime() - 30 * 60 * 1000);
       const sevenHoursAfter = new Date(roundingTime.getTime() + 7 * 60 * 60 * 1000);
       
-      const shouldBeEnabled = now >= thirtyMinBefore && now < sevenHoursAfter;
+      const isInActiveWindow = now >= thirtyMinBefore && now < sevenHoursAfter;
+      const isPastWindow = now >= sevenHoursAfter;
       
-      if (shouldBeEnabled && !booking.playEnabled) {
+      if (isInActiveWindow && !booking.playEnabled && !booking.playManuallyDisabled) {
         await prisma.booking.update({
           where: { id: booking.id },
           data: { playEnabled: true }
         });
-        console.log(`⛳ 플레이 활성화: ${booking.courseName} (${booking.date})`);
+        console.log(`⛳ 플레이 자동 활성화: ${booking.courseName} (${booking.date})`);
         io.emit('bookings:updated');
-      } else if (!shouldBeEnabled && booking.playEnabled && now >= sevenHoursAfter) {
+      } else if (isPastWindow && booking.playEnabled) {
         await prisma.booking.update({
           where: { id: booking.id },
-          data: { playEnabled: false }
+          data: { 
+            playEnabled: false,
+            playManuallyDisabled: false
+          }
         });
-        console.log(`⛳ 플레이 비활성화: ${booking.courseName} (${booking.date})`);
+        console.log(`⛳ 플레이 자동 비활성화: ${booking.courseName} (${booking.date})`);
         io.emit('bookings:updated');
       }
     }
