@@ -215,8 +215,9 @@ function MemberScoreEntry() {
     const gradeA = results.filter(r => r.grade === 'A').sort((a, b) => a.finalScore - b.finalScore);
     const gradeB = results.filter(r => r.grade === 'B').sort((a, b) => a.finalScore - b.finalScore);
     const gradeC = results.filter(r => r.grade === 'C').sort((a, b) => a.finalScore - b.finalScore);
+    const gradeD = results.filter(r => r.grade === 'D').sort((a, b) => a.finalScore - b.finalScore);
     
-    return { gradeA, gradeB, gradeC };
+    return { gradeA, gradeB, gradeC, gradeD };
   };
 
   const handleDeleteAllScores = async () => {
@@ -686,6 +687,64 @@ function MemberScoreEntry() {
                     </thead>
                     <tbody>
                       {leaderboard.gradeC.map((player, index) => (
+                        <tr key={index} style={{ background: index % 2 === 0 ? 'var(--bg-card)' : 'var(--text-light)' }}>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
+                            {index === 0 ? '1' : index === 1 ? '2' : index === 2 ? '3' : index + 1}
+                          </td>
+                          <td style={{ padding: '10px 8px', textAlign: 'left', borderBottom: '1px solid var(--border-color)', fontWeight: '600' }}>
+                            {player.nickname}
+                          </td>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
+                            {player.handicapDisplay}
+                          </td>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
+                            {player.totalScore}
+                          </td>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
+                            {player.overUnder > 0 ? `+${player.overUnder}` : player.overUnder}
+                          </td>
+                          <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700', color: 'var(--primary-green)' }}>
+                            {player.finalScore > 0 ? `+${player.finalScore}` : player.finalScore}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
+            {leaderboard.gradeD && leaderboard.gradeD.length > 0 && (
+              <div style={{ marginBottom: '20px' }}>
+                <div style={{
+                  fontSize: '16px',
+                  fontWeight: '700',
+                  color: 'var(--primary-green)',
+                  marginBottom: '12px',
+                  padding: '8px 12px',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '6px'
+                }}>
+                  ▲ 그레이드 D
+                </div>
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ 
+                    width: '100%', 
+                    borderCollapse: 'collapse',
+                    fontSize: '13px'
+                  }}>
+                    <thead>
+                      <tr style={{ background: '#f5f5f5' }}>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>순위</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>이름</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>데일리 핸디</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>총타수</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>오버/언더</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: '700' }}>스코어</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {leaderboard.gradeD.map((player, index) => (
                         <tr key={index} style={{ background: index % 2 === 0 ? 'var(--bg-card)' : 'var(--text-light)' }}>
                           <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)' }}>
                             {index === 0 ? '1' : index === 1 ? '2' : index === 2 ? '3' : index + 1}
