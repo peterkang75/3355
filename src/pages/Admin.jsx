@@ -5956,7 +5956,7 @@ function Admin() {
                   const getScoreColor = (score, par) => {
                     if (!score || score === 0) return 'transparent';
                     const diff = score - par;
-                    if (diff <= -3) return '#A62B1F'; // Ace/Albatross
+                    if (diff <= -3) return '#133464'; // Ace/Albatross
                     if (diff === -2) return '#60B0DF'; // Eagle
                     if (diff === -1) return '#a7d6e5'; // Birdie
                     if (diff === 0) return 'transparent'; // Par (white)
@@ -6139,7 +6139,7 @@ function Admin() {
                           display: 'flex', 
                           alignItems: 'center', 
                           padding: '6px 10px',
-                          background: '#A62B1F',
+                          background: '#133464',
                           borderRadius: '4px'
                         }}>
                           <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>Ace/Albatross</span>
