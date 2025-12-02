@@ -8471,30 +8471,36 @@ function Admin() {
 
             {editingTransaction.type === 'expense' && (
               <div style={{ marginBottom: '12px' }}>
-                <label style={{ display: 'block', fontSize: '13px', marginBottom: '4px', fontWeight: '600' }}>
+                <label style={{ display: 'block', fontSize: '13px', marginBottom: '8px', fontWeight: '600' }}>
                   지출항목 *
                 </label>
-                <select
-                  value={editingTransaction.category || ''}
-                  onChange={(e) => setEditingTransaction({
-                    ...editingTransaction,
-                    category: e.target.value,
-                    description: e.target.value
-                  })}
-                  style={{
-                    width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: '6px',
-                    border: '1px solid var(--border-color)',
-                    fontSize: '14px',
-                    background: 'white'
-                  }}
-                >
-                  <option value="">항목 선택</option>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
                   {expenseCategories.map(cat => (
-                    <option key={cat.id} value={cat.name}>{cat.name}</option>
+                    <button
+                      key={cat.id}
+                      onClick={() => setEditingTransaction({
+                        ...editingTransaction,
+                        category: cat.name,
+                        description: cat.name
+                      })}
+                      style={{
+                        padding: '8px 12px',
+                        border: 'none',
+                        borderRadius: '6px',
+                        fontSize: '13px',
+                        fontWeight: editingTransaction.category === cat.name ? '600' : '500',
+                        background: editingTransaction.category === cat.name ? '#E59879' : '#f0f0f0',
+                        color: editingTransaction.category === cat.name ? 'white' : 'var(--text-dark)',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        textAlign: 'center',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {cat.name}
+                    </button>
                   ))}
-                </select>
+                </div>
               </div>
             )}
 

@@ -1218,34 +1218,37 @@ function Fees() {
               {editingTransaction?.type === 'expense' ? (
                 <>
                   <div>
-                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px' }}>
+                    <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>
                       지출항목 *
                     </label>
-                    <select
-                      value={editFormData.category}
-                      onChange={(e) => setEditFormData(prev => ({ 
-                        ...prev, 
-                        category: e.target.value,
-                        description: e.target.value 
-                      }))}
-                      style={{
-                        width: '100%',
-                        padding: '12px',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        boxSizing: 'border-box',
-                        background: 'white'
-                      }}
-                    >
-                      <option value="">항목 선택</option>
-                      <option value="골프장 그린피">골프장 그린피</option>
-                      <option value="점심값">점심값</option>
-                      <option value="음료수">음료수</option>
-                      <option value="상품">상품</option>
-                      <option value="회식비">회식비</option>
-                      <option value="환불">환불</option>
-                    </select>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                      {['골프장 그린피', '점심값', '음료수', '상품', '회식비', '환불'].map(cat => (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => setEditFormData(prev => ({ 
+                            ...prev, 
+                            category: cat,
+                            description: cat 
+                          }))}
+                          style={{
+                            padding: '8px 12px',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '13px',
+                            fontWeight: editFormData.category === cat ? '600' : '500',
+                            background: editFormData.category === cat ? '#E59879' : '#f0f0f0',
+                            color: editFormData.category === cat ? 'white' : 'var(--text-dark)',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            textAlign: 'center',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {cat}
+                        </button>
+                      ))}
+                    </div>
                   </div>
                   <div>
                     <label style={{ display: 'block', fontSize: '14px', fontWeight: '600', marginBottom: '6px' }}>
