@@ -95,6 +95,9 @@ function Leaderboard() {
         const thru = completedHoles === 18 ? 'F' : completedHoles.toString();
         const totalScore = score.totalScore || holesArray?.reduce((a, b) => a + b, 0) || 0;
         const overUnder = totalScore - coursePar;
+        
+        const outScore = holesArray?.slice(0, 9).reduce((a, b) => a + b, 0) || 0;
+        const inScore = holesArray?.slice(9, 18).reduce((a, b) => a + b, 0) || 0;
 
         return {
           odId: score.userId,
@@ -105,7 +108,10 @@ function Leaderboard() {
           totalScore,
           overUnder,
           completedHoles,
-          holes: holesArray || []
+          holes: holesArray || [],
+          outScore,
+          inScore,
+          coursePar
         };
       });
 
@@ -113,7 +119,7 @@ function Leaderboard() {
         if (a.completedHoles === 0 && b.completedHoles === 0) return 0;
         if (a.completedHoles === 0) return 1;
         if (b.completedHoles === 0) return -1;
-        return b.totalScore - a.totalScore;
+        return a.overUnder - b.overUnder;
       });
 
       setScores(processedScores);
@@ -263,19 +269,21 @@ function Leaderboard() {
       <div style={{ padding: '0 16px' }}>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: '50px 1fr 60px 60px 70px',
-          gap: '8px',
-          padding: '12px 8px',
+          gridTemplateColumns: '36px 1fr 40px 36px 36px 60px 44px',
+          gap: '4px',
+          padding: '12px 4px',
           borderBottom: '1px solid rgba(255,255,255,0.2)',
           color: 'rgba(255,255,255,0.7)',
-          fontSize: '13px',
+          fontSize: '12px',
           fontWeight: '600'
         }}>
           <div>순위</div>
           <div>대화명</div>
           <div style={{ textAlign: 'center' }}>핸디</div>
+          <div style={{ textAlign: 'center' }}>OUT</div>
+          <div style={{ textAlign: 'center' }}>IN</div>
           <div style={{ textAlign: 'center' }}>총타수</div>
-          <div style={{ textAlign: 'center' }}>+/-</div>
+          <div style={{ textAlign: 'center' }}>+-</div>
         </div>
 
         {filteredScores.length === 0 ? (
@@ -293,9 +301,9 @@ function Leaderboard() {
               onClick={() => setSelectedScore(score)}
               style={{
                 display: 'grid',
-                gridTemplateColumns: '50px 1fr 60px 60px 70px',
-                gap: '8px',
-                padding: '16px 8px',
+                gridTemplateColumns: '36px 1fr 40px 36px 36px 60px 44px',
+                gap: '4px',
+                padding: '12px 4px',
                 background: index % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
                 borderBottom: '1px solid rgba(255,255,255,0.1)',
                 alignItems: 'center',
@@ -304,38 +312,52 @@ function Leaderboard() {
             >
               <div style={{ 
                 color: 'white', 
-                fontSize: '16px',
+                fontSize: '14px',
                 fontWeight: '600'
               }}>
                 {index + 1}
               </div>
               <div>
-                <div style={{ color: 'white', fontSize: '15px', fontWeight: '500' }}>
+                <div style={{ color: 'white', fontSize: '13px', fontWeight: '500' }}>
                   {score.nickname}
                 </div>
               </div>
               <div style={{ 
                 textAlign: 'center', 
                 color: 'rgba(255,255,255,0.8)',
-                fontSize: '14px'
+                fontSize: '12px'
               }}>
                 {score.handicap || '-'}
               </div>
               <div style={{ 
                 textAlign: 'center', 
+                color: 'rgba(255,255,255,0.9)',
+                fontSize: '12px'
+              }}>
+                {score.outScore || '-'}
+              </div>
+              <div style={{ 
+                textAlign: 'center', 
+                color: 'rgba(255,255,255,0.9)',
+                fontSize: '12px'
+              }}>
+                {score.inScore || '-'}
+              </div>
+              <div style={{ 
+                textAlign: 'center', 
                 color: 'white',
-                fontSize: '16px',
+                fontSize: '12px',
                 fontWeight: '600'
               }}>
-                {score.totalScore || '-'}
+                {score.totalScore ? `${score.coursePar}/${score.totalScore}` : '-'}
               </div>
               <div style={{ 
                 textAlign: 'center', 
                 color: score.overUnder > 0 ? '#ff6b6b' : score.overUnder < 0 ? '#51cf66' : 'white',
-                fontSize: '14px',
-                fontWeight: '500'
+                fontSize: '13px',
+                fontWeight: '600'
               }}>
-                {score.totalScore ? (score.overUnder > 0 ? `+${score.overUnder}` : score.overUnder) : '-'}
+                {score.totalScore ? (score.overUnder > 0 ? `+${score.overUnder}` : score.overUnder === 0 ? 'E' : score.overUnder) : '-'}
               </div>
             </div>
           ))
