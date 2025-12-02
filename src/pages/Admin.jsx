@@ -144,6 +144,7 @@ function Admin() {
   const [roundScores, setRoundScores] = useState([]);
   const [editingScore, setEditingScore] = useState(null);
   const [editScoreData, setEditScoreData] = useState(null);
+  const [isLoadingRoundScores, setIsLoadingRoundScores] = useState(false);
   
   // 회원별 스코어 관리 상태
   const [selectedMemberForScore, setSelectedMemberForScore] = useState(null);
@@ -204,10 +205,15 @@ function Admin() {
     }
   }, [activeTab]);
 
-  const loadBookingsForScoreManagement = async () => {
+  const bookingsLoadedRef = useRef(false);
+  const loadBookingsForScoreManagement = async (forceRefresh = false) => {
+    if (bookingsLoadedRef.current && bookings.length > 0 && !forceRefresh) {
+      return;
+    }
     try {
       const bookingsData = await apiService.fetchBookings();
       setBookings(bookingsData || []);
+      bookingsLoadedRef.current = true;
     } catch (error) {
       console.error('라운딩 데이터 로드 실패:', error);
     }
@@ -4707,6 +4713,9 @@ function Admin() {
                         key={booking.id}
                         onClick={async () => {
                           setSelectedRoundForScore(booking);
+                          setScoreManagementView('leaderboard');
+                          setIsLoadingRoundScores(true);
+                          setRoundScores([]);
                           try {
                             const dateStr = new Date(booking.date).toISOString().split('T')[0];
                             const res = await fetch(`/api/scores/booking/${encodeURIComponent(dateStr)}/${encodeURIComponent(booking.courseName)}`);
@@ -4715,8 +4724,9 @@ function Admin() {
                           } catch (e) {
                             console.error('스코어 로드 에러:', e);
                             setRoundScores([]);
+                          } finally {
+                            setIsLoadingRoundScores(false);
                           }
-                          setScoreManagementView('leaderboard');
                         }}
                         style={{
                           padding: '16px',
@@ -5494,7 +5504,21 @@ function Admin() {
                   </button>
                 </div>
 
-                {(() => {
+                {isLoadingRoundScores ? (
+                  <div style={{ textAlign: 'center', padding: '60px 20px' }}>
+                    <div style={{ 
+                      width: '40px', 
+                      height: '40px', 
+                      border: '4px solid var(--border-color)', 
+                      borderTopColor: 'var(--primary-green)',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite',
+                      margin: '0 auto 16px'
+                    }} />
+                    <div style={{ color: 'var(--text-dark)', opacity: 0.7 }}>스코어 로딩 중...</div>
+                    <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+                  </div>
+                ) : (() => {
                   const rawParticipants = selectedRoundForScore.participants || [];
                   const participants = rawParticipants.map(p => {
                     try {
