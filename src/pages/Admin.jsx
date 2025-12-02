@@ -5911,19 +5911,35 @@ function Admin() {
                       </span>
                     </div>
                   </div>
-                  <div style={{
-                    background: 'rgba(255,255,255,0.1)',
-                    padding: '12px 20px',
-                    borderRadius: '8px',
-                    textAlign: 'center'
-                  }}>
-                    <div style={{ color: 'white', fontSize: '24px', fontWeight: '700' }}>
-                      {selectedPlayerForScore.totalScore}
-                    </div>
-                    <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '12px' }}>
-                      RANK {selectedPlayerForScore.rank}
-                    </div>
-                  </div>
+                  {(() => {
+                    const course = courses.find(c => c.name === selectedPlayerForScore.courseName);
+                    const gender = selectedPlayerForScore.member?.gender;
+                    const isFemale = gender === 'F' || gender === '여' || gender === 'female';
+                    const parArr = course?.holePars?.[isFemale ? 'female' : 'male'] || Array(18).fill(4);
+                    const totalPar = parArr.reduce((a, b) => a + b, 0);
+                    const diff = selectedPlayerForScore.totalScore - totalPar;
+                    const diffText = diff > 0 ? `+${diff}` : diff === 0 ? 'E' : String(diff);
+                    return (
+                      <div style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        padding: '12px 20px',
+                        borderRadius: '8px',
+                        textAlign: 'center'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '6px' }}>
+                          <span style={{ color: 'white', fontSize: '24px', fontWeight: '700' }}>
+                            {selectedPlayerForScore.totalScore}
+                          </span>
+                          <span style={{ color: '#60B0DF', fontSize: '14px', fontWeight: '600' }}>
+                            {diffText}
+                          </span>
+                        </div>
+                        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '12px' }}>
+                          RANK {selectedPlayerForScore.rank}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 {(() => {
