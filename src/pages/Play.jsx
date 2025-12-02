@@ -28,23 +28,51 @@ function Play() {
   const [showEndRoundModal, setShowEndRoundModal] = useState(false);
   const [isEndingRound, setIsEndingRound] = useState(false);
   const [showHoleSelector, setShowHoleSelector] = useState(false);
-  const [screenHeight, setScreenHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 800);
+  const [screenSize, setScreenSize] = useState(() => ({
+    width: typeof window !== 'undefined' ? window.innerWidth : 400,
+    height: typeof window !== 'undefined' ? window.innerHeight : 800
+  }));
   const skipAutoSaveRef = useRef(false);
   const restoredRef = useRef(false);
   const lastRestoredBookingRef = useRef(null);
   
   useEffect(() => {
-    const updateHeight = () => {
-      setScreenHeight(window.innerHeight);
+    let rafId;
+    const updateSize = () => {
+      if (rafId) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(() => {
+        setScreenSize({
+          width: window.innerWidth,
+          height: window.innerHeight
+        });
+      });
     };
-    window.addEventListener('resize', updateHeight);
-    window.addEventListener('orientationchange', updateHeight);
+    window.addEventListener('resize', updateSize);
+    window.addEventListener('orientationchange', updateSize);
     return () => {
-      window.removeEventListener('resize', updateHeight);
-      window.removeEventListener('orientationchange', updateHeight);
+      window.removeEventListener('resize', updateSize);
+      window.removeEventListener('orientationchange', updateSize);
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, []);
   
+  // 연속적 스케일링: 기준 뷰포트 대비 현재 뷰포트 비율 계산
+  const baseWidth = 400;  // 기준 너비 (iPhone SE 수준)
+  const baseHeight = 820; // 기준 높이
+  const widthScale = screenSize.width / baseWidth;
+  const heightScale = screenSize.height / baseHeight;
+  // 너비와 높이 중 더 작은 비율을 사용하되, 0.7~1.15 범위로 제한
+  const rawScale = Math.min(widthScale, heightScale);
+  const scale = Math.max(0.7, Math.min(1.15, rawScale));
+  
+  // 스케일된 값 계산 헬퍼 (최소값 보장)
+  const s = (base, min = 0) => Math.max(min, Math.round(base * scale));
+  
+  // 터치 타겟은 최소 44px 보장
+  const touchSize = (base) => Math.max(44, s(base));
+  
+  // 기존 플래그도 유지 (호환성)
+  const screenHeight = screenSize.height;
   const isSmallScreen = screenHeight < 700;
   const isVerySmallScreen = screenHeight < 600;
   const isTinyScreen = screenHeight < 550;
@@ -688,7 +716,7 @@ function Play() {
     setHoleScores(newScores);
   };
 
-  const ScoreSection = ({ title, isTeammate, compact = false, tinyMode = false, verySmall = false }) => {
+  const ScoreSection = ({ title, isTeammate }) => {
     const score = isTeammate ? holeScores.teammate[currentHole - 1] : holeScores.me[currentHole - 1];
     const par = isTeammate 
       ? courseData?.holePars?.[selectedTeammate?.gender === 'F' ? 'female' : 'male']?.[currentHole - 1]
@@ -706,14 +734,14 @@ function Play() {
     const isNearHole = !isTeammate && courseData?.nearHoles?.[currentHole - 1];
     
     const iosButtonStyle = { WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation', userSelect: 'none' };
-    const largeBoxSize = tinyMode ? '40px' : verySmall ? '48px' : compact ? '55px' : '75px';
+    const largeBoxSize = `${touchSize(60)}px`;
     const currentUserMember = members?.find(m => m.phone === user?.phone);
     const checkFemale = (gender) => gender === 'F' || gender === '여' || gender === 'female';
     const isFemale = isTeammate 
       ? checkFemale(selectedTeammate?.gender) 
       : (checkFemale(user?.gender) || checkFemale(currentUserMember?.gender));
-    const boxStyle = { width: largeBoxSize, height: largeBoxSize, padding: tinyMode ? '4px' : compact ? '8px' : '12px', background: 'white', border: '2px solid #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: tinyMode ? '16px' : verySmall ? '18px' : compact ? '22px' : '28px', color: '#000', ...iosButtonStyle };
-    const buttonStyle = { width: largeBoxSize, height: largeBoxSize, padding: tinyMode ? '4px' : compact ? '8px' : '12px', border: '2px solid #ccc', background: 'white', color: '#000', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: tinyMode ? '16px' : verySmall ? '18px' : compact ? '22px' : '28px', ...iosButtonStyle };
+    const boxStyle = { width: largeBoxSize, height: largeBoxSize, padding: `${s(8, 4)}px`, background: 'white', border: '2px solid #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: `${s(24, 14)}px`, color: '#000', ...iosButtonStyle };
+    const buttonStyle = { width: largeBoxSize, height: largeBoxSize, padding: `${s(8, 4)}px`, border: '2px solid #ccc', background: 'white', color: '#000', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: `${s(24, 14)}px`, ...iosButtonStyle };
     
     const handleParClick = () => {
       if (score === par) {
@@ -726,24 +754,24 @@ function Play() {
     };
     
     return (
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '0', padding: '0', marginBottom: tinyMode ? '4px' : compact ? '8px' : '12px', minHeight: 0 }}>
-        <div style={{ background: '#6399CF', color: 'white', padding: tinyMode ? '6px' : compact ? '10px' : '16px', borderRadius: '0', textAlign: 'center', fontWeight: '700', fontSize: tinyMode ? '13px' : verySmall ? '15px' : compact ? '17px' : '21px', flexShrink: 0 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '0', padding: '0', marginBottom: `${s(10, 4)}px`, minHeight: 0 }}>
+        <div style={{ background: '#6399CF', color: 'white', padding: `${s(12, 6)}px`, borderRadius: '0', textAlign: 'center', fontWeight: '700', fontSize: `${s(18, 12)}px`, flexShrink: 0 }}>
           {title}
         </div>
         
-        <div style={{ background: 'white', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: tinyMode ? '1px' : compact ? '4px' : '8px', padding: tinyMode ? '4px 12px 0 12px' : compact ? '10px 16px 1px 16px' : '20px 16px 1px 16px', borderBottom: '1px solid #e0e0e0', minHeight: 0 }}>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: tinyMode ? '10px' : compact ? '16px' : '20px' }}>
-            <button onClick={() => updateScore(isTeammate, -1)} style={{ width: tinyMode ? '30px' : verySmall ? '34px' : compact ? '40px' : '46px', height: tinyMode ? '30px' : verySmall ? '34px' : compact ? '40px' : '46px', border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: tinyMode ? '16px' : verySmall ? '18px' : compact ? '20px' : '24px', fontWeight: '700', cursor: 'pointer', color: '#666', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>−</button>
-            <div style={{ fontSize: tinyMode ? '28px' : verySmall ? '34px' : compact ? '42px' : '58px', fontWeight: '600', minWidth: tinyMode ? '36px' : compact ? '50px' : '64px', textAlign: 'center', color: '#000' }}>{score}</div>
-            <button onClick={() => updateScore(isTeammate, 1)} style={{ width: tinyMode ? '30px' : verySmall ? '34px' : compact ? '40px' : '46px', height: tinyMode ? '30px' : verySmall ? '34px' : compact ? '40px' : '46px', border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: tinyMode ? '16px' : verySmall ? '18px' : compact ? '20px' : '24px', fontWeight: '700', cursor: 'pointer', color: '#666', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>+</button>
+        <div style={{ background: 'white', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: `${s(6, 1)}px`, padding: `${s(16, 4)}px ${s(16, 10)}px ${s(4, 0)}px ${s(16, 10)}px`, borderBottom: '1px solid #e0e0e0', minHeight: 0 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: `${s(18, 10)}px` }}>
+            <button onClick={() => updateScore(isTeammate, -1)} style={{ width: `${touchSize(44)}px`, height: `${touchSize(44)}px`, border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: `${s(22, 14)}px`, fontWeight: '700', cursor: 'pointer', color: '#666', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>−</button>
+            <div style={{ fontSize: `${s(52, 26)}px`, fontWeight: '600', minWidth: `${s(56, 32)}px`, textAlign: 'center', color: '#000' }}>{score}</div>
+            <button onClick={() => updateScore(isTeammate, 1)} style={{ width: `${touchSize(44)}px`, height: `${touchSize(44)}px`, border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: `${s(22, 14)}px`, fontWeight: '700', cursor: 'pointer', color: '#666', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>+</button>
           </div>
-          <div style={{ fontSize: tinyMode ? '9px' : compact ? '11px' : '13px', color: '#666', fontWeight: '400' }}>{score} points</div>
+          <div style={{ fontSize: `${s(12, 8)}px`, color: '#666', fontWeight: '400' }}>{score} points</div>
         </div>
 
-        <div style={{ background: 'white', padding: tinyMode ? '4px 12px' : compact ? '8px 16px' : '12px 16px', display: 'flex', flexDirection: 'column', gap: tinyMode ? '4px' : compact ? '8px' : '12px', flexShrink: 0 }}>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: tinyMode ? '12px' : compact ? '16px' : '20px', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: tinyMode ? '2px' : compact ? '4px' : '6px', alignItems: 'center' }}>
-              <div style={{ fontSize: tinyMode ? '10px' : compact ? '12px' : '14px', fontWeight: '700', color: '#666' }}>PAR</div>
+        <div style={{ background: 'white', padding: `${s(10, 4)}px ${s(16, 10)}px`, display: 'flex', flexDirection: 'column', gap: `${s(10, 4)}px`, flexShrink: 0 }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: `${s(18, 10)}px`, flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: `${s(5, 2)}px`, alignItems: 'center' }}>
+              <div style={{ fontSize: `${s(13, 9)}px`, fontWeight: '700', color: '#666' }}>PAR</div>
               <button 
                 onClick={handleParClick} 
                 style={{ 
@@ -759,10 +787,10 @@ function Play() {
             </div>
             
             {isNearHole && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: tinyMode ? '2px' : compact ? '4px' : '6px', alignItems: 'center' }}>
-                <div style={{ fontSize: tinyMode ? '10px' : compact ? '12px' : '14px', fontWeight: '700', color: '#666' }}>NTP</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: `${s(5, 2)}px`, alignItems: 'center' }}>
+                <div style={{ fontSize: `${s(13, 9)}px`, fontWeight: '700', color: '#666' }}>NTP</div>
                 <button onClick={() => { setNtpDistance(''); setShowNtpModal(true); }} style={{ ...buttonStyle, background: '#6399CF', color: 'white', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0' }}>
-                  <svg width={tinyMode ? '22' : compact ? '30' : '40'} height={tinyMode ? '22' : compact ? '30' : '40'} viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg width={s(36, 20)} height={s(36, 20)} viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <circle cx="25" cy="15" r="8" stroke="white" strokeWidth="3"/>
                     <line x1="25" y1="23" x2="25" y2="42" stroke="white" strokeWidth="3" strokeLinecap="round"/>
                   </svg>
@@ -770,8 +798,8 @@ function Play() {
               </div>
             )}
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: tinyMode ? '2px' : compact ? '4px' : '6px', alignItems: 'center' }}>
-              <div style={{ fontSize: tinyMode ? '10px' : compact ? '12px' : '14px', fontWeight: '700', color: '#000' }}>TOTAL</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: `${s(5, 2)}px`, alignItems: 'center' }}>
+              <div style={{ fontSize: `${s(13, 9)}px`, fontWeight: '700', color: '#000' }}>TOTAL</div>
               <div style={{ ...boxStyle }}>{diffText}</div>
             </div>
           </div>
@@ -856,9 +884,9 @@ function Play() {
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: isTinyScreen ? '0 8px' : '0 16px',
+        padding: `0 ${s(14, 8)}px`,
         flexShrink: 0,
-        minHeight: isTinyScreen ? '36px' : '44px'
+        minHeight: `${s(42, 34)}px`
       }}>
         <button
           onClick={() => setShowEndRoundModal(true)}
@@ -866,9 +894,9 @@ function Play() {
             background: '#e74c3c',
             border: 'none',
             borderRadius: '6px',
-            padding: isTinyScreen ? '5px 6px' : '8px 10px',
+            padding: `${s(7, 4)}px ${s(9, 5)}px`,
             color: 'white',
-            fontSize: isTinyScreen ? '9px' : '11px',
+            fontSize: `${s(11, 8)}px`,
             fontWeight: '700',
             cursor: 'pointer',
             whiteSpace: 'nowrap'
@@ -876,7 +904,7 @@ function Play() {
         >
           라운드 종료
         </button>
-        <div style={{ flex: 1, textAlign: 'center', color: 'white', fontSize: isTinyScreen ? '11px' : '14px', fontWeight: '600' }}>
+        <div style={{ flex: 1, textAlign: 'center', color: 'white', fontSize: `${s(14, 10)}px`, fontWeight: '600' }}>
           {booking?.title}
         </div>
         <button
@@ -896,9 +924,9 @@ function Play() {
             background: '#d69e2e',
             border: 'none',
             borderRadius: '6px',
-            padding: isTinyScreen ? '5px 8px' : '8px 12px',
+            padding: `${s(7, 4)}px ${s(10, 6)}px`,
             color: 'white',
-            fontSize: isTinyScreen ? '9px' : '11px',
+            fontSize: `${s(11, 8)}px`,
             fontWeight: '700',
             cursor: 'pointer'
           }}
@@ -911,8 +939,8 @@ function Play() {
         display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center', 
-        gap: isTinyScreen ? '8px' : isSmallScreen ? '12px' : '16px', 
-        padding: isTinyScreen ? '6px 12px' : isSmallScreen ? '10px 16px' : '16px 24px', 
+        gap: `${s(14, 6)}px`, 
+        padding: `${s(14, 5)}px ${s(20, 10)}px`, 
         marginBottom: '0',
         flexShrink: 0
       }}>
@@ -923,23 +951,23 @@ function Play() {
             flex: 1,
             border: '2px solid white', 
             borderRadius: '8px', 
-            padding: isTinyScreen ? '4px 8px' : isSmallScreen ? '8px 12px' : '11px 16px',
+            padding: `${s(10, 4)}px ${s(14, 6)}px`,
             background: 'white', 
             color: '#223B3F', 
-            fontSize: isTinyScreen ? '9px' : isSmallScreen ? '10px' : '11px', 
+            fontSize: `${s(11, 8)}px`, 
             fontWeight: '700', 
             cursor: 'pointer',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: isTinyScreen ? '2px' : isSmallScreen ? '4px' : '6px',
+            gap: `${s(5, 1)}px`,
             WebkitUserSelect: 'none',
             WebkitTapHighlightColor: 'transparent',
             touchAction: 'manipulation'
           }}
         >
-          <div style={{ fontSize: isTinyScreen ? '10px' : isSmallScreen ? '12px' : '14px', fontWeight: '900' }}>←</div>
+          <div style={{ fontSize: `${s(13, 9)}px`, fontWeight: '900' }}>←</div>
           <div>이전홀</div>
         </button>
         <button 
@@ -947,17 +975,17 @@ function Play() {
           style={{ 
             border: '2px solid white', 
             borderRadius: '8px', 
-            padding: isTinyScreen ? '4px 12px' : isSmallScreen ? '8px 18px' : '11px 23px', 
+            padding: `${s(10, 4)}px ${s(20, 10)}px`, 
             textAlign: 'center', 
-            fontSize: isTinyScreen ? '9px' : isSmallScreen ? '10px' : '11px', 
+            fontSize: `${s(11, 8)}px`, 
             background: 'transparent', 
             color: 'white',
             cursor: 'pointer',
             WebkitTapHighlightColor: 'transparent'
           }}
         >
-          <div style={{ fontWeight: '700', opacity: 1, fontSize: isTinyScreen ? '9px' : isSmallScreen ? '10px' : '11px' }}>HOLE ▼</div>
-          <div style={{ fontSize: isTinyScreen ? '20px' : isSmallScreen ? '28px' : '34px', fontWeight: '700', marginTop: isTinyScreen ? '2px' : isSmallScreen ? '4px' : '6px' }}>{currentHole}</div>
+          <div style={{ fontWeight: '700', opacity: 1, fontSize: `${s(11, 8)}px` }}>HOLE ▼</div>
+          <div style={{ fontSize: `${s(30, 18)}px`, fontWeight: '700', marginTop: `${s(5, 1)}px` }}>{currentHole}</div>
         </button>
         <button 
           onClick={currentHole === 18 ? handleScoreCheck : goToNextHole}
@@ -965,23 +993,23 @@ function Play() {
             flex: 1,
             border: '2px solid white', 
             borderRadius: '8px', 
-            padding: isTinyScreen ? '4px 8px' : isSmallScreen ? '8px 12px' : '11px 16px',
+            padding: `${s(10, 4)}px ${s(14, 6)}px`,
             background: currentHole === 18 ? '#6399CF' : 'white', 
             color: currentHole === 18 ? 'white' : '#223B3F', 
-            fontSize: isTinyScreen ? '9px' : isSmallScreen ? '10px' : '11px', 
+            fontSize: `${s(11, 8)}px`, 
             fontWeight: '700', 
             cursor: 'pointer',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: isTinyScreen ? '2px' : isSmallScreen ? '4px' : '6px',
+            gap: `${s(5, 1)}px`,
             WebkitUserSelect: 'none',
             WebkitTapHighlightColor: 'transparent',
             touchAction: 'manipulation'
           }}
         >
-          <div style={{ fontSize: isTinyScreen ? '10px' : isSmallScreen ? '12px' : '14px', fontWeight: '900' }}>{currentHole === 18 ? '✓' : '→'}</div>
+          <div style={{ fontSize: `${s(13, 9)}px`, fontWeight: '900' }}>{currentHole === 18 ? '✓' : '→'}</div>
           <div>{currentHole === 18 ? '점수점검' : '다음홀'}</div>
         </button>
       </div>
@@ -991,15 +1019,15 @@ function Play() {
           flex: 1, 
           display: 'flex', 
           flexDirection: 'column', 
-          padding: isTinyScreen ? '4px 10px' : isSmallScreen ? '8px 16px' : '12px 24px', 
+          padding: `${s(10, 3)}px ${s(20, 8)}px`, 
           position: 'relative',
           overflow: 'auto',
           minHeight: 0
         }}
       >
-        <ScoreSection title={`${selectedTeammate?.nickname || selectedTeammate?.name} (HC: ${selectedTeammate?.handicap || '-'})`} isTeammate={true} compact={isSmallScreen} tinyMode={isTinyScreen} verySmall={isVerySmallScreen} />
+        <ScoreSection title={`${selectedTeammate?.nickname || selectedTeammate?.name} (HC: ${selectedTeammate?.handicap || '-'})`} isTeammate={true} />
         
-        <ScoreSection title={`${user?.nickname || user?.name} (HC: ${user?.handicap || '-'})`} isTeammate={false} compact={isSmallScreen} tinyMode={isTinyScreen} verySmall={isVerySmallScreen} />
+        <ScoreSection title={`${user?.nickname || user?.name} (HC: ${user?.handicap || '-'})`} isTeammate={false} />
 
       </div>
 
