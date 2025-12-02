@@ -27,9 +27,26 @@ function Play() {
   const [checkingInterval, setCheckingInterval] = useState(null);
   const [showEndRoundModal, setShowEndRoundModal] = useState(false);
   const [isEndingRound, setIsEndingRound] = useState(false);
+  const [screenHeight, setScreenHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 800);
   const skipAutoSaveRef = useRef(false);
   const restoredRef = useRef(false);
   const lastRestoredBookingRef = useRef(null);
+  
+  useEffect(() => {
+    const updateHeight = () => {
+      setScreenHeight(window.innerHeight);
+    };
+    window.addEventListener('resize', updateHeight);
+    window.addEventListener('orientationchange', updateHeight);
+    return () => {
+      window.removeEventListener('resize', updateHeight);
+      window.removeEventListener('orientationchange', updateHeight);
+    };
+  }, []);
+  
+  const isSmallScreen = screenHeight < 700;
+  const isVerySmallScreen = screenHeight < 600;
+  const isTinyScreen = screenHeight < 550;
 
   // 리더보드에서 돌아왔을 때 상태 복원
   useEffect(() => {
@@ -813,32 +830,6 @@ function Play() {
     setServerMismatches([]);
     setStep('scoreCheck');
   };
-
-  const [screenHeight, setScreenHeight] = useState(typeof window !== 'undefined' ? window.innerHeight : 800);
-  
-  useEffect(() => {
-    const updateHeight = () => {
-      setScreenHeight(window.innerHeight);
-    };
-    window.addEventListener('resize', updateHeight);
-    window.addEventListener('orientationchange', updateHeight);
-    return () => {
-      window.removeEventListener('resize', updateHeight);
-      window.removeEventListener('orientationchange', updateHeight);
-    };
-  }, []);
-  
-  const isSmallScreen = screenHeight < 700;
-  const isVerySmallScreen = screenHeight < 600;
-  const isTinyScreen = screenHeight < 550;
-  
-  const getSizeMultiplier = () => {
-    if (isTinyScreen) return 0.65;
-    if (isVerySmallScreen) return 0.75;
-    if (isSmallScreen) return 0.85;
-    return 1;
-  };
-  const sizeMultiplier = getSizeMultiplier();
   
   return (
     <div 
