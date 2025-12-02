@@ -1121,6 +1121,96 @@ function Booking() {
               ⛳ 플레이하기
             </button>
           ) : null}
+          
+          {canManageBooking && (
+            <div style={{ position: 'relative' }}>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setOpenMenuId(openMenuId === booking.id ? null : booking.id);
+                }}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  padding: '4px 8px',
+                  opacity: 0.7
+                }}
+              >
+                ⋮
+              </button>
+              {openMenuId === booking.id && (
+                <div 
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                  position: 'absolute',
+                  top: '100%',
+                  right: 0,
+                  background: 'var(--bg-card)',
+                  borderRadius: '8px',
+                  zIndex: 10,
+                  minWidth: '140px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+                }}>
+                  <button
+                    onClick={() => {
+                      navigate(`/rounding-management?id=${booking.id}`);
+                      setOpenMenuId(null);
+                    }}
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '12px 16px',
+                      textAlign: 'left',
+                      background: 'transparent',
+                      border: 'none',
+                      fontSize: '14px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    ◉ 라운딩 관리
+                  </button>
+                  <button
+                    onClick={() => handleEditBooking(booking)}
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '12px 16px',
+                      textAlign: 'left',
+                      background: 'transparent',
+                      border: 'none',
+                      fontSize: '14px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    ✎ 수정
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleDeleteBooking(booking.id);
+                      setOpenMenuId(null);
+                    }}
+                    disabled={isDeleting === booking.id}
+                    style={{
+                      display: 'block',
+                      width: '100%',
+                      padding: '12px 16px',
+                      textAlign: 'left',
+                      background: isDeleting === booking.id ? '#f0f0f0' : 'transparent',
+                      border: 'none',
+                      fontSize: '14px',
+                      cursor: isDeleting === booking.id ? 'wait' : 'pointer',
+                      color: isDeleting === booking.id ? '#999' : 'var(--alert-red)',
+                      opacity: isDeleting === booking.id ? 0.7 : 1
+                    }}
+                  >
+                    {isDeleting === booking.id ? '삭제중...' : '× 삭제'}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     );
