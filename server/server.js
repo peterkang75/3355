@@ -84,10 +84,25 @@ async function initializeDefaultCategories() {
           { name: '골프장 그린피' },
           { name: '점심값' },
           { name: '음료수' },
-          { name: '상품' }
+          { name: '상품' },
+          { name: '환불' },
+          { name: '회원 크레딧' }
         ]
       });
       console.log('✅ 기본 출금항목 생성 완료');
+    } else {
+      const requiredCategories = ['환불', '회원 크레딧'];
+      for (const categoryName of requiredCategories) {
+        const exists = await prisma.expenseCategory.findFirst({
+          where: { name: categoryName }
+        });
+        if (!exists) {
+          await prisma.expenseCategory.create({
+            data: { name: categoryName }
+          });
+          console.log(`✅ 출금항목 '${categoryName}' 추가됨`);
+        }
+      }
     }
   } catch (error) {
     console.error('기본 카테고리 초기화 실패:', error);

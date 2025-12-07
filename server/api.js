@@ -1235,6 +1235,7 @@ router.get('/transactions/club-balance', async (req, res) => {
       if (t.type === 'payment') return sum + t.amount;
       if (t.type === 'donation') return sum + t.amount;
       if (t.type === 'expense') return sum - t.amount;
+      if (t.type === 'credit') return sum - t.amount;
       return sum;
     }, 0);
 

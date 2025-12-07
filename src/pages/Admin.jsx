@@ -294,7 +294,7 @@ function Admin() {
       const transactionsWithBalance = transactionsData.reverse().map(t => {
         if (t.type === 'payment' || t.type === 'donation') {
           runningBalance += t.amount;
-        } else if (t.type === 'expense') {
+        } else if (t.type === 'expense' || t.type === 'credit') {
           runningBalance -= t.amount;
         }
         return { ...t, clubBalance: runningBalance };
@@ -481,7 +481,7 @@ function Admin() {
 
   const handleOpenRefundModal = () => {
     const category = expenseCategories.find(c => c.id === selectedExpense.categoryId);
-    if (category?.name !== '환불') {
+    if (category?.name !== '환불' && category?.name !== '회원 크레딧') {
       return;
     }
     setShowRefundModal(true);
@@ -681,7 +681,7 @@ function Admin() {
       const transactionsWithBalance = transactionsData.reverse().map(t => {
         if (t.type === 'payment' || t.type === 'donation') {
           runningBalance += t.amount;
-        } else if (t.type === 'expense') {
+        } else if (t.type === 'expense' || t.type === 'credit') {
           runningBalance -= t.amount;
         }
         return { ...t, clubBalance: runningBalance };
@@ -702,23 +702,25 @@ function Admin() {
 
       const category = expenseCategories.find(c => c.id === selectedExpense.categoryId);
       
-      // 환불인 경우 회원 선택 필수
-      if (category?.name === '환불' && !selectedExpense.memberId) {
-        alert('환불받을 회원을 선택해주세요.');
+      // 환불 또는 회원 크레딧인 경우 회원 선택 필수
+      if ((category?.name === '환불' || category?.name === '회원 크레딧') && !selectedExpense.memberId) {
+        const actionText = category?.name === '회원 크레딧' ? '크레딧을 받을' : '환불받을';
+        alert(`${actionText} 회원을 선택해주세요.`);
         return;
       }
 
       const booking = bookings.find(b => b.id === selectedExpense.bookingId);
       const member = members.find(m => m.id === selectedExpense.memberId);
+      const isRefundOrCredit = category?.name === '환불' || category?.name === '회원 크레딧';
       
       const transactionData = {
-        type: 'expense',
+        type: isRefundOrCredit ? 'credit' : 'expense',
         amount: parseFloat(selectedExpense.amount),
         category: category?.name,
         memo: selectedExpense.memo || null,
         description: category?.name,
         date: selectedExpense.date,
-        memberId: category?.name === '환불' ? selectedExpense.memberId : null,
+        memberId: isRefundOrCredit ? selectedExpense.memberId : null,
         bookingId: selectedExpense.bookingId || null,
         receiptImage: selectedExpense.receiptImage || null,
         createdBy: user.id
@@ -746,7 +748,7 @@ function Admin() {
       const transactionsWithBalance = transactionsData.reverse().map(t => {
         if (t.type === 'payment' || t.type === 'donation') {
           runningBalance += t.amount;
-        } else if (t.type === 'expense') {
+        } else if (t.type === 'expense' || t.type === 'credit') {
           runningBalance -= t.amount;
         }
         return { ...t, clubBalance: runningBalance };
@@ -805,7 +807,7 @@ function Admin() {
       const transactionsWithBalance = transactionsData.reverse().map(t => {
         if (t.type === 'payment' || t.type === 'donation') {
           runningBalance += t.amount;
-        } else if (t.type === 'expense') {
+        } else if (t.type === 'expense' || t.type === 'credit') {
           runningBalance -= t.amount;
         }
         return { ...t, clubBalance: runningBalance };
@@ -873,7 +875,7 @@ function Admin() {
       const transactionsWithBalance = transactionsData.reverse().map(t => {
         if (t.type === 'payment' || t.type === 'donation') {
           runningBalance += t.amount;
-        } else if (t.type === 'expense') {
+        } else if (t.type === 'expense' || t.type === 'credit') {
           runningBalance -= t.amount;
         }
         return { ...t, clubBalance: runningBalance };
@@ -2838,11 +2840,11 @@ function Admin() {
 
                   {(() => {
                     const category = expenseCategories.find(c => c.id === selectedExpense.categoryId);
-                    const isRefund = category?.name === '환불';
+                    const isRefundOrCredit = category?.name === '환불' || category?.name === '회원 크레딧';
                     
                     return (
                       <>
-                        {!isRefund && (
+                        {!isRefundOrCredit && (
                           <div>
                             <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
                               라운딩 선택 (선택사항)
@@ -2871,7 +2873,7 @@ function Admin() {
                           </div>
                         )}
 
-                        {isRefund ? (
+                        {isRefundOrCredit ? (
                           <button
                             onClick={handleOpenRefundModal}
                             style={{
@@ -3016,9 +3018,9 @@ function Admin() {
 
                   {(() => {
                     const category = expenseCategories.find(c => c.id === selectedExpense.categoryId);
-                    const isRefund = category?.name === '환불';
+                    const isRefundOrCredit = category?.name === '환불' || category?.name === '회원 크레딧';
                     
-                    if (isRefund) return null;
+                    if (isRefundOrCredit) return null;
                     
                     return (
                       <button
@@ -8059,7 +8061,7 @@ function Admin() {
               borderBottom: '1px solid var(--border-color)'
             }}>
               <h3 style={{ fontSize: '20px', fontWeight: '700', margin: 0 }}>
-                환불 회원 및 금액 선택
+                회원 및 금액 선택
               </h3>
               <button
                 onClick={handleCloseRefundModal}
@@ -8109,15 +8111,34 @@ function Admin() {
                 </select>
               </div>
 
-              <div style={{ marginBottom: '20px' }}>
+              <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                  환불 금액
+                  금액
                 </label>
                 <input
                   type="number"
                   value={selectedExpense.amount}
                   onChange={(e) => setSelectedExpense({...selectedExpense, amount: e.target.value})}
                   placeholder="금액 입력"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid var(--border-color)',
+                    borderRadius: '8px',
+                    fontSize: '14px'
+                  }}
+                />
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                  메모 (선택)
+                </label>
+                <input
+                  type="text"
+                  value={selectedExpense.memo || ''}
+                  onChange={(e) => setSelectedExpense({...selectedExpense, memo: e.target.value})}
+                  placeholder="메모 입력"
                   style={{
                     width: '100%',
                     padding: '12px',
@@ -8298,7 +8319,8 @@ function Admin() {
                   if (success) {
                     const category = expenseCategories.find(c => c.id === selectedExpense.categoryId);
                     const member = members.find(m => m.id === selectedExpense.memberId);
-                    alert(`${member?.nickname || member?.name}님에게 ${category?.name} ${selectedExpense.amount}원이 처리되었습니다.`);
+                    const actionText = category?.name === '회원 크레딧' ? '크레딧' : '환불';
+                    alert(`${member?.nickname || member?.name}님에게 $${selectedExpense.amount} ${actionText} 처리되었습니다.`);
                     handleCloseRefundModal();
                   }
                   
@@ -8318,7 +8340,11 @@ function Admin() {
                   opacity: isProcessingRefund ? 0.7 : 1
                 }}
               >
-                {isProcessingRefund ? '처리 중...' : '환불 처리'}
+                {(() => {
+                  if (isProcessingRefund) return '처리 중...';
+                  const category = expenseCategories.find(c => c.id === selectedExpense.categoryId);
+                  return category?.name === '회원 크레딧' ? '크레딧 지급' : '환불 처리';
+                })()}
               </button>
             </div>
           </div>
