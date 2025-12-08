@@ -7805,7 +7805,7 @@ function Admin() {
                 </span>
               </div>
 
-              <div style={{ maxHeight: '300px', overflowY: 'auto' }}>
+              <div style={{ maxHeight: '50vh', overflowY: 'auto', paddingBottom: '60px' }}>
                 {(() => {
                   const sortedMembers = getSortedMembers();
                   const selectedBooking = bookings.find(b => b.id === selectedIncome.bookingId);
@@ -7861,10 +7861,7 @@ function Admin() {
                           />
                           <div style={{ flex: 1 }}>
                             <div style={{ fontSize: '15px', fontWeight: '600' }}>
-                              {member.name}
-                            </div>
-                            <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                              {member.nickname}
+                              {member.nickname || member.name}
                             </div>
                           </div>
                           <div style={{
@@ -7975,10 +7972,7 @@ function Admin() {
                           />
                           <div style={{ flex: 1 }}>
                             <div style={{ fontSize: '15px', fontWeight: '600' }}>
-                              {member.name}
-                            </div>
-                            <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                              {member.nickname}
+                              {member.nickname || member.name}
                             </div>
                           </div>
                         </div>
@@ -8211,10 +8205,7 @@ function Admin() {
                             />
                             <div style={{ flex: 1 }}>
                               <div style={{ fontSize: '15px', fontWeight: '600' }}>
-                                {member.name}
-                              </div>
-                              <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                                {member.nickname}
+                                {member.nickname || member.name}
                               </div>
                             </div>
                             <div style={{
@@ -8271,10 +8262,7 @@ function Admin() {
                             />
                             <div style={{ flex: 1 }}>
                               <div style={{ fontSize: '15px', fontWeight: '600' }}>
-                                {member.name}
-                              </div>
-                              <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                                {member.nickname}
+                                {member.nickname || member.name}
                               </div>
                             </div>
                           </div>
