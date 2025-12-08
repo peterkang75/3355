@@ -247,7 +247,7 @@ function Fees() {
 
     setCreditActionLoading(true);
     try {
-      await apiService.creditToDonation(user.memberId, amount, creditActionMemo);
+      await apiService.creditToDonation(user.id, amount, creditActionMemo);
       alert(`$${amount.toLocaleString()}가 클럽에 도네이션되었습니다.`);
       setShowCreditModal(null);
       setCreditActionAmount('');
@@ -279,7 +279,7 @@ function Fees() {
 
     setCreditActionLoading(true);
     try {
-      await apiService.creditToPayment(user.memberId, amount, selectedChargeId, creditActionMemo);
+      await apiService.creditToPayment(user.id, amount, selectedChargeId, creditActionMemo);
       alert(`$${amount.toLocaleString()}가 미수금 납부에 사용되었습니다.`);
       setShowCreditModal(null);
       setCreditActionAmount('');
