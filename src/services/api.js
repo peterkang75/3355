@@ -477,6 +477,32 @@ class ApiService {
     return response.json();
   }
 
+  async creditToDonation(memberId, amount, memo) {
+    const response = await fetch(`${API_BASE}/transactions/credit-to-donation`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ memberId, amount, memo })
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Failed to convert credit to donation');
+    }
+    return response.json();
+  }
+
+  async creditToPayment(memberId, amount, chargeId, memo) {
+    const response = await fetch(`${API_BASE}/transactions/credit-to-payment`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ memberId, amount, chargeId, memo })
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Failed to convert credit to payment');
+    }
+    return response.json();
+  }
+
   async fetchIncomeCategories() {
     const response = await fetch(`${API_BASE}/income-categories`);
     if (!response.ok) throw new Error('Failed to fetch income categories');

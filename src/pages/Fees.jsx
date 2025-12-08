@@ -31,6 +31,11 @@ function Fees() {
   });
   const [isUpdating, setIsUpdating] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
+  const [showCreditModal, setShowCreditModal] = useState(null);
+  const [creditActionAmount, setCreditActionAmount] = useState('');
+  const [creditActionMemo, setCreditActionMemo] = useState('');
+  const [creditActionLoading, setCreditActionLoading] = useState(false);
+  const [selectedChargeId, setSelectedChargeId] = useState(null);
   const ITEMS_PER_PAGE = 10;
   const MAX_PAGES = 10;
   
@@ -212,6 +217,82 @@ function Fees() {
     .reduce((sum, t) => sum + t.amount, 0);
   
   const balance = totalPayments + totalCredits - totalCharges - totalExpenses;
+
+  const unpaidCharges = userTransactions.filter(t => {
+    if (t.type !== 'charge') return false;
+    const paidForBooking = userTransactions
+      .filter(pt => pt.type === 'payment' && pt.bookingId === t.bookingId)
+      .reduce((sum, pt) => sum + pt.amount, 0);
+    return paidForBooking < t.amount;
+  });
+
+  const totalUnpaid = unpaidCharges.reduce((sum, t) => sum + t.amount, 0) - 
+    userTransactions.filter(t => t.type === 'payment').reduce((sum, t) => sum + t.amount, 0);
+  
+  const actualUnpaid = Math.max(0, -balance);
+
+  const creditBalance = balance > 0 ? balance : 0;
+
+  const handleCreditToDonation = async () => {
+    if (creditActionLoading) return;
+    const amount = parseFloat(creditActionAmount);
+    if (!amount || amount <= 0) {
+      alert('금액을 입력해주세요.');
+      return;
+    }
+    if (amount > creditBalance) {
+      alert('크레딧 잔액보다 큰 금액은 입력할 수 없습니다.');
+      return;
+    }
+
+    setCreditActionLoading(true);
+    try {
+      await apiService.creditToDonation(user.memberId, amount, creditActionMemo);
+      alert(`$${amount.toLocaleString()}가 클럽에 도네이션되었습니다.`);
+      setShowCreditModal(null);
+      setCreditActionAmount('');
+      setCreditActionMemo('');
+      window.location.reload();
+    } catch (error) {
+      console.error('도네이션 실패:', error);
+      alert(error.message || '도네이션 처리에 실패했습니다.');
+    } finally {
+      setCreditActionLoading(false);
+    }
+  };
+
+  const handleCreditToPayment = async () => {
+    if (creditActionLoading) return;
+    const amount = parseFloat(creditActionAmount);
+    if (!amount || amount <= 0) {
+      alert('금액을 입력해주세요.');
+      return;
+    }
+    if (amount > creditBalance) {
+      alert('크레딧 잔액보다 큰 금액은 입력할 수 없습니다.');
+      return;
+    }
+    if (amount > actualUnpaid) {
+      alert('미수금보다 큰 금액은 입력할 수 없습니다.');
+      return;
+    }
+
+    setCreditActionLoading(true);
+    try {
+      await apiService.creditToPayment(user.memberId, amount, selectedChargeId, creditActionMemo);
+      alert(`$${amount.toLocaleString()}가 미수금 납부에 사용되었습니다.`);
+      setShowCreditModal(null);
+      setCreditActionAmount('');
+      setCreditActionMemo('');
+      setSelectedChargeId(null);
+      window.location.reload();
+    } catch (error) {
+      console.error('미수금 납부 실패:', error);
+      alert(error.message || '미수금 납부 처리에 실패했습니다.');
+    } finally {
+      setCreditActionLoading(false);
+    }
+  };
 
   const getTransactionLabel = (transaction) => {
     if (transaction.type === 'donation') {
@@ -504,6 +585,119 @@ function Fees() {
                 </div>
               </div>
             </div>
+
+            {(creditBalance > 0 || actualUnpaid > 0) && (
+              <div className="card" style={{ 
+                background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+                border: '1px solid #dee2e6'
+              }}>
+                <h3 style={{ 
+                  fontSize: '15px', 
+                  fontWeight: '700',
+                  marginBottom: '12px',
+                  color: '#495057',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px'
+                }}>
+                  <span style={{ fontSize: '16px' }}>💳</span> 크레딧 활용
+                </h3>
+
+                <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                  <div style={{
+                    flex: 1,
+                    background: creditBalance > 0 ? '#d4edda' : '#f8f9fa',
+                    borderRadius: '8px',
+                    padding: '10px',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ fontSize: '11px', color: '#666', marginBottom: '2px' }}>사용 가능 크레딧</div>
+                    <div style={{ fontSize: '18px', fontWeight: '700', color: creditBalance > 0 ? '#28a745' : '#999' }}>
+                      ${creditBalance.toLocaleString()}
+                    </div>
+                  </div>
+                  <div style={{
+                    flex: 1,
+                    background: actualUnpaid > 0 ? '#f8d7da' : '#f8f9fa',
+                    borderRadius: '8px',
+                    padding: '10px',
+                    textAlign: 'center'
+                  }}>
+                    <div style={{ fontSize: '11px', color: '#666', marginBottom: '2px' }}>미납 금액</div>
+                    <div style={{ fontSize: '18px', fontWeight: '700', color: actualUnpaid > 0 ? '#dc3545' : '#999' }}>
+                      ${actualUnpaid.toLocaleString()}
+                    </div>
+                  </div>
+                </div>
+
+                {creditBalance > 0 && (
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      onClick={() => {
+                        setShowCreditModal('donation');
+                        setCreditActionAmount(creditBalance.toString());
+                      }}
+                      style={{
+                        flex: 1,
+                        padding: '10px 12px',
+                        background: 'linear-gradient(135deg, #17a2b8, #138496)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '8px',
+                        fontSize: '13px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '4px'
+                      }}
+                    >
+                      <span>🎁</span> 클럽에 기부
+                    </button>
+                    {actualUnpaid > 0 && (
+                      <button
+                        onClick={() => {
+                          setShowCreditModal('payment');
+                          const payAmount = Math.min(creditBalance, actualUnpaid);
+                          setCreditActionAmount(payAmount.toString());
+                        }}
+                        style={{
+                          flex: 1,
+                          padding: '10px 12px',
+                          background: 'linear-gradient(135deg, #28a745, #218838)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '8px',
+                          fontSize: '13px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        <span>💰</span> 미납금 납부
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {creditBalance === 0 && actualUnpaid > 0 && (
+                  <div style={{
+                    padding: '10px',
+                    background: '#fff3cd',
+                    borderRadius: '6px',
+                    fontSize: '12px',
+                    color: '#856404',
+                    textAlign: 'center'
+                  }}>
+                    미납금이 있습니다. 납부 안내를 확인해주세요.
+                  </div>
+                )}
+              </div>
+            )}
 
             <div className="card">
               <h3 style={{ 
@@ -1467,6 +1661,226 @@ function Fees() {
                   {isUpdating ? '저장 중...' : '저장'}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCreditModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px'
+        }}>
+          <div style={{
+            background: 'white',
+            borderRadius: '16px',
+            padding: '24px',
+            width: '100%',
+            maxWidth: '360px',
+            maxHeight: '80vh',
+            overflowY: 'auto'
+          }}>
+            <h3 style={{ 
+              fontSize: '18px', 
+              fontWeight: '700', 
+              marginBottom: '20px',
+              color: showCreditModal === 'donation' ? '#17a2b8' : '#28a745',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              <span>{showCreditModal === 'donation' ? '🎁' : '💰'}</span>
+              {showCreditModal === 'donation' ? '클럽에 기부하기' : '미납금 납부하기'}
+            </h3>
+
+            <div style={{ marginBottom: '16px' }}>
+              <div style={{
+                background: '#e3f2fd',
+                borderRadius: '8px',
+                padding: '12px',
+                marginBottom: '16px',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '12px', color: '#1976d2', marginBottom: '4px' }}>
+                  현재 크레딧 잔액
+                </div>
+                <div style={{ fontSize: '24px', fontWeight: '700', color: '#1565c0' }}>
+                  ${creditBalance.toLocaleString()}
+                </div>
+              </div>
+
+              {showCreditModal === 'payment' && (
+                <div style={{
+                  background: '#ffebee',
+                  borderRadius: '8px',
+                  padding: '12px',
+                  marginBottom: '16px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '12px', color: '#c62828', marginBottom: '4px' }}>
+                    미납 금액
+                  </div>
+                  <div style={{ fontSize: '24px', fontWeight: '700', color: '#b71c1c' }}>
+                    ${actualUnpaid.toLocaleString()}
+                  </div>
+                </div>
+              )}
+
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '600' }}>
+                {showCreditModal === 'donation' ? '기부 금액' : '납부 금액'}
+              </label>
+              <div style={{ position: 'relative' }}>
+                <span style={{
+                  position: 'absolute',
+                  left: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#666',
+                  fontSize: '16px',
+                  fontWeight: '600'
+                }}>$</span>
+                <input
+                  type="number"
+                  value={creditActionAmount}
+                  onChange={(e) => setCreditActionAmount(e.target.value)}
+                  max={showCreditModal === 'payment' ? Math.min(creditBalance, actualUnpaid) : creditBalance}
+                  style={{
+                    width: '100%',
+                    padding: '12px 12px 12px 28px',
+                    border: '2px solid #e9ecef',
+                    borderRadius: '8px',
+                    fontSize: '18px',
+                    fontWeight: '600'
+                  }}
+                />
+              </div>
+              <div style={{
+                display: 'flex',
+                gap: '6px',
+                marginTop: '8px'
+              }}>
+                {showCreditModal === 'donation' ? (
+                  <>
+                    <button
+                      onClick={() => setCreditActionAmount(Math.floor(creditBalance * 0.5).toString())}
+                      style={{
+                        flex: 1,
+                        padding: '8px',
+                        background: '#f1f3f5',
+                        border: '1px solid #dee2e6',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      50%
+                    </button>
+                    <button
+                      onClick={() => setCreditActionAmount(creditBalance.toString())}
+                      style={{
+                        flex: 1,
+                        padding: '8px',
+                        background: '#f1f3f5',
+                        border: '1px solid #dee2e6',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      전액
+                    </button>
+                  </>
+                ) : (
+                  <>
+                    <button
+                      onClick={() => setCreditActionAmount(Math.min(creditBalance, actualUnpaid).toString())}
+                      style={{
+                        flex: 1,
+                        padding: '8px',
+                        background: '#d4edda',
+                        border: '1px solid #c3e6cb',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        color: '#155724'
+                      }}
+                    >
+                      최대 납부 가능액
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '20px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '600' }}>
+                메모 (선택)
+              </label>
+              <input
+                type="text"
+                value={creditActionMemo}
+                onChange={(e) => setCreditActionMemo(e.target.value)}
+                placeholder={showCreditModal === 'donation' ? '기부 사유 입력' : '납부 메모 입력'}
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  border: '2px solid #e9ecef',
+                  borderRadius: '8px',
+                  fontSize: '14px'
+                }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button
+                onClick={() => {
+                  setShowCreditModal(null);
+                  setCreditActionAmount('');
+                  setCreditActionMemo('');
+                  setSelectedChargeId(null);
+                }}
+                style={{
+                  flex: 1,
+                  padding: '14px',
+                  background: '#e9ecef',
+                  color: '#333',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                취소
+              </button>
+              <button
+                onClick={showCreditModal === 'donation' ? handleCreditToDonation : handleCreditToPayment}
+                disabled={creditActionLoading}
+                style={{
+                  flex: 1,
+                  padding: '14px',
+                  background: creditActionLoading ? '#ccc' : 
+                    (showCreditModal === 'donation' ? 'linear-gradient(135deg, #17a2b8, #138496)' : 'linear-gradient(135deg, #28a745, #218838)'),
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: creditActionLoading ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {creditActionLoading ? '처리 중...' : (showCreditModal === 'donation' ? '기부하기' : '납부하기')}
+              </button>
             </div>
           </div>
         </div>
