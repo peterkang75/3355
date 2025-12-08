@@ -605,21 +605,43 @@ function Admin() {
       // 회원 또는 게스트 선택이 있는 경우
       else if (selectedMembers.length > 0 || selectedGuests.length > 0) {
         const transactionPromises = [];
+        let totalCreditUsed = 0;
         
         // 회원 거래 처리
-        selectedMembers.forEach(memberId => {
+        for (const memberId of selectedMembers) {
           const member = members.find(m => m.id === memberId);
-          const transactionData = {
-            type: isDonation ? 'donation' : 'charge',
-            amount: parseFloat(selectedIncome.amount),
-            description: `${category?.name}${isDonation ? '' : '청구'}${booking ? ` - ${booking.courseName}` : ''}${isDonation ? ` (${member.name})` : ''}`,
-            date: selectedIncome.date,
-            memberId: memberId,
-            bookingId: selectedIncome.bookingId || null,
-            createdBy: user.id
-          };
-          transactionPromises.push(apiService.createTransaction(transactionData));
-        });
+          const description = `${category?.name}${isDonation ? '' : '청구'}${booking ? ` - ${booking.courseName}` : ''}${isDonation ? ` (${member.nickname || member.name})` : ''}`;
+          
+          if (isDonation) {
+            const transactionData = {
+              type: 'donation',
+              amount: parseFloat(selectedIncome.amount),
+              description: description,
+              date: selectedIncome.date,
+              memberId: memberId,
+              bookingId: selectedIncome.bookingId || null,
+              createdBy: user.id
+            };
+            transactionPromises.push(apiService.createTransaction(transactionData));
+          } else {
+            const chargeData = {
+              memberId: memberId,
+              amount: parseFloat(selectedIncome.amount),
+              description: description,
+              date: selectedIncome.date,
+              bookingId: selectedIncome.bookingId || null,
+              createdBy: user.id
+            };
+            transactionPromises.push(
+              apiService.createChargeWithCredit(chargeData).then(result => {
+                if (result.creditUsed > 0) {
+                  totalCreditUsed += result.creditUsed;
+                }
+                return result;
+              })
+            );
+          }
+        }
         
         // 게스트 거래 처리 (memberId 없이 payment 타입으로 클럽 잔액에만 반영)
         const guests = getGuestsFromBooking();
@@ -648,6 +670,9 @@ function Admin() {
           let message = '';
           if (selectedMembers.length > 0) {
             message += `${selectedMembers.length}명의 회원에게 참가비가 청구되었습니다.`;
+            if (totalCreditUsed > 0) {
+              message += `\n(크레딧 $${totalCreditUsed.toLocaleString()} 자동 차감됨)`;
+            }
           }
           if (selectedGuests.length > 0) {
             if (message) message += '\n';

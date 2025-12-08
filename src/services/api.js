@@ -451,6 +451,19 @@ class ApiService {
     return response.json();
   }
 
+  async createChargeWithCredit(chargeData) {
+    const response = await fetch(`${API_BASE}/transactions/charge-with-credit`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(chargeData)
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Failed to create charge with credit');
+    }
+    return response.json();
+  }
+
   async deleteTransaction(id) {
     const response = await fetch(`${API_BASE}/transactions/${id}`, {
       method: 'DELETE'

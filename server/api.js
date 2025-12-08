@@ -1417,6 +1417,111 @@ router.post('/transactions', async (req, res) => {
   }
 });
 
+// 청구 생성 (크레딧 자동 차감 포함)
+router.post('/transactions/charge-with-credit', async (req, res) => {
+  try {
+    const { memberId, amount, description, date, bookingId, createdBy } = req.body;
+
+    if (!memberId || !amount || amount <= 0) {
+      return res.status(400).json({ error: 'memberId and positive amount are required' });
+    }
+
+    const memberTransactions = await prisma.transaction.findMany({
+      where: { memberId }
+    });
+
+    const currentBalance = memberTransactions.reduce((sum, t) => {
+      if (t.type === 'charge') return sum - t.amount;
+      if (t.type === 'payment') return sum + t.amount;
+      if (t.type === 'credit') return sum + t.amount;
+      if (t.type === 'expense') return sum - t.amount;
+      return sum;
+    }, 0);
+
+    const creditBalance = currentBalance > 0 ? currentBalance : 0;
+    const creditToUse = Math.min(creditBalance, amount);
+    const today = date || new Date().toISOString().split('T')[0];
+
+    const transactions = [];
+
+    if (creditToUse > 0) {
+      const expenseTx = await prisma.transaction.create({
+        data: {
+          type: 'expense',
+          amount: creditToUse,
+          description: `${description} - 크레딧 사용`,
+          category: '크레딧 사용',
+          date: today,
+          memberId: memberId,
+          bookingId: bookingId || null,
+          createdBy: createdBy || null
+        }
+      });
+      transactions.push(expenseTx);
+
+      const donationTx = await prisma.transaction.create({
+        data: {
+          type: 'donation',
+          amount: creditToUse,
+          description: `${description} - 크레딧 참가비`,
+          category: '크레딧 참가비',
+          date: today,
+          memberId: memberId,
+          bookingId: bookingId || null,
+          createdBy: createdBy || null
+        }
+      });
+      transactions.push(donationTx);
+    }
+
+    const remainingCharge = amount - creditToUse;
+    if (remainingCharge > 0) {
+      const chargeTx = await prisma.transaction.create({
+        data: {
+          type: 'charge',
+          amount: remainingCharge,
+          description: description,
+          date: today,
+          memberId: memberId,
+          bookingId: bookingId || null,
+          createdBy: createdBy || null
+        }
+      });
+      transactions.push(chargeTx);
+    }
+
+    const updatedTransactions = await prisma.transaction.findMany({
+      where: { memberId }
+    });
+
+    const newBalance = updatedTransactions.reduce((sum, t) => {
+      if (t.type === 'charge') return sum - t.amount;
+      if (t.type === 'payment') return sum + t.amount;
+      if (t.type === 'credit') return sum + t.amount;
+      if (t.type === 'expense') return sum - t.amount;
+      return sum;
+    }, 0);
+
+    await prisma.member.update({
+      where: { id: memberId },
+      data: { balance: newBalance }
+    });
+
+    req.io.emit('transactions:updated');
+    req.io.emit('members:updated');
+    res.json({ 
+      success: true, 
+      transactions, 
+      creditUsed: creditToUse, 
+      remainingCharge, 
+      newBalance 
+    });
+  } catch (error) {
+    console.error('Error creating charge with credit:', error);
+    res.status(500).json({ error: 'Failed to create charge with credit' });
+  }
+});
+
 // 크레딧을 도네이션으로 전환
 router.post('/transactions/credit-to-donation', async (req, res) => {
   try {
