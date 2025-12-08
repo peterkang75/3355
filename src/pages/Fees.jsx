@@ -296,6 +296,13 @@ function Fees() {
 
   const getTransactionLabel = (transaction) => {
     if (transaction.type === 'donation') {
+      if (transaction.category === '크레딧 참가비' && transaction.description) {
+        const parts = transaction.description.split(' - ');
+        if (parts.length > 0) {
+          const baseName = parts[0].replace('청구', '');
+          return baseName || '도네이션';
+        }
+      }
       return '도네이션';
     }
     if (transaction.type === 'credit') {
