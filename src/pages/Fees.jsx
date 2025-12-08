@@ -586,61 +586,85 @@ function Fees() {
               </div>
             </div>
 
-            {(creditBalance > 0 || actualUnpaid > 0) && (
-              <div className="card" style={{ 
-                background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
-                border: '1px solid #dee2e6'
+            <div className="card" style={{ 
+              background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
+              border: '1px solid #dee2e6'
+            }}>
+              <h3 style={{ 
+                fontSize: '15px', 
+                fontWeight: '700',
+                marginBottom: '12px',
+                color: '#495057',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px'
               }}>
-                <h3 style={{ 
-                  fontSize: '15px', 
-                  fontWeight: '700',
-                  marginBottom: '12px',
-                  color: '#495057',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}>
-                  <span style={{ fontSize: '16px' }}>💳</span> 크레딧 활용
-                </h3>
+                <span style={{ fontSize: '16px' }}>💳</span> 크레딧 활용
+              </h3>
 
-                <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
-                  <div style={{
-                    flex: 1,
-                    background: creditBalance > 0 ? '#d4edda' : '#f8f9fa',
-                    borderRadius: '8px',
-                    padding: '10px',
-                    textAlign: 'center'
-                  }}>
-                    <div style={{ fontSize: '11px', color: '#666', marginBottom: '2px' }}>사용 가능 크레딧</div>
-                    <div style={{ fontSize: '18px', fontWeight: '700', color: creditBalance > 0 ? '#28a745' : '#999' }}>
-                      ${creditBalance.toLocaleString()}
-                    </div>
-                  </div>
-                  <div style={{
-                    flex: 1,
-                    background: actualUnpaid > 0 ? '#f8d7da' : '#f8f9fa',
-                    borderRadius: '8px',
-                    padding: '10px',
-                    textAlign: 'center'
-                  }}>
-                    <div style={{ fontSize: '11px', color: '#666', marginBottom: '2px' }}>미납 금액</div>
-                    <div style={{ fontSize: '18px', fontWeight: '700', color: actualUnpaid > 0 ? '#dc3545' : '#999' }}>
-                      ${actualUnpaid.toLocaleString()}
-                    </div>
+              <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                <div style={{
+                  flex: 1,
+                  background: creditBalance > 0 ? '#d4edda' : '#f8f9fa',
+                  borderRadius: '8px',
+                  padding: '10px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '11px', color: '#666', marginBottom: '2px' }}>사용 가능 크레딧</div>
+                  <div style={{ fontSize: '18px', fontWeight: '700', color: creditBalance > 0 ? '#28a745' : '#999' }}>
+                    ${creditBalance.toLocaleString()}
                   </div>
                 </div>
+                <div style={{
+                  flex: 1,
+                  background: actualUnpaid > 0 ? '#f8d7da' : '#f8f9fa',
+                  borderRadius: '8px',
+                  padding: '10px',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '11px', color: '#666', marginBottom: '2px' }}>미납 금액</div>
+                  <div style={{ fontSize: '18px', fontWeight: '700', color: actualUnpaid > 0 ? '#dc3545' : '#999' }}>
+                    ${actualUnpaid.toLocaleString()}
+                  </div>
+                </div>
+              </div>
 
-                {creditBalance > 0 && (
-                  <div style={{ display: 'flex', gap: '8px' }}>
+              {creditBalance > 0 && (
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => {
+                      setShowCreditModal('donation');
+                      setCreditActionAmount(creditBalance.toString());
+                    }}
+                    style={{
+                      flex: 1,
+                      padding: '10px 12px',
+                      background: 'linear-gradient(135deg, #17a2b8, #138496)',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '8px',
+                      fontSize: '13px',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '4px'
+                    }}
+                  >
+                    <span>🎁</span> 클럽에 기부
+                  </button>
+                  {actualUnpaid > 0 && (
                     <button
                       onClick={() => {
-                        setShowCreditModal('donation');
-                        setCreditActionAmount(creditBalance.toString());
+                        setShowCreditModal('payment');
+                        const payAmount = Math.min(creditBalance, actualUnpaid);
+                        setCreditActionAmount(payAmount.toString());
                       }}
                       style={{
                         flex: 1,
                         padding: '10px 12px',
-                        background: 'linear-gradient(135deg, #17a2b8, #138496)',
+                        background: 'linear-gradient(135deg, #28a745, #218838)',
                         color: 'white',
                         border: 'none',
                         borderRadius: '8px',
@@ -653,51 +677,38 @@ function Fees() {
                         gap: '4px'
                       }}
                     >
-                      <span>🎁</span> 클럽에 기부
+                      <span>💰</span> 미납금 납부
                     </button>
-                    {actualUnpaid > 0 && (
-                      <button
-                        onClick={() => {
-                          setShowCreditModal('payment');
-                          const payAmount = Math.min(creditBalance, actualUnpaid);
-                          setCreditActionAmount(payAmount.toString());
-                        }}
-                        style={{
-                          flex: 1,
-                          padding: '10px 12px',
-                          background: 'linear-gradient(135deg, #28a745, #218838)',
-                          color: 'white',
-                          border: 'none',
-                          borderRadius: '8px',
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '4px'
-                        }}
-                      >
-                        <span>💰</span> 미납금 납부
-                      </button>
-                    )}
-                  </div>
-                )}
+                  )}
+                </div>
+              )}
 
-                {creditBalance === 0 && actualUnpaid > 0 && (
-                  <div style={{
-                    padding: '10px',
-                    background: '#fff3cd',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    color: '#856404',
-                    textAlign: 'center'
-                  }}>
-                    미납금이 있습니다. 납부 안내를 확인해주세요.
-                  </div>
-                )}
-              </div>
-            )}
+              {creditBalance === 0 && actualUnpaid > 0 && (
+                <div style={{
+                  padding: '10px',
+                  background: '#fff3cd',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  color: '#856404',
+                  textAlign: 'center'
+                }}>
+                  미납금이 있습니다. 납부 안내를 확인해주세요.
+                </div>
+              )}
+
+              {creditBalance === 0 && actualUnpaid === 0 && (
+                <div style={{
+                  padding: '10px',
+                  background: '#e8f5e9',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  color: '#2e7d32',
+                  textAlign: 'center'
+                }}>
+                  ✓ 미납금이 없습니다
+                </div>
+              )}
+            </div>
 
             <div className="card">
               <h3 style={{ 
