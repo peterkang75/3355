@@ -7717,7 +7717,11 @@ function Admin() {
             <div style={{ 
               borderTop: '1px solid var(--border-color)',
               paddingTop: '16px',
-              marginBottom: '16px'
+              flex: 1,
+              minHeight: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden'
             }}>
               <div 
                 style={{
@@ -7727,7 +7731,8 @@ function Admin() {
                   background: 'var(--bg-green)',
                   borderRadius: '8px',
                   marginBottom: '12px',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  flexShrink: 0
                 }}
                 onClick={handleToggleAllMembers}
               >
@@ -7805,7 +7810,7 @@ function Admin() {
                 </span>
               </div>
 
-              <div style={{ maxHeight: '50vh', overflowY: 'auto', paddingBottom: '60px' }}>
+              <div style={{ flex: 1, overflowY: 'auto', paddingBottom: '20px', WebkitOverflowScrolling: 'touch' }}>
                 {(() => {
                   const sortedMembers = getSortedMembers();
                   const selectedBooking = bookings.find(b => b.id === selectedIncome.bookingId);
@@ -7983,7 +7988,7 @@ function Admin() {
               </div>
             </div>
 
-            <div style={{ display: 'flex', gap: '12px', marginTop: 'auto' }}>
+            <div style={{ display: 'flex', gap: '12px', paddingTop: '16px', flexShrink: 0 }}>
               <button
                 onClick={handleCloseIncomeModal}
                 style={{
