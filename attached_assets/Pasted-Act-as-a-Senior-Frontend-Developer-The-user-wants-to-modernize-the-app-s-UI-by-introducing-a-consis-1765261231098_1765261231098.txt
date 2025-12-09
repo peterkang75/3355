@@ -1,0 +1,36 @@
+Act as a Senior Frontend Developer.
+The user wants to modernize the app's UI by introducing a consistent **Design System** based on a "Premium Golf App" theme (Deep Green & Gold accents, White Cards, Light Gray Background).
+
+**Goal:** Refactor the app to use centralized style variables and reusable components, starting with the `Booking.jsx` page as a pilot.
+
+**Task 1: Establish the Design System (`src/styles/theme.js`)**
+1.  Create a new file `src/styles/theme.js` to export color constants.
+    * **Palette:**
+        * `bg_app`: `#F3F4F6` (Light Gray - for main background)
+        * `bg_card`: `#FFFFFF` (White - for content containers)
+        * `primary`: `#1A3D2F` (Deep Forest Green - Main buttons, Headers)
+        * `secondary`: `#D4AF37` (Gold - Highlights, Icons, Crowns)
+        * `text_main`: `#333333` (Dark Charcoal - Headings)
+        * `text_sub`: `#666666` (Medium Gray - Subtitles)
+        * `border`: `#E5E7EB` (Light Gray - Dividers)
+        * `danger`: `#DC2626` (Red - Delete/Cancel)
+    * **Spacing:** Define standard paddings (e.g., `cardPadding: '20px'`).
+
+**Task 2: Create Reusable UI Components (`src/components/common/`)**
+1.  `Card.jsx`: A container with white background, rounded corners (`16px`), and a subtle shadow (`box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1)`).
+2.  `Button.jsx`: A styled button component.
+    * Props: `variant` ('primary', 'secondary', 'outline', 'danger'), `size` ('sm', 'md', 'lg'), `fullWidth`.
+    * Style: Minimum height `44px` (for touch), rounded corners (`8px`), bold font.
+3.  `Badge.jsx`: Small status indicator (e.g., for "마감임박", "포썸").
+
+**Task 3: Refactor `src/pages/Booking.jsx`**
+1.  Import the new `theme` and components (`Card`, `Button`, `Badge`).
+2.  **Replace** the existing hardcoded styles and raw HTML elements (`<div className="card">`, `<button>`) with the new components.
+3.  **Layout Update:**
+    * Set the page background to `theme.bg_app`.
+    * Ensure spacing between cards is consistent (`16px`).
+    * Clean up the "Buttons Area" in the card: Use `variant="outline"` for secondary actions (Cancel, Rental) and `variant="primary"` for main actions (Join, Play).
+
+**Constraint:**
+* **Do NOT break any existing logic.** The "Foursome" mode logic, "Competition" logic, and data loading must remain intact.
+* Verify that the "Foursome" badge we added earlier is now using the new `Badge` component.
