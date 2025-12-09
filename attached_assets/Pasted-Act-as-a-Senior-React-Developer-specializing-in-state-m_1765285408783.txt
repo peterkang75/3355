@@ -1,0 +1,49 @@
+Act as a Senior React Developer specializing in state management and performance optimization.
+The goal is to fix the Admin Ledger UX issue where filtered member transactions are still unnecessarily paginated (e.g., "1 of 7" when only one member is selected).
+
+**TASK 1: Update `loadLedgerData` Function Logic**
+* **LOCATE:** `const loadLedgerData = async (page = 1, includeCharges = ledgerFilter.showCharges, memberId = ledgerFilter.memberId) => {`
+* **REPLACE** the entire body of this function with the consolidation logic below. This logic fetches ALL transactions if a specific member is selected, or uses standard pagination otherwise.
+
+```javascript
+  const loadLedgerData = async (page = 1, includeCharges = ledgerFilter.showCharges, memberId = ledgerFilter.memberId) => {
+    try {
+      setIsLoadingTransactions(true);
+      
+      let transactions;
+      let totalPages = 1;
+      
+      const balancePromise = apiService.fetchClubBalance();
+
+      if (memberId && memberId !== 'all') {
+        // SCENARIO 1: Member Filter is active -> Load ALL transactions for this member (Consolidation)
+        // NOTE: We assume fetchMemberTransactions returns the full list, not paginated
+        transactions = await apiService.fetchMemberTransactions(memberId);
+        totalPages = 1; 
+      } else {
+        // SCENARIO 2: General View -> Use server-side pagination
+        const response = await apiService.fetchTransactions({ page, limit: 20, includeCharges });
+        transactions = response.transactions || [];
+        totalPages = response.pagination?.totalPages || 1;
+      }
+      
+      const balanceData = await balancePromise;
+
+      setAllTransactions(Array.isArray(transactions) ? transactions : []);
+      setLedgerCurrentPage(page);
+      setLedgerTotalPages(totalPages);
+      setClubBalance(balanceData.balance || 0);
+      
+      // Update global stats using server breakdown (Fixed Totals)
+      setLedgerStats({
+          income: balanceData.incomeBreakdown || {},
+          expense: balanceData.expenseBreakdown || {}
+      });
+
+    } catch (error) {
+      console.error('장부 데이터 로드 실패:', error);
+      setAllTransactions([]);
+    } finally {
+      setIsLoadingTransactions(false);
+    }
+  };
