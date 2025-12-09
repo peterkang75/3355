@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
+import PageHeader from '../components/common/PageHeader';
 
 function MemberScoreEntry() {
   const navigate = useNavigate();
@@ -380,22 +381,10 @@ function MemberScoreEntry() {
 
   return (
     <div>
-      <div className="header">
-        <button 
-          onClick={() => navigate(`/rounding-management?id=${bookingId}`)}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--text-light)',
-            fontSize: '20px',
-            cursor: 'pointer',
-            padding: '0 8px'
-          }}
-        >
-          ←
-        </button>
-        <h1>회원 스코어 입력</h1>
-      </div>
+      <PageHeader 
+        title="스코어 입력"
+        onBack={() => navigate(`/rounding-management?id=${bookingId}`)}
+      />
 
       <div className="page-content">
         <div className="card" style={{ marginBottom: '16px' }}>

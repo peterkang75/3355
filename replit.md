@@ -48,8 +48,12 @@
 
 ### Code Architecture
 - **컴포넌트 분리**: 대형 페이지 컴포넌트를 재사용 가능한 하위 컴포넌트로 분리하여 유지보수성을 높였습니다.
+  - `src/components/common/PageHeader.jsx`: 페이지 헤더 컴포넌트 (뒤로가기 버튼, 제목, 우측 컨텐츠). Props: `title`, `onBack`, `rightContent`, `showBackButton`, `variant`
+  - `src/components/common/ProfileBadge.jsx`: 프로필 배지 컴포넌트 (닉네임, 프로필 사진)
   - `src/components/booking/BookingForm.jsx`: 라운딩 생성/수정 폼 컴포넌트
   - `src/components/booking/BookingListCard.jsx`: 라운딩 목록 카드 컴포넌트 (활성/완료 라운딩)
+- **PageHeader 적용 페이지**: Dashboard, Booking, MyPage, Fees, RoundingManagement, TeamFormation, ParticipantManagement, MemberScoreEntry - 서브 페이지는 해당 페이지 컨텍스트에 맞는 제목 표시 (예: "라운딩 관리", "조편성", "참가자 관리", "스코어 입력")
+- **ROOT_PATHS**: `['/', '/booking', '/fees', '/mypage', '/admin']` - 이 경로에서는 뒤로가기 버튼 숨김
 - **스코어 계산 수정**: Over/Under 계산 시 실제로 플레이한 홀의 PAR만 합산하도록 수정 (스코어가 0보다 큰 홀만 계산)
 - **포썸 모드 표시**: 라운딩 카드에 포썸 경기 방식을 보라색 배지로 표시
 - **CSS-First Design System**: JSX 구조를 변경하지 않고 `globals.css`에서 전역 스타일을 정의하여 디자인 시스템 적용

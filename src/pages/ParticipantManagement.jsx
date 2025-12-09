@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
+import PageHeader from '../components/common/PageHeader';
 
 function ParticipantManagement() {
   const navigate = useNavigate();
@@ -205,23 +206,10 @@ function ParticipantManagement() {
 
   return (
     <div>
-      <div className="header">
-        <button 
-          onClick={() => navigate(`/rounding-management?id=${bookingId}`)}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--text-light)',
-            fontSize: '20px',
-            fontWeight: '700',
-            cursor: 'pointer',
-            padding: '0 8px'
-          }}
-        >
-          ←
-        </button>
-        <h1>참가자 관리</h1>
-      </div>
+      <PageHeader 
+        title="참가자 관리"
+        onBack={() => navigate(`/rounding-management?id=${bookingId}`)}
+      />
 
       <div className="page-content">
         <div className="card" style={{ marginBottom: '16px' }}>

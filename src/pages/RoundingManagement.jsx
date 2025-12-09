@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
+import PageHeader from '../components/common/PageHeader';
+import ProfileBadge from '../components/common/ProfileBadge';
 
 function RoundingManagement() {
   const navigate = useNavigate();
@@ -160,65 +162,11 @@ function RoundingManagement() {
 
   return (
     <div>
-      <div className="header">
-        <button 
-          onClick={() => navigate('/booking')}
-          style={{
-            background: 'none',
-            border: 'none',
-            fontSize: '20px',
-            fontWeight: '700',
-            cursor: 'pointer',
-            padding: '0',
-            color: 'var(--text-light)',
-            minWidth: '24px'
-          }}
-        >
-          ‹
-        </button>
-        <h1 style={{ flex: 1, marginLeft: '12px' }}>라운딩 관리</h1>
-        <div 
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '8px',
-            cursor: 'pointer'
-          }}
-          onClick={() => navigate('/mypage')}
-        >
-          <div style={{ fontSize: '14px', fontWeight: '500' }}>
-            {user.nickname || user.name}
-          </div>
-          <div style={{
-            width: '36px',
-            height: '36px',
-            borderRadius: '50%',
-            overflow: 'hidden',
-            background: 'var(--primary-green)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontWeight: '600',
-            fontSize: '14px',
-            border: '2px solid var(--border-color)'
-          }}>
-            {user.photo ? (
-              <img 
-                src={user.photo} 
-                alt="프로필" 
-                style={{ 
-                  width: '100%', 
-                  height: '100%', 
-                  objectFit: 'cover' 
-                }} 
-              />
-            ) : (
-              <span>{(user.nickname || user.name).charAt(0)}</span>
-            )}
-          </div>
-        </div>
-      </div>
+      <PageHeader 
+        title="라운딩 관리"
+        onBack={() => navigate('/booking')}
+        rightContent={<ProfileBadge user={user} onClick={() => navigate('/mypage')} />}
+      />
 
       <div className="page-content">
         <div className="card" style={{ marginBottom: '16px' }}>
