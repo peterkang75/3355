@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import CrownIcon from '../components/CrownIcon';
 import apiService from '../services/api';
+import { Card, Button } from '../components/common';
 
 function Fees() {
   const navigate = useNavigate();

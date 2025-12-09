@@ -7,6 +7,7 @@ import adminIcon from '../assets/role-admin.png';
 import bangjangIcon from '../assets/role-bangjang.png';
 import staffIcon from '../assets/role-staff.png';
 import clubStaffIcon from '../assets/role-club-staff.png';
+import { Card, Button } from '../components/common';
 
 function MyPage() {
   const { user, logout, refreshMembers, courses, bookings } = useApp();
@@ -207,7 +208,7 @@ function MyPage() {
       </div>
 
       <div className="page-content">
-        <div className="card" style={{ marginBottom: '16px', textAlign: 'center' }}>
+        <Card style={{ marginBottom: '16px', textAlign: 'center' }}>
           <div style={{ 
             display: 'inline-block', 
             position: 'relative',
@@ -331,11 +332,11 @@ function MyPage() {
             </div>
           </div>
 
-        </div>
+        </Card>
 
         {!isEditing ? (
           <>
-            <div className="card" style={{ marginBottom: '16px' }}>
+            <Card style={{ marginBottom: '16px' }}>
               <div style={{
                 display: 'flex',
                 justifyContent: 'space-between',
@@ -350,13 +351,13 @@ function MyPage() {
                 }}>
                   기본 정보
                 </h3>
-                <button
+                <Button
                   onClick={() => setIsEditing(true)}
-                  className="btn-secondary"
-                  style={{ padding: '6px 12px', fontSize: '14px' }}
+                  variant="outline"
+                  size="sm"
                 >
                   ✎ 수정
-                </button>
+                </Button>
               </div>
               
               <div style={{ display: 'grid', gap: '12px' }}>
@@ -373,9 +374,9 @@ function MyPage() {
                   </>
                 )}
               </div>
-            </div>
+            </Card>
 
-            <div className="card" style={{ marginBottom: '16px' }}>
+            <Card style={{ marginBottom: '16px' }}>
               <h3 style={{ 
                 fontSize: '16px', 
                 fontWeight: '700',
@@ -396,10 +397,10 @@ function MyPage() {
               }}>
                 {user.balance < 0 ? '미수금' : '잔액'}: ${Math.abs(user.balance || 0).toLocaleString()}
               </div>
-            </div>
+            </Card>
           </>
         ) : (
-          <div className="card" style={{ marginBottom: '16px' }}>
+          <Card style={{ marginBottom: '16px' }}>
             <h3 style={{ 
               fontSize: '16px', 
               fontWeight: '700',
@@ -553,46 +554,28 @@ function MyPage() {
             )}
 
             <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
-              <button
+              <Button
                 onClick={() => {
                   setIsEditing(false);
                   setEditData(user);
                 }}
-                style={{ 
-                  flex: 1,
-                  padding: '14px 24px',
-                  background: '#BD5B43',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
+                variant="danger"
+                style={{ flex: 1 }}
               >
                 취소하기
-              </button>
-              <button
+              </Button>
+              <Button
                 onClick={handleSave}
-                style={{
-                  flex: 1,
-                  padding: '14px 24px',
-                  background: 'var(--primary-green)',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
+                variant="primary"
+                style={{ flex: 1 }}
               >
                 저장
-              </button>
+              </Button>
             </div>
-          </div>
+          </Card>
         )}
 
-        <div className="card" style={{ marginBottom: '16px' }}>
+        <Card style={{ marginBottom: '16px' }}>
           <div style={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -689,29 +672,24 @@ function MyPage() {
               })}
             </div>
           )}
-        </div>
+        </Card>
 
         <div style={{ marginTop: '20px', textAlign: 'center', paddingBottom: '20px' }}>
-          <button
+          <Button
             onClick={() => {
               if (window.confirm('로그아웃 하시겠습니까?')) {
                 logout();
                 navigate('/');
               }
             }}
+            variant="ghost"
             style={{
-              background: 'transparent',
-              border: 'none',
               color: 'var(--alert-red)',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              padding: '12px',
               textDecoration: 'underline'
             }}
           >
             로그아웃
-          </button>
+          </Button>
         </div>
       </div>
     </div>

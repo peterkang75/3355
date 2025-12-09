@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import apiService from '../services/api';
 import CrownIcon from '../components/CrownIcon';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
-import { Badge } from '../components/common';
+import { Badge, Card, Button } from '../components/common';
 
 function Dashboard() {
   const { user, members, scores, bookings, posts, fees, userTransactions, addPost, updatePost, deletePost, updateBooking, refreshBookings, refreshAllData, refreshMembers } = useApp();
@@ -547,9 +547,7 @@ function Dashboard() {
       </div>
 
       <div className="page-content">
-        <div className="card" style={{
-          borderLeft: '3px solid var(--accent-bright-green)'
-        }}>
+        <Card style={{ borderLeft: '3px solid var(--accent-bright-green)' }}>
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
@@ -564,21 +562,13 @@ function Dashboard() {
               ✎ 게시판
             </h3>
             {canCreatePost && (
-              <button 
+              <Button 
                 onClick={() => setShowNewPost(!showNewPost)}
-                style={{
-                  background: '#214001',
-                  color: 'var(--text-light)',
-                  padding: '8px 16px',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  border: 'none',
-                  cursor: 'pointer'
-                }}
+                variant={showNewPost ? 'outline' : 'primary'}
+                size="sm"
               >
                 {showNewPost ? '취소' : '작성'}
-              </button>
+              </Button>
             )}
           </div>
 
@@ -1196,7 +1186,7 @@ function Dashboard() {
               ))}
             </div>
           )}
-        </div>
+        </Card>
 
         <div style={{ 
           display: 'grid', 
@@ -1204,9 +1194,8 @@ function Dashboard() {
           gap: '12px',
           marginBottom: '16px'
         }}>
-          <div className="card" style={{ 
+          <Card padding="16px 12px" style={{ 
             textAlign: 'center',
-            padding: '16px 12px',
             background: '#F8FAFC',
             borderLeft: '4px solid var(--primary-green)'
           }}>
@@ -1247,11 +1236,10 @@ function Dashboard() {
                 {user.handicapExplanation}
               </div>
             )}
-          </div>
+          </Card>
 
-          <div className="card" style={{ 
+          <Card padding="16px 12px" style={{ 
             textAlign: 'center',
-            padding: '16px 12px',
             background: '#F8FAFC',
             borderLeft: '4px solid var(--accent-gold)'
           }}>
@@ -1287,10 +1275,10 @@ function Dashboard() {
                 return balance.toLocaleString();
               })()}
             </div>
-          </div>
+          </Card>
         </div>
 
-        <div className="card" style={{
+        <Card style={{
           borderLeft: '3px solid var(--accent-olive)'
         }}>
           <div style={{ 
@@ -1565,9 +1553,9 @@ function Dashboard() {
               );
             })
           )}
-        </div>
+        </Card>
 
-        <div className="card" style={{
+        <Card style={{
           borderLeft: '3px solid var(--accent-dark-olive)'
         }}>
           <div style={{ 
@@ -1694,9 +1682,9 @@ function Dashboard() {
               </div>
             );
           })()}
-        </div>
+        </Card>
 
-        <div className="card" style={{
+        <Card style={{
           borderLeft: '3px solid var(--accent-gold)'
         }}>
           <div style={{ 
@@ -1799,7 +1787,7 @@ function Dashboard() {
               </div>
             );
           })()}
-        </div>
+        </Card>
 
         <div style={{ 
           display: 'flex', 
@@ -1807,37 +1795,20 @@ function Dashboard() {
           padding: '24px 0 32px 0',
           marginTop: '8px'
         }}>
-          <button
+          <Button
             onClick={handleRefreshData}
             disabled={isRefreshing}
+            variant="primary"
+            size="lg"
             style={{
               background: 'linear-gradient(135deg, var(--primary-green) 0%, var(--accent-bright-green) 100%)',
-              border: 'none',
-              borderRadius: '12px',
-              padding: '16px 32px',
-              cursor: isRefreshing ? 'wait' : 'pointer',
-              color: 'white',
-              fontSize: '16px',
-              fontWeight: '700',
               boxShadow: '0 4px 12px rgba(45, 95, 63, 0.3)',
-              opacity: isRefreshing ? 0.6 : 1,
-              transition: 'all 0.3s',
-              minWidth: '200px'
-            }}
-            onMouseDown={(e) => {
-              if (!isRefreshing) {
-                e.currentTarget.style.transform = 'scale(0.95)';
-              }
-            }}
-            onMouseUp={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'scale(1)';
+              minWidth: '200px',
+              borderRadius: '12px'
             }}
           >
             {isRefreshing ? '🔄 새로고침 중...' : '🔄 데이터 새로고침'}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

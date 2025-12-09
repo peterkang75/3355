@@ -1,0 +1,43 @@
+Act as a Senior Frontend Developer.
+We have successfully established a new **Design System** (Light Gray Background + White Floating Cards + Standardized Buttons) in `Booking.jsx`.
+Now, we need to apply this design system to **ALL other pages** in the application to ensure consistency.
+
+**Goal:** Refactor the remaining pages to use the new `Card`, `Button`, and global layout styles.
+
+**Target Pages:**
+1.  `src/pages/Home.jsx` (Dashboard)
+2.  `src/pages/MyPage.jsx`
+3.  `src/pages/Fees.jsx`
+4.  `src/pages/RoundingManagement.jsx`
+5.  `src/pages/ParticipantManagement.jsx`
+6.  `src/pages/TeamFormation.jsx`
+7.  `src/pages/MemberScoreEntry.jsx`
+8.  `src/pages/GradeSettings.jsx` (if exists)
+
+**Refactoring Rules:**
+
+1.  **Global Background:**
+    * Ensure `src/index.css` forces the `body` background to `#F3F4F6` (Light Gray).
+    * **Action:** Remove any page-level inline styles that set `background` or `backgroundColor` (especially the old beige colors).
+
+2.  **Container & Layout:**
+    * Import the `Card` component (from `src/components/common/Card`).
+    * **Action:** Replace all `<div className="card">` or hardcoded white/beige containers with `<Card>`.
+    * Ensure proper spacing (`padding`, `gap`) between cards.
+
+3.  **Buttons:**
+    * Import the `Button` component (from `src/components/common/Button`).
+    * **Action:** Replace all `<button>` tags with `<Button>`.
+    * **Map Styles to Variants:**
+        * Green/Blue buttons → `variant="primary"`
+        * Gray/Cancel buttons → `variant="outline"` (or `variant="secondary"` if it's an action like 'Edit')
+        * Red/Delete buttons → `variant="danger"` (prefer `outline` style for danger if available/appropriate)
+        * "Full Width" buttons → Add `fullWidth` prop.
+
+4.  **Specific Page Cleanup:**
+    * **Dashboard:** Ensure the "Handicap" and "Balance" boxes are also converted to `Card` or styled containers consistent with the theme.
+    * **Fees:** Ensure the transaction list uses the new spacing and `Card` container.
+    * **MyPage:** Remove custom borders if they conflict with the `Card` style.
+
+**Note:**
+* For `Play.jsx` and `Leaderboard.jsx` (Dark Mode pages), **SKIP** changing the background color if they are intended to remain Dark Mode for visibility. However, **DO** update the Buttons to use the `Button` component for consistency in shape/size.
