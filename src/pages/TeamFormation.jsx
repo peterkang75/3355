@@ -299,6 +299,45 @@ function TeamFormation() {
     setIsAutoAssigning(false);
   };
 
+  const generateTeamText = () => {
+    const title = booking?.title || booking?.courseName || '라운딩';
+    let text = `[ ${title} ] 조편성 결과\n\n`;
+
+    teams.forEach((team) => {
+      const teamMembers = team.members.filter(m => m !== null);
+      if (teamMembers.length === 0) return;
+
+      const memberNames = teamMembers.map(m => {
+        const displayName = m.nickname || m.name;
+        return displayName;
+      });
+
+      if (gameMode === 'foursome' && memberNames.length >= 2) {
+        const teamA = memberNames.slice(0, 2).join(' & ');
+        const teamB = memberNames.slice(2, 4).join(' & ');
+        if (teamB) {
+          text += `${team.teamNumber}조: ${teamA} (A) vs ${teamB} (B)\n`;
+        } else {
+          text += `${team.teamNumber}조: ${teamA} (A)\n`;
+        }
+      } else {
+        text += `${team.teamNumber}조: ${memberNames.join(', ')}\n`;
+      }
+    });
+
+    return text.trim();
+  };
+
+  const handleCopyTeamText = async () => {
+    try {
+      const text = generateTeamText();
+      await navigator.clipboard.writeText(text);
+      alert('조편성 결과가 복사되었습니다!');
+    } catch (error) {
+      alert('복사에 실패했습니다. 다시 시도해주세요.');
+    }
+  };
+
   const hasAdminAccess = user?.role === '관리자' || user?.role === '방장' || user?.role === '운영진' || user?.role === '클럽운영진' || user?.isAdmin;
 
   if (!booking) {
@@ -425,6 +464,22 @@ function TeamFormation() {
             >
               {hasUnsavedChanges ? '× 저장안됨' : '✓ 저장됨'}
             </LoadingButton>
+            <button
+              onClick={handleCopyTeamText}
+              style={{
+                padding: '12px 16px',
+                background: '#6B7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              📋 텍스트 복사
+            </button>
           </div>
         )}
 
