@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
+import { Card, Button } from '../components/common';
 
 function TeamFormation() {
   const navigate = useNavigate();
@@ -385,11 +386,11 @@ function TeamFormation() {
   if (!booking) {
     return (
       <div className="page-content">
-        <div className="card">
+        <Card>
           <p style={{ textAlign: 'center', opacity: 0.7 }}>
             라운딩을 찾을 수 없습니다.
           </p>
-        </div>
+        </Card>
       </div>
     );
   }
@@ -456,7 +457,7 @@ function TeamFormation() {
       </div>
 
       <div className="page-content">
-        <div className="card" style={{ marginBottom: '16px' }}>
+        <Card style={{ marginBottom: '16px' }}>
           <div style={{ 
             padding: '16px',
             borderRadius: '8px'
@@ -525,7 +526,7 @@ function TeamFormation() {
           </div>
         )}
 
-        <div className="card" style={{ marginBottom: '16px' }}>
+        <Card style={{ marginBottom: '16px' }}>
           <div style={{ 
             display: 'flex',
             alignItems: 'center',

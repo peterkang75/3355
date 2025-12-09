@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
+import { Card, Button } from '../components/common';
 
 function MemberScoreEntry() {
   const navigate = useNavigate();
@@ -357,11 +358,11 @@ function MemberScoreEntry() {
   if (!hasAdminAccess) {
     return (
       <div className="page-content">
-        <div className="card">
+        <Card>
           <p style={{ textAlign: 'center', opacity: 0.7 }}>
             관리자 또는 운영진만 접근할 수 있습니다.
           </p>
-        </div>
+        </Card>
       </div>
     );
   }
@@ -369,11 +370,11 @@ function MemberScoreEntry() {
   if (!booking) {
     return (
       <div className="page-content">
-        <div className="card">
+        <Card>
           <p style={{ textAlign: 'center', opacity: 0.7 }}>
             라운딩을 찾을 수 없습니다.
           </p>
-        </div>
+        </Card>
       </div>
     );
   }
@@ -398,7 +399,7 @@ function MemberScoreEntry() {
       </div>
 
       <div className="page-content">
-        <div className="card" style={{ marginBottom: '16px' }}>
+        <Card style={{ marginBottom: '16px' }}>
           <div style={{ 
             padding: '16px',
             borderRadius: '8px'
@@ -493,7 +494,7 @@ function MemberScoreEntry() {
               </div>
             ))
           ) : (
-          <div className="card" style={{ marginBottom: '16px' }}>
+          <Card style={{ marginBottom: '16px' }}>
             <h3 style={{ 
               fontSize: '16px', 
               fontWeight: '700',
@@ -562,7 +563,7 @@ function MemberScoreEntry() {
         )}
 
         {leaderboard && (
-          <div className="card" style={{ marginTop: '20px' }}>
+          <Card style={{ marginTop: '20px' }}>
             <h3 style={{ 
               fontSize: '18px', 
               fontWeight: '700',

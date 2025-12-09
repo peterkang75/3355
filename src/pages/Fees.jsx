@@ -576,7 +576,7 @@ function Fees() {
       <div className="page-content">
         {activeTab === 'personal' ? (
           <>
-            <div className="card" style={{
+            <Card style={{
               background: balance >= 0 ? '#2E5902' : '#D96941',
               color: 'white',
               padding: '16px'
@@ -609,7 +609,7 @@ function Fees() {
               </div>
             </div>
 
-            <div className="card" style={{ 
+            <Card style={{ 
               background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%)',
               border: '1px solid #dee2e6'
             }}>
@@ -733,7 +733,7 @@ function Fees() {
               )}
             </div>
 
-            <div className="card">
+            <Card>
               <h3 style={{ 
                 fontSize: '16px', 
                 fontWeight: '700',
@@ -838,7 +838,7 @@ function Fees() {
             </div>
 
             {paymentGuideText && (
-              <div className="card" style={{ padding: '16px', background: '#f8f9fa' }}>
+              <Card style={{ padding: '16px', background: '#f8f9fa' }}>
                 <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: 'var(--primary-green)' }}>
                   ⓘ 납부 안내
                 </div>
@@ -873,7 +873,7 @@ function Fees() {
               </div>
             </div>
 
-            <div className="card">
+            <Card>
               <h3 style={{ 
                 fontSize: '16px', 
                 fontWeight: '700',

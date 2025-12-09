@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
+import { Card, Button } from '../components/common';
 
 function GradeSettings() {
   const navigate = useNavigate();
@@ -63,11 +64,11 @@ function GradeSettings() {
   if (!hasAdminAccess) {
     return (
       <div className="page-content">
-        <div className="card">
+        <Card>
           <p style={{ textAlign: 'center', opacity: 0.7 }}>
             관리자 또는 운영진만 접근할 수 있습니다.
           </p>
-        </div>
+        </Card>
       </div>
     );
   }
@@ -75,11 +76,11 @@ function GradeSettings() {
   if (!booking) {
     return (
       <div className="page-content">
-        <div className="card">
+        <Card>
           <p style={{ textAlign: 'center', opacity: 0.7 }}>
             라운딩을 찾을 수 없습니다.
           </p>
-        </div>
+        </Card>
       </div>
     );
   }
@@ -105,7 +106,7 @@ function GradeSettings() {
       </div>
 
       <div className="page-content">
-        <div className="card">
+        <Card>
           <div style={{ 
             padding: '16px',
             borderRadius: '8px',
