@@ -5,6 +5,7 @@ import apiService from '../services/api';
 import CrownIcon from '../components/CrownIcon';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 import { Badge, Card, Button } from '../components/common';
+import BookingListCard from '../components/booking/BookingListCard';
 
 function Dashboard() {
   const { user, members, scores, bookings, posts, fees, userTransactions, addPost, updatePost, deletePost, updateBooking, refreshBookings, refreshAllData, refreshMembers } = useApp();
@@ -663,7 +664,7 @@ function Dashboard() {
                 <div key={post.id}>
                   <div style={{
                     background: expandedPost === post.id ? '#FFD449' : 'var(--bg-green)',
-                    padding: '10px',
+                    padding: '14px 16px',
                     borderRadius: '8px',
                     cursor: 'pointer',
                     transition: 'background 0.2s',
@@ -1330,208 +1331,65 @@ function Dashboard() {
               const participants = parseParticipants(booking.participants);
               const isJoined = participants.some(p => p.phone === user.phone);
               
+              let isFoursome = false;
+              try {
+                const gradeSettings = typeof booking.gradeSettings === 'string' 
+                  ? JSON.parse(booking.gradeSettings) 
+                  : booking.gradeSettings;
+                isFoursome = gradeSettings?.mode === 'foursome';
+              } catch (e) {}
+              
+              const rentalMembers = (booking.numberRentals || []).map(phone => {
+                const member = members.find(m => m.phone === phone);
+                return member ? { name: member.name, nickname: member.nickname, phone: member.phone } : null;
+              }).filter(m => m !== null);
+              
+              const allParticipants = [...participants];
+              rentalMembers.forEach(rental => {
+                if (!allParticipants.some(p => p.phone === rental.phone)) {
+                  allParticipants.push(rental);
+                }
+              });
+              
+              const isRenting = booking.numberRentals && booking.numberRentals.includes(user.phone);
+              const totalFee = (booking.greenFee || 0) + (booking.cartFee || 0) + (booking.caddyFee || 0);
+
               return (
-                <div key={booking.id} style={{
-                  background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(76, 89, 29, 0.05) 100%)',
-                  padding: '16px',
-                  borderRadius: '8px',
-                  marginBottom: '12px',
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s',
-                  position: 'relative',
-                  borderBottom: '1px solid var(--accent-olive)'
-                }}
-                onClick={() => navigate('/booking')}
-                onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-                onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
-                >
-                  {booking.title && (() => {
-                    let isFoursome = false;
-                    try {
-                      const gradeSettings = typeof booking.gradeSettings === 'string' 
-                        ? JSON.parse(booking.gradeSettings) 
-                        : booking.gradeSettings;
-                      isFoursome = gradeSettings?.mode === 'foursome';
-                    } catch (e) {}
-                    
-                    return (
-                      <div style={{ 
-                        fontSize: '12px', 
-                        color: booking.type === '컴페티션' ? 'white' : '#333', 
-                        background: booking.type === '컴페티션' ? '#1a3d47' : '#ff8c42',
-                        padding: '5px 9px',
-                        borderRadius: '4px',
-                        fontWeight: '600', 
-                        marginBottom: '4px',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px'
-                      }}>
-                        {booking.title}
-                        {isFoursome && <Badge variant="purple" size="xs">포썸</Badge>}
-                      </div>
-                    );
-                  })()}
-                  <h4 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px' }}>
-                    {booking.courseName}
-                  </h4>
-                  <div style={{ fontSize: '14px', opacity: 0.7, marginBottom: '4px' }}>
-                    ◷ {formatDateTime(booking.date).split(' ')[0]} {booking.time}
-                  </div>
-                  {booking.gatheringTime && (
-                    <div style={{ fontSize: '14px', opacity: 0.7, marginBottom: '8px' }}>
-                      ◷ 집결시간: {booking.gatheringTime}
-                    </div>
-                  )}
-
-                  {booking.registrationDeadline && (
-                    <div style={{ fontSize: '14px', marginBottom: '8px' }}>
-                      <span style={{ fontWeight: '700', color: 'var(--alert-red)' }}>
-                        ◈ {formatDateTime(booking.registrationDeadline).split(' ')[0]} 마감
-                      </span>
-                      <span style={{ opacity: 0.7, marginLeft: '8px' }}>
-                        {getDaysUntilDeadline(booking.registrationDeadline) > 0 
-                          ? `(마감까지 ${getDaysUntilDeadline(booking.registrationDeadline)}일 남았습니다)`
-                          : '(마감완료)'
-                        }
-                      </span>
-                    </div>
-                  )}
-
-                  <div style={{ 
-                    fontSize: '13px', 
-                    opacity: 0.7,
-                    marginBottom: '12px'
-                  }}>
-                    ◈ 참가자 {participants.length}명
-                  </div>
-
-                  <div 
-                    onClick={(e) => e.stopPropagation()}
-                    style={{ 
-                      display: 'flex', 
-                      gap: '8px', 
-                      flexWrap: 'wrap' 
-                    }}
-                  >
-                    {isPastRoundingDate(booking) && (booking.dailyHandicaps || hasUserScore(booking)) ? (
-                      <>
-                        <button
-                          onClick={() => navigate(`/member-score-entry?id=${booking.id}`)}
-                          style={{
-                            flex: 1,
-                            padding: '12px',
-                            background: '#214001',
-                            color: 'var(--text-light)',
-                            border: 'none',
-                            borderRadius: '6px',
-                            fontSize: '14px',
-                            fontWeight: '700',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          ▲ 결과보기
-                        </button>
-                      </>
-                    ) : isRoundingDay(booking) ? (
-                      <>
-                        <Button
-                          variant="outline"
-                          onClick={() => navigate(`/team-formation?id=${booking.id}`)}
-                          style={{ flex: 1 }}
-                        >
-                          📋 조편성 보기
-                        </Button>
-                        {booking.playEnabled && (
-                          <button
-                            onClick={() => navigate(`/play?id=${booking.id}`)}
-                            style={{
-                              flex: 1,
-                              padding: '12px',
-                              background: '#2196F3',
-                              color: 'var(--text-light)',
-                              border: 'none',
-                              borderRadius: '6px',
-                              fontSize: '14px',
-                              fontWeight: '700',
-                              cursor: 'pointer'
-                            }}
-                          >
-                            ⛳ 플레이하기
-                          </button>
-                        )}
-                      </>
-                    ) : isRegistrationClosed(booking) && !isPastRoundingDate(booking) ? (
-                      <>
-                        <Button
-                          variant="outline"
-                          onClick={() => navigate(`/team-formation?id=${booking.id}`)}
-                          style={{ flex: 1 }}
-                        >
-                          📋 조편성 보기
-                        </Button>
-                      </>
-                    ) : (
-                      <>
-                        <LoadingButton
-                          onClick={(isJoined || (booking.numberRentals && booking.numberRentals.includes(user.phone))) ? null : () => handleJoinBooking(booking.id)}
-                          disabled={isJoined || (booking.numberRentals && booking.numberRentals.includes(user.phone))}
-                          loading={joiningBookingId === booking.id && !isJoined}
-                          loadingText="참가중..."
-                          style={{
-                            flex: 1,
-                            padding: '12px',
-                            background: (isJoined || (booking.numberRentals && booking.numberRentals.includes(user.phone))) ? '#e0e0e0' : '#214001',
-                            color: (isJoined || (booking.numberRentals && booking.numberRentals.includes(user.phone))) ? '#999' : 'var(--text-light)',
-                            border: 'none',
-                            borderRadius: '6px',
-                            fontSize: '14px',
-                            fontWeight: '700'
-                          }}
-                        >
-                          {isJoined ? '참가중' : '참가하기'}
-                        </LoadingButton>
-                        <LoadingButton
-                          onClick={(isJoined && !(booking.numberRentals && booking.numberRentals.includes(user.phone))) ? () => handleJoinBooking(booking.id) : null}
-                          disabled={!(isJoined && !(booking.numberRentals && booking.numberRentals.includes(user.phone)))}
-                          loading={joiningBookingId === booking.id && isJoined}
-                          loadingText="취소중..."
-                          style={{
-                            flex: 1,
-                            padding: '12px',
-                            background: (isJoined && !(booking.numberRentals && booking.numberRentals.includes(user.phone))) ? '#FFFFFF' : '#f5f5f5',
-                            color: (isJoined && !(booking.numberRentals && booking.numberRentals.includes(user.phone))) ? '#DC2626' : '#999',
-                            border: (isJoined && !(booking.numberRentals && booking.numberRentals.includes(user.phone))) ? '1px solid #DC2626' : '1px solid #ddd',
-                            borderRadius: '6px',
-                            fontSize: '14px',
-                            fontWeight: '700'
-                          }}
-                        >
-                          취소하기
-                        </LoadingButton>
-                        {booking.type === '컴페티션' && (
-                          <LoadingButton
-                            onClick={() => handleToggleNumberRental(booking.id)}
-                            loading={isRentalLoading === booking.id}
-                            loadingText="처리중..."
-                            style={{
-                              flex: 1,
-                              padding: '12px',
-                              background: (booking.numberRentals && booking.numberRentals.includes(user.phone)) ? '#FEF3C7' : '#FFFFFF',
-                              color: '#B8860B',
-                              border: '1px solid #B8860B',
-                              borderRadius: '6px',
-                              fontSize: '14px',
-                              fontWeight: '700'
-                            }}
-                          >
-                            {(booking.numberRentals && booking.numberRentals.includes(user.phone)) ? '✓ 번호대여중' : '번호대여'}
-                          </LoadingButton>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
+                <BookingListCard
+                  key={booking.id}
+                  booking={booking}
+                  isActive={true}
+                  canManage={false}
+                  userPhone={user.phone}
+                  participants={participants}
+                  allParticipants={allParticipants}
+                  totalFee={totalFee}
+                  isFoursome={isFoursome}
+                  isJoined={isJoined}
+                  isRenting={isRenting}
+                  isMenuOpen={false}
+                  loadingStates={{
+                    isDeleting: false,
+                    isTogglingAnnounce: false,
+                    isJoining: joiningBookingId === booking.id,
+                    isRentalLoading: isRentalLoading === booking.id
+                  }}
+                  statusFlags={{
+                    isPastRoundingDate: isPastRoundingDate(booking),
+                    isRoundingDay: isRoundingDay(booking),
+                    isRegistrationClosed: isRegistrationClosed(booking),
+                    hasUserScore: hasUserScore(booking)
+                  }}
+                  formatCurrency={formatCurrency}
+                  getParticipantDisplayName={getParticipantDisplayName}
+                  onMenuToggle={() => {}}
+                  onNavigate={navigate}
+                  onToggleAnnounce={() => {}}
+                  onEdit={() => {}}
+                  onDelete={() => {}}
+                  onJoin={handleJoinBooking}
+                  onToggleRental={handleToggleNumberRental}
+                />
               );
             })
           )}
