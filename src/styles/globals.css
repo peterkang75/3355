@@ -207,6 +207,36 @@ input:focus, textarea:focus, select:focus {
   background: rgba(0, 0, 0, 0.05);
 }
 
+.btn-outline-danger {
+  background: white;
+  color: #DC2626;
+  border: 1px solid #DC2626;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: 8px;
+  font-size: var(--font-base);
+  font-weight: 600;
+  min-height: 44px;
+}
+
+.btn-outline-danger:hover {
+  background: #FEE2E2;
+}
+
+.btn-outline-secondary {
+  background: white;
+  color: #B8860B;
+  border: 1px solid #B8860B;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: 8px;
+  font-size: var(--font-base);
+  font-weight: 600;
+  min-height: 44px;
+}
+
+.btn-outline-secondary:hover {
+  background: #FEF3C7;
+}
+
 .card {
   background: #FFFFFF !important;
   border-radius: 16px;

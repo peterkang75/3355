@@ -1517,9 +1517,9 @@ function Dashboard() {
                           style={{
                             flex: 1,
                             padding: '12px',
-                            background: (isJoined && !(booking.numberRentals && booking.numberRentals.includes(user.phone))) ? 'var(--alert-red)' : '#e0e0e0',
-                            color: (isJoined && !(booking.numberRentals && booking.numberRentals.includes(user.phone))) ? 'var(--text-light)' : '#999',
-                            border: 'none',
+                            background: (isJoined && !(booking.numberRentals && booking.numberRentals.includes(user.phone))) ? '#FFFFFF' : '#f5f5f5',
+                            color: (isJoined && !(booking.numberRentals && booking.numberRentals.includes(user.phone))) ? '#DC2626' : '#999',
+                            border: (isJoined && !(booking.numberRentals && booking.numberRentals.includes(user.phone))) ? '1px solid #DC2626' : '1px solid #ddd',
                             borderRadius: '6px',
                             fontSize: '14px',
                             fontWeight: '700'
@@ -1535,9 +1535,9 @@ function Dashboard() {
                             style={{
                               flex: 1,
                               padding: '12px',
-                              background: '#E6AA68',
-                              color: '#fff',
-                              border: 'none',
+                              background: (booking.numberRentals && booking.numberRentals.includes(user.phone)) ? '#FEF3C7' : '#FFFFFF',
+                              color: '#B8860B',
+                              border: '1px solid #B8860B',
                               borderRadius: '6px',
                               fontSize: '14px',
                               fontWeight: '700'

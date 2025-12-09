@@ -38,6 +38,18 @@ function Button({
           color: '#FFFFFF',
           border: 'none',
         };
+      case 'outline-danger':
+        return {
+          backgroundColor: '#FFFFFF',
+          color: '#DC2626',
+          border: '1px solid #DC2626',
+        };
+      case 'outline-secondary':
+        return {
+          backgroundColor: '#FFFFFF',
+          color: '#B8860B',
+          border: '1px solid #B8860B',
+        };
       case 'ghost':
         return {
           backgroundColor: 'transparent',
