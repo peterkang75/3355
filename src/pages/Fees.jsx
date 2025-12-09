@@ -216,7 +216,11 @@ function Fees() {
     .filter(t => t.type === 'expense')
     .reduce((sum, t) => sum + t.amount, 0);
   
-  const balance = totalPayments + totalCredits - totalCharges - totalExpenses;
+  const totalCreditDonations = userTransactions
+    .filter(t => t.type === 'creditDonation')
+    .reduce((sum, t) => sum + t.amount, 0);
+  
+  const balance = totalPayments + totalCredits - totalCharges - totalExpenses - totalCreditDonations;
 
   const unpaidCharges = userTransactions.filter(t => {
     if (t.type !== 'charge') return false;
