@@ -1,0 +1,38 @@
+Act as a Senior React Developer.
+We successfully fixed the "Over/Under" calculation logic in `Leaderboard.jsx` to handle rounds in progress correctly (by subtracting only the `playedPar` instead of the total `coursePar`).
+
+Now, we MUST apply the **exact same logic fix** to the Admin page: `src/pages/MemberScoreEntry.jsx`.
+
+**Task: Update `calculateLeaderboard` in `src/pages/MemberScoreEntry.jsx`**
+
+1.  **Locate Calculation Logic:**
+    * Find where `overUnder` is calculated inside `calculateLeaderboard`.
+    * Currently, it likely does: `overUnder = totalScore - coursePar;` (This is incorrect for partial rounds).
+
+2.  **Apply "Played Par" Logic:**
+    * You need to calculate `playedPar` for each player based on which holes they have actually played (score > 0).
+    * **Algorithm:**
+        ```javascript
+        // Inside the map loop for each result
+        let currentPlayedPar = 0;
+        const playerScores = score.holes || []; // Assuming score.holes is available or parse it if needed
+
+        // If 'score.holes' isn't readily available in the 'scoresToSave' array passed to this function,
+        // you might need to adjust the arguments passed to calculateLeaderboard to include hole-by-hole data.
+        
+        // IF hole-by-hole data is not available easily, keep the total par logic BUT:
+        // ideally, the Admin Entry page should perform the same rigorous calculation.
+        
+        // SIMPLER FIX for Admin Page Context:
+        // Since Admin usually enters TOTAL score directly in the simple view, 
+        // we might not know which holes were played if they just typed "85".
+        // HOWEVER, if the source data comes from 'bookingScores' (which has hole data), use it.
+        ```
+
+3.  **Refined Instruction for Replit:**
+    * If the `savedScores` objects contain `holes` data (which they should, from the API), iterate through those holes.
+    * Sum the pars of holes where `score > 0`.
+    * Calculate `overUnder = totalScore - sumOfPlayedPars`.
+    * If `holes` data is missing (e.g. manual total input), fallback to `coursePar`.
+
+**Goal:** Ensure the Admin sees the same "+/-" value as the Users on the Leaderboard.

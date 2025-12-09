@@ -77,7 +77,8 @@ function MemberScoreEntry() {
         
         const scoresToSave = bookingScores.map(score => ({
           userId: score.userId,
-          totalScore: score.totalScore
+          totalScore: score.totalScore,
+          holes: typeof score.holes === 'string' ? JSON.parse(score.holes) : (score.holes || [])
         }));
         
         const leaderboardData = calculateLeaderboard(scoresToSave, dailyHandicaps, gradeSettings);
@@ -185,9 +186,16 @@ function MemberScoreEntry() {
     }
     return 72;
   };
+  
+  const getHolePars = () => {
+    if (!booking) return Array(18).fill(4);
+    const course = courses.find(c => c.name === booking.courseName);
+    return course?.holePars?.male || Array(18).fill(4);
+  };
 
   const calculateLeaderboard = (savedScores, dailyHandicaps, gradeSettings) => {
     const coursePar = getCoursePar();
+    const holePars = getHolePars();
     
     const results = savedScores.map(score => {
       const member = members.find(m => m.id === score.userId);
@@ -206,7 +214,25 @@ function MemberScoreEntry() {
       }
       
       const totalScore = score.totalScore;
-      const overUnder = totalScore - coursePar;
+      
+      // 플레이한 홀의 파만 합산하여 overUnder 계산
+      let playedPar = coursePar; // 기본값: 전체 코스 파
+      const holesArray = score.holes || [];
+      
+      if (holesArray.length > 0) {
+        const playedHolesCount = holesArray.filter(h => h > 0).length;
+        if (playedHolesCount > 0 && playedHolesCount < 18) {
+          // 부분 라운드: 플레이한 홀의 파만 합산
+          playedPar = 0;
+          holesArray.forEach((holeScore, idx) => {
+            if (holeScore > 0) {
+              playedPar += (holePars[idx] || 4);
+            }
+          });
+        }
+      }
+      
+      const overUnder = totalScore - playedPar;
       const finalScore = overUnder - dailyHandicap;
       const grade = getGrade(dailyHandicap, gradeSettings);
       
