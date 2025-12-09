@@ -3421,7 +3421,10 @@ function Admin() {
                 });
                 filteredForSummary.filter(t => t.type === 'donation').forEach(t => {
                   let catName = '도네이션';
-                  if (t.description?.startsWith('기타 - ')) {
+                  if (t.category === '크레딧 참가비' && t.description) {
+                    const parts = t.description.split(' - ');
+                    catName = parts[0].replace('청구', '') || '도네이션';
+                  } else if (t.description?.startsWith('기타 - ')) {
                     catName = t.description.replace('기타 - ', '');
                   }
                   incomeTotals[catName] = (incomeTotals[catName] || 0) + t.amount;
@@ -3648,7 +3651,11 @@ function Admin() {
                           }
                           catKey = `income:${catName}`;
                         } else if (t.type === 'donation') {
-                          if (t.description?.startsWith('기타 - ')) {
+                          if (t.category === '크레딧 참가비' && t.description) {
+                            const parts = t.description.split(' - ');
+                            const baseName = parts[0].replace('청구', '') || '도네이션';
+                            catKey = `income:${baseName}`;
+                          } else if (t.description?.startsWith('기타 - ')) {
                             catKey = `income:${t.description.replace('기타 - ', '')}`;
                           } else {
                             catKey = 'income:도네이션';
@@ -3821,7 +3828,11 @@ function Admin() {
                     }
                     catKey = `income:${catName}`;
                   } else if (t.type === 'donation') {
-                    if (t.description?.startsWith('기타 - ')) {
+                    if (t.category === '크레딧 참가비' && t.description) {
+                      const parts = t.description.split(' - ');
+                      const baseName = parts[0].replace('청구', '') || '도네이션';
+                      catKey = `income:${baseName}`;
+                    } else if (t.description?.startsWith('기타 - ')) {
                       catKey = `income:${t.description.replace('기타 - ', '')}`;
                     } else {
                       catKey = 'income:도네이션';
@@ -3878,7 +3889,11 @@ function Admin() {
                                       }
                                       catKey = `income:${catName}`;
                                     } else if (t.type === 'donation') {
-                                      if (t.description?.startsWith('기타 - ')) {
+                                      if (t.category === '크레딧 참가비' && t.description) {
+                                        const parts = t.description.split(' - ');
+                                        const baseName = parts[0].replace('청구', '') || '도네이션';
+                                        catKey = `income:${baseName}`;
+                                      } else if (t.description?.startsWith('기타 - ')) {
                                         catKey = `income:${t.description.replace('기타 - ', '')}`;
                                       } else {
                                         catKey = 'income:도네이션';
@@ -3912,7 +3927,11 @@ function Admin() {
                                       }
                                       catKey = `income:${catName}`;
                                     } else if (t.type === 'donation') {
-                                      if (t.description?.startsWith('기타 - ')) {
+                                      if (t.category === '크레딧 참가비' && t.description) {
+                                        const parts = t.description.split(' - ');
+                                        const baseName = parts[0].replace('청구', '') || '도네이션';
+                                        catKey = `income:${baseName}`;
+                                      } else if (t.description?.startsWith('기타 - ')) {
                                         catKey = `income:${t.description.replace('기타 - ', '')}`;
                                       } else {
                                         catKey = 'income:도네이션';
@@ -3962,7 +3981,11 @@ function Admin() {
                             }
                             catKey = `income:${catName}`;
                           } else if (t.type === 'donation') {
-                            if (t.description?.startsWith('기타 - ')) {
+                            if (t.category === '크레딧 참가비' && t.description) {
+                              const parts = t.description.split(' - ');
+                              const baseName = parts[0].replace('청구', '') || '도네이션';
+                              catKey = `income:${baseName}`;
+                            } else if (t.description?.startsWith('기타 - ')) {
                               catKey = `income:${t.description.replace('기타 - ', '')}`;
                             } else {
                               catKey = 'income:도네이션';
@@ -4006,7 +4029,14 @@ function Admin() {
                           } else if (transaction.type === 'expense') {
                             categoryName = transaction.category || transaction.description || '클럽 지출';
                           } else if (transaction.type === 'donation') {
-                            if (transaction.description?.startsWith('기타 - ')) {
+                            if (transaction.category === '크레딧 참가비' && transaction.description) {
+                              const parts = transaction.description.split(' - ');
+                              if (parts.length > 0) {
+                                categoryName = parts[0].replace('청구', '') || '도네이션';
+                              } else {
+                                categoryName = '도네이션';
+                              }
+                            } else if (transaction.description?.startsWith('기타 - ')) {
                               categoryName = transaction.description.replace('기타 - ', '');
                             } else {
                               categoryName = '도네이션';
