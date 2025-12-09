@@ -529,51 +529,52 @@ function Fees() {
         </div>
       </div>
 
-      <div style={{
-        display: 'flex',
-        gap: '0',
-        background: 'var(--bg-page)',
-        position: 'sticky',
-        top: '64px',
-        zIndex: 100
-      }}>
-        <button
-          onClick={() => setActiveTab('personal')}
-          style={{
-            flex: 1,
-            padding: '16px',
-            background: activeTab === 'personal' ? '#193C40' : 'transparent',
-            color: activeTab === 'personal' ? 'white' : 'var(--text-dark)',
-            border: 'none',
-            fontSize: '16px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            borderBottom: activeTab === 'personal' ? '3px solid #122a2d' : '3px solid transparent',
-            transition: 'all 0.2s'
-          }}
-        >
-          개인 참가비 내역
-        </button>
-        <button
-          onClick={() => setActiveTab('club')}
-          style={{
-            flex: 1,
-            padding: '16px',
-            background: activeTab === 'club' ? '#223B3F' : 'transparent',
-            color: activeTab === 'club' ? 'white' : 'var(--text-dark)',
-            border: 'none',
-            fontSize: '16px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            borderBottom: activeTab === 'club' ? '3px solid #1a2d30' : '3px solid transparent',
-            transition: 'all 0.2s'
-          }}
-        >
-          클럽 회계장부
-        </button>
-      </div>
-
       <div className="page-content">
+        {/* Segmented Control Tabs */}
+        <div style={{
+          display: 'flex',
+          background: '#E5E7EB',
+          borderRadius: '12px',
+          padding: '4px',
+          marginBottom: '20px'
+        }}>
+          <button
+            onClick={() => setActiveTab('personal')}
+            style={{
+              flex: 1,
+              padding: '10px 12px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              background: activeTab === 'personal' ? '#FFFFFF' : 'transparent',
+              color: activeTab === 'personal' ? '#1A3D2F' : '#6B7280',
+              boxShadow: activeTab === 'personal' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'
+            }}
+          >
+            개인 참가비 내역
+          </button>
+          <button
+            onClick={() => setActiveTab('club')}
+            style={{
+              flex: 1,
+              padding: '10px 12px',
+              borderRadius: '8px',
+              fontSize: '14px',
+              fontWeight: '600',
+              border: 'none',
+              cursor: 'pointer',
+              transition: 'all 0.2s ease',
+              background: activeTab === 'club' ? '#FFFFFF' : 'transparent',
+              color: activeTab === 'club' ? '#1A3D2F' : '#6B7280',
+              boxShadow: activeTab === 'club' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'
+            }}
+          >
+            클럽 회계장부
+          </button>
+        </div>
         {activeTab === 'personal' ? (
           <>
             <div className="card" style={{
