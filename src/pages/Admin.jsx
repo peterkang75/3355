@@ -75,7 +75,7 @@ function Admin() {
   const [ledgerFilter, setLedgerFilter] = useState({
     type: 'all',
     memberId: 'all',
-    showCharges: false
+    showCharges: true
   });
   const [summaryBookingFilter, setSummaryBookingFilter] = useState('all');
   const [selectedSummaryCategories, setSelectedSummaryCategories] = useState([]);
@@ -925,9 +925,10 @@ function Admin() {
         await refreshMembers();
       }
       const [transactionsData, balanceData] = await Promise.all([
-        apiService.fetchTransactions(),
+        apiService.fetchTransactions({ limit: 1000 }),
         apiService.fetchClubBalance()
       ]);
+      console.log('📋 Admin 통합장부 거래내역:', transactionsData?.length, '건');
       setAllTransactions(transactionsData || []);
       setClubBalance(balanceData.balance);
     } catch (error) {
@@ -3216,7 +3217,6 @@ function Admin() {
                     </thead>
                     <tbody>
                       {recentTransactions
-                        .filter(t => !(t.type === 'donation' && t.category === '도네이션'))
                         .filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감')).map(transaction => {
                         const typeColor =
                           transaction.type === 'payment' ? 'var(--success-green)' :
@@ -3649,7 +3649,6 @@ function Admin() {
                 <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
                   거래 내역 ({
                     allTransactions
-                      .filter(t => !(t.type === 'donation' && t.category === '도네이션'))
                       .filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감'))
                       .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                       .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
@@ -3827,7 +3826,6 @@ function Admin() {
                   <p style={{ color: 'var(--text-secondary)' }}>거래내역 불러오는 중...</p>
                 </div>
               ) : allTransactions
-                .filter(t => !(t.type === 'donation' && t.category === '도네이션'))
                 .filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감'))
                 .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                 .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
@@ -3892,7 +3890,6 @@ function Admin() {
                               type="checkbox"
                               checked={(() => {
                                 const filteredIds = allTransactions
-                                  .filter(t => !(t.type === 'donation' && t.category === '도네이션'))
                                   .filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감'))
                                   .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                                   .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
@@ -3933,7 +3930,6 @@ function Admin() {
                               })()}
                               onChange={(e) => {
                                 const filteredIds = allTransactions
-                                  .filter(t => !(t.type === 'donation' && t.category === '도네이션'))
                                   .filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감'))
                                   .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                                   .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
@@ -3989,7 +3985,6 @@ function Admin() {
                     </thead>
                     <tbody>
                       {allTransactions
-                        .filter(t => !(t.type === 'donation' && t.category === '도네이션'))
                         .filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감'))
                         .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                         .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
