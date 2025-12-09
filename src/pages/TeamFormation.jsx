@@ -19,6 +19,7 @@ function TeamFormation() {
   const [selectedParticipants, setSelectedParticipants] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [isAutoAssigning, setIsAutoAssigning] = useState(false);
+  const [gameMode, setGameMode] = useState('stroke');
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -26,6 +27,19 @@ function TeamFormation() {
       setBooking(foundBooking);
       
       if (foundBooking) {
+        if (foundBooking.gradeSettings) {
+          try {
+            const parsed = typeof foundBooking.gradeSettings === 'string'
+              ? JSON.parse(foundBooking.gradeSettings)
+              : foundBooking.gradeSettings;
+            if (parsed.mode) {
+              setGameMode(parsed.mode);
+            }
+          } catch (e) {
+            console.error('gradeSettings 파싱 오류:', e);
+          }
+        }
+        
         const parsedParticipants = parseParticipants(foundBooking.participants);
         
         // 번호대여 회원도 조편성에 포함
@@ -518,88 +532,167 @@ function TeamFormation() {
           </div>
         </div>
 
-        {teams.map((team, teamIndex) => (
-          <div key={teamIndex} className="card" style={{ marginBottom: '16px' }}>
-            <h3 style={{ 
-              fontSize: '16px', 
-              fontWeight: '700',
-              marginBottom: '12px',
-              color: 'var(--primary-green)'
-            }}>
-              {team.teamNumber}조
-            </h3>
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: '12px'
-            }}>
-              {team.members.map((member, slotIndex) => {
-                const isRenting = member && booking?.numberRentals && booking.numberRentals.includes(member.phone);
-                const isGuest = isGuestParticipant(member);
-                const handicapText = member ? getHandicapDisplay(member) : '';
-                
-                let bgColor = 'var(--bg-card)';
-                let textColor = 'var(--text-dark)';
-                let borderColor = 'var(--border-color)';
-                
-                if (member) {
-                  if (isGuest) {
-                    bgColor = '#87CEEB';
-                    textColor = '#1a3a4a';
-                    borderColor = '#5BA3C0';
-                  } else if (isRenting) {
-                    bgColor = '#E6AA68';
-                    textColor = '#fff';
-                  } else {
-                    bgColor = 'var(--primary-green)';
-                    textColor = 'var(--text-light)';
-                  }
-                }
-                
-                return (
-                  <button
-                    key={slotIndex}
-                    onClick={() => handleSlotClick(teamIndex, slotIndex, member)}
-                    style={{
-                      minHeight: '60px',
-                      background: bgColor,
-                      color: textColor,
-                      borderRadius: '8px',
-                      border: `2px solid ${borderColor}`,
-                      opacity: member ? 1 : 0.7,
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '15px',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s',
-                      gap: '2px'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <span>{member ? getParticipantDisplayName(member) : '+ 추가'}</span>
-                      {isGuest && (
-                        <span style={{
-                          fontSize: '9px',
-                          fontWeight: '700',
-                          background: 'rgba(255,255,255,0.4)',
-                          color: '#1a3a4a',
-                          padding: '1px 3px',
-                          borderRadius: '2px'
-                        }}>
-                          G
-                        </span>
-                      )}
+        {teams.map((team, teamIndex) => {
+          const renderSlotButton = (member, slotIndex) => {
+            const isRenting = member && booking?.numberRentals && booking.numberRentals.includes(member.phone);
+            const isGuest = isGuestParticipant(member);
+            const handicapText = member ? getHandicapDisplay(member) : '';
+            
+            let bgColor = 'var(--bg-card)';
+            let textColor = 'var(--text-dark)';
+            let borderColor = 'var(--border-color)';
+            
+            if (member) {
+              if (isGuest) {
+                bgColor = '#87CEEB';
+                textColor = '#1a3a4a';
+                borderColor = '#5BA3C0';
+              } else if (isRenting) {
+                bgColor = '#E6AA68';
+                textColor = '#fff';
+              } else {
+                bgColor = 'var(--primary-green)';
+                textColor = 'var(--text-light)';
+              }
+            }
+            
+            return (
+              <button
+                key={slotIndex}
+                onClick={() => handleSlotClick(teamIndex, slotIndex, member)}
+                style={{
+                  minHeight: '60px',
+                  background: bgColor,
+                  color: textColor,
+                  borderRadius: '8px',
+                  border: `2px solid ${borderColor}`,
+                  opacity: member ? 1 : 0.7,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '15px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  gap: '2px',
+                  flex: 1
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  <span>{member ? getParticipantDisplayName(member) : '+ 추가'}</span>
+                  {isGuest && (
+                    <span style={{
+                      fontSize: '9px',
+                      fontWeight: '700',
+                      background: 'rgba(255,255,255,0.4)',
+                      color: '#1a3a4a',
+                      padding: '1px 3px',
+                      borderRadius: '2px'
+                    }}>
+                      G
+                    </span>
+                  )}
+                </div>
+                {handicapText && <span style={{ fontSize: '11px', opacity: 0.85 }}>{handicapText}</span>}
+              </button>
+            );
+          };
+
+          return (
+            <div key={teamIndex} className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ 
+                fontSize: '16px', 
+                fontWeight: '700',
+                marginBottom: '12px',
+                color: 'var(--primary-green)'
+              }}>
+                {team.teamNumber}조
+              </h3>
+              
+              {gameMode === 'foursome' ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <div style={{
+                    background: 'rgba(59, 130, 246, 0.1)',
+                    borderRadius: '8px',
+                    padding: '10px'
+                  }}>
+                    <div style={{ 
+                      fontSize: '12px', 
+                      fontWeight: '700', 
+                      color: '#3B82F6', 
+                      marginBottom: '8px',
+                      textAlign: 'center'
+                    }}>
+                      A팀
                     </div>
-                    {handicapText && <span style={{ fontSize: '11px', opacity: 0.85 }}>{handicapText}</span>}
-                  </button>
-                );
-              })}
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      {renderSlotButton(team.members[0], 0)}
+                      {renderSlotButton(team.members[1], 1)}
+                    </div>
+                  </div>
+                  
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: '4px 0'
+                  }}>
+                    <div style={{
+                      background: 'linear-gradient(90deg, transparent, var(--border-color), transparent)',
+                      height: '1px',
+                      flex: 1
+                    }} />
+                    <span style={{
+                      padding: '4px 16px',
+                      fontSize: '14px',
+                      fontWeight: '800',
+                      color: 'var(--text-gray)',
+                      background: 'var(--bg-card)',
+                      borderRadius: '12px',
+                      border: '2px solid var(--border-color)'
+                    }}>
+                      VS
+                    </span>
+                    <div style={{
+                      background: 'linear-gradient(90deg, transparent, var(--border-color), transparent)',
+                      height: '1px',
+                      flex: 1
+                    }} />
+                  </div>
+                  
+                  <div style={{
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    borderRadius: '8px',
+                    padding: '10px'
+                  }}>
+                    <div style={{ 
+                      fontSize: '12px', 
+                      fontWeight: '700', 
+                      color: '#EF4444', 
+                      marginBottom: '8px',
+                      textAlign: 'center'
+                    }}>
+                      B팀
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      {renderSlotButton(team.members[2], 2)}
+                      {renderSlotButton(team.members[3], 3)}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+                  gap: '12px'
+                }}>
+                  {team.members.map((member, slotIndex) => renderSlotButton(member, slotIndex))}
+                </div>
+              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {showSelectModal && (
