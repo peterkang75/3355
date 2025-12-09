@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import apiService from '../services/api';
 import CrownIcon from '../components/CrownIcon';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
-import { Badge, Card, Button } from '../components/common';
+import { Badge, Card, Button, PageHeader, ProfileBadge } from '../components/common';
 import BookingListCard from '../components/booking/BookingListCard';
 
 function Dashboard() {
@@ -475,77 +475,10 @@ function Dashboard() {
 
   return (
     <div>
-      <div className="header">
-        <button
-          onClick={() => navigate(-1)}
-          style={{
-            background: 'none',
-            border: 'none',
-            fontSize: '20px',
-            fontWeight: '700',
-            cursor: 'pointer',
-            padding: '0',
-            color: 'var(--text-light)',
-            minWidth: '24px'
-          }}
-        >
-          ‹
-        </button>
-        <h1 style={{ flex: 1, marginLeft: '12px' }}>대시보드</h1>
-        <div 
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '8px',
-            cursor: 'pointer'
-          }}
-          onClick={() => navigate('/mypage')}
-        >
-          <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-light)' }}>
-            환영합니다 {user.nickname || user.name}님
-          </div>
-          <div style={{ position: 'relative' }}>
-            <div style={{
-              width: '36px',
-              height: '36px',
-              borderRadius: '50%',
-              overflow: 'hidden',
-              background: 'var(--primary-green)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: 'white',
-              fontWeight: '600',
-              fontSize: '14px',
-              border: '2px solid var(--border-color)'
-            }}>
-              {user.photo ? (
-                <img 
-                  src={user.photo} 
-                  alt="프로필" 
-                  style={{ 
-                    width: '100%', 
-                    height: '100%', 
-                    objectFit: 'cover' 
-                  }} 
-                />
-              ) : (
-                <span>{(user.nickname || user.name).charAt(0)}</span>
-              )}
-            </div>
-            {user.role && ['관리자', '방장', '운영진', '클럽운영진'].includes(user.role) && (
-              <div style={{
-                position: 'absolute',
-                bottom: '-2px',
-                right: '-2px',
-                zIndex: 10
-              }}>
-                <CrownIcon role={user.role} size={16} />
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+      <PageHeader 
+        title="대시보드" 
+        rightContent={<ProfileBadge user={user} showGreeting={true} />}
+      />
 
       <div className="page-content">
         <Card style={{ borderLeft: '3px solid var(--accent-bright-green)' }}>
