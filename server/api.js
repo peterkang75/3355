@@ -1281,26 +1281,21 @@ router.get('/transactions/club-balance', async (req, res) => {
     });
 
     const balance = transactions.reduce((sum, t) => {
-      // 1. Payment: '크레딧 자동 납부', '크레딧 납부'를 제외한 현금 납부만 수입으로 인정
-      if (t.type === 'payment') {
-        if (t.category !== '크레딧 자동 납부' && t.category !== '크레딧 납부') {
-          return sum + t.amount;
-        }
-        return sum; // 크레딧 납부는 클럽 현금 잔액 변동 없음
-      }
+      // 1. 수입 (Payment, Donation)
+      // 단, '크레딧 자동 납부'라는 Payment는 이제 생성하지 않으므로 고려 불필요
+      if (t.type === 'payment' || t.type === 'donation') return sum + t.amount;
       
-      // 2. Donation: 수입 (+)
-      if (t.type === 'donation') return sum + t.amount;
-      
-      // 3. Expense: 지출 (-), 단 '크레딧 자동 차감'은 수입 (+)
+      // 2. 지출 (Expense)
       if (t.type === 'expense') {
-        if (t.category === '크레딧 자동 차감') {
-          return sum + t.amount; // 크레딧 사용은 클럽 수입으로 인정
+        // 중요: 크레딧으로 비용을 지불한 경우(크레딧 자동 차감)는 클럽의 부채가 줄어든 것이므로 '수입'으로 간주하여 더합니다.
+        if (t.category === '크레딧 자동 차감' || t.category === '크레딧 납부') {
+          return sum + t.amount; 
         }
+        // 그 외 일반 지출은 뺍니다.
         return sum - t.amount;
       }
       
-      // 4. Credit: 크레딧 발행은 부채 증가/자산 감소 (-)
+      // 3. 크레딧 발행 (Credit) - 클럽 잔액 감소
       if (t.type === 'credit') return sum - t.amount;
       
       return sum;
