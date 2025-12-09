@@ -3215,7 +3215,7 @@ function Admin() {
                       </tr>
                     </thead>
                     <tbody>
-                      {recentTransactions.filter(t => ledgerFilter.showCharges || t.type !== 'charge').map(transaction => {
+                      {recentTransactions.filter(t => t.type !== 'creditDonation').filter(t => ledgerFilter.showCharges || t.type !== 'charge').map(transaction => {
                         const typeColor =
                           transaction.type === 'payment' ? 'var(--success-green)' :
                           transaction.type === 'expense' ? 'var(--alert-red)' : 'var(--success-green)';
@@ -3634,6 +3634,7 @@ function Admin() {
                 <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
                   거래 내역 ({
                     allTransactions
+                      .filter(t => t.type !== 'creditDonation')
                       .filter(t => ledgerFilter.showCharges || t.type !== 'charge')
                       .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                       .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
@@ -3811,6 +3812,7 @@ function Admin() {
                   <p style={{ color: 'var(--text-secondary)' }}>거래내역 불러오는 중...</p>
                 </div>
               ) : allTransactions
+                .filter(t => t.type !== 'creditDonation')
                 .filter(t => ledgerFilter.showCharges || t.type !== 'charge')
                 .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                 .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
@@ -3873,6 +3875,7 @@ function Admin() {
                               type="checkbox"
                               checked={(() => {
                                 const filteredIds = allTransactions
+                                  .filter(t => t.type !== 'creditDonation')
                                   .filter(t => ledgerFilter.showCharges || t.type !== 'charge')
                                   .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                                   .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
@@ -3911,6 +3914,7 @@ function Admin() {
                               })()}
                               onChange={(e) => {
                                 const filteredIds = allTransactions
+                                  .filter(t => t.type !== 'creditDonation')
                                   .filter(t => ledgerFilter.showCharges || t.type !== 'charge')
                                   .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                                   .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
@@ -3964,6 +3968,7 @@ function Admin() {
                     </thead>
                     <tbody>
                       {allTransactions
+                        .filter(t => t.type !== 'creditDonation')
                         .filter(t => ledgerFilter.showCharges || t.type !== 'charge')
                         .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                         .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
