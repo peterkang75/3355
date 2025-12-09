@@ -3215,7 +3215,7 @@ function Admin() {
                       </tr>
                     </thead>
                     <tbody>
-                      {recentTransactions.filter(t => t.type !== 'creditDonation').filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감')).map(transaction => {
+                      {recentTransactions.filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감')).map(transaction => {
                         const typeColor =
                           transaction.type === 'payment' ? 'var(--success-green)' :
                           transaction.type === 'expense' ? 'var(--alert-red)' : 'var(--success-green)';
@@ -3640,7 +3640,6 @@ function Admin() {
                 <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
                   거래 내역 ({
                     allTransactions
-                      .filter(t => t.type !== 'creditDonation')
                       .filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감'))
                       .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                       .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
@@ -3818,7 +3817,6 @@ function Admin() {
                   <p style={{ color: 'var(--text-secondary)' }}>거래내역 불러오는 중...</p>
                 </div>
               ) : allTransactions
-                .filter(t => t.type !== 'creditDonation')
                 .filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감'))
                 .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                 .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
@@ -3850,6 +3848,8 @@ function Admin() {
                     catKey = `expense:${catName}`;
                   } else if (t.type === 'charge') {
                     catKey = 'charge:청구';
+                  } else if (t.type === 'creditDonation') {
+                    catKey = 'expense:크레딧 도네이션';
                   }
                   
                   return selectedSummaryCategories.includes(catKey);
@@ -3881,7 +3881,6 @@ function Admin() {
                               type="checkbox"
                               checked={(() => {
                                 const filteredIds = allTransactions
-                                  .filter(t => t.type !== 'creditDonation')
                                   .filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감'))
                                   .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                                   .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
@@ -3912,6 +3911,8 @@ function Admin() {
                                       catKey = `expense:${catName}`;
                                     } else if (t.type === 'charge') {
                                       catKey = 'charge:청구';
+                                    } else if (t.type === 'creditDonation') {
+                                      catKey = 'expense:크레딧 도네이션';
                                     }
                                     return selectedSummaryCategories.includes(catKey);
                                   })
@@ -3920,7 +3921,6 @@ function Admin() {
                               })()}
                               onChange={(e) => {
                                 const filteredIds = allTransactions
-                                  .filter(t => t.type !== 'creditDonation')
                                   .filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감'))
                                   .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                                   .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
@@ -3951,6 +3951,8 @@ function Admin() {
                                       catKey = `expense:${catName}`;
                                     } else if (t.type === 'charge') {
                                       catKey = 'charge:청구';
+                                    } else if (t.type === 'creditDonation') {
+                                      catKey = 'expense:크레딧 도네이션';
                                     }
                                     return selectedSummaryCategories.includes(catKey);
                                   })
@@ -3974,7 +3976,6 @@ function Admin() {
                     </thead>
                     <tbody>
                       {allTransactions
-                        .filter(t => t.type !== 'creditDonation')
                         .filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감'))
                         .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                         .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
@@ -4006,6 +4007,8 @@ function Admin() {
                             catKey = `expense:${catName}`;
                           } else if (t.type === 'charge') {
                             catKey = 'charge:청구';
+                          } else if (t.type === 'creditDonation') {
+                            catKey = 'expense:크레딧 도네이션';
                           }
                           
                           return selectedSummaryCategories.includes(catKey);
@@ -4014,10 +4017,11 @@ function Admin() {
                           const typeColor =
                             transaction.type === 'payment' ? 'var(--success-green)' :
                             transaction.type === 'charge' ? 'var(--alert-red)' :
-                            transaction.type === 'expense' ? 'var(--alert-red)' : 'var(--success-green)';
+                            transaction.type === 'expense' ? 'var(--alert-red)' :
+                            transaction.type === 'creditDonation' ? 'var(--success-green)' : 'var(--success-green)';
 
                           const sign = 
-                            transaction.type === 'payment' || transaction.type === 'donation' ? '+' : '-';
+                            transaction.type === 'payment' || transaction.type === 'donation' || transaction.type === 'creditDonation' ? '+' : '-';
                           
                           const bookingName = transaction.booking ? 
                             (transaction.booking.title || transaction.booking.courseName) : '-';
@@ -4058,6 +4062,8 @@ function Admin() {
                             } else {
                               categoryName = chargeDesc;
                             }
+                          } else if (transaction.type === 'creditDonation') {
+                            categoryName = transaction.description || '크레딧 도네이션';
                           } else {
                             categoryName = transaction.type;
                           }
