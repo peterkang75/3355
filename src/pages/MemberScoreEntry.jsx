@@ -7,7 +7,7 @@ function MemberScoreEntry() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const bookingId = searchParams.get('id');
-  const { user, bookings, members } = useApp();
+  const { user, bookings, members, courses } = useApp();
   const [booking, setBooking] = useState(null);
   const [participants, setParticipants] = useState([]);
   const [scores, setScores] = useState({});
@@ -177,8 +177,17 @@ function MemberScoreEntry() {
     }
   };
 
+  const getCoursePar = () => {
+    if (!booking) return 72;
+    const course = courses.find(c => c.name === booking.courseName);
+    if (course?.holePars?.male) {
+      return course.holePars.male.reduce((a, b) => a + b, 0);
+    }
+    return 72;
+  };
+
   const calculateLeaderboard = (savedScores, dailyHandicaps, gradeSettings) => {
-    const coursePar = 72;
+    const coursePar = getCoursePar();
     
     const results = savedScores.map(score => {
       const member = members.find(m => m.id === score.userId);
@@ -283,7 +292,7 @@ function MemberScoreEntry() {
             date: new Date(booking.date).toISOString().split('T')[0],
             courseName: booking.courseName,
             totalScore: totalScore,
-            coursePar: 72,
+            coursePar: getCoursePar(),
             holes: []
           });
         }

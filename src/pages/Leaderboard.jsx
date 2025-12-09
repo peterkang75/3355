@@ -59,7 +59,7 @@ function Leaderboard() {
       const course = courses.find(c => c.name === booking.courseName);
       const holePars = course?.holePars?.male || Array(18).fill(4);
       setCoursePars(holePars);
-      const coursePar = holePars.reduce((a, b) => a + b, 0) || 72;
+      const calculatedCoursePar = holePars.reduce((a, b) => a + b, 0) || 72;
 
       const processedScores = bookingScores.map(score => {
         const member = score.user || members.find(m => m.id === score.userId || m.phone === score.userId);
@@ -98,7 +98,8 @@ function Leaderboard() {
         const completedHoles = holesArray?.filter(h => h > 0).length || 0;
         const thru = completedHoles === 18 ? 'F' : completedHoles.toString();
         const totalScore = score.totalScore || holesArray?.reduce((a, b) => a + b, 0) || 0;
-        const overUnder = totalScore - coursePar;
+        const scoreCoursePar = score.coursePar || calculatedCoursePar;
+        const overUnder = totalScore - scoreCoursePar;
         
         const outScore = holesArray?.slice(0, 9).reduce((a, b) => a + b, 0) || 0;
         const inScore = holesArray?.slice(9, 18).reduce((a, b) => a + b, 0) || 0;
@@ -115,7 +116,7 @@ function Leaderboard() {
           holes: holesArray || [],
           outScore,
           inScore,
-          coursePar
+          coursePar: scoreCoursePar
         };
       });
 
