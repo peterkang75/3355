@@ -345,7 +345,8 @@ function TeamFormation() {
       return number ? `${name}(${number})` : name;
     };
 
-    let lines = [];
+    const header = `[${booking?.date || ''}] 조편성`;
+    let lines = [header];
 
     teams.forEach((team) => {
       const teamMembers = team.members.filter(m => m !== null);
