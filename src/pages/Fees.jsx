@@ -79,10 +79,12 @@ function Fees() {
     try {
       setLoading(true);
       const [transactionsData, balanceData, outstandingData] = await Promise.all([
-        apiService.fetchTransactions(),
+        apiService.fetchTransactions({ limit: 1000 }),
         apiService.fetchClubBalance(),
         apiService.fetchOutstandingBalances()
       ]);
+      console.log('📋 통합장부 거래내역:', transactionsData?.length, '건');
+      console.log('📋 도네이션 거래:', transactionsData?.filter(t => t.type === 'donation'));
       setAllTransactions(transactionsData || []);
       setClubBalance(balanceData?.balance || 0);
       setOutstandingCount(outstandingData?.length || 0);
