@@ -1,0 +1,58 @@
+Act as a Senior Backend Developer.
+The user reports that the "Fees" page is still slow to load.
+I identified the bottleneck: `router.get('/transactions/club-balance')` in `server/api.js` is fetching ALL transactions and calculating the sum in JavaScript. This is inefficient.
+
+**Task: Optimize Club Balance Calculation using Database Aggregation**
+
+1.  **Refactor `GET /transactions/club-balance` in `server/api.js`:**
+    * Instead of `findMany` + `reduce`, use `prisma.transaction.aggregate`.
+    * We need to sum `amount` based on transaction types.
+    * Since Prisma doesn't support complex conditional sums in one query easily, use **three separate fast aggregate queries** (or a raw query if you prefer, but standard Prisma is safer):
+        * `totalIncome`: Sum of `amount` where `type` is 'payment' OR 'donation'.
+        * `totalExpense`: Sum of `amount` where `type` is 'expense'.
+        * `creditExpense`: Sum of `amount` where `type` is 'expense' AND `category` is '크레딧 자동 차감' OR '크레딧 납부'.
+        * `totalCredits`: Sum of `amount` where `type` is 'credit'.
+
+2.  **Calculation Logic:**
+    * `Club Balance` = `totalIncome` - (`totalExpense` - `creditExpense`) - `totalCredits`.
+    * *Explanation:* Expenses paid by credit (creditExpense) stay in the club (reduce liability), so we subtract them from total expenses before deducting from income. Alternatively, treat them as income.
+    * **Simplified Logic:**
+        * Plus: Payments, Donations
+        * Minus: Expenses (EXCEPT 'credit' related expenses), Credits Issued.
+        * *Note:* Since 'Credit Payment' (`payment` type) adds to balance, and 'Credit Usage' (`expense` type) subtracts, they cancel out if we just sum everything.
+        * **Recommended Query:**
+            ```javascript
+            // 1. Sum of Money IN (Real Money)
+            const income = await prisma.transaction.aggregate({
+                _sum: { amount: true },
+                where: { type: { in: ['payment', 'donation'] } }
+            });
+
+            // 2. Sum of Money OUT (Real Money expenses only)
+            const expense = await prisma.transaction.aggregate({
+                _sum: { amount: true },
+                where: {
+                    type: 'expense',
+                    NOT: { category: { in: ['크레딧 자동 차감', '크레딧 납부'] } } // Exclude credit usage
+                }
+            });
+
+            // 3. Sum of Credits Issued (Liability increases)
+            // Actually, issuing credit reduces club assets (liability).
+            // But usually, Club Balance = Cash in Bank.
+            // If we want "Cash Balance":
+            // Balance = Total Payments + Donations - Real Expenses.
+            // (We ignore 'credit' type and 'credit' expenses entirely for Cash Balance).
+            ```
+
+    * **Decision:** The user likely wants **"Cash Balance" (Actual Money available)**.
+        * **Formula:** `Sum(Payment + Donation) - Sum(Expense where category != 'Credit...')`.
+        * Ignore `type: 'credit'` (that's virtual money).
+        * Ignore `type: 'charge'` (that's just a request).
+        * Ignore `type: 'creditDonation'` (virtual transfer).
+
+3.  **Implementation Details:**
+    * Use `_sum` to get the totals. Handle `null` results (default to 0).
+    * Send the calculated `balance` back.
+
+**Goal:** This endpoint must respond in milliseconds, not seconds, by avoiding fetching thousands of rows.

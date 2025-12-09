@@ -1321,37 +1321,46 @@ router.get('/transactions/balance/:memberId', async (req, res) => {
   }
 });
 
-// 클럽 잔액 계산 (최적화)
+// 클럽 잔액 계산 (DB 집계 최적화)
 router.get('/transactions/club-balance', async (req, res) => {
   try {
-    const transactions = await prisma.transaction.findMany({
-      select: {
-        type: true,
-        amount: true,
-        category: true
-      }
-    });
-
-    const balance = transactions.reduce((sum, t) => {
-      // 1. 수입 (Payment, Donation)
-      // 단, '크레딧 자동 납부'라는 Payment는 이제 생성하지 않으므로 고려 불필요
-      if (t.type === 'payment' || t.type === 'donation') return sum + t.amount;
-      
-      // 2. 지출 (Expense)
-      if (t.type === 'expense') {
-        // 중요: 크레딧으로 비용을 지불한 경우(크레딧 자동 차감)는 클럽의 부채가 줄어든 것이므로 '수입'으로 간주하여 더합니다.
-        if (t.category === '크레딧 자동 차감' || t.category === '크레딧 납부') {
-          return sum + t.amount; 
+    // 병렬로 3개의 집계 쿼리 실행 (수천 건 → 3개 쿼리로 최적화)
+    const [incomeResult, expenseResult, creditExpenseResult, creditResult] = await Promise.all([
+      // 1. 수입 합계 (Payment + Donation)
+      prisma.transaction.aggregate({
+        _sum: { amount: true },
+        where: { type: { in: ['payment', 'donation'] } }
+      }),
+      // 2. 일반 지출 합계 (크레딧 관련 제외)
+      prisma.transaction.aggregate({
+        _sum: { amount: true },
+        where: {
+          type: 'expense',
+          NOT: { category: { in: ['크레딧 자동 차감', '크레딧 납부'] } }
         }
-        // 그 외 일반 지출은 뺍니다.
-        return sum - t.amount;
-      }
-      
-      // 3. 크레딧 발행 (Credit) - 클럽 잔액 감소
-      if (t.type === 'credit') return sum - t.amount;
-      
-      return sum;
-    }, 0);
+      }),
+      // 3. 크레딧 관련 지출 합계 (클럽 부채 감소 = 수입으로 처리)
+      prisma.transaction.aggregate({
+        _sum: { amount: true },
+        where: {
+          type: 'expense',
+          category: { in: ['크레딧 자동 차감', '크레딧 납부'] }
+        }
+      }),
+      // 4. 크레딧 발행 합계 (클럽 잔액 감소)
+      prisma.transaction.aggregate({
+        _sum: { amount: true },
+        where: { type: 'credit' }
+      })
+    ]);
+
+    const income = incomeResult._sum.amount || 0;
+    const expense = expenseResult._sum.amount || 0;
+    const creditExpense = creditExpenseResult._sum.amount || 0;
+    const credits = creditResult._sum.amount || 0;
+
+    // 잔액 = 수입 + 크레딧지출(부채감소) - 일반지출 - 크레딧발행
+    const balance = income + creditExpense - expense - credits;
 
     res.json({ balance });
   } catch (error) {
