@@ -1,5 +1,5 @@
 import React, { memo } from 'react';
-import { Badge } from '../common';
+import { Badge, Button } from '../common';
 import theme from '../../styles/theme';
 
 const BookingListCard = memo(function BookingListCard({
@@ -312,173 +312,111 @@ const BookingListCard = memo(function BookingListCard({
 
         <div style={{ display: 'flex', gap: '8px' }}>
           {isPastRoundingDate && (booking.dailyHandicaps || hasUserScore) ? (
-            <>
-              <button
-                onClick={() => onNavigate(`/member-score-entry?id=${booking.id}`)}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  background: 'var(--primary-green)',
-                  color: 'var(--text-light)',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '16px',
-                  fontWeight: '700',
-                  cursor: 'pointer'
-                }}
-              >
-                ▲ 결과보기
-              </button>
-            </>
+            <Button
+              variant="primary"
+              fullWidth
+              onClick={() => onNavigate(`/member-score-entry?id=${booking.id}`)}
+            >
+              ▲ 결과보기
+            </Button>
           ) : isRoundingDay ? (
             <>
-              <button
+              <Button
+                variant="outline"
                 onClick={() => onNavigate(`/team-formation?id=${booking.id}`)}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  background: 'var(--primary-green)',
-                  color: 'var(--text-light)',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '16px',
-                  fontWeight: '700',
-                  cursor: 'pointer'
-                }}
+                style={{ flex: 1 }}
               >
-                📋 조편성 보기
-              </button>
+                📋 조편성
+              </Button>
               {booking.playEnabled && (
-                <button
+                <Button
+                  variant="primary"
                   onClick={() => onNavigate(`/play?id=${booking.id}`)}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: '#2196F3',
-                    color: 'var(--text-light)',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontSize: '16px',
-                    fontWeight: '700',
-                    cursor: 'pointer'
-                  }}
+                  style={{ flex: 1 }}
                 >
                   ⛳ 플레이하기
-                </button>
+                </Button>
               )}
             </>
           ) : isRegistrationClosed && !isPastRoundingDate ? (
             <>
-              <button
+              <Button
+                variant="outline"
                 onClick={() => onNavigate(`/team-formation?id=${booking.id}`)}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  background: 'var(--primary-green)',
-                  color: 'var(--text-light)',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '16px',
-                  fontWeight: '700',
-                  cursor: 'pointer'
-                }}
+                style={{ flex: 1 }}
               >
-                📋 조편성 보기
-              </button>
+                📋 조편성
+              </Button>
               {booking.playEnabled && (
-                <button
+                <Button
+                  variant="primary"
                   onClick={() => onNavigate(`/play?id=${booking.id}`)}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: '#2196F3',
-                    color: 'var(--text-light)',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontSize: '16px',
-                    fontWeight: '700',
-                    cursor: 'pointer'
-                  }}
+                  style={{ flex: 1 }}
                 >
                   ⛳ 플레이하기
-                </button>
+                </Button>
               )}
             </>
           ) : (
             <>
-              <button
-                onClick={(isJoined || isRenting || isJoining) ? null : () => onJoin(booking.id)}
-                disabled={isJoining}
-                style={{
+              {(isJoined || isRenting) ? (
+                <div style={{
                   flex: 1,
-                  padding: '12px',
-                  background: (isJoined || isRenting || isJoining) ? '#e0e0e0' : 'var(--primary-green)',
-                  color: (isJoined || isRenting || isJoining) ? '#999' : 'var(--text-light)',
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '16px',
-                  fontWeight: '700',
-                  cursor: (isJoined || isRenting || isJoining) ? 'default' : 'pointer',
-                  opacity: (isJoined || isRenting || isJoining) ? 0.6 : 1
-                }}
-              >
-                {isJoining ? '처리중...' : (isJoined ? '참가중' : '참가하기')}
-              </button>
-              <button
-                onClick={(isJoined && !isRenting && !isJoining) ? () => onJoin(booking.id) : null}
-                disabled={isJoining}
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  background: isJoining ? '#ccc' : ((isJoined && !isRenting) ? 'var(--alert-red)' : '#e0e0e0'),
-                  color: isJoining ? '#999' : ((isJoined && !isRenting) ? 'var(--text-light)' : '#999'),
-                  border: 'none',
-                  borderRadius: '6px',
-                  fontSize: '16px',
-                  fontWeight: '700',
-                  cursor: isJoining ? 'wait' : ((isJoined && !isRenting) ? 'pointer' : 'default'),
-                  opacity: isJoining ? 0.7 : ((isJoined && !isRenting) ? 1 : 0.6)
-                }}
-              >
-                {isJoining ? '처리중...' : '취소하기'}
-              </button>
+                  padding: '10px 16px',
+                  background: '#f0f0f0',
+                  color: theme.colors.text_sub,
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontWeight: '600',
+                  textAlign: 'center',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  ✓ 참가중
+                </div>
+              ) : (
+                <Button
+                  variant="primary"
+                  onClick={() => onJoin(booking.id)}
+                  disabled={isJoining}
+                  style={{ flex: 1 }}
+                >
+                  {isJoining ? '처리중...' : '참가하기'}
+                </Button>
+              )}
+              {(isJoined && !isRenting) && (
+                <Button
+                  variant="outline"
+                  onClick={() => onJoin(booking.id)}
+                  disabled={isJoining}
+                  style={{ 
+                    flex: 1,
+                    borderColor: theme.colors.danger,
+                    color: theme.colors.danger
+                  }}
+                >
+                  {isJoining ? '처리중...' : '취소'}
+                </Button>
+              )}
               {booking.type === '컴페티션' && (
-                <button
+                <Button
+                  variant={isRenting ? 'secondary' : 'outline'}
                   onClick={() => onToggleRental(booking.id)}
                   disabled={isRentalLoading}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: isRentalLoading ? '#ccc' : '#E6AA68',
-                    color: '#fff',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontSize: '16px',
-                    fontWeight: '700',
-                    cursor: isRentalLoading ? 'wait' : 'pointer',
-                    opacity: isRentalLoading ? 0.7 : 1
-                  }}
+                  style={{ flex: 1 }}
                 >
-                  {isRentalLoading ? '처리중...' : (isRenting ? '✓ 번호대여중' : '번호대여')}
-                </button>
+                  {isRentalLoading ? '처리중...' : (isRenting ? '✓ 번호대여' : '번호대여')}
+                </Button>
               )}
               {booking.playEnabled && (
-                <button
+                <Button
+                  variant="primary"
                   onClick={() => onNavigate(`/play?id=${booking.id}`)}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    background: '#2196F3',
-                    color: 'var(--text-light)',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontSize: '16px',
-                    fontWeight: '700',
-                    cursor: 'pointer'
-                  }}
+                  style={{ flex: 1 }}
                 >
-                  ⛳ 플레이하기
-                </button>
+                  ⛳ 플레이
+                </Button>
               )}
             </>
           )}
@@ -515,39 +453,21 @@ const BookingListCard = memo(function BookingListCard({
 
       <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
         {booking.dailyHandicaps ? (
-          <button
+          <Button
+            variant="primary"
+            size="sm"
             onClick={() => onNavigate(`/member-score-entry?id=${booking.id}`)}
-            style={{
-              padding: '8px 16px',
-              background: 'var(--primary-green)',
-              color: 'var(--text-light)',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '13px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap'
-            }}
           >
             ▲ 결과보기
-          </button>
+          </Button>
         ) : booking.playEnabled ? (
-          <button
+          <Button
+            variant="primary"
+            size="sm"
             onClick={() => onNavigate(`/play?id=${booking.id}`)}
-            style={{
-              padding: '8px 16px',
-              background: '#2196F3',
-              color: 'var(--text-light)',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '13px',
-              fontWeight: '600',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap'
-            }}
           >
-            ⛳ 플레이하기
-          </button>
+            ⛳ 플레이
+          </Button>
         ) : null}
         
         {canManage && (
