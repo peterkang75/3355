@@ -545,7 +545,7 @@ function Fees() {
               padding: '10px 12px',
               borderRadius: '8px',
               fontSize: '14px',
-              fontWeight: '600',
+              fontWeight: activeTab === 'personal' ? '800' : '600',
               border: 'none',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
@@ -563,12 +563,12 @@ function Fees() {
               padding: '10px 12px',
               borderRadius: '8px',
               fontSize: '14px',
-              fontWeight: '600',
+              fontWeight: activeTab === 'club' ? '800' : '600',
               border: 'none',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
               background: activeTab === 'club' ? '#FFFFFF' : 'transparent',
-              color: activeTab === 'club' ? '#1A3D2F' : '#6B7280',
+              color: activeTab === 'club' ? '#1E40AF' : '#6B7280',
               boxShadow: activeTab === 'club' ? '0 2px 4px rgba(0,0,0,0.1)' : 'none'
             }}
           >
