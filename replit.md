@@ -52,6 +52,10 @@
   - `src/components/booking/BookingListCard.jsx`: 라운딩 목록 카드 컴포넌트 (활성/완료 라운딩)
 - **스코어 계산 수정**: Over/Under 계산 시 실제로 플레이한 홀의 PAR만 합산하도록 수정 (스코어가 0보다 큰 홀만 계산)
 - **포썸 모드 표시**: 라운딩 카드에 포썸 경기 방식을 보라색 배지로 표시
+- **CSS-First Design System**: JSX 구조를 변경하지 않고 `globals.css`에서 전역 스타일을 정의하여 디자인 시스템 적용
+  - `.card` 클래스: 흰색 배경, border-radius 16px, 플로팅 효과 (box-shadow)
+  - 버튼 클래스: `.btn-primary`, `.btn-outline`, `.btn-danger`, `.btn-ghost`
+  - 게임 페이지 (Play, Leaderboard): 다크 배경 + 흰색 플로팅 카드 조합
 
 ### System Design Choices
 - **프론트엔드**: React 19, Vite 7을 사용하여 모던하고 빠른 웹 애플리케이션을 구축합니다. React Router DOM으로 클라이언트 측 라우팅을 관리합니다.
