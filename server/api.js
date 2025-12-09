@@ -1194,7 +1194,7 @@ router.get('/transactions', async (req, res) => {
           createdAt: true,
           memberId: true,
           bookingId: true,
-          executorId: true,
+          createdBy: true,
           member: {
             select: {
               id: true,
