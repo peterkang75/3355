@@ -84,6 +84,8 @@ function Admin() {
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [viewingTransaction, setViewingTransaction] = useState(null);
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
+  const [ledgerCurrentPage, setLedgerCurrentPage] = useState(1);
+  const [ledgerTotalPages, setLedgerTotalPages] = useState(1);
   const [editImageUploading, setEditImageUploading] = useState(false);
   const [isUpdatingTransaction, setIsUpdatingTransaction] = useState(false);
 
@@ -924,20 +926,23 @@ function Admin() {
     }
   };
 
-  const loadLedgerData = async () => {
+  const loadLedgerData = async (page = 1) => {
     try {
       setIsLoadingTransactions(true);
-      if (refreshMembers) {
-        await refreshMembers();
-      }
       const [transactionsResponse, balanceData] = await Promise.all([
-        apiService.fetchTransactions({ limit: 1000 }),
+        apiService.fetchTransactions({ page, limit: 20 }),
         apiService.fetchClubBalance()
       ]);
-      const transactionsData = transactionsResponse?.transactions || transactionsResponse || [];
-      console.log('📋 Admin 통합장부 거래내역:', transactionsData?.length, '건');
-      setAllTransactions(Array.isArray(transactionsData) ? transactionsData : []);
-      setClubBalance(balanceData.balance);
+
+      const transactions = transactionsResponse.transactions || [];
+      const pagination = transactionsResponse.pagination || { totalPages: 1 };
+
+      console.log('📋 Admin 통합장부:', transactions.length, '건, 페이지:', page, '/', pagination.totalPages);
+
+      setAllTransactions(transactions);
+      setLedgerCurrentPage(page);
+      setLedgerTotalPages(pagination.totalPages);
+      setClubBalance(balanceData.balance || 0);
     } catch (error) {
       console.error('장부 데이터 로드 실패:', error);
       setAllTransactions([]);
@@ -4184,6 +4189,52 @@ function Admin() {
                         })}
                     </tbody>
                   </table>
+                </div>
+              )}
+              
+              {/* 페이지네이션 */}
+              {ledgerTotalPages > 1 && (
+                <div style={{ 
+                  display: 'flex', 
+                  justifyContent: 'center', 
+                  alignItems: 'center',
+                  gap: '12px', 
+                  marginTop: '20px',
+                  padding: '16px 0'
+                }}>
+                  <button
+                    onClick={() => loadLedgerData(ledgerCurrentPage - 1)}
+                    disabled={ledgerCurrentPage <= 1}
+                    style={{
+                      padding: '8px 16px',
+                      border: '1px solid var(--border-color)',
+                      background: ledgerCurrentPage <= 1 ? '#f5f5f5' : 'white',
+                      borderRadius: '6px',
+                      cursor: ledgerCurrentPage <= 1 ? 'not-allowed' : 'pointer',
+                      fontWeight: '600',
+                      fontSize: '14px'
+                    }}
+                  >
+                    이전
+                  </button>
+                  <span style={{ fontWeight: '600', fontSize: '14px' }}>
+                    {ledgerCurrentPage} / {ledgerTotalPages}
+                  </span>
+                  <button
+                    onClick={() => loadLedgerData(ledgerCurrentPage + 1)}
+                    disabled={ledgerCurrentPage >= ledgerTotalPages}
+                    style={{
+                      padding: '8px 16px',
+                      border: '1px solid var(--border-color)',
+                      background: ledgerCurrentPage >= ledgerTotalPages ? '#f5f5f5' : 'white',
+                      borderRadius: '6px',
+                      cursor: ledgerCurrentPage >= ledgerTotalPages ? 'not-allowed' : 'pointer',
+                      fontWeight: '600',
+                      fontSize: '14px'
+                    }}
+                  >
+                    다음
+                  </button>
                 </div>
               )}
             </div>
