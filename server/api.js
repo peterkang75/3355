@@ -1172,18 +1172,17 @@ router.patch('/members/:id/reject', async (req, res) => {
   }
 });
 
-// ============= Transaction API (OPTIMIZED) =============
+// ============= Transaction API =============
 
-// 1. Fetch Transactions (Paginated + Exclude Images + Exclude Charges)
+// 모든 거래 내역 조회 (최적화: 페이지네이션 지원, 이미지 제외)
 router.get('/transactions', async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 20;
     const skip = (page - 1) * limit;
-
-    // Filter: Exclude 'charge' type to prevent empty pages in frontend
+    
     const whereClause = { type: { not: 'charge' } };
-
+    
     const [transactions, total] = await Promise.all([
       prisma.transaction.findMany({
         where: whereClause,
@@ -1199,17 +1198,27 @@ router.get('/transactions', async (req, res) => {
           memberId: true,
           bookingId: true,
           createdBy: true,
-          // CRITICAL: Exclude heavy image data for list view
-          receiptImage: false, 
-          receiptImages: false,
           member: {
-            select: { id: true, name: true, nickname: true }
+            select: {
+              id: true,
+              name: true,
+              nickname: true
+            }
           },
           booking: {
-            select: { id: true, title: true, courseName: true, date: true }
+            select: {
+              id: true,
+              title: true,
+              courseName: true,
+              date: true
+            }
           },
           executor: {
-            select: { id: true, name: true, nickname: true }
+            select: {
+              id: true,
+              name: true,
+              nickname: true
+            }
           }
         },
         orderBy: { createdAt: 'desc' },
@@ -1218,7 +1227,7 @@ router.get('/transactions', async (req, res) => {
       }),
       prisma.transaction.count({ where: whereClause })
     ]);
-
+    
     res.json({
       transactions,
       pagination: {
@@ -1234,7 +1243,7 @@ router.get('/transactions', async (req, res) => {
   }
 });
 
-// 2. Fetch Transaction Details (On-Demand Image Loading)
+// 거래 상세 정보 조회 (영수증 이미지 포함)
 router.get('/transactions/:id/details', async (req, res) => {
   try {
     const transaction = await prisma.transaction.findUnique({
@@ -1245,11 +1254,11 @@ router.get('/transactions/:id/details', async (req, res) => {
         receiptImages: true
       }
     });
-
+    
     if (!transaction) {
       return res.status(404).json({ error: 'Transaction not found' });
     }
-
+    
     res.json(transaction);
   } catch (error) {
     console.error('Error fetching transaction details:', error);
@@ -1257,76 +1266,34 @@ router.get('/transactions/:id/details', async (req, res) => {
   }
 });
 
-// ... (KEEP OTHER EXISTING ENDPOINTS LIKE /transactions/member, /balance/:memberId, /outstanding) ...
-// (Since the user provided the full file, we can also provide the full optimized block for ALL transaction endpoints below if needed, but the ones above are the critical fixes.)
-
-// 3. Calculate Club Balance (Database Aggregation - 100x Faster)
-router.get('/transactions/club-balance', async (req, res) => {
+// 회원별 거래 내역 조회 (최적화 - 이미지 제외)
+router.get('/transactions/member/:memberId', async (req, res) => {
   try {
-    // Use DB Aggregation instead of fetching all rows
-    const [incomeAgg, expenseAgg, creditExpenseAgg, creditAgg] = await Promise.all([
-      // Income: Payment + Donation
-      prisma.transaction.aggregate({
-        _sum: { amount: true },
-        where: { type: { in: ['payment', 'donation'] } }
-      }),
-      // Expense: All Expenses
-      prisma.transaction.aggregate({
-        _sum: { amount: true },
-        where: { type: 'expense' }
-      }),
-      // Credit Expense: Expenses paid by credit (Subtract from total expense)
-      prisma.transaction.aggregate({
-        _sum: { amount: true },
-        where: { 
-          type: 'expense', 
-          category: { in: ['크레딧 자동 차감', '크레딧 납부'] } 
+    const transactions = await prisma.transaction.findMany({
+      where: { memberId: req.params.memberId },
+      select: {
+        id: true,
+        type: true,
+        amount: true,
+        description: true,
+        category: true,
+        memo: true,
+        date: true,
+        createdAt: true,
+        booking: {
+          select: {
+            id: true,
+            title: true,
+            courseName: true
+          }
         }
-      }),
-      // Credit Issued: Treated as liability/expense
-      prisma.transaction.aggregate({
-        _sum: { amount: true },
-        where: { type: 'credit' }
-      })
-    ]);
-
-    const totalIncome = incomeAgg._sum.amount || 0;
-    const totalExpense = expenseAgg._sum.amount || 0;
-    const totalCreditExpense = creditExpenseAgg._sum.amount || 0;
-    const totalCreditIssued = creditAgg._sum.amount || 0;
-
-    const realExpense = totalExpense - totalCreditExpense;
-    const balance = totalIncome - realExpense - totalCreditIssued;
-
-    res.json({ balance });
-  } catch (error) {
-    console.error('Error calculating club balance:', error);
-    res.status(500).json({ error: 'Failed to calculate club balance' });
-  }
-});
-
-// ... (KEEP /outstanding and POST /transactions etc. below this point) ...
-
-// 2. 거래 상세 정보 조회 (영수증 이미지 전용 - 클릭 시 호출)
-router.get('/transactions/:id/details', async (req, res) => {
-  try {
-    const transaction = await prisma.transaction.findUnique({
-      where: { id: req.params.id },
-      select: {
-        id: true,
-        receiptImage: true,
-        receiptImages: true
-      }
+      },
+      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }]
     });
-
-    if (!transaction) {
-      return res.status(404).json({ error: 'Transaction not found' });
-    }
-
-    res.json(transaction);
+    res.json(transactions);
   } catch (error) {
-    console.error('Error fetching transaction details:', error);
-    res.status(500).json({ error: 'Failed to fetch transaction details' });
+    console.error('Error fetching member transactions:', error);
+    res.status(500).json({ error: 'Failed to fetch member transactions' });
   }
 });
 
@@ -1354,49 +1321,46 @@ router.get('/transactions/balance/:memberId', async (req, res) => {
   }
 });
 
-// 3. 클럽 잔액 계산 (DB 집계 쿼리로 변경 - 속도 100배 향상)
+// 클럽 잔액 계산 (DB 집계 최적화)
 router.get('/transactions/club-balance', async (req, res) => {
   try {
-    // DB에서 직접 합계를 구함 (JavaScript loop 제거)
-    // Promise.all allows these queries to run in parallel
-    const [incomeAgg, expenseAgg, creditExpenseAgg, creditAgg] = await Promise.all([
-      // 1. 수입 (납부 + 도네이션)
+    // 병렬로 3개의 집계 쿼리 실행 (수천 건 → 3개 쿼리로 최적화)
+    const [incomeResult, expenseResult, creditExpenseResult, creditResult] = await Promise.all([
+      // 1. 수입 합계 (Payment + Donation)
       prisma.transaction.aggregate({
         _sum: { amount: true },
         where: { type: { in: ['payment', 'donation'] } }
       }),
-      // 2. 지출 (전체 지출)
+      // 2. 일반 지출 합계 (크레딧 관련 제외)
       prisma.transaction.aggregate({
         _sum: { amount: true },
-        where: { type: 'expense' }
-      }),
-      // 3. 크레딧으로 지출한 내역 (이건 클럽 돈이 나간게 아니므로 지출에서 빼야 함)
-      prisma.transaction.aggregate({
-        _sum: { amount: true },
-        where: { 
-          type: 'expense', 
-          category: { in: ['크레딧 자동 차감', '크레딧 납부'] } 
+        where: {
+          type: 'expense',
+          NOT: { category: { in: ['크레딧 자동 차감', '크레딧 납부'] } }
         }
       }),
-      // 4. 크레딧 발행 (클럽 부채 증가 = 자산 감소)
+      // 3. 크레딧 관련 지출 합계 (클럽 부채 감소 = 수입으로 처리)
+      prisma.transaction.aggregate({
+        _sum: { amount: true },
+        where: {
+          type: 'expense',
+          category: { in: ['크레딧 자동 차감', '크레딧 납부'] }
+        }
+      }),
+      // 4. 크레딧 발행 합계 (클럽 잔액 감소)
       prisma.transaction.aggregate({
         _sum: { amount: true },
         where: { type: 'credit' }
       })
     ]);
 
-    // Handle potential null values if no records match
-    const totalIncome = incomeAgg._sum.amount || 0;
-    const totalExpense = expenseAgg._sum.amount || 0;
-    const totalCreditExpense = creditExpenseAgg._sum.amount || 0;
-    const totalCreditIssued = creditAgg._sum.amount || 0;
+    const income = incomeResult._sum.amount || 0;
+    const expense = expenseResult._sum.amount || 0;
+    const creditExpense = creditExpenseResult._sum.amount || 0;
+    const credits = creditResult._sum.amount || 0;
 
-    // 공식: (수입) - (실제 현금 지출) - (크레딧 발행분)
-    // 실제 현금 지출 = 전체 지출 - 크레딧으로 낸 지출
-    const realExpense = totalExpense - totalCreditExpense;
-
-    // 최종 잔액
-    const balance = totalIncome - realExpense - totalCreditIssued;
+    // 잔액 = 수입 + 크레딧지출(부채감소) - 일반지출 - 크레딧발행
+    const balance = income + creditExpense - expense - credits;
 
     res.json({ balance });
   } catch (error) {
