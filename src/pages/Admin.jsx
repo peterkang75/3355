@@ -3248,7 +3248,7 @@ function Admin() {
                             categoryName = transaction.category || transaction.description || '클럽 지출';
                           }
                         } else if (transaction.type === 'donation') {
-                          if (transaction.description?.includes('(크레딧)')) {
+                          if (transaction.description?.includes('(크레딧사용)')) {
                             categoryName = transaction.description;
                           } else if (transaction.description?.startsWith('기타 - ')) {
                             categoryName = transaction.description.replace('기타 - ', '');
@@ -4044,7 +4044,7 @@ function Admin() {
                               categoryName = transaction.category || transaction.description || '클럽 지출';
                             }
                           } else if (transaction.type === 'donation') {
-                            if (transaction.description?.includes('(크레딧)')) {
+                            if (transaction.description?.includes('(크레딧사용)')) {
                               categoryName = transaction.description;
                             } else if (transaction.description?.startsWith('기타 - ')) {
                               categoryName = transaction.description.replace('기타 - ', '');

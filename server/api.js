@@ -1473,7 +1473,7 @@ router.post('/transactions/charge-with-credit', async (req, res) => {
         data: {
           type: 'donation',
           amount: creditToUse,
-          description: `${baseCategory} (크레딧)`,
+          description: `${baseCategory} (크레딧사용)`,
           category: baseCategory,
           date: today,
           memberId: memberId,
