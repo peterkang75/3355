@@ -317,7 +317,7 @@ router.put('/bookings/:id', async (req, res) => {
             });
             const currentBalance = memberTransactionsBefore.reduce((sum, t) => {
               if (t.type === 'charge') return sum - t.amount;
-              if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
+              if (t.type === 'payment' && t.category !== '크레딧 자동 납부' && t.category !== '크레딧 납부') return sum + t.amount;
               if (t.type === 'credit') return sum + t.amount;
               if (t.type === 'expense') return sum - t.amount;
               if (t.type === 'creditDonation') return sum - t.amount;
@@ -370,7 +370,7 @@ router.put('/bookings/:id', async (req, res) => {
 
           const newBalance = memberTransactions.reduce((sum, t) => {
             if (t.type === 'charge') return sum - t.amount;
-            if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
+            if (t.type === 'payment' && t.category !== '크레딧 자동 납부' && t.category !== '크레딧 납부') return sum + t.amount;
             if (t.type === 'credit') return sum + t.amount;
             if (t.type === 'expense') return sum - t.amount;
             if (t.type === 'creditDonation') return sum - t.amount;
@@ -410,7 +410,7 @@ router.put('/bookings/:id', async (req, res) => {
 
           const newBalance = memberTransactions.reduce((sum, t) => {
             if (t.type === 'charge') return sum - t.amount;
-            if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
+            if (t.type === 'payment' && t.category !== '크레딧 자동 납부' && t.category !== '크레딧 납부') return sum + t.amount;
             if (t.type === 'credit') return sum + t.amount;
             if (t.type === 'expense') return sum - t.amount;
             if (t.type === 'creditDonation') return sum - t.amount;
@@ -1174,40 +1174,55 @@ router.patch('/members/:id/reject', async (req, res) => {
 
 // ============= Transaction API =============
 
-// 모든 거래 내역 조회 (최적화: limit 지원)
+// 모든 거래 내역 조회 (최적화: 페이지네이션 지원)
 router.get('/transactions', async (req, res) => {
   try {
-    const limit = req.query.limit ? parseInt(req.query.limit) : undefined;
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 50;
+    const skip = (page - 1) * limit;
     
-    const transactions = await prisma.transaction.findMany({
-      include: {
-        member: {
-          select: {
-            id: true,
-            name: true,
-            nickname: true
+    const [transactions, total] = await Promise.all([
+      prisma.transaction.findMany({
+        include: {
+          member: {
+            select: {
+              id: true,
+              name: true,
+              nickname: true
+            }
+          },
+          booking: {
+            select: {
+              id: true,
+              title: true,
+              courseName: true,
+              date: true
+            }
+          },
+          executor: {
+            select: {
+              id: true,
+              name: true,
+              nickname: true
+            }
           }
         },
-        booking: {
-          select: {
-            id: true,
-            title: true,
-            courseName: true,
-            date: true
-          }
-        },
-        executor: {
-          select: {
-            id: true,
-            name: true,
-            nickname: true
-          }
-        }
-      },
-      orderBy: { createdAt: 'desc' },
-      take: limit
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: skip
+      }),
+      prisma.transaction.count()
+    ]);
+    
+    res.json({
+      transactions,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
     });
-    res.json(transactions);
   } catch (error) {
     console.error('Error fetching transactions:', error);
     res.status(500).json({ error: 'Failed to fetch transactions' });
@@ -1255,7 +1270,7 @@ router.get('/transactions/balance/:memberId', async (req, res) => {
 
     const balance = transactions.reduce((sum, t) => {
       if (t.type === 'charge') return sum - t.amount;
-      if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
+      if (t.type === 'payment' && t.category !== '크레딧 자동 납부' && t.category !== '크레딧 납부') return sum + t.amount;
       if (t.type === 'credit') return sum + t.amount;
       if (t.type === 'expense') return sum - t.amount;
       if (t.type === 'creditDonation') return sum - t.amount;
@@ -1348,7 +1363,7 @@ router.get('/transactions/outstanding', async (req, res) => {
       }
       if (t.type === 'charge') {
         balanceByMember[t.memberId] -= t.amount;
-      } else if (t.type === 'payment' && t.category !== '크레딧 자동 납부') {
+      } else if (t.type === 'payment' && t.category !== '크레딧 자동 납부' && t.category !== '크레딧 납부') {
         balanceByMember[t.memberId] += t.amount;
       } else if (t.type === 'credit') {
         balanceByMember[t.memberId] += t.amount;
@@ -1384,25 +1399,21 @@ router.post('/transactions', async (req, res) => {
       }
     });
     
-    // 회원 잔액 업데이트 - 도네이션은 개인 잔액에 영향 없음
+    // 회원 잔액 증분 업데이트 (전체 재계산 대신)
     if (transaction.memberId) {
-      const memberTransactions = await prisma.transaction.findMany({
-        where: { memberId: transaction.memberId }
-      });
+      let balanceChange = 0;
+      if (transaction.type === 'charge') balanceChange = -transaction.amount;
+      else if (transaction.type === 'payment' && transaction.category !== '크레딧 자동 납부' && transaction.category !== '크레딧 납부') balanceChange = transaction.amount;
+      else if (transaction.type === 'credit') balanceChange = transaction.amount;
+      else if (transaction.type === 'expense') balanceChange = -transaction.amount;
+      else if (transaction.type === 'creditDonation') balanceChange = -transaction.amount;
 
-      const newBalance = memberTransactions.reduce((sum, t) => {
-        if (t.type === 'charge') return sum - t.amount;
-        if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
-        if (t.type === 'credit') return sum + t.amount;
-        if (t.type === 'expense') return sum - t.amount;
-        if (t.type === 'creditDonation') return sum - t.amount;
-        return sum;
-      }, 0);
-
-      await prisma.member.update({
-        where: { id: transaction.memberId },
-        data: { balance: newBalance }
-      });
+      if (balanceChange !== 0) {
+        await prisma.member.update({
+          where: { id: transaction.memberId },
+          data: { balance: { increment: balanceChange } }
+        });
+      }
     }
 
     req.io.emit('transactions:updated');
@@ -1423,25 +1434,20 @@ router.post('/transactions/charge-with-credit', async (req, res) => {
       return res.status(400).json({ error: 'memberId and positive amount are required' });
     }
 
-    const memberTransactions = await prisma.transaction.findMany({
-      where: { memberId }
+    // 저장된 회원 잔액 사용 (전체 거래 조회 대신)
+    const member = await prisma.member.findUnique({
+      where: { id: memberId },
+      select: { balance: true }
     });
 
-    const currentBalance = memberTransactions.reduce((sum, t) => {
-      if (t.type === 'charge') return sum - t.amount;
-      if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
-      if (t.type === 'credit') return sum + t.amount;
-      if (t.type === 'expense') return sum - t.amount;
-      if (t.type === 'creditDonation') return sum - t.amount;
-      return sum;
-    }, 0);
-
+    const currentBalance = member?.balance || 0;
     const creditBalance = currentBalance > 0 ? currentBalance : 0;
     const creditToUse = Math.min(creditBalance, amount);
     const today = date || new Date().toISOString().split('T')[0];
 
     const transactions = [];
     const remainingCharge = amount - creditToUse;
+    let totalBalanceChange = 0;
 
     // 1. 크레딧 사용분 처리 (Expense 생성)
     if (creditToUse > 0) {
@@ -1459,6 +1465,7 @@ router.post('/transactions/charge-with-credit', async (req, res) => {
         }
       });
       transactions.push(expenseTx);
+      totalBalanceChange -= creditToUse;
     }
 
     // 2. 남은 금액 처리 (Charge 생성)
@@ -1475,23 +1482,13 @@ router.post('/transactions/charge-with-credit', async (req, res) => {
         }
       });
       transactions.push(chargeTx);
+      totalBalanceChange -= remainingCharge;
     }
 
-    const updatedTransactions = await prisma.transaction.findMany({
-      where: { memberId }
-    });
-
-    const newBalance = updatedTransactions.reduce((sum, t) => {
-      if (t.type === 'charge') return sum - t.amount;
-      if (t.type === 'payment') return sum + t.amount;
-      if (t.type === 'credit') return sum + t.amount;
-      if (t.type === 'expense') return sum - t.amount;
-      return sum;
-    }, 0);
-
-    await prisma.member.update({
+    // 증분 업데이트
+    const updatedMember = await prisma.member.update({
       where: { id: memberId },
-      data: { balance: newBalance }
+      data: { balance: { increment: totalBalanceChange } }
     });
 
     req.io.emit('transactions:updated');
@@ -1501,7 +1498,7 @@ router.post('/transactions/charge-with-credit', async (req, res) => {
       transactions, 
       creditUsed: creditToUse, 
       remainingCharge, 
-      newBalance 
+      newBalance: updatedMember.balance 
     });
   } catch (error) {
     console.error('Error creating charge with credit:', error);
@@ -1518,24 +1515,17 @@ router.post('/transactions/credit-to-donation', async (req, res) => {
       return res.status(400).json({ error: 'memberId and positive amount are required' });
     }
 
-    const memberTransactions = await prisma.transaction.findMany({
-      where: { memberId }
+    // 저장된 회원 잔액 사용 (전체 거래 조회 대신)
+    const member = await prisma.member.findUnique({
+      where: { id: memberId },
+      select: { balance: true }
     });
 
-    const currentBalance = memberTransactions.reduce((sum, t) => {
-      if (t.type === 'charge') return sum - t.amount;
-      if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
-      if (t.type === 'credit') return sum + t.amount;
-      if (t.type === 'expense') return sum - t.amount;
-      if (t.type === 'creditDonation') return sum - t.amount;
-      return sum;
-    }, 0);
-
+    const currentBalance = member?.balance || 0;
     if (currentBalance < amount) {
       return res.status(400).json({ error: '크레딧 잔액이 부족합니다' });
     }
 
-    const member = await prisma.member.findUnique({ where: { id: memberId } });
     const today = new Date().toISOString().split('T')[0];
 
     // 회원 크레딧 차감 (단일 거래)
@@ -1562,27 +1552,15 @@ router.post('/transactions/credit-to-donation', async (req, res) => {
       }
     });
 
-    const updatedTransactions = await prisma.transaction.findMany({
-      where: { memberId }
-    });
-
-    const newBalance = updatedTransactions.reduce((sum, t) => {
-      if (t.type === 'charge') return sum - t.amount;
-      if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
-      if (t.type === 'credit') return sum + t.amount;
-      if (t.type === 'expense') return sum - t.amount;
-      if (t.type === 'creditDonation') return sum - t.amount;
-      return sum;
-    }, 0);
-
-    await prisma.member.update({
+    // 증분 업데이트 (creditDonation만 잔액에 영향)
+    const updatedMember = await prisma.member.update({
       where: { id: memberId },
-      data: { balance: newBalance }
+      data: { balance: { decrement: amount } }
     });
 
     req.io.emit('transactions:updated');
     req.io.emit('members:updated');
-    res.json({ success: true, creditDonationTx, clubDonationTx, newBalance });
+    res.json({ success: true, creditDonationTx, clubDonationTx, newBalance: updatedMember.balance });
   } catch (error) {
     console.error('Error converting credit to donation:', error);
     res.status(500).json({ error: 'Failed to convert credit to donation' });
@@ -1598,19 +1576,13 @@ router.post('/transactions/credit-to-payment', async (req, res) => {
       return res.status(400).json({ error: 'memberId and positive amount are required' });
     }
 
-    const memberTransactions = await prisma.transaction.findMany({
-      where: { memberId }
+    // 저장된 회원 잔액 사용 (전체 거래 조회 대신)
+    const member = await prisma.member.findUnique({
+      where: { id: memberId },
+      select: { balance: true }
     });
 
-    const currentBalance = memberTransactions.reduce((sum, t) => {
-      if (t.type === 'charge') return sum - t.amount;
-      if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
-      if (t.type === 'credit') return sum + t.amount;
-      if (t.type === 'expense') return sum - t.amount;
-      if (t.type === 'creditDonation') return sum - t.amount;
-      return sum;
-    }, 0);
-
+    const currentBalance = member?.balance || 0;
     if (currentBalance < amount) {
       return res.status(400).json({ error: '크레딧 잔액이 부족합니다' });
     }
@@ -1654,27 +1626,16 @@ router.post('/transactions/credit-to-payment', async (req, res) => {
       }
     });
 
-    const updatedTransactions = await prisma.transaction.findMany({
-      where: { memberId }
-    });
-
-    const newBalance = updatedTransactions.reduce((sum, t) => {
-      if (t.type === 'charge') return sum - t.amount;
-      if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
-      if (t.type === 'credit') return sum + t.amount;
-      if (t.type === 'expense') return sum - t.amount;
-      if (t.type === 'creditDonation') return sum - t.amount;
-      return sum;
-    }, 0);
-
-    await prisma.member.update({
+    // expense(-) + payment(+, 크레딧 납부는 제외) = 0 (잔액 변화 없음)
+    // expense만 잔액에 영향
+    const updatedMember = await prisma.member.update({
       where: { id: memberId },
-      data: { balance: newBalance }
+      data: { balance: { decrement: amount } }
     });
 
     req.io.emit('transactions:updated');
     req.io.emit('members:updated');
-    res.json({ success: true, expenseTx, paymentTx, newBalance });
+    res.json({ success: true, expenseTx, paymentTx, newBalance: updatedMember.balance });
   } catch (error) {
     console.error('Error converting credit to payment:', error);
     res.status(500).json({ error: 'Failed to convert credit to payment' });
@@ -1746,25 +1707,30 @@ router.put('/transactions/:id', async (req, res) => {
     
     console.log('✅ Transaction updated successfully:', updatedTransaction.id);
 
-    // 회원 잔액 재계산 - 도네이션은 개인 잔액에 영향 없음
-    if (updatedTransaction.memberId) {
-      const memberTransactions = await prisma.transaction.findMany({
-        where: { memberId: updatedTransaction.memberId }
-      });
+    // 회원 잔액 증분 업데이트 (금액 변경 시에만)
+    if (updatedTransaction.memberId && amount !== undefined) {
+      const oldAmount = existingTransaction.amount;
+      const newAmount = parseFloat(amount);
+      const amountDiff = newAmount - oldAmount;
+      
+      if (amountDiff !== 0) {
+        let balanceChange = 0;
+        const type = updatedTransaction.type;
+        const cat = updatedTransaction.category;
+        
+        if (type === 'charge') balanceChange = -amountDiff;
+        else if (type === 'payment' && cat !== '크레딧 자동 납부' && cat !== '크레딧 납부') balanceChange = amountDiff;
+        else if (type === 'credit') balanceChange = amountDiff;
+        else if (type === 'expense') balanceChange = -amountDiff;
+        else if (type === 'creditDonation') balanceChange = -amountDiff;
 
-      const newBalance = memberTransactions.reduce((sum, t) => {
-        if (t.type === 'charge') return sum - t.amount;
-        if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
-        if (t.type === 'credit') return sum + t.amount;
-        if (t.type === 'expense') return sum - t.amount;
-        if (t.type === 'creditDonation') return sum - t.amount;
-        return sum;
-      }, 0);
-
-      await prisma.member.update({
-        where: { id: updatedTransaction.memberId },
-        data: { balance: newBalance }
-      });
+        if (balanceChange !== 0) {
+          await prisma.member.update({
+            where: { id: updatedTransaction.memberId },
+            data: { balance: { increment: balanceChange } }
+          });
+        }
+      }
     }
 
     req.io.emit('transactions:updated');
@@ -1791,25 +1757,25 @@ router.delete('/transactions/:id', async (req, res) => {
       where: { id: req.params.id }
     });
 
-    // 회원 잔액 재계산 - 도네이션은 개인 잔액에 영향 없음
+    // 회원 잔액 증분 업데이트 (삭제된 거래의 반대 효과)
     if (transaction.memberId) {
-      const memberTransactions = await prisma.transaction.findMany({
-        where: { memberId: transaction.memberId }
-      });
+      let balanceChange = 0;
+      const type = transaction.type;
+      const cat = transaction.category;
+      const amount = transaction.amount;
+      
+      if (type === 'charge') balanceChange = amount; // 청구 삭제 = 잔액 증가
+      else if (type === 'payment' && cat !== '크레딧 자동 납부' && cat !== '크레딧 납부') balanceChange = -amount;
+      else if (type === 'credit') balanceChange = -amount;
+      else if (type === 'expense') balanceChange = amount;
+      else if (type === 'creditDonation') balanceChange = amount;
 
-      const newBalance = memberTransactions.reduce((sum, t) => {
-        if (t.type === 'charge') return sum - t.amount;
-        if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
-        if (t.type === 'credit') return sum + t.amount;
-        if (t.type === 'expense') return sum - t.amount;
-        if (t.type === 'creditDonation') return sum - t.amount;
-        return sum;
-      }, 0);
-
-      await prisma.member.update({
-        where: { id: transaction.memberId },
-        data: { balance: newBalance }
-      });
+      if (balanceChange !== 0) {
+        await prisma.member.update({
+          where: { id: transaction.memberId },
+          data: { balance: { increment: balanceChange } }
+        });
+      }
     }
 
     req.io.emit('transactions:updated');
@@ -1844,21 +1810,10 @@ router.delete('/transactions/charge/:memberId/:bookingId', async (req, res) => {
       where: { id: transaction.id }
     });
 
-    // 회원 잔액 재계산
-    const memberTransactions = await prisma.transaction.findMany({
-      where: { memberId: memberId }
-    });
-
-    const newBalance = memberTransactions.reduce((sum, t) => {
-      if (t.type === 'charge') return sum - t.amount;
-      if (t.type === 'payment') return sum + t.amount;
-      if (t.type === 'credit') return sum + t.amount;
-      return sum;
-    }, 0);
-
+    // 회원 잔액 증분 업데이트 (charge 삭제 = 잔액 증가)
     await prisma.member.update({
       where: { id: memberId },
-      data: { balance: newBalance }
+      data: { balance: { increment: transaction.amount } }
     });
 
     req.io.emit('transactions:updated');

@@ -256,7 +256,6 @@ function Fees() {
       setShowCreditModal(null);
       setCreditActionAmount('');
       setCreditActionMemo('');
-      window.location.reload();
     } catch (error) {
       console.error('도네이션 실패:', error);
       alert(error.message || '도네이션 처리에 실패했습니다.');
@@ -289,7 +288,6 @@ function Fees() {
       setCreditActionAmount('');
       setCreditActionMemo('');
       setSelectedChargeId(null);
-      window.location.reload();
     } catch (error) {
       console.error('미수금 납부 실패:', error);
       alert(error.message || '미수금 납부 처리에 실패했습니다.');

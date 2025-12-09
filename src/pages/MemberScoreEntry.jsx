@@ -239,8 +239,6 @@ function MemberScoreEntry() {
         initialScores[p.phone] = '';
       });
       setScores(initialScores);
-      
-      window.location.reload();
     } catch (error) {
       console.error('스코어 삭제 실패:', error);
       alert('스코어 삭제에 실패했습니다.');

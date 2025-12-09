@@ -239,7 +239,7 @@ function Booking() {
     setIsDeleting(bookingId);
     try {
       await apiService.deleteBooking(bookingId);
-      window.location.reload();
+      await refreshBookings();
     } catch (error) {
       alert('라운딩 삭제 중 오류가 발생했습니다.');
     } finally {
@@ -252,7 +252,7 @@ function Booking() {
     setIsTogglingAnnounce(bookingId);
     try {
       await apiService.toggleBookingAnnounce(bookingId);
-      window.location.reload();
+      await refreshBookings();
     } catch (error) {
       alert('공지 상태 변경 중 오류가 발생했습니다.');
     } finally {

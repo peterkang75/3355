@@ -410,9 +410,23 @@ class ApiService {
     return response.json();
   }
 
-  async fetchTransactions(limit) {
-    const url = limit ? `${API_BASE}/transactions?limit=${limit}` : `${API_BASE}/transactions`;
+  async fetchTransactions(options = {}) {
+    const params = new URLSearchParams();
+    if (typeof options === 'number') {
+      params.append('limit', options);
+    } else {
+      if (options.limit) params.append('limit', options.limit);
+      if (options.page) params.append('page', options.page);
+    }
+    const url = params.toString() ? `${API_BASE}/transactions?${params}` : `${API_BASE}/transactions`;
     const response = await fetch(url);
+    if (!response.ok) throw new Error('Failed to fetch transactions');
+    const data = await response.json();
+    return data.transactions || data;
+  }
+
+  async fetchTransactionsWithPagination(page = 1, limit = 50) {
+    const response = await fetch(`${API_BASE}/transactions?page=${page}&limit=${limit}`);
     if (!response.ok) throw new Error('Failed to fetch transactions');
     return response.json();
   }

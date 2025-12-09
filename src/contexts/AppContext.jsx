@@ -39,6 +39,9 @@ export function AppProvider({ children }) {
   // 소켓 이벤트 핸들러에서 최신 user 값을 참조하기 위한 ref
   const userRef = useRef(null);
   
+  // 디바운스 타이머 refs
+  const debounceTimers = useRef({});
+  
   // user 변경 시 ref 동기화
   useEffect(() => {
     userRef.current = user;
@@ -140,48 +143,63 @@ export function AppProvider({ children }) {
       reconnectionDelay: 1000
     });
 
-    socket.on('members:updated', async () => {
-      try {
-        const membersData = await apiService.fetchMembers();
-        if (membersData) {
-          setMembers(membersData);
-          const savedUser = localStorage.getItem('golfUser');
-          if (savedUser) {
-            try {
-              const userData = JSON.parse(savedUser);
-              const updatedUser = membersData.find(m => m.id === userData.id);
-              if (updatedUser) {
-                setUser(updatedUser);
-                localStorage.setItem('golfUser', JSON.stringify(updatedUser));
-              }
-            } catch (e) {}
-          }
-        }
-      } catch (error) {}
-    });
-
-    socket.on('posts:updated', async () => {
-      try {
-        const postsData = await apiService.fetchPosts();
-        if (postsData) setPosts(postsData);
-      } catch (error) {}
-    });
-
-    socket.on('bookings:updated', async () => {
-      try {
-        const bookingsData = await apiService.fetchBookings();
-        if (bookingsData) setBookings(bookingsData);
-      } catch (error) {}
-    });
-
-    socket.on('transactions:updated', async () => {
-      const currentUser = userRef.current;
-      if (currentUser?.id) {
-        try {
-          const transactionsData = await apiService.fetchMemberTransactions(currentUser.id);
-          if (transactionsData) setUserTransactions(transactionsData);
-        } catch (error) {}
+    const debounce = (key, fn, delay = 300) => {
+      if (debounceTimers.current[key]) {
+        clearTimeout(debounceTimers.current[key]);
       }
+      debounceTimers.current[key] = setTimeout(fn, delay);
+    };
+
+    socket.on('members:updated', () => {
+      debounce('members', async () => {
+        try {
+          const membersData = await apiService.fetchMembers();
+          if (membersData) {
+            setMembers(membersData);
+            const savedUser = localStorage.getItem('golfUser');
+            if (savedUser) {
+              try {
+                const userData = JSON.parse(savedUser);
+                const updatedUser = membersData.find(m => m.id === userData.id);
+                if (updatedUser) {
+                  setUser(updatedUser);
+                  localStorage.setItem('golfUser', JSON.stringify(updatedUser));
+                }
+              } catch (e) {}
+            }
+          }
+        } catch (error) {}
+      });
+    });
+
+    socket.on('posts:updated', () => {
+      debounce('posts', async () => {
+        try {
+          const postsData = await apiService.fetchPosts();
+          if (postsData) setPosts(postsData);
+        } catch (error) {}
+      });
+    });
+
+    socket.on('bookings:updated', () => {
+      debounce('bookings', async () => {
+        try {
+          const bookingsData = await apiService.fetchBookings();
+          if (bookingsData) setBookings(bookingsData);
+        } catch (error) {}
+      });
+    });
+
+    socket.on('transactions:updated', () => {
+      debounce('transactions', async () => {
+        const currentUser = userRef.current;
+        if (currentUser?.id) {
+          try {
+            const transactionsData = await apiService.fetchMemberTransactions(currentUser.id);
+            if (transactionsData) setUserTransactions(transactionsData);
+          } catch (error) {}
+        }
+      });
     });
 
     const handleVisibilityChange = async () => {
