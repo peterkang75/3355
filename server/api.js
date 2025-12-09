@@ -1453,12 +1453,14 @@ router.post('/transactions/charge-with-credit', async (req, res) => {
     const transactions = [];
 
     if (creditToUse > 0) {
+      const baseCategory = description.replace('청구', '').replace(' - ', '').trim() || '참가비';
+      
       const expenseTx = await prisma.transaction.create({
         data: {
           type: 'expense',
           amount: creditToUse,
-          description: `${description} - 크레딧 사용`,
-          category: '크레딧 사용',
+          description: baseCategory,
+          category: '크레딧 차감',
           date: today,
           memberId: memberId,
           bookingId: bookingId || null,
@@ -1471,8 +1473,8 @@ router.post('/transactions/charge-with-credit', async (req, res) => {
         data: {
           type: 'donation',
           amount: creditToUse,
-          description: `${description} - 크레딧 참가비`,
-          category: '크레딧 참가비',
+          description: `${baseCategory} (크레딧)`,
+          category: baseCategory,
           date: today,
           memberId: memberId,
           bookingId: bookingId || null,
