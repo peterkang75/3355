@@ -1238,6 +1238,7 @@ router.get('/transactions/member/:memberId', async (req, res) => {
         type: true,
         amount: true,
         description: true,
+        category: true,
         date: true,
         receiptImage: true,
         booking: {
