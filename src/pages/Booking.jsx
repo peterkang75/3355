@@ -14,6 +14,7 @@ function Booking() {
   const [editingBooking, setEditingBooking] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
   const [bookingType, setBookingType] = useState('정기모임');
+  const [gameMode, setGameMode] = useState('stroke');
   const [isRentalLoading, setIsRentalLoading] = useState(null);
   const [isSavingBooking, setIsSavingBooking] = useState(false);
   const [isDeleting, setIsDeleting] = useState(null);
@@ -40,6 +41,7 @@ function Booking() {
       setEditingBooking(null);
       setOpenMenuId(null);
       setBookingType('정기모임');
+      setGameMode('stroke');
       setNewBooking({
         title: '',
         courseName: '',
@@ -134,7 +136,7 @@ function Booking() {
   };
 
   const handleCreateBooking = () => {
-    if (bookingType === '정기모임' || bookingType === '포썸') {
+    if (bookingType === '정기모임') {
       if (!newBooking.courseName || !newBooking.date || !newBooking.time) {
         alert('골프장, 날짜, 시간을 입력해주세요.');
         return;
@@ -155,6 +157,10 @@ function Booking() {
       finalTitle = `클럽 컴페티션 [${month}월 ${day}일]`;
     }
 
+    const gradeSettingsToSave = {
+      mode: gameMode
+    };
+
     const booking = {
       ...newBooking,
       title: finalTitle,
@@ -163,6 +169,7 @@ function Booking() {
       greenFee: parseInt(newBooking.greenFee) || null,
       cartFee: parseInt(newBooking.cartFee) || null,
       membershipFee: parseInt(newBooking.membershipFee) || null,
+      gradeSettings: JSON.stringify(gradeSettingsToSave),
       participants: []
     };
 
@@ -181,6 +188,7 @@ function Booking() {
       restaurantAddress: ''
     });
     setBookingType('정기모임');
+    setGameMode('stroke');
     setShowNewBooking(false);
   };
 
@@ -188,6 +196,22 @@ function Booking() {
     setEditingBooking(booking.id);
     setOpenMenuId(null);
     setBookingType(booking.type || '정기모임');
+    
+    let savedGameMode = 'stroke';
+    if (booking.gradeSettings) {
+      try {
+        const parsed = typeof booking.gradeSettings === 'string' 
+          ? JSON.parse(booking.gradeSettings) 
+          : booking.gradeSettings;
+        if (parsed.mode) {
+          savedGameMode = parsed.mode;
+        }
+      } catch (e) {
+        console.error('gradeSettings 파싱 오류:', e);
+      }
+    }
+    setGameMode(savedGameMode);
+    
     setEditBookingData({
       title: booking.title || '',
       courseName: booking.courseName,
@@ -212,17 +236,36 @@ function Booking() {
 
     setIsSavingBooking(true);
     try {
+      const currentBooking = bookings.find(b => b.id === editingBooking);
+      let existingGradeSettings = {};
+      if (currentBooking?.gradeSettings) {
+        try {
+          existingGradeSettings = typeof currentBooking.gradeSettings === 'string'
+            ? JSON.parse(currentBooking.gradeSettings)
+            : currentBooking.gradeSettings;
+        } catch (e) {
+          existingGradeSettings = {};
+        }
+      }
+      
+      const gradeSettingsToSave = {
+        ...existingGradeSettings,
+        mode: gameMode
+      };
+
       const updatedData = {
         ...editBookingData,
         greenFee: parseInt(editBookingData.greenFee) || null,
         cartFee: parseInt(editBookingData.cartFee) || null,
-        membershipFee: parseInt(editBookingData.membershipFee) || null
+        membershipFee: parseInt(editBookingData.membershipFee) || null,
+        gradeSettings: JSON.stringify(gradeSettingsToSave)
       };
 
       await updateBooking(editingBooking, updatedData);
       alert('라운딩 정보가 수정되었습니다.');
       setEditingBooking(null);
       setEditBookingData(null);
+      setGameMode('stroke');
     } catch (error) {
       alert('라운딩 수정 중 오류가 발생했습니다.');
     } finally {
@@ -390,8 +433,32 @@ function Booking() {
             >
               <option value="정기모임">정기모임</option>
               <option value="컴페티션">컴페티션</option>
-              <option value="포썸">포썸</option>
             </select>
+
+            <label style={{ display: 'block', marginBottom: '4px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
+              경기 방식
+            </label>
+            <select
+              value={gameMode}
+              onChange={(e) => setGameMode(e.target.value)}
+              style={{ marginBottom: '16px' }}
+            >
+              <option value="stroke">스트로크</option>
+              <option value="foursome">포썸</option>
+            </select>
+
+            {gameMode === 'foursome' && (
+              <div style={{ 
+                marginBottom: '16px', 
+                padding: '12px', 
+                background: 'var(--bg-green)', 
+                borderRadius: '6px',
+                fontSize: '13px',
+                color: 'var(--text-gray)'
+              }}>
+                ※ 포썸은 2인 1조 팀 매치 방식으로 진행됩니다.
+              </div>
+            )}
           </>
         )}
 
@@ -411,19 +478,6 @@ function Booking() {
             ) : (
               '골프장과 날짜를 선택하면 라운딩 이름이 자동 생성됩니다.'
             )}
-          </div>
-        )}
-
-        {isNewBooking && currentType === '포썸' && (
-          <div style={{ 
-            marginBottom: '16px', 
-            padding: '12px', 
-            background: 'var(--bg-green)', 
-            borderRadius: '6px',
-            fontSize: '13px',
-            color: 'var(--text-gray)'
-          }}>
-            ※ 포썸은 2인 1조 팀 매치 방식으로 진행됩니다.
           </div>
         )}
 
