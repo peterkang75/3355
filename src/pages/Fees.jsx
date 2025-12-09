@@ -41,7 +41,8 @@ function Fees() {
   const ITEMS_PER_PAGE = 10;
   const MAX_PAGES = 10;
   
-  const canManageFees = user?.isAdmin || user?.canManageFees;
+  const canManageFees = user?.isAdmin || user?.canManageFees || 
+    user?.role === '관리자' || user?.role === '방장' || user?.role === '운영진' || user?.role === '클럽운영진';
 
   useEffect(() => {
     if (location.state?.reset) {
