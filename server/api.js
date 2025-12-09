@@ -1453,7 +1453,11 @@ router.post('/transactions/charge-with-credit', async (req, res) => {
     const transactions = [];
 
     if (creditToUse > 0) {
-      const baseCategory = description.replace('청구', '').replace(' - ', '').trim() || '참가비';
+      let baseCategory = '참가비';
+      if (description) {
+        const parts = description.split(' - ');
+        baseCategory = parts[0].replace('청구', '').trim() || '참가비';
+      }
       
       const expenseTx = await prisma.transaction.create({
         data: {
