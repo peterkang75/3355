@@ -1,0 +1,57 @@
+Act as a Senior Full-Stack Developer.
+I have analyzed the provided code (`server/api.js` and `src/pages/Fees.jsx`) and identified why the page is still slow and why pagination is missing.
+
+**Critical Issues:**
+1.  **Backend Bottleneck (`/transactions/club-balance`):** The code fetches ALL transactions (`findMany`) and calculates the sum in Node.js. This is extremely slow for large datasets. It must use Database Aggregation.
+2.  **Frontend Logic Error (`Fees.jsx`):** The rendering logic inside the `activeTab === 'club'` block recalculates `totalPages` based on the *current page data* (length 20) instead of the total count from the server. This results in `totalPages` always being 1, hiding the pagination buttons.
+
+**Task 1: Optimize Backend (`server/api.js`)**
+* **Refactor `router.get('/transactions/club-balance')`:**
+    * Remove `findMany` and `reduce`.
+    * Use `prisma.transaction.aggregate` to sum amounts directly in the database.
+    * **Logic:**
+        * `Income` = Sum of `amount` where `type` IN ['payment', 'donation'].
+        * `Expense` = Sum of `amount` where `type` is 'expense'.
+        * `CreditExpense` (Expenses paid by credit) = Sum of `amount` where `type` is 'expense' AND `category` IN ['크레딧 자동 차감', '크레딧 납부'].
+        * `CreditIssuance` = Sum of `amount` where `type` is 'credit'.
+    * **Calculation:** `Balance = Income - (Expense - CreditExpense) - CreditIssuance`. (Adjust based on your specific accounting logic, but typically Credit Expenses shouldn't reduce Cash Balance).
+    * **Action:** Implement parallel `aggregate` queries using `Promise.all` for maximum speed (sub-100ms response).
+
+**Task 2: Fix Frontend (`src/pages/Fees.jsx`)**
+* **Refactor the Render Loop:**
+    * Locate the `activeTab === 'club'` section.
+    * **REMOVE** the IIFE block `(() => { ... })()`.
+    * **REMOVE** the local `const totalPages` calculation.
+    * **REMOVE** the local `slice` and `filter`.
+    * **Use State Directly:** Use the `allTransactions` state (which is already paginated by the server) and the `totalPages` state.
+    * **Code Structure:**
+        ```jsx
+        <div className="card">
+          <h3>최근 거래내역</h3>
+          {allTransactions.length === 0 ? (
+             <EmptyState /> 
+          ) : (
+             <>
+               <div>
+                 {allTransactions.map(transaction => (
+                   // ... Render transaction item (Keep existing design) ...
+                 ))}
+               </div>
+               
+               {/* Pagination Controls */}
+               {totalPages > 1 && (
+                 <div style={{ display: 'flex', justifyContent: 'center', marginTop: '16px', gap: '8px' }}>
+                   <button onClick={() => loadLedgerData(currentPage - 1)} disabled={currentPage <= 1}>이전</button>
+                   <span>{currentPage} / {totalPages}</span>
+                   <button onClick={() => loadLedgerData(currentPage + 1)} disabled={currentPage >= totalPages}>다음</button>
+                 </div>
+               )}
+             </>
+          )}
+        </div>
+        ```
+
+**Goal:**
+1.  The "Fees" page must load instantly.
+2.  The transaction list must show 20 items.
+3.  The pagination buttons (Prev/Next) must appear and work correctly.
