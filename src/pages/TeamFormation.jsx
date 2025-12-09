@@ -329,32 +329,44 @@ function TeamFormation() {
   };
 
   const generateTeamText = () => {
-    const title = booking?.title || booking?.courseName || '라운딩';
-    let text = `[ ${title} ] 조편성 결과\n\n`;
+    const getMemberString = (p) => {
+      if (!p) return '';
+      
+      if (p.isGuest) {
+        const name = p.nickname || p.name;
+        const number = p.memberNumber || '';
+        return number ? `${name}(${number})` : `${name}(Guest)`;
+      }
+      
+      const fullMember = members.find(m => m.phone === p.phone);
+      const name = fullMember?.nickname || p.nickname || p.name;
+      const number = fullMember?.clubMemberNumber || '';
+      
+      return number ? `${name}(${number})` : name;
+    };
+
+    let lines = [];
 
     teams.forEach((team) => {
       const teamMembers = team.members.filter(m => m !== null);
       if (teamMembers.length === 0) return;
 
-      const memberNames = teamMembers.map(m => {
-        const displayName = m.nickname || m.name;
-        return displayName;
-      });
+      const memberStrings = teamMembers.map(m => getMemberString(m));
 
-      if (gameMode === 'foursome' && memberNames.length >= 2) {
-        const teamA = memberNames.slice(0, 2).join(' & ');
-        const teamB = memberNames.slice(2, 4).join(' & ');
+      if (gameMode === 'foursome' && memberStrings.length >= 2) {
+        const teamA = memberStrings.slice(0, 2).join(' & ');
+        const teamB = memberStrings.slice(2, 4).join(' & ');
         if (teamB) {
-          text += `${team.teamNumber}조: ${teamA} (A) vs ${teamB} (B)\n`;
+          lines.push(`${team.teamNumber}조: ${teamA} (A) vs ${teamB} (B)`);
         } else {
-          text += `${team.teamNumber}조: ${teamA} (A)\n`;
+          lines.push(`${team.teamNumber}조: ${teamA} (A)`);
         }
       } else {
-        text += `${team.teamNumber}조: ${memberNames.join(', ')}\n`;
+        lines.push(`${team.teamNumber}조: ${memberStrings.join(', ')}`);
       }
     });
 
-    return text.trim();
+    return lines.join('\n');
   };
 
   const handleCopyTeamText = async () => {
