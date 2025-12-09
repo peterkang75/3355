@@ -927,11 +927,11 @@ function Admin() {
     }
   };
 
-  const loadLedgerData = async (page = 1) => {
+  const loadLedgerData = async (page = 1, includeCharges = ledgerFilter.showCharges) => {
     try {
       setIsLoadingTransactions(true);
       const [transactionsResponse, balanceData] = await Promise.all([
-        apiService.fetchTransactions({ page, limit: 20 }),
+        apiService.fetchTransactions({ page, limit: 20, includeCharges }),
         apiService.fetchClubBalance()
       ]);
 
@@ -3652,7 +3652,11 @@ function Admin() {
               </select>
 
               <div 
-                onClick={() => setLedgerFilter({ ...ledgerFilter, showCharges: !ledgerFilter.showCharges })}
+                onClick={() => {
+                  const newShowCharges = !ledgerFilter.showCharges;
+                  setLedgerFilter({ ...ledgerFilter, showCharges: newShowCharges });
+                  loadLedgerData(1, newShowCharges);
+                }}
                 style={{ 
                   display: 'flex', 
                   alignItems: 'center', 
@@ -4245,7 +4249,7 @@ function Admin() {
                   padding: '16px 0'
                 }}>
                   <button
-                    onClick={() => loadLedgerData(ledgerCurrentPage - 1)}
+                    onClick={() => loadLedgerData(ledgerCurrentPage - 1, ledgerFilter.showCharges)}
                     disabled={ledgerCurrentPage <= 1}
                     style={{
                       padding: '8px 16px',
@@ -4263,7 +4267,7 @@ function Admin() {
                     {ledgerCurrentPage} / {ledgerTotalPages}
                   </span>
                   <button
-                    onClick={() => loadLedgerData(ledgerCurrentPage + 1)}
+                    onClick={() => loadLedgerData(ledgerCurrentPage + 1, ledgerFilter.showCharges)}
                     disabled={ledgerCurrentPage >= ledgerTotalPages}
                     style={{
                       padding: '8px 16px',

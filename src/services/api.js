@@ -417,6 +417,7 @@ class ApiService {
     } else {
       if (options.limit) params.append('limit', options.limit);
       if (options.page) params.append('page', options.page);
+      if (options.includeCharges) params.append('includeCharges', 'true');
     }
     const url = params.toString() ? `${API_BASE}/transactions?${params}` : `${API_BASE}/transactions`;
     const response = await fetch(url);

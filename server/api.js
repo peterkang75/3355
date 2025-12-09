@@ -327,9 +327,10 @@ router.get("/transactions", async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 20;
     const skip = (page - 1) * limit;
+    const includeCharges = req.query.includeCharges === 'true';
 
-    // 'charge'는 제외하고 조회 (프론트엔드에서 빈 페이지 방지)
-    const whereClause = { type: { not: "charge" } };
+    // 청구내역 포함 여부에 따라 필터링
+    const whereClause = includeCharges ? {} : { type: { not: "charge" } };
 
     const [rawTransactions, total] = await Promise.all([
       prisma.transaction.findMany({
