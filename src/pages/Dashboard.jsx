@@ -710,15 +710,7 @@ function Dashboard() {
                         flexWrap: 'wrap'
                       }}>
                         <span>
-                          {new Date(post.createdAt).toLocaleDateString('ko-KR', { 
-                            month: 'short', 
-                            day: 'numeric'
-                          })}
-                          {' '}
-                          {new Date(post.createdAt).toLocaleTimeString('ko-KR', {
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+                          {formatDateTime(post.createdAt)}
                         </span>
                         <span>•</span>
                         <span>
@@ -1396,7 +1388,7 @@ function Dashboard() {
                     {booking.courseName}
                   </h4>
                   <div style={{ fontSize: '14px', opacity: 0.7, marginBottom: '4px' }}>
-                    ◷ {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
+                    ◷ {formatDateTime(booking.date).split(' ')[0]} {booking.time}
                   </div>
                   {booking.gatheringTime && (
                     <div style={{ fontSize: '14px', opacity: 0.7, marginBottom: '8px' }}>
@@ -1407,7 +1399,7 @@ function Dashboard() {
                   {booking.registrationDeadline && (
                     <div style={{ fontSize: '14px', marginBottom: '8px' }}>
                       <span style={{ fontWeight: '700', color: 'var(--alert-red)' }}>
-                        ◈ {new Date(booking.registrationDeadline).toLocaleDateString('ko-KR')} 마감
+                        ◈ {formatDateTime(booking.registrationDeadline).split(' ')[0]} 마감
                       </span>
                       <span style={{ opacity: 0.7, marginLeft: '8px' }}>
                         {getDaysUntilDeadline(booking.registrationDeadline) > 0 
@@ -1689,7 +1681,7 @@ function Dashboard() {
                           fontSize: '12px',
                           opacity: 0.7
                         }}>
-                          <span>{score.courseName} · {new Date(score.date).toLocaleDateString('ko-KR')}</span>
+                          <span>{score.courseName} · {formatDateTime(score.date).split(' ')[0]}</span>
                           <span>{score.totalScore} ({score.coursePar})</span>
                         </div>
                       </div>
@@ -1797,7 +1789,7 @@ function Dashboard() {
                           fontSize: '12px',
                           opacity: 0.7
                         }}>
-                          <span>{transaction.date || (transaction.createdAt ? new Date(transaction.createdAt).toLocaleDateString('ko-KR') : '')}</span>
+                          <span>{transaction.date || (transaction.createdAt ? formatDateTime(transaction.createdAt).split(' ')[0] : '')}</span>
                           <span>잔액: {formatCurrency(transaction.balanceAfter)}</span>
                         </div>
                       </div>
