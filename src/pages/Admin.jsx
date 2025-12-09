@@ -3242,12 +3242,18 @@ function Admin() {
                             categoryName = paymentDesc;
                           }
                         } else if (transaction.type === 'expense') {
-                          categoryName = transaction.category || transaction.description || '클럽 지출';
+                          if (transaction.category === '크레딧 차감') {
+                            categoryName = `${transaction.description || '참가비'} 청구`;
+                          } else {
+                            categoryName = transaction.category || transaction.description || '클럽 지출';
+                          }
                         } else if (transaction.type === 'donation') {
-                          if (transaction.description?.startsWith('기타 - ')) {
+                          if (transaction.description?.includes('(크레딧)')) {
+                            categoryName = transaction.description;
+                          } else if (transaction.description?.startsWith('기타 - ')) {
                             categoryName = transaction.description.replace('기타 - ', '');
                           } else {
-                            categoryName = '도네이션';
+                            categoryName = transaction.category || '도네이션';
                           }
                         } else {
                           categoryName = transaction.type;
@@ -4032,19 +4038,18 @@ function Admin() {
                               categoryName = paymentDesc;
                             }
                           } else if (transaction.type === 'expense') {
-                            categoryName = transaction.category || transaction.description || '클럽 지출';
+                            if (transaction.category === '크레딧 차감') {
+                              categoryName = `${transaction.description || '참가비'} 청구`;
+                            } else {
+                              categoryName = transaction.category || transaction.description || '클럽 지출';
+                            }
                           } else if (transaction.type === 'donation') {
-                            if (transaction.category === '크레딧 참가비' && transaction.description) {
-                              const parts = transaction.description.split(' - ');
-                              if (parts.length > 0) {
-                                categoryName = parts[0].replace('청구', '') || '도네이션';
-                              } else {
-                                categoryName = '도네이션';
-                              }
+                            if (transaction.description?.includes('(크레딧)')) {
+                              categoryName = transaction.description;
                             } else if (transaction.description?.startsWith('기타 - ')) {
                               categoryName = transaction.description.replace('기타 - ', '');
                             } else {
-                              categoryName = '도네이션';
+                              categoryName = transaction.category || '도네이션';
                             }
                           } else if (transaction.type === 'charge') {
                             const chargeDesc = transaction.description || '참가비청구';
