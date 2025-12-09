@@ -546,22 +546,12 @@ function ParticipantManagement() {
                             transition: 'all 0.2s'
                           }}
                         >
-                          <div>
-                            <div style={{ 
-                              fontSize: '16px', 
-                              fontWeight: '600', 
-                              marginBottom: '4px', 
-                              color: isSelected ? 'white' : alreadyAdded ? 'var(--text-dark)' : 'var(--primary-green)' 
-                            }}>
-                              {member.nickname}
-                            </div>
-                            <div style={{ 
-                              fontSize: '13px', 
-                              opacity: 0.7,
-                              color: isSelected ? 'rgba(255, 255, 255, 0.7)' : 'inherit'
-                            }}>
-                              {member.name}
-                            </div>
+                          <div style={{ 
+                            fontSize: '16px', 
+                            fontWeight: '600', 
+                            color: isSelected ? 'white' : alreadyAdded ? 'var(--text-dark)' : 'var(--primary-green)' 
+                          }}>
+                            {member.nickname}
                           </div>
                           {isSelected && (
                             <span style={{
