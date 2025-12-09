@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import apiService from '../services/api';
 import CrownIcon from '../components/CrownIcon';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
+import { Badge } from '../components/common';
 
 function Dashboard() {
   const { user, members, scores, bookings, posts, fees, userTransactions, addPost, updatePost, deletePost, updateBooking, refreshBookings, refreshAllData, refreshMembers } = useApp();
@@ -1336,20 +1337,33 @@ function Dashboard() {
                 onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
                 onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
                 >
-                  {booking.title && (
-                    <div style={{ 
-                      fontSize: '12px', 
-                      color: booking.type === '컴페티션' ? 'white' : '#333', 
-                      background: booking.type === '컴페티션' ? '#1a3d47' : '#ff8c42',
-                      padding: '5px 9px',
-                      borderRadius: '4px',
-                      fontWeight: '600', 
-                      marginBottom: '4px',
-                      display: 'inline-block'
-                    }}>
-                      {booking.title}
-                    </div>
-                  )}
+                  {booking.title && (() => {
+                    let isFoursome = false;
+                    try {
+                      const gradeSettings = typeof booking.gradeSettings === 'string' 
+                        ? JSON.parse(booking.gradeSettings) 
+                        : booking.gradeSettings;
+                      isFoursome = gradeSettings?.mode === 'foursome';
+                    } catch (e) {}
+                    
+                    return (
+                      <div style={{ 
+                        fontSize: '12px', 
+                        color: booking.type === '컴페티션' ? 'white' : '#333', 
+                        background: booking.type === '컴페티션' ? '#1a3d47' : '#ff8c42',
+                        padding: '5px 9px',
+                        borderRadius: '4px',
+                        fontWeight: '600', 
+                        marginBottom: '4px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '6px'
+                      }}>
+                        {booking.title}
+                        {isFoursome && <Badge variant="purple" size="xs">포썸</Badge>}
+                      </div>
+                    );
+                  })()}
                   <h4 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '8px' }}>
                     {booking.courseName}
                   </h4>
