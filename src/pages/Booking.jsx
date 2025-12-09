@@ -134,7 +134,7 @@ function Booking() {
   };
 
   const handleCreateBooking = () => {
-    if (bookingType === '정기모임') {
+    if (bookingType === '정기모임' || bookingType === '포썸') {
       if (!newBooking.courseName || !newBooking.date || !newBooking.time) {
         alert('골프장, 날짜, 시간을 입력해주세요.');
         return;
@@ -390,6 +390,7 @@ function Booking() {
             >
               <option value="정기모임">정기모임</option>
               <option value="컴페티션">컴페티션</option>
+              <option value="포썸">포썸</option>
             </select>
           </>
         )}
@@ -410,6 +411,19 @@ function Booking() {
             ) : (
               '골프장과 날짜를 선택하면 라운딩 이름이 자동 생성됩니다.'
             )}
+          </div>
+        )}
+
+        {isNewBooking && currentType === '포썸' && (
+          <div style={{ 
+            marginBottom: '16px', 
+            padding: '12px', 
+            background: 'var(--bg-green)', 
+            borderRadius: '6px',
+            fontSize: '13px',
+            color: 'var(--text-gray)'
+          }}>
+            ※ 포썸은 2인 1조 팀 매치 방식으로 진행됩니다.
           </div>
         )}
 
