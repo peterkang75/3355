@@ -328,9 +328,16 @@ router.get("/transactions", async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 20;
     const skip = (page - 1) * limit;
     const includeCharges = req.query.includeCharges === 'true';
+    const memberId = req.query.memberId || null;
 
-    // 청구내역 포함 여부에 따라 필터링
-    const whereClause = includeCharges ? {} : { type: { not: "charge" } };
+    // 청구내역 포함 여부 + 회원 필터링
+    const whereClause = {
+      ...(includeCharges ? {} : { type: { not: "charge" } }),
+      ...(memberId ? { memberId } : {})
+    };
+
+    // 회원 필터링 시 페이지네이션 비활성화 (모든 거래 반환)
+    const usePagination = !memberId;
 
     const [rawTransactions, total] = await Promise.all([
       prisma.transaction.findMany({
@@ -357,8 +364,7 @@ router.get("/transactions", async (req, res) => {
           executor: { select: { id: true, name: true, nickname: true } },
         },
         orderBy: { createdAt: "desc" },
-        take: limit,
-        skip: skip,
+        ...(usePagination ? { take: limit, skip: skip } : {}),
       }),
       prisma.transaction.count({ where: whereClause }),
     ]);

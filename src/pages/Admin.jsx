@@ -927,11 +927,11 @@ function Admin() {
     }
   };
 
-  const loadLedgerData = async (page = 1, includeCharges = ledgerFilter.showCharges) => {
+  const loadLedgerData = async (page = 1, includeCharges = ledgerFilter.showCharges, memberId = ledgerFilter.memberId) => {
     try {
       setIsLoadingTransactions(true);
       const [transactionsResponse, balanceData] = await Promise.all([
-        apiService.fetchTransactions({ page, limit: 20, includeCharges }),
+        apiService.fetchTransactions({ page, limit: 20, includeCharges, memberId }),
         apiService.fetchClubBalance()
       ]);
 
@@ -3633,7 +3633,11 @@ function Admin() {
               
               <select
                 value={ledgerFilter.memberId}
-                onChange={(e) => setLedgerFilter({ ...ledgerFilter, memberId: e.target.value })}
+                onChange={(e) => {
+                  const newMemberId = e.target.value;
+                  setLedgerFilter({ ...ledgerFilter, memberId: newMemberId });
+                  loadLedgerData(1, ledgerFilter.showCharges, newMemberId);
+                }}
                 style={{ 
                   padding: '8px 12px',
                   borderRadius: '6px',
@@ -3655,7 +3659,7 @@ function Admin() {
                 onClick={() => {
                   const newShowCharges = !ledgerFilter.showCharges;
                   setLedgerFilter({ ...ledgerFilter, showCharges: newShowCharges });
-                  loadLedgerData(1, newShowCharges);
+                  loadLedgerData(1, newShowCharges, ledgerFilter.memberId);
                 }}
                 style={{ 
                   display: 'flex', 
@@ -4249,7 +4253,7 @@ function Admin() {
                   padding: '16px 0'
                 }}>
                   <button
-                    onClick={() => loadLedgerData(ledgerCurrentPage - 1, ledgerFilter.showCharges)}
+                    onClick={() => loadLedgerData(ledgerCurrentPage - 1, ledgerFilter.showCharges, ledgerFilter.memberId)}
                     disabled={ledgerCurrentPage <= 1}
                     style={{
                       padding: '8px 16px',
@@ -4267,7 +4271,7 @@ function Admin() {
                     {ledgerCurrentPage} / {ledgerTotalPages}
                   </span>
                   <button
-                    onClick={() => loadLedgerData(ledgerCurrentPage + 1, ledgerFilter.showCharges)}
+                    onClick={() => loadLedgerData(ledgerCurrentPage + 1, ledgerFilter.showCharges, ledgerFilter.memberId)}
                     disabled={ledgerCurrentPage >= ledgerTotalPages}
                     style={{
                       padding: '8px 16px',
