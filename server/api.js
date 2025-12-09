@@ -1742,45 +1742,100 @@ router.put('/transactions/:id', async (req, res) => {
   }
 });
 
-// 거래 삭제
+// 거래 삭제 (크레딧 도네이션 쌍 삭제 지원)
 router.delete('/transactions/:id', async (req, res) => {
   try {
-    const transaction = await prisma.transaction.findUnique({
+    const targetTx = await prisma.transaction.findUnique({
       where: { id: req.params.id }
     });
 
-    if (!transaction) {
+    if (!targetTx) {
       return res.status(404).json({ error: 'Transaction not found' });
     }
 
+    // 크레딧 도네이션 쌍(pair) 찾기
+    let siblingTx = null;
+    const targetCreatedAt = new Date(targetTx.createdAt);
+    const twoSecondsMs = 2000;
+
+    if (targetTx.type === 'donation' && targetTx.category === '도네이션' && targetTx.memberId) {
+      // donation 삭제 시 -> creditDonation 쌍 찾기
+      const candidates = await prisma.transaction.findMany({
+        where: {
+          type: 'creditDonation',
+          memberId: targetTx.memberId,
+          amount: targetTx.amount,
+          date: targetTx.date
+        }
+      });
+      siblingTx = candidates.find(c => {
+        const diff = Math.abs(new Date(c.createdAt).getTime() - targetCreatedAt.getTime());
+        return diff <= twoSecondsMs;
+      });
+    } else if (targetTx.type === 'creditDonation' && targetTx.memberId) {
+      // creditDonation 삭제 시 -> donation 쌍 찾기
+      const candidates = await prisma.transaction.findMany({
+        where: {
+          type: 'donation',
+          category: '도네이션',
+          memberId: targetTx.memberId,
+          amount: targetTx.amount,
+          date: targetTx.date
+        }
+      });
+      siblingTx = candidates.find(c => {
+        const diff = Math.abs(new Date(c.createdAt).getTime() - targetCreatedAt.getTime());
+        return diff <= twoSecondsMs;
+      });
+    }
+
+    // Helper: 잔액 변경 계산
+    const calcBalanceChange = (tx) => {
+      if (!tx.memberId) return 0;
+      const type = tx.type;
+      const cat = tx.category;
+      const amount = tx.amount;
+      
+      if (type === 'charge') return amount; // 청구 삭제 = 잔액 증가
+      if (type === 'payment' && cat !== '크레딧 자동 납부' && cat !== '크레딧 납부') return -amount;
+      if (type === 'credit') return -amount;
+      if (type === 'expense') return amount;
+      if (type === 'creditDonation') return amount; // creditDonation 삭제 = 크레딧 복원
+      return 0;
+    };
+
+    // 쌍이 있으면 함께 삭제
+    if (siblingTx) {
+      await prisma.transaction.delete({ where: { id: siblingTx.id } });
+      
+      // 쌍의 잔액 복원
+      const siblingBalanceChange = calcBalanceChange(siblingTx);
+      if (siblingBalanceChange !== 0 && siblingTx.memberId) {
+        await prisma.member.update({
+          where: { id: siblingTx.memberId },
+          data: { balance: { increment: siblingBalanceChange } }
+        });
+      }
+      console.log(`🔗 Paired deletion: deleted sibling ${siblingTx.type} (${siblingTx.id})`);
+    }
+
+    // 대상 거래 삭제
     await prisma.transaction.delete({
       where: { id: req.params.id }
     });
 
-    // 회원 잔액 증분 업데이트 (삭제된 거래의 반대 효과)
-    if (transaction.memberId) {
-      let balanceChange = 0;
-      const type = transaction.type;
-      const cat = transaction.category;
-      const amount = transaction.amount;
-      
-      if (type === 'charge') balanceChange = amount; // 청구 삭제 = 잔액 증가
-      else if (type === 'payment' && cat !== '크레딧 자동 납부' && cat !== '크레딧 납부') balanceChange = -amount;
-      else if (type === 'credit') balanceChange = -amount;
-      else if (type === 'expense') balanceChange = amount;
-      else if (type === 'creditDonation') balanceChange = amount;
-
-      if (balanceChange !== 0) {
-        await prisma.member.update({
-          where: { id: transaction.memberId },
-          data: { balance: { increment: balanceChange } }
-        });
-      }
+    // 대상 거래의 잔액 복원
+    const targetBalanceChange = calcBalanceChange(targetTx);
+    if (targetBalanceChange !== 0 && targetTx.memberId) {
+      await prisma.member.update({
+        where: { id: targetTx.memberId },
+        data: { balance: { increment: targetBalanceChange } }
+      });
     }
 
     req.io.emit('transactions:updated');
     req.io.emit('members:updated');
-    res.json({ success: true });
+    res.json({ success: true, pairedDeletion: !!siblingTx });
   } catch (error) {
     console.error('Error deleting transaction:', error);
     res.status(500).json({ error: 'Failed to delete transaction' });
