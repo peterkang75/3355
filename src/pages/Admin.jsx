@@ -86,6 +86,7 @@ function Admin() {
   const [isLoadingTransactions, setIsLoadingTransactions] = useState(true);
   const [ledgerCurrentPage, setLedgerCurrentPage] = useState(1);
   const [ledgerTotalPages, setLedgerTotalPages] = useState(1);
+  const [ledgerStats, setLedgerStats] = useState({ income: {}, expense: {} });
   const [editImageUploading, setEditImageUploading] = useState(false);
   const [isUpdatingTransaction, setIsUpdatingTransaction] = useState(false);
 
@@ -943,6 +944,12 @@ function Admin() {
       setLedgerCurrentPage(page);
       setLedgerTotalPages(pagination.totalPages);
       setClubBalance(balanceData.balance || 0);
+      
+      // 서버에서 집계된 통계 저장
+      setLedgerStats({
+        income: balanceData.incomeBreakdown || {},
+        expense: balanceData.expenseBreakdown || {}
+      });
     } catch (error) {
       console.error('장부 데이터 로드 실패:', error);
       setAllTransactions([]);
@@ -3430,39 +3437,48 @@ function Admin() {
               </select>
               
               {(() => {
-                const filteredForSummary = allTransactions.filter(t => 
-                  summaryBookingFilter === 'all' || t.bookingId === summaryBookingFilter
-                );
+                // 서버 통계 사용 (전체 라운딩 필터 시)
+                let incomeTotals = {};
+                let expenseTotals = {};
                 
-                // 수입 합계 계산 (payment, donation)
-                const incomeTotals = {};
-                filteredForSummary.filter(t => t.type === 'payment').forEach(t => {
-                  const paymentDesc = t.description || '회비 납부';
-                  let catName = paymentDesc;
-                  if (paymentDesc.includes(' - ')) {
-                    catName = paymentDesc.split(' - ')[0];
-                  } else if (paymentDesc.includes(' (')) {
-                    catName = paymentDesc.split(' (')[0];
-                  }
-                  incomeTotals[catName] = (incomeTotals[catName] || 0) + t.amount;
-                });
-                filteredForSummary.filter(t => t.type === 'donation').forEach(t => {
-                  let catName = '도네이션';
-                  if (t.category === '크레딧 참가비' && t.description) {
-                    const parts = t.description.split(' - ');
-                    catName = parts[0].replace('청구', '') || '도네이션';
-                  } else if (t.description?.startsWith('기타 - ')) {
-                    catName = t.description.replace('기타 - ', '');
-                  }
-                  incomeTotals[catName] = (incomeTotals[catName] || 0) + t.amount;
-                });
-                
-                // 지출 합계 계산 (expense)
-                const expenseTotals = {};
-                filteredForSummary.filter(t => t.type === 'expense').forEach(t => {
-                  const catName = t.category || t.description || '기타 지출';
-                  expenseTotals[catName] = (expenseTotals[catName] || 0) + t.amount;
-                });
+                if (summaryBookingFilter === 'all') {
+                  // 서버에서 집계된 전체 통계 사용
+                  incomeTotals = ledgerStats.income || {};
+                  expenseTotals = ledgerStats.expense || {};
+                } else {
+                  // 특정 라운딩 필터 시 현재 페이지 데이터에서 계산 (제한적)
+                  const filteredForSummary = allTransactions.filter(t => 
+                    t.bookingId === summaryBookingFilter
+                  );
+                  
+                  // 수입 합계 계산 (payment, donation)
+                  filteredForSummary.filter(t => t.type === 'payment').forEach(t => {
+                    const paymentDesc = t.description || '회비 납부';
+                    let catName = paymentDesc;
+                    if (paymentDesc.includes(' - ')) {
+                      catName = paymentDesc.split(' - ')[0];
+                    } else if (paymentDesc.includes(' (')) {
+                      catName = paymentDesc.split(' (')[0];
+                    }
+                    incomeTotals[catName] = (incomeTotals[catName] || 0) + t.amount;
+                  });
+                  filteredForSummary.filter(t => t.type === 'donation').forEach(t => {
+                    let catName = '도네이션';
+                    if (t.category === '크레딧 참가비' && t.description) {
+                      const parts = t.description.split(' - ');
+                      catName = parts[0].replace('청구', '') || '도네이션';
+                    } else if (t.description?.startsWith('기타 - ')) {
+                      catName = t.description.replace('기타 - ', '');
+                    }
+                    incomeTotals[catName] = (incomeTotals[catName] || 0) + t.amount;
+                  });
+                  
+                  // 지출 합계 계산 (expense)
+                  filteredForSummary.filter(t => t.type === 'expense').forEach(t => {
+                    const catName = t.category || t.description || '기타 지출';
+                    expenseTotals[catName] = (expenseTotals[catName] || 0) + t.amount;
+                  });
+                }
                 
                 const totalIncome = Object.values(incomeTotals).reduce((sum, val) => sum + val, 0);
                 const totalExpense = Object.values(expenseTotals).reduce((sum, val) => sum + val, 0);
