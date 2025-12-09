@@ -774,14 +774,14 @@ function Fees() {
                             borderBottom: '1px solid var(--border-color)',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '8px',
+                            gap: '6px',
                             fontSize: '13px'
                           }}
                         >
                           <div style={{ 
-                            width: '90px',
+                            flex: '1',
+                            minWidth: '0',
                             fontWeight: '600',
-                            flexShrink: 0,
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
                             whiteSpace: 'nowrap'
@@ -789,29 +789,31 @@ function Fees() {
                             {getTransactionLabel(transaction)}
                           </div>
                           <div style={{ 
-                            flex: '1',
-                            minWidth: '0',
+                            width: '70px',
+                            flexShrink: 0,
                             opacity: 0.7,
                             overflow: 'hidden',
                             textOverflow: 'ellipsis',
-                            whiteSpace: 'nowrap'
+                            whiteSpace: 'nowrap',
+                            fontSize: '11px'
                           }}>
                             {bookingName}
                           </div>
                           <div style={{ 
-                            width: '55px',
+                            width: '40px',
                             flexShrink: 0,
                             opacity: 0.7,
-                            textAlign: 'center'
+                            textAlign: 'center',
+                            fontSize: '11px'
                           }}>
                             {new Date(transaction.date).toLocaleDateString('ko-KR', { 
-                              month: 'short', 
+                              month: 'numeric', 
                               day: 'numeric' 
                             })}
                           </div>
                           <div style={{
-                            width: '75px',
-                            fontSize: '15px',
+                            width: '60px',
+                            fontSize: '14px',
                             fontWeight: '700',
                             color: getTransactionColor(transaction),
                             textAlign: 'right',
