@@ -46,6 +46,13 @@
 - **관리자**: 회원, 권한, 참가비, 골프장, 지출 항목 관리, 입금/출금 항목 관리
 - **빙고 게임**: 운영자 설정 관리, 회원별 개인 빙고판, 실시간 동기화
 
+### Code Architecture
+- **컴포넌트 분리**: 대형 페이지 컴포넌트를 재사용 가능한 하위 컴포넌트로 분리하여 유지보수성을 높였습니다.
+  - `src/components/booking/BookingForm.jsx`: 라운딩 생성/수정 폼 컴포넌트
+  - `src/components/booking/BookingListCard.jsx`: 라운딩 목록 카드 컴포넌트 (활성/완료 라운딩)
+- **스코어 계산 수정**: Over/Under 계산 시 실제로 플레이한 홀의 PAR만 합산하도록 수정 (스코어가 0보다 큰 홀만 계산)
+- **포썸 모드 표시**: 라운딩 카드에 포썸 경기 방식을 보라색 배지로 표시
+
 ### System Design Choices
 - **프론트엔드**: React 19, Vite 7을 사용하여 모던하고 빠른 웹 애플리케이션을 구축합니다. React Router DOM으로 클라이언트 측 라우팅을 관리합니다.
 - **백엔드**: Node.js와 Express를 사용하여 RESTful API를 제공합니다.
