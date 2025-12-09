@@ -18,6 +18,7 @@ function ParticipantManagement() {
   const [showGuestModal, setShowGuestModal] = useState(false);
   const [guestFormData, setGuestFormData] = useState({ memberNumber: '', name: '' });
   const [isAddingGuest, setIsAddingGuest] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -437,6 +438,7 @@ function ParticipantManagement() {
                 onClick={() => {
                   setShowAddModal(false);
                   setSelectedToAdd([]);
+                  setSearchTerm('');
                 }}
                 style={{
                   background: 'transparent',
@@ -451,6 +453,24 @@ function ParticipantManagement() {
               </button>
             </div>
 
+            <div style={{ padding: '0 16px 8px 16px' }}>
+              <input
+                type="text"
+                placeholder="이름 검색..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  border: '2px solid var(--border-color)',
+                  borderRadius: '8px',
+                  fontSize: '15px',
+                  outline: 'none',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+
             <div style={{ 
               flex: 1, 
               overflowY: 'auto', 
@@ -462,25 +482,45 @@ function ParticipantManagement() {
                 </p>
               ) : (
                 <div style={{ display: 'grid', gap: '8px' }}>
-                  {booking?.type === '컴페티션' && (
-                    <>
-                      {members.filter(m => m.club === booking.courseName).length > 0 && (
-                        <div style={{
-                          fontSize: '13px',
-                          fontWeight: '600',
-                          color: 'var(--primary-green)',
-                          padding: '8px 0 4px 0',
-                          borderBottom: '2px solid var(--primary-green)'
-                        }}>
-                          {booking.courseName} 회원
-                        </div>
-                      )}
-                    </>
-                  )}
-                  {availableMembers.map((member, index) => {
+                  {(() => {
+                    const filteredMembers = availableMembers.filter(member => {
+                      if (!searchTerm.trim()) return true;
+                      const term = searchTerm.toLowerCase();
+                      return (
+                        (member.name && member.name.toLowerCase().includes(term)) ||
+                        (member.nickname && member.nickname.toLowerCase().includes(term))
+                      );
+                    });
+
+                    if (filteredMembers.length === 0) {
+                      return (
+                        <p style={{ textAlign: 'center', opacity: 0.7, padding: '32px 0' }}>
+                          검색 결과가 없습니다.
+                        </p>
+                      );
+                    }
+
+                    return (
+                      <>
+                        {booking?.type === '컴페티션' && (
+                          <>
+                            {filteredMembers.filter(m => m.club === booking.courseName).length > 0 && (
+                              <div style={{
+                                fontSize: '13px',
+                                fontWeight: '600',
+                                color: 'var(--primary-green)',
+                                padding: '8px 0 4px 0',
+                                borderBottom: '2px solid var(--primary-green)'
+                              }}>
+                                {booking.courseName} 회원
+                              </div>
+                            )}
+                          </>
+                        )}
+                        {filteredMembers.map((member, index) => {
                     const alreadyAdded = isParticipant(member.phone);
                     const isSelected = selectedToAdd.some(m => m.phone === member.phone);
-                    const prevMember = index > 0 ? availableMembers[index - 1] : null;
+                    const prevMember = index > 0 ? filteredMembers[index - 1] : null;
                     const showDivider = booking?.type === '컴페티션' && 
                       prevMember && 
                       prevMember.club === booking.courseName && 
@@ -560,6 +600,9 @@ function ParticipantManagement() {
                       </React.Fragment>
                     );
                   })}
+                      </>
+                    );
+                  })()}
                 </div>
               )}
             </div>
@@ -574,6 +617,7 @@ function ParticipantManagement() {
                 onClick={() => {
                   setShowAddModal(false);
                   setSelectedToAdd([]);
+                  setSearchTerm('');
                 }}
                 style={{
                   flex: 1,
