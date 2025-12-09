@@ -97,8 +97,11 @@ button {
   border: none;
   cursor: pointer;
   font-family: inherit;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   font-size: inherit;
+  min-height: 44px;
+  border-radius: 8px;
+  font-weight: 700;
 }
 
 button:active {
@@ -160,18 +163,48 @@ input:focus, textarea:focus, select:focus {
 }
 
 .btn-outline {
-  background: var(--bg-card);
-  color: var(--text-dark);
+  background: white;
+  color: #666666;
+  border: 1px solid #ddd;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: 8px;
+  font-size: var(--font-base);
+  font-weight: 600;
+  min-height: 44px;
+}
+
+.btn-outline:hover {
+  background: var(--border-color);
+}
+
+.btn-danger {
+  background: white;
+  color: #DC2626;
+  border: 1px solid #DC2626;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: 8px;
+  font-size: var(--font-base);
+  font-weight: 600;
+  min-height: 44px;
+}
+
+.btn-danger:hover {
+  background: #FEE2E2;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-gray);
   border: none;
   padding: var(--spacing-md) var(--spacing-lg);
   border-radius: 8px;
   font-size: var(--font-base);
   font-weight: 600;
-  min-height: 40px;
+  min-height: 44px;
 }
 
-.btn-outline:hover {
-  background: var(--border-color);
+.btn-ghost:hover {
+  background: rgba(0, 0, 0, 0.05);
 }
 
 .card {

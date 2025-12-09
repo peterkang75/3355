@@ -3,7 +3,6 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
-import { Card, Button } from '../components/common';
 
 function RoundingManagement() {
   const navigate = useNavigate();
@@ -138,11 +137,11 @@ function RoundingManagement() {
   if (!hasAdminAccess) {
     return (
       <div className="page-content">
-        <Card>
+        <div className="card">
           <p style={{ textAlign: 'center' }}>
             관리자 또는 운영진만 접근할 수 있습니다.
           </p>
-        </Card>
+        </div>
       </div>
     );
   }
@@ -150,11 +149,11 @@ function RoundingManagement() {
   if (!booking) {
     return (
       <div className="page-content">
-        <Card>
+        <div className="card">
           <p style={{ textAlign: 'center' }}>
             라운딩을 찾을 수 없습니다.
           </p>
-        </Card>
+        </div>
       </div>
     );
   }
@@ -222,7 +221,7 @@ function RoundingManagement() {
       </div>
 
       <div className="page-content">
-        <Card style={{ marginBottom: '16px' }}>
+        <div className="card" style={{ marginBottom: '16px' }}>
           <div style={{ 
             padding: '16px',
             borderRadius: '8px',
@@ -346,7 +345,7 @@ function RoundingManagement() {
         </div>
 
         {isEditing && (
-          <Card style={{ marginBottom: '16px' }}>
+          <div className="card" style={{ marginBottom: '16px' }}>
             <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px', color: 'var(--primary-green)' }}>
               라운딩 수정
             </h3>
@@ -488,7 +487,7 @@ function RoundingManagement() {
           </div>
         )}
 
-        <Card>
+        <div className="card">
           <h3 style={{ 
             fontSize: '16px', 
             fontWeight: '700',

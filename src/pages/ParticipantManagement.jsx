@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
-import { Card, Button } from '../components/common';
 
 function ParticipantManagement() {
   const navigate = useNavigate();
@@ -183,11 +182,11 @@ function ParticipantManagement() {
   if (!hasAdminAccess) {
     return (
       <div className="page-content">
-        <Card>
+        <div className="card">
           <p style={{ textAlign: 'center', opacity: 0.7 }}>
             관리자 또는 운영진만 접근할 수 있습니다.
           </p>
-        </Card>
+        </div>
       </div>
     );
   }
@@ -195,11 +194,11 @@ function ParticipantManagement() {
   if (!booking) {
     return (
       <div className="page-content">
-        <Card>
+        <div className="card">
           <p style={{ textAlign: 'center', opacity: 0.7 }}>
             라운딩을 찾을 수 없습니다.
           </p>
-        </Card>
+        </div>
       </div>
     );
   }
@@ -225,7 +224,7 @@ function ParticipantManagement() {
       </div>
 
       <div className="page-content">
-        <Card style={{ marginBottom: '16px' }}>
+        <div className="card" style={{ marginBottom: '16px' }}>
           <div style={{ 
             padding: '16px',
             borderRadius: '8px',
