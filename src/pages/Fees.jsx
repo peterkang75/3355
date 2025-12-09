@@ -737,9 +737,9 @@ function Fees() {
               </h3>
 
               {(() => {
-                const allUserTransactions = [...userTransactions].sort((a, b) => 
-                  new Date(b.createdAt) - new Date(a.createdAt)
-                );
+                const allUserTransactions = [...userTransactions]
+                  .filter(t => !(t.type === 'donation' && t.category === '도네이션'))
+                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
                 const chargeTransactions = userTransactions.filter(t => t.type === 'charge' && t.booking);
                 
                 if (allUserTransactions.length === 0) {
