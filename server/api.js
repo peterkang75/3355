@@ -331,7 +331,7 @@ router.get("/transactions", async (req, res) => {
     // 'charge'는 제외하고 조회 (프론트엔드에서 빈 페이지 방지)
     const whereClause = { type: { not: "charge" } };
 
-    const [transactions, total] = await Promise.all([
+    const [rawTransactions, total] = await Promise.all([
       prisma.transaction.findMany({
         where: whereClause,
         select: {
@@ -346,9 +346,9 @@ router.get("/transactions", async (req, res) => {
           memberId: true,
           bookingId: true,
           createdBy: true,
-          // ★ 핵심: 이미지는 목록에서 제외하여 속도 향상
-          receiptImage: false,
-          receiptImages: false,
+          // ★ 이미지 존재 여부만 확인 (실제 데이터는 제외)
+          receiptImage: true,
+          receiptImages: true,
           member: { select: { id: true, name: true, nickname: true } },
           booking: {
             select: { id: true, title: true, courseName: true, date: true },
@@ -361,6 +361,14 @@ router.get("/transactions", async (req, res) => {
       }),
       prisma.transaction.count({ where: whereClause }),
     ]);
+
+    // ★ 이미지는 존재 여부 플래그로 변환 (데이터 크기 최소화)
+    const transactions = rawTransactions.map(t => ({
+      ...t,
+      hasReceipt: !!(t.receiptImage || (t.receiptImages && t.receiptImages.length > 0)),
+      receiptImage: undefined,
+      receiptImages: undefined,
+    }));
 
     res.json({
       transactions,

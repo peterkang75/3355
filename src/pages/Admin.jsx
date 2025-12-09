@@ -3341,16 +3341,29 @@ function Admin() {
                               color: typeColor,
                               whiteSpace: 'nowrap'
                             }}>
-                              {transaction.receiptImage ? (
+                              {(transaction.hasReceipt || transaction.receiptImage) ? (
                                 <span
-                                  onClick={() => setShowReceiptModal(transaction.receiptImage)}
+                                  onClick={async () => {
+                                    try {
+                                      const details = await apiService.fetchTransactionDetails(transaction.id);
+                                      if (details.receiptImage) {
+                                        setShowReceiptModal(details.receiptImage);
+                                      } else if (details.receiptImages?.length > 0) {
+                                        setShowReceiptModal(details.receiptImages[0]);
+                                      }
+                                    } catch (e) { console.error(e); }
+                                  }}
                                   style={{
                                     cursor: 'pointer',
-                                    textDecoration: 'underline'
+                                    textDecoration: 'underline',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '4px'
                                   }}
                                   title="영수증 보기"
                                 >
                                   {sign}${transaction.amount.toLocaleString()}
+                                  <span style={{ fontSize: '10px' }}>📎</span>
                                 </span>
                               ) : (
                                 <span>
@@ -4180,16 +4193,29 @@ function Admin() {
                                 color: typeColor,
                                 whiteSpace: 'nowrap'
                               }}>
-                                {transaction.receiptImage ? (
+                                {(transaction.hasReceipt || transaction.receiptImage) ? (
                                   <span
-                                    onClick={() => setShowReceiptModal(transaction.receiptImage)}
+                                    onClick={async () => {
+                                      try {
+                                        const details = await apiService.fetchTransactionDetails(transaction.id);
+                                        if (details.receiptImage) {
+                                          setShowReceiptModal(details.receiptImage);
+                                        } else if (details.receiptImages?.length > 0) {
+                                          setShowReceiptModal(details.receiptImages[0]);
+                                        }
+                                      } catch (e) { console.error(e); }
+                                    }}
                                     style={{
                                       cursor: 'pointer',
-                                      textDecoration: 'underline'
+                                      textDecoration: 'underline',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '4px'
                                     }}
                                     title="영수증 보기"
                                   >
                                     {sign}${transaction.amount.toLocaleString()}
+                                    <span style={{ fontSize: '10px' }}>📎</span>
                                   </span>
                                 ) : (
                                   <span>
