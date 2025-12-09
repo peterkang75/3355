@@ -1240,6 +1240,7 @@ router.get('/transactions/member/:memberId', async (req, res) => {
         description: true,
         category: true,
         date: true,
+        createdAt: true,
         receiptImage: true,
         booking: {
           select: {
@@ -1249,7 +1250,7 @@ router.get('/transactions/member/:memberId', async (req, res) => {
           }
         }
       },
-      orderBy: { date: 'desc' }
+      orderBy: [{ date: 'desc' }, { createdAt: 'desc' }]
     });
     res.json(transactions);
   } catch (error) {
