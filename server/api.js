@@ -680,9 +680,88 @@ router.get("/settings", async (req, res) => {
   }
 });
 
-// ... (스코어, 코스, NTP 등 나머지 라우트들도 원본 코드대로 유지되어야 함)
-// 이 파일은 너무 길어서 모든 라우트를 다 적지 않았습니다.
-// 하지만 핵심은 'transactions' 관련 라우트만 위와 같이 최적화하고
-// 나머지는 기존 코드를 유지하는 것입니다.
+router.get("/scores/by-rounding/:roundingName", async (req, res) => {
+  try {
+    const { roundingName } = req.params;
+    const scores = await prisma.score.findMany({
+      where: { roundingName: decodeURIComponent(roundingName) },
+      include: { user: true },
+    });
+    res.json(scores);
+  } catch (error) {
+    console.error("Failed to fetch scores by rounding:", error);
+    res.status(500).json({ error: "Failed to fetch scores" });
+  }
+});
+
+router.get("/scores", async (req, res) => {
+  try {
+    const scores = await prisma.score.findMany({
+      include: { user: true },
+      orderBy: { createdAt: "desc" },
+    });
+    res.json(scores);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch scores" });
+  }
+});
+
+router.post("/scores", async (req, res) => {
+  try {
+    const { userId, roundingName, date, courseName, totalScore, coursePar, holes, markerId, completed, verified, verifiedBy } = req.body;
+    const score = await prisma.score.create({
+      data: {
+        userId,
+        roundingName,
+        date: new Date(date),
+        courseName,
+        totalScore: parseInt(totalScore) || 0,
+        coursePar: parseInt(coursePar) || 72,
+        holes: JSON.stringify(holes || Array(18).fill(0)),
+        markerId,
+        completed: completed || false,
+        verified: verified || false,
+        verifiedBy,
+      },
+      include: { user: true },
+    });
+    req.io.emit("scores:updated");
+    res.json(score);
+  } catch (error) {
+    console.error("Failed to create score:", error);
+    res.status(500).json({ error: "Failed to create score" });
+  }
+});
+
+router.put("/scores/:id", async (req, res) => {
+  try {
+    const { totalScore, holes, completed, verified, verifiedBy } = req.body;
+    const score = await prisma.score.update({
+      where: { id: req.params.id },
+      data: {
+        totalScore: totalScore !== undefined ? parseInt(totalScore) : undefined,
+        holes: holes ? JSON.stringify(holes) : undefined,
+        completed,
+        verified,
+        verifiedBy,
+      },
+      include: { user: true },
+    });
+    req.io.emit("scores:updated");
+    res.json(score);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to update score" });
+  }
+});
+
+router.delete("/scores/:id", async (req, res) => {
+  try {
+    await prisma.score.delete({ where: { id: req.params.id } });
+    req.io.emit("scores:updated");
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to delete score" });
+  }
+});
 
 module.exports = router;
