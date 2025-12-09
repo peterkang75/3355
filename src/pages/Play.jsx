@@ -1021,9 +1021,14 @@ function Play() {
     const largeBoxSize = `${touchSize(60)}px`;
     const currentUserMember = members?.find(m => m.phone === user?.phone);
     const checkFemale = (gender) => gender === 'F' || gender === '여' || gender === 'female';
-    const isFemale = isTeammate 
-      ? checkFemale(selectedTeammate?.gender) 
-      : (checkFemale(user?.gender) || checkFemale(currentUserMember?.gender));
+    
+    // 포썸 모드에서는 팀 단위이므로 여성 스타일 강제 비활성화
+    const isFoursome = gameMode === 'foursome';
+    const isFemale = isFoursome 
+      ? false 
+      : (isTeammate 
+          ? checkFemale(selectedTeammate?.gender) 
+          : (checkFemale(user?.gender) || checkFemale(currentUserMember?.gender)));
     const boxStyle = { width: largeBoxSize, height: largeBoxSize, padding: `${s(8, 4)}px`, background: 'white', border: '2px solid #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: `${s(24, 14)}px`, color: '#000', ...iosButtonStyle };
     const buttonStyle = { width: largeBoxSize, height: largeBoxSize, padding: `${s(8, 4)}px`, border: '2px solid #ccc', background: 'white', color: '#000', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: `${s(24, 14)}px`, ...iosButtonStyle };
     
