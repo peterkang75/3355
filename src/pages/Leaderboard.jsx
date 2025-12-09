@@ -103,9 +103,21 @@ function Leaderboard() {
         const holesArray = typeof score.holes === 'string' ? JSON.parse(score.holes) : score.holes;
         const completedHoles = holesArray?.filter(h => h > 0).length || 0;
         const thru = completedHoles === 18 ? 'F' : completedHoles.toString();
-        const totalScore = score.totalScore || holesArray?.reduce((a, b) => a + b, 0) || 0;
-        const scoreCoursePar = score.coursePar || calculatedCoursePar;
-        const overUnder = totalScore - scoreCoursePar;
+        
+        // 플레이한 홀의 점수 합계와 해당 홀의 파 합계 계산
+        let currentTotalScore = 0;
+        let playedPar = 0;
+        if (holesArray && holesArray.length > 0) {
+          holesArray.forEach((holeScore, idx) => {
+            if (holeScore > 0) {
+              currentTotalScore += holeScore;
+              playedPar += (holePars[idx] || 4);
+            }
+          });
+        }
+        
+        const totalScore = currentTotalScore || (score.totalScore || 0);
+        const overUnder = totalScore - playedPar;
         
         const outScore = holesArray?.slice(0, 9).reduce((a, b) => a + b, 0) || 0;
         const inScore = holesArray?.slice(9, 18).reduce((a, b) => a + b, 0) || 0;
@@ -122,7 +134,7 @@ function Leaderboard() {
           holes: holesArray || [],
           outScore,
           inScore,
-          coursePar: scoreCoursePar
+          playedPar
         };
       });
 
@@ -174,7 +186,7 @@ function Leaderboard() {
               if (memberScore && memberScore.totalScore > 0) {
                 pair.score = memberScore.totalScore;
                 pair.overUnder = memberScore.overUnder;
-                pair.coursePar = memberScore.coursePar;
+                pair.playedPar = memberScore.playedPar;
                 pair.outScore = memberScore.outScore;
                 pair.inScore = memberScore.inScore;
                 break;
@@ -457,7 +469,7 @@ function Leaderboard() {
                   fontSize: '12px',
                   fontWeight: '600'
                 }}>
-                  {team.score ? `${team.coursePar}/${team.score}` : '-'}
+                  {team.score || '-'}
                 </div>
                 <div style={{ 
                   textAlign: 'center', 
@@ -586,7 +598,7 @@ function Leaderboard() {
                     fontSize: '12px',
                     fontWeight: '600'
                   }}>
-                    {score.totalScore ? `${score.coursePar}/${score.totalScore}` : '-'}
+                    {score.totalScore || '-'}
                   </div>
                   <div style={{ 
                     textAlign: 'center', 
