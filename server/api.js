@@ -1273,20 +1273,18 @@ router.get('/transactions/club-balance', async (req, res) => {
       }
     });
 
-    const isCreditUsageExpense = (t) => {
-      if (t.type !== 'expense') return false;
-      const creditCategories = ['크레딧 사용', '크레딧 도네이션', '크레딧 납부'];
-      return creditCategories.includes(t.category);
-    };
-
     const balance = transactions.reduce((sum, t) => {
-      if (t.type === 'payment') return sum + t.amount;
+      // 1. 클럽 수입: 현금 납부 및 도네이션 (크레딧 자동 납부는 제외)
+      if (t.type === 'payment' && t.category !== '크레딧 자동 납부' && t.category !== '크레딧 납부') return sum + t.amount;
       if (t.type === 'donation') return sum + t.amount;
-      if (t.type === 'expense') {
-        if (isCreditUsageExpense(t)) return sum;
-        return sum - t.amount;
-      }
+      
+      // 2. 클럽 지출: 일반 지출 (Expense)
+      if (t.type === 'expense') return sum - t.amount;
+      
+      // 3. 크레딧 발행: 클럽 지출 (Credit)
       if (t.type === 'credit') return sum - t.amount;
+      
+      // 4. 기타 (Charge, CreditDonation, 크레딧 Payment)는 클럽 잔액에 영향 없음
       return sum;
     }, 0);
 
