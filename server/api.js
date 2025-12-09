@@ -315,7 +315,54 @@ router.patch("/bookings/:id/toggle-announce", async (req, res) => {
   }
 });
 
-// ... (bookings 관련 나머지 toggle API들도 유사하게 유지) ...
+router.patch("/bookings/:id/toggle-number-rental", async (req, res) => {
+  try {
+    const { userPhone } = req.body;
+    const booking = await prisma.booking.findUnique({
+      where: { id: req.params.id },
+    });
+    
+    if (!booking) {
+      return res.status(404).json({ error: "Booking not found" });
+    }
+    
+    const currentRentals = booking.numberRentals || [];
+    const isRenting = currentRentals.includes(userPhone);
+    
+    const updatedRentals = isRenting
+      ? currentRentals.filter(phone => phone !== userPhone)
+      : [...currentRentals, userPhone];
+    
+    const updated = await prisma.booking.update({
+      where: { id: req.params.id },
+      data: { numberRentals: updatedRentals },
+      include: { organizer: true },
+    });
+    
+    req.io.emit("bookings:updated");
+    res.json(updated);
+  } catch (error) {
+    console.error("Failed to toggle number rental:", error);
+    res.status(500).json({ error: "Failed to toggle number rental" });
+  }
+});
+
+router.patch("/bookings/:id/toggle-play", async (req, res) => {
+  try {
+    const booking = await prisma.booking.findUnique({
+      where: { id: req.params.id },
+    });
+    const updated = await prisma.booking.update({
+      where: { id: req.params.id },
+      data: { playEnabled: !booking.playEnabled },
+      include: { organizer: true },
+    });
+    req.io.emit("bookings:updated");
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to toggle play" });
+  }
+});
 
 // ==========================================
 // 2. 거래 관련 API (★ 최적화 적용됨 ★)
