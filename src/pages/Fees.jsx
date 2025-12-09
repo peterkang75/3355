@@ -316,6 +316,10 @@ function Fees() {
       if (transaction.category === '크레딧 차감') {
         return `${transaction.description || '참가비'} 청구`;
       }
+      if (transaction.category === '크레딧 자동 차감') {
+        const baseName = transaction.description?.replace(' (크레딧 자동 차감)', '') || '참가비';
+        return `${baseName} (크레딧 사용)`;
+      }
       if (transaction.category) {
         return transaction.category;
       }

@@ -3218,10 +3218,12 @@ function Admin() {
                       {recentTransactions.filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감')).map(transaction => {
                         const typeColor =
                           transaction.type === 'payment' ? 'var(--success-green)' :
-                          transaction.type === 'expense' ? 'var(--alert-red)' : 'var(--success-green)';
+                          transaction.type === 'expense' ? (transaction.category === '크레딧 자동 차감' ? 'var(--success-green)' : 'var(--alert-red)') :
+                          transaction.type === 'creditDonation' ? 'var(--success-green)' : 'var(--success-green)';
 
                         const sign = 
-                          transaction.type === 'payment' || transaction.type === 'donation' ? '+' : '-';
+                          transaction.type === 'payment' || transaction.type === 'donation' || transaction.type === 'creditDonation' ||
+                          (transaction.type === 'expense' && transaction.category === '크레딧 자동 차감') ? '+' : '-';
                         
                         const bookingName = transaction.booking ? 
                           (transaction.booking.title || transaction.booking.courseName) : '-';
@@ -3244,6 +3246,9 @@ function Admin() {
                         } else if (transaction.type === 'expense') {
                           if (transaction.category === '크레딧 차감') {
                             categoryName = `${transaction.description || '참가비'} 청구`;
+                          } else if (transaction.category === '크레딧 자동 차감') {
+                            const baseName = transaction.description?.replace(' (크레딧 자동 차감)', '') || '참가비';
+                            categoryName = `${baseName} (크레딧 사용)`;
                           } else {
                             categoryName = transaction.category || transaction.description || '클럽 지출';
                           }
@@ -3255,6 +3260,8 @@ function Admin() {
                           } else {
                             categoryName = transaction.category || '도네이션';
                           }
+                        } else if (transaction.type === 'creditDonation') {
+                          categoryName = transaction.description || '크레딧 도네이션';
                         } else {
                           categoryName = transaction.type;
                         }
@@ -4017,11 +4024,12 @@ function Admin() {
                           const typeColor =
                             transaction.type === 'payment' ? 'var(--success-green)' :
                             transaction.type === 'charge' ? 'var(--alert-red)' :
-                            transaction.type === 'expense' ? 'var(--alert-red)' :
+                            transaction.type === 'expense' ? (transaction.category === '크레딧 자동 차감' ? 'var(--success-green)' : 'var(--alert-red)') :
                             transaction.type === 'creditDonation' ? 'var(--success-green)' : 'var(--success-green)';
 
                           const sign = 
-                            transaction.type === 'payment' || transaction.type === 'donation' || transaction.type === 'creditDonation' ? '+' : '-';
+                            transaction.type === 'payment' || transaction.type === 'donation' || transaction.type === 'creditDonation' ||
+                            (transaction.type === 'expense' && transaction.category === '크레딧 자동 차감') ? '+' : '-';
                           
                           const bookingName = transaction.booking ? 
                             (transaction.booking.title || transaction.booking.courseName) : '-';
@@ -4044,6 +4052,9 @@ function Admin() {
                           } else if (transaction.type === 'expense') {
                             if (transaction.category === '크레딧 차감') {
                               categoryName = `${transaction.description || '참가비'} 청구`;
+                            } else if (transaction.category === '크레딧 자동 차감') {
+                              const baseName = transaction.description?.replace(' (크레딧 자동 차감)', '') || '참가비';
+                              categoryName = `${baseName} (크레딧 사용)`;
                             } else {
                               categoryName = transaction.category || transaction.description || '클럽 지출';
                             }

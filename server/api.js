@@ -332,26 +332,30 @@ router.put('/bookings/:id', async (req, res) => {
               ? `${booking.courseName} 라운딩 (참가비 면제)`
               : `${booking.courseName} 라운딩`;
 
-            // 전체 금액 청구
-            await prisma.transaction.create({
-              data: {
-                type: 'charge',
-                amount: totalAmount,
-                description: baseDescription,
-                date: today,
-                memberId: member.id,
-                bookingId: booking.id
-              }
-            });
-
-            // 크레딧 자동 납부 (Payment)
+            // 1. 크레딧 사용분 처리 (Expense 생성 -> 개인 잔액 차감)
             if (creditToUse > 0) {
               await prisma.transaction.create({
                 data: {
-                  type: 'payment',
+                  type: 'expense',
                   amount: creditToUse,
-                  description: `${baseDescription} (크레딧 자동 납부)`,
-                  category: '크레딧 자동 납부',
+                  description: `${baseDescription} (크레딧 자동 차감)`,
+                  category: '크레딧 자동 차감',
+                  date: today,
+                  memberId: member.id,
+                  bookingId: booking.id
+                }
+              });
+            }
+
+            // 2. 남은 금액 처리 (Charge 생성 -> 미수금 발생)
+            if (remainingCharge > 0) {
+              await prisma.transaction.create({
+                data: {
+                  type: 'charge',
+                  amount: remainingCharge,
+                  description: creditToUse > 0
+                    ? `${baseDescription} (크레딧 $${creditToUse} 사용 후 잔액)`
+                    : baseDescription,
                   date: today,
                   memberId: member.id,
                   bookingId: booking.id
@@ -387,12 +391,15 @@ router.put('/bookings/:id', async (req, res) => {
         });
 
         if (member) {
-          // 해당 라운딩의 청구 및 크레딧 자동 납부 트랜잭션 삭제
+          // 해당 라운딩의 청구 및 크레딧 자동 차감 트랜잭션 삭제
           await prisma.transaction.deleteMany({
             where: {
               memberId: member.id,
               bookingId: booking.id,
-              type: { in: ['charge', 'payment'] }
+              OR: [
+                { type: 'charge' },
+                { type: 'expense', category: '크레딧 자동 차감' }
+              ]
             }
           });
 
@@ -1285,8 +1292,13 @@ router.get('/transactions/club-balance', async (req, res) => {
       // 2. Donation: 수입 (+)
       if (t.type === 'donation') return sum + t.amount;
       
-      // 3. Expense: 지출 (-)
-      if (t.type === 'expense') return sum - t.amount;
+      // 3. Expense: 지출 (-), 단 '크레딧 자동 차감'은 수입 (+)
+      if (t.type === 'expense') {
+        if (t.category === '크레딧 자동 차감') {
+          return sum + t.amount; // 크레딧 사용은 클럽 수입으로 인정
+        }
+        return sum - t.amount;
+      }
       
       // 4. Credit: 크레딧 발행은 부채 증가/자산 감소 (-)
       if (t.type === 'credit') return sum - t.amount;
@@ -1434,45 +1446,41 @@ router.post('/transactions/charge-with-credit', async (req, res) => {
     const today = date || new Date().toISOString().split('T')[0];
 
     const transactions = [];
+    const remainingCharge = amount - creditToUse;
 
-    // 전체 금액 청구 생성
-    const chargeTx = await prisma.transaction.create({
-      data: {
-        type: 'charge',
-        amount: amount,
-        description: description,
-        date: today,
-        memberId: memberId,
-        bookingId: bookingId || null,
-        createdBy: createdBy || null
-      }
-    });
-    transactions.push(chargeTx);
-
-    // 크레딧 자동 납부 (Payment) 생성
+    // 1. 크레딧 사용분 처리 (Expense 생성)
     if (creditToUse > 0) {
-      let baseCategory = '참가비';
-      if (description) {
-        const parts = description.split(' - ');
-        baseCategory = parts[0].replace('청구', '').trim() || '참가비';
-      }
-      
-      const paymentTx = await prisma.transaction.create({
+      const baseCategory = description.split(' - ')[0].replace('청구', '').trim() || '참가비';
+      const expenseTx = await prisma.transaction.create({
         data: {
-          type: 'payment',
+          type: 'expense',
           amount: creditToUse,
-          description: `${baseCategory} (크레딧 자동 납부)`,
-          category: '크레딧 자동 납부',
+          description: `${baseCategory} (크레딧 자동 차감)`,
+          category: '크레딧 자동 차감',
           date: today,
           memberId: memberId,
           bookingId: bookingId || null,
           createdBy: createdBy || null
         }
       });
-      transactions.push(paymentTx);
+      transactions.push(expenseTx);
     }
 
-    const remainingCharge = amount - creditToUse;
+    // 2. 남은 금액 처리 (Charge 생성)
+    if (remainingCharge > 0) {
+      const chargeTx = await prisma.transaction.create({
+        data: {
+          type: 'charge',
+          amount: remainingCharge,
+          description: description,
+          date: today,
+          memberId: memberId,
+          bookingId: bookingId || null,
+          createdBy: createdBy || null
+        }
+      });
+      transactions.push(chargeTx);
+    }
 
     const updatedTransactions = await prisma.transaction.findMany({
       where: { memberId }
