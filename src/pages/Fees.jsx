@@ -537,21 +537,21 @@ function Fees() {
         {activeTab === 'personal' ? (
           <>
             <div className="card" style={{
-              background: '#FFF7ED',
-              borderLeft: '6px solid #EA580C',
+              background: '#FFFFFF',
+              borderLeft: '8px solid #E59879',
               borderTop: 'none',
               padding: '24px',
               borderRadius: '12px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.05)'
+              boxShadow: '0 2px 10px rgba(0,0,0,0.05)'
             }}>
-              <div style={{ fontSize: '14px', marginBottom: '4px', color: '#9A3412', fontWeight: '600' }}>
+              <div style={{ fontSize: '14px', marginBottom: '4px', color: '#666', fontWeight: '600' }}>
                 현재 잔액
               </div>
               <div style={{ 
-                fontSize: '36px', 
+                fontSize: '40px', 
                 fontWeight: '800', 
                 marginBottom: '16px',
-                color: balance >= 0 ? '#EA580C' : '#DC2626'
+                color: balance >= 0 ? '#E59879' : '#DC2626'
               }}>
                 ${balance.toLocaleString()}
               </div>
@@ -559,18 +559,18 @@ function Fees() {
                 display: 'flex', 
                 justifyContent: 'space-between',
                 paddingTop: '12px',
-                borderTop: '1px solid rgba(234, 88, 12, 0.15)',
+                borderTop: '1px solid rgba(229, 152, 121, 0.2)',
                 fontSize: '13px'
               }}>
                 <div>
-                  <div style={{ color: '#9A3412', opacity: 0.8 }}>총 납부(도네이션 포함)</div>
-                  <div style={{ fontWeight: '700', marginTop: '4px', color: '#EA580C', fontSize: '16px' }}>
+                  <div style={{ color: '#888' }}>총 납부(도네이션 포함)</div>
+                  <div style={{ fontWeight: '700', marginTop: '4px', color: '#E59879', fontSize: '16px' }}>
                     ${totalPayments.toLocaleString()}
                   </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <div style={{ color: '#9A3412', opacity: 0.8 }}>총 회비</div>
-                  <div style={{ fontWeight: '700', marginTop: '4px', color: '#EA580C', fontSize: '16px' }}>
+                  <div style={{ color: '#888' }}>총 회비</div>
+                  <div style={{ fontWeight: '700', marginTop: '4px', color: '#E59879', fontSize: '16px' }}>
                     ${totalCharges.toLocaleString()}
                   </div>
                 </div>
@@ -819,13 +819,13 @@ function Fees() {
         ) : (
           <>
             <div className="card" style={{
-              background: '#EFF6FF',
-              borderLeft: '6px solid #1E3A8A',
+              background: '#FFFFFF',
+              borderLeft: '8px solid #1E3A8A',
               borderTop: 'none',
               padding: '24px',
               marginBottom: '16px',
               borderRadius: '12px',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+              boxShadow: '0 2px 10px rgba(0,0,0,0.05)',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center'
