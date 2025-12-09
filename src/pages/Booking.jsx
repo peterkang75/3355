@@ -5,6 +5,8 @@ import apiService from '../services/api';
 import CrownIcon from '../components/CrownIcon';
 import BookingForm from '../components/booking/BookingForm';
 import BookingListCard from '../components/booking/BookingListCard';
+import { Card, Button, Badge } from '../components/common';
+import theme from '../styles/theme';
 
 function Booking() {
   const { user, members, bookings, courses, scores, addBooking, updateBooking, refreshBookings } = useApp();
@@ -593,90 +595,82 @@ function Booking() {
         </div>
       </div>
 
-      <div className="page-content">
+      <div className="page-content" style={{ background: theme.colors.bg_app }}>
         {showNewBooking && canManageBooking && (
-          <div className="card">
-            <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
+          <Card style={{ marginBottom: theme.spacing.cardGap }}>
+            <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: theme.colors.text_main }}>
               새 라운딩 만들기
             </h3>
             {renderBookingForm(newBooking, setNewBooking, handleCreateBooking, '라운딩 생성', true)}
-          </div>
+          </Card>
         )}
 
         {editingBooking && editBookingData && (
-          <div className="card" style={{ marginBottom: '16px' }}>
-            <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
+          <Card style={{ marginBottom: theme.spacing.cardGap }}>
+            <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: theme.colors.primary }}>
               ✎ 라운딩 정보 수정
             </h3>
             {renderBookingForm(editBookingData, setEditBookingData, handleSaveBooking, '수정 완료', false)}
-          </div>
+          </Card>
         )}
 
         <div style={{ 
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          marginBottom: '16px',
-          marginLeft: '16px',
-          marginRight: '16px'
+          marginBottom: theme.spacing.cardGap,
+          marginLeft: theme.spacing.lg,
+          marginRight: theme.spacing.lg
         }}>
           <h3 style={{ 
             fontSize: '18px', 
-            fontWeight: '700',
-            color: 'var(--primary-green)',
+            fontWeight: theme.typography.fontWeight.bold,
+            color: theme.colors.primary,
             margin: 0
           }}>
             ⛳ 현재 활성중인 라운딩
           </h3>
           {canManageBooking && (
-            <button 
+            <Button 
+              variant={showNewBooking ? 'outline' : 'primary'}
+              size="sm"
               onClick={() => setShowNewBooking(!showNewBooking)}
-              style={{
-                background: 'var(--primary-green)',
-                color: 'var(--text-light)',
-                padding: '8px 16px',
-                borderRadius: '6px',
-                fontSize: '13px',
-                fontWeight: '600',
-                border: 'none',
-                cursor: 'pointer'
-              }}
             >
               {showNewBooking ? '취소' : '+ 라운딩 생성하기'}
-            </button>
+            </Button>
           )}
         </div>
         {activeBookings.length === 0 ? (
-          <div className="card" style={{ 
+          <Card style={{ 
             padding: '40px',
             textAlign: 'center',
-            opacity: 0.7
+            color: theme.colors.text_sub
           }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>⛳</div>
             <p>예정된 라운딩이 없습니다</p>
-          </div>
+          </Card>
         ) : (
           activeBookings.map(booking => renderBookingListItem(booking, true))
         )}
 
         <h3 style={{ 
           fontSize: '18px', 
-          fontWeight: '700',
-          marginBottom: '16px',
-          marginLeft: '16px',
-          marginTop: '24px',
-          opacity: 0.7
+          fontWeight: theme.typography.fontWeight.bold,
+          marginBottom: theme.spacing.cardGap,
+          marginLeft: theme.spacing.lg,
+          marginTop: theme.spacing.xxl,
+          color: theme.colors.text_sub
         }}>
           ✓ 완료된 라운딩
         </h3>
         {completedBookings.length === 0 ? (
-          <div className="card" style={{ 
+          <Card style={{ 
             padding: '40px',
             textAlign: 'center',
-            opacity: 0.7
+            color: theme.colors.text_sub
           }}>
             <p>완료된 라운딩이 없습니다</p>
-          </div>
+          </Card>
         ) : (
           completedBookings.map(booking => renderBookingListItem(booking, false))
         )}

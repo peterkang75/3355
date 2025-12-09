@@ -1,4 +1,6 @@
 import React, { memo } from 'react';
+import { Badge } from '../common';
+import theme from '../../styles/theme';
 
 const BookingListCard = memo(function BookingListCard({
   booking,
@@ -52,17 +54,7 @@ const BookingListCard = memo(function BookingListCard({
               }}>
                 {booking.title}
                 {isFoursome && (
-                  <span style={{
-                    fontSize: '11px',
-                    fontWeight: '600',
-                    background: '#9C27B0',
-                    color: 'white',
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                    verticalAlign: 'middle'
-                  }}>
-                    포썸
-                  </span>
+                  <Badge variant="purple" size="xs">포썸</Badge>
                 )}
               </h3>
             )}
