@@ -689,6 +689,17 @@ function Booking() {
     const isJoined = participants.some(p => p.phone === user.phone);
     const totalFee = (parseInt(booking.greenFee) || 0) + (parseInt(booking.cartFee) || 0) + (parseInt(booking.membershipFee) || 0);
     
+    // 포썸 모드 체크
+    let isFoursome = false;
+    try {
+      const settings = typeof booking.gradeSettings === 'string' 
+        ? JSON.parse(booking.gradeSettings) 
+        : booking.gradeSettings;
+      if (settings && settings.mode === 'foursome') {
+        isFoursome = true;
+      }
+    } catch (e) {}
+    
     // 번호대여자 정보 가져오기
     const rentalMembers = (booking.numberRentals || []).map(phone => {
       const member = members.find(m => m.phone === phone);
@@ -729,9 +740,24 @@ function Booking() {
                   padding: '6px 10px',
                   borderRadius: '6px',
                   marginBottom: '8px',
-                  display: 'inline-block'
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '8px'
                 }}>
                   {booking.title}
+                  {isFoursome && (
+                    <span style={{
+                      fontSize: '11px',
+                      fontWeight: '600',
+                      background: '#9C27B0',
+                      color: 'white',
+                      padding: '2px 6px',
+                      borderRadius: '4px',
+                      verticalAlign: 'middle'
+                    }}>
+                      포썸
+                    </span>
+                  )}
                 </h3>
               )}
               <div style={{ fontSize: '16px', fontWeight: '600', color: '#333', marginBottom: '4px' }}>
