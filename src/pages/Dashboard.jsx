@@ -593,18 +593,23 @@ function Dashboard() {
                   </div>
                 </div>
               )}
-              {posts.slice(0, 5).map((post, index) => (
-                <div key={post.id}>
-                  <div style={{
-                    background: expandedPost === post.id ? '#FFD449' : 'var(--bg-green)',
-                    padding: '14px 16px',
-                    borderRadius: '8px',
+              {posts.slice(0, 5).map((post, index) => {
+                const isLast = index === Math.min(posts.length, 5) - 1;
+                return (
+                <div 
+                  key={post.id}
+                  style={{
+                    backgroundColor: 'transparent',
+                    borderBottom: isLast ? 'none' : '1px solid #E5E7EB',
+                    padding: '16px 0',
+                    margin: 0,
+                    borderRadius: 0,
+                    boxShadow: 'none',
                     cursor: 'pointer',
-                    transition: 'background 0.2s',
                     position: 'relative'
                   }}
                   onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
-                  >
+                >
                   <div style={{ 
                     display: 'flex', 
                     gap: '8px',
@@ -1108,16 +1113,9 @@ function Dashboard() {
                       </div>
                     </div>
                   )}
-                  </div>
-                  {index < Math.min(posts.length, 5) - 1 && (
-                    <div style={{
-                      height: '1px',
-                      background: 'rgba(0, 0, 0, 0.1)',
-                      margin: '5px 0'
-                    }} />
-                  )}
                 </div>
-              ))}
+              );
+              })}
             </div>
           )}
         </Card>
