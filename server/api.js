@@ -396,22 +396,20 @@ router.get("/transactions/:id/details", async (req, res) => {
 });
 
 // [최적화] 클럽 잔액 계산 (DB 집계 쿼리 사용 - 속도 100배 향상)
+// [최적화] 클럽 잔액 및 항목별 합계 계산 (DB 집계 사용)
 router.get("/transactions/club-balance", async (req, res) => {
   try {
-    // DB에서 직접 합계를 구함 (가장 느린 부분 해결)
+    // 1. 전체 잔액 계산 (기존 로직 유지)
     const [incomeAgg, expenseAgg, creditExpenseAgg, creditAgg] =
       await Promise.all([
-        // 1. 수입 (납부 + 도네이션)
         prisma.transaction.aggregate({
           _sum: { amount: true },
           where: { type: { in: ["payment", "donation"] } },
         }),
-        // 2. 지출 (전체 지출)
         prisma.transaction.aggregate({
           _sum: { amount: true },
           where: { type: "expense" },
         }),
-        // 3. 크레딧으로 지출한 내역 (제외해야 함)
         prisma.transaction.aggregate({
           _sum: { amount: true },
           where: {
@@ -419,7 +417,6 @@ router.get("/transactions/club-balance", async (req, res) => {
             category: { in: ["크레딧 자동 차감", "크레딧 납부"] },
           },
         }),
-        // 4. 크레딧 발행
         prisma.transaction.aggregate({
           _sum: { amount: true },
           where: { type: "credit" },
@@ -430,15 +427,58 @@ router.get("/transactions/club-balance", async (req, res) => {
     const totalExpense = expenseAgg._sum.amount || 0;
     const totalCreditExpense = creditExpenseAgg._sum.amount || 0;
     const totalCreditIssued = creditAgg._sum.amount || 0;
-
-    // 공식: (수입) - (실제 현금 지출) - (크레딧 발행분)
     const realExpense = totalExpense - totalCreditExpense;
     const balance = totalIncome - realExpense - totalCreditIssued;
 
-    res.json({ balance });
+    // 2. [추가] 항목별(카테고리별) 합계 계산 (Group By)
+    // 수입 항목별 합계
+    const incomeByCategory = await prisma.transaction.groupBy({
+      by: ["category", "description"], // description은 '회비 납부 - 11월' 같은 경우를 위해 필요할 수 있음
+      _sum: { amount: true },
+      where: { type: { in: ["payment", "donation"] } },
+    });
+
+    // 지출 항목별 합계
+    const expenseByCategory = await prisma.transaction.groupBy({
+      by: ["category"],
+      _sum: { amount: true },
+      where: { type: "expense" },
+    });
+
+    // 프론트엔드에서 쓰기 좋게 가공
+    const formattedIncome = {};
+    incomeByCategory.forEach((item) => {
+      // 카테고리가 없으면 설명(description)을 사용하거나 '기타'로 처리
+      let key = item.category || "기타 수입";
+
+      // '회비 납부 - 홍길동' 처럼 이름이 섞인 경우 앞부분만 따기 (선택 사항)
+      if (key === "기타 수입" && item.description) {
+        if (item.description.includes(" - "))
+          key = item.description.split(" - ")[0];
+        else if (item.description.includes(" ("))
+          key = item.description.split(" (")[0];
+        else key = item.description;
+      }
+
+      formattedIncome[key] =
+        (formattedIncome[key] || 0) + (item._sum.amount || 0);
+    });
+
+    const formattedExpense = {};
+    expenseByCategory.forEach((item) => {
+      const key = item.category || "기타 지출";
+      formattedExpense[key] =
+        (formattedExpense[key] || 0) + (item._sum.amount || 0);
+    });
+
+    res.json({
+      balance,
+      incomeBreakdown: formattedIncome,
+      expenseBreakdown: formattedExpense,
+    });
   } catch (error) {
-    console.error("Error calculating club balance:", error);
-    res.status(500).json({ error: "Failed to calculate club balance" });
+    console.error("Error calculating club stats:", error);
+    res.status(500).json({ error: "Failed to calculate club stats" });
   }
 });
 
