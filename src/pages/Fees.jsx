@@ -295,6 +295,9 @@ function Fees() {
   };
 
   const getTransactionLabel = (transaction) => {
+    if (transaction.type === 'creditDonation') {
+      return '도네이션 (크레딧)';
+    }
     if (transaction.type === 'donation') {
       if (transaction.category === '크레딧 참가비' && transaction.description) {
         const parts = transaction.description.split(' - ');
@@ -345,6 +348,7 @@ function Fees() {
     if (transaction.type === 'donation') return 'var(--success-green)';
     if (transaction.type === 'credit') return 'var(--success-green)';
     if (transaction.type === 'expense') return 'var(--alert-red)';
+    if (transaction.type === 'creditDonation') return 'var(--alert-red)';
     return 'var(--text-primary)';
   };
 
@@ -354,6 +358,7 @@ function Fees() {
     if (transaction.type === 'donation') return '+';
     if (transaction.type === 'credit') return '+';
     if (transaction.type === 'expense') return '-';
+    if (transaction.type === 'creditDonation') return '-';
     return '';
   };
 

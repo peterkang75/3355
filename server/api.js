@@ -320,6 +320,7 @@ router.put('/bookings/:id', async (req, res) => {
               if (t.type === 'payment') return sum + t.amount;
               if (t.type === 'credit') return sum + t.amount;
               if (t.type === 'expense') return sum - t.amount;
+              if (t.type === 'creditDonation') return sum - t.amount;
               return sum;
             }, 0);
 
@@ -382,6 +383,7 @@ router.put('/bookings/:id', async (req, res) => {
             if (t.type === 'payment') return sum + t.amount;
             if (t.type === 'credit') return sum + t.amount;
             if (t.type === 'expense') return sum - t.amount;
+            if (t.type === 'creditDonation') return sum - t.amount;
             return sum;
           }, 0);
 
@@ -428,6 +430,7 @@ router.put('/bookings/:id', async (req, res) => {
             if (t.type === 'payment') return sum + t.amount;
             if (t.type === 'credit') return sum + t.amount;
             if (t.type === 'expense') return sum - t.amount;
+            if (t.type === 'creditDonation') return sum - t.amount;
             return sum;
           }, 0);
 
@@ -1272,6 +1275,7 @@ router.get('/transactions/balance/:memberId', async (req, res) => {
       if (t.type === 'payment') return sum + t.amount;
       if (t.type === 'credit') return sum + t.amount;
       if (t.type === 'expense') return sum - t.amount;
+      if (t.type === 'creditDonation') return sum - t.amount;
       return sum;
     }, 0);
 
@@ -1379,7 +1383,7 @@ router.get('/transactions/outstanding', async (req, res) => {
   }
 });
 
-// 거래 생성 (charge, payment, expense, donation, credit)
+// 거래 생성 (charge, payment, expense, donation, credit, creditDonation)
 router.post('/transactions', async (req, res) => {
   try {
     const transaction = await prisma.transaction.create({
@@ -1401,6 +1405,7 @@ router.post('/transactions', async (req, res) => {
         if (t.type === 'payment') return sum + t.amount;
         if (t.type === 'credit') return sum + t.amount;
         if (t.type === 'expense') return sum - t.amount;
+        if (t.type === 'creditDonation') return sum - t.amount;
         return sum;
       }, 0);
 
@@ -1437,6 +1442,7 @@ router.post('/transactions/charge-with-credit', async (req, res) => {
       if (t.type === 'payment') return sum + t.amount;
       if (t.type === 'credit') return sum + t.amount;
       if (t.type === 'expense') return sum - t.amount;
+      if (t.type === 'creditDonation') return sum - t.amount;
       return sum;
     }, 0);
 
@@ -1524,7 +1530,7 @@ router.post('/transactions/charge-with-credit', async (req, res) => {
   }
 });
 
-// 크레딧을 도네이션으로 전환
+// 크레딧을 도네이션으로 전환 (단일 거래 방식)
 router.post('/transactions/credit-to-donation', async (req, res) => {
   try {
     const { memberId, amount, memo } = req.body;
@@ -1542,6 +1548,7 @@ router.post('/transactions/credit-to-donation', async (req, res) => {
       if (t.type === 'payment') return sum + t.amount;
       if (t.type === 'credit') return sum + t.amount;
       if (t.type === 'expense') return sum - t.amount;
+      if (t.type === 'creditDonation') return sum - t.amount;
       return sum;
     }, 0);
 
@@ -1552,25 +1559,27 @@ router.post('/transactions/credit-to-donation', async (req, res) => {
     const member = await prisma.member.findUnique({ where: { id: memberId } });
     const today = new Date().toISOString().split('T')[0];
 
-    const donationTx = await prisma.transaction.create({
+    // 회원 크레딧 차감 (단일 거래)
+    const creditDonationTx = await prisma.transaction.create({
       data: {
-        type: 'donation',
+        type: 'creditDonation',
         amount: amount,
-        description: memo ? `크레딧 도네이션: ${memo}` : '크레딧 도네이션',
+        description: memo ? `도네이션 (크레딧): ${memo}` : '도네이션 (크레딧)',
         category: '크레딧 도네이션',
         date: today,
         memberId: memberId
       }
     });
 
-    const expenseTx = await prisma.transaction.create({
+    // 모임 수입 기록 (회원 연결 없음)
+    const clubDonationTx = await prisma.transaction.create({
       data: {
-        type: 'expense',
+        type: 'donation',
         amount: amount,
-        description: memo ? `크레딧 도네이션 전환: ${memo}` : '크레딧 도네이션 전환',
-        category: '크레딧 도네이션',
+        description: memo ? `${member.name} 도네이션: ${memo}` : `${member.name} 도네이션`,
+        category: '도네이션',
         date: today,
-        memberId: memberId
+        memberId: null
       }
     });
 
@@ -1583,6 +1592,7 @@ router.post('/transactions/credit-to-donation', async (req, res) => {
       if (t.type === 'payment') return sum + t.amount;
       if (t.type === 'credit') return sum + t.amount;
       if (t.type === 'expense') return sum - t.amount;
+      if (t.type === 'creditDonation') return sum - t.amount;
       return sum;
     }, 0);
 
@@ -1593,7 +1603,7 @@ router.post('/transactions/credit-to-donation', async (req, res) => {
 
     req.io.emit('transactions:updated');
     req.io.emit('members:updated');
-    res.json({ success: true, donationTx, expenseTx, newBalance });
+    res.json({ success: true, creditDonationTx, clubDonationTx, newBalance });
   } catch (error) {
     console.error('Error converting credit to donation:', error);
     res.status(500).json({ error: 'Failed to convert credit to donation' });
@@ -1618,6 +1628,7 @@ router.post('/transactions/credit-to-payment', async (req, res) => {
       if (t.type === 'payment') return sum + t.amount;
       if (t.type === 'credit') return sum + t.amount;
       if (t.type === 'expense') return sum - t.amount;
+      if (t.type === 'creditDonation') return sum - t.amount;
       return sum;
     }, 0);
 
@@ -1673,6 +1684,7 @@ router.post('/transactions/credit-to-payment', async (req, res) => {
       if (t.type === 'payment') return sum + t.amount;
       if (t.type === 'credit') return sum + t.amount;
       if (t.type === 'expense') return sum - t.amount;
+      if (t.type === 'creditDonation') return sum - t.amount;
       return sum;
     }, 0);
 
@@ -1766,6 +1778,7 @@ router.put('/transactions/:id', async (req, res) => {
         if (t.type === 'payment') return sum + t.amount;
         if (t.type === 'credit') return sum + t.amount;
         if (t.type === 'expense') return sum - t.amount;
+        if (t.type === 'creditDonation') return sum - t.amount;
         return sum;
       }, 0);
 
@@ -1810,6 +1823,7 @@ router.delete('/transactions/:id', async (req, res) => {
         if (t.type === 'payment') return sum + t.amount;
         if (t.type === 'credit') return sum + t.amount;
         if (t.type === 'expense') return sum - t.amount;
+        if (t.type === 'creditDonation') return sum - t.amount;
         return sum;
       }, 0);
 
