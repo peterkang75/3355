@@ -1571,15 +1571,15 @@ router.post('/transactions/credit-to-donation', async (req, res) => {
       }
     });
 
-    // 모임 수입 기록 (회원 연결 없음)
+    // 모임 수입 기록 (회원 연결)
     const clubDonationTx = await prisma.transaction.create({
       data: {
         type: 'donation',
         amount: amount,
-        description: memo ? `${member.name} 도네이션: ${memo}` : `${member.name} 도네이션`,
+        description: memo ? `도네이션: ${memo}` : '도네이션',
         category: '도네이션',
         date: today,
-        memberId: null
+        memberId: memberId
       }
     });
 
