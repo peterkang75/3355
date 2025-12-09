@@ -544,7 +544,11 @@ function Leaderboard() {
                 아직 스코어가 없습니다
               </div>
             ) : (
-              filteredScores.map((score, index) => (
+              filteredScores.map((score, index) => {
+                const rankIcon = index === 0 ? '🥇 ' : index === 1 ? '🥈 ' : index === 2 ? '🥉 ' : '';
+                const isTopRank = index < 3;
+                
+                return (
                 <div
                   key={`${score.odId}-${index}`}
                   onClick={() => setSelectedScore(score)}
@@ -553,21 +557,28 @@ function Leaderboard() {
                     gridTemplateColumns: '36px 1fr 40px 36px 36px 60px 44px',
                     gap: '4px',
                     padding: '12px 4px',
-                    background: index % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
+                    background: index === 0 
+                      ? 'linear-gradient(90deg, rgba(255,215,0,0.25) 0%, rgba(255,215,0,0.05) 100%)'
+                      : index % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
                     borderBottom: '1px solid rgba(255,255,255,0.1)',
                     alignItems: 'center',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    borderLeft: index === 0 ? '3px solid #FFD700' : 'none'
                   }}
                 >
                   <div style={{ 
                     color: 'white', 
                     fontSize: '14px',
-                    fontWeight: '600'
+                    fontWeight: isTopRank ? '700' : '600'
                   }}>
-                    {index + 1}
+                    {rankIcon}{index + 1}
                   </div>
                   <div>
-                    <div style={{ color: 'white', fontSize: '13px', fontWeight: '500' }}>
+                    <div style={{ 
+                      color: 'white', 
+                      fontSize: '13px', 
+                      fontWeight: isTopRank ? '600' : '500'
+                    }}>
                       {score.nickname}
                     </div>
                   </div>
@@ -609,7 +620,7 @@ function Leaderboard() {
                     {score.totalScore ? (score.overUnder > 0 ? `+${score.overUnder}` : score.overUnder === 0 ? 'E' : score.overUnder) : '-'}
                   </div>
                 </div>
-              ))
+              );})
             )}
           </div>
         </>
