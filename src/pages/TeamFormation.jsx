@@ -262,6 +262,23 @@ function TeamFormation() {
     }
   };
 
+  const getHandicapValue = (participant) => {
+    if (!participant) return 36;
+    const member = members.find(m => m.phone === participant.phone);
+    if (!member) return 36;
+    
+    if (member.gaHandy && !isNaN(parseFloat(member.gaHandy))) {
+      return parseFloat(member.gaHandy);
+    }
+    if (member.handicap && !isNaN(parseFloat(member.handicap))) {
+      return parseFloat(member.handicap);
+    }
+    if (member.houseHandy && !isNaN(parseFloat(member.houseHandy))) {
+      return parseFloat(member.houseHandy);
+    }
+    return 36;
+  };
+
   const handleAutoAssign = async () => {
     if (isAutoAssigning) return;
     
@@ -277,19 +294,31 @@ function TeamFormation() {
       });
     });
 
-    const shuffled = [...allMembers].sort(() => Math.random() - 0.5);
+    const sortedByHandicap = [...allMembers].sort((a, b) => {
+      return getHandicapValue(a) - getHandicapValue(b);
+    });
     
-    const numTeams = Math.ceil(shuffled.length / 4);
+    const numTeams = Math.ceil(sortedByHandicap.length / 4);
     const newTeams = Array.from({ length: numTeams }, (_, i) => ({
       teamNumber: i + 1,
-      members: Array(4).fill(null)
+      members: []
     }));
 
-    shuffled.forEach((member, index) => {
-      const teamIndex = Math.floor(index / 4);
-      const slotIndex = index % 4;
-      if (teamIndex < newTeams.length) {
-        newTeams[teamIndex].members[slotIndex] = member;
+    sortedByHandicap.forEach((member, index) => {
+      const round = Math.floor(index / numTeams);
+      const isReverseRound = round % 2 === 1;
+      let teamIndex = index % numTeams;
+      
+      if (isReverseRound) {
+        teamIndex = numTeams - 1 - teamIndex;
+      }
+      
+      newTeams[teamIndex].members.push(member);
+    });
+
+    newTeams.forEach(team => {
+      while (team.members.length < 4) {
+        team.members.push(null);
       }
     });
 
