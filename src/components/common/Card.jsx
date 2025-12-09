@@ -15,7 +15,8 @@ function Card({
       style={{
         backgroundColor: theme.colors.bg_card,
         borderRadius: theme.borderRadius.xl,
-        boxShadow: theme.shadows.md,
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        border: `1px solid ${theme.colors.border}`,
         padding: padding,
         cursor: onClick ? 'pointer' : 'default',
         ...style
