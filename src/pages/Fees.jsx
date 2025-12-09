@@ -303,19 +303,19 @@ function Fees() {
       return '도네이션 (크레딧)';
     }
     if (transaction.type === 'donation') {
-      if (transaction.category === '크레딧 참가비' && transaction.description) {
-        const parts = transaction.description.split(' - ');
-        if (parts.length > 0) {
-          const baseName = parts[0].replace('청구', '');
-          return baseName || '도네이션';
-        }
+      if (transaction.description?.includes('(크레딧사용)')) {
+        const baseName = transaction.description.replace(' (크레딧사용)', '');
+        return `${baseName} 납부 (크레딧사용)`;
       }
-      return '도네이션';
+      return transaction.category || '도네이션';
     }
     if (transaction.type === 'credit') {
       return transaction.description || '크레딧처리';
     }
     if (transaction.type === 'expense') {
+      if (transaction.category === '크레딧 차감') {
+        return `${transaction.description || '참가비'} 청구`;
+      }
       if (transaction.category) {
         return transaction.category;
       }
@@ -737,7 +737,9 @@ function Fees() {
               </h3>
 
               {(() => {
-                const allUserTransactions = userTransactions;
+                const allUserTransactions = [...userTransactions].sort((a, b) => 
+                  new Date(b.createdAt) - new Date(a.createdAt)
+                );
                 const chargeTransactions = userTransactions.filter(t => t.type === 'charge' && t.booking);
                 
                 if (allUserTransactions.length === 0) {
