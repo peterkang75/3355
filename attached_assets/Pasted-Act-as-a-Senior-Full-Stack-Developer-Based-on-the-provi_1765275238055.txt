@@ -1,0 +1,43 @@
+Act as a Senior Full-Stack Developer.
+Based on the provided code, there are two critical bugs causing the "Club Ledger" transaction list to appear empty or broken.
+
+**The Bugs:**
+1.  **Frontend Logic Error:** `Fees.jsx` applies `slice()` pagination logic on data that is *already paginated* by the server. This causes Page 2+ to be empty.
+2.  **Filtering Issue:** The frontend filters out `'charge'` type transactions. If the latest 20 transactions from the server are ALL `'charge'` types, the user sees an empty list even if data exists.
+
+**Task 1: Update Backend (`server/api.js`)**
+* Modify `GET /transactions` to exclude `'charge'` types at the Database level.
+* This ensures we fetch 20 *meaningful* ledger entries (Payments, Expenses) instead of hidden charges.
+* **Code Change:**
+    ```javascript
+    // Inside router.get('/transactions', ...)
+    prisma.transaction.findMany({
+      where: { type: { not: 'charge' } }, // Add this filter
+      select: { ... }, // Keep existing select optimization
+      // ... keep take, skip, orderBy
+    }),
+    prisma.transaction.count({ where: { type: { not: 'charge' } } }) // Count only non-charges
+    ```
+
+**Task 2: Update Frontend (`src/pages/Fees.jsx`)**
+* Locate the `activeTab === 'club'` rendering block.
+* **Remove the shadowing `const totalPages = ...`**. Use the state variable `totalPages` instead.
+* **Remove the `slice` logic.** The `allTransactions` array already contains only the items for the current page.
+* **Code Logic Update:**
+    ```javascript
+    // Replace the slicing logic block with this:
+    {(() => {
+      // No need to filter or slice again. The API returns exactly what we need.
+      // Just map 'allTransactions' directly.
+      if (allTransactions.length === 0) {
+         // ... render empty state
+      }
+      return (
+         // ... render list using allTransactions.map(...)
+         // ... render pagination using the state 'totalPages'
+      )
+    })()}
+    ```
+
+**Goal:**
+The Club Ledger should immediately show a list of Payments and Expenses (20 items), and pagination should work correctly without disappearing data.

@@ -879,12 +879,7 @@ function Fees() {
               </h3>
 
               {(() => {
-                const filteredTransactions = allTransactions.filter(t => t.type !== 'charge');
-                const totalPages = Math.min(Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE), MAX_PAGES);
-                const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-                const paginatedTransactions = filteredTransactions.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-
-                if (filteredTransactions.length === 0) {
+                if (allTransactions.length === 0) {
                   return (
                     <div style={{
                       padding: '40px',
@@ -900,7 +895,7 @@ function Fees() {
                 return (
                   <>
                     <div>
-                      {paginatedTransactions.map(transaction => {
+                      {allTransactions.map(transaction => {
                         const isOtherIncome = transaction.description?.startsWith('기타 - ');
                         const otherItemName = isOtherIncome ? transaction.description.replace('기타 - ', '') : null;
                         

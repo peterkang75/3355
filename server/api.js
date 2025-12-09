@@ -1181,8 +1181,11 @@ router.get('/transactions', async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 20;
     const skip = (page - 1) * limit;
     
+    const whereClause = { type: { not: 'charge' } };
+    
     const [transactions, total] = await Promise.all([
       prisma.transaction.findMany({
+        where: whereClause,
         select: {
           id: true,
           type: true,
@@ -1222,7 +1225,7 @@ router.get('/transactions', async (req, res) => {
         take: limit,
         skip: skip
       }),
-      prisma.transaction.count()
+      prisma.transaction.count({ where: whereClause })
     ]);
     
     res.json({
