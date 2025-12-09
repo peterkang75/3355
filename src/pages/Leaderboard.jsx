@@ -379,10 +379,10 @@ function Leaderboard() {
             gridTemplateColumns: '40px 1fr 36px 36px 60px 50px',
             gap: '4px',
             padding: '12px 4px',
-            borderBottom: '1px solid rgba(255,255,255,0.2)',
-            color: 'rgba(255,255,255,0.7)',
-            fontSize: '12px',
-            fontWeight: '600'
+            borderBottom: '2px solid rgba(255,255,255,0.3)',
+            color: 'rgba(255,255,255,0.9)',
+            fontSize: '14px',
+            fontWeight: '700'
           }}>
             <div>순위</div>
             <div>팀원</div>
@@ -521,10 +521,10 @@ function Leaderboard() {
               gridTemplateColumns: '36px 1fr 40px 36px 36px 60px 44px',
               gap: '4px',
               padding: '12px 4px',
-              borderBottom: '1px solid rgba(255,255,255,0.2)',
-              color: 'rgba(255,255,255,0.7)',
-              fontSize: '12px',
-              fontWeight: '600'
+              borderBottom: '2px solid rgba(255,255,255,0.3)',
+              color: 'rgba(255,255,255,0.9)',
+              fontSize: '14px',
+              fontWeight: '700'
             }}>
               <div>순위</div>
               <div>대화명</div>

@@ -722,24 +722,25 @@ function InfoRow({ label, value }) {
   return (
     <div style={{
       display: 'flex',
-      justifyContent: 'space-between',
       alignItems: 'center',
-      padding: '10px 12px',
-      background: 'var(--bg-green)',
-      borderRadius: '6px'
+      padding: '14px 12px',
+      background: '#F8FAFC',
+      borderRadius: '8px',
+      gap: '12px'
     }}>
       <span style={{ 
-        fontSize: '14px', 
-        color: 'var(--text-dark)',
-        opacity: 0.7,
-        fontWeight: '600'
+        fontSize: '13px', 
+        color: '#666',
+        fontWeight: '500',
+        minWidth: '90px',
+        flexShrink: 0
       }}>
         {label}
       </span>
       <span style={{ 
-        fontSize: '14px', 
+        fontSize: '15px', 
         fontWeight: '600',
-        color: 'var(--primary-green)'
+        color: '#333'
       }}>
         {value}
       </span>

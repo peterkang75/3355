@@ -1,0 +1,37 @@
+Act as a Senior UI/UX Developer.
+I have collected specific UI/UX feedback for several pages. Please refine the design and layout according to the following instructions.
+
+**1. Dashboard (`src/pages/Home.jsx` or Dashboard component)**
+* **Date Format:** The current format (e.g., "12월 1일 오전 12:28") is too long.
+    * **Action:** Change the date formatting function to output **"MM/DD HH:mm"** (e.g., "12/01 12:28").
+* **Stat Cards (Handicap/Balance):** They look too flat.
+    * **Action:**
+        * Add a subtle background color to these cards (e.g., `#F8FAFC` or very light gray).
+        * Make the **Numbers** significantly larger and **Bold** (e.g., `fontSize: '24px'`, `fontWeight: '800'`).
+        * Add a simple icon next to the label if possible (e.g., ⛳ for Handicap, 💳 or $ for Balance).
+
+**2. Booking List (`src/pages/Booking.jsx`)**
+* **Button Hierarchy (Fix "Rainbow" buttons):**
+    * **"취소하기" (Cancel):** Remove the solid red background. Change to **Outline Style** (White background, Red border, Red text).
+    * **"번호대여" (Rental):** Remove the solid orange background. Change to **Outline Style** (Gray border, Gray text) or a secondary style.
+    * **"플레이하기" (Play):** Keep this as the **Primary** (Solid Color) button to draw attention.
+    * **"참가중" (Status):** This should not look like a button. Change it to a static **Badge** or Text label (e.g., "✓ 참가중" in green/gray text).
+
+**3. My Page (`src/pages/MyPage.jsx`)**
+* **Readability Issue:** The gap between the Label (left) and Value (right) is too wide, making it hard to scan.
+* **Action:** Refactor the info row layout.
+    * **Option A:** Stack them. Label (small, gray) on top, Value (normal, dark) on bottom.
+    * **Option B (Preferred):** Keep them on the same line but **left-align** the Value closer to the Label (e.g., Label width fixed to 80px, Value follows immediately).
+    * Increase the vertical padding between rows slightly for breathing room.
+
+**4. Fees Management (`src/pages/Fees.jsx`)**
+* **List Spacing:** The transaction list items look too cramped.
+* **Action:** Increase the vertical `padding` of each list item (e.g., add `4px` more padding top and bottom) to improve readability.
+
+**5. Leaderboard (`src/pages/Leaderboard.jsx`)**
+* **Header Visibility:** The table headers (순위, 팀원, etc.) are too small.
+* **Action:** Increase the `fontSize` of the `<thead>` cells (e.g., `14px` or `15px`) and ensure they have enough contrast against the dark background.
+
+**General Note:**
+* Ensure all changes are responsive and look good on mobile devices.
+* Maintain the existing "White Card + Light Gray Background" theme we established.

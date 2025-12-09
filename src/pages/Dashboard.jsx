@@ -42,7 +42,16 @@ function Dashboard() {
     }
   }, [location]);
 
-  // 상대 시간 표시 함수
+  // 날짜 포맷 함수 (MM/DD HH:mm)
+  const formatDateTime = (dateString) => {
+    const date = new Date(dateString);
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${month}/${day} ${hours}:${minutes}`;
+  };
+
   const getRelativeTime = (dateString) => {
     const now = new Date();
     const past = new Date(dateString);
@@ -51,8 +60,8 @@ function Dashboard() {
     if (diffInSeconds < 60) return `${diffInSeconds}초 전`;
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}분 전`;
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}시간 전`;
-    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}일 전`;
-    return past.toLocaleDateString('ko-KR');
+    if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}일 전`;
+    return formatDateTime(dateString);
   };
 
   // 거래내역 로드 - user가 업데이트될 때마다 자동 새로고침
@@ -1205,32 +1214,43 @@ function Dashboard() {
         }}>
           <div className="card" style={{ 
             textAlign: 'center',
-            padding: '8px',
-            borderLeft: '3px solid var(--accent-mid-green)',
-            background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(63, 115, 25, 0.05) 100%)'
+            padding: '16px 12px',
+            background: '#F8FAFC',
+            borderLeft: '4px solid var(--primary-green)'
           }}>
             <div style={{ 
-              fontSize: '16px', 
-              fontWeight: '700',
-              color: 'var(--accent-mid-green)',
-              marginBottom: '4px',
-              marginTop: '4px'
+              fontSize: '13px', 
+              color: '#666',
+              marginBottom: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '4px'
             }}>
-              핸디: {user?.handicap ?? user?.calculatedHandicap ?? 18}
+              <span>⛳</span> 핸디캡
+            </div>
+            <div style={{ 
+              fontSize: '28px', 
+              fontWeight: '800',
+              color: 'var(--primary-green)',
+              marginBottom: '4px'
+            }}>
+              {user?.handicap ?? user?.calculatedHandicap ?? 18}
             </div>
             <div style={{ 
               fontSize: '11px', 
-              opacity: 0.7,
-              marginBottom: '2px'
+              color: '#888',
+              marginBottom: user?.handicapExplanation ? '4px' : '0'
             }}>
-              추천핸디: {user?.calculatedHandicap ?? user?.handicap ?? 18}
+              추천: {user?.calculatedHandicap ?? user?.handicap ?? 18}
             </div>
             {user?.handicapExplanation && (
               <div style={{ 
                 fontSize: '10px', 
-                opacity: 0.7,
+                color: '#666',
                 fontStyle: 'italic',
-                lineHeight: '1.3'
+                lineHeight: '1.3',
+                marginTop: '4px'
               }}>
                 {user.handicapExplanation}
               </div>
@@ -1239,16 +1259,24 @@ function Dashboard() {
 
           <div className="card" style={{ 
             textAlign: 'center',
-            padding: '8px',
-            borderLeft: '3px solid var(--accent-gold)',
-            background: 'linear-gradient(135deg, var(--bg-card) 0%, rgba(242, 163, 65, 0.05) 100%)'
+            padding: '16px 12px',
+            background: '#F8FAFC',
+            borderLeft: '4px solid var(--accent-gold)'
           }}>
-            <div style={{ fontSize: '14px', fontWeight: '700', opacity: 0.8, marginBottom: '4px', marginTop: '4px' }}>
-              참가비 잔액
+            <div style={{ 
+              fontSize: '13px', 
+              color: '#666',
+              marginBottom: '8px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '4px'
+            }}>
+              <span>💳</span> 참가비 잔액
             </div>
             <div style={{ 
-              fontSize: '20px', 
-              fontWeight: '700',
+              fontSize: '28px', 
+              fontWeight: '800',
               color: (() => {
                 const totalPayments = userTransactions.filter(t => t.type === 'payment' || t.type === 'donation').reduce((sum, t) => sum + t.amount, 0);
                 const totalCredits = userTransactions.filter(t => t.type === 'credit').reduce((sum, t) => sum + t.amount, 0);

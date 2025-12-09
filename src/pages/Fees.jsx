@@ -776,11 +776,11 @@ function Fees() {
                         <div 
                           key={transaction.id}
                           style={{
-                            padding: '10px 12px',
+                            padding: '14px 12px',
                             borderBottom: '1px solid var(--border-color)',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '6px',
+                            gap: '8px',
                             fontSize: '13px'
                           }}
                         >
@@ -961,7 +961,7 @@ function Fees() {
                               }
                             }}
                             style={{
-                              padding: '16px',
+                              padding: '18px 16px',
                               borderBottom: '1px solid var(--border-color)',
                               borderRadius: '8px',
                               marginBottom: '8px',
