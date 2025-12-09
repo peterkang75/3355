@@ -930,26 +930,31 @@ function Admin() {
   const loadLedgerData = async (page = 1, includeCharges = ledgerFilter.showCharges, memberId = ledgerFilter.memberId) => {
     try {
       setIsLoadingTransactions(true);
-      const [transactionsResponse, balanceData] = await Promise.all([
-        apiService.fetchTransactions({ page, limit: 20, includeCharges, memberId }),
-        apiService.fetchClubBalance()
-      ]);
+      
+      let transactions;
+      let totalPages = 1;
+      
+      const balancePromise = apiService.fetchClubBalance();
 
-      const transactions = transactionsResponse.transactions || [];
-      const pagination = transactionsResponse.pagination || { totalPages: 1 };
+      // fetchTransactions API가 memberId를 백엔드로 전달하여 통합 또는 페이지네이션을 결정하도록 함
+      const response = await apiService.fetchTransactions({ page, limit: 20, includeCharges, memberId });
+      
+      transactions = response.transactions || [];
+      totalPages = response.pagination?.totalPages || 1;
+      
+      const balanceData = await balancePromise;
 
-      console.log('📋 Admin 통합장부:', transactions.length, '건, 페이지:', page, '/', pagination.totalPages);
-
-      setAllTransactions(transactions);
+      setAllTransactions(Array.isArray(transactions) ? transactions : []);
       setLedgerCurrentPage(page);
-      setLedgerTotalPages(pagination.totalPages);
+      setLedgerTotalPages(totalPages);
       setClubBalance(balanceData.balance || 0);
       
-      // 서버에서 집계된 통계 저장
+      // 서버에서 계산된 전역 통계 사용
       setLedgerStats({
-        income: balanceData.incomeBreakdown || {},
-        expense: balanceData.expenseBreakdown || {}
+          income: balanceData.incomeBreakdown || {},
+          expense: balanceData.expenseBreakdown || {}
       });
+
     } catch (error) {
       console.error('장부 데이터 로드 실패:', error);
       setAllTransactions([]);
