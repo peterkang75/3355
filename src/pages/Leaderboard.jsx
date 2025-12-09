@@ -18,6 +18,8 @@ function Leaderboard() {
   const [coursePars, setCoursePars] = useState([]);
   const [autoSelectApplied, setAutoSelectApplied] = useState(false);
   const [bookingGradeSettings, setBookingGradeSettings] = useState(null);
+  const [gameMode, setGameMode] = useState('stroke');
+  const [foursomeTeams, setFoursomeTeams] = useState([]);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -55,6 +57,10 @@ function Leaderboard() {
         : null;
       
       setBookingGradeSettings(gradeSettings);
+      
+      // 게임 모드 파싱
+      const detectedGameMode = gradeSettings?.mode || 'stroke';
+      setGameMode(detectedGameMode);
 
       const course = courses.find(c => c.name === booking.courseName);
       const holePars = course?.holePars?.male || Array(18).fill(4);
@@ -128,6 +134,76 @@ function Leaderboard() {
       });
 
       setScores(processedScores);
+      
+      // 포썸 모드 팀 랭킹 계산
+      if (detectedGameMode === 'foursome' && booking.teams) {
+        const teamsData = typeof booking.teams === 'string' ? JSON.parse(booking.teams) : booking.teams;
+        const teamPairs = [];
+        
+        teamsData.forEach((team, teamIdx) => {
+          if (!team.members || team.members.length < 4) return;
+          
+          // Pair A: slots 0, 1
+          const pairA = {
+            teamNumber: team.teamNumber,
+            pairLabel: 'A',
+            members: [team.members[0], team.members[1]].filter(Boolean),
+            score: null,
+            overUnder: null,
+            coursePar: calculatedCoursePar
+          };
+          
+          // Pair B: slots 2, 3
+          const pairB = {
+            teamNumber: team.teamNumber,
+            pairLabel: 'B',
+            members: [team.members[2], team.members[3]].filter(Boolean),
+            score: null,
+            overUnder: null,
+            coursePar: calculatedCoursePar
+          };
+          
+          // 각 페어의 점수 찾기 (어느 멤버든 점수가 있으면 사용)
+          [pairA, pairB].forEach(pair => {
+            for (const member of pair.members) {
+              if (!member) continue;
+              const memberScore = processedScores.find(s => {
+                const memberObj = members.find(m => m.phone === member.phone);
+                return s.odId === memberObj?.id || s.odId === member.phone;
+              });
+              if (memberScore && memberScore.totalScore > 0) {
+                pair.score = memberScore.totalScore;
+                pair.overUnder = memberScore.overUnder;
+                pair.coursePar = memberScore.coursePar;
+                pair.outScore = memberScore.outScore;
+                pair.inScore = memberScore.inScore;
+                break;
+              }
+            }
+            
+            // 멤버 이름 보강
+            pair.memberNames = pair.members.map(m => {
+              if (!m) return '미정';
+              const fullMember = members.find(fm => fm.phone === m.phone);
+              return fullMember?.nickname || fullMember?.name || m.nickname || m.name || '미정';
+            }).join(' & ');
+          });
+          
+          teamPairs.push(pairA, pairB);
+        });
+        
+        // 점수 기준 정렬 (낮을수록 좋음)
+        teamPairs.sort((a, b) => {
+          if (a.score === null && b.score === null) return 0;
+          if (a.score === null) return 1;
+          if (b.score === null) return -1;
+          return a.overUnder - b.overUnder;
+        });
+        
+        setFoursomeTeams(teamPairs);
+      } else {
+        setFoursomeTeams([]);
+      }
       
       if (autoSelectUserId && openScorecard && !autoSelectApplied) {
         const userScore = processedScores.find(s => s.odId === autoSelectUserId);
@@ -267,132 +343,265 @@ function Leaderboard() {
         </div>
       </div>
 
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        gap: '4px', 
-        padding: '12px 8px'
-      }}>
-        {gradeFilters.map(g => (
-          <button
-            key={g}
-            onClick={() => setFilter(g)}
-            style={{
-              flex: '1',
-              maxWidth: '70px',
-              padding: '8px 4px',
-              borderRadius: '4px',
-              border: filter === g ? '2px solid white' : '1px solid rgba(255,255,255,0.3)',
-              background: filter === g ? 'rgba(255,255,255,0.2)' : 'transparent',
-              color: 'white',
-              fontSize: '11px',
-              fontWeight: filter === g ? '600' : '400',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            {g}
-          </button>
-        ))}
-      </div>
-
-      <div style={{ padding: '0 16px' }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: '36px 1fr 40px 36px 36px 60px 44px',
-          gap: '4px',
-          padding: '12px 4px',
-          borderBottom: '1px solid rgba(255,255,255,0.2)',
-          color: 'rgba(255,255,255,0.7)',
-          fontSize: '12px',
-          fontWeight: '600'
-        }}>
-          <div>순위</div>
-          <div>대화명</div>
-          <div style={{ textAlign: 'center' }}>핸디</div>
-          <div style={{ textAlign: 'center' }}>OUT</div>
-          <div style={{ textAlign: 'center' }}>IN</div>
-          <div style={{ textAlign: 'center' }}>총타수</div>
-          <div style={{ textAlign: 'center' }}>+-</div>
-        </div>
-
-        {filteredScores.length === 0 ? (
-          <div style={{ 
-            textAlign: 'center', 
-            color: 'rgba(255,255,255,0.5)', 
-            padding: '40px 0' 
+      {/* 포썸 모드: 팀 랭킹 표시 */}
+      {gameMode === 'foursome' ? (
+        <div style={{ padding: '0 16px' }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            borderRadius: '12px',
+            padding: '16px',
+            marginBottom: '16px',
+            textAlign: 'center'
           }}>
-            아직 스코어가 없습니다
+            <div style={{ fontSize: '20px', marginBottom: '4px' }}>🏆</div>
+            <div style={{ color: 'white', fontSize: '16px', fontWeight: '700' }}>
+              포썸 팀 랭킹
+            </div>
+            <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', marginTop: '4px' }}>
+              2인 1팀 대결
+            </div>
           </div>
-        ) : (
-          filteredScores.map((score, index) => (
-            <div
-              key={`${score.odId}-${index}`}
-              onClick={() => setSelectedScore(score)}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '36px 1fr 40px 36px 36px 60px 44px',
-                gap: '4px',
-                padding: '12px 4px',
-                background: index % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
-                borderBottom: '1px solid rgba(255,255,255,0.1)',
-                alignItems: 'center',
-                cursor: 'pointer'
-              }}
-            >
-              <div style={{ 
-                color: 'white', 
-                fontSize: '14px',
-                fontWeight: '600'
-              }}>
-                {index + 1}
-              </div>
-              <div>
-                <div style={{ color: 'white', fontSize: '13px', fontWeight: '500' }}>
-                  {score.nickname}
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '40px 1fr 36px 36px 60px 50px',
+            gap: '4px',
+            padding: '12px 4px',
+            borderBottom: '1px solid rgba(255,255,255,0.2)',
+            color: 'rgba(255,255,255,0.7)',
+            fontSize: '12px',
+            fontWeight: '600'
+          }}>
+            <div>순위</div>
+            <div>팀원</div>
+            <div style={{ textAlign: 'center' }}>OUT</div>
+            <div style={{ textAlign: 'center' }}>IN</div>
+            <div style={{ textAlign: 'center' }}>총타수</div>
+            <div style={{ textAlign: 'center' }}>+-</div>
+          </div>
+
+          {foursomeTeams.length === 0 ? (
+            <div style={{ 
+              textAlign: 'center', 
+              color: 'rgba(255,255,255,0.5)', 
+              padding: '40px 0' 
+            }}>
+              아직 스코어가 없습니다
+            </div>
+          ) : (
+            foursomeTeams.map((team, index) => (
+              <div
+                key={`${team.teamNumber}-${team.pairLabel}-${index}`}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '40px 1fr 36px 36px 60px 50px',
+                  gap: '4px',
+                  padding: '12px 4px',
+                  background: index === 0 && team.score 
+                    ? 'linear-gradient(90deg, rgba(255,215,0,0.2) 0%, rgba(255,215,0,0.05) 100%)' 
+                    : index % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
+                  borderBottom: '1px solid rgba(255,255,255,0.1)',
+                  alignItems: 'center',
+                  borderLeft: index === 0 && team.score ? '3px solid #FFD700' : 'none'
+                }}
+              >
+                <div style={{ 
+                  color: index === 0 && team.score ? '#FFD700' : 'white', 
+                  fontSize: '14px',
+                  fontWeight: '700',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}>
+                  {index === 0 && team.score && <span>🥇</span>}
+                  {index === 1 && team.score && <span style={{ opacity: 0.8 }}>🥈</span>}
+                  {index === 2 && team.score && <span style={{ opacity: 0.6 }}>🥉</span>}
+                  {(index > 2 || !team.score) && <span>{index + 1}</span>}
+                </div>
+                <div>
+                  <div style={{ 
+                    color: 'white', 
+                    fontSize: '13px', 
+                    fontWeight: '500',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '2px'
+                  }}>
+                    <span>{team.memberNames || '미정'}</span>
+                    <span style={{ 
+                      fontSize: '10px', 
+                      color: team.pairLabel === 'A' ? '#3B82F6' : '#EF4444',
+                      fontWeight: '600'
+                    }}>
+                      {team.teamNumber}조 {team.pairLabel}팀
+                    </span>
+                  </div>
+                </div>
+                <div style={{ 
+                  textAlign: 'center', 
+                  color: 'rgba(255,255,255,0.9)',
+                  fontSize: '12px'
+                }}>
+                  {team.outScore || '-'}
+                </div>
+                <div style={{ 
+                  textAlign: 'center', 
+                  color: 'rgba(255,255,255,0.9)',
+                  fontSize: '12px'
+                }}>
+                  {team.inScore || '-'}
+                </div>
+                <div style={{ 
+                  textAlign: 'center', 
+                  color: 'white',
+                  fontSize: '12px',
+                  fontWeight: '600'
+                }}>
+                  {team.score ? `${team.coursePar}/${team.score}` : '-'}
+                </div>
+                <div style={{ 
+                  textAlign: 'center', 
+                  color: team.overUnder > 0 ? '#ff6b6b' : team.overUnder < 0 ? '#51cf66' : 'white',
+                  fontSize: '13px',
+                  fontWeight: '600'
+                }}>
+                  {team.score ? (team.overUnder > 0 ? `+${team.overUnder}` : team.overUnder === 0 ? 'E' : team.overUnder) : '-'}
                 </div>
               </div>
-              <div style={{ 
-                textAlign: 'center', 
-                color: 'rgba(255,255,255,0.8)',
-                fontSize: '12px'
-              }}>
-                {score.handicap || '-'}
-              </div>
-              <div style={{ 
-                textAlign: 'center', 
-                color: 'rgba(255,255,255,0.9)',
-                fontSize: '12px'
-              }}>
-                {score.outScore || '-'}
-              </div>
-              <div style={{ 
-                textAlign: 'center', 
-                color: 'rgba(255,255,255,0.9)',
-                fontSize: '12px'
-              }}>
-                {score.inScore || '-'}
-              </div>
-              <div style={{ 
-                textAlign: 'center', 
-                color: 'white',
-                fontSize: '12px',
-                fontWeight: '600'
-              }}>
-                {score.totalScore ? `${score.coursePar}/${score.totalScore}` : '-'}
-              </div>
-              <div style={{ 
-                textAlign: 'center', 
-                color: score.overUnder > 0 ? '#ff6b6b' : score.overUnder < 0 ? '#51cf66' : 'white',
-                fontSize: '13px',
-                fontWeight: '600'
-              }}>
-                {score.totalScore ? (score.overUnder > 0 ? `+${score.overUnder}` : score.overUnder === 0 ? 'E' : score.overUnder) : '-'}
-              </div>
+            ))
+          )}
+        </div>
+      ) : (
+        <>
+          {/* 스트로크 모드: 기존 그레이드 탭 표시 */}
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            gap: '4px', 
+            padding: '12px 8px'
+          }}>
+            {gradeFilters.map(g => (
+              <button
+                key={g}
+                onClick={() => setFilter(g)}
+                style={{
+                  flex: '1',
+                  maxWidth: '70px',
+                  padding: '8px 4px',
+                  borderRadius: '4px',
+                  border: filter === g ? '2px solid white' : '1px solid rgba(255,255,255,0.3)',
+                  background: filter === g ? 'rgba(255,255,255,0.2)' : 'transparent',
+                  color: 'white',
+                  fontSize: '11px',
+                  fontWeight: filter === g ? '600' : '400',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                {g}
+              </button>
+            ))}
+          </div>
+
+          <div style={{ padding: '0 16px' }}>
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '36px 1fr 40px 36px 36px 60px 44px',
+              gap: '4px',
+              padding: '12px 4px',
+              borderBottom: '1px solid rgba(255,255,255,0.2)',
+              color: 'rgba(255,255,255,0.7)',
+              fontSize: '12px',
+              fontWeight: '600'
+            }}>
+              <div>순위</div>
+              <div>대화명</div>
+              <div style={{ textAlign: 'center' }}>핸디</div>
+              <div style={{ textAlign: 'center' }}>OUT</div>
+              <div style={{ textAlign: 'center' }}>IN</div>
+              <div style={{ textAlign: 'center' }}>총타수</div>
+              <div style={{ textAlign: 'center' }}>+-</div>
             </div>
-          ))
-        )}
-      </div>
+
+            {filteredScores.length === 0 ? (
+              <div style={{ 
+                textAlign: 'center', 
+                color: 'rgba(255,255,255,0.5)', 
+                padding: '40px 0' 
+              }}>
+                아직 스코어가 없습니다
+              </div>
+            ) : (
+              filteredScores.map((score, index) => (
+                <div
+                  key={`${score.odId}-${index}`}
+                  onClick={() => setSelectedScore(score)}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '36px 1fr 40px 36px 36px 60px 44px',
+                    gap: '4px',
+                    padding: '12px 4px',
+                    background: index % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
+                    borderBottom: '1px solid rgba(255,255,255,0.1)',
+                    alignItems: 'center',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <div style={{ 
+                    color: 'white', 
+                    fontSize: '14px',
+                    fontWeight: '600'
+                  }}>
+                    {index + 1}
+                  </div>
+                  <div>
+                    <div style={{ color: 'white', fontSize: '13px', fontWeight: '500' }}>
+                      {score.nickname}
+                    </div>
+                  </div>
+                  <div style={{ 
+                    textAlign: 'center', 
+                    color: 'rgba(255,255,255,0.8)',
+                    fontSize: '12px'
+                  }}>
+                    {score.handicap || '-'}
+                  </div>
+                  <div style={{ 
+                    textAlign: 'center', 
+                    color: 'rgba(255,255,255,0.9)',
+                    fontSize: '12px'
+                  }}>
+                    {score.outScore || '-'}
+                  </div>
+                  <div style={{ 
+                    textAlign: 'center', 
+                    color: 'rgba(255,255,255,0.9)',
+                    fontSize: '12px'
+                  }}>
+                    {score.inScore || '-'}
+                  </div>
+                  <div style={{ 
+                    textAlign: 'center', 
+                    color: 'white',
+                    fontSize: '12px',
+                    fontWeight: '600'
+                  }}>
+                    {score.totalScore ? `${score.coursePar}/${score.totalScore}` : '-'}
+                  </div>
+                  <div style={{ 
+                    textAlign: 'center', 
+                    color: score.overUnder > 0 ? '#ff6b6b' : score.overUnder < 0 ? '#51cf66' : 'white',
+                    fontSize: '13px',
+                    fontWeight: '600'
+                  }}>
+                    {score.totalScore ? (score.overUnder > 0 ? `+${score.overUnder}` : score.overUnder === 0 ? 'E' : score.overUnder) : '-'}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </>
+      )}
 
       {/* 스코어카드 모달 - Admin 페이지와 동일한 UI */}
       {selectedScore && (() => {
