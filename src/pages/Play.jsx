@@ -13,6 +13,8 @@ function Play() {
   const [selectedTeammate, setSelectedTeammate] = useState(null);
   const [teammates, setTeammates] = useState([]);
   const [roundStartTime, setRoundStartTime] = useState(null);
+  const [gameMode, setGameMode] = useState('stroke');
+  const [foursomeData, setFoursomeData] = useState(null);
   const [currentHole, setCurrentHole] = useState(1);
   const [holeScores, setHoleScores] = useState({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
   const [courseData, setCourseData] = useState(null);
@@ -126,6 +128,23 @@ function Play() {
     console.log('📌 Booking 찾음:', foundBooking?.title);
     setBooking(foundBooking);
     
+    // 게임 모드 파싱
+    let detectedGameMode = 'stroke';
+    if (foundBooking?.gradeSettings) {
+      try {
+        const gradeSettings = typeof foundBooking.gradeSettings === 'string'
+          ? JSON.parse(foundBooking.gradeSettings)
+          : foundBooking.gradeSettings;
+        if (gradeSettings.mode) {
+          detectedGameMode = gradeSettings.mode;
+        }
+      } catch (e) {
+        console.error('gradeSettings 파싱 오류:', e);
+      }
+    }
+    setGameMode(detectedGameMode);
+    console.log('🎮 게임 모드:', detectedGameMode);
+    
     if (foundBooking?.teams) {
       try {
         const teams = typeof foundBooking.teams === 'string' ? JSON.parse(foundBooking.teams) : foundBooking.teams;
@@ -133,24 +152,76 @@ function Play() {
         const userTeam = teams.find(t => t.members?.some(m => m?.phone === user?.phone));
         console.log('👤 사용자 팀:', userTeam);
         if (userTeam && userTeam.members) {
-          const teamMembers = userTeam.members.filter(m => m && m.phone !== user?.phone);
-          const enrichedTeammates = teamMembers.map(tm => {
-            const fullMember = members?.find(m => m.phone === tm.phone);
-            return fullMember ? { ...tm, ...fullMember } : tm;
-          });
-          console.log('🤝 팀원:', enrichedTeammates);
-          setTeammates(enrichedTeammates);
+          // 사용자 슬롯 인덱스 찾기
+          const userSlotIndex = userTeam.members.findIndex(m => m?.phone === user?.phone);
+          console.log('👤 사용자 슬롯:', userSlotIndex);
+          
+          if (detectedGameMode === 'foursome' && userSlotIndex >= 0) {
+            // 포썸 모드: 파트너와 상대 팀 식별
+            const partnerSlotIndex = userSlotIndex % 2 === 0 ? userSlotIndex + 1 : userSlotIndex - 1;
+            const isTeamA = userSlotIndex < 2;
+            const opponentSlots = isTeamA ? [2, 3] : [0, 1];
+            
+            const partner = userTeam.members[partnerSlotIndex];
+            const opponent1 = userTeam.members[opponentSlots[0]];
+            const opponent2 = userTeam.members[opponentSlots[1]];
+            
+            // 멤버 정보 보강
+            const enrichMember = (tm) => {
+              if (!tm) return null;
+              const fullMember = members?.find(m => m.phone === tm.phone);
+              return fullMember ? { ...tm, ...fullMember } : tm;
+            };
+            
+            const enrichedPartner = enrichMember(partner);
+            const enrichedOpponent1 = enrichMember(opponent1);
+            const enrichedOpponent2 = enrichMember(opponent2);
+            
+            setFoursomeData({
+              userSlotIndex,
+              isTeamA,
+              partner: enrichedPartner,
+              opponents: [enrichedOpponent1, enrichedOpponent2].filter(Boolean)
+            });
+            
+            console.log('🏌️ 포썸 데이터:', {
+              partner: enrichedPartner?.name,
+              opponents: [enrichedOpponent1?.name, enrichedOpponent2?.name]
+            });
+            
+            // 상대 팀 첫 번째 선수를 자동 선택 (마커 로직 유지)
+            if (enrichedOpponent1) {
+              setSelectedTeammate(enrichedOpponent1);
+            }
+            
+            // 전체 팀원 (파트너 + 상대 모두)
+            const allTeammates = [enrichedPartner, enrichedOpponent1, enrichedOpponent2].filter(Boolean);
+            setTeammates(allTeammates);
+          } else {
+            // 스트로크 모드: 기존 로직
+            setFoursomeData(null);
+            const teamMembers = userTeam.members.filter(m => m && m.phone !== user?.phone);
+            const enrichedTeammates = teamMembers.map(tm => {
+              const fullMember = members?.find(m => m.phone === tm.phone);
+              return fullMember ? { ...tm, ...fullMember } : tm;
+            });
+            console.log('🤝 팀원:', enrichedTeammates);
+            setTeammates(enrichedTeammates);
+          }
         } else {
           console.log('⚠️ 팀 정보 없음, 팀원 배열 초기화');
           setTeammates([]);
+          setFoursomeData(null);
         }
       } catch (e) {
         console.error('팀 파싱 에러:', e);
         setTeammates([]);
+        setFoursomeData(null);
       }
     } else {
       console.log('⚠️ Booking에 teams 정보 없음');
       setTeammates([]);
+      setFoursomeData(null);
     }
 
     const course = courses.find(c => c.name === foundBooking?.courseName);
@@ -158,7 +229,6 @@ function Play() {
     if (course) {
       setCourseData(course);
     } else {
-      // 기본 par 설정 (코스가 없을 때)
       setCourseData({
         name: foundBooking?.courseName || '미등록 코스',
         holePars: {
@@ -346,6 +416,211 @@ function Play() {
       );
     }
     
+    // 포썸 모드: 팀 대 팀 확인 UI
+    if (gameMode === 'foursome' && foursomeData) {
+      const partnerName = foursomeData.partner?.nickname || foursomeData.partner?.name || '파트너 없음';
+      const opponentNames = foursomeData.opponents.map(o => o?.nickname || o?.name).filter(Boolean).join(' & ') || '상대 없음';
+      const myName = user?.nickname || user?.name || '나';
+      const teamLabel = foursomeData.isTeamA ? 'A팀' : 'B팀';
+      const opponentTeamLabel = foursomeData.isTeamA ? 'B팀' : 'A팀';
+      
+      const handleStartFoursome = async () => {
+        if (isStartingRound) return;
+        
+        setIsStartingRound(true);
+        try {
+          const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+          const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
+          const res = await fetch(`/api/scores/check?memberId=${teammateMemberId}&date=${scoreDate}&roundingName=${encodeURIComponent(booking?.title || '')}`);
+          const data = await res.json();
+          
+          if (data.exists && data.completed) {
+            alert('이미 점수가 입력되었습니다.');
+            setIsStartingRound(false);
+            return;
+          }
+        } catch (e) {
+          console.error('점수 확인 오류:', e);
+        }
+        
+        console.log('🎮 포썸 스코어카드 시작:', { opponents: opponentNames, courseData: courseData?.name });
+        setRoundStartTime(Date.now());
+        setCurrentHole(1);
+        setHoleScores({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
+        setShowMismatches(false);
+        setStep('scorecard');
+        setIsStartingRound(false);
+      };
+      
+      return (
+        <div style={{ minHeight: '100vh', padding: '16px', paddingBottom: '80px', background: '#223B3F' }}>
+          <div className="header">
+            <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', padding: '8px 16px' }}>← Back</button>
+          </div>
+          <div className="card" style={{ marginTop: '16px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <div style={{ 
+                display: 'inline-block',
+                padding: '6px 16px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '20px',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: '700',
+                marginBottom: '12px'
+              }}>
+                포썸 매치
+              </div>
+              <h2 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
+                팀 대 팀 경기를 시작합니다
+              </h2>
+              <div style={{ fontSize: '14px', color: '#666' }}>
+                {courseData?.name}
+              </div>
+            </div>
+            
+            {/* 우리 팀 */}
+            <div style={{
+              background: 'rgba(59, 130, 246, 0.1)',
+              borderRadius: '12px',
+              padding: '16px',
+              marginBottom: '12px'
+            }}>
+              <div style={{ 
+                fontSize: '12px', 
+                fontWeight: '700', 
+                color: '#3B82F6', 
+                marginBottom: '8px',
+                textAlign: 'center'
+              }}>
+                {teamLabel} (우리 팀)
+              </div>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <div style={{
+                  background: '#3B82F6',
+                  color: 'white',
+                  padding: '10px 16px',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  fontSize: '15px'
+                }}>
+                  {myName}
+                </div>
+                <span style={{ fontWeight: '600', color: '#3B82F6' }}>&</span>
+                <div style={{
+                  background: '#3B82F6',
+                  color: 'white',
+                  padding: '10px 16px',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  fontSize: '15px'
+                }}>
+                  {partnerName}
+                </div>
+              </div>
+            </div>
+            
+            {/* VS 구분선 */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '8px 0'
+            }}>
+              <div style={{
+                background: 'linear-gradient(90deg, transparent, #ddd, transparent)',
+                height: '1px',
+                flex: 1
+              }} />
+              <span style={{
+                padding: '6px 20px',
+                fontSize: '16px',
+                fontWeight: '800',
+                color: '#888',
+                background: 'white',
+                borderRadius: '16px',
+                border: '2px solid #ddd'
+              }}>
+                VS
+              </span>
+              <div style={{
+                background: 'linear-gradient(90deg, transparent, #ddd, transparent)',
+                height: '1px',
+                flex: 1
+              }} />
+            </div>
+            
+            {/* 상대 팀 */}
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.1)',
+              borderRadius: '12px',
+              padding: '16px',
+              marginTop: '12px',
+              marginBottom: '20px'
+            }}>
+              <div style={{ 
+                fontSize: '12px', 
+                fontWeight: '700', 
+                color: '#EF4444', 
+                marginBottom: '8px',
+                textAlign: 'center'
+              }}>
+                {opponentTeamLabel} (상대 팀)
+              </div>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                gap: '12px',
+                flexWrap: 'wrap'
+              }}>
+                {foursomeData.opponents.map((opponent, idx) => (
+                  <React.Fragment key={opponent?.phone || idx}>
+                    {idx > 0 && <span style={{ fontWeight: '600', color: '#EF4444' }}>&</span>}
+                    <div style={{
+                      background: '#EF4444',
+                      color: 'white',
+                      padding: '10px 16px',
+                      borderRadius: '8px',
+                      fontWeight: '600',
+                      fontSize: '15px'
+                    }}>
+                      {opponent?.nickname || opponent?.name || '상대'}
+                    </div>
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+            
+            <button
+              onClick={handleStartFoursome}
+              disabled={isStartingRound || !selectedTeammate}
+              style={{
+                width: '100%',
+                padding: '16px',
+                background: (!isStartingRound && selectedTeammate) ? 'var(--primary-green)' : 'var(--bg-card)',
+                border: 'none',
+                borderRadius: '8px',
+                color: 'white',
+                fontWeight: '700',
+                fontSize: '16px',
+                cursor: (!isStartingRound && selectedTeammate) ? 'pointer' : 'not-allowed',
+                opacity: (!isStartingRound && selectedTeammate) ? 1 : 0.5
+              }}
+            >
+              {isStartingRound ? '확인 중...' : '매치 시작'}
+            </button>
+          </div>
+        </div>
+      );
+    }
+    
+    // 스트로크 모드: 기존 UI
     return (
       <div style={{ minHeight: '100vh', padding: '16px', paddingBottom: '80px', background: '#223B3F' }}>
         <div className="header">
@@ -762,10 +1037,29 @@ function Play() {
       }
     };
     
+    // 포썸 모드 타이틀 생성
+    let displayTitle = title;
+    let headerBgColor = '#6399CF';
+    
+    if (gameMode === 'foursome' && foursomeData) {
+      if (isTeammate) {
+        // 상대 팀 (opponent)
+        const opponentNames = foursomeData.opponents.map(o => o?.nickname || o?.name).filter(Boolean).join(' & ');
+        displayTitle = `상대: ${opponentNames || '상대 팀'}`;
+        headerBgColor = '#EF4444';
+      } else {
+        // 우리 팀 (me + partner)
+        const myName = user?.nickname || user?.name || '나';
+        const partnerName = foursomeData.partner?.nickname || foursomeData.partner?.name || '파트너';
+        displayTitle = `우리팀: ${myName} & ${partnerName}`;
+        headerBgColor = '#3B82F6';
+      }
+    }
+    
     return (
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '0', padding: '0', marginBottom: `${s(10, 4)}px`, minHeight: 0 }}>
-        <div style={{ background: '#6399CF', color: 'white', padding: `${s(12, 6)}px`, borderRadius: '0', textAlign: 'center', fontWeight: '700', fontSize: `${s(18, 12)}px`, flexShrink: 0 }}>
-          {title}
+        <div style={{ background: headerBgColor, color: 'white', padding: `${s(12, 6)}px`, borderRadius: '0', textAlign: 'center', fontWeight: '700', fontSize: `${s(18, 12)}px`, flexShrink: 0 }}>
+          {displayTitle}
         </div>
         
         <div style={{ background: 'white', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: `${s(6, 1)}px`, padding: `${s(16, 4)}px ${s(16, 10)}px ${s(4, 0)}px ${s(16, 10)}px`, borderBottom: '1px solid #e0e0e0', minHeight: 0 }}>
