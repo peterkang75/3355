@@ -31,6 +31,7 @@ function Fees() {
     receiptImages: []
   });
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
   const [showCreditModal, setShowCreditModal] = useState(null);
   const [creditActionAmount, setCreditActionAmount] = useState('');
@@ -198,6 +199,27 @@ function Fees() {
       alert('거래 수정에 실패했습니다.');
     } finally {
       setIsUpdating(false);
+    }
+  };
+
+  const handleDeleteTransaction = async () => {
+    if (!editingTransaction) return;
+    
+    if (!window.confirm('이 거래내역을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await apiService.deleteTransaction(editingTransaction.id);
+      await loadLedgerData();
+      handleCloseEditModal();
+      alert('거래내역이 삭제되었습니다.');
+    } catch (error) {
+      console.error('거래 삭제 실패:', error);
+      alert('거래 삭제에 실패했습니다.');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -1639,6 +1661,25 @@ function Fees() {
                   {isUpdating ? '저장 중...' : '저장'}
                 </button>
               </div>
+              
+              <button
+                onClick={handleDeleteTransaction}
+                disabled={isDeleting}
+                style={{
+                  width: '100%',
+                  marginTop: '12px',
+                  padding: '14px',
+                  background: isDeleting ? '#ccc' : 'var(--alert-red)',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: isDeleting ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {isDeleting ? '삭제 중...' : '거래내역 삭제'}
+              </button>
             </div>
           </div>
         </div>
