@@ -315,7 +315,7 @@ const BookingListCard = memo(function BookingListCard({
             <Button
               variant="primary"
               fullWidth
-              onClick={() => onNavigate(`/member-score-entry?id=${booking.id}`)}
+              onClick={() => onNavigate(`/leaderboard?id=${booking.id}`)}
             >
               ▲ 결과보기
             </Button>
@@ -456,7 +456,7 @@ const BookingListCard = memo(function BookingListCard({
           <Button
             variant="primary"
             size="sm"
-            onClick={() => onNavigate(`/member-score-entry?id=${booking.id}`)}
+            onClick={() => onNavigate(`/leaderboard?id=${booking.id}`)}
           >
             ▲ 결과보기
           </Button>
