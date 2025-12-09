@@ -1,0 +1,42 @@
+Act as a Senior Backend & Frontend Developer.
+I am experiencing severe performance issues on the "Fees" page due to inefficient data loading.
+Based on the code analysis, we need to optimize `server/api.js` and `src/pages/Fees.jsx`.
+
+**Problem:**
+1.  **Over-fetching:** The API fetches 1000 transactions at once, including large Base64 images (`receiptImages`), causing massive network payload.
+2.  **Inefficient Calculation:** Club balance is calculated by iterating through ALL transactions in history every time.
+3.  **Client-side Pagination:** Frontend loads everything and slices it, instead of using server-side pagination properly.
+
+**Task 1: Optimize Backend (`server/api.js`)**
+
+1.  **Refactor `GET /transactions`:**
+    * Change the default `limit` to `20`.
+    * **CRITICAL:** Use `select` to EXCLUDE `receiptImage` and `receiptImages` fields. We only need the metadata.
+    * Keep `include` for `member`, `booking`, `executor`.
+
+2.  **Refactor `GET /transactions/club-balance`:**
+    * Instead of fetching all transactions (`findMany`), use `prisma.transaction.aggregate` to sum the amounts directly in the database.
+    * Logic: Sum of (payments + donations) - Sum of (expenses excluding credit-related).
+    * *Alternative (Simpler & Faster):* If `aggregate` is too complex for the current logic, calculate the balance by summing `Member.balance` for all members (since Club Assets = Sum of Member Liabilities/Assets).
+    * *Chosen Method:* Keep the logic simple but optimized: Use `findMany` but `select` ONLY `{ type: true, amount: true, category: true }` (No images, no descriptions). This significantly reduces data transfer.
+
+3.  **Add `GET /transactions/:id/details`:**
+    * Create a new endpoint to fetch **only** the `receiptImage` and `receiptImages` for a specific transaction ID.
+    * This will be called only when the user clicks "View Receipt".
+
+**Task 2: Optimize Frontend (`src/pages/Fees.jsx`)**
+
+1.  **Update `loadLedgerData`:**
+    * Call `fetchTransactions` with `{ page: currentPage, limit: 20 }`.
+    * Store `totalPages` from the response to handle pagination buttons.
+
+2.  **Update `handleViewReceipt`:**
+    * Do NOT rely on the transaction object having images pre-loaded.
+    * When clicked, call the new API (`/transactions/:id/details`) to fetch the images on demand.
+    * Show a loading indicator while fetching.
+
+3.  **Pagination UI:**
+    * Update the "Next/Prev" buttons to trigger `setCurrentPage`, which then triggers `loadLedgerData` (Server-side pagination).
+
+**Goal:**
+The Fees page should load instantly even with 10,000+ transactions. Images should only load when requested.

@@ -1174,16 +1174,27 @@ router.patch('/members/:id/reject', async (req, res) => {
 
 // ============= Transaction API =============
 
-// 모든 거래 내역 조회 (최적화: 페이지네이션 지원)
+// 모든 거래 내역 조회 (최적화: 페이지네이션 지원, 이미지 제외)
 router.get('/transactions', async (req, res) => {
   try {
     const page = req.query.page ? parseInt(req.query.page) : 1;
-    const limit = req.query.limit ? parseInt(req.query.limit) : 50;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 20;
     const skip = (page - 1) * limit;
     
     const [transactions, total] = await Promise.all([
       prisma.transaction.findMany({
-        include: {
+        select: {
+          id: true,
+          type: true,
+          amount: true,
+          description: true,
+          category: true,
+          memo: true,
+          date: true,
+          createdAt: true,
+          memberId: true,
+          bookingId: true,
+          executorId: true,
           member: {
             select: {
               id: true,
@@ -1229,7 +1240,30 @@ router.get('/transactions', async (req, res) => {
   }
 });
 
-// 회원별 거래 내역 조회 (최적화)
+// 거래 상세 정보 조회 (영수증 이미지 포함)
+router.get('/transactions/:id/details', async (req, res) => {
+  try {
+    const transaction = await prisma.transaction.findUnique({
+      where: { id: req.params.id },
+      select: {
+        id: true,
+        receiptImage: true,
+        receiptImages: true
+      }
+    });
+    
+    if (!transaction) {
+      return res.status(404).json({ error: 'Transaction not found' });
+    }
+    
+    res.json(transaction);
+  } catch (error) {
+    console.error('Error fetching transaction details:', error);
+    res.status(500).json({ error: 'Failed to fetch transaction details' });
+  }
+});
+
+// 회원별 거래 내역 조회 (최적화 - 이미지 제외)
 router.get('/transactions/member/:memberId', async (req, res) => {
   try {
     const transactions = await prisma.transaction.findMany({
@@ -1240,9 +1274,9 @@ router.get('/transactions/member/:memberId', async (req, res) => {
         amount: true,
         description: true,
         category: true,
+        memo: true,
         date: true,
         createdAt: true,
-        receiptImage: true,
         booking: {
           select: {
             id: true,

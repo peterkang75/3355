@@ -421,13 +421,18 @@ class ApiService {
     const url = params.toString() ? `${API_BASE}/transactions?${params}` : `${API_BASE}/transactions`;
     const response = await fetch(url);
     if (!response.ok) throw new Error('Failed to fetch transactions');
-    const data = await response.json();
-    return data.transactions || data;
+    return response.json();
   }
 
   async fetchTransactionsWithPagination(page = 1, limit = 50) {
     const response = await fetch(`${API_BASE}/transactions?page=${page}&limit=${limit}`);
     if (!response.ok) throw new Error('Failed to fetch transactions');
+    return response.json();
+  }
+
+  async fetchTransactionDetails(transactionId) {
+    const response = await fetch(`${API_BASE}/transactions/${transactionId}/details`);
+    if (!response.ok) throw new Error('Failed to fetch transaction details');
     return response.json();
   }
 

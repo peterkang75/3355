@@ -38,7 +38,9 @@ function Fees() {
   const [creditActionMemo, setCreditActionMemo] = useState('');
   const [creditActionLoading, setCreditActionLoading] = useState(false);
   const [selectedChargeId, setSelectedChargeId] = useState(null);
-  const ITEMS_PER_PAGE = 10;
+  const [receiptLoading, setReceiptLoading] = useState(null);
+  const [totalPages, setTotalPages] = useState(1);
+  const ITEMS_PER_PAGE = 20;
   const MAX_PAGES = 10;
   
   const canManageFees = user?.isAdmin || user?.canManageFees || 
@@ -75,20 +77,26 @@ function Fees() {
     }
   };
 
-  const loadLedgerData = async () => {
+  const loadLedgerData = async (page = 1) => {
     try {
       setLoading(true);
-      const [transactionsData, balanceData, outstandingData] = await Promise.all([
-        apiService.fetchTransactions({ limit: 1000 }),
+      const [transactionsResponse, balanceData, outstandingData] = await Promise.all([
+        apiService.fetchTransactions({ page, limit: ITEMS_PER_PAGE }),
         apiService.fetchClubBalance(),
         apiService.fetchOutstandingBalances()
       ]);
-      console.log('📋 통합장부 거래내역:', transactionsData?.length, '건');
-      console.log('📋 도네이션 거래:', transactionsData?.filter(t => t.type === 'donation'));
-      setAllTransactions(transactionsData || []);
+      
+      const transactionsData = transactionsResponse?.transactions || transactionsResponse || [];
+      const pagination = transactionsResponse?.pagination;
+      
+      console.log('📋 통합장부 거래내역:', transactionsData?.length, '건 (페이지', page, ')');
+      setAllTransactions(transactionsData);
       setClubBalance(balanceData?.balance || 0);
       setOutstandingCount(outstandingData?.length || 0);
-      setCurrentPage(1);
+      setCurrentPage(page);
+      if (pagination) {
+        setTotalPages(pagination.totalPages || 1);
+      }
     } catch (error) {
       console.error('장부 데이터 로드 실패:', error);
       setAllTransactions([]);
@@ -97,9 +105,11 @@ function Fees() {
     }
   };
 
-  const handleOpenEditModal = (transaction) => {
+  const handleOpenEditModal = async (transaction) => {
     setEditingTransaction(transaction);
-    const images = transaction.receiptImages || [];
+    setReceiptLoading(transaction.id);
+    
+    // 기본 폼 데이터 먼저 설정
     setEditFormData({
       amount: transaction.amount.toString(),
       date: transaction.date || new Date(transaction.createdAt).toISOString().split('T')[0],
@@ -107,9 +117,23 @@ function Fees() {
       category: transaction.category || '',
       memo: transaction.memo || '',
       bookingId: transaction.bookingId || '',
-      receiptImage: transaction.receiptImage || '',
-      receiptImages: Array.isArray(images) ? images : []
+      receiptImage: '',
+      receiptImages: []
     });
+    
+    // 영수증 이미지 On-demand 로딩
+    try {
+      const details = await apiService.fetchTransactionDetails(transaction.id);
+      setEditFormData(prev => ({
+        ...prev,
+        receiptImage: details?.receiptImage || '',
+        receiptImages: Array.isArray(details?.receiptImages) ? details.receiptImages : []
+      }));
+    } catch (error) {
+      console.error('영수증 로드 실패:', error);
+    } finally {
+      setReceiptLoading(null);
+    }
   };
 
   const handleCloseEditModal = () => {
@@ -1054,29 +1078,46 @@ function Fees() {
                       <div style={{
                         display: 'flex',
                         justifyContent: 'center',
+                        alignItems: 'center',
                         gap: '8px',
                         marginTop: '16px',
                         flexWrap: 'wrap'
                       }}>
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                          <button
-                            key={page}
-                            onClick={() => setCurrentPage(page)}
-                            style={{
-                              width: '36px',
-                              height: '36px',
-                              border: 'none',
-                              borderRadius: '8px',
-                              background: currentPage === page ? 'var(--primary-green)' : '#e9ecef',
-                              color: currentPage === page ? 'white' : 'var(--text-dark)',
-                              fontWeight: '600',
-                              cursor: 'pointer',
-                              fontSize: '14px'
-                            }}
-                          >
-                            {page}
-                          </button>
-                        ))}
+                        <button
+                          onClick={() => loadLedgerData(currentPage - 1)}
+                          disabled={currentPage <= 1 || loading}
+                          style={{
+                            padding: '8px 12px',
+                            border: 'none',
+                            borderRadius: '8px',
+                            background: currentPage <= 1 ? '#e0e0e0' : 'var(--primary-green)',
+                            color: currentPage <= 1 ? '#999' : 'white',
+                            fontWeight: '600',
+                            cursor: currentPage <= 1 ? 'not-allowed' : 'pointer',
+                            fontSize: '13px'
+                          }}
+                        >
+                          이전
+                        </button>
+                        <span style={{ fontSize: '14px', color: '#666', padding: '0 8px' }}>
+                          {currentPage} / {totalPages}
+                        </span>
+                        <button
+                          onClick={() => loadLedgerData(currentPage + 1)}
+                          disabled={currentPage >= totalPages || loading}
+                          style={{
+                            padding: '8px 12px',
+                            border: 'none',
+                            borderRadius: '8px',
+                            background: currentPage >= totalPages ? '#e0e0e0' : 'var(--primary-green)',
+                            color: currentPage >= totalPages ? '#999' : 'white',
+                            fontWeight: '600',
+                            cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer',
+                            fontSize: '13px'
+                          }}
+                        >
+                          다음
+                        </button>
                       </div>
                     )}
                   </>
