@@ -1435,22 +1435,13 @@ function Dashboard() {
                       </>
                     ) : isRoundingDay(booking) ? (
                       <>
-                        <button
+                        <Button
+                          variant="outline"
                           onClick={() => navigate(`/team-formation?id=${booking.id}`)}
-                          style={{
-                            flex: 1,
-                            padding: '12px',
-                            background: '#214001',
-                            color: 'var(--text-light)',
-                            border: 'none',
-                            borderRadius: '6px',
-                            fontSize: '14px',
-                            fontWeight: '700',
-                            cursor: 'pointer'
-                          }}
+                          style={{ flex: 1 }}
                         >
                           📋 조편성 보기
-                        </button>
+                        </Button>
                         {booking.playEnabled && (
                           <button
                             onClick={() => navigate(`/play?id=${booking.id}`)}
@@ -1472,22 +1463,13 @@ function Dashboard() {
                       </>
                     ) : isRegistrationClosed(booking) && !isPastRoundingDate(booking) ? (
                       <>
-                        <button
+                        <Button
+                          variant="outline"
                           onClick={() => navigate(`/team-formation?id=${booking.id}`)}
-                          style={{
-                            flex: 1,
-                            padding: '12px',
-                            background: '#214001',
-                            color: 'var(--text-light)',
-                            border: 'none',
-                            borderRadius: '6px',
-                            fontSize: '14px',
-                            fontWeight: '700',
-                            cursor: 'pointer'
-                          }}
+                          style={{ flex: 1 }}
                         >
                           📋 조편성 보기
-                        </button>
+                        </Button>
                       </>
                     ) : (
                       <>
