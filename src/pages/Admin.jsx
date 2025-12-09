@@ -72,6 +72,9 @@ function Admin() {
   });
   
   const [allTransactions, setAllTransactions] = useState([]);
+  const [ledgerCurrentPage, setLedgerCurrentPage] = useState(1);
+  const [ledgerTotalPages, setLedgerTotalPages] = useState(1);
+  const LEDGER_ITEMS_PER_PAGE = 20;
   const [ledgerFilter, setLedgerFilter] = useState({
     type: 'all',
     memberId: 'all',
@@ -924,19 +927,28 @@ function Admin() {
     }
   };
 
-  const loadLedgerData = async () => {
+  const loadLedgerData = async (page = 1) => {
     try {
       setIsLoadingTransactions(true);
       if (refreshMembers) {
         await refreshMembers();
       }
       const [transactionsResponse, balanceData] = await Promise.all([
-        apiService.fetchTransactions({ limit: 1000 }),
+        apiService.fetchTransactions({ page, limit: LEDGER_ITEMS_PER_PAGE }),
         apiService.fetchClubBalance()
       ]);
       const transactionsData = transactionsResponse?.transactions || transactionsResponse || [];
-      console.log('📋 Admin 통합장부 거래내역:', transactionsData?.length, '건');
+      const pagination = transactionsResponse?.pagination || { totalPages: 1 };
+      
+      console.log('📋 Admin 통합장부:', {
+        거래수: transactionsData?.length,
+        페이지: page,
+        총페이지: pagination.totalPages
+      });
+      
       setAllTransactions(Array.isArray(transactionsData) ? transactionsData : []);
+      setLedgerCurrentPage(page);
+      setLedgerTotalPages(pagination.totalPages);
       setClubBalance(balanceData.balance);
     } catch (error) {
       console.error('장부 데이터 로드 실패:', error);
@@ -4184,6 +4196,50 @@ function Admin() {
                         })}
                     </tbody>
                   </table>
+                  
+                  {/* 페이지네이션 */}
+                  {ledgerTotalPages > 1 && (
+                    <div style={{ 
+                      display: 'flex', 
+                      justifyContent: 'center', 
+                      alignItems: 'center',
+                      gap: '12px', 
+                      marginTop: '20px',
+                      padding: '16px 0'
+                    }}>
+                      <button
+                        onClick={() => loadLedgerData(ledgerCurrentPage - 1)}
+                        disabled={ledgerCurrentPage <= 1}
+                        style={{
+                          padding: '8px 16px',
+                          border: '1px solid #ddd',
+                          background: ledgerCurrentPage <= 1 ? '#f5f5f5' : 'white',
+                          borderRadius: '6px',
+                          cursor: ledgerCurrentPage <= 1 ? 'not-allowed' : 'pointer',
+                          opacity: ledgerCurrentPage <= 1 ? 0.5 : 1
+                        }}
+                      >
+                        이전
+                      </button>
+                      <span style={{ fontWeight: '600', fontSize: '14px' }}>
+                        {ledgerCurrentPage} / {ledgerTotalPages}
+                      </span>
+                      <button
+                        onClick={() => loadLedgerData(ledgerCurrentPage + 1)}
+                        disabled={ledgerCurrentPage >= ledgerTotalPages}
+                        style={{
+                          padding: '8px 16px',
+                          border: '1px solid #ddd',
+                          background: ledgerCurrentPage >= ledgerTotalPages ? '#f5f5f5' : 'white',
+                          borderRadius: '6px',
+                          cursor: ledgerCurrentPage >= ledgerTotalPages ? 'not-allowed' : 'pointer',
+                          opacity: ledgerCurrentPage >= ledgerTotalPages ? 0.5 : 1
+                        }}
+                      >
+                        다음
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
