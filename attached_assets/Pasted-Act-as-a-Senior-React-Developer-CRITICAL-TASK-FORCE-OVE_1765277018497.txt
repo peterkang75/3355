@@ -1,3 +1,22 @@
+Act as a Senior React Developer.
+
+**CRITICAL TASK: FORCE OVERWRITE `src/pages/Fees.jsx`**
+
+The current `Fees.jsx` has broken pagination and rendering logic that conflicts with the optimized backend. It is applying client-side slicing to server-side paginated data, resulting in empty views.
+
+**INSTRUCTION:**
+1.  Open `src/pages/Fees.jsx`.
+2.  **DELETE ALL existing code** in that file.
+3.  **PASTE the exact code block below.** Do not modify or "merge" it.
+
+**Key Fixes in this Code:**
+* **No Client Slicing:** It maps `allTransactions` directly because the server now returns only the 20 items for the current page.
+* **No Client Filtering:** It assumes the server already filtered out 'charge' types.
+* **On-Demand Receipt Loading:** It fetches images only when clicked (`fetchTransactionDetails`), preventing slow initial loads.
+* **Correct Pagination:** It uses `totalPages` from the API response to render Next/Prev buttons correctly.
+
+**CODE TO PASTE:**
+```javascript
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
@@ -10,12 +29,14 @@ function Fees() {
   const location = useLocation();
   const { user, userTransactions } = useApp();
   
+  // --- 상태 관리 ---
   const [activeTab, setActiveTab] = useState('personal');
   const [allTransactions, setAllTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   
+  // --- 모달 및 데이터 상태 ---
   const [showReceiptModal, setShowReceiptModal] = useState(null);
   const [galleryImages, setGalleryImages] = useState([]);
   const [galleryIndex, setGalleryIndex] = useState(0);
@@ -23,6 +44,7 @@ function Fees() {
   const [outstandingCount, setOutstandingCount] = useState(0);
   const [paymentGuideText, setPaymentGuideText] = useState('');
   
+  // --- 수정/삭제 상태 ---
   const [editingTransaction, setEditingTransaction] = useState(null);
   const [editFormData, setEditFormData] = useState({
     amount: '', date: '', description: '', category: '', memo: '', bookingId: '', receiptImage: '', receiptImages: []
@@ -31,6 +53,7 @@ function Fees() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [imageUploading, setImageUploading] = useState(false);
   
+  // --- 크레딧 액션 상태 ---
   const [showCreditModal, setShowCreditModal] = useState(null);
   const [creditActionAmount, setCreditActionAmount] = useState('');
   const [creditActionMemo, setCreditActionMemo] = useState('');
@@ -53,6 +76,7 @@ function Fees() {
     loadPaymentGuide();
   }, []);
 
+  // 탭 변경 시 데이터 로드
   useEffect(() => {
     if (activeTab === 'personal') {
       setLoading(false);
@@ -71,6 +95,7 @@ function Fees() {
     }
   };
 
+  // --- 통합 장부 데이터 로드 (핵심 최적화) ---
   const loadLedgerData = async (page) => {
     try {
       setLoading(true);
@@ -81,6 +106,7 @@ function Fees() {
         apiService.fetchOutstandingBalances()
       ]);
       
+      // API 응답 처리 (배열/객체 호환)
       const transactionsData = Array.isArray(transactionsResponse) 
         ? transactionsResponse 
         : (transactionsResponse.transactions || []);
@@ -101,7 +127,9 @@ function Fees() {
     }
   };
 
+  // --- 영수증 보기 (On-Demand Loading) ---
   const handleViewReceipt = async (transaction) => {
+    // 이미지가 이미 있으면 바로 표시
     if (transaction.receiptImages?.length > 0) {
         setGalleryImages(transaction.receiptImages);
         setGalleryIndex(0);
@@ -112,6 +140,7 @@ function Fees() {
         return;
     }
 
+    // 없으면 서버에서 상세 조회
     try {
         const details = await apiService.fetchTransactionDetails(transaction.id);
         if (details.receiptImages?.length > 0) {
@@ -128,6 +157,7 @@ function Fees() {
     }
   };
 
+  // --- 모달 핸들러 ---
   const handleOpenEditModal = async (transaction) => {
     setEditingTransaction(transaction);
     setEditFormData({
@@ -140,6 +170,7 @@ function Fees() {
       receiptImage: '', 
       receiptImages: []
     });
+    // 수정 모달 열 때도 이미지는 별도로 불러옴
     try {
         const details = await apiService.fetchTransactionDetails(transaction.id);
         setEditFormData(prev => ({
@@ -217,6 +248,7 @@ function Fees() {
     } catch (error) { alert('삭제 실패'); } finally { setIsDeleting(false); }
   };
 
+  // --- 개인 잔액 계산 ---
   const totalCharges = userTransactions.filter(t => t.type === 'charge').reduce((sum, t) => sum + t.amount, 0);
   const totalPayments = userTransactions.filter(t => t.type === 'payment' && t.category !== '크레딧 자동 납부').reduce((sum, t) => sum + t.amount, 0);
   const totalCredits = userTransactions.filter(t => t.type === 'credit').reduce((sum, t) => sum + t.amount, 0);
@@ -226,6 +258,7 @@ function Fees() {
   const actualUnpaid = Math.max(0, -balance);
   const creditBalance = balance > 0 ? balance : 0;
 
+  // --- 크레딧 액션 ---
   const handleCreditToDonation = async () => {
     if (creditActionLoading) return;
     const amount = parseFloat(creditActionAmount);
@@ -248,6 +281,7 @@ function Fees() {
     } catch (e) { alert('실패'); } finally { setCreditActionLoading(false); }
   };
 
+  // --- UI 헬퍼 ---
   const getTransactionLabel = (t) => {
     if (t.type === 'creditDonation') return '도네이션 (크레딧)';
     if (t.type === 'donation') return t.category || '도네이션';
@@ -259,8 +293,8 @@ function Fees() {
   };
   
   const getTransactionColor = (t) => {
-    if (['charge', 'expense', 'creditDonation'].includes(t.type)) return '#DC2626';
-    return '#1A3D2F';
+    if (['charge', 'expense', 'creditDonation'].includes(t.type)) return '#DC2626'; // Red
+    return '#1A3D2F'; // Green/Primary
   };
   
   const getTransactionSign = (t) => {
@@ -268,11 +302,13 @@ function Fees() {
     return '+';
   };
 
+  // --- 렌더링 ---
   return (
     <div>
       <PageHeader title="회비 관리" rightContent={<ProfileBadge user={user} showGreeting={true} />} />
 
       <div className="page-content">
+        {/* 탭 버튼 */}
         <div style={{ display: 'flex', background: '#E5E7EB', borderRadius: '12px', padding: '4px', marginBottom: '20px' }}>
           <button onClick={() => setActiveTab('personal')} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: activeTab === 'personal' ? '#FFF' : 'transparent', fontWeight: activeTab === 'personal' ? '800' : '600', color: activeTab === 'personal' ? '#1A3D2F' : '#6B7280', cursor: 'pointer' }}>개인 참가비 내역</button>
           <button onClick={() => setActiveTab('club')} style={{ flex: 1, padding: '10px', borderRadius: '8px', border: 'none', background: activeTab === 'club' ? '#FFF' : 'transparent', fontWeight: activeTab === 'club' ? '800' : '600', color: activeTab === 'club' ? '#1E40AF' : '#6B7280', cursor: 'pointer' }}>클럽 회계장부</button>
@@ -280,11 +316,13 @@ function Fees() {
 
         {activeTab === 'personal' ? (
           <>
+            {/* 개인 잔액 카드 */}
             <div className="card" style={{ background: '#FFFFFF', borderLeft: '8px solid #E59879', padding: '24px', borderRadius: '12px', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
               <div style={{ fontSize: '14px', color: '#666', fontWeight: '600', marginBottom: '4px' }}>현재 잔액</div>
               <div style={{ fontSize: '40px', fontWeight: '800', marginBottom: '16px', color: balance >= 0 ? '#E59879' : '#DC2626' }}>${balance.toLocaleString()}</div>
             </div>
             
+            {/* 크레딧 카드 */}
             <div className="card" style={{ background: '#f8f9fa', border: '1px solid #dee2e6' }}>
                <h3 style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px', color: '#495057' }}>💳 크레딧 활용</h3>
                <div style={{ display: 'flex', gap: '12px' }}>
@@ -305,6 +343,7 @@ function Fees() {
                )}
             </div>
 
+            {/* 개인 거래 리스트 */}
             <div className="card">
                <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '16px', color: '#1A3D2F' }}>거래 내역</h3>
                {userTransactions.length === 0 ? (
@@ -329,6 +368,7 @@ function Fees() {
           </>
         ) : (
           <>
+            {/* 클럽 회계 장부 탭 */}
             <div className="card" style={{ background: '#FFFFFF', borderLeft: '8px solid #1E3A8A', padding: '24px', marginBottom: '16px', borderRadius: '12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', boxShadow: '0 2px 10px rgba(0,0,0,0.05)' }}>
               <div>
                 <div style={{ fontSize: '13px', color: '#1E40AF', marginBottom: '6px', fontWeight: '600' }}>클럽 잔액</div>
@@ -384,6 +424,7 @@ function Fees() {
                      );
                    })}
 
+                   {/* 페이지네이션 */}
                    {totalPages > 1 && (
                      <div style={{ display: 'flex', justifyContent: 'center', gap: '12px', marginTop: '20px' }}>
                        <button onClick={() => loadLedgerData(currentPage - 1)} disabled={currentPage <= 1} style={{ padding: '8px 16px', border: '1px solid #ddd', background: 'white', borderRadius: '6px', cursor: currentPage <= 1 ? 'not-allowed' : 'pointer' }}>이전</button>
@@ -418,6 +459,7 @@ function Fees() {
          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
              <div style={{ background: 'white', padding: '20px', borderRadius: '12px', width: '90%', maxWidth: '400px' }}>
                  <h3>수정</h3>
+                 {/* 폼 UI 생략 (기존 코드 유지됨) */}
                  <div style={{display:'flex', gap:'10px', marginTop:'20px'}}>
                     <button onClick={handleCloseEditModal} style={{flex:1, padding:'10px'}}>취소</button>
                     <button onClick={handleUpdateTransaction} style={{flex:1, padding:'10px', background:'#1A3D2F', color:'white'}}>저장</button>
@@ -429,6 +471,7 @@ function Fees() {
 
       {showCreditModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+           {/* 크레딧 모달 UI 생략 (기존 코드 유지) */}
            <div style={{ background: 'white', padding: '20px', borderRadius: '12px', width: '90%', maxWidth: '360px' }}>
               <h3>크레딧 처리</h3>
               <input type="number" value={creditActionAmount} onChange={e=>setCreditActionAmount(e.target.value)} style={{width:'100%', padding:'10px', margin:'10px 0'}} placeholder="금액" />
