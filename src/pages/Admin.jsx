@@ -282,16 +282,17 @@ function Admin() {
       setOutstandingBalances(outstandingData);
       
       // 3단계: 나머지 데이터 백그라운드 로드 (라운딩은 항상 최신 데이터)
-      const [transactionsData, incomeCats, expenseCats, bookingsData] = await Promise.all([
-        apiService.fetchTransactions(50),
+      const [transactionsResponse, incomeCats, expenseCats, bookingsData] = await Promise.all([
+        apiService.fetchTransactions({ limit: 50 }),
         cachedIncome ? Promise.resolve(JSON.parse(cachedIncome)) : apiService.fetchIncomeCategories(),
         cachedExpense ? Promise.resolve(JSON.parse(cachedExpense)) : apiService.fetchExpenseCategories(),
         apiService.fetchBookings() // 항상 최신 라운딩 데이터 가져오기
       ]);
       
+      const transactionsData = transactionsResponse?.transactions || transactionsResponse || [];
       // 거래 내역에 누적 클럽 잔액 계산
       let runningBalance = 0;
-      const transactionsWithBalance = transactionsData.reverse().map(t => {
+      const transactionsWithBalance = (Array.isArray(transactionsData) ? transactionsData : []).reverse().map(t => {
         if (t.type === 'payment' || t.type === 'donation') {
           runningBalance += t.amount;
         } else if (t.type === 'expense' || t.type === 'credit') {
@@ -322,17 +323,18 @@ function Admin() {
 
   const loadFeeData = async () => {
     try {
-      const [balanceData, outstandingData, transactionsData, incomeCats, expenseCats, bookingsData] = await Promise.all([
+      const [balanceData, outstandingData, transactionsResponse, incomeCats, expenseCats, bookingsData] = await Promise.all([
         apiService.fetchClubBalance(),
         apiService.fetchOutstandingBalances(),
-        apiService.fetchTransactions(),
+        apiService.fetchTransactions({ limit: 50 }),
         apiService.fetchIncomeCategories(),
         apiService.fetchExpenseCategories(),
         apiService.fetchBookings()
       ]);
+      const transactionsData = transactionsResponse?.transactions || transactionsResponse || [];
       setClubBalance(balanceData.balance);
       setOutstandingBalances(outstandingData);
-      setRecentTransactions(transactionsData.slice(0, 10));
+      setRecentTransactions((Array.isArray(transactionsData) ? transactionsData : []).slice(0, 10));
       setIncomeCategories(incomeCats || []);
       setExpenseCategories(expenseCats || []);
       setBookings(bookingsData || []);
@@ -701,9 +703,10 @@ function Admin() {
       ]);
       
       // 최근 거래 내역 다시 불러오기
-      const transactionsData = await apiService.fetchTransactions(50);
+      const transactionsResponse = await apiService.fetchTransactions({ limit: 50 });
+      const transactionsData = transactionsResponse?.transactions || transactionsResponse || [];
       let runningBalance = 0;
-      const transactionsWithBalance = transactionsData.reverse().map(t => {
+      const transactionsWithBalance = (Array.isArray(transactionsData) ? transactionsData : []).reverse().map(t => {
         if (t.type === 'payment' || t.type === 'donation') {
           runningBalance += t.amount;
         } else if (t.type === 'expense' || t.type === 'credit') {
@@ -764,13 +767,14 @@ function Admin() {
       });
       
       // 병렬로 데이터 새로고침
-      const [transactionsData] = await Promise.all([
-        apiService.fetchTransactions(50),
+      const [transactionsResponse] = await Promise.all([
+        apiService.fetchTransactions({ limit: 50 }),
         refreshBalanceAndOutstanding()
       ]);
       
+      const transactionsData = transactionsResponse?.transactions || transactionsResponse || [];
       let runningBalance = 0;
-      const transactionsWithBalance = transactionsData.reverse().map(t => {
+      const transactionsWithBalance = (Array.isArray(transactionsData) ? transactionsData : []).reverse().map(t => {
         if (t.type === 'payment' || t.type === 'donation') {
           runningBalance += t.amount;
         } else if (t.type === 'expense' || t.type === 'credit') {
@@ -827,9 +831,10 @@ function Admin() {
       ]);
       
       // 최근 거래 내역 다시 불러오기
-      const transactionsData = await apiService.fetchTransactions(50);
+      const transactionsResponse = await apiService.fetchTransactions({ limit: 50 });
+      const transactionsData = transactionsResponse?.transactions || transactionsResponse || [];
       let runningBalance = 0;
-      const transactionsWithBalance = transactionsData.reverse().map(t => {
+      const transactionsWithBalance = (Array.isArray(transactionsData) ? transactionsData : []).reverse().map(t => {
         if (t.type === 'payment' || t.type === 'donation') {
           runningBalance += t.amount;
         } else if (t.type === 'expense' || t.type === 'credit') {
@@ -895,9 +900,10 @@ function Admin() {
       ]);
       
       // 최근 거래 내역 다시 불러오기
-      const transactionsData = await apiService.fetchTransactions(50);
+      const transactionsResponse = await apiService.fetchTransactions({ limit: 50 });
+      const transactionsData = transactionsResponse?.transactions || transactionsResponse || [];
       let runningBalance = 0;
-      const transactionsWithBalance = transactionsData.reverse().map(t => {
+      const transactionsWithBalance = (Array.isArray(transactionsData) ? transactionsData : []).reverse().map(t => {
         if (t.type === 'payment' || t.type === 'donation') {
           runningBalance += t.amount;
         } else if (t.type === 'expense' || t.type === 'credit') {
@@ -924,12 +930,13 @@ function Admin() {
       if (refreshMembers) {
         await refreshMembers();
       }
-      const [transactionsData, balanceData] = await Promise.all([
+      const [transactionsResponse, balanceData] = await Promise.all([
         apiService.fetchTransactions({ limit: 1000 }),
         apiService.fetchClubBalance()
       ]);
+      const transactionsData = transactionsResponse?.transactions || transactionsResponse || [];
       console.log('📋 Admin 통합장부 거래내역:', transactionsData?.length, '건');
-      setAllTransactions(transactionsData || []);
+      setAllTransactions(Array.isArray(transactionsData) ? transactionsData : []);
       setClubBalance(balanceData.balance);
     } catch (error) {
       console.error('장부 데이터 로드 실패:', error);
