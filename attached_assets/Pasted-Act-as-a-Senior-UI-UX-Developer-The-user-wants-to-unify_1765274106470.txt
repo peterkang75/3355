@@ -1,0 +1,66 @@
+Act as a Senior UI/UX Developer.
+The user wants to unify the design language between the **Dashboard (`Home.jsx`)** and the **Fees Page (`Fees.jsx`)**.
+
+**Current Mismatches to Fix:**
+1.  **Color:** Dashboard uses **Orange** for Personal Balance, but Fees page uses Green. -> **Switch Fees page to Orange.**
+2.  **Border Layout:** Dashboard uses a **Thick Left Border**, but Fees page uses a Top Border. -> **Switch Fees page to Left Border.**
+
+**Task: Update the `styles` object in `src/pages/Fees.jsx`**
+
+**1. Define New Color Palette & Layout:**
+Replace the existing `styles` object (or the styling logic inside `renderPersonalFees` and `renderClubLedger`) with this updated design:
+
+```javascript
+const styles = {
+  // PERSONAL CARD: Match Dashboard (Orange Theme, Left Border)
+  personalCard: {
+    backgroundColor: '#FFF7ED', // Very Light Orange (Tailwind orange-50)
+    borderLeft: '6px solid #EA580C', // Strong Orange (Tailwind orange-600)
+    borderTop: 'none', // Remove old top border
+    padding: '24px',
+    textAlign: 'left', // Align text left to match the side border look usually
+    borderRadius: '12px', // Slightly smaller radius for cleaner look
+    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+    marginBottom: '24px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center'
+  },
+  personalLabel: { 
+    color: '#9A3412', // Dark Orange/Brown text
+    fontSize: '14px', 
+    fontWeight: '600', 
+    marginBottom: '4px' 
+  },
+  personalValue: { 
+    color: '#EA580C', // Primary Orange
+    fontSize: '36px', 
+    fontWeight: '800' 
+  },
+  
+  // CLUB CARD: Match Layout (Navy Theme, Left Border)
+  clubCard: {
+    backgroundColor: '#EFF6FF', // Very Light Blue
+    borderLeft: '6px solid #1E3A8A', // Deep Navy
+    borderTop: 'none', // Remove old top border
+    padding: '24px',
+    textAlign: 'left',
+    borderRadius: '12px',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
+    marginBottom: '24px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center'
+  },
+  clubLabel: { 
+    color: '#1E40AF', // Medium Blue
+    fontSize: '14px', 
+    fontWeight: '600', 
+    marginBottom: '4px' 
+  },
+  clubValue: { 
+    color: '#1E3A8A', // Deep Navy
+    fontSize: '36px', 
+    fontWeight: '800' 
+  }
+};
