@@ -107,6 +107,13 @@ function Fees() {
 
       const pagination = transactionsResponse.pagination || { totalPages: 1 };
 
+      console.log('📊 Fees 장부 로드:', {
+        받은거래수: transactionsData.length,
+        페이지: page,
+        총페이지: pagination.totalPages,
+        총거래수: pagination.total
+      });
+
       setAllTransactions(transactionsData);
       setTotalPages(pagination.totalPages);
       setCurrentPage(page);
