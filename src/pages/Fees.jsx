@@ -335,6 +335,10 @@ function Fees() {
       if (transaction.description && transaction.description.includes('환불')) {
         return '회비 환불';
       }
+      if (transaction.category === '크레딧 자동 납부') {
+        const baseName = transaction.description?.replace(' (크레딧 자동 납부)', '') || '참가비';
+        return `${baseName} (크레딧 납부)`;
+      }
       const paymentDesc = transaction.description || '회비 납부';
       if (paymentDesc.includes(' - ')) {
         return paymentDesc.split(' - ')[0];
