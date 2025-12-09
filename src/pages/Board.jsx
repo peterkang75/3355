@@ -153,142 +153,167 @@ function Board() {
           </div>
         )}
 
-        {posts.length === 0 ? (
-          <div className="card" style={{ textAlign: 'center', padding: '40px', opacity: 0.7 }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>✎</div>
-            <p>아직 공지사항이 없습니다</p>
-            {canCreatePost && (
-              <p style={{ fontSize: '14px', marginTop: '8px' }}>
-                상단의 작성 버튼을 눌러 첫 공지를 작성하세요
-              </p>
-            )}
-          </div>
-        ) : (
-          posts.map(post => (
-            <div key={post.id} className="card">
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                marginBottom: '12px'
-              }}>
-                <h3 style={{ fontSize: '16px', fontWeight: '700', flex: 1 }}>
-                  {post.title}
-                </h3>
-                <span style={{
-                  background: 'var(--primary-green)',
-                  color: 'var(--text-light)',
-                  padding: '4px 8px',
-                  borderRadius: '4px',
-                  fontSize: '12px',
-                  marginLeft: '8px'
-                }}>
-                  공지
-                </span>
-              </div>
-              <p style={{ 
-                opacity: 0.7,
-                marginBottom: '12px',
-                lineHeight: '1.6',
-                whiteSpace: 'pre-wrap'
-              }}>
-                {post.content}
-              </p>
-              <div style={{ 
-                fontSize: '13px', 
-                opacity: 0.7,
-                display: 'flex',
-                justifyContent: 'space-between',
-                marginBottom: '12px'
-              }}>
-                <span>{post.author?.name || '알 수 없음'}</span>
-                <span>{new Date(post.createdAt).toLocaleDateString('ko-KR')}</span>
-              </div>
-
-              <button
-                onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
-                style={{
-                  background: 'var(--bg-green)',
-                  color: 'var(--primary-green)',
-                  padding: '8px 12px',
-                  borderRadius: '6px',
-                  fontSize: '13px',
-                  fontWeight: '600',
-                  width: '100%',
-                  marginBottom: expandedPost === post.id ? '12px' : '0'
-                }}
-              >
-                ◈ 댓글 {post.comments.length > 0 ? `(${post.comments.length})` : '달기'}
-              </button>
-
-              {expandedPost === post.id && (
-                <div style={{ marginTop: '12px' }}>
-                  {post.comments.length > 0 && (
-                    <div style={{ marginBottom: '12px' }}>
-                      {post.comments.map(comment => (
-                        <div 
-                          key={comment.id}
-                          style={{
-                            background: 'var(--bg-green)',
-                            padding: '12px',
-                            borderRadius: '8px',
-                            marginBottom: '8px'
-                          }}
-                        >
-                          <div style={{ 
-                            fontSize: '14px',
-                            marginBottom: '8px',
-                            lineHeight: '1.5'
-                          }}>
-                            {comment.content}
-                          </div>
-                          <div style={{
-                            fontSize: '12px',
-                            opacity: 0.7,
-                            display: 'flex',
-                            justifyContent: 'space-between'
-                          }}>
-                            <span>{typeof comment.author === 'string' ? comment.author : comment.author?.name || '알 수 없음'}</span>
-                            <span>{comment.date || new Date(comment.createdAt).toLocaleDateString('ko-KR')}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    <input
-                      type="text"
-                      placeholder="댓글을 입력하세요"
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter') {
-                          handleAddComment(post.id);
-                        }
-                      }}
-                      style={{ flex: 1, marginBottom: 0 }}
-                    />
-                    <button
-                      onClick={() => handleAddComment(post.id)}
-                      style={{
-                        background: 'var(--primary-green)',
-                        color: 'var(--text-light)',
-                        padding: '12px 20px',
-                        borderRadius: '8px',
-                        fontSize: '14px',
-                        fontWeight: '600',
-                        whiteSpace: 'nowrap'
-                      }}
-                    >
-                      등록
-                    </button>
-                  </div>
-                </div>
+        <div className="card" style={{ padding: '0' }}>
+          {posts.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '40px', opacity: 0.7 }}>
+              <div style={{ fontSize: '48px', marginBottom: '16px' }}>✎</div>
+              <p>아직 공지사항이 없습니다</p>
+              {canCreatePost && (
+                <p style={{ fontSize: '14px', marginTop: '8px' }}>
+                  상단의 작성 버튼을 눌러 첫 공지를 작성하세요
+                </p>
               )}
             </div>
-          ))
-        )}
+          ) : (
+            posts.map((post, index) => {
+              const isLast = index === posts.length - 1;
+              return (
+                <div 
+                  key={post.id} 
+                  style={{
+                    padding: '20px 24px',
+                    borderBottom: isLast ? 'none' : '1px solid #E5E7EB',
+                    background: 'transparent'
+                  }}
+                >
+                  <div style={{ 
+                    display: 'flex', 
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    marginBottom: '10px'
+                  }}>
+                    <h3 style={{ fontSize: '16px', fontWeight: '700', flex: 1, margin: 0 }}>
+                      {post.title}
+                    </h3>
+                    <span style={{
+                      background: 'var(--primary-green)',
+                      color: 'var(--text-light)',
+                      padding: '3px 8px',
+                      borderRadius: '4px',
+                      fontSize: '11px',
+                      fontWeight: '600',
+                      marginLeft: '8px'
+                    }}>
+                      공지
+                    </span>
+                  </div>
+                  <p style={{ 
+                    color: '#6B7280',
+                    marginBottom: '10px',
+                    lineHeight: '1.6',
+                    whiteSpace: 'pre-wrap',
+                    fontSize: '14px'
+                  }}>
+                    {post.content}
+                  </p>
+                  <div style={{ 
+                    fontSize: '12px', 
+                    color: '#9CA3AF',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    marginBottom: '12px'
+                  }}>
+                    <span>{post.author?.name || '알 수 없음'}</span>
+                    <span>{new Date(post.createdAt).toLocaleDateString('ko-KR')}</span>
+                  </div>
+
+                  <button
+                    onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
+                    style={{
+                      background: expandedPost === post.id ? 'var(--primary-green)' : '#F3F4F6',
+                      color: expandedPost === post.id ? 'white' : '#6B7280',
+                      padding: '8px 14px',
+                      borderRadius: '20px',
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      border: 'none',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    💬 댓글 {post.comments.length > 0 ? `(${post.comments.length})` : ''}
+                  </button>
+
+                  {expandedPost === post.id && (
+                    <div style={{ marginTop: '16px' }}>
+                      {post.comments.length > 0 && (
+                        <div style={{ marginBottom: '12px' }}>
+                          {post.comments.map((comment, cIdx) => (
+                            <div 
+                              key={comment.id}
+                              style={{
+                                background: '#F9FAFB',
+                                padding: '12px 14px',
+                                borderRadius: '8px',
+                                marginBottom: cIdx === post.comments.length - 1 ? '0' : '8px',
+                                borderLeft: '3px solid var(--primary-green)'
+                              }}
+                            >
+                              <div style={{ 
+                                fontSize: '14px',
+                                marginBottom: '6px',
+                                lineHeight: '1.5',
+                                color: '#374151'
+                              }}>
+                                {comment.content}
+                              </div>
+                              <div style={{
+                                fontSize: '11px',
+                                color: '#9CA3AF',
+                                display: 'flex',
+                                justifyContent: 'space-between'
+                              }}>
+                                <span style={{ fontWeight: '500' }}>{typeof comment.author === 'string' ? comment.author : comment.author?.name || '알 수 없음'}</span>
+                                <span>{comment.date || new Date(comment.createdAt).toLocaleDateString('ko-KR')}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        <input
+                          type="text"
+                          placeholder="댓글을 입력하세요"
+                          value={newComment}
+                          onChange={(e) => setNewComment(e.target.value)}
+                          onKeyPress={(e) => {
+                            if (e.key === 'Enter') {
+                              handleAddComment(post.id);
+                            }
+                          }}
+                          style={{ 
+                            flex: 1, 
+                            marginBottom: 0,
+                            padding: '10px 14px',
+                            borderRadius: '8px',
+                            border: '1px solid #E5E7EB',
+                            fontSize: '14px'
+                          }}
+                        />
+                        <button
+                          onClick={() => handleAddComment(post.id)}
+                          style={{
+                            background: 'var(--primary-green)',
+                            color: 'white',
+                            padding: '10px 18px',
+                            borderRadius: '8px',
+                            fontSize: '13px',
+                            fontWeight: '600',
+                            whiteSpace: 'nowrap',
+                            border: 'none',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          등록
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
       </div>
     </div>
   );
