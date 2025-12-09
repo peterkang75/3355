@@ -1,0 +1,35 @@
+Act as a Senior React Developer.
+We are in the final step of implementing "Foursome" mode. We need to adapt the `Play.jsx` (Scorecard) to handle Team vs Team scoring visually.
+
+**Context:**
+* Current Logic: "Me" (User) vs "Teammate" (Selected Marker).
+* Foursome Logic: "Our Team" (User + Partner) vs "Opponent Team" (The other pair in the squad).
+* In `TeamFormation`, we established that slots 0&1 are Team A, and slots 2&3 are Team B.
+
+**Task: Update `src/pages/Play.jsx`**
+
+1.  **Detect Foursome Mode:**
+    * Retrieve the `gameMode` from `booking.gradeSettings` (just like we did in TeamFormation).
+
+2.  **Logic Adaptation (useEffect):**
+    * In the `useEffect` where you find `userTeam` (around line 90), add logic for **Foursome mode**:
+        * Identify the current user's slot index (0, 1, 2, or 3) within the team.
+        * Identify the **Partner** (if user is 0, partner is 1. If 2, partner is 3).
+        * Identify the **Opponents** (if user is 0/1, opponents are 2&3. If 2/3, opponents are 0&1).
+        * **CRITICAL:** Instead of asking the user to "Select Member", automatically set `selectedTeammate` to be the **first player of the opposing pair**. (This allows the existing 'marker' logic to function without breaking).
+
+3.  **UI Updates (Scorecard Section):**
+    * Locate the `ScoreSection` component.
+    * **IF `gameMode === 'foursome'`:**
+        * Change the Title Logic:
+            * Instead of showing just one name (e.g., "Hong Gil-dong"), show both names.
+            * For "Teammate Section": Display "Opponents: Name1 & Name2".
+            * For "Me Section": Display "Our Team: Me & PartnerName".
+        * Hide Individual Stats: Hide Handicap (HC) display in the header for now to keep it clean, or show average HC.
+
+4.  **Bypass Selection Step (Optional but Recommended):**
+    * If in Foursome mode, skip the `step === 'selectMember'` view and go straight to a "Ready to Start Match against [Opponent Names]?" confirmation, or auto-select the opponent and let the user click "Play".
+
+**Constraints:**
+* Do NOT change the database schema. We will store the score under the logged-in user's ID for "Our Team" and the selected opponent's ID for "Opponent Team".
+* Keep existing stroke play logic intact.
