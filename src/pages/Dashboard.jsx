@@ -808,43 +808,41 @@ function Dashboard() {
 
                       {post.comments?.length > 0 && (
                         <div style={{ 
-                          marginBottom: '10px',
-                          marginTop: '10px'
+                          marginTop: '12px',
+                          marginLeft: '12px',
+                          borderLeft: '2px solid var(--primary-green)'
                         }}>
-                          {post.comments.map(comment => {
+                          {post.comments.map((comment, cIdx) => {
                             const commentAuthor = typeof comment.author === 'string' ? comment.author : (comment.author?.nickname || comment.author?.name);
                             const isCommentOwner = user.isAdmin || commentAuthor === (user.nickname || user.name);
                             const isEditingThisComment = editingComment?.commentId === comment.id;
+                            const isFirstComment = cIdx === 0;
 
                             if (isEditingThisComment) {
                               return (
                                 <div 
                                   key={comment.id}
                                   style={{
-                                    background: '#FFD449',
-                                    padding: '12px',
-                                    paddingLeft: '16px',
-                                    borderRadius: '4px',
-                                    marginBottom: '8px',
-                                    marginLeft: '20px',
-                                    borderLeft: '1px solid rgba(0, 0, 0, 0.2)'
+                                    background: 'transparent',
+                                    padding: '10px 0 10px 14px',
+                                    borderTop: isFirstComment ? 'none' : '1px solid #F3F4F6'
                                   }}
                                   onClick={(e) => e.stopPropagation()}
                                 >
                                   <div style={{
-                                    fontSize: '14px',
+                                    fontSize: '13px',
                                     fontWeight: '600',
                                     marginBottom: '6px',
-                                    color: '#333',
+                                    color: '#374151',
                                     display: 'flex',
                                     alignItems: 'center',
                                     gap: '8px'
                                   }}>
                                     <span>{commentAuthor || '알 수 없음'}</span>
                                     <span style={{
-                                      fontSize: '12px',
+                                      fontSize: '11px',
                                       fontWeight: '400',
-                                      opacity: 0.6
+                                      color: '#9CA3AF'
                                     }}>
                                       {getRelativeTime(comment.date || comment.createdAt || new Date())}
                                     </span>
@@ -854,13 +852,14 @@ function Dashboard() {
                                     onChange={(e) => setEditingComment({ ...editingComment, content: e.target.value })}
                                     style={{ 
                                       width: '100%', 
-                                      minHeight: '60px',
+                                      minHeight: '50px',
                                       marginBottom: '8px',
                                       resize: 'vertical',
-                                      padding: '8px',
-                                      borderRadius: '4px',
-                                      border: '1px solid #ddd',
-                                      fontSize: '14px'
+                                      padding: '10px 14px',
+                                      borderRadius: '12px',
+                                      border: '1px solid #E5E7EB',
+                                      fontSize: '14px',
+                                      background: '#F9FAFB'
                                     }}
                                   />
                                   <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end' }}>
@@ -870,9 +869,10 @@ function Dashboard() {
                                         background: 'var(--primary-green)',
                                         color: 'white',
                                         border: 'none',
-                                        padding: '6px 12px',
-                                        borderRadius: '4px',
+                                        padding: '6px 14px',
+                                        borderRadius: '16px',
                                         fontSize: '12px',
+                                        fontWeight: '600',
                                         cursor: 'pointer'
                                       }}
                                     >
@@ -881,12 +881,13 @@ function Dashboard() {
                                     <button
                                       onClick={() => setEditingComment(null)}
                                       style={{
-                                        background: '#ccc',
-                                        color: '#333',
+                                        background: '#E5E7EB',
+                                        color: '#6B7280',
                                         border: 'none',
-                                        padding: '6px 12px',
-                                        borderRadius: '4px',
+                                        padding: '6px 14px',
+                                        borderRadius: '16px',
                                         fontSize: '12px',
+                                        fontWeight: '600',
                                         cursor: 'pointer'
                                       }}
                                     >
@@ -901,39 +902,35 @@ function Dashboard() {
                               <div 
                                 key={comment.id}
                                 style={{
-                                  background: '#FFD449',
-                                  padding: '12px',
-                                  paddingLeft: '16px',
-                                  borderRadius: '4px',
-                                  marginBottom: '8px',
-                                  marginLeft: '20px',
-                                  position: 'relative',
-                                  borderLeft: '1px solid rgba(0, 0, 0, 0.2)'
+                                  background: 'transparent',
+                                  padding: '10px 0 10px 14px',
+                                  borderTop: isFirstComment ? 'none' : '1px solid #F3F4F6',
+                                  position: 'relative'
                                 }}
                               >
                                 <div style={{
-                                  fontSize: '14px',
+                                  fontSize: '13px',
                                   fontWeight: '600',
-                                  marginBottom: '4px',
-                                  color: '#333',
+                                  marginBottom: '3px',
+                                  color: '#374151',
                                   display: 'flex',
                                   alignItems: 'center',
                                   gap: '8px'
                                 }}>
                                   <span>{commentAuthor || '알 수 없음'}</span>
                                   <span style={{
-                                    fontSize: '12px',
+                                    fontSize: '11px',
                                     fontWeight: '400',
-                                    opacity: 0.6
+                                    color: '#9CA3AF'
                                   }}>
                                     {getRelativeTime(comment.date || comment.createdAt || new Date())}
                                   </span>
                                 </div>
                                 <div style={{ 
                                   fontSize: '14px',
-                                  marginBottom: '6px',
+                                  marginBottom: '4px',
                                   lineHeight: '1.5',
-                                  color: '#333'
+                                  color: '#4B5563'
                                 }}>
                                   {comment.content}
                                 </div>
@@ -1069,10 +1066,15 @@ function Dashboard() {
                         </div>
                       )}
 
-                      <div style={{ display: 'flex', gap: '8px' }}>
+                      <div style={{ 
+                        display: 'flex', 
+                        gap: '8px',
+                        marginTop: '12px',
+                        alignItems: 'center'
+                      }}>
                         <input
                           type="text"
-                          placeholder="댓글을 입력하세요"
+                          placeholder="댓글을 입력하세요..."
                           value={newComment}
                           onChange={(e) => setNewComment(e.target.value)}
                           onKeyPress={(e) => {
@@ -1085,10 +1087,12 @@ function Dashboard() {
                           style={{ 
                             flex: 1, 
                             marginBottom: 0,
-                            background: '#FFF9E6',
-                            border: '1px solid var(--border-color)',
-                            borderRadius: '8px',
-                            padding: '12px'
+                            background: '#F3F4F6',
+                            border: 'none',
+                            borderRadius: '20px',
+                            padding: '10px 16px',
+                            fontSize: '14px',
+                            outline: 'none'
                           }}
                         />
                         <button
@@ -1098,14 +1102,18 @@ function Dashboard() {
                           }}
                           style={{
                             background: 'var(--primary-green)',
-                            color: 'var(--text-light)',
-                            padding: '12px 20px',
-                            borderRadius: '8px',
-                            fontSize: '14px',
+                            color: 'white',
+                            padding: '0 20px',
+                            height: '40px',
+                            borderRadius: '20px',
+                            fontSize: '13px',
                             fontWeight: '600',
                             whiteSpace: 'nowrap',
                             border: 'none',
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
                           }}
                         >
                           등록
