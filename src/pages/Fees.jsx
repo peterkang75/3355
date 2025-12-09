@@ -205,7 +205,7 @@ function Fees() {
     .reduce((sum, t) => sum + t.amount, 0);
 
   const totalPayments = userTransactions
-    .filter(t => t.type === 'payment')
+    .filter(t => t.type === 'payment' && t.category !== '크레딧 자동 납부')
     .reduce((sum, t) => sum + t.amount, 0);
   
   const totalCredits = userTransactions

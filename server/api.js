@@ -317,7 +317,7 @@ router.put('/bookings/:id', async (req, res) => {
             });
             const currentBalance = memberTransactionsBefore.reduce((sum, t) => {
               if (t.type === 'charge') return sum - t.amount;
-              if (t.type === 'payment') return sum + t.amount;
+              if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
               if (t.type === 'credit') return sum + t.amount;
               if (t.type === 'expense') return sum - t.amount;
               if (t.type === 'creditDonation') return sum - t.amount;
@@ -366,7 +366,7 @@ router.put('/bookings/:id', async (req, res) => {
 
           const newBalance = memberTransactions.reduce((sum, t) => {
             if (t.type === 'charge') return sum - t.amount;
-            if (t.type === 'payment') return sum + t.amount;
+            if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
             if (t.type === 'credit') return sum + t.amount;
             if (t.type === 'expense') return sum - t.amount;
             if (t.type === 'creditDonation') return sum - t.amount;
@@ -403,7 +403,7 @@ router.put('/bookings/:id', async (req, res) => {
 
           const newBalance = memberTransactions.reduce((sum, t) => {
             if (t.type === 'charge') return sum - t.amount;
-            if (t.type === 'payment') return sum + t.amount;
+            if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
             if (t.type === 'credit') return sum + t.amount;
             if (t.type === 'expense') return sum - t.amount;
             if (t.type === 'creditDonation') return sum - t.amount;
@@ -1243,12 +1243,12 @@ router.get('/transactions/balance/:memberId', async (req, res) => {
   try {
     const transactions = await prisma.transaction.findMany({
       where: { memberId: req.params.memberId },
-      select: { type: true, amount: true }
+      select: { type: true, amount: true, category: true }
     });
 
     const balance = transactions.reduce((sum, t) => {
       if (t.type === 'charge') return sum - t.amount;
-      if (t.type === 'payment') return sum + t.amount;
+      if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
       if (t.type === 'credit') return sum + t.amount;
       if (t.type === 'expense') return sum - t.amount;
       if (t.type === 'creditDonation') return sum - t.amount;
@@ -1274,17 +1274,23 @@ router.get('/transactions/club-balance', async (req, res) => {
     });
 
     const balance = transactions.reduce((sum, t) => {
-      // 1. 클럽 수입: 현금 납부 및 도네이션 (크레딧 자동 납부는 제외)
-      if (t.type === 'payment' && t.category !== '크레딧 자동 납부' && t.category !== '크레딧 납부') return sum + t.amount;
+      // 1. Payment: '크레딧 자동 납부', '크레딧 납부'를 제외한 현금 납부만 수입으로 인정
+      if (t.type === 'payment') {
+        if (t.category !== '크레딧 자동 납부' && t.category !== '크레딧 납부') {
+          return sum + t.amount;
+        }
+        return sum; // 크레딧 납부는 클럽 현금 잔액 변동 없음
+      }
+      
+      // 2. Donation: 수입 (+)
       if (t.type === 'donation') return sum + t.amount;
       
-      // 2. 클럽 지출: 일반 지출 (Expense)
+      // 3. Expense: 지출 (-)
       if (t.type === 'expense') return sum - t.amount;
       
-      // 3. 크레딧 발행: 클럽 지출 (Credit)
+      // 4. Credit: 크레딧 발행은 부채 증가/자산 감소 (-)
       if (t.type === 'credit') return sum - t.amount;
       
-      // 4. 기타 (Charge, CreditDonation, 크레딧 Payment)는 클럽 잔액에 영향 없음
       return sum;
     }, 0);
 
@@ -1320,7 +1326,8 @@ router.get('/transactions/outstanding', async (req, res) => {
         select: {
           memberId: true,
           type: true,
-          amount: true
+          amount: true,
+          category: true
         }
       })
     ]);
@@ -1334,7 +1341,9 @@ router.get('/transactions/outstanding', async (req, res) => {
       }
       if (t.type === 'charge') {
         balanceByMember[t.memberId] -= t.amount;
-      } else if (t.type === 'payment' || t.type === 'credit') {
+      } else if (t.type === 'payment' && t.category !== '크레딧 자동 납부') {
+        balanceByMember[t.memberId] += t.amount;
+      } else if (t.type === 'credit') {
         balanceByMember[t.memberId] += t.amount;
       } else if (t.type === 'expense') {
         balanceByMember[t.memberId] -= t.amount;
@@ -1376,7 +1385,7 @@ router.post('/transactions', async (req, res) => {
 
       const newBalance = memberTransactions.reduce((sum, t) => {
         if (t.type === 'charge') return sum - t.amount;
-        if (t.type === 'payment') return sum + t.amount;
+        if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
         if (t.type === 'credit') return sum + t.amount;
         if (t.type === 'expense') return sum - t.amount;
         if (t.type === 'creditDonation') return sum - t.amount;
@@ -1413,7 +1422,7 @@ router.post('/transactions/charge-with-credit', async (req, res) => {
 
     const currentBalance = memberTransactions.reduce((sum, t) => {
       if (t.type === 'charge') return sum - t.amount;
-      if (t.type === 'payment') return sum + t.amount;
+      if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
       if (t.type === 'credit') return sum + t.amount;
       if (t.type === 'expense') return sum - t.amount;
       if (t.type === 'creditDonation') return sum - t.amount;
@@ -1512,7 +1521,7 @@ router.post('/transactions/credit-to-donation', async (req, res) => {
 
     const currentBalance = memberTransactions.reduce((sum, t) => {
       if (t.type === 'charge') return sum - t.amount;
-      if (t.type === 'payment') return sum + t.amount;
+      if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
       if (t.type === 'credit') return sum + t.amount;
       if (t.type === 'expense') return sum - t.amount;
       if (t.type === 'creditDonation') return sum - t.amount;
@@ -1556,7 +1565,7 @@ router.post('/transactions/credit-to-donation', async (req, res) => {
 
     const newBalance = updatedTransactions.reduce((sum, t) => {
       if (t.type === 'charge') return sum - t.amount;
-      if (t.type === 'payment') return sum + t.amount;
+      if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
       if (t.type === 'credit') return sum + t.amount;
       if (t.type === 'expense') return sum - t.amount;
       if (t.type === 'creditDonation') return sum - t.amount;
@@ -1592,7 +1601,7 @@ router.post('/transactions/credit-to-payment', async (req, res) => {
 
     const currentBalance = memberTransactions.reduce((sum, t) => {
       if (t.type === 'charge') return sum - t.amount;
-      if (t.type === 'payment') return sum + t.amount;
+      if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
       if (t.type === 'credit') return sum + t.amount;
       if (t.type === 'expense') return sum - t.amount;
       if (t.type === 'creditDonation') return sum - t.amount;
@@ -1648,7 +1657,7 @@ router.post('/transactions/credit-to-payment', async (req, res) => {
 
     const newBalance = updatedTransactions.reduce((sum, t) => {
       if (t.type === 'charge') return sum - t.amount;
-      if (t.type === 'payment') return sum + t.amount;
+      if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
       if (t.type === 'credit') return sum + t.amount;
       if (t.type === 'expense') return sum - t.amount;
       if (t.type === 'creditDonation') return sum - t.amount;
@@ -1742,7 +1751,7 @@ router.put('/transactions/:id', async (req, res) => {
 
       const newBalance = memberTransactions.reduce((sum, t) => {
         if (t.type === 'charge') return sum - t.amount;
-        if (t.type === 'payment') return sum + t.amount;
+        if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
         if (t.type === 'credit') return sum + t.amount;
         if (t.type === 'expense') return sum - t.amount;
         if (t.type === 'creditDonation') return sum - t.amount;
@@ -1787,7 +1796,7 @@ router.delete('/transactions/:id', async (req, res) => {
 
       const newBalance = memberTransactions.reduce((sum, t) => {
         if (t.type === 'charge') return sum - t.amount;
-        if (t.type === 'payment') return sum + t.amount;
+        if (t.type === 'payment' && t.category !== '크레딧 자동 납부') return sum + t.amount;
         if (t.type === 'credit') return sum + t.amount;
         if (t.type === 'expense') return sum - t.amount;
         if (t.type === 'creditDonation') return sum - t.amount;
