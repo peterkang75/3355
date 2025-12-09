@@ -1,0 +1,145 @@
+Act as a Senior Full-Stack Developer.
+The user is experiencing critical performance issues and pagination bugs in the Fees management module.
+The previous attempts to fix this have failed because the code was not applied correctly.
+
+**MISSION: Forcefully Overwrite files with the optimized code below.**
+Do not attempt to merge or modify. Replace the content of the specific files entirely or replace the specific functions as instructed.
+
+---
+
+### **STEP 1: Fix Backend (`server/api.js`)**
+
+**Action:** Go to `server/api.js`.
+**Task:** Replace the existing `router.get('/transactions', ...)` and `router.get('/transactions/club-balance', ...)` endpoints with the following **optimized code**.
+(Keep other endpoints like `/members`, `/bookings` untouched, just replace the transaction logic).
+
+```javascript
+// ============= Transaction API (OPTIMIZED) =============
+
+// 1. Fetch Transactions (Paginated + Exclude Images + Exclude Charges)
+router.get('/transactions', async (req, res) => {
+  try {
+    const page = req.query.page ? parseInt(req.query.page) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit) : 20;
+    const skip = (page - 1) * limit;
+    
+    // Filter: Exclude 'charge' type to prevent empty pages in frontend
+    const whereClause = { type: { not: 'charge' } };
+    
+    const [transactions, total] = await Promise.all([
+      prisma.transaction.findMany({
+        where: whereClause,
+        select: {
+          id: true,
+          type: true,
+          amount: true,
+          description: true,
+          category: true,
+          memo: true,
+          date: true,
+          createdAt: true,
+          memberId: true,
+          bookingId: true,
+          createdBy: true,
+          // CRITICAL: Exclude heavy image data for list view
+          receiptImage: false, 
+          receiptImages: false,
+          member: {
+            select: { id: true, name: true, nickname: true }
+          },
+          booking: {
+            select: { id: true, title: true, courseName: true, date: true }
+          },
+          executor: {
+            select: { id: true, name: true, nickname: true }
+          }
+        },
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: skip
+      }),
+      prisma.transaction.count({ where: whereClause })
+    ]);
+    
+    res.json({
+      transactions,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    res.status(500).json({ error: 'Failed to fetch transactions' });
+  }
+});
+
+// 2. Fetch Transaction Details (On-Demand Image Loading)
+router.get('/transactions/:id/details', async (req, res) => {
+  try {
+    const transaction = await prisma.transaction.findUnique({
+      where: { id: req.params.id },
+      select: {
+        id: true,
+        receiptImage: true,
+        receiptImages: true
+      }
+    });
+    
+    if (!transaction) {
+      return res.status(404).json({ error: 'Transaction not found' });
+    }
+    
+    res.json(transaction);
+  } catch (error) {
+    console.error('Error fetching transaction details:', error);
+    res.status(500).json({ error: 'Failed to fetch transaction details' });
+  }
+});
+
+// 3. Calculate Club Balance (Database Aggregation - 100x Faster)
+router.get('/transactions/club-balance', async (req, res) => {
+  try {
+    // Use DB Aggregation instead of fetching all rows
+    const [incomeAgg, expenseAgg, creditExpenseAgg, creditAgg] = await Promise.all([
+      // Income: Payment + Donation
+      prisma.transaction.aggregate({
+        _sum: { amount: true },
+        where: { type: { in: ['payment', 'donation'] } }
+      }),
+      // Expense: All Expenses
+      prisma.transaction.aggregate({
+        _sum: { amount: true },
+        where: { type: 'expense' }
+      }),
+      // Credit Expense: Expenses paid by credit (Subtract from total expense)
+      prisma.transaction.aggregate({
+        _sum: { amount: true },
+        where: { 
+          type: 'expense', 
+          category: { in: ['크레딧 자동 차감', '크레딧 납부'] } 
+        }
+      }),
+      // Credit Issued: Treated as liability/expense
+      prisma.transaction.aggregate({
+        _sum: { amount: true },
+        where: { type: 'credit' }
+      })
+    ]);
+
+    const totalIncome = incomeAgg._sum.amount || 0;
+    const totalExpense = expenseAgg._sum.amount || 0;
+    const totalCreditExpense = creditExpenseAgg._sum.amount || 0;
+    const totalCreditIssued = creditAgg._sum.amount || 0;
+
+    const realExpense = totalExpense - totalCreditExpense;
+    const balance = totalIncome - realExpense - totalCreditIssued;
+
+    res.json({ balance });
+  } catch (error) {
+    console.error('Error calculating club balance:', error);
+    res.status(500).json({ error: 'Failed to calculate club balance' });
+  }
+});
