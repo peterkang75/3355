@@ -371,13 +371,13 @@ function Fees() {
   };
 
   const getTransactionColor = (t) => {
-    if (["charge", "expense", "creditDonation", "credit"].includes(t.type))
+    if (["charge", "expense", "creditDonation"].includes(t.type))
       return "#DC2626"; // Red
     return "#1A3D2F"; // Green/Primary
   };
 
   const getTransactionSign = (t) => {
-    if (["charge", "expense", "creditDonation", "credit"].includes(t.type)) return "-";
+    if (["charge", "expense", "creditDonation"].includes(t.type)) return "-";
     return "+";
   };
 
