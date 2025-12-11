@@ -14,7 +14,6 @@ function Navigation({ user, onLogout }) {
   const handleLogout = () => {
     if (window.confirm('로그아웃 하시겠습니까?')) {
       onLogout();
-      navigate('/');
     }
   };
 
