@@ -806,10 +806,10 @@ function Fees() {
                             style={{
                               fontSize: "16px",
                               fontWeight: "700",
-                              color: getTransactionColor(transaction),
+                              color: transaction.type === "credit" ? "#DC2626" : getTransactionColor(transaction),
                             }}
                           >
-                            {getTransactionSign(transaction)}$
+                            {transaction.type === "credit" ? "-" : getTransactionSign(transaction)}$
                             {transaction.amount.toLocaleString()}
                           </div>
                           {canManageFees && (
