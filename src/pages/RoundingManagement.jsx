@@ -450,237 +450,209 @@ function RoundingManagement() {
           </div>
         )}
 
-        <div className="card">
-          <h3 style={{ 
-            fontSize: '16px', 
-            fontWeight: '700',
-            marginBottom: '16px',
-            color: 'var(--primary-green)'
+        <div className="card" style={{ marginBottom: '16px', padding: 0, overflow: 'hidden' }}>
+          <div style={{ 
+            padding: '16px 20px', 
+            borderBottom: '1px solid var(--border-color)',
+            background: '#f8f9fa'
           }}>
-            관리 메뉴
-          </h3>
+            <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#666', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              설정
+            </h3>
+          </div>
 
-          <div style={{ display: 'grid', gap: '12px' }}>
-            <button
-              onClick={() => navigate(`/participant-management?id=${bookingId}`)}
-              style={{
-                padding: '20px',
-                border: 'none',
-                borderBottom: '1px solid var(--border-color)',
-                borderRadius: '0',
-                fontSize: '16px',
-                fontWeight: '600',
-                color: 'var(--primary-green)',
-                cursor: 'pointer',
-                textAlign: 'left',
+          <div
+            style={{
+              padding: '16px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              borderBottom: '1px solid #f0f0f0'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{ 
+                width: '36px', 
+                height: '36px', 
+                borderRadius: '10px', 
+                background: '#E3F2FD',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '12px'
-              }}
-            >
-              <span style={{ fontSize: '24px', color: 'var(--primary-green)' }}>•</span>
+                justifyContent: 'center',
+                fontSize: '18px'
+              }}>⛳</div>
               <div>
-                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
-                  참가자 관리
-                </div>
-                <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                  참가자 추가/삭제 및 관리
+                <div style={{ fontSize: '15px', fontWeight: '600', color: '#1a1a1a' }}>플레이 활성화</div>
+                <div style={{ fontSize: '13px', color: '#888', marginTop: '2px' }}>
+                  {booking.playEnabled ? '플레이 버튼 표시 중' : '30분 전 자동 활성화'}
                 </div>
               </div>
-            </button>
-
-            <button
-              onClick={() => navigate(`/team-formation?id=${bookingId}`)}
-              style={{
-                padding: '20px',
-                border: 'none',
-                borderBottom: '1px solid var(--border-color)',
-                borderRadius: '0',
-                fontSize: '16px',
-                fontWeight: '600',
-                color: 'var(--primary-green)',
-                cursor: 'pointer',
-                textAlign: 'left',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px'
-              }}
-            >
-              <span style={{ fontSize: '24px', color: 'var(--primary-green)' }}>•</span>
-              <div>
-                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
-                  조편성하기
-                </div>
-                <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                  참가자들을 팀으로 편성합니다
-                </div>
-              </div>
-            </button>
-
-            <div
-              style={{
-                padding: '20px',
-                border: 'none',
-                borderBottom: '1px solid var(--border-color)',
-                borderRadius: '0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '12px'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ fontSize: '24px', color: '#2196F3' }}>⛳</span>
-                <div>
-                  <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px', color: '#2196F3' }}>
-                    플레이 활성화
-                  </div>
-                  <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                    {booking.playEnabled ? '외부에 플레이하기 버튼이 표시됩니다' : '라운딩 30분 전 자동 활성화'}
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={handleTogglePlay}
-                disabled={isTogglingPlay}
-                style={{
-                  width: '52px',
-                  height: '28px',
-                  borderRadius: '14px',
-                  border: 'none',
-                  background: booking.playEnabled ? '#4CAF50' : '#ccc',
-                  cursor: isTogglingPlay ? 'not-allowed' : 'pointer',
-                  position: 'relative',
-                  transition: 'background 0.2s',
-                  opacity: isTogglingPlay ? 0.7 : 1,
-                  flexShrink: 0
-                }}
-              >
-                <div style={{
-                  width: '22px',
-                  height: '22px',
-                  borderRadius: '50%',
-                  background: 'white',
-                  position: 'absolute',
-                  top: '3px',
-                  left: booking.playEnabled ? '27px' : '3px',
-                  transition: 'left 0.2s',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
-                }} />
-              </button>
             </div>
-
-            <div
-              style={{
-                padding: '20px',
-                border: 'none',
-                borderBottom: '1px solid var(--border-color)',
-                borderRadius: '0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                gap: '12px'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <span style={{ fontSize: '24px', color: '#4CAF50' }}>🌐</span>
-                <div>
-                  <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px', color: '#4CAF50' }}>
-                    외부 공개 (Guest Allowed)
-                  </div>
-                  <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                    {booking.isGuestAllowed ? '비회원도 참가 가능합니다' : '클럽 회원만 참가 가능합니다'}
-                  </div>
-                </div>
-              </div>
-              <button
-                onClick={handleToggleGuest}
-                disabled={isTogglingGuest}
-                style={{
-                  width: '52px',
-                  height: '28px',
-                  borderRadius: '14px',
-                  border: 'none',
-                  background: booking.isGuestAllowed ? '#4CAF50' : '#ccc',
-                  cursor: isTogglingGuest ? 'not-allowed' : 'pointer',
-                  position: 'relative',
-                  transition: 'background 0.2s',
-                  opacity: isTogglingGuest ? 0.7 : 1,
-                  flexShrink: 0
-                }}
-              >
-                <div style={{
-                  width: '22px',
-                  height: '22px',
-                  borderRadius: '50%',
-                  background: 'white',
-                  position: 'absolute',
-                  top: '3px',
-                  left: booking.isGuestAllowed ? '27px' : '3px',
-                  transition: 'left 0.2s',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
-                }} />
-              </button>
-            </div>
-
             <button
-              onClick={() => navigate(`/member-score-entry?id=${bookingId}`)}
+              onClick={handleTogglePlay}
+              disabled={isTogglingPlay}
               style={{
-                padding: '20px',
+                width: '52px',
+                height: '30px',
+                borderRadius: '15px',
                 border: 'none',
-                borderBottom: '1px solid var(--border-color)',
-                borderRadius: '0',
-                fontSize: '16px',
-                fontWeight: '600',
-                color: 'var(--primary-green)',
-                cursor: 'pointer',
-                textAlign: 'left',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px'
+                background: booking.playEnabled ? '#4CAF50' : '#ddd',
+                cursor: isTogglingPlay ? 'not-allowed' : 'pointer',
+                position: 'relative',
+                transition: 'background 0.2s',
+                opacity: isTogglingPlay ? 0.6 : 1,
+                flexShrink: 0
               }}
             >
-              <span style={{ fontSize: '24px', color: 'var(--primary-green)' }}>•</span>
-              <div>
-                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
-                  {booking.dailyHandicaps ? '결과보기' : '회원 스코어 입력'}
-                </div>
-                <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                  {booking.dailyHandicaps 
-                    ? '라운딩 결과 및 순위를 확인합니다' 
-                    : '참가자들의 스코어를 입력합니다'}
-                </div>
-              </div>
-            </button>
-
-            <button
-              onClick={() => navigate(`/grade-settings?id=${bookingId}`)}
-              style={{
-                padding: '20px',
-                border: 'none',
-                borderBottom: '1px solid var(--border-color)',
-                borderRadius: '0',
-                fontSize: '16px',
-                fontWeight: '600',
-                color: 'var(--primary-green)',
-                cursor: 'pointer',
-                textAlign: 'left',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px'
-              }}
-            >
-              <span style={{ fontSize: '24px', color: 'var(--primary-green)' }}>•</span>
-              <div>
-                <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px' }}>
-                  그레이드 설정
-                </div>
-                <div style={{ fontSize: '13px', opacity: 0.7 }}>
-                  이 라운딩의 핸디캡 그레이드 기준 설정
-                </div>
-              </div>
+              <div style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                background: 'white',
+                position: 'absolute',
+                top: '3px',
+                left: booking.playEnabled ? '25px' : '3px',
+                transition: 'left 0.2s',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+              }} />
             </button>
           </div>
+
+          <div
+            style={{
+              padding: '16px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{ 
+                width: '36px', 
+                height: '36px', 
+                borderRadius: '10px', 
+                background: '#E8F5E9',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '18px'
+              }}>🌐</div>
+              <div>
+                <div style={{ fontSize: '15px', fontWeight: '600', color: '#1a1a1a' }}>외부 공개</div>
+                <div style={{ fontSize: '13px', color: '#888', marginTop: '2px' }}>
+                  {booking.isGuestAllowed ? '비회원 참가 가능' : '클럽 회원만'}
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={handleToggleGuest}
+              disabled={isTogglingGuest}
+              style={{
+                width: '52px',
+                height: '30px',
+                borderRadius: '15px',
+                border: 'none',
+                background: booking.isGuestAllowed ? '#4CAF50' : '#ddd',
+                cursor: isTogglingGuest ? 'not-allowed' : 'pointer',
+                position: 'relative',
+                transition: 'background 0.2s',
+                opacity: isTogglingGuest ? 0.6 : 1,
+                flexShrink: 0
+              }}
+            >
+              <div style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                background: 'white',
+                position: 'absolute',
+                top: '3px',
+                left: booking.isGuestAllowed ? '25px' : '3px',
+                transition: 'left 0.2s',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+              }} />
+            </button>
+          </div>
+        </div>
+
+        <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+          <div style={{ 
+            padding: '16px 20px', 
+            borderBottom: '1px solid var(--border-color)',
+            background: '#f8f9fa'
+          }}>
+            <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#666', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+              관리
+            </h3>
+          </div>
+
+          {[
+            { 
+              icon: '👥', 
+              bg: '#FFF3E0', 
+              title: '참가자 관리', 
+              desc: '참가자 추가/삭제 및 관리',
+              path: `/participant-management?id=${bookingId}`
+            },
+            { 
+              icon: '📋', 
+              bg: '#F3E5F5', 
+              title: '조편성하기', 
+              desc: '참가자들을 팀으로 편성',
+              path: `/team-formation?id=${bookingId}`
+            },
+            { 
+              icon: '✏️', 
+              bg: '#E0F7FA', 
+              title: booking.dailyHandicaps ? '결과보기' : '스코어 입력', 
+              desc: booking.dailyHandicaps ? '라운딩 결과 및 순위' : '참가자 스코어 입력',
+              path: `/member-score-entry?id=${bookingId}`
+            },
+            { 
+              icon: '⚙️', 
+              bg: '#ECEFF1', 
+              title: '그레이드 설정', 
+              desc: '핸디캡 그레이드 기준',
+              path: `/grade-settings?id=${bookingId}`
+            }
+          ].map((item, idx, arr) => (
+            <button
+              key={item.path}
+              onClick={() => navigate(item.path)}
+              style={{
+                width: '100%',
+                padding: '16px 20px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                background: 'transparent',
+                border: 'none',
+                borderBottom: idx < arr.length - 1 ? '1px solid #f0f0f0' : 'none',
+                cursor: 'pointer',
+                transition: 'background 0.15s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.background = '#f8f9fa'}
+              onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                <div style={{ 
+                  width: '36px', 
+                  height: '36px', 
+                  borderRadius: '10px', 
+                  background: item.bg,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '18px'
+                }}>{item.icon}</div>
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{ fontSize: '15px', fontWeight: '600', color: '#1a1a1a' }}>{item.title}</div>
+                  <div style={{ fontSize: '13px', color: '#888', marginTop: '2px' }}>{item.desc}</div>
+                </div>
+              </div>
+              <div style={{ color: '#ccc', fontSize: '20px', fontWeight: '300' }}>›</div>
+            </button>
+          ))}
         </div>
       </div>
     </div>
