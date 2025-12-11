@@ -345,11 +345,25 @@ router.put("/bookings/:id", async (req, res) => {
               ? `${booking.courseName} 라운딩 (참가비 면제)`
               : `${booking.courseName} 라운딩`;
 
-            // 1. 크레딧 사용분 처리 (Expense 생성 -> 개인 잔액 차감)
+            // 1. 크레딧 사용분 처리 (Expense + Payment 생성)
             if (creditToUse > 0) {
+              // 회원의 크레딧 차감 (expense)
               await prisma.transaction.create({
                 data: {
                   type: "expense",
+                  amount: creditToUse,
+                  description: `${baseDescription} (크레딧 자동 차감)`,
+                  category: "크레딧 자동 차감",
+                  date: today,
+                  memberId: member.id,
+                  bookingId: booking.id,
+                },
+              });
+              
+              // 클럽 수입 기록 (payment) - 크레딧 차감액만큼 클럽 잔액 증가
+              await prisma.transaction.create({
+                data: {
+                  type: "payment",
                   amount: creditToUse,
                   description: `${baseDescription} (크레딧 자동 차감)`,
                   category: "크레딧 자동 차감",
@@ -410,7 +424,7 @@ router.put("/bookings/:id", async (req, res) => {
         });
 
         if (member) {
-          // 해당 라운딩의 청구 및 크레딧 자동 차감 트랜잭션 삭제
+          // 해당 라운딩의 청구, 크레딧 자동 차감 (expense + payment) 트랜잭션 삭제
           await prisma.transaction.deleteMany({
             where: {
               memberId: member.id,
@@ -418,6 +432,7 @@ router.put("/bookings/:id", async (req, res) => {
               OR: [
                 { type: "charge" },
                 { type: "expense", category: "크레딧 자동 차감" },
+                { type: "payment", category: "크레딧 자동 차감" },
               ],
             },
           });
