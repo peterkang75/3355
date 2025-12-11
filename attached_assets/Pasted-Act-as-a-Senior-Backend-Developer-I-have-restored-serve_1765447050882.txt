@@ -1,0 +1,52 @@
+Act as a Senior Backend Developer.
+I have restored `server/api.js`. The features (Rentals, Withdrawals) are back, and the list performance is optimized.
+However, the `club-balance` endpoint is missing the **Category Breakdown** logic.
+
+**Task: Update `router.get('/transactions/club-balance', ...)` in `server/api.js`**
+* **REPLACE** the current `club-balance` function with the code below.
+* **Goal:** It must return `balance`, `incomeBreakdown`, and `expenseBreakdown`.
+
+```javascript
+// [Optimized] Club Balance & Category Breakdown
+router.get('/transactions/club-balance', async (req, res) => {
+  try {
+    const [incomeAgg, expenseAgg, creditExpenseAgg, creditAgg, incomeGroups, expenseGroups] = await Promise.all([
+      prisma.transaction.aggregate({ _sum: { amount: true }, where: { type: { in: ['payment', 'donation'] } } }),
+      prisma.transaction.aggregate({ _sum: { amount: true }, where: { type: 'expense' } }),
+      prisma.transaction.aggregate({ _sum: { amount: true }, where: { type: 'expense', category: { in: ['크레딧 자동 차감', '크레딧 납부'] } } }),
+      prisma.transaction.aggregate({ _sum: { amount: true }, where: { type: 'credit' } }),
+      prisma.transaction.groupBy({ by: ['category', 'description'], _sum: { amount: true }, where: { type: { in: ['payment', 'donation'] } } }),
+      prisma.transaction.groupBy({ by: ['category'], _sum: { amount: true }, where: { type: 'expense' } })
+    ]);
+
+    const totalIncome = incomeAgg._sum.amount || 0;
+    const totalExpense = expenseAgg._sum.amount || 0;
+    const totalCreditExpense = creditExpenseAgg._sum.amount || 0;
+    const totalCreditIssued = creditAgg._sum.amount || 0;
+    const realExpense = totalExpense - totalCreditExpense;
+    const balance = totalIncome - realExpense - totalCreditIssued;
+
+    const incomeBreakdown = {};
+    incomeGroups.forEach(g => {
+        let key = g.category || '기타 수입';
+        if (key === '기타 수입' && g.description) {
+           if (g.description.includes(' - ')) key = g.description.split(' - ')[0];
+           else if (g.description.includes(' (')) key = g.description.split(' (')[0];
+           else key = g.description;
+        }
+        incomeBreakdown[key] = (incomeBreakdown[key] || 0) + (g._sum.amount || 0);
+    });
+
+    const expenseBreakdown = {};
+    expenseGroups.forEach(g => {
+        const key = g.category || '기타 지출';
+        expenseBreakdown[key] = (expenseBreakdown[key] || 0) + (g._sum.amount || 0);
+    });
+
+    res.json({ balance, incomeBreakdown, expenseBreakdown });
+
+  } catch (error) {
+    console.error('Error calculating club stats:', error);
+    res.status(500).json({ error: 'Failed to calculate club stats' });
+  }
+});
