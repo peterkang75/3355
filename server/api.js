@@ -2216,4 +2216,91 @@ router.post("/bingo-settings", async (req, res) => {
   }
 });
 
+router.post("/logs", async (req, res) => {
+  try {
+    const { memberId, memberName, path, action, userAgent } = req.body;
+
+    if (!memberId || !path || !action) {
+      return res.status(400).json({ error: "Missing required fields" });
+    }
+
+    const ipAddress = req.headers["x-forwarded-for"] || req.socket.remoteAddress || null;
+
+    const log = await prisma.activityLog.create({
+      data: {
+        memberId,
+        memberName: memberName || "Unknown",
+        path,
+        action,
+        ipAddress,
+        userAgent: userAgent || null,
+      },
+    });
+
+    await prisma.member.update({
+      where: { id: memberId },
+      data: { lastActiveAt: new Date() },
+    });
+
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    await prisma.activityLog.deleteMany({
+      where: {
+        createdAt: { lt: sevenDaysAgo },
+      },
+    });
+
+    res.json({ success: true, log });
+  } catch (error) {
+    console.error("Error creating activity log:", error);
+    res.status(500).json({ error: "Failed to create activity log" });
+  }
+});
+
+router.get("/logs", async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 50;
+    const logs = await prisma.activityLog.findMany({
+      orderBy: { createdAt: "desc" },
+      take: limit,
+      include: {
+        member: {
+          select: {
+            id: true,
+            name: true,
+            nickname: true,
+          },
+        },
+      },
+    });
+    res.json(logs);
+  } catch (error) {
+    console.error("Error fetching activity logs:", error);
+    res.status(500).json({ error: "Failed to fetch activity logs" });
+  }
+});
+
+router.get("/online-members", async (req, res) => {
+  try {
+    const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+    const onlineMembers = await prisma.member.findMany({
+      where: {
+        lastActiveAt: { gte: fiveMinutesAgo },
+        isActive: true,
+      },
+      select: {
+        id: true,
+        name: true,
+        nickname: true,
+        lastActiveAt: true,
+      },
+      orderBy: { lastActiveAt: "desc" },
+    });
+    res.json(onlineMembers);
+  } catch (error) {
+    console.error("Error fetching online members:", error);
+    res.status(500).json({ error: "Failed to fetch online members" });
+  }
+});
+
 module.exports = router;
