@@ -496,7 +496,7 @@ function Fees() {
                 <div
                   style={{
                     flex: 1,
-                    background: creditBalance > 0 ? "#d4edda" : "#fff",
+                    background: "#F5F7F7",
                     padding: "10px",
                     textAlign: "center",
                     borderRadius: "8px",
@@ -509,7 +509,7 @@ function Fees() {
                     style={{
                       fontSize: "18px",
                       fontWeight: "700",
-                      color: "#28a745",
+                      color: "#E59879",
                     }}
                   >
                     ${creditBalance.toLocaleString()}
@@ -548,7 +548,7 @@ function Fees() {
                     style={{
                       flex: 1,
                       padding: "10px",
-                      background: "#17a2b8",
+                      background: "#1A3D2F",
                       color: "white",
                       border: "none",
                       borderRadius: "8px",
