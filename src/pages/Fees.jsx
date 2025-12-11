@@ -358,7 +358,13 @@ function Fees() {
     if (t.type === "creditDonation") return "도네이션 (크레딧)";
     if (t.type === "donation") return t.category || "도네이션";
     if (t.type === "credit") return t.description || "크레딧";
-    if (t.type === "expense") return t.category || t.description || "지출";
+    if (t.type === "expense") {
+      if (t.category === "크레딧 자동 차감" && t.description) {
+        const itemName = t.description.split(" (크레딧")[0];
+        return `${itemName}(크레딧차감)`;
+      }
+      return t.category || t.description || "지출";
+    }
     if (t.type === "charge") return "청구";
     if (t.type === "payment") return t.description?.split(" - ")[0] || "납부";
     return "";
@@ -470,12 +476,22 @@ function Fees() {
                 style={{
                   fontSize: "15px",
                   fontWeight: "700",
-                  marginBottom: "12px",
+                  marginBottom: "8px",
                   color: "#495057",
                 }}
               >
                 💳 크레딧 활용
               </h3>
+              <p
+                style={{
+                  fontSize: "12px",
+                  color: "#6B7280",
+                  marginBottom: "12px",
+                  lineHeight: "1.4",
+                }}
+              >
+                클럽에서 청구되는 금액은 현재 보유 잔액에서 자동 차감됩니다.
+              </p>
               <div style={{ display: "flex", gap: "12px" }}>
                 <div
                   style={{
@@ -539,7 +555,7 @@ function Fees() {
                       cursor: "pointer",
                     }}
                   >
-                    🎁 기부
+                    🎁 클럽에 기부하기
                   </button>
                   {actualUnpaid > 0 && (
                     <button
