@@ -732,6 +732,7 @@ function Fees() {
                 <div>
                   {allTransactions
                     .filter((t) => t.type !== "creditDonation")
+                    .filter((t) => !(t.type === "expense" && (t.category === "크레딧 자동 차감" || t.category === "크레딧 납부")))
                     .map((transaction) => {
                     const roundingName = transaction.booking
                       ? `${transaction.booking.courseName} (${new Date(transaction.booking.date).toLocaleDateString("ko-KR", { month: "numeric", day: "numeric" })})`
