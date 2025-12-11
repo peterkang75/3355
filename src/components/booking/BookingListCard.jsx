@@ -29,6 +29,20 @@ const BookingListCard = memo(function BookingListCard({
   const { isDeleting, isTogglingAnnounce, isJoining, isRentalLoading } = loadingStates;
   const { isPastRoundingDate, isRoundingDay, isRegistrationClosed, hasUserScore } = statusFlags;
 
+  // Calculate isPlayTime: 30 minutes before rounding start time
+  const isPlayTime = (() => {
+    if (!booking.date || !booking.time) return false;
+    try {
+      const [hours, minutes] = booking.time.split(':').map(Number);
+      const roundingStart = new Date(booking.date);
+      roundingStart.setHours(hours, minutes, 0, 0);
+      const playTimeStart = new Date(roundingStart.getTime() - 30 * 60 * 1000); // 30 mins before
+      return new Date() >= playTimeStart;
+    } catch {
+      return false;
+    }
+  })();
+
   if (isActive) {
     return (
       <div key={booking.id} className="card">
@@ -334,34 +348,16 @@ const BookingListCard = memo(function BookingListCard({
           })()}
         </div>
 
-        {/* 버튼 렌더링 영역 */}
+        {/* 버튼 렌더링 영역: 3-Stage Lifecycle */}
         <div style={{ display: 'flex', gap: '8px' }}>
-          {/* 1. 결과 보기 (과거) */}
+          {/* Stage 0: Past Rounding - Show Results */}
           {isPastRoundingDate && (booking.dailyHandicaps || hasUserScore) ? (
             <Button variant="primary" fullWidth onClick={() => onNavigate(`/leaderboard?id=${booking.id}`)}>
               ▲ 결과보기
             </Button>
-          ) : isRoundingDay ? (
-            /* 2. 당일 (조편성, 플레이) */
+          ) : !isRegistrationClosed ? (
+            /* Stage 1: Registration Open - Join/Cancel + Rental */
             <>
-              <Button variant="outline" onClick={() => onNavigate(`/team-formation?id=${booking.id}`)} style={{ flex: 1 }}>
-                📋 조편성
-              </Button>
-              {booking.playEnabled && (
-                <Button variant="primary" onClick={() => onNavigate(`/play?id=${booking.id}`)} style={{ flex: 1 }}>
-                  ⛳ 플레이하기
-                </Button>
-              )}
-            </>
-          ) : isRegistrationClosed ? (
-            /* 3. 마감됨 (수정 불가) */
-             <Button variant="outline" fullWidth disabled>
-                ⛔ 접수 마감
-             </Button>
-          ) : (
-            /* 4. 접수 중 (참가 vs 대여 로직 적용) */
-            <>
-              {/* 참가 버튼 로직 */}
               {isJoined ? (
                 <Button 
                   variant="outline" 
@@ -382,7 +378,6 @@ const BookingListCard = memo(function BookingListCard({
                 </Button>
               )}
 
-              {/* 번호 대여 버튼 로직 (컴페티션일 때만) */}
               {booking.type === '컴페티션' && (
                 isRenting ? (
                   <Button 
@@ -403,6 +398,26 @@ const BookingListCard = memo(function BookingListCard({
                     {isRentalLoading ? '처리중...' : '번호 대여'}
                   </Button>
                 )
+              )}
+            </>
+          ) : (
+            /* Stage 2 & 3: Registration Closed - Team Formation + Play (if within 30 mins) */
+            <>
+              <Button 
+                variant="outline" 
+                onClick={() => onNavigate(`/team-formation?id=${booking.id}`)} 
+                style={{ flex: 1 }}
+              >
+                📋 조편성 보기
+              </Button>
+              {isPlayTime && (
+                <Button 
+                  variant="primary" 
+                  onClick={() => onNavigate(`/play?id=${booking.id}`)} 
+                  style={{ flex: 1 }}
+                >
+                  ⛳ 플레이
+                </Button>
               )}
             </>
           )}
