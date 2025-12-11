@@ -225,6 +225,7 @@ class ApiService {
       body: JSON.stringify({ userPhone })
     });
     if (!response.ok) throw new Error('Failed to toggle number rental');
+    this.invalidateCache('bookings');
     return response.json();
   }
 
