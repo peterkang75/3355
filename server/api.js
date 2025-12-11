@@ -1909,7 +1909,8 @@ router.delete("/transactions/:id", async (req, res) => {
     });
 
     if (!targetTx) {
-      return res.status(404).json({ error: "Transaction not found" });
+      // 이미 삭제됨 (쌍 삭제 등으로) - 성공으로 처리
+      return res.json({ success: true, alreadyDeleted: true });
     }
 
     // 크레딧 도네이션 쌍(pair) 찾기
