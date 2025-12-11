@@ -3242,9 +3242,12 @@ function Admin() {
                     <tbody>
                       {recentTransactions
                         .filter(t => {
-                          if (ledgerFilter.showCharges) return true;
-                          if (t.type === 'charge') return false;
+                          // GLOBAL: Always hide creditDonation in Club Tab
                           if (t.type === 'creditDonation') return false;
+                          
+                          if (ledgerFilter.showCharges) return true;
+                          
+                          if (t.type === 'charge') return false;
                           if (t.type === 'expense' && t.category) {
                             const cat = t.category;
                             if (cat.includes('크레딧') && (cat.includes('차감') || cat.includes('납부'))) return false;
@@ -3721,9 +3724,12 @@ function Admin() {
                   거래 내역 ({
                     allTransactions
                       .filter(t => {
-                        if (ledgerFilter.showCharges) return true;
-                        if (t.type === 'charge') return false;
+                        // GLOBAL: Always hide creditDonation in Club Tab
                         if (t.type === 'creditDonation') return false;
+                        
+                        if (ledgerFilter.showCharges) return true;
+                        
+                        if (t.type === 'charge') return false;
                         if (t.type === 'expense' && t.category) {
                           const cat = t.category;
                           if (cat.includes('크레딧') && (cat.includes('차감') || cat.includes('납부'))) return false;
@@ -3914,9 +3920,12 @@ function Admin() {
                 </div>
               ) : allTransactions
                 .filter(t => {
-                  if (ledgerFilter.showCharges) return true;
-                  if (t.type === 'charge') return false;
+                  // GLOBAL: Always hide creditDonation in Club Tab
                   if (t.type === 'creditDonation') return false;
+                  
+                  if (ledgerFilter.showCharges) return true;
+                  
+                  if (t.type === 'charge') return false;
                   if (t.type === 'expense' && t.category) {
                     const cat = t.category;
                     if (cat.includes('크레딧') && (cat.includes('차감') || cat.includes('납부'))) return false;
@@ -3987,9 +3996,12 @@ function Admin() {
                               checked={(() => {
                                 const filteredIds = allTransactions
                                   .filter(t => {
-                                    if (ledgerFilter.showCharges) return true;
-                                    if (t.type === 'charge') return false;
+                                    // GLOBAL: Always hide creditDonation in Club Tab
                                     if (t.type === 'creditDonation') return false;
+                                    
+                                    if (ledgerFilter.showCharges) return true;
+                                    
+                                    if (t.type === 'charge') return false;
                                     if (t.type === 'expense' && t.category) {
                                       const cat = t.category;
                                       if (cat.includes('크레딧') && (cat.includes('차감') || cat.includes('납부'))) return false;
@@ -4025,8 +4037,6 @@ function Admin() {
                                       catKey = `expense:${catName}`;
                                     } else if (t.type === 'charge') {
                                       catKey = 'charge:청구';
-                                    } else if (t.type === 'creditDonation') {
-                                      catKey = 'expense:크레딧 도네이션';
                                     }
                                     return selectedSummaryCategories.includes(catKey);
                                   })
@@ -4036,9 +4046,12 @@ function Admin() {
                               onChange={(e) => {
                                 const filteredIds = allTransactions
                                   .filter(t => {
-                                    if (ledgerFilter.showCharges) return true;
-                                    if (t.type === 'charge') return false;
+                                    // GLOBAL: Always hide creditDonation in Club Tab
                                     if (t.type === 'creditDonation') return false;
+                                    
+                                    if (ledgerFilter.showCharges) return true;
+                                    
+                                    if (t.type === 'charge') return false;
                                     if (t.type === 'expense' && t.category) {
                                       const cat = t.category;
                                       if (cat.includes('크레딧') && (cat.includes('차감') || cat.includes('납부'))) return false;
@@ -4074,8 +4087,6 @@ function Admin() {
                                       catKey = `expense:${catName}`;
                                     } else if (t.type === 'charge') {
                                       catKey = 'charge:청구';
-                                    } else if (t.type === 'creditDonation') {
-                                      catKey = 'expense:크레딧 도네이션';
                                     }
                                     return selectedSummaryCategories.includes(catKey);
                                   })
@@ -4100,19 +4111,16 @@ function Admin() {
                     <tbody>
                       {allTransactions
                         .filter(t => {
-                          // IF checkbox is CHECKED (showCharges === true): Show EVERYTHING (Raw View for deletion)
+                          // GLOBAL: Always hide creditDonation in Club Tab
+                          if (t.type === 'creditDonation') return false;
+                          
+                          // IF checkbox is CHECKED (showCharges === true): Show charges and expenses
                           if (ledgerFilter.showCharges) {
                             return true;
                           }
                           
                           // IF checkbox is UNCHECKED (Clean View): Apply filters
-                          // Hide standard Charges
                           if (t.type === 'charge') return false;
-                          
-                          // Hide Member-side Credit Donation (Duplicate of Club Donation)
-                          if (t.type === 'creditDonation') return false;
-                          
-                          // Hide Member-side Credit Usage (Duplicate of Club Payment)
                           if (t.type === 'expense' && t.category) {
                             const cat = t.category;
                             if (cat.includes('크레딧') && (cat.includes('차감') || cat.includes('납부'))) {
