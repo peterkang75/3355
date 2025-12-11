@@ -800,6 +800,9 @@ function Fees() {
                           <div style={{ fontSize: "12px", color: "#888" }}>
                             {new Date(transaction.date).toLocaleDateString()}
                           </div>
+                          <div style={{ fontSize: "10px", color: "#999", fontFamily: "monospace" }}>
+                            [DEBUG] ID: {transaction.id} / Type: {transaction.type} / Cat: {transaction.category}
+                          </div>
                         </div>
                         <div style={{ textAlign: "right" }}>
                           <div
