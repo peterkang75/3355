@@ -729,7 +729,9 @@ function Fees() {
                 </div>
               ) : (
                 <div>
-                  {allTransactions.map((transaction) => {
+                  {allTransactions
+                    .filter((t) => t.type !== "creditDonation")
+                    .map((transaction) => {
                     const roundingName = transaction.booking
                       ? `${transaction.booking.courseName} (${new Date(transaction.booking.date).toLocaleDateString("ko-KR", { month: "numeric", day: "numeric" })})`
                       : null;
@@ -772,7 +774,7 @@ function Fees() {
                               <span
                                 style={{ fontSize: "13px", fontWeight: "600" }}
                               >
-                                {transaction.member.name}
+                                {transaction.member.nickname || transaction.member.name}
                               </span>
                             )}
                             <span style={{ fontSize: "12px" }}>
