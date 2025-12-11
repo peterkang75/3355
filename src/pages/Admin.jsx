@@ -4067,22 +4067,6 @@ function Admin() {
                     <tbody>
                       {allTransactions
                         .filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감'))
-                        .filter(t => {
-                          // [Club Tab Filter] - Robust filtering with includes()
-                          
-                          // 1. Hide Member-side Credit Donation
-                          if (t.type && t.type.trim() === "creditDonation") return false;
-                          
-                          // 2. Hide Member-side Credit Usage (Expense)
-                          if (t.type === "expense" && t.category) {
-                            const cat = t.category;
-                            if (cat.includes("크레딧") && (cat.includes("차감") || cat.includes("납부"))) {
-                              return false;
-                            }
-                          }
-                          
-                          return true;
-                        })
                         .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                         .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
                         .filter(t => {
