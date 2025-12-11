@@ -3252,14 +3252,18 @@ function Admin() {
                           return true;
                         })
                         .map(transaction => {
+                        // Club Tab: expense is always negative
                         const typeColor =
                           transaction.type === 'payment' ? 'var(--success-green)' :
-                          transaction.type === 'expense' ? (transaction.category === '크레딧 자동 차감' ? 'var(--success-green)' : 'var(--alert-red)') :
-                          transaction.type === 'creditDonation' ? 'var(--success-green)' : 'var(--success-green)';
+                          transaction.type === 'donation' ? 'var(--success-green)' :
+                          transaction.type === 'creditDonation' ? 'var(--success-green)' :
+                          transaction.type === 'charge' ? 'var(--alert-red)' :
+                          transaction.type === 'expense' ? 'var(--alert-red)' :
+                          'var(--success-green)';
 
+                        // Club Tab: expense is always negative
                         const sign = 
-                          transaction.type === 'payment' || transaction.type === 'donation' || transaction.type === 'creditDonation' ||
-                          (transaction.type === 'expense' && transaction.category === '크레딧 자동 차감') ? '+' : '-';
+                          (transaction.type === 'payment' || transaction.type === 'donation' || transaction.type === 'creditDonation') ? '+' : '-';
                         
                         const bookingName = transaction.booking ? 
                           (transaction.booking.title || transaction.booking.courseName) : '-';
@@ -4155,15 +4159,18 @@ function Admin() {
                           return selectedSummaryCategories.includes(catKey);
                         })
                         .map(transaction => {
+                          // Club Tab: expense is always negative (member used credit)
                           const typeColor =
                             transaction.type === 'payment' ? 'var(--success-green)' :
+                            transaction.type === 'donation' ? 'var(--success-green)' :
+                            transaction.type === 'creditDonation' ? 'var(--success-green)' :
                             transaction.type === 'charge' ? 'var(--alert-red)' :
-                            transaction.type === 'expense' ? (transaction.category === '크레딧 자동 차감' ? 'var(--success-green)' : 'var(--alert-red)') :
-                            transaction.type === 'creditDonation' ? 'var(--success-green)' : 'var(--success-green)';
+                            transaction.type === 'expense' ? 'var(--alert-red)' :
+                            'var(--success-green)';
 
+                          // Club Tab: expense is always negative
                           const sign = 
-                            transaction.type === 'payment' || transaction.type === 'donation' || transaction.type === 'creditDonation' ||
-                            (transaction.type === 'expense' && transaction.category === '크레딧 자동 차감') ? '+' : '-';
+                            (transaction.type === 'payment' || transaction.type === 'donation' || transaction.type === 'creditDonation') ? '+' : '-';
                           
                           const bookingName = transaction.booking ? 
                             (transaction.booking.title || transaction.booking.courseName) : '-';
