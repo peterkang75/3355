@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from './contexts/AppContext';
+import { useActivityTracker } from './hooks/useActivityTracker';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import DashboardSample from './pages/DashboardSample';
@@ -27,6 +28,8 @@ import defaultLogoImage from './assets/logo-transparent.png';
 function AppRoutes({ user, logout, requiresProfileComplete }) {
   const navigate = useNavigate();
   const location = useLocation();
+  
+  useActivityTracker(user);
 
   useEffect(() => {
     if (requiresProfileComplete && user?.id) {

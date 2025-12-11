@@ -585,6 +585,31 @@ class ApiService {
     if (!response.ok) throw new Error('Failed to delete expense category');
     return response.json();
   }
+
+  async createActivityLog(data) {
+    try {
+      const response = await fetch(`${API_BASE}/logs`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      return response.ok;
+    } catch (error) {
+      return false;
+    }
+  }
+
+  async fetchActivityLogs(limit = 50) {
+    const response = await fetch(`${API_BASE}/logs?limit=${limit}`);
+    if (!response.ok) throw new Error('Failed to fetch activity logs');
+    return response.json();
+  }
+
+  async fetchOnlineMembers() {
+    const response = await fetch(`${API_BASE}/online-members`);
+    if (!response.ok) throw new Error('Failed to fetch online members');
+    return response.json();
+  }
 }
 
 export default new ApiService();
