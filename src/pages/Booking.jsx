@@ -410,11 +410,14 @@ function Booking() {
   const isUserGuest = user.isClubMember !== 'yes';
   
   const canViewBooking = (booking) => {
+    if (booking.type === '컴페티션') {
+      if (booking.isGuestAllowed) {
+        return true;
+      }
+      return user.club === booking.courseName;
+    }
     if (isUserGuest && !booking.isGuestAllowed) {
       return false;
-    }
-    if (booking.type === '컴페티션') {
-      return user.club === booking.courseName;
     }
     return true;
   };
