@@ -4066,7 +4066,29 @@ function Admin() {
                     </thead>
                     <tbody>
                       {allTransactions
-                        .filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감'))
+                        .filter(t => {
+                          // IF checkbox is CHECKED (showCharges === true): Show EVERYTHING (Raw View for deletion)
+                          if (ledgerFilter.showCharges) {
+                            return true;
+                          }
+                          
+                          // IF checkbox is UNCHECKED (Clean View): Apply filters
+                          // Hide standard Charges
+                          if (t.type === 'charge') return false;
+                          
+                          // Hide Member-side Credit Donation (Duplicate of Club Donation)
+                          if (t.type === 'creditDonation') return false;
+                          
+                          // Hide Member-side Credit Usage (Duplicate of Club Payment)
+                          if (t.type === 'expense' && t.category) {
+                            const cat = t.category;
+                            if (cat.includes('크레딧') && (cat.includes('차감') || cat.includes('납부'))) {
+                              return false;
+                            }
+                          }
+                          
+                          return true;
+                        })
                         .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                         .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
                         .filter(t => {

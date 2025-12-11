@@ -1,0 +1,49 @@
+I need to resolve a conflict between the "Clean View" and the "Data Management" view in the **Club Account Ledger (Admin) tab**.
+
+**Current Situation:**
+1.  Recently, we added a filter to hide Member-side duplicates (`creditDonation`, `expense` from credit) to make the ledger look clean.
+2.  However, this prevented the admin from finding and deleting specific transactions (like an incorrect Charge or a hidden Expense) because they were filtered out.
+3.  Replit removed the filter to allow deletion, but now the duplicates are back.
+
+**The Solution:**
+Please modify the `allTransactions.filter` logic in the **Club Ledger** to depend on the **"Include Charge Details" checkbox state** (likely named `showCharges` or similar).
+
+**Logic Requirements:**
+
+1.  **IF the Checkbox is CHECKED (`showCharges === true`):**
+    * **Show EVERYTHING.**
+    * Do NOT hide `charge`.
+    * Do NOT hide `creditDonation`.
+    * Do NOT hide `expense` (even if it's "Credit Auto Deduction").
+    * *Reason:* The admin needs to see raw data to delete specific incorrect entries.
+
+2.  **IF the Checkbox is UNCHECKED (`showCharges === false`) - [Default State]:**
+    * **Apply the Clean Filter.**
+    * Hide `charge`.
+    * Hide `creditDonation` (Member side).
+    * Hide `expense` IF category includes "크레딧" AND ("차감" or "납부").
+    * *Reason:* Show only the Club's effective income/expense (Payment/Donation) without duplicates.
+
+**Implementation Example:**
+```javascript
+allTransactions.filter(t => {
+    // 1. If "Show Charges/Details" toggle is ON, show everything (Raw View)
+    if (showCharges) {
+        return true; 
+    }
+
+    // 2. If toggle is OFF (Clean View), apply filters:
+    
+    // Hide standard Charges
+    if (t.type === 'charge') return false;
+
+    // Hide Member-side Credit Donation (Duplicate of Club Donation)
+    if (t.type === 'creditDonation') return false;
+
+    // Hide Member-side Credit Usage (Duplicate of Club Payment)
+    if (t.type === 'expense' && t.category && t.category.includes('크레딧') && (t.category.includes('차감') || t.category.includes('납부'))) {
+        return false;
+    }
+
+    return true;
+})
