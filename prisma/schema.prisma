@@ -8,9 +8,9 @@ datasource db {
 }
 
 model Member {
-  id               String   @id @default(cuid())
+  id               String    @id @default(cuid())
   name             String
-  phone            String   @unique
+  phone            String    @unique
   nickname         String?
   gender           String?
   birthYear        String?
@@ -22,16 +22,17 @@ model Member {
   houseHandy       String?
   golflinkNumber   String?
   clubMemberNumber String?
-  isAdmin          Boolean  @default(false)
-  role             String   @default("회원")
-  balance          Int      @default(0)
+  isAdmin          Boolean   @default(false)
+  role             String    @default("회원")
+  balance          Int       @default(0)
   photo            String?
-  isActive         Boolean  @default(true)
-  approvalStatus   String   @default("approved")
-  canManageFees    Boolean  @default(false)
-  isFeeExempt      Boolean  @default(false)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+  isActive         Boolean   @default(true)
+  approvalStatus   String    @default("approved")
+  canManageFees    Boolean   @default(false)
+  isFeeExempt      Boolean   @default(false)
+  lastActiveAt     DateTime?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 
   posts                 Post[]
   bookings              Booking[]
@@ -40,6 +41,7 @@ model Member {
   fees                  Fee[]         @relation("MemberFees")
   transactions          Transaction[] @relation("MemberTransactions")
   executedTransactions  Transaction[] @relation("ExecutorTransactions")
+  activityLogs          ActivityLog[]
 }
 
 model Post {
@@ -219,4 +221,19 @@ model BingoSettings {
   isEditMode      Boolean  @default(true)
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+}
+
+model ActivityLog {
+  id         Int      @id @default(autoincrement())
+  memberId   String
+  member     Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  memberName String
+  path       String
+  action     String
+  ipAddress  String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+
+  @@index([memberId])
+  @@index([createdAt])
 }

@@ -1,0 +1,40 @@
+I want to add a **"User Activity Tracker"** feature to the Admin > Developer Menu.
+This allows admins to see who accessed the app, which pages they visited, and when they were last active.
+
+**1. Database Schema (`schema.prisma`):**
+* Create a new model `ActivityLog`.
+* Fields:
+    * `id`: Int, PK, Autoincrement
+    * `memberId`: Int (Relation to Member)
+    * `memberName`: String (Snapshot of name for easier display)
+    * `path`: String (The URL path visited, e.g., "/fees")
+    * `action`: String (e.g., "PAGE_VIEW", "LOGIN", "LOGOUT")
+    * `ipAddress`: String? (Optional)
+    * `userAgent`: String? (To detect Mobile/Desktop)
+    * `createdAt`: DateTime (Default now)
+* Update the `Member` model to include a `lastActiveAt` DateTime field (nullable).
+
+**2. Backend API (`api.js`):**
+* `POST /logs`: Endpoint to save a new log entry.
+    * It should also update the `lastActiveAt` field in the `Member` model to track "Online Status".
+* `GET /logs`: Fetch logs for the admin view (with pagination, limit 50, ordered by createdAt desc).
+* **Auto-Cleanup:** Inside the `POST /logs` logic, add a step to delete logs older than 7 days to save DB space.
+
+**3. Frontend (`App.js` or separate hook):**
+* Create a hook named `useActivityTracker` inside `src/hooks/useActivityTracker.js`.
+* This hook should listen to route changes using `useLocation`.
+* Whenever the route changes, send a `POST /logs` request to the backend silently (fire-and-forget).
+    * Payload: `{ path: location.pathname, action: "PAGE_VIEW" }`.
+* Import and use this hook in `App.js` so it runs globally.
+
+**4. Frontend - Admin UI (`DeveloperMenu.jsx`):**
+* Add a new section or tab: **"User Activity Logs"**.
+* **Section A: Online Users** (Members active in the last 5 mins).
+    * Query members where `lastActiveAt` > 5 mins ago.
+    * Show a list of green dots with names.
+* **Section B: Activity History** (Table).
+    * Columns: Time, Member Name, Action/Path, Device (Mobile/Desktop).
+    * Show the latest 50 logs.
+
+**Goal:**
+I want to monitor member traffic and engagement without affecting the app's performance.
