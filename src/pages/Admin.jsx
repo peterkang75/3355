@@ -3813,11 +3813,18 @@ function Admin() {
                           {selectedTransactionIds.length >= 1 && (
                             <button
                               onClick={async () => {
-                                if (!confirm(`선택한 ${selectedTransactionIds.length}건의 거래를 삭제하시겠습니까?`)) return;
+                                console.log('🗑️ Delete button clicked, IDs:', selectedTransactionIds);
+                                if (!window.confirm(`선택한 ${selectedTransactionIds.length}건의 거래를 삭제하시겠습니까?`)) {
+                                  console.log('❌ User cancelled deletion');
+                                  return;
+                                }
+                                console.log('✅ User confirmed deletion');
                                 try {
                                   for (const id of selectedTransactionIds) {
+                                    console.log('🗑️ Deleting:', id);
                                     await apiService.deleteTransaction(id);
                                   }
+                                  console.log('✅ All deletions complete');
                                   setAllTransactions(prev => prev.filter(t => !selectedTransactionIds.includes(t.id)));
                                   setSelectedTransactionIds([]);
                                   setIsTransactionSelectMode(false);
