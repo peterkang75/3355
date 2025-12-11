@@ -19,6 +19,7 @@ function RoundingManagement() {
   const [isSaving, setIsSaving] = useState(false);
   const [isTogglingAnnounce, setIsTogglingAnnounce] = useState(false);
   const [isTogglingPlay, setIsTogglingPlay] = useState(false);
+  const [isTogglingGuest, setIsTogglingGuest] = useState(false);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -133,6 +134,20 @@ function RoundingManagement() {
       alert('플레이 활성화 상태 변경에 실패했습니다.');
     } finally {
       setIsTogglingPlay(false);
+    }
+  };
+
+  const handleToggleGuest = async () => {
+    if (isTogglingGuest) return;
+    
+    setIsTogglingGuest(true);
+    try {
+      await apiService.updateBooking(bookingId, { isGuestAllowed: !booking.isGuestAllowed });
+      await refreshBookings();
+    } catch (error) {
+      alert('외부 공개 상태 변경에 실패했습니다.');
+    } finally {
+      setIsTogglingGuest(false);
     }
   };
   
@@ -549,6 +564,59 @@ function RoundingManagement() {
                   position: 'absolute',
                   top: '3px',
                   left: booking.playEnabled ? '27px' : '3px',
+                  transition: 'left 0.2s',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                }} />
+              </button>
+            </div>
+
+            <div
+              style={{
+                padding: '20px',
+                border: 'none',
+                borderBottom: '1px solid var(--border-color)',
+                borderRadius: '0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                gap: '12px'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <span style={{ fontSize: '24px', color: '#4CAF50' }}>🌐</span>
+                <div>
+                  <div style={{ fontSize: '16px', fontWeight: '700', marginBottom: '4px', color: '#4CAF50' }}>
+                    외부 공개 (Guest Allowed)
+                  </div>
+                  <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                    {booking.isGuestAllowed ? '비회원도 참가 가능합니다' : '클럽 회원만 참가 가능합니다'}
+                  </div>
+                </div>
+              </div>
+              <button
+                onClick={handleToggleGuest}
+                disabled={isTogglingGuest}
+                style={{
+                  width: '52px',
+                  height: '28px',
+                  borderRadius: '14px',
+                  border: 'none',
+                  background: booking.isGuestAllowed ? '#4CAF50' : '#ccc',
+                  cursor: isTogglingGuest ? 'not-allowed' : 'pointer',
+                  position: 'relative',
+                  transition: 'background 0.2s',
+                  opacity: isTogglingGuest ? 0.7 : 1,
+                  flexShrink: 0
+                }}
+              >
+                <div style={{
+                  width: '22px',
+                  height: '22px',
+                  borderRadius: '50%',
+                  background: 'white',
+                  position: 'absolute',
+                  top: '3px',
+                  left: booking.isGuestAllowed ? '27px' : '3px',
                   transition: 'left 0.2s',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
                 }} />

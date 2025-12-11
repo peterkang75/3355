@@ -407,7 +407,12 @@ function Booking() {
     return today.getTime() === bookingDate.getTime();
   };
 
+  const isUserGuest = !members.some(m => m.phone === user.phone);
+  
   const canViewBooking = (booking) => {
+    if (isUserGuest && !booking.isGuestAllowed) {
+      return false;
+    }
     if (booking.type === '컴페티션') {
       return user.club === booking.courseName;
     }
@@ -488,6 +493,7 @@ function Booking() {
         userPhone={user.phone}
         participants={participants}
         allParticipants={allParticipants}
+        clubMembers={members}
         totalFee={totalFee}
         isFoursome={isFoursome}
         isJoined={isJoined}
@@ -505,6 +511,7 @@ function Booking() {
           isRegistrationClosed: isRegistrationClosed(booking),
           hasUserScore: hasUserScore(booking)
         }}
+        isGuest={isUserGuest}
         formatCurrency={formatCurrency}
         getParticipantDisplayName={getParticipantDisplayName}
         onMenuToggle={(id) => setOpenMenuId(id === null ? null : (openMenuId === id ? null : id))}

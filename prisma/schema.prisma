@@ -79,6 +79,7 @@ model Booking {
   isAnnounced          Boolean  @default(false)
   playEnabled          Boolean  @default(false)
   playManuallyDisabled Boolean  @default(false)
+  isGuestAllowed       Boolean  @default(false)
   teams                Json?
   gradeSettings        Json?
   dailyHandicaps       Json?

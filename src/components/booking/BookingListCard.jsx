@@ -9,6 +9,7 @@ const BookingListCard = memo(function BookingListCard({
   userPhone,
   participants,
   allParticipants,
+  clubMembers,
   totalFee,
   isFoursome,
   isJoined,
@@ -16,6 +17,7 @@ const BookingListCard = memo(function BookingListCard({
   isMenuOpen,
   loadingStates,
   statusFlags,
+  isGuest,
   formatCurrency,
   getParticipantDisplayName,
   onMenuToggle,
@@ -28,6 +30,11 @@ const BookingListCard = memo(function BookingListCard({
 }) {
   const { isDeleting, isTogglingAnnounce, isJoining, isRentalLoading } = loadingStates;
   const { isPastRoundingDate, isRoundingDay, isRegistrationClosed, hasUserScore } = statusFlags;
+  
+  const isParticipantGuest = (participantPhone) => {
+    if (!clubMembers || clubMembers.length === 0) return false;
+    return !clubMembers.some(m => m.phone === participantPhone);
+  };
 
   // Calculate isPlayTime: 30 minutes before rounding start time
   const isPlayTime = (() => {
@@ -315,15 +322,32 @@ const BookingListCard = memo(function BookingListCard({
                   {allParticipants.map((participant, idx) => {
                     const isParticipantRenting = booking.numberRentals && booking.numberRentals.includes(participant.phone);
                     const isParticipating = participants.some(p => p.phone === participant.phone);
+                    const isGuestParticipant = isParticipantGuest(participant.phone);
+                    
+                    let bgColor = 'transparent';
+                    let textColor = 'inherit';
+                    let padding = '0';
+                    
+                    if (isGuestParticipant) {
+                      bgColor = '#D1E7DD';
+                      textColor = '#0A5C36';
+                      padding = '2px 6px';
+                    } else if (isParticipantRenting && !isParticipating) {
+                      bgColor = '#E6AA68';
+                      textColor = '#fff';
+                      padding = '2px 6px';
+                    }
+                    
                     return (
                       <span key={idx}>
                         <span style={{ 
-                          background: isParticipantRenting && !isParticipating ? '#E6AA68' : 'transparent',
-                          color: isParticipantRenting && !isParticipating ? '#fff' : 'inherit',
-                          padding: isParticipantRenting && !isParticipating ? '2px 6px' : '0',
-                          borderRadius: isParticipantRenting && !isParticipating ? '4px' : '0'
+                          background: bgColor,
+                          color: textColor,
+                          padding: padding,
+                          borderRadius: padding !== '0' ? '4px' : '0'
                         }}>
                           {getParticipantDisplayName(participant)}
+                          {isGuestParticipant && <span style={{ fontSize: '10px', marginLeft: '2px' }}>👤</span>}
                         </span>
                         {(idx < allParticipants.length - 1 || anonymousRentals.length > 0) && ', '}
                       </span>
@@ -378,7 +402,7 @@ const BookingListCard = memo(function BookingListCard({
                 </Button>
               )}
 
-              {booking.type === '컴페티션' && (
+              {booking.type === '컴페티션' && !isGuest && (
                 isRenting ? (
                   <Button 
                     variant="secondary" 
