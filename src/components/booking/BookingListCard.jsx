@@ -279,35 +279,59 @@ const BookingListCard = memo(function BookingListCard({
           borderRadius: '6px',
           marginBottom: '16px'
         }}>
-          <div style={{ 
-            fontWeight: '600',
-            marginBottom: '8px',
-            color: 'var(--primary-green)'
-          }}>
-            ⚲ 참가자 ({allParticipants.length}명)
-          </div>
-          <div style={{ 
-            fontSize: '14px',
-            lineHeight: '1.6'
-          }}>
-            {allParticipants.map((participant, idx) => {
-              const isParticipantRenting = booking.numberRentals && booking.numberRentals.includes(participant.phone);
-              const isParticipating = participants.some(p => p.phone === participant.phone);
-              return (
-                <span key={idx}>
-                  <span style={{ 
-                    background: isParticipantRenting && !isParticipating ? '#E6AA68' : 'transparent',
-                    color: isParticipantRenting && !isParticipating ? '#fff' : 'inherit',
-                    padding: isParticipantRenting && !isParticipating ? '2px 6px' : '0',
-                    borderRadius: isParticipantRenting && !isParticipating ? '4px' : '0'
-                  }}>
-                    {getParticipantDisplayName(participant)}
-                  </span>
-                  {idx < allParticipants.length - 1 && ', '}
-                </span>
-              );
-            })}
-          </div>
+          {(() => {
+            const anonymousRentals = (booking.numberRentals || []).filter(
+              phone => !allParticipants.some(p => p.phone === phone)
+            );
+            const totalCount = allParticipants.length + anonymousRentals.length;
+            
+            return (
+              <>
+                <div style={{ 
+                  fontWeight: '600',
+                  marginBottom: '8px',
+                  color: 'var(--primary-green)'
+                }}>
+                  ⚲ 참가자 ({totalCount}명)
+                </div>
+                <div style={{ 
+                  fontSize: '14px',
+                  lineHeight: '1.6'
+                }}>
+                  {allParticipants.map((participant, idx) => {
+                    const isParticipantRenting = booking.numberRentals && booking.numberRentals.includes(participant.phone);
+                    const isParticipating = participants.some(p => p.phone === participant.phone);
+                    return (
+                      <span key={idx}>
+                        <span style={{ 
+                          background: isParticipantRenting && !isParticipating ? '#E6AA68' : 'transparent',
+                          color: isParticipantRenting && !isParticipating ? '#fff' : 'inherit',
+                          padding: isParticipantRenting && !isParticipating ? '2px 6px' : '0',
+                          borderRadius: isParticipantRenting && !isParticipating ? '4px' : '0'
+                        }}>
+                          {getParticipantDisplayName(participant)}
+                        </span>
+                        {(idx < allParticipants.length - 1 || anonymousRentals.length > 0) && ', '}
+                      </span>
+                    );
+                  })}
+                  {anonymousRentals.map((phone, idx) => (
+                    <span key={`anon-${idx}`}>
+                      <span style={{ 
+                        background: '#E6AA68',
+                        color: '#fff',
+                        padding: '2px 6px',
+                        borderRadius: '4px'
+                      }}>
+                        번호대여 #{idx + 1}
+                      </span>
+                      {idx < anonymousRentals.length - 1 && ', '}
+                    </span>
+                  ))}
+                </div>
+              </>
+            );
+          })()}
         </div>
 
         {/* 버튼 렌더링 영역 */}
