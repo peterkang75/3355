@@ -1553,10 +1553,12 @@ router.post("/transactions/charge-with-credit", async (req, res) => {
     const remainingCharge = amount - creditToUse;
     let totalBalanceChange = 0;
 
-    // 1. 크레딧 사용분 처리 (Expense 생성)
+    // 1. 크레딧 사용분 처리 (Expense + Payment 생성)
     if (creditToUse > 0) {
       const baseCategory =
         description.split(" - ")[0].replace("청구", "").trim() || "참가비";
+      
+      // 회원의 크레딧 차감 (expense)
       const expenseTx = await prisma.transaction.create({
         data: {
           type: "expense",
@@ -1571,6 +1573,21 @@ router.post("/transactions/charge-with-credit", async (req, res) => {
       });
       transactions.push(expenseTx);
       totalBalanceChange -= creditToUse;
+      
+      // 클럽 수입 기록 (payment) - 크레딧 차감액만큼 클럽 잔액 증가
+      const paymentTx = await prisma.transaction.create({
+        data: {
+          type: "payment",
+          amount: creditToUse,
+          description: `${baseCategory} (크레딧 자동 차감)`,
+          category: "크레딧 자동 차감",
+          date: today,
+          memberId: memberId,
+          bookingId: bookingId || null,
+          createdBy: createdBy || null,
+        },
+      });
+      transactions.push(paymentTx);
     }
 
     // 2. 남은 금액 처리 (Charge 생성)
