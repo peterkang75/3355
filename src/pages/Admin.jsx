@@ -3355,9 +3355,6 @@ function Admin() {
                               }}>
                                 {categoryName}
                               </div>
-                              <div style={{ fontSize: '9px', color: '#999', fontFamily: 'monospace' }}>
-                                ID:{transaction.id.slice(-6)} T:{transaction.type} C:{transaction.category}
-                              </div>
                             </td>
                             <td style={{ 
                               padding: '6px 4px', 
