@@ -514,7 +514,7 @@ function Booking() {
           isRegistrationClosed: isRegistrationClosed(booking),
           hasUserScore: hasUserScore(booking)
         }}
-        isGuest={isUserGuest}
+        isGuest={user.club !== booking.courseName}
         formatCurrency={formatCurrency}
         getParticipantDisplayName={getParticipantDisplayName}
         onMenuToggle={(id) => setOpenMenuId(id === null ? null : (openMenuId === id ? null : id))}
