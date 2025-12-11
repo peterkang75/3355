@@ -37,6 +37,22 @@ const BookingListCard = memo(function BookingListCard({
     return member ? member.club !== booking.courseName : true;
   };
 
+  const getRemainingTime = (deadline) => {
+    if (!deadline) return null;
+    const now = new Date();
+    const deadlineDate = new Date(deadline);
+    deadlineDate.setHours(23, 59, 59, 999);
+    const diff = deadlineDate - now;
+    if (diff <= 0) return null;
+    
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    
+    if (days > 0) return `${days}일 남음`;
+    if (hours > 0) return `${hours}시간 남음`;
+    return '마감 임박';
+  };
+
   // Calculate isPlayTime: 30 minutes before rounding start time
   const isPlayTime = (() => {
     if (!booking.date || !booking.time) return false;
@@ -231,7 +247,19 @@ const BookingListCard = memo(function BookingListCard({
               borderBottom: '1px solid var(--border-color)'
             }}>
               <span style={{ fontWeight: '600', color: 'var(--primary-green)' }}>◔ 접수 마감:</span>
-              <span>{new Date(booking.registrationDeadline).toLocaleDateString('ko-KR')}</span>
+              <span>
+                {new Date(booking.registrationDeadline).toLocaleDateString('ko-KR')}
+                {getRemainingTime(booking.registrationDeadline) && (
+                  <span style={{ 
+                    marginLeft: '8px', 
+                    fontSize: '12px', 
+                    color: getRemainingTime(booking.registrationDeadline) === '마감 임박' ? '#e74c3c' : '#888',
+                    fontWeight: getRemainingTime(booking.registrationDeadline) === '마감 임박' ? '600' : '400'
+                  }}>
+                    ({getRemainingTime(booking.registrationDeadline)})
+                  </span>
+                )}
+              </span>
             </div>
           )}
         </div>
