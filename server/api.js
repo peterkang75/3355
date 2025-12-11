@@ -328,7 +328,8 @@ router.put("/bookings/:id", async (req, res) => {
               if (
                 t.type === "payment" &&
                 t.category !== "크레딧 자동 납부" &&
-                t.category !== "크레딧 납부"
+                t.category !== "크레딧 납부" &&
+                t.category !== "크레딧 자동 차감"
               )
                 return sum + t.amount;
               if (t.type === "credit") return sum + t.amount;
@@ -401,7 +402,8 @@ router.put("/bookings/:id", async (req, res) => {
             if (
               t.type === "payment" &&
               t.category !== "크레딧 자동 납부" &&
-              t.category !== "크레딧 납부"
+              t.category !== "크레딧 납부" &&
+              t.category !== "크레딧 자동 차감"
             )
               return sum + t.amount;
             if (t.type === "credit") return sum + t.amount;
@@ -447,7 +449,8 @@ router.put("/bookings/:id", async (req, res) => {
             if (
               t.type === "payment" &&
               t.category !== "크레딧 자동 납부" &&
-              t.category !== "크레딧 납부"
+              t.category !== "크레딧 납부" &&
+              t.category !== "크레딧 자동 차감"
             )
               return sum + t.amount;
             if (t.type === "credit") return sum + t.amount;
@@ -1367,7 +1370,8 @@ router.get("/transactions/balance/:memberId", async (req, res) => {
       if (
         t.type === "payment" &&
         t.category !== "크레딧 자동 납부" &&
-        t.category !== "크레딧 납부"
+        t.category !== "크레딧 납부" &&
+        t.category !== "크레딧 자동 차감"
       )
         return sum + t.amount;
       if (t.type === "credit") return sum + t.amount;
@@ -1470,7 +1474,8 @@ router.get("/transactions/outstanding", async (req, res) => {
       } else if (
         t.type === "payment" &&
         t.category !== "크레딧 자동 납부" &&
-        t.category !== "크레딧 납부"
+        t.category !== "크레딧 납부" &&
+        t.category !== "크레딧 자동 차감"
       ) {
         balanceByMember[t.memberId] += t.amount;
       } else if (t.type === "credit") {
@@ -1514,7 +1519,8 @@ router.post("/transactions", async (req, res) => {
       else if (
         transaction.type === "payment" &&
         transaction.category !== "크레딧 자동 납부" &&
-        transaction.category !== "크레딧 납부"
+        transaction.category !== "크레딧 납부" &&
+        transaction.category !== "크레딧 자동 차감"
       )
         balanceChange = transaction.amount;
       else if (transaction.type === "credit")
@@ -1891,7 +1897,8 @@ router.put("/transactions/:id", async (req, res) => {
         else if (
           type === "payment" &&
           cat !== "크레딧 자동 납부" &&
-          cat !== "크레딧 납부"
+          cat !== "크레딧 납부" &&
+          cat !== "크레딧 자동 차감"
         )
           balanceChange = amountDiff;
         else if (type === "credit") balanceChange = amountDiff;
@@ -1983,7 +1990,8 @@ router.delete("/transactions/:id", async (req, res) => {
       if (
         type === "payment" &&
         cat !== "크레딧 자동 납부" &&
-        cat !== "크레딧 납부"
+        cat !== "크레딧 납부" &&
+        cat !== "크레딧 자동 차감"
       )
         return -amount;
       if (type === "credit") return -amount;

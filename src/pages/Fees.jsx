@@ -286,7 +286,7 @@ function Fees() {
     .filter((t) => t.type === "charge")
     .reduce((sum, t) => sum + t.amount, 0);
   const totalPayments = userTransactions
-    .filter((t) => t.type === "payment" && t.category !== "크레딧 자동 납부")
+    .filter((t) => t.type === "payment" && t.category !== "크레딧 자동 납부" && t.category !== "크레딧 자동 차감")
     .reduce((sum, t) => sum + t.amount, 0);
   const totalCredits = userTransactions
     .filter((t) => t.type === "credit")
@@ -604,7 +604,8 @@ function Fees() {
                 userTransactions
                   .filter(
                     (t) =>
-                      !(t.type === "donation" && t.category === "도네이션"),
+                      !(t.type === "donation" && t.category === "도네이션") &&
+                      !(t.type === "payment" && t.category === "크레딧 자동 차감"),
                   )
                   .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                   .map((t) => (
