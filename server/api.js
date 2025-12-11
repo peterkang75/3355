@@ -1240,8 +1240,9 @@ router.get("/transactions", async (req, res) => {
     const page = req.query.page ? parseInt(req.query.page) : 1;
     const limit = req.query.limit ? parseInt(req.query.limit) : 20;
     const skip = (page - 1) * limit;
+    const includeCharges = req.query.includeCharges === 'true';
 
-    const whereClause = { type: { not: "charge" } };
+    const whereClause = includeCharges ? {} : { type: { not: "charge" } };
 
     const [transactions, total] = await Promise.all([
       prisma.transaction.findMany({
