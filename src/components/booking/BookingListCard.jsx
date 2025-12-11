@@ -33,7 +33,8 @@ const BookingListCard = memo(function BookingListCard({
   
   const isParticipantGuest = (participantPhone) => {
     if (!clubMembers || clubMembers.length === 0) return false;
-    return !clubMembers.some(m => m.phone === participantPhone);
+    const member = clubMembers.find(m => m.phone === participantPhone);
+    return member ? member.isClubMember !== 'yes' : true;
   };
 
   // Calculate isPlayTime: 30 minutes before rounding start time

@@ -407,7 +407,7 @@ function Booking() {
     return today.getTime() === bookingDate.getTime();
   };
 
-  const isUserGuest = !members.some(m => m.phone === user.phone);
+  const isUserGuest = user.isClubMember !== 'yes';
   
   const canViewBooking = (booking) => {
     if (isUserGuest && !booking.isGuestAllowed) {
