@@ -3241,21 +3241,14 @@ function Admin() {
                     </thead>
                     <tbody>
                       {recentTransactions
-                        .filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감'))
                         .filter(t => {
-                          // [Club Tab Filter] - Robust filtering with includes()
-                          
-                          // 1. Hide Member-side Credit Donation
-                          if (t.type && t.type.trim() === "creditDonation") return false;
-                          
-                          // 2. Hide Member-side Credit Usage (Expense)
-                          if (t.type === "expense" && t.category) {
+                          if (ledgerFilter.showCharges) return true;
+                          if (t.type === 'charge') return false;
+                          if (t.type === 'creditDonation') return false;
+                          if (t.type === 'expense' && t.category) {
                             const cat = t.category;
-                            if (cat.includes("크레딧") && (cat.includes("차감") || cat.includes("납부"))) {
-                              return false;
-                            }
+                            if (cat.includes('크레딧') && (cat.includes('차감') || cat.includes('납부'))) return false;
                           }
-                          
                           return true;
                         })
                         .map(transaction => {
@@ -3723,7 +3716,16 @@ function Admin() {
                 <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
                   거래 내역 ({
                     allTransactions
-                      .filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감'))
+                      .filter(t => {
+                        if (ledgerFilter.showCharges) return true;
+                        if (t.type === 'charge') return false;
+                        if (t.type === 'creditDonation') return false;
+                        if (t.type === 'expense' && t.category) {
+                          const cat = t.category;
+                          if (cat.includes('크레딧') && (cat.includes('차감') || cat.includes('납부'))) return false;
+                        }
+                        return true;
+                      })
                       .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                       .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
                       .filter(t => {
@@ -3907,7 +3909,16 @@ function Admin() {
                   <p style={{ color: 'var(--text-secondary)' }}>거래내역 불러오는 중...</p>
                 </div>
               ) : allTransactions
-                .filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감'))
+                .filter(t => {
+                  if (ledgerFilter.showCharges) return true;
+                  if (t.type === 'charge') return false;
+                  if (t.type === 'creditDonation') return false;
+                  if (t.type === 'expense' && t.category) {
+                    const cat = t.category;
+                    if (cat.includes('크레딧') && (cat.includes('차감') || cat.includes('납부'))) return false;
+                  }
+                  return true;
+                })
                 .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                 .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
                 .filter(t => {
@@ -3971,7 +3982,16 @@ function Admin() {
                               type="checkbox"
                               checked={(() => {
                                 const filteredIds = allTransactions
-                                  .filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감'))
+                                  .filter(t => {
+                                    if (ledgerFilter.showCharges) return true;
+                                    if (t.type === 'charge') return false;
+                                    if (t.type === 'creditDonation') return false;
+                                    if (t.type === 'expense' && t.category) {
+                                      const cat = t.category;
+                                      if (cat.includes('크레딧') && (cat.includes('차감') || cat.includes('납부'))) return false;
+                                    }
+                                    return true;
+                                  })
                                   .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                                   .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
                                   .filter(t => {
@@ -4011,7 +4031,16 @@ function Admin() {
                               })()}
                               onChange={(e) => {
                                 const filteredIds = allTransactions
-                                  .filter(t => ledgerFilter.showCharges || (t.type !== 'charge' && t.category !== '크레딧 차감'))
+                                  .filter(t => {
+                                    if (ledgerFilter.showCharges) return true;
+                                    if (t.type === 'charge') return false;
+                                    if (t.type === 'creditDonation') return false;
+                                    if (t.type === 'expense' && t.category) {
+                                      const cat = t.category;
+                                      if (cat.includes('크레딧') && (cat.includes('차감') || cat.includes('납부'))) return false;
+                                    }
+                                    return true;
+                                  })
                                   .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                                   .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
                                   .filter(t => {
