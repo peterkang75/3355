@@ -1,0 +1,98 @@
+Act as a Senior React Developer.
+The user wants to fix the logic for **"Joining" (참가)** vs **"Number Rental" (번호대여)** in the Booking system.
+Currently, the buttons allows conflicting states or doesn't explicitly disable the other option when one is active.
+
+**Business Logic Rules:**
+1.  **Mutual Exclusivity:** A user cannot "Join" and "Rent Number" at the same time.
+2.  **Scenario A (User Joined):**
+    * Show "Cancel Join" button (Active).
+    * Show "Number Rental" button (**Disabled**).
+3.  **Scenario B (User Renting):**
+    * Show "Join" button (**Disabled**).
+    * Show "Cancel Rental" button (Active).
+4.  **Scenario C (Neither):**
+    * Show "Join" button (Active).
+    * Show "Number Rental" button (Active).
+5.  **Visuals:** In the participant list, "Rental" users should have a distinct background color (e.g., orange/gold) to differentiate them from actual players.
+
+---
+
+**Task 1: Update `BookingListCard.jsx`**
+* **Locate:** The button rendering logic inside `BookingListCard`.
+* **Replace:** Refactor the button rendering to strictly follow the "Mutual Exclusivity" rules above.
+
+**Code to Apply (Button Section Logic):**
+```jsx
+{/* 버튼 렌더링 영역 */}
+<div style={{ display: 'flex', gap: '8px' }}>
+  {/* 1. 결과 보기 (과거) */}
+  {isPastRoundingDate && (booking.dailyHandicaps || hasUserScore) ? (
+    <Button variant="primary" fullWidth onClick={() => onNavigate(`/leaderboard?id=${booking.id}`)}>
+      ▲ 결과보기
+    </Button>
+  ) : isRoundingDay ? (
+    /* 2. 당일 (조편성, 플레이) */
+    <>
+      <Button variant="outline" onClick={() => onNavigate(`/team-formation?id=${booking.id}`)} style={{ flex: 1 }}>
+        📋 조편성
+      </Button>
+      {booking.playEnabled && (
+        <Button variant="primary" onClick={() => onNavigate(`/play?id=${booking.id}`)} style={{ flex: 1 }}>
+          ⛳ 플레이하기
+        </Button>
+      )}
+    </>
+  ) : isRegistrationClosed ? (
+    /* 3. 마감됨 (수정 불가) */
+     <Button variant="outline" fullWidth disabled>
+        ⛔ 접수 마감
+     </Button>
+  ) : (
+    /* 4. 접수 중 (참가 vs 대여 로직 적용) */
+    <>
+      {/* 참가 버튼 로직 */}
+      {isJoined ? (
+        <Button 
+          variant="outline" 
+          onClick={() => onJoin(booking.id)} 
+          disabled={isJoining}
+          style={{ flex: 1, borderColor: 'var(--alert-red)', color: 'var(--alert-red)' }}
+        >
+          {isJoining ? '처리중...' : '참가 취소'}
+        </Button>
+      ) : (
+        <Button 
+          variant="primary" 
+          onClick={() => onJoin(booking.id)} 
+          disabled={isJoining || isRenting} // 대여 중이면 참가 불가
+          style={{ flex: 1, opacity: isRenting ? 0.5 : 1 }}
+        >
+          {isJoining ? '처리중...' : '참가하기'}
+        </Button>
+      )}
+
+      {/* 번호 대여 버튼 로직 (컴페티션일 때만) */}
+      {booking.type === '컴페티션' && (
+        isRenting ? (
+          <Button 
+            variant="secondary" 
+            onClick={() => onToggleRental(booking.id)} 
+            disabled={isRentalLoading}
+            style={{ flex: 1, background: '#E6AA68', color: 'white', border: 'none' }}
+          >
+            {isRentalLoading ? '처리중...' : '대여 취소'}
+          </Button>
+        ) : (
+          <Button 
+            variant="outline" 
+            onClick={() => onToggleRental(booking.id)} 
+            disabled={isRentalLoading || isJoined} // 참가 중이면 대여 불가
+            style={{ flex: 1, opacity: isJoined ? 0.5 : 1 }}
+          >
+            {isRentalLoading ? '처리중...' : '번호 대여'}
+          </Button>
+        )
+      )}
+    </>
+  )}
+</div>

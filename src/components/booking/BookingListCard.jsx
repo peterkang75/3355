@@ -310,113 +310,75 @@ const BookingListCard = memo(function BookingListCard({
           </div>
         </div>
 
+        {/* 버튼 렌더링 영역 */}
         <div style={{ display: 'flex', gap: '8px' }}>
+          {/* 1. 결과 보기 (과거) */}
           {isPastRoundingDate && (booking.dailyHandicaps || hasUserScore) ? (
-            <Button
-              variant="primary"
-              fullWidth
-              onClick={() => onNavigate(`/leaderboard?id=${booking.id}`)}
-            >
+            <Button variant="primary" fullWidth onClick={() => onNavigate(`/leaderboard?id=${booking.id}`)}>
               ▲ 결과보기
             </Button>
           ) : isRoundingDay ? (
+            /* 2. 당일 (조편성, 플레이) */
             <>
-              <Button
-                variant="outline"
-                onClick={() => onNavigate(`/team-formation?id=${booking.id}`)}
-                style={{ flex: 1 }}
-              >
+              <Button variant="outline" onClick={() => onNavigate(`/team-formation?id=${booking.id}`)} style={{ flex: 1 }}>
                 📋 조편성
               </Button>
               {booking.playEnabled && (
-                <Button
-                  variant="primary"
-                  onClick={() => onNavigate(`/play?id=${booking.id}`)}
-                  style={{ flex: 1 }}
-                >
+                <Button variant="primary" onClick={() => onNavigate(`/play?id=${booking.id}`)} style={{ flex: 1 }}>
                   ⛳ 플레이하기
                 </Button>
               )}
             </>
-          ) : isRegistrationClosed && !isPastRoundingDate ? (
-            <>
-              <Button
-                variant="outline"
-                onClick={() => onNavigate(`/team-formation?id=${booking.id}`)}
-                style={{ flex: 1 }}
-              >
-                📋 조편성
-              </Button>
-              {booking.playEnabled && (
-                <Button
-                  variant="primary"
-                  onClick={() => onNavigate(`/play?id=${booking.id}`)}
-                  style={{ flex: 1 }}
-                >
-                  ⛳ 플레이하기
-                </Button>
-              )}
-            </>
+          ) : isRegistrationClosed ? (
+            /* 3. 마감됨 (수정 불가) */
+             <Button variant="outline" fullWidth disabled>
+                ⛔ 접수 마감
+             </Button>
           ) : (
+            /* 4. 접수 중 (참가 vs 대여 로직 적용) */
             <>
-              {(isJoined || isRenting) ? (
-                <div style={{
-                  flex: 1,
-                  padding: '10px 16px',
-                  background: '#f0f0f0',
-                  color: theme.colors.text_sub,
-                  borderRadius: '8px',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  textAlign: 'center',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  ✓ 참가중
-                </div>
-              ) : (
-                <Button
-                  variant="primary"
-                  onClick={() => onJoin(booking.id)}
+              {/* 참가 버튼 로직 */}
+              {isJoined ? (
+                <Button 
+                  variant="outline" 
+                  onClick={() => onJoin(booking.id)} 
                   disabled={isJoining}
-                  style={{ flex: 1 }}
+                  style={{ flex: 1, borderColor: 'var(--alert-red)', color: 'var(--alert-red)' }}
+                >
+                  {isJoining ? '처리중...' : '참가 취소'}
+                </Button>
+              ) : (
+                <Button 
+                  variant="primary" 
+                  onClick={() => onJoin(booking.id)} 
+                  disabled={isJoining || isRenting}
+                  style={{ flex: 1, opacity: isRenting ? 0.5 : 1 }}
                 >
                   {isJoining ? '처리중...' : '참가하기'}
                 </Button>
               )}
-              {(isJoined && !isRenting) && (
-                <Button
-                  variant="outline"
-                  onClick={() => onJoin(booking.id)}
-                  disabled={isJoining}
-                  style={{ 
-                    flex: 1,
-                    borderColor: theme.colors.danger,
-                    color: theme.colors.danger
-                  }}
-                >
-                  {isJoining ? '처리중...' : '취소'}
-                </Button>
-              )}
+
+              {/* 번호 대여 버튼 로직 (컴페티션일 때만) */}
               {booking.type === '컴페티션' && (
-                <Button
-                  variant={isRenting ? 'secondary' : 'outline'}
-                  onClick={() => onToggleRental(booking.id)}
-                  disabled={isRentalLoading}
-                  style={{ flex: 1 }}
-                >
-                  {isRentalLoading ? '처리중...' : (isRenting ? '✓ 번호대여' : '번호대여')}
-                </Button>
-              )}
-              {booking.playEnabled && (
-                <Button
-                  variant="primary"
-                  onClick={() => onNavigate(`/play?id=${booking.id}`)}
-                  style={{ flex: 1 }}
-                >
-                  ⛳ 플레이
-                </Button>
+                isRenting ? (
+                  <Button 
+                    variant="secondary" 
+                    onClick={() => onToggleRental(booking.id)} 
+                    disabled={isRentalLoading}
+                    style={{ flex: 1, background: '#E6AA68', color: 'white', border: 'none' }}
+                  >
+                    {isRentalLoading ? '처리중...' : '대여 취소'}
+                  </Button>
+                ) : (
+                  <Button 
+                    variant="outline" 
+                    onClick={() => onToggleRental(booking.id)} 
+                    disabled={isRentalLoading || isJoined}
+                    style={{ flex: 1, opacity: isJoined ? 0.5 : 1 }}
+                  >
+                    {isRentalLoading ? '처리중...' : '번호 대여'}
+                  </Button>
+                )
               )}
             </>
           )}
