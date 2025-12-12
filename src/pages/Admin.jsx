@@ -158,6 +158,10 @@ function Admin() {
   const [existingMemberScore, setExistingMemberScore] = useState(null);
   const [showScoreMenu, setShowScoreMenu] = useState(false);
 
+  const [activityLogs, setActivityLogs] = useState([]);
+  const [onlineMembers, setOnlineMembers] = useState([]);
+  const [isLoadingActivityLogs, setIsLoadingActivityLogs] = useState(false);
+
   const features = [
     { id: 'create_rounding', name: '라운딩 생성' },
     { id: 'edit_rounding', name: '라운딩 수정/삭제' },
@@ -192,6 +196,9 @@ function Admin() {
   useEffect(() => {
     if (activeTab === 'settings' || activeTab === 'developer') {
       loadCategories();
+    }
+    if (activeTab === 'developer') {
+      loadActivityLogs();
     }
     if (activeTab === 'fees') {
       loadFeeDataFast();
@@ -367,12 +374,47 @@ function Admin() {
       ]);
       setIncomeCategories(income);
       setExpenseCategories(expense);
-      // 캐시 업데이트
       sessionStorage.setItem('incomeCategories', JSON.stringify(income));
       sessionStorage.setItem('expenseCategories', JSON.stringify(expense));
     } catch (error) {
       console.error('항목 로드 실패:', error);
     }
+  };
+
+  const loadActivityLogs = async () => {
+    setIsLoadingActivityLogs(true);
+    try {
+      const [logs, online] = await Promise.all([
+        apiService.fetchActivityLogs(50),
+        apiService.fetchOnlineMembers()
+      ]);
+      setActivityLogs(logs || []);
+      setOnlineMembers(online || []);
+    } catch (error) {
+      console.error('활동 로그 로드 실패:', error);
+    } finally {
+      setIsLoadingActivityLogs(false);
+    }
+  };
+
+  const getDeviceType = (userAgent) => {
+    if (!userAgent) return 'Unknown';
+    const ua = userAgent.toLowerCase();
+    if (/mobile|android|iphone|ipad|ipod|blackberry|windows phone/i.test(ua)) {
+      return 'Mobile';
+    }
+    return 'Desktop';
+  };
+
+  const formatTimeAgo = (dateString) => {
+    const now = new Date();
+    const date = new Date(dateString);
+    const diff = Math.floor((now - date) / 1000);
+    
+    if (diff < 60) return '방금 전';
+    if (diff < 3600) return `${Math.floor(diff / 60)}분 전`;
+    if (diff < 86400) return `${Math.floor(diff / 3600)}시간 전`;
+    return `${Math.floor(diff / 86400)}일 전`;
   };
 
   const handleAddIncomeCategory = async () => {
@@ -7608,6 +7650,151 @@ function Admin() {
                 >
                   로고 삭제
                 </button>
+              )}
+            </div>
+
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                marginBottom: '16px'
+              }}>
+                <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
+                  사용자 활동 로그
+                </h3>
+                <button
+                  onClick={loadActivityLogs}
+                  disabled={isLoadingActivityLogs}
+                  style={{
+                    padding: '8px 16px',
+                    background: 'var(--primary-green)',
+                    color: 'var(--text-light)',
+                    border: 'none',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    cursor: isLoadingActivityLogs ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {isLoadingActivityLogs ? '로딩...' : '새로고침'}
+                </button>
+              </div>
+
+              <div style={{
+                padding: '12px',
+                background: 'var(--bg-green)',
+                borderRadius: '8px',
+                marginBottom: '16px'
+              }}>
+                <div style={{ 
+                  fontSize: '14px', 
+                  fontWeight: '600', 
+                  marginBottom: '8px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}>
+                  <span style={{ 
+                    width: '10px', 
+                    height: '10px', 
+                    background: '#22c55e', 
+                    borderRadius: '50%',
+                    display: 'inline-block'
+                  }}></span>
+                  현재 접속중 ({onlineMembers.length}명)
+                </div>
+                {onlineMembers.length > 0 ? (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {onlineMembers.map(member => (
+                      <div
+                        key={member.id}
+                        style={{
+                          padding: '4px 10px',
+                          background: 'var(--bg-card)',
+                          borderRadius: '16px',
+                          fontSize: '13px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '6px'
+                        }}
+                      >
+                        <span style={{ 
+                          width: '8px', 
+                          height: '8px', 
+                          background: '#22c55e', 
+                          borderRadius: '50%' 
+                        }}></span>
+                        {member.nickname || member.name}
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ fontSize: '13px', color: 'var(--text-dark)', opacity: 0.6 }}>
+                    현재 접속중인 회원이 없습니다
+                  </div>
+                )}
+              </div>
+
+              <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>
+                최근 활동 내역
+              </div>
+              
+              {isLoadingActivityLogs ? (
+                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-dark)', opacity: 0.6 }}>
+                  로딩 중...
+                </div>
+              ) : activityLogs.length > 0 ? (
+                <div style={{ 
+                  maxHeight: '400px', 
+                  overflowY: 'auto',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '8px'
+                }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                    <thead>
+                      <tr style={{ background: 'var(--bg-green)' }}>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600' }}>시간</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600' }}>회원</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'left', fontWeight: '600' }}>페이지</th>
+                        <th style={{ padding: '10px 8px', textAlign: 'center', fontWeight: '600' }}>기기</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {activityLogs.map(log => (
+                        <tr 
+                          key={log.id} 
+                          style={{ borderBottom: '1px solid var(--border-color)' }}
+                        >
+                          <td style={{ padding: '8px', whiteSpace: 'nowrap' }}>
+                            {formatTimeAgo(log.createdAt)}
+                          </td>
+                          <td style={{ padding: '8px' }}>
+                            {log.memberName}
+                          </td>
+                          <td style={{ padding: '8px', color: 'var(--primary-green)' }}>
+                            {log.path}
+                          </td>
+                          <td style={{ padding: '8px', textAlign: 'center' }}>
+                            <span style={{
+                              padding: '2px 8px',
+                              borderRadius: '10px',
+                              fontSize: '11px',
+                              background: getDeviceType(log.userAgent) === 'Mobile' ? '#dbeafe' : '#f3e8ff',
+                              color: getDeviceType(log.userAgent) === 'Mobile' ? '#1d4ed8' : '#7c3aed'
+                            }}>
+                              {getDeviceType(log.userAgent)}
+                            </span>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-dark)', opacity: 0.6 }}>
+                  활동 로그가 없습니다
+                </div>
               )}
             </div>
 
