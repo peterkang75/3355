@@ -70,9 +70,29 @@ function TeamFormation() {
               ? JSON.parse(foundBooking.teams) 
               : foundBooking.teams;
             
-            setTeams(loadedTeams);
+            // 포썸 모드: 참가자 수에 맞게 조 수 조정
+            const requiredTeams = Math.ceil(allParticipants.length / 4);
+            let normalizedTeams = [...loadedTeams];
             
-            const assignedPhones = loadedTeams.flatMap(team => 
+            // 필요한 조 수보다 적으면 빈 조 추가
+            while (normalizedTeams.length < requiredTeams) {
+              normalizedTeams.push({
+                teamNumber: normalizedTeams.length + 1,
+                members: Array(4).fill(null)
+              });
+            }
+            
+            // 각 조의 members 배열이 4명인지 확인
+            normalizedTeams = normalizedTeams.map(team => ({
+              ...team,
+              members: team.members.length < 4 
+                ? [...team.members, ...Array(4 - team.members.length).fill(null)]
+                : team.members.slice(0, 4)
+            }));
+            
+            setTeams(normalizedTeams);
+            
+            const assignedPhones = normalizedTeams.flatMap(team => 
               team.members.filter(m => m !== null).map(m => m.phone)
             );
             
