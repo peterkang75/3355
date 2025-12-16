@@ -605,6 +605,8 @@ function TeamFormation() {
                 const isRenting = booking?.numberRentals && booking.numberRentals.includes(member.phone);
                 const isGuest = isGuestParticipant(member);
                 const handicapText = getHandicapDisplay(member);
+                const memberInfo = members.find(m => m.phone === member.phone);
+                const isFemale = memberInfo?.gender === '여';
                 
                 let bgColor = 'transparent';
                 let textColor = 'var(--primary-green)';
@@ -617,6 +619,10 @@ function TeamFormation() {
                 } else if (isRenting) {
                   bgColor = '#E6AA68';
                   textColor = '#fff';
+                } else if (isFemale) {
+                  bgColor = 'rgba(244, 114, 182, 0.3)';
+                  textColor = '#DB2777';
+                  borderColor = '#F472B6';
                 }
                 
                 return (
@@ -663,6 +669,8 @@ function TeamFormation() {
             const isRenting = member && booking?.numberRentals && booking.numberRentals.includes(member.phone);
             const isGuest = isGuestParticipant(member);
             const handicapText = member ? getHandicapDisplay(member) : '';
+            const memberInfo = member ? members.find(m => m.phone === member.phone) : null;
+            const isFemale = memberInfo?.gender === '여';
             
             let bgColor = 'var(--bg-card)';
             let textColor = 'var(--text-dark)';
@@ -676,6 +684,10 @@ function TeamFormation() {
               } else if (isRenting) {
                 bgColor = '#E6AA68';
                 textColor = '#fff';
+              } else if (isFemale) {
+                bgColor = '#F472B6';
+                textColor = '#fff';
+                borderColor = '#EC4899';
               } else {
                 bgColor = 'var(--primary-green)';
                 textColor = 'var(--text-light)';
