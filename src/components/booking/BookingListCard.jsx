@@ -496,8 +496,19 @@ const BookingListCard = memo(function BookingListCard({
     }}>
       <div style={{ flex: 1 }}>
         {booking.title && (
-          <div style={{ fontSize: '13px', color: 'var(--primary-green)', fontWeight: '600', marginBottom: '2px' }}>
+          <div style={{ 
+            fontSize: '13px', 
+            color: 'var(--primary-green)', 
+            fontWeight: '600', 
+            marginBottom: '2px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px'
+          }}>
             {booking.title}
+            {isFoursome && (
+              <Badge variant="purple" size="xs">포썸</Badge>
+            )}
           </div>
         )}
         <div style={{ fontSize: '16px', fontWeight: '700', color: '#333', marginBottom: '4px' }}>
