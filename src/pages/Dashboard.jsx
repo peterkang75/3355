@@ -1361,6 +1361,7 @@ function Dashboard() {
                   key={booking.id}
                   booking={booking}
                   isActive={true}
+                  isDashboard={true}
                   canManage={false}
                   userPhone={user.phone}
                   participants={participants}
