@@ -5,6 +5,7 @@ import theme from '../../styles/theme';
 const BookingListCard = memo(function BookingListCard({
   booking,
   isActive,
+  isDashboard = false,
   canManage,
   userPhone,
   participants,
@@ -67,6 +68,91 @@ const BookingListCard = memo(function BookingListCard({
       return false;
     }
   })();
+
+  if (isActive && isDashboard) {
+    const anonymousRentals = (booking.numberRentals || []).filter(
+      phone => !allParticipants.some(p => p.phone === phone)
+    );
+    const totalCount = allParticipants.length + anonymousRentals.length;
+    const remainingTime = getRemainingTime(booking.registrationDeadline);
+    
+    return (
+      <div 
+        key={booking.id} 
+        className="card"
+        onClick={() => onNavigate(`/booking?highlight=${booking.id}`)}
+        style={{ cursor: 'pointer' }}
+      >
+        <div style={{ marginBottom: '12px' }}>
+          {booking.title && (
+            <h3 style={{ 
+              fontSize: '14px', 
+              fontWeight: '700', 
+              color: 'white', 
+              background: booking.type === '컴페티션' ? '#2d5355' : '#BF4D34',
+              padding: '6px 10px',
+              borderRadius: '6px',
+              marginBottom: '8px',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px'
+            }}>
+              {booking.title}
+              {isFoursome && (
+                <Badge variant="purple" size="xs">포썸</Badge>
+              )}
+            </h3>
+          )}
+          <div style={{ fontSize: '16px', fontWeight: '600', color: '#333', marginBottom: '4px' }}>
+            ⛳ {booking.courseName}
+          </div>
+          <div style={{ fontSize: '13px', opacity: 0.7 }}>
+            ◷ {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
+          </div>
+        </div>
+
+        <div style={{
+          background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 100%)',
+          color: 'white',
+          padding: '12px 16px',
+          borderRadius: '8px',
+          marginBottom: '12px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <div>
+            <span style={{ fontSize: '15px', fontWeight: '600' }}>
+              🔥 현재 <strong style={{ fontSize: '18px' }}>{totalCount}명</strong> 참가 중!
+            </span>
+            {remainingTime && (
+              <span style={{ 
+                marginLeft: '8px', 
+                fontSize: '12px', 
+                opacity: 0.9,
+                background: 'rgba(255,255,255,0.2)',
+                padding: '2px 8px',
+                borderRadius: '10px'
+              }}>
+                {remainingTime}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <Button 
+          variant="outline" 
+          fullWidth
+          onClick={(e) => {
+            e.stopPropagation();
+            onNavigate(`/booking?highlight=${booking.id}`);
+          }}
+        >
+          자세히 보기 →
+        </Button>
+      </div>
+    );
+  }
 
   if (isActive) {
     return (
