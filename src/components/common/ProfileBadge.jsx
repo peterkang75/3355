@@ -31,10 +31,9 @@ function ProfileBadge({ user, showGreeting = false, size = 36 }) {
     };
   }, [showMemberDropdown]);
 
-  const handleMemberSelect = async (member) => {
+  const handleMemberSelect = (member) => {
     try {
-      const phoneLastSix = member.phone.slice(-6);
-      await login(phoneLastSix);
+      login(member);
       setShowMemberDropdown(false);
       setSearchTerm('');
       window.location.reload();
