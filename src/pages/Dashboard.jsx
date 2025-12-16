@@ -629,22 +629,20 @@ function Dashboard() {
                   </div>
                 </div>
               )}
-              {posts.slice(0, 5).map((post, index) => {
-                const isLast = index === Math.min(posts.length, 5) - 1;
-                const isInactive = post.isActive === false;
+              {posts.filter(p => p.isActive !== false).slice(0, 5).map((post, index, arr) => {
+                const isLast = index === arr.length - 1;
                 return (
                 <div 
                   key={post.id}
                   style={{
-                    backgroundColor: isInactive ? '#f5f5f5' : 'transparent',
+                    backgroundColor: 'transparent',
                     borderBottom: isLast ? 'none' : '1px solid #E5E7EB',
                     padding: '16px 0',
                     margin: 0,
                     borderRadius: 0,
                     boxShadow: 'none',
                     cursor: 'pointer',
-                    position: 'relative',
-                    opacity: isInactive ? 0.6 : 1
+                    position: 'relative'
                   }}
                   onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
                 >
@@ -664,24 +662,9 @@ function Dashboard() {
                       <h4 style={{ 
                         fontSize: '15px', 
                         fontWeight: '600',
-                        marginBottom: '4px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
+                        marginBottom: '4px'
                       }}>
                         {post.title}
-                        {isInactive && (
-                          <span style={{
-                            fontSize: '10px',
-                            background: '#999',
-                            color: 'white',
-                            padding: '2px 6px',
-                            borderRadius: '4px',
-                            fontWeight: '500'
-                          }}>
-                            비활성
-                          </span>
-                        )}
                       </h4>
                       <div style={{
                         display: 'flex',
