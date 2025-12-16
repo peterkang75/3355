@@ -554,6 +554,30 @@ function TeamFormation() {
           </div>
         )}
 
+        {hasAdminAccess && (
+          <button
+            onClick={() => navigate(`/play?id=${bookingId}`)}
+            style={{
+              width: '100%',
+              padding: '14px',
+              background: '#2196F3',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '16px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              marginBottom: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}
+          >
+            ⛳ 플레이하기
+          </button>
+        )}
+
         <div className="card" style={{ marginBottom: '16px' }}>
           <div style={{ 
             display: 'flex',
