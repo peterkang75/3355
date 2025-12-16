@@ -319,7 +319,7 @@ router.put("/bookings/:id", async (req, res) => {
           });
 
           if (existingTransaction) {
-            console.log(`Skipping duplicate charge for member ${member.nickname} on booking ${booking.name}`);
+            console.log(`Skipping duplicate charge for member ${member.nickname} on booking ${booking.title}`);
             continue;
           }
 
@@ -357,8 +357,8 @@ router.put("/bookings/:id", async (req, res) => {
             const remainingCharge = totalAmount - creditToUse;
             const today = new Date().toISOString().split("T")[0];
             const baseDescription = member.isFeeExempt
-              ? `${booking.name} 라운딩 (참가비 면제)`
-              : `${booking.name} 라운딩`;
+              ? `${booking.title} 라운딩 (참가비 면제)`
+              : `${booking.title} 라운딩`;
 
             // 1. 크레딧 사용분 처리 (Expense + Payment 생성)
             if (creditToUse > 0) {
