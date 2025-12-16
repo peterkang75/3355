@@ -35,6 +35,7 @@ export function AppProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [requiresProfileComplete, setRequiresProfileComplete] = useState(false);
   const [clubLogo, setClubLogo] = useState(null);
+  const [featurePermissions, setFeaturePermissions] = useState({});
   
   // 소켓 이벤트 핸들러에서 최신 user 값을 참조하기 위한 ref
   const userRef = useRef(null);
@@ -84,6 +85,11 @@ export function AppProvider({ children }) {
           if (logoSetting && logoSetting.value) {
             setClubLogo(logoSetting.value);
           }
+          const permissionsObj = {};
+          settingsData.filter(s => s.minRole).forEach(setting => {
+            permissionsObj[setting.feature] = setting.minRole;
+          });
+          setFeaturePermissions(permissionsObj);
         }
 
         if (membersData?.length > 0) {
@@ -513,6 +519,18 @@ export function AppProvider({ children }) {
   const isAdmin = useCallback(() => user?.role === '관리자', [user?.role]);
   const isOperator = useCallback(() => user?.role === '운영진' || user?.role === '관리자' || user?.role === '방장' || user?.role === '클럽운영진', [user?.role]);
   const isMember = useCallback(() => user?.role === '회원', [user?.role]);
+  
+  const roleHierarchy = ['관리자', '방장', '운영진', '클럽운영진', '회원'];
+  
+  const hasFeaturePermission = useCallback((featureId) => {
+    if (!user) return false;
+    if (user.isAdmin) return true;
+    const requiredRole = featurePermissions[featureId] || '관리자';
+    const userRoleIndex = roleHierarchy.indexOf(user.role);
+    const requiredRoleIndex = roleHierarchy.indexOf(requiredRole);
+    if (userRoleIndex === -1) return false;
+    return userRoleIndex <= requiredRoleIndex;
+  }, [user, featurePermissions]);
 
   const updateClubLogo = useCallback(async (logoData) => {
     try {
@@ -558,7 +576,8 @@ export function AppProvider({ children }) {
     clearRequiresProfileComplete,
     checkRequiredFields,
     clubLogo,
-    updateClubLogo
+    updateClubLogo,
+    hasFeaturePermission
   }), [
     user,
     members,
@@ -591,7 +610,8 @@ export function AppProvider({ children }) {
     requiresProfileComplete,
     clearRequiresProfileComplete,
     clubLogo,
-    updateClubLogo
+    updateClubLogo,
+    hasFeaturePermission
   ]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

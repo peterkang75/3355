@@ -171,7 +171,7 @@ function Admin() {
     { id: 'fee_management', name: '클럽회계관리' },
     { id: 'delete_transaction', name: '거래내역 삭제' },
     { id: 'course_management', name: '골프장 관리' },
-    { id: 'create_post', name: '게시판 작성' },
+    { id: 'manage_board', name: '게시판 관리' },
     { id: 'member_approval', name: '회원 승인' },
     { id: 'fee_exemption', name: '참가비 면제선택' }
   ];

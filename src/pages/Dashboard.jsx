@@ -8,7 +8,7 @@ import { Badge, Card, Button, PageHeader, ProfileBadge } from '../components/com
 import BookingListCard from '../components/booking/BookingListCard';
 
 function Dashboard() {
-  const { user, members, scores, bookings, posts, fees, userTransactions, addPost, updatePost, deletePost, updateBooking, refreshBookings, refreshAllData, refreshMembers } = useApp();
+  const { user, members, scores, bookings, posts, fees, userTransactions, addPost, updatePost, deletePost, updateBooking, refreshBookings, refreshAllData, refreshMembers, hasFeaturePermission } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
   const canCreatePost = user && (user.isAdmin || user.role === '관리자' || user.role === '방장' || user.role === '운영진' || user.role === '클럽운영진');
@@ -716,7 +716,7 @@ function Dashboard() {
                         )}
                       </div>
                     </div>
-                    {(user.isAdmin || post.authorId === user.id) && (
+                    {(user.isAdmin || post.authorId === user.id || hasFeaturePermission('manage_board')) && (
                       <div
                         onClick={(e) => {
                           e.stopPropagation();
