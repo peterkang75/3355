@@ -309,6 +309,20 @@ router.put("/bookings/:id", async (req, res) => {
         });
 
         if (member) {
+          // 중복 청구 방지: 이미 해당 라운딩에 대한 거래가 있는지 확인
+          const existingTransaction = await prisma.transaction.findFirst({
+            where: {
+              memberId: member.id,
+              bookingId: booking.id,
+              type: { in: ["charge", "expense"] },
+            },
+          });
+
+          if (existingTransaction) {
+            console.log(`Skipping duplicate charge for member ${member.nickname} on booking ${booking.name}`);
+            continue;
+          }
+
           let totalAmount;
           if (member.isFeeExempt) {
             totalAmount = (booking.greenFee || 0) + (booking.cartFee || 0);
@@ -1558,6 +1572,24 @@ router.post("/transactions/charge-with-credit", async (req, res) => {
       return res
         .status(400)
         .json({ error: "memberId and positive amount are required" });
+    }
+
+    // 중복 청구 방지: bookingId가 있으면 해당 라운딩에 대한 기존 거래 확인
+    if (bookingId) {
+      const existingTransaction = await prisma.transaction.findFirst({
+        where: {
+          memberId: memberId,
+          bookingId: bookingId,
+          type: { in: ["charge", "expense"] },
+        },
+      });
+
+      if (existingTransaction) {
+        return res.status(400).json({ 
+          error: "이미 해당 라운딩에 대한 청구가 존재합니다.",
+          existingTransactionId: existingTransaction.id
+        });
+      }
     }
 
     // 저장된 회원 잔액 사용 (전체 거래 조회 대신)
