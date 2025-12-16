@@ -240,6 +240,19 @@ function Dashboard() {
     setOpenMenuPostId(null);
   };
 
+  const handleTogglePostActive = async (postId) => {
+    try {
+      const response = await fetch(`/api/posts/${postId}/toggle-active`, {
+        method: 'PATCH'
+      });
+      if (!response.ok) throw new Error('Failed to toggle');
+      setOpenMenuPostId(null);
+      await refreshAllData();
+    } catch (error) {
+      alert('상태 변경에 실패했습니다.');
+    }
+  };
+
   const handleUpdatePost = async () => {
     if (!editingPost.title || !editingPost.content) {
       alert('제목과 내용을 입력해주세요.');
@@ -618,18 +631,20 @@ function Dashboard() {
               )}
               {posts.slice(0, 5).map((post, index) => {
                 const isLast = index === Math.min(posts.length, 5) - 1;
+                const isInactive = post.isActive === false;
                 return (
                 <div 
                   key={post.id}
                   style={{
-                    backgroundColor: 'transparent',
+                    backgroundColor: isInactive ? '#f5f5f5' : 'transparent',
                     borderBottom: isLast ? 'none' : '1px solid #E5E7EB',
                     padding: '16px 0',
                     margin: 0,
                     borderRadius: 0,
                     boxShadow: 'none',
                     cursor: 'pointer',
-                    position: 'relative'
+                    position: 'relative',
+                    opacity: isInactive ? 0.6 : 1
                   }}
                   onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
                 >
@@ -649,9 +664,24 @@ function Dashboard() {
                       <h4 style={{ 
                         fontSize: '15px', 
                         fontWeight: '600',
-                        marginBottom: '4px'
+                        marginBottom: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
                       }}>
                         {post.title}
+                        {isInactive && (
+                          <span style={{
+                            fontSize: '10px',
+                            background: '#999',
+                            color: 'white',
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            fontWeight: '500'
+                          }}>
+                            비활성
+                          </span>
+                        )}
                       </h4>
                       <div style={{
                         display: 'flex',
@@ -739,6 +769,24 @@ function Dashboard() {
                               onMouseLeave={(e) => e.target.style.background = 'white'}
                             >
                               수정
+                            </div>
+                            <div
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTogglePostActive(post.id);
+                              }}
+                              style={{
+                                padding: '12px 16px',
+                                cursor: 'pointer',
+                                background: 'white',
+                                borderBottom: '1px solid #eee',
+                                fontSize: '14px',
+                                color: post.isActive === false ? '#5cb85c' : '#f0ad4e'
+                              }}
+                              onMouseEnter={(e) => e.target.style.background = '#f5f5f5'}
+                              onMouseLeave={(e) => e.target.style.background = 'white'}
+                            >
+                              {post.isActive === false ? '활성화' : '비활성화'}
                             </div>
                             <div
                               onClick={(e) => {

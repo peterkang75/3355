@@ -234,6 +234,27 @@ router.delete("/posts/:id", async (req, res) => {
   }
 });
 
+router.patch("/posts/:id/toggle-active", async (req, res) => {
+  try {
+    const post = await prisma.post.findUnique({
+      where: { id: req.params.id },
+    });
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+    const updatedPost = await prisma.post.update({
+      where: { id: req.params.id },
+      data: { isActive: !post.isActive },
+      include: { author: true },
+    });
+    req.io.emit("posts:updated");
+    res.json(updatedPost);
+  } catch (error) {
+    console.error("Error toggling post active status:", error);
+    res.status(500).json({ error: "Failed to toggle post status" });
+  }
+});
+
 router.get("/bookings", async (req, res) => {
   try {
     const bookings = await prisma.booking.findMany({
