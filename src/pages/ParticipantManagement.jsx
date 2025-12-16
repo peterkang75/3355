@@ -16,6 +16,7 @@ function ParticipantManagement() {
   const [selectedToAdd, setSelectedToAdd] = useState([]);
   const [isAddingParticipants, setIsAddingParticipants] = useState(false);
   const [removingPhone, setRemovingPhone] = useState(null);
+  const [removingRentalPhone, setRemovingRentalPhone] = useState(null);
   const [showGuestModal, setShowGuestModal] = useState(false);
   const [guestFormData, setGuestFormData] = useState({ memberNumber: '', name: '' });
   const [isAddingGuest, setIsAddingGuest] = useState(false);
@@ -175,6 +176,35 @@ function ParticipantManagement() {
       alert(`참가자 삭제 중 오류가 발생했습니다: ${error.message}`);
     } finally {
       setRemovingPhone(null);
+    }
+  };
+
+  const handleRemoveRental = async (phoneToRemove) => {
+    if (removingRentalPhone) return;
+    if (!confirm('이 번호대여자를 삭제하시겠습니까?')) return;
+
+    setRemovingRentalPhone(phoneToRemove);
+    try {
+      const updatedRentals = (booking.numberRentals || []).filter(phone => phone !== phoneToRemove);
+      
+      const response = await fetch(`/api/bookings/${bookingId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          numberRentals: updatedRentals
+        })
+      });
+
+      if (response.ok) {
+        await refreshBookings();
+      } else {
+        const errorData = await response.text();
+        alert(`번호대여자 삭제에 실패했습니다: ${errorData}`);
+      }
+    } catch (error) {
+      alert(`번호대여자 삭제 중 오류가 발생했습니다: ${error.message}`);
+    } finally {
+      setRemovingRentalPhone(null);
     }
   };
 
@@ -422,6 +452,22 @@ function ParticipantManagement() {
                           {member.name}
                         </div>
                       </div>
+                      <LoadingButton
+                        onClick={() => handleRemoveRental(member.phone)}
+                        loading={removingRentalPhone === member.phone}
+                        loadingText="삭제중..."
+                        style={{
+                          padding: '6px 12px',
+                          background: 'var(--alert-red)',
+                          color: 'var(--text-light)',
+                          border: 'none',
+                          borderRadius: '6px',
+                          fontSize: '13px',
+                          fontWeight: '600'
+                        }}
+                      >
+                        삭제
+                      </LoadingButton>
                     </div>
                   ))}
                 </div>
