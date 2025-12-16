@@ -69,12 +69,22 @@ const BookingListCard = memo(function BookingListCard({
     }
   })();
 
+  const getDaysRemaining = (deadline) => {
+    if (!deadline) return null;
+    const now = new Date();
+    const deadlineDate = new Date(deadline);
+    deadlineDate.setHours(23, 59, 59, 999);
+    const diff = deadlineDate - now;
+    if (diff <= 0) return null;
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  };
+
   if (isActive && isDashboard) {
     const anonymousRentals = (booking.numberRentals || []).filter(
       phone => !allParticipants.some(p => p.phone === phone)
     );
     const totalCount = allParticipants.length + anonymousRentals.length;
-    const remainingTime = getRemainingTime(booking.registrationDeadline);
+    const daysRemaining = getDaysRemaining(booking.registrationDeadline);
     
     return (
       <div 
@@ -111,45 +121,78 @@ const BookingListCard = memo(function BookingListCard({
           </div>
         </div>
 
-        <div style={{
-          background: 'linear-gradient(135deg, #ff6b35 0%, #f7931e 100%)',
-          color: 'white',
-          padding: '12px 16px',
-          borderRadius: '8px',
-          marginBottom: '12px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}>
-          <div>
-            <span style={{ fontSize: '15px', fontWeight: '600' }}>
-              🔥 현재 <strong style={{ fontSize: '18px' }}>{totalCount}명</strong> 참가 중!
+        {isRegistrationClosed ? (
+          <div style={{
+            background: '#F3F4F6',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            marginBottom: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <span style={{ 
+              fontSize: '15px', 
+              fontWeight: '600',
+              color: '#4B5563'
+            }}>
+              접수 마감 (총 {totalCount}명)
             </span>
-            {remainingTime && (
-              <span style={{ 
-                marginLeft: '8px', 
-                fontSize: '12px', 
-                opacity: 0.9,
-                background: 'rgba(255,255,255,0.2)',
-                padding: '2px 8px',
-                borderRadius: '10px'
-              }}>
-                {remainingTime}
-              </span>
-            )}
           </div>
-        </div>
+        ) : (
+          <div style={{
+            background: '#D1FAE5',
+            padding: '12px 16px',
+            borderRadius: '8px',
+            marginBottom: '12px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ 
+                fontSize: '15px', 
+                fontWeight: '600',
+                color: 'var(--primary-green)'
+              }}>
+                접수 중! (현재 {totalCount}명)
+              </span>
+              {daysRemaining !== null && daysRemaining <= 7 && (
+                <span style={{ 
+                  fontSize: '12px', 
+                  color: daysRemaining <= 2 ? '#DC2626' : '#6B7280',
+                  fontWeight: daysRemaining <= 2 ? '600' : '400'
+                }}>
+                  마감 D-{daysRemaining}
+                </span>
+              )}
+            </div>
+          </div>
+        )}
 
-        <Button 
-          variant="outline" 
-          fullWidth
-          onClick={(e) => {
-            e.stopPropagation();
-            onNavigate(`/booking?highlight=${booking.id}`);
-          }}
-        >
-          자세히 보기 →
-        </Button>
+        {isRegistrationClosed ? (
+          <Button 
+            variant="outline" 
+            fullWidth
+            onClick={(e) => {
+              e.stopPropagation();
+              onNavigate(`/team-formation?id=${booking.id}`);
+            }}
+          >
+            📋 조편성 보기
+          </Button>
+        ) : (
+          <Button 
+            variant="outline" 
+            fullWidth
+            onClick={(e) => {
+              e.stopPropagation();
+              onNavigate(`/booking?highlight=${booking.id}`);
+            }}
+          >
+            자세히 보기 →
+          </Button>
+        )}
       </div>
     );
   }
