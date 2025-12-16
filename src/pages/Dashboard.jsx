@@ -8,7 +8,7 @@ import { Badge, Card, Button, PageHeader, ProfileBadge } from '../components/com
 import BookingListCard from '../components/booking/BookingListCard';
 
 function Dashboard() {
-  const { user, members, scores, bookings, posts, fees, addPost, updatePost, deletePost, updateBooking, refreshBookings, refreshAllData, refreshMembers } = useApp();
+  const { user, members, scores, bookings, posts, fees, userTransactions, addPost, updatePost, deletePost, updateBooking, refreshBookings, refreshAllData, refreshMembers } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
   const canCreatePost = user && (user.isAdmin || user.role === '관리자' || user.role === '방장' || user.role === '운영진' || user.role === '클럽운영진');
@@ -64,6 +64,29 @@ function Dashboard() {
     if (diffInSeconds < 604800) return `${Math.floor(diffInSeconds / 86400)}일 전`;
     return formatDateTime(dateString);
   };
+
+  // 개인 잔액 계산 (참가비 페이지와 동일한 방식)
+  const totalCharges = userTransactions
+    .filter((t) => t.type === "charge")
+    .reduce((sum, t) => sum + t.amount, 0);
+  const totalPayments = userTransactions
+    .filter((t) => t.type === "payment" && t.category !== "크레딧 자동 납부" && t.category !== "크레딧 자동 차감")
+    .reduce((sum, t) => sum + t.amount, 0);
+  const totalCredits = userTransactions
+    .filter((t) => t.type === "credit")
+    .reduce((sum, t) => sum + t.amount, 0);
+  const totalExpenses = userTransactions
+    .filter((t) => t.type === "expense")
+    .reduce((sum, t) => sum + t.amount, 0);
+  const totalCreditDonations = userTransactions
+    .filter((t) => t.type === "creditDonation")
+    .reduce((sum, t) => sum + t.amount, 0);
+  const calculatedBalance =
+    totalPayments +
+    totalCredits -
+    totalCharges -
+    totalExpenses -
+    totalCreditDonations;
 
   // 거래내역 로드 - user가 업데이트될 때마다 자동 새로고침
   useEffect(() => {
@@ -1198,9 +1221,9 @@ function Dashboard() {
             <div style={{ 
               fontSize: '28px', 
               fontWeight: '800',
-              color: (user?.balance || 0) < 0 ? 'var(--alert-red)' : 'var(--accent-gold)'
+              color: calculatedBalance < 0 ? 'var(--alert-red)' : 'var(--accent-gold)'
             }}>
-              ${(user?.balance || 0).toLocaleString()}
+              ${calculatedBalance.toLocaleString()}
             </div>
           </Card>
         </div>
