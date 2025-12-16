@@ -1083,16 +1083,21 @@ function Play() {
     let headerBgColor = '#6399CF';
     
     if (gameMode === 'foursome' && foursomeData) {
+      const myTeamHandicap = foursomeData.isTeamA ? foursomeData.teamAHandicap : foursomeData.teamBHandicap;
+      const opponentTeamHandicap = foursomeData.isTeamA ? foursomeData.teamBHandicap : foursomeData.teamAHandicap;
+      
       if (isTeammate) {
         // 상대 팀 (opponent)
         const opponentNames = foursomeData.opponents.map(o => o?.nickname || o?.name).filter(Boolean).join(' & ');
-        displayTitle = `상대: ${opponentNames || '상대 팀'}`;
+        const handicapText = opponentTeamHandicap != null ? ` (팀핸디 ${opponentTeamHandicap})` : '';
+        displayTitle = `상대: ${opponentNames || '상대 팀'}${handicapText}`;
         headerBgColor = '#EF4444';
       } else {
         // 우리 팀 (me + partner)
         const myName = user?.nickname || user?.name || '나';
         const partnerName = foursomeData.partner?.nickname || foursomeData.partner?.name || '파트너';
-        displayTitle = `우리팀: ${myName} & ${partnerName}`;
+        const handicapText = myTeamHandicap != null ? ` (팀핸디 ${myTeamHandicap})` : '';
+        displayTitle = `우리팀: ${myName} & ${partnerName}${handicapText}`;
         headerBgColor = '#3B82F6';
       }
     }
