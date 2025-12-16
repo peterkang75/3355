@@ -177,13 +177,38 @@ function Play() {
             const enrichedOpponent1 = enrichMember(opponent1);
             const enrichedOpponent2 = enrichMember(opponent2);
             
+            // 팀 핸디캡 계산 (저장된 값이 없으면 실시간 계산)
+            const getHandicapValue = (member) => {
+              if (!member) return 36;
+              const hcp = parseFloat(member.gaHandy) || parseFloat(member.handicap) || parseFloat(member.houseHandy) || 36;
+              return hcp;
+            };
+            
+            const enrichedUser = enrichMember({ phone: user?.phone });
+            const pairA = [userTeam.members[0], userTeam.members[1]].filter(Boolean);
+            const pairB = [userTeam.members[2], userTeam.members[3]].filter(Boolean);
+            
+            let teamAHandicap = userTeam.pairAHandicap;
+            let teamBHandicap = userTeam.pairBHandicap;
+            
+            if (teamAHandicap == null && pairA.length >= 2) {
+              const h1 = getHandicapValue(enrichMember(pairA[0]));
+              const h2 = getHandicapValue(enrichMember(pairA[1]));
+              teamAHandicap = parseFloat(((h1 + h2) / 2).toFixed(1));
+            }
+            if (teamBHandicap == null && pairB.length >= 2) {
+              const h1 = getHandicapValue(enrichMember(pairB[0]));
+              const h2 = getHandicapValue(enrichMember(pairB[1]));
+              teamBHandicap = parseFloat(((h1 + h2) / 2).toFixed(1));
+            }
+            
             setFoursomeData({
               userSlotIndex,
               isTeamA,
               partner: enrichedPartner,
               opponents: [enrichedOpponent1, enrichedOpponent2].filter(Boolean),
-              teamAHandicap: userTeam.pairAHandicap,
-              teamBHandicap: userTeam.pairBHandicap
+              teamAHandicap,
+              teamBHandicap
             });
             
             console.log('🏌️ 포썸 데이터:', {
