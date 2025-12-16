@@ -181,7 +181,9 @@ function Play() {
               userSlotIndex,
               isTeamA,
               partner: enrichedPartner,
-              opponents: [enrichedOpponent1, enrichedOpponent2].filter(Boolean)
+              opponents: [enrichedOpponent1, enrichedOpponent2].filter(Boolean),
+              teamAHandicap: userTeam.pairAHandicap,
+              teamBHandicap: userTeam.pairBHandicap
             });
             
             console.log('🏌️ 포썸 데이터:', {
@@ -423,6 +425,8 @@ function Play() {
       const myName = user?.nickname || user?.name || '나';
       const teamLabel = foursomeData.isTeamA ? 'A팀' : 'B팀';
       const opponentTeamLabel = foursomeData.isTeamA ? 'B팀' : 'A팀';
+      const myTeamHandicap = foursomeData.isTeamA ? foursomeData.teamAHandicap : foursomeData.teamBHandicap;
+      const opponentTeamHandicap = foursomeData.isTeamA ? foursomeData.teamBHandicap : foursomeData.teamAHandicap;
       
       const handleStartFoursome = async () => {
         if (isStartingRound) return;
@@ -491,9 +495,25 @@ function Play() {
                 fontWeight: '700', 
                 color: '#3B82F6', 
                 marginBottom: '8px',
-                textAlign: 'center'
+                textAlign: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
               }}>
-                {teamLabel} (우리 팀)
+                <span>{teamLabel} (우리 팀)</span>
+                {myTeamHandicap != null && (
+                  <span style={{
+                    background: '#3B82F6',
+                    color: 'white',
+                    padding: '2px 8px',
+                    borderRadius: '10px',
+                    fontSize: '11px',
+                    fontWeight: '600'
+                  }}>
+                    핸디 {myTeamHandicap}
+                  </span>
+                )}
               </div>
               <div style={{ 
                 display: 'flex', 
@@ -568,9 +588,25 @@ function Play() {
                 fontWeight: '700', 
                 color: '#EF4444', 
                 marginBottom: '8px',
-                textAlign: 'center'
+                textAlign: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
               }}>
-                {opponentTeamLabel} (상대 팀)
+                <span>{opponentTeamLabel} (상대 팀)</span>
+                {opponentTeamHandicap != null && (
+                  <span style={{
+                    background: '#EF4444',
+                    color: 'white',
+                    padding: '2px 8px',
+                    borderRadius: '10px',
+                    fontSize: '11px',
+                    fontWeight: '600'
+                  }}>
+                    핸디 {opponentTeamHandicap}
+                  </span>
+                )}
               </div>
               <div style={{ 
                 display: 'flex', 

@@ -155,22 +155,26 @@ function Leaderboard() {
         teamsData.forEach((team, teamIdx) => {
           if (!team.members || team.members.length < 4) return;
           
-          // Pair A: slots 0, 1
+          // Pair A: slots 0, 1 - 팀 핸디캡 포함
           const pairA = {
             teamNumber: team.teamNumber,
             pairLabel: 'A',
             members: [team.members[0], team.members[1]].filter(Boolean),
+            teamHandicap: team.pairAHandicap || null,
             score: null,
+            netScore: null,
             overUnder: null,
             coursePar: calculatedCoursePar
           };
           
-          // Pair B: slots 2, 3
+          // Pair B: slots 2, 3 - 팀 핸디캡 포함
           const pairB = {
             teamNumber: team.teamNumber,
             pairLabel: 'B',
             members: [team.members[2], team.members[3]].filter(Boolean),
+            teamHandicap: team.pairBHandicap || null,
             score: null,
+            netScore: null,
             overUnder: null,
             coursePar: calculatedCoursePar
           };
@@ -189,6 +193,12 @@ function Leaderboard() {
                 pair.playedPar = memberScore.playedPar;
                 pair.outScore = memberScore.outScore;
                 pair.inScore = memberScore.inScore;
+                // Net Score 계산: Gross Score - Team Handicap
+                if (pair.teamHandicap != null) {
+                  pair.netScore = parseFloat((memberScore.totalScore - pair.teamHandicap).toFixed(1));
+                } else {
+                  pair.netScore = memberScore.totalScore;
+                }
                 break;
               }
             }
@@ -204,12 +214,12 @@ function Leaderboard() {
           teamPairs.push(pairA, pairB);
         });
         
-        // 점수 기준 정렬 (낮을수록 좋음)
+        // Net Score 기준 정렬 (낮을수록 좋음)
         teamPairs.sort((a, b) => {
-          if (a.score === null && b.score === null) return 0;
-          if (a.score === null) return 1;
-          if (b.score === null) return -1;
-          return a.overUnder - b.overUnder;
+          if (a.netScore === null && b.netScore === null) return 0;
+          if (a.netScore === null) return 1;
+          if (b.netScore === null) return -1;
+          return a.netScore - b.netScore;
         });
         
         setFoursomeTeams(teamPairs);
@@ -376,20 +386,21 @@ function Leaderboard() {
           
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '40px 1fr 36px 36px 60px 50px',
+            gridTemplateColumns: '32px 1fr 32px 32px 44px 40px 44px',
             gap: '4px',
             padding: '12px 4px',
             borderBottom: '2px solid rgba(255,255,255,0.3)',
             color: 'rgba(255,255,255,0.9)',
-            fontSize: '14px',
+            fontSize: '12px',
             fontWeight: '700'
           }}>
             <div>순위</div>
             <div>팀원</div>
             <div style={{ textAlign: 'center' }}>OUT</div>
             <div style={{ textAlign: 'center' }}>IN</div>
-            <div style={{ textAlign: 'center' }}>총타수</div>
-            <div style={{ textAlign: 'center' }}>+-</div>
+            <div style={{ textAlign: 'center' }}>총타</div>
+            <div style={{ textAlign: 'center' }}>핸디</div>
+            <div style={{ textAlign: 'center' }}>NET</div>
           </div>
 
           {foursomeTeams.length === 0 ? (
@@ -406,34 +417,34 @@ function Leaderboard() {
                 key={`${team.teamNumber}-${team.pairLabel}-${index}`}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '40px 1fr 36px 36px 60px 50px',
+                  gridTemplateColumns: '32px 1fr 32px 32px 44px 40px 44px',
                   gap: '4px',
                   padding: '12px 4px',
-                  background: index === 0 && team.score 
+                  background: index === 0 && team.netScore != null
                     ? 'linear-gradient(90deg, rgba(255,215,0,0.2) 0%, rgba(255,215,0,0.05) 100%)' 
                     : index % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
                   borderBottom: '1px solid rgba(255,255,255,0.1)',
                   alignItems: 'center',
-                  borderLeft: index === 0 && team.score ? '3px solid #FFD700' : 'none'
+                  borderLeft: index === 0 && team.netScore != null ? '3px solid #FFD700' : 'none'
                 }}
               >
                 <div style={{ 
-                  color: index === 0 && team.score ? '#FFD700' : 'white', 
-                  fontSize: '14px',
+                  color: index === 0 && team.netScore != null ? '#FFD700' : 'white', 
+                  fontSize: '13px',
                   fontWeight: '700',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '4px'
+                  gap: '2px'
                 }}>
-                  {index === 0 && team.score && <span>🥇</span>}
-                  {index === 1 && team.score && <span style={{ opacity: 0.8 }}>🥈</span>}
-                  {index === 2 && team.score && <span style={{ opacity: 0.6 }}>🥉</span>}
-                  {(index > 2 || !team.score) && <span>{index + 1}</span>}
+                  {index === 0 && team.netScore != null && <span>🥇</span>}
+                  {index === 1 && team.netScore != null && <span style={{ opacity: 0.8 }}>🥈</span>}
+                  {index === 2 && team.netScore != null && <span style={{ opacity: 0.6 }}>🥉</span>}
+                  {(index > 2 || team.netScore == null) && <span>{index + 1}</span>}
                 </div>
                 <div>
                   <div style={{ 
                     color: 'white', 
-                    fontSize: '13px', 
+                    fontSize: '12px', 
                     fontWeight: '500',
                     display: 'flex',
                     flexDirection: 'column',
@@ -452,32 +463,40 @@ function Leaderboard() {
                 <div style={{ 
                   textAlign: 'center', 
                   color: 'rgba(255,255,255,0.9)',
-                  fontSize: '12px'
+                  fontSize: '11px'
                 }}>
                   {team.outScore || '-'}
                 </div>
                 <div style={{ 
                   textAlign: 'center', 
                   color: 'rgba(255,255,255,0.9)',
-                  fontSize: '12px'
+                  fontSize: '11px'
                 }}>
                   {team.inScore || '-'}
                 </div>
                 <div style={{ 
                   textAlign: 'center', 
                   color: 'white',
-                  fontSize: '12px',
+                  fontSize: '11px',
                   fontWeight: '600'
                 }}>
                   {team.score || '-'}
                 </div>
                 <div style={{ 
                   textAlign: 'center', 
-                  color: team.overUnder > 0 ? '#ff6b6b' : team.overUnder < 0 ? '#51cf66' : 'white',
-                  fontSize: '13px',
+                  color: '#60a5fa',
+                  fontSize: '11px',
                   fontWeight: '600'
                 }}>
-                  {team.score ? (team.overUnder > 0 ? `+${team.overUnder}` : team.overUnder === 0 ? 'E' : team.overUnder) : '-'}
+                  {team.teamHandicap != null ? team.teamHandicap : '-'}
+                </div>
+                <div style={{ 
+                  textAlign: 'center', 
+                  color: '#fbbf24',
+                  fontSize: '12px',
+                  fontWeight: '700'
+                }}>
+                  {team.netScore != null ? team.netScore : '-'}
                 </div>
               </div>
             ))

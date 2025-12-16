@@ -272,9 +272,41 @@ function TeamFormation() {
     
     setIsSaving(true);
     try {
-      await apiService.updateBooking(bookingId, {
-        teams: JSON.stringify(teams)
+      // 포썸 모드일 경우 팀 핸디캡 계산
+      const teamsWithHandicap = teams.map(team => {
+        const newTeam = { ...team };
+        
+        // Pair A (members[0], members[1])의 팀 핸디캡
+        const pairAMembers = [team.members[0], team.members[1]].filter(Boolean);
+        if (pairAMembers.length === 2) {
+          const hcp1 = getHandicapValue(pairAMembers[0]);
+          const hcp2 = getHandicapValue(pairAMembers[1]);
+          newTeam.pairAHandicap = parseFloat(((hcp1 + hcp2) / 2).toFixed(1));
+        } else if (pairAMembers.length === 1) {
+          newTeam.pairAHandicap = getHandicapValue(pairAMembers[0]);
+        } else {
+          newTeam.pairAHandicap = null;
+        }
+        
+        // Pair B (members[2], members[3])의 팀 핸디캡
+        const pairBMembers = [team.members[2], team.members[3]].filter(Boolean);
+        if (pairBMembers.length === 2) {
+          const hcp1 = getHandicapValue(pairBMembers[0]);
+          const hcp2 = getHandicapValue(pairBMembers[1]);
+          newTeam.pairBHandicap = parseFloat(((hcp1 + hcp2) / 2).toFixed(1));
+        } else if (pairBMembers.length === 1) {
+          newTeam.pairBHandicap = getHandicapValue(pairBMembers[0]);
+        } else {
+          newTeam.pairBHandicap = null;
+        }
+        
+        return newTeam;
       });
+      
+      await apiService.updateBooking(bookingId, {
+        teams: JSON.stringify(teamsWithHandicap)
+      });
+      setTeams(teamsWithHandicap);
       setHasUnsavedChanges(false);
       alert('조편성이 저장되었습니다!');
     } catch (error) {
