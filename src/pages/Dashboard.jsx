@@ -1278,7 +1278,7 @@ function Dashboard() {
               });
               
               const isRenting = booking.numberRentals && booking.numberRentals.includes(user.phone);
-              const totalFee = (booking.greenFee || 0) + (booking.cartFee || 0) + (booking.caddyFee || 0);
+              const totalFee = (booking.greenFee || 0) + (booking.cartFee || 0) + (booking.caddyFee || 0) + (booking.membershipFee || 0);
 
               return (
                 <BookingListCard
