@@ -321,29 +321,6 @@ function MyPage() {
                 )}
               </div>
             </Card>
-
-            <Card style={{ marginBottom: '16px' }}>
-              <h3 style={{ 
-                fontSize: '16px', 
-                fontWeight: '700',
-                marginBottom: '16px',
-                color: 'var(--primary-green)'
-              }}>
-                참가비 정보
-              </h3>
-              
-              <div style={{
-                fontSize: '20px',
-                fontWeight: '700',
-                color: user.balance < 0 ? 'var(--alert-red)' : 'var(--success-green)',
-                textAlign: 'center',
-                padding: '16px',
-                background: user.balance < 0 ? '#fee' : '#efe',
-                borderRadius: '8px'
-              }}>
-                {user.balance < 0 ? '미수금' : '잔액'}: ${Math.abs(user.balance || 0).toLocaleString()}
-              </div>
-            </Card>
           </>
         ) : (
           <Card style={{ marginBottom: '16px' }}>
