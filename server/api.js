@@ -1519,6 +1519,26 @@ router.get("/transactions/outstanding", async (req, res) => {
 // 거래 생성 (charge, payment, expense, donation, credit, creditDonation)
 router.post("/transactions", async (req, res) => {
   try {
+    const { memberId, bookingId, type } = req.body;
+
+    // 중복 청구 방지: bookingId가 있고 charge 타입인 경우 기존 거래 확인
+    if (bookingId && memberId && type === "charge") {
+      const existingTransaction = await prisma.transaction.findFirst({
+        where: {
+          memberId: memberId,
+          bookingId: bookingId,
+          type: { in: ["charge", "expense"] },
+        },
+      });
+
+      if (existingTransaction) {
+        return res.status(400).json({ 
+          error: "이미 해당 라운딩에 대한 청구가 존재합니다.",
+          existingTransactionId: existingTransaction.id
+        });
+      }
+    }
+
     const transaction = await prisma.transaction.create({
       data: req.body,
       include: {
