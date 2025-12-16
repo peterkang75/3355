@@ -454,7 +454,9 @@ function Booking() {
   const renderBookingListItem = (booking, isActive) => {
     const participants = parseParticipants(booking.participants);
     const isJoined = participants.some(p => p.phone === user.phone);
-    const totalFee = (parseInt(booking.greenFee) || 0) + (parseInt(booking.cartFee) || 0) + (parseInt(booking.membershipFee) || 0);
+    const totalFee = user.isFeeExempt
+      ? (parseInt(booking.greenFee) || 0) + (parseInt(booking.cartFee) || 0)
+      : (parseInt(booking.greenFee) || 0) + (parseInt(booking.cartFee) || 0) + (parseInt(booking.membershipFee) || 0);
     
     // 포썸 모드 체크
     let isFoursome = false;
@@ -501,6 +503,7 @@ function Booking() {
         isFoursome={isFoursome}
         isJoined={isJoined}
         isRenting={isRenting}
+        isFeeExempt={user.isFeeExempt}
         isMenuOpen={openMenuId === booking.id}
         loadingStates={{
           isDeleting: isDeleting === booking.id,

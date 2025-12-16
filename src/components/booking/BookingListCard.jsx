@@ -14,6 +14,7 @@ const BookingListCard = memo(function BookingListCard({
   isFoursome,
   isJoined,
   isRenting,
+  isFeeExempt,
   isMenuOpen,
   loadingStates,
   statusFlags,
@@ -287,8 +288,10 @@ const BookingListCard = memo(function BookingListCard({
               )}
               {booking.membershipFee && (
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <span>참가비</span>
-                  <span>{formatCurrency(booking.membershipFee)}</span>
+                  <span>참가비{isFeeExempt ? ' (면제)' : ''}</span>
+                  <span style={isFeeExempt ? { textDecoration: 'line-through', opacity: 0.5 } : {}}>
+                    {formatCurrency(booking.membershipFee)}
+                  </span>
                 </div>
               )}
               {totalFee > 0 && (

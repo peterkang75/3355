@@ -1278,7 +1278,9 @@ function Dashboard() {
               });
               
               const isRenting = booking.numberRentals && booking.numberRentals.includes(user.phone);
-              const totalFee = (booking.greenFee || 0) + (booking.cartFee || 0) + (booking.caddyFee || 0) + (booking.membershipFee || 0);
+              const totalFee = user.isFeeExempt
+                ? (booking.greenFee || 0) + (booking.cartFee || 0) + (booking.caddyFee || 0)
+                : (booking.greenFee || 0) + (booking.cartFee || 0) + (booking.caddyFee || 0) + (booking.membershipFee || 0);
 
               return (
                 <BookingListCard
@@ -1293,6 +1295,7 @@ function Dashboard() {
                   isFoursome={isFoursome}
                   isJoined={isJoined}
                   isRenting={isRenting}
+                  isFeeExempt={user.isFeeExempt}
                   isMenuOpen={false}
                   loadingStates={{
                     isDeleting: false,
