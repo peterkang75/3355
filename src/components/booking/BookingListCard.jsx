@@ -141,7 +141,7 @@ const BookingListCard = memo(function BookingListCard({
           </div>
         ) : (
           <div style={{
-            background: '#D1FAE5',
+            background: '#FFEDD5',
             padding: '12px 16px',
             borderRadius: '8px',
             marginBottom: '12px',
@@ -153,14 +153,14 @@ const BookingListCard = memo(function BookingListCard({
               <span style={{ 
                 fontSize: '15px', 
                 fontWeight: '600',
-                color: 'var(--primary-green)'
+                color: '#C05621'
               }}>
                 접수 중! (현재 {totalCount}명)
               </span>
               {daysRemaining !== null && daysRemaining <= 7 && (
                 <span style={{ 
                   fontSize: '12px', 
-                  color: daysRemaining <= 2 ? '#DC2626' : '#6B7280',
+                  color: daysRemaining <= 2 ? '#DC2626' : '#92400E',
                   fontWeight: daysRemaining <= 2 ? '600' : '400'
                 }}>
                   마감 D-{daysRemaining}
