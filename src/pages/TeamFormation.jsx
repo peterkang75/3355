@@ -402,6 +402,33 @@ function TeamFormation() {
     }
   };
 
+  const handleAddTeam = () => {
+    const newTeamNumber = teams.length + 1;
+    const newTeam = {
+      teamNumber: newTeamNumber,
+      members: [null, null, null, null]
+    };
+    setTeams([...teams, newTeam]);
+    setHasUnsavedChanges(true);
+  };
+
+  const handleRemoveTeam = () => {
+    if (teams.length === 0) return;
+    
+    const lastTeam = teams[teams.length - 1];
+    const membersToUnassign = lastTeam.members.filter(m => m !== null);
+    
+    if (membersToUnassign.length > 0) {
+      if (!confirm(`${teams.length}조에 배정된 ${membersToUnassign.length}명이 미배정으로 이동됩니다. 삭제하시겠습니까?`)) {
+        return;
+      }
+      setUnassigned([...unassigned, ...membersToUnassign]);
+    }
+    
+    setTeams(teams.slice(0, -1));
+    setHasUnsavedChanges(true);
+  };
+
   const hasAdminAccess = user?.role === '관리자' || user?.role === '방장' || user?.role === '운영진' || user?.role === '클럽운영진' || user?.isAdmin;
 
   if (!booking) {
@@ -458,6 +485,39 @@ function TeamFormation() {
             >
               ⚡ 자동 배정
             </LoadingButton>
+            <button
+              onClick={handleRemoveTeam}
+              disabled={teams.length === 0}
+              style={{
+                padding: '12px 16px',
+                background: teams.length === 0 ? '#ccc' : '#EF4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '18px',
+                fontWeight: '700',
+                cursor: teams.length === 0 ? 'not-allowed' : 'pointer',
+                minWidth: '48px'
+              }}
+            >
+              −
+            </button>
+            <button
+              onClick={handleAddTeam}
+              style={{
+                padding: '12px 16px',
+                background: 'var(--primary-green)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '18px',
+                fontWeight: '700',
+                cursor: 'pointer',
+                minWidth: '48px'
+              }}
+            >
+              +
+            </button>
             <LoadingButton
               onClick={handleSaveTeams}
               loading={isSaving}
