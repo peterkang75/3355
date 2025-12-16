@@ -352,6 +352,83 @@ function ParticipantManagement() {
             </div>
           )}
 
+          {/* 번호대여자 목록 */}
+          {booking.numberRentals && booking.numberRentals.length > 0 && (() => {
+            const rentalPhones = booking.numberRentals || [];
+            const rentalMembers = rentalPhones
+              .map(phone => {
+                const member = members.find(m => m.phone === phone);
+                const isParticipant = participants.some(p => p.phone === phone);
+                return member ? { ...member, isParticipant } : null;
+              })
+              .filter(Boolean);
+
+            if (rentalMembers.length === 0) return null;
+
+            return (
+              <div style={{ marginTop: '24px' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#FF9800', marginBottom: '12px' }}>
+                  🔢 번호대여자 ({rentalMembers.length}명)
+                </h3>
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  {rentalMembers.map((member, index) => (
+                    <div
+                      key={index}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '12px 16px',
+                        borderRadius: '8px',
+                        border: '2px solid #FF9800',
+                        background: 'rgba(255, 152, 0, 0.1)'
+                      }}
+                    >
+                      <div>
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          gap: '8px',
+                          fontSize: '15px', 
+                          fontWeight: '600'
+                        }}>
+                          <span style={{ color: '#E65100' }}>
+                            {member.nickname}
+                          </span>
+                          <span style={{
+                            fontSize: '11px',
+                            fontWeight: '600',
+                            background: '#FF9800',
+                            color: 'white',
+                            padding: '2px 6px',
+                            borderRadius: '4px'
+                          }}>
+                            번호대여
+                          </span>
+                          {member.isParticipant && (
+                            <span style={{
+                              fontSize: '11px',
+                              fontWeight: '600',
+                              background: 'var(--primary-green)',
+                              color: 'white',
+                              padding: '2px 6px',
+                              borderRadius: '4px'
+                            }}>
+                              참가중
+                            </span>
+                          )}
+                        </div>
+                        <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                          {member.name}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+
           <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
             <button
               onClick={() => navigate(`/team-formation?id=${bookingId}`)}
