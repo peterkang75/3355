@@ -620,9 +620,9 @@ function TeamFormation() {
                   bgColor = '#E6AA68';
                   textColor = '#fff';
                 } else if (isFemale) {
-                  bgColor = 'rgba(244, 114, 182, 0.3)';
-                  textColor = '#DB2777';
-                  borderColor = '#F472B6';
+                  bgColor = 'rgba(196, 129, 137, 0.3)';
+                  textColor = '#C48189';
+                  borderColor = '#C48189';
                 }
                 
                 return (
@@ -685,9 +685,9 @@ function TeamFormation() {
                 bgColor = '#E6AA68';
                 textColor = '#fff';
               } else if (isFemale) {
-                bgColor = '#F472B6';
+                bgColor = '#C48189';
                 textColor = '#fff';
-                borderColor = '#EC4899';
+                borderColor = '#A66A72';
               } else {
                 bgColor = 'var(--primary-green)';
                 textColor = 'var(--text-light)';
