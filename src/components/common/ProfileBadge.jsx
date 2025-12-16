@@ -13,6 +13,21 @@ function ProfileBadge({ user, showGreeting = false, size = 36 }) {
   if (!user) return null;
 
   const isAdmin = user.isAdmin || user.role === '관리자';
+  
+  // 개발자 모드: 관리자가 한번 드롭다운을 사용하면 localStorage에 저장
+  const [devModeEnabled, setDevModeEnabled] = useState(() => {
+    return localStorage.getItem('devModeEnabled') === 'true';
+  });
+
+  // 관리자인 경우 자동으로 개발자 모드 활성화
+  useEffect(() => {
+    if (isAdmin && !devModeEnabled) {
+      localStorage.setItem('devModeEnabled', 'true');
+      setDevModeEnabled(true);
+    }
+  }, [isAdmin, devModeEnabled]);
+
+  const canSwitchUsers = isAdmin || devModeEnabled;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -49,7 +64,7 @@ function ProfileBadge({ user, showGreeting = false, size = 36 }) {
   ) || [];
 
   const handleNameClick = (e) => {
-    if (isAdmin) {
+    if (canSwitchUsers) {
       e.stopPropagation();
       setShowMemberDropdown(!showMemberDropdown);
     } else {
@@ -72,7 +87,7 @@ function ProfileBadge({ user, showGreeting = false, size = 36 }) {
             fontSize: '14px', 
             fontWeight: '500', 
             color: 'var(--text-light)',
-            cursor: isAdmin ? 'pointer' : 'default',
+            cursor: canSwitchUsers ? 'pointer' : 'default',
             display: 'flex',
             alignItems: 'center',
             gap: '4px'
@@ -80,10 +95,10 @@ function ProfileBadge({ user, showGreeting = false, size = 36 }) {
           onClick={handleNameClick}
         >
           환영합니다 <span style={{ 
-            textDecoration: isAdmin ? 'underline' : 'none',
+            textDecoration: canSwitchUsers ? 'underline' : 'none',
             textDecorationStyle: 'dotted'
           }}>{user.nickname || user.name}</span>님
-          {isAdmin && (
+          {canSwitchUsers && (
             <span style={{ fontSize: '10px', opacity: 0.7 }}>▼</span>
           )}
         </div>
@@ -133,7 +148,7 @@ function ProfileBadge({ user, showGreeting = false, size = 36 }) {
         )}
       </div>
 
-      {isAdmin && showMemberDropdown && (
+      {canSwitchUsers && showMemberDropdown && (
         <div 
           ref={dropdownRef}
           style={{
