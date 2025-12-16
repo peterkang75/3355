@@ -629,20 +629,25 @@ function Dashboard() {
                   </div>
                 </div>
               )}
-              {posts.filter(p => p.isActive !== false).slice(0, 5).map((post, index, arr) => {
+              {posts
+                .filter(p => p.isActive !== false || user.isAdmin || hasFeaturePermission('manage_board'))
+                .slice(0, 5)
+                .map((post, index, arr) => {
                 const isLast = index === arr.length - 1;
+                const isInactive = post.isActive === false;
                 return (
                 <div 
                   key={post.id}
                   style={{
-                    backgroundColor: 'transparent',
+                    backgroundColor: isInactive ? '#f5f5f5' : 'transparent',
                     borderBottom: isLast ? 'none' : '1px solid #E5E7EB',
                     padding: '16px 0',
                     margin: 0,
                     borderRadius: 0,
                     boxShadow: 'none',
                     cursor: 'pointer',
-                    position: 'relative'
+                    position: 'relative',
+                    opacity: isInactive ? 0.6 : 1
                   }}
                   onClick={() => setExpandedPost(expandedPost === post.id ? null : post.id)}
                 >
@@ -662,9 +667,24 @@ function Dashboard() {
                       <h4 style={{ 
                         fontSize: '15px', 
                         fontWeight: '600',
-                        marginBottom: '4px'
+                        marginBottom: '4px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px'
                       }}>
                         {post.title}
+                        {isInactive && (
+                          <span style={{
+                            fontSize: '10px',
+                            background: '#999',
+                            color: 'white',
+                            padding: '2px 6px',
+                            borderRadius: '4px',
+                            fontWeight: '500'
+                          }}>
+                            비활성
+                          </span>
+                        )}
                       </h4>
                       <div style={{
                         display: 'flex',

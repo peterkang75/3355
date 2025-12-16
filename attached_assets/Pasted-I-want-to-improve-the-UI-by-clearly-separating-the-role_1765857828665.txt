@@ -1,0 +1,31 @@
+I want to improve the UI by clearly separating the roles of the Dashboard (Home) and the Rounding Page (Detail View), based on expert advice.
+Currently, the Dashboard shows too much information, making the Rounding Page redundant.
+
+**Goal:**
+* **Dashboard:** Show only a **summary** of roundings to attract interest and prompt navigation to the detail page.
+* **Rounding Page:** Provide **full details** and action buttons.
+
+**Modifications in `RoundingListCard.jsx` (or the relevant component used in both lists):**
+
+Use the existing `isDashboard` prop (or create a similar boolean prop) to conditionally render elements.
+
+**1. When on Dashboard (`isDashboard={true}`):**
+* **HIDE:**
+    * The detailed **Participant List** section (e.g., "참가자 (16명) ...").
+    * The detailed **Cost Information** section (e.g., "$ 비용 안내 ...").
+    * The **[조편성 보기] (View Team Formation)** button (if present).
+* **SHOW/ADD:**
+    * A prominent **summary message** (e.g., "🔥 현재 **16명** 참가 중! 마감 임박").
+    * A clear **[자세히 보기 >] (View Details >)** button or make the entire card clickable, linking to the relevant rounding detail page (`/rounding/:id`).
+
+**2. When on Rounding Page (`isDashboard={false}` or default):**
+* **SHOW ALL DETAILS:**
+    * Keep the Participant List, Cost Information, and all functional buttons (Join/Cancel, View Team Formation, etc.) visible as they are currently.
+
+**Implementation Plan:**
+1.  Identify the component rendering the rounding card (likely `RoundingListCard.jsx`).
+2.  Check if it receives a prop to distinguish its context (e.g., `isDashboard`). If not, pass one from `Home.js` (`isDashboard={true}`) and `Rounding.js` (`isDashboard={false}`).
+3.  Wrap the detailed sections (Participants, Cost) and buttons (Team Formation) with a condition like `{!isDashboard && ( ... )}`.
+4.  Add the summary message and the `[자세히 보기 >]` link, conditionally rendered with `{isDashboard && ( ... )}`.
+
+Please apply these changes to make the Dashboard cleaner and the Rounding Page more purposeful.
