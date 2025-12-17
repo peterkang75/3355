@@ -410,6 +410,9 @@ function Booking() {
   const isUserGuest = user.isClubMember !== 'yes';
   
   const canViewBooking = (booking) => {
+    if (booking.type === '정기모임') {
+      return true;
+    }
     if (booking.type === '컴페티션') {
       if (booking.isGuestAllowed) {
         return true;
