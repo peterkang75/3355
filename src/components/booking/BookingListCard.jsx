@@ -171,16 +171,30 @@ const BookingListCard = memo(function BookingListCard({
         )}
 
         {isRegistrationClosed ? (
-          <Button 
-            variant="outline" 
-            fullWidth
-            onClick={(e) => {
-              e.stopPropagation();
-              onNavigate(`/team-formation?id=${booking.id}`);
-            }}
-          >
-            📋 조편성 보기
-          </Button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <Button 
+              variant="outline" 
+              fullWidth
+              onClick={(e) => {
+                e.stopPropagation();
+                onNavigate(`/team-formation?id=${booking.id}`);
+              }}
+            >
+              📋 조편성 보기
+            </Button>
+            {booking.playEnabled && (
+              <Button 
+                variant="primary" 
+                fullWidth
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onNavigate(`/play?id=${booking.id}`);
+                }}
+              >
+                ⛳ 플레이하기
+              </Button>
+            )}
+          </div>
         ) : (
           <Button 
             variant="outline" 
@@ -586,7 +600,7 @@ const BookingListCard = memo(function BookingListCard({
               )}
             </>
           ) : (
-            /* Stage 2 & 3: Registration Closed - Team Formation + Play (if within 30 mins) */
+            /* Stage 2 & 3: Registration Closed - Team Formation + Play (if enabled) */
             <>
               <Button 
                 variant="outline" 
@@ -595,13 +609,13 @@ const BookingListCard = memo(function BookingListCard({
               >
                 📋 조편성 보기
               </Button>
-              {isPlayTime && (
+              {booking.playEnabled && (
                 <Button 
                   variant="primary" 
                   onClick={() => onNavigate(`/play?id=${booking.id}`)} 
                   style={{ flex: 1 }}
                 >
-                  ⛳ 플레이
+                  ⛳ 플레이하기
                 </Button>
               )}
             </>
