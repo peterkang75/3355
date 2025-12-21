@@ -1038,6 +1038,88 @@ router.post("/scores", async (req, res) => {
         verified: false,
       },
     });
+
+    // 포썸 모드: 파트너 스코어 자동 동기화
+    try {
+      const booking = await prisma.booking.findFirst({
+        where: { title: roundingName },
+      });
+
+      if (booking) {
+        let gradeSettings = null;
+        try {
+          gradeSettings = typeof booking.gradeSettings === 'string'
+            ? JSON.parse(booking.gradeSettings.replace(/^"|"$/g, ''))
+            : booking.gradeSettings;
+        } catch (e) {}
+
+        if (gradeSettings?.mode === 'foursome' && booking.teams) {
+          let teams = null;
+          try {
+            teams = typeof booking.teams === 'string'
+              ? JSON.parse(booking.teams.replace(/^"|"$/g, ''))
+              : booking.teams;
+          } catch (e) {}
+
+          if (teams && Array.isArray(teams)) {
+            // 멤버 ID로 해당 회원의 phone 찾기
+            const member = await prisma.member.findUnique({ where: { id: memberId } });
+            if (member) {
+              // 팀에서 파트너 찾기
+              for (const team of teams) {
+                if (!team.members) continue;
+                const memberIndex = team.members.findIndex(m => m?.phone === member.phone);
+                if (memberIndex >= 0) {
+                  // 같은 페어의 파트너 찾기 (0-1이 페어A, 2-3이 페어B)
+                  const partnerIndex = memberIndex % 2 === 0 ? memberIndex + 1 : memberIndex - 1;
+                  const partner = team.members[partnerIndex];
+                  if (partner?.phone) {
+                    const partnerMember = await prisma.member.findFirst({ where: { phone: partner.phone } });
+                    if (partnerMember && partnerMember.id !== memberId) {
+                      // 파트너 스코어 동기화
+                      await prisma.score.upsert({
+                        where: {
+                          userId_date_roundingName: {
+                            userId: partnerMember.id,
+                            date: date,
+                            roundingName: roundingName || "",
+                          },
+                        },
+                        update: {
+                          courseName,
+                          totalScore,
+                          coursePar,
+                          holes: JSON.stringify(holes),
+                          markerId: memberId,
+                          verified: false,
+                          verifiedBy: null,
+                        },
+                        create: {
+                          userId: partnerMember.id,
+                          markerId: memberId,
+                          roundingName: roundingName || "",
+                          date,
+                          courseName,
+                          totalScore,
+                          coursePar,
+                          holes: JSON.stringify(holes),
+                          verified: false,
+                        },
+                      });
+                      console.log(`🏌️ 포썸 파트너 스코어 동기화: ${member.nickname} → ${partnerMember.nickname}`);
+                    }
+                  }
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (syncError) {
+      console.error('포썸 파트너 스코어 동기화 오류:', syncError);
+    }
+
     res.json(score);
   } catch (error) {
     console.error("Error creating score:", error);
@@ -1104,6 +1186,111 @@ router.delete("/scores/booking/:date/:courseName", async (req, res) => {
   } catch (error) {
     console.error("Error deleting booking scores:", error);
     res.status(500).json({ error: "Failed to delete booking scores" });
+  }
+});
+
+// 포썸 파트너 스코어 동기화 (관리자용)
+router.post("/scores/sync-foursome/:bookingId", async (req, res) => {
+  try {
+    const { bookingId } = req.params;
+    const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
+    
+    if (!booking) {
+      return res.status(404).json({ error: "라운딩을 찾을 수 없습니다." });
+    }
+
+    let gradeSettings = null;
+    try {
+      gradeSettings = typeof booking.gradeSettings === 'string'
+        ? JSON.parse(booking.gradeSettings.replace(/^"|"$/g, ''))
+        : booking.gradeSettings;
+    } catch (e) {}
+
+    if (gradeSettings?.mode !== 'foursome') {
+      return res.status(400).json({ error: "포썸 라운딩이 아닙니다." });
+    }
+
+    let teams = null;
+    try {
+      teams = typeof booking.teams === 'string'
+        ? JSON.parse(booking.teams.replace(/^"|"$/g, ''))
+        : booking.teams;
+    } catch (e) {}
+
+    if (!teams || !Array.isArray(teams)) {
+      return res.status(400).json({ error: "팀 정보가 없습니다." });
+    }
+
+    const syncedPairs = [];
+    const dateStr = new Date(booking.date).toISOString().split('T')[0];
+
+    for (const team of teams) {
+      if (!team.members || team.members.length < 4) continue;
+
+      // Pair A: members[0] & members[1]
+      // Pair B: members[2] & members[3]
+      const pairs = [
+        [team.members[0], team.members[1]],
+        [team.members[2], team.members[3]]
+      ];
+
+      for (const [member1, member2] of pairs) {
+        if (!member1?.phone || !member2?.phone) continue;
+
+        const m1 = await prisma.member.findFirst({ where: { phone: member1.phone } });
+        const m2 = await prisma.member.findFirst({ where: { phone: member2.phone } });
+        if (!m1 || !m2) continue;
+
+        const score1 = await prisma.score.findUnique({
+          where: { userId_date_roundingName: { userId: m1.id, date: dateStr, roundingName: booking.title } }
+        });
+        const score2 = await prisma.score.findUnique({
+          where: { userId_date_roundingName: { userId: m2.id, date: dateStr, roundingName: booking.title } }
+        });
+
+        // 둘 중 스코어가 있는 쪽의 데이터로 동기화
+        const sourceScore = (score1?.totalScore > 0) ? score1 : (score2?.totalScore > 0) ? score2 : null;
+        if (!sourceScore) continue;
+
+        const targetMemberId = (sourceScore === score1) ? m2.id : m1.id;
+        const targetScore = (sourceScore === score1) ? score2 : score1;
+
+        // 이미 동일한 스코어면 스킵
+        if (targetScore && targetScore.totalScore === sourceScore.totalScore) continue;
+
+        await prisma.score.upsert({
+          where: { userId_date_roundingName: { userId: targetMemberId, date: dateStr, roundingName: booking.title } },
+          update: {
+            totalScore: sourceScore.totalScore,
+            coursePar: sourceScore.coursePar,
+            courseName: sourceScore.courseName,
+            holes: sourceScore.holes,
+            markerId: sourceScore.userId,
+          },
+          create: {
+            userId: targetMemberId,
+            markerId: sourceScore.userId,
+            roundingName: booking.title,
+            date: dateStr,
+            courseName: sourceScore.courseName,
+            totalScore: sourceScore.totalScore,
+            coursePar: sourceScore.coursePar,
+            holes: sourceScore.holes,
+            verified: false,
+          },
+        });
+
+        const sourceMember = (sourceScore === score1) ? m1 : m2;
+        const targetMember = (sourceScore === score1) ? m2 : m1;
+        syncedPairs.push(`${sourceMember.nickname} → ${targetMember.nickname}`);
+        console.log(`🏌️ 포썸 동기화: ${sourceMember.nickname}(${sourceScore.totalScore}) → ${targetMember.nickname}`);
+      }
+    }
+
+    res.json({ success: true, synced: syncedPairs });
+  } catch (error) {
+    console.error("포썸 스코어 동기화 오류:", error);
+    res.status(500).json({ error: "동기화 실패" });
   }
 });
 
