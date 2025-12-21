@@ -227,13 +227,18 @@ function Leaderboard() {
         setFoursomeTeams([]);
       }
       
-      if (autoSelectUserId && openScorecard && !autoSelectApplied) {
+      // 자동 스코어카드 열기 (한 번만 실행, sessionStorage로 중복 방지)
+      const autoSelectKey = `leaderboard_autoselect_${bookingId}`;
+      const alreadyAutoSelected = sessionStorage.getItem(autoSelectKey);
+      if (autoSelectUserId && openScorecard && !autoSelectApplied && !alreadyAutoSelected) {
         const userScore = processedScores.find(s => s.odId === autoSelectUserId);
         if (userScore) {
           setSelectedScore(userScore);
           setAutoSelectApplied(true);
+          sessionStorage.setItem(autoSelectKey, 'true');
           const newParams = new URLSearchParams(searchParams);
           newParams.delete('openScorecard');
+          newParams.delete('userId');
           setSearchParams(newParams, { replace: true });
         }
       }
