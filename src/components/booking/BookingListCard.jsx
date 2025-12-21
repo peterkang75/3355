@@ -184,12 +184,12 @@ const BookingListCard = memo(function BookingListCard({
             </Button>
             {booking.playEnabled && (
               <Button 
-                variant="primary" 
                 fullWidth
                 onClick={(e) => {
                   e.stopPropagation();
                   onNavigate(`/play?id=${booking.id}`);
                 }}
+                style={{ background: '#3B82F6', color: 'white', border: 'none' }}
               >
                 ⛳ 플레이하기
               </Button>
@@ -611,9 +611,8 @@ const BookingListCard = memo(function BookingListCard({
               </Button>
               {booking.playEnabled && (
                 <Button 
-                  variant="primary" 
                   onClick={() => onNavigate(`/play?id=${booking.id}`)} 
-                  style={{ flex: 1 }}
+                  style={{ flex: 1, background: '#3B82F6', color: 'white', border: 'none' }}
                 >
                   ⛳ 플레이하기
                 </Button>
