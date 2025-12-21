@@ -285,20 +285,34 @@ function Play() {
           return;
         }
         
+        const scoreData = {
+          markerId: user.id,
+          roundingName: booking.title,
+          date: scoreDate,
+          courseName: booking.courseName,
+          totalScore: totalMe,
+          coursePar,
+          holes: holeScores.me
+        };
+        
+        // 내 스코어 저장
         await fetch('/api/scores', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            memberId: user.id,
-            markerId: user.id,
-            roundingName: booking.title,
-            date: scoreDate,
-            courseName: booking.courseName,
-            totalScore: totalMe,
-            coursePar,
-            holes: holeScores.me
-          })
+          body: JSON.stringify({ ...scoreData, memberId: user.id })
         });
+        
+        // 포썸 모드: 파트너 스코어도 동일하게 저장
+        if (gameMode === 'foursome' && foursomeData?.partner) {
+          const partnerId = members?.find(m => m.phone === foursomeData.partner.phone)?.id;
+          if (partnerId) {
+            await fetch('/api/scores', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ ...scoreData, memberId: partnerId })
+            });
+          }
+        }
       } catch (e) {
         console.error('저장 오류:', e);
       }
@@ -306,7 +320,7 @@ function Play() {
 
     const timer = setTimeout(saveScore, 500);
     return () => clearTimeout(timer);
-  }, [holeScores, step, booking, selectedTeammate, courseData, user]);
+  }, [holeScores, step, booking, selectedTeammate, courseData, user, gameMode, foursomeData, members]);
 
   const isAllHolesComplete = () => {
     return holeScores.me.every(score => score > 0) && holeScores.teammate.every(score => score > 0);
