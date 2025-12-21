@@ -1215,20 +1215,35 @@ function Play() {
         return;
       }
 
+      const scoreData = {
+        markerId: user.id,
+        roundingName: booking.title,
+        date: scoreDate,
+        courseName: courseData?.name,
+        totalScore: totalMe,
+        coursePar,
+        holes: holeScores.me
+      };
+
+      // 내 스코어 저장
       await fetch('/api/scores', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          memberId: user.id,
-          markerId: user.id,
-          roundingName: booking.title,
-          date: scoreDate,
-          courseName: courseData?.name,
-          totalScore: totalMe,
-          coursePar,
-          holes: holeScores.me
-        })
+        body: JSON.stringify({ ...scoreData, memberId: user.id })
       });
+
+      // 포썸 모드: 파트너 스코어도 동일하게 저장 (중요!)
+      if (gameMode === 'foursome' && foursomeData?.partner) {
+        const partnerId = members?.find(m => m.phone === foursomeData.partner.phone)?.id;
+        if (partnerId) {
+          await fetch('/api/scores', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...scoreData, memberId: partnerId })
+          });
+          console.log('🏌️ 포썸 파트너 스코어 저장 완료:', foursomeData.partner.nickname);
+        }
+      }
     } catch (e) {
       console.error('점수 저장 오류:', e);
     }
