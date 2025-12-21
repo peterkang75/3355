@@ -1312,15 +1312,9 @@ function Play() {
         </div>
         <button
           onClick={() => {
-            const stateToSave = {
-              currentHole,
-              holeScores,
-              selectedTeammate,
-              step,
-              roundStartTime
-            };
-            sessionStorage.setItem(`play_state_${bookingId}`, JSON.stringify(stateToSave));
-            console.log('💾 상태 저장:', currentHole, '번 홀');
+            // 리더보드 이동 시 상태 저장하지 않음 (돌아올 때 자동으로 스코어카드 열리는 문제 방지)
+            sessionStorage.removeItem(`play_state_${bookingId}`);
+            console.log('🗑️ 리더보드 이동 - 상태 저장 안함');
             navigate(`/leaderboard?id=${bookingId}`);
           }}
           style={{
