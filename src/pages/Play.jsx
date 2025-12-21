@@ -35,7 +35,6 @@ function Play() {
     height: typeof window !== 'undefined' ? window.innerHeight : 800
   }));
   const skipAutoSaveRef = useRef(false);
-  const restoredRef = useRef(false);
   const lastRestoredBookingRef = useRef(null);
   
   useEffect(() => {
@@ -79,44 +78,20 @@ function Play() {
   const isVerySmallScreen = screenHeight < 600;
   const isTinyScreen = screenHeight < 550;
 
-  // 리더보드에서 돌아왔을 때 상태 복원
+  // Play 페이지 진입 시 항상 selectMember 단계로 시작 (자동 스코어카드 열림 방지)
   useEffect(() => {
-    // 이미 복원된 bookingId면 스킵
-    if (lastRestoredBookingRef.current === bookingId && restoredRef.current) {
-      console.log('🔄 이미 복원된 상태, 스킵');
-      return;
-    }
+    // 저장된 상태 삭제 (스코어카드 자동 열림 방지)
+    sessionStorage.removeItem(`play_state_${bookingId}`);
     
-    const savedState = sessionStorage.getItem(`play_state_${bookingId}`);
-    if (savedState) {
-      try {
-        const parsed = JSON.parse(savedState);
-        console.log('🔄 저장된 상태 복원 시작:', parsed);
-        setCurrentHole(parsed.currentHole || 1);
-        setHoleScores(parsed.holeScores || { teammate: Array(18).fill(0), me: Array(18).fill(0) });
-        setSelectedTeammate(parsed.selectedTeammate || null);
-        setStep(parsed.step || 'selectMember');
-        setRoundStartTime(parsed.roundStartTime || null);
-        restoredRef.current = true;
-        lastRestoredBookingRef.current = bookingId;
-        // 약간의 딜레이 후 삭제 (StrictMode 대응)
-        setTimeout(() => {
-          sessionStorage.removeItem(`play_state_${bookingId}`);
-        }, 100);
-        console.log('🔄 저장된 상태 복원 완료:', parsed.currentHole, '번 홀, step:', parsed.step);
-        return;
-      } catch (e) {
-        console.error('상태 복원 에러:', e);
-        restoredRef.current = false;
-      }
-    }
-    
-    // 복원된 상태가 아니고 새로운 bookingId일 때만 초기화
-    if (!restoredRef.current || lastRestoredBookingRef.current !== bookingId) {
+    // 새 bookingId면 초기화
+    if (lastRestoredBookingRef.current !== bookingId) {
       setSelectedTeammate(null);
       setStep('selectMember');
-      restoredRef.current = false;
+      setCurrentHole(1);
+      setHoleScores({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
+      setRoundStartTime(null);
       lastRestoredBookingRef.current = bookingId;
+      console.log('🔄 Play 페이지 초기화:', bookingId);
     }
   }, [bookingId]);
 
