@@ -549,8 +549,8 @@ const BookingListCard = memo(function BookingListCard({
 
         {/* 버튼 렌더링 영역: 3-Stage Lifecycle */}
         <div style={{ display: 'flex', gap: '8px' }}>
-          {/* Stage 0: Past Rounding - Show Results */}
-          {isPastRoundingDate && (booking.dailyHandicaps || hasUserScore) ? (
+          {/* Stage 0: Past Rounding or Rounding Day with Results - Show Results */}
+          {(booking.dailyHandicaps || (isPastRoundingDate && hasUserScore)) ? (
             <Button variant="primary" fullWidth onClick={() => onNavigate(`/leaderboard?id=${booking.id}`)}>
               ▲ 결과보기
             </Button>
