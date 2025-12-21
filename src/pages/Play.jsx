@@ -306,7 +306,7 @@ function Play() {
 
     const timer = setTimeout(saveScore, 500);
     return () => clearTimeout(timer);
-  }, [holeScores]);
+  }, [holeScores, step, booking, selectedTeammate, courseData, user]);
 
   const isAllHolesComplete = () => {
     return holeScores.me.every(score => score > 0) && holeScores.teammate.every(score => score > 0);
