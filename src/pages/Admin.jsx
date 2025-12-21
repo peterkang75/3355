@@ -140,6 +140,7 @@ function Admin() {
   
   // 스코어 관리 상태
   const [scoreManagementView, setScoreManagementView] = useState('rounds'); // 'rounds', 'memberScores', 'leaderboard', 'scorecard', 'allScores', 'memberScoreInput'
+  const [showCompetitionRoundings, setShowCompetitionRoundings] = useState(false); // 클럽 컴페티션 표시 여부
   const [allScoresData, setAllScoresData] = useState([]);
   const [selectedScoreIds, setSelectedScoreIds] = useState([]);
   const [selectedRoundForScore, setSelectedRoundForScore] = useState(null);
@@ -5029,17 +5030,28 @@ function Admin() {
 
             {scoreManagementView === 'rounds' && (
               <div>
-                <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', padding: '0 16px' }}>
-                  라운딩별 스코어
-                </h3>
-                {bookings.filter(b => !b.title?.startsWith('클럽 컴페티션')).length === 0 ? (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', padding: '0 16px' }}>
+                  <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
+                    라운딩별 스코어
+                  </h3>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', color: 'var(--text-dark)', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={showCompetitionRoundings}
+                      onChange={(e) => setShowCompetitionRoundings(e.target.checked)}
+                      style={{ width: '16px', height: '16px', cursor: 'pointer' }}
+                    />
+                    클럽 컴페티션 포함
+                  </label>
+                </div>
+                {bookings.filter(b => showCompetitionRoundings || !b.title?.startsWith('클럽 컴페티션')).length === 0 ? (
                   <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
                     <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏌️</div>
                     <div style={{ color: 'var(--text-dark)', opacity: 0.7 }}>등록된 라운딩이 없습니다</div>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-                    {bookings.filter(b => !b.title?.startsWith('클럽 컴페티션')).sort((a, b) => new Date(b.date) - new Date(a.date)).map(booking => (
+                    {bookings.filter(b => showCompetitionRoundings || !b.title?.startsWith('클럽 컴페티션')).sort((a, b) => new Date(b.date) - new Date(a.date)).map(booking => (
                       <button
                         key={booking.id}
                         onClick={async () => {
