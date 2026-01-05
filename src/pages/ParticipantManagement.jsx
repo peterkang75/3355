@@ -162,12 +162,33 @@ function ParticipantManagement() {
     try {
       const updatedParticipants = participants.filter(p => p.phone !== phoneToRemove);
       
+      // 조편성에서도 해당 참가자 제거
+      let updatedTeams = null;
+      if (booking.teams) {
+        const currentTeams = typeof booking.teams === 'string' 
+          ? JSON.parse(booking.teams) 
+          : booking.teams;
+        
+        updatedTeams = currentTeams.map(team => ({
+          ...team,
+          members: team.members.map(member => 
+            member?.phone === phoneToRemove ? null : member
+          )
+        }));
+      }
+      
+      const updateData = {
+        participants: updatedParticipants.map(p => JSON.stringify(p))
+      };
+      
+      if (updatedTeams) {
+        updateData.teams = JSON.stringify(updatedTeams);
+      }
+      
       const response = await fetch(`/api/bookings/${bookingId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          participants: updatedParticipants.map(p => JSON.stringify(p))
-        })
+        body: JSON.stringify(updateData)
       });
 
       if (response.ok) {
