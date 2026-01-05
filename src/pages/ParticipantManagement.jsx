@@ -18,7 +18,7 @@ function ParticipantManagement() {
   const [removingPhone, setRemovingPhone] = useState(null);
   const [removingRentalPhone, setRemovingRentalPhone] = useState(null);
   const [showGuestModal, setShowGuestModal] = useState(false);
-  const [guestFormData, setGuestFormData] = useState({ memberNumber: '', name: '' });
+  const [guestFormData, setGuestFormData] = useState({ memberNumber: '', name: '', handicapType: 'GA', handicapValue: '' });
   const [isAddingGuest, setIsAddingGuest] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -117,12 +117,16 @@ function ParticipantManagement() {
     setIsAddingGuest(true);
     try {
       const guestPhone = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const handicapValue = guestFormData.handicapValue ? parseFloat(guestFormData.handicapValue) : null;
       const newGuest = {
         name: guestFormData.name.trim(),
         nickname: guestFormData.name.trim(),
         phone: guestPhone,
         memberNumber: guestFormData.memberNumber.trim() || '',
-        isGuest: true
+        isGuest: true,
+        handicap: handicapValue,
+        gaHandy: guestFormData.handicapType === 'GA' ? handicapValue : null,
+        houseHandy: guestFormData.handicapType === 'HH' ? handicapValue : null
       };
 
       const updatedParticipants = [...participants, newGuest];
@@ -137,7 +141,7 @@ function ParticipantManagement() {
 
       if (response.ok) {
         setShowGuestModal(false);
-        setGuestFormData({ memberNumber: '', name: '' });
+        setGuestFormData({ memberNumber: '', name: '', handicapType: 'GA', handicapValue: '' });
         refreshBookings();
       } else {
         const errorData = await response.text();
@@ -792,7 +796,7 @@ function ParticipantManagement() {
               <button
                 onClick={() => {
                   setShowGuestModal(false);
-                  setGuestFormData({ memberNumber: '', name: '' });
+                  setGuestFormData({ memberNumber: '', name: '', handicapType: 'GA', handicapValue: '' });
                 }}
                 style={{
                   background: 'transparent',
@@ -858,6 +862,68 @@ function ParticipantManagement() {
                   }}
                 />
               </div>
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ 
+                  display: 'block', 
+                  fontSize: '14px', 
+                  fontWeight: '600', 
+                  marginBottom: '8px',
+                  color: '#4A90A4'
+                }}>
+                  핸디캡 (선택)
+                </label>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    <button
+                      type="button"
+                      onClick={() => setGuestFormData({ ...guestFormData, handicapType: 'GA' })}
+                      style={{
+                        padding: '8px 16px',
+                        border: 'none',
+                        borderRadius: '6px 0 0 6px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        background: guestFormData.handicapType === 'GA' ? '#4A90A4' : '#e0e0e0',
+                        color: guestFormData.handicapType === 'GA' ? 'white' : '#666'
+                      }}
+                    >
+                      GA
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setGuestFormData({ ...guestFormData, handicapType: 'HH' })}
+                      style={{
+                        padding: '8px 16px',
+                        border: 'none',
+                        borderRadius: '0 6px 6px 0',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        background: guestFormData.handicapType === 'HH' ? '#4A90A4' : '#e0e0e0',
+                        color: guestFormData.handicapType === 'HH' ? 'white' : '#666'
+                      }}
+                    >
+                      HH
+                    </button>
+                  </div>
+                  <input
+                    type="number"
+                    step="0.1"
+                    placeholder="핸디캡 입력"
+                    value={guestFormData.handicapValue}
+                    onChange={(e) => setGuestFormData({ ...guestFormData, handicapValue: e.target.value })}
+                    style={{
+                      flex: 1,
+                      padding: '10px 12px',
+                      border: '2px solid var(--border-color)',
+                      borderRadius: '8px',
+                      fontSize: '15px',
+                      boxSizing: 'border-box'
+                    }}
+                  />
+                </div>
+              </div>
             </div>
 
             <div style={{
@@ -869,7 +935,7 @@ function ParticipantManagement() {
               <button
                 onClick={() => {
                   setShowGuestModal(false);
-                  setGuestFormData({ memberNumber: '', name: '' });
+                  setGuestFormData({ memberNumber: '', name: '', handicapType: 'GA', handicapValue: '' });
                 }}
                 style={{
                   flex: 1,

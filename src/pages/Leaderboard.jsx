@@ -67,10 +67,21 @@ function Leaderboard() {
       setCoursePars(holePars);
       const calculatedCoursePar = holePars.reduce((a, b) => a + b, 0) || 72;
 
+      // 참가자 정보 파싱 (게스트 핸디캡용)
+      const participants = booking.participants?.map(p => {
+        if (typeof p === 'string') {
+          try { return JSON.parse(p); } catch { return null; }
+        }
+        return p;
+      }).filter(Boolean) || [];
+
       const processedScores = bookingScores.map(score => {
         const member = score.user || members.find(m => m.id === score.userId || m.phone === score.userId);
-        const nickname = member?.nickname || member?.name || score.userId;
-        const handicap = dailyHandicaps[score.userId] || member?.handicap || 0;
+        // 게스트인 경우 participants에서 핸디캡 가져오기
+        const participant = participants.find(p => p.phone === score.userId);
+        const guestHandicap = participant?.gaHandy || participant?.houseHandy || participant?.handicap;
+        const nickname = member?.nickname || member?.name || participant?.nickname || participant?.name || score.userId;
+        const handicap = dailyHandicaps[score.userId] || member?.handicap || guestHandicap || 0;
         
         let grade = 'ALL';
         if (gradeSettings) {

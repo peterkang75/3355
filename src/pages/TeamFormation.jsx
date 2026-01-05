@@ -167,18 +167,22 @@ function TeamFormation() {
   const getHandicapDisplay = (participant) => {
     if (!participant) return '';
     const member = members.find(m => m.phone === participant.phone);
-    if (!member) return '';
     
     const parts = [];
     
-    if (member.gaHandy) {
-      parts.push(`GA${member.gaHandy}`);
-    } else if (member.golflinkNumber && member.handicap) {
-      parts.push(`GA${member.handicap}`);
+    // 회원 데이터 또는 게스트 참가자 데이터에서 핸디캡 가져오기
+    const gaHandy = member?.gaHandy || participant?.gaHandy;
+    const houseHandy = member?.houseHandy || participant?.houseHandy;
+    const handicap = member?.handicap || participant?.handicap;
+    
+    if (gaHandy) {
+      parts.push(`GA${gaHandy}`);
+    } else if ((member?.golflinkNumber && handicap) || participant?.gaHandy) {
+      parts.push(`GA${handicap}`);
     }
     
-    if (member.houseHandy) {
-      parts.push(`HH${member.houseHandy}`);
+    if (houseHandy) {
+      parts.push(`HH${houseHandy}`);
     }
     
     return parts.join(', ');
@@ -319,16 +323,20 @@ function TeamFormation() {
   const getHandicapValue = (participant) => {
     if (!participant) return 36;
     const member = members.find(m => m.phone === participant.phone);
-    if (!member) return 36;
     
-    if (member.gaHandy && !isNaN(parseFloat(member.gaHandy))) {
-      return parseFloat(member.gaHandy);
+    // 회원 데이터 또는 게스트 참가자 데이터에서 핸디캡 가져오기
+    const gaHandy = member?.gaHandy || participant?.gaHandy;
+    const handicap = member?.handicap || participant?.handicap;
+    const houseHandy = member?.houseHandy || participant?.houseHandy;
+    
+    if (gaHandy && !isNaN(parseFloat(gaHandy))) {
+      return parseFloat(gaHandy);
     }
-    if (member.handicap && !isNaN(parseFloat(member.handicap))) {
-      return parseFloat(member.handicap);
+    if (handicap && !isNaN(parseFloat(handicap))) {
+      return parseFloat(handicap);
     }
-    if (member.houseHandy && !isNaN(parseFloat(member.houseHandy))) {
-      return parseFloat(member.houseHandy);
+    if (houseHandy && !isNaN(parseFloat(houseHandy))) {
+      return parseFloat(houseHandy);
     }
     return 36;
   };
