@@ -86,6 +86,7 @@ model Booking {
   playManuallyDisabled Boolean  @default(false)
   isGuestAllowed       Boolean  @default(false)
   useSquadWaitlist     Boolean  @default(false)
+  votingEnabled        Boolean  @default(true)
   teams                Json?
   gradeSettings        Json?
   dailyHandicaps       Json?

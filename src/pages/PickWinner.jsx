@@ -89,11 +89,14 @@ function PickWinner() {
     roundingDate.setHours(hours, minutes, 0, 0);
     
     const hasResults = booking.dailyHandicaps && Object.keys(booking.dailyHandicaps).length > 0;
+    const isVotingEnabled = booking.votingEnabled !== false;
     
     if (hasResults) {
       return { phase: 'results', canVote: false };
     } else if (now >= roundingDate) {
       return { phase: 'voting_closed', canVote: false };
+    } else if (!isVotingEnabled) {
+      return { phase: 'voting_disabled', canVote: false };
     } else {
       return { phase: 'voting', canVote: !hasVoted };
     }
@@ -438,18 +441,32 @@ function PickWinner() {
             activeBookings.map(booking => {
               const phaseInfo = getPhaseInfo(booking);
               const userVotedForThis = allVotes.some(v => v.roundingId === booking.id && v.voterId === user?.id);
+              const isVotingEnabled = booking.votingEnabled !== false;
+              
+              const handleToggleVoting = async (e) => {
+                e.stopPropagation();
+                try {
+                  await fetch(`/api/bookings/${booking.id}/toggle-voting`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' }
+                  });
+                } catch (error) {
+                  console.error('Failed to toggle voting:', error);
+                }
+              };
+              
               return (
                 <div
                   key={booking.id}
                   className="card"
-                  style={{ marginBottom: '12px', padding: '16px', position: 'relative' }}
+                  style={{ marginBottom: '12px', padding: '16px' }}
                 >
                   <div 
                     onClick={() => navigate(`/games/pick-winner?id=${booking.id}`)}
                     style={{ cursor: 'pointer' }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div>
+                      <div style={{ flex: 1 }}>
                         <div style={{ fontWeight: '600', marginBottom: '4px' }}>
                           {booking.title || booking.courseName}
                         </div>
@@ -457,77 +474,110 @@ function PickWinner() {
                           {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
                         </div>
                       </div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '12px' }}>
+                        {user?.isAdmin && (
+                          <button
+                            onClick={handleToggleVoting}
+                            style={{
+                              position: 'relative',
+                              width: '40px',
+                              height: '22px',
+                              borderRadius: '11px',
+                              border: 'none',
+                              cursor: 'pointer',
+                              background: isVotingEnabled ? 'var(--primary-green)' : '#ccc',
+                              transition: 'background 0.2s'
+                            }}
+                          >
+                            <div style={{
+                              position: 'absolute',
+                              top: '2px',
+                              left: isVotingEnabled ? '20px' : '2px',
+                              width: '18px',
+                              height: '18px',
+                              borderRadius: '50%',
+                              background: 'white',
+                              transition: 'left 0.2s',
+                              boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+                            }} />
+                          </button>
+                        )}
+                        
                         <div style={{
                           padding: '4px 8px',
                           borderRadius: '4px',
                           fontSize: '11px',
                           fontWeight: '600',
-                          background: phaseInfo.phase === 'voting' ? '#D1E7DD' : 
+                          background: phaseInfo.phase === 'voting_disabled' ? '#f0f0f0' :
+                                      phaseInfo.phase === 'voting' ? '#D1E7DD' : 
                                       phaseInfo.phase === 'results' ? '#FFE5B4' : '#f0f0f0',
-                          color: phaseInfo.phase === 'voting' ? '#0A5C36' : 
-                                 phaseInfo.phase === 'results' ? '#8B6914' : '#666'
+                          color: phaseInfo.phase === 'voting_disabled' ? '#999' :
+                                 phaseInfo.phase === 'voting' ? '#0A5C36' : 
+                                 phaseInfo.phase === 'results' ? '#8B6914' : '#666',
+                          whiteSpace: 'nowrap'
                         }}>
-                          {phaseInfo.phase === 'voting' ? '투표 중' : 
+                          {phaseInfo.phase === 'voting_disabled' ? '투표 비활성' :
+                           phaseInfo.phase === 'voting' ? '투표 중' : 
                            phaseInfo.phase === 'results' ? '결과 확인' : '투표 마감'}
                         </div>
+                        
+                        {user?.isAdmin && (
+                          <div style={{ position: 'relative' }}>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setOpenMenuId(openMenuId === booking.id ? null : booking.id);
+                              }}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                padding: '4px',
+                                fontSize: '16px',
+                                color: '#666'
+                              }}
+                            >
+                              ⋮
+                            </button>
+                            {openMenuId === booking.id && (
+                              <div style={{
+                                position: 'absolute',
+                                top: '100%',
+                                right: 0,
+                                background: '#fff',
+                                border: '1px solid #e0e0e0',
+                                borderRadius: '8px',
+                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                                zIndex: 100,
+                                minWidth: '120px'
+                              }}>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setOpenMenuId(null);
+                                    navigate(`/games/pick-winner?id=${booking.id}&admin=true`);
+                                  }}
+                                  style={{
+                                    display: 'block',
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    border: 'none',
+                                    background: 'none',
+                                    textAlign: 'left',
+                                    cursor: 'pointer',
+                                    fontSize: '14px'
+                                  }}
+                                >
+                                  👥 투표 관리
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
-                  
-                  {phaseInfo.phase === 'voting' && user?.isAdmin && (
-                    <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setOpenMenuId(openMenuId === booking.id ? null : booking.id);
-                        }}
-                        style={{
-                          background: 'none',
-                          border: 'none',
-                          cursor: 'pointer',
-                          padding: '4px 8px',
-                          fontSize: '16px',
-                          color: '#666'
-                        }}
-                      >
-                        ⋮
-                      </button>
-                      {openMenuId === booking.id && (
-                        <div style={{
-                          position: 'absolute',
-                          top: '100%',
-                          right: 0,
-                          background: '#fff',
-                          border: '1px solid #e0e0e0',
-                          borderRadius: '8px',
-                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                          zIndex: 100,
-                          minWidth: '120px'
-                        }}>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setOpenMenuId(null);
-                              navigate(`/games/pick-winner?id=${booking.id}&admin=true`);
-                            }}
-                            style={{
-                              display: 'block',
-                              width: '100%',
-                              padding: '12px 16px',
-                              border: 'none',
-                              background: 'none',
-                              textAlign: 'left',
-                              cursor: 'pointer',
-                              fontSize: '14px'
-                            }}
-                          >
-                            👥 투표 관리
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
                 </div>
               );
             })
