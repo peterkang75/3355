@@ -58,6 +58,51 @@ const BookingForm = memo(function BookingForm({
               ※ 포썸은 2인 1조 팀 매치 방식으로 진행됩니다.
             </div>
           )}
+
+          <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>
+            대기자 운영
+          </label>
+          <div 
+            onClick={() => onChange({ ...data, useSquadWaitlist: !data.useSquadWaitlist })}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between',
+              padding: '12px 16px',
+              background: data.useSquadWaitlist ? 'var(--bg-green)' : '#f5f5f5',
+              borderRadius: '8px',
+              marginBottom: '16px',
+              cursor: 'pointer',
+              border: data.useSquadWaitlist ? '1px solid var(--primary-green)' : '1px solid #ddd'
+            }}
+          >
+            <div>
+              <div style={{ fontWeight: '500', fontSize: '14px' }}>4인 기준 대기자 운영</div>
+              <div style={{ fontSize: '12px', color: '#666', marginTop: '2px' }}>
+                4명 단위로 확정되며, 나머지는 대기자로 표시됩니다
+              </div>
+            </div>
+            <div style={{
+              width: '44px',
+              height: '24px',
+              background: data.useSquadWaitlist ? 'var(--primary-green)' : '#ccc',
+              borderRadius: '12px',
+              position: 'relative',
+              transition: 'background 0.2s'
+            }}>
+              <div style={{
+                width: '20px',
+                height: '20px',
+                background: 'white',
+                borderRadius: '50%',
+                position: 'absolute',
+                top: '2px',
+                left: data.useSquadWaitlist ? '22px' : '2px',
+                transition: 'left 0.2s',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
+              }} />
+            </div>
+          </div>
         </>
       )}
 

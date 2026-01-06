@@ -39,6 +39,29 @@ const BookingListCard = memo(function BookingListCard({
     return member ? member.club !== booking.courseName : true;
   };
 
+  const isExternalGuest = (participant) => {
+    return participant && participant.isGuest === true;
+  };
+
+  const getSortedParticipants = (participants) => {
+    return [...participants].sort((a, b) => {
+      const dateA = a.joinedAt ? new Date(a.joinedAt) : new Date(0);
+      const dateB = b.joinedAt ? new Date(b.joinedAt) : new Date(0);
+      return dateA - dateB;
+    });
+  };
+
+  const getWaitlistCutoff = (totalCount) => {
+    if (!booking.useSquadWaitlist) return totalCount;
+    return Math.floor(totalCount / 4) * 4;
+  };
+
+  const isWaitlisted = (index, totalCount) => {
+    if (!booking.useSquadWaitlist) return false;
+    const cutoff = getWaitlistCutoff(totalCount);
+    return index >= cutoff;
+  };
+
   const getRemainingTime = (deadline) => {
     if (!deadline) return null;
     const now = new Date();
@@ -479,38 +502,77 @@ const BookingListCard = memo(function BookingListCard({
             const anonymousRentals = (booking.numberRentals || []).filter(
               phone => !allParticipants.some(p => p.phone === phone)
             );
-            const totalCount = allParticipants.length + anonymousRentals.length;
+            const sortedParticipants = getSortedParticipants(allParticipants);
+            const totalCount = sortedParticipants.length + anonymousRentals.length;
+            const isRegularRounding = booking.type !== '컴페티션';
+            const cutoffIndex = getWaitlistCutoff(totalCount);
+            const confirmedCount = booking.useSquadWaitlist ? cutoffIndex : totalCount;
+            const waitlistCount = booking.useSquadWaitlist ? totalCount - cutoffIndex : 0;
             
             return (
               <>
                 <div style={{ 
                   fontWeight: '600',
                   marginBottom: '8px',
-                  color: 'var(--primary-green)'
+                  color: 'var(--primary-green)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
                 }}>
                   ⚲ 참가자 ({totalCount}명)
+                  {booking.useSquadWaitlist && waitlistCount > 0 && (
+                    <span style={{
+                      fontSize: '11px',
+                      fontWeight: '500',
+                      color: '#666',
+                      background: '#eee',
+                      padding: '2px 6px',
+                      borderRadius: '4px'
+                    }}>
+                      확정 {confirmedCount} / 대기 {waitlistCount}
+                    </span>
+                  )}
                 </div>
                 <div style={{ 
                   fontSize: '14px',
                   lineHeight: '1.6'
                 }}>
-                  {allParticipants.map((participant, idx) => {
+                  {sortedParticipants.map((participant, idx) => {
                     const isParticipantRenting = booking.numberRentals && booking.numberRentals.includes(participant.phone);
                     const isParticipating = participants.some(p => p.phone === participant.phone);
-                    const isGuestParticipant = isParticipantGuest(participant.phone);
+                    const isClubExternalMember = isParticipantGuest(participant.phone);
+                    const isExtGuest = isExternalGuest(participant);
+                    const waitlisted = isWaitlisted(idx, totalCount);
                     
                     let bgColor = 'transparent';
                     let textColor = 'inherit';
                     let padding = '0';
-                    
-                    if (isGuestParticipant) {
-                      bgColor = '#D1E7DD';
-                      textColor = '#0A5C36';
-                      padding = '2px 6px';
-                    } else if (isParticipantRenting && !isParticipating) {
-                      bgColor = '#E6AA68';
-                      textColor = '#fff';
-                      padding = '2px 6px';
+                    let fontWeight = '400';
+
+                    if (isRegularRounding) {
+                      fontWeight = '300';
+                    } else {
+                      if (waitlisted) {
+                        fontWeight = '300';
+                        textColor = '#888';
+                      } else if (isExtGuest) {
+                        bgColor = '#DBEAFE';
+                        textColor = '#1E40AF';
+                        padding = '2px 6px';
+                        fontWeight = '500';
+                      } else if (isClubExternalMember) {
+                        bgColor = '#D1E7DD';
+                        textColor = '#0A5C36';
+                        padding = '2px 6px';
+                        fontWeight = '500';
+                      } else if (isParticipantRenting && !isParticipating) {
+                        bgColor = '#E6AA68';
+                        textColor = '#fff';
+                        padding = '2px 6px';
+                        fontWeight = '500';
+                      } else {
+                        fontWeight = '700';
+                      }
                     }
                     
                     return (
@@ -519,12 +581,12 @@ const BookingListCard = memo(function BookingListCard({
                           background: bgColor,
                           color: textColor,
                           padding: padding,
-                          borderRadius: padding !== '0' ? '4px' : '0'
+                          borderRadius: padding !== '0' ? '4px' : '0',
+                          fontWeight: fontWeight
                         }}>
                           {getParticipantDisplayName(participant)}
-                          {isGuestParticipant && <span style={{ fontSize: '10px', marginLeft: '2px' }}>👤</span>}
                         </span>
-                        {(idx < allParticipants.length - 1 || anonymousRentals.length > 0) && ', '}
+                        {(idx < sortedParticipants.length - 1 || anonymousRentals.length > 0) && ', '}
                       </span>
                     );
                   })}
