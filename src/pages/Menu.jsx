@@ -1,17 +1,20 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useApp } from '../contexts/AppContext';
 import PageHeader from '../components/common/PageHeader';
 
 function Menu() {
   const navigate = useNavigate();
+  const { featureSettings } = useApp();
 
-  const menuItems = [
+  const allMenuItems = [
     {
       icon: '🏆',
       title: '우승자 맞추기',
       description: '라운딩 우승자를 예측하고 투표하세요',
       path: '/games/pick-winner',
-      color: '#FFD700'
+      color: '#FFD700',
+      featureKey: 'pickWinnerEnabled'
     },
     {
       icon: '🎯',
@@ -28,6 +31,13 @@ function Menu() {
       color: '#2196F3'
     }
   ];
+
+  const menuItems = allMenuItems.filter(item => {
+    if (item.featureKey && featureSettings[item.featureKey] === false) {
+      return false;
+    }
+    return true;
+  });
 
   return (
     <div className="page-content">

@@ -36,6 +36,7 @@ export function AppProvider({ children }) {
   const [requiresProfileComplete, setRequiresProfileComplete] = useState(false);
   const [clubLogo, setClubLogo] = useState(null);
   const [featurePermissions, setFeaturePermissions] = useState({});
+  const [featureSettings, setFeatureSettings] = useState({ pickWinnerEnabled: true });
   
   // 소켓 이벤트 핸들러에서 최신 user 값을 참조하기 위한 ref
   const userRef = useRef(null);
@@ -90,6 +91,11 @@ export function AppProvider({ children }) {
             permissionsObj[setting.feature] = setting.minRole;
           });
           setFeaturePermissions(permissionsObj);
+          
+          const pickWinnerSetting = settingsData.find(s => s.feature === 'pickWinnerEnabled');
+          if (pickWinnerSetting) {
+            setFeatureSettings(prev => ({ ...prev, pickWinnerEnabled: pickWinnerSetting.enabled !== false }));
+          }
         }
 
         if (membersData?.length > 0) {
@@ -577,7 +583,8 @@ export function AppProvider({ children }) {
     checkRequiredFields,
     clubLogo,
     updateClubLogo,
-    hasFeaturePermission
+    hasFeaturePermission,
+    featureSettings
   }), [
     user,
     members,
@@ -611,7 +618,8 @@ export function AppProvider({ children }) {
     clearRequiresProfileComplete,
     clubLogo,
     updateClubLogo,
-    hasFeaturePermission
+    hasFeaturePermission,
+    featureSettings
   ]);
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

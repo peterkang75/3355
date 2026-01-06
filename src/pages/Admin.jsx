@@ -57,6 +57,7 @@ function Admin() {
   const [permissions, setPermissions] = useState({});
   const [hasChanges, setHasChanges] = useState(false);
   const [approvalRequired, setApprovalRequired] = useState(false);
+  const [pickWinnerEnabled, setPickWinnerEnabled] = useState(true);
   const [approvalPermission, setApprovalPermission] = useState('관리자');
   
   const [clubBalance, setClubBalance] = useState(0);
@@ -174,7 +175,8 @@ function Admin() {
     { id: 'course_management', name: '골프장 관리' },
     { id: 'manage_board', name: '게시판 관리' },
     { id: 'member_approval', name: '회원 승인' },
-    { id: 'fee_exemption', name: '참가비 면제선택' }
+    { id: 'fee_exemption', name: '참가비 면제선택' },
+    { id: 'pick_winner', name: '우승자 맞추기' }
   ];
 
   useEffect(() => {
@@ -238,6 +240,9 @@ function Admin() {
         permissionsObj[setting.feature] = setting.minRole;
         if (setting.feature === 'memberApprovalRequired') {
           setApprovalRequired(setting.enabled || false);
+        }
+        if (setting.feature === 'pickWinnerEnabled') {
+          setPickWinnerEnabled(setting.enabled !== false);
         }
         if (setting.feature === 'member_approval') {
           setApprovalPermission(setting.minRole || '관리자');
@@ -1121,6 +1126,18 @@ function Admin() {
       console.error('회원가입 승인 설정 저장 실패:', error);
       alert('회원가입 승인 설정 저장에 실패했습니다.');
       setApprovalRequired(!newValue);
+    }
+  };
+
+  const handlePickWinnerToggle = async () => {
+    const newValue = !pickWinnerEnabled;
+    setPickWinnerEnabled(newValue);
+    try {
+      await apiService.updateSetting('pickWinnerEnabled', { enabled: newValue });
+    } catch (error) {
+      console.error('우승자 맞추기 설정 저장 실패:', error);
+      alert('우승자 맞추기 설정 저장에 실패했습니다.');
+      setPickWinnerEnabled(!newValue);
     }
   };
 
@@ -6884,6 +6901,48 @@ function Admin() {
                     position: 'absolute',
                     top: '2px',
                     left: approvalRequired ? '30px' : '2px',
+                    transition: 'left 0.3s'
+                  }} />
+                </div>
+              </div>
+
+              <div style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                padding: '16px',
+                background: 'var(--bg-green)',
+                borderRadius: '8px',
+                marginTop: '12px'
+              }}>
+                <div>
+                  <div style={{ fontSize: '15px', fontWeight: '600', marginBottom: '4px' }}>
+                    우승자 맞추기 기능
+                  </div>
+                  <div style={{ fontSize: '13px', opacity: 0.7 }}>
+                    라운딩 우승자 예측 게임을 활성화합니다
+                  </div>
+                </div>
+                <div
+                  onClick={handlePickWinnerToggle}
+                  style={{
+                    width: '60px',
+                    height: '32px',
+                    background: pickWinnerEnabled ? 'var(--primary-green)' : '#ccc',
+                    borderRadius: '16px',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    transition: 'background 0.3s'
+                  }}
+                >
+                  <div style={{
+                    width: '28px',
+                    height: '28px',
+                    background: 'white',
+                    borderRadius: '50%',
+                    position: 'absolute',
+                    top: '2px',
+                    left: pickWinnerEnabled ? '30px' : '2px',
                     transition: 'left 0.3s'
                   }} />
                 </div>
