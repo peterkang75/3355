@@ -478,22 +478,26 @@ function PickWinner() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '12px' }}>
                         {user?.isAdmin && (
                           <button
-                            onClick={handleToggleVoting}
+                            onClick={phaseInfo.phase === 'voting' || phaseInfo.phase === 'voting_disabled' ? handleToggleVoting : undefined}
+                            disabled={phaseInfo.phase !== 'voting' && phaseInfo.phase !== 'voting_disabled'}
                             style={{
                               position: 'relative',
                               width: '40px',
                               height: '22px',
                               borderRadius: '11px',
                               border: 'none',
-                              cursor: 'pointer',
-                              background: isVotingEnabled ? 'var(--primary-green)' : '#ccc',
-                              transition: 'background 0.2s'
+                              cursor: (phaseInfo.phase === 'voting' || phaseInfo.phase === 'voting_disabled') ? 'pointer' : 'not-allowed',
+                              background: (phaseInfo.phase === 'voting_closed' || phaseInfo.phase === 'results') ? '#e0e0e0' :
+                                          isVotingEnabled ? 'var(--primary-green)' : '#ccc',
+                              transition: 'background 0.2s',
+                              opacity: (phaseInfo.phase === 'voting_closed' || phaseInfo.phase === 'results') ? 0.5 : 1
                             }}
                           >
                             <div style={{
                               position: 'absolute',
                               top: '2px',
-                              left: isVotingEnabled ? '20px' : '2px',
+                              left: (phaseInfo.phase === 'voting_closed' || phaseInfo.phase === 'results') ? '2px' :
+                                    isVotingEnabled ? '20px' : '2px',
                               width: '18px',
                               height: '18px',
                               borderRadius: '50%',
