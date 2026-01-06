@@ -21,7 +21,7 @@ function PickWinner() {
   const activeBookings = useMemo(() => {
     const now = new Date();
     return bookings.filter(b => {
-      if (b.type !== '컴페티션') return false;
+      if (b.type !== '정기모임') return false;
       if (!b.isAnnounced) return false;
       const roundingDate = new Date(b.date);
       const dayAfter = new Date(roundingDate);
@@ -316,7 +316,7 @@ function PickWinner() {
 
           {activeBookings.length === 0 ? (
             <div className="card" style={{ textAlign: 'center', padding: '40px', color: '#888' }}>
-              진행 중인 컴페티션이 없습니다
+              진행 중인 정기모임이 없습니다
             </div>
           ) : (
             activeBookings.map(booking => {
