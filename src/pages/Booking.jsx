@@ -417,7 +417,15 @@ function Booking() {
       if (booking.isGuestAllowed) {
         return true;
       }
-      return user.club === booking.courseName;
+      if (user.club === booking.courseName) {
+        return true;
+      }
+      const participants = parseParticipants(booking.participants);
+      const isParticipant = participants.some(p => p.phone === user.phone);
+      if (isParticipant) {
+        return true;
+      }
+      return false;
     }
     if (isUserGuest && !booking.isGuestAllowed) {
       return false;
