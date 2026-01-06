@@ -27,7 +27,14 @@ function GradeSettings() {
           const parsedSettings = typeof foundBooking.gradeSettings === 'string' 
             ? JSON.parse(foundBooking.gradeSettings)
             : foundBooking.gradeSettings;
-          setGradeSettings(parsedSettings);
+          
+          // 기본 구조와 병합하여 누락된 필드 방지
+          setGradeSettings({
+            gradeA: { type: 'below', value: '', ...parsedSettings?.gradeA },
+            gradeB: { min: '', max: '', ...parsedSettings?.gradeB },
+            gradeC: { min: '', max: '', ...parsedSettings?.gradeC },
+            gradeD: { type: 'above', value: '', ...parsedSettings?.gradeD }
+          });
         } catch (e) {
           console.error('그레이드 설정 파싱 실패:', e);
         }
