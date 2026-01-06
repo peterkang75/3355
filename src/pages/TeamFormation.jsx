@@ -834,14 +834,15 @@ function TeamFormation() {
                       value={team.teeTime || ''}
                       onChange={(e) => handleTeeTimeChange(teamIndex, e.target.value)}
                       style={{
-                        padding: '6px 10px',
+                        padding: '6px 12px',
                         border: '1px solid var(--border-color)',
                         borderRadius: '6px',
                         fontSize: '14px',
                         fontWeight: '500',
                         background: 'var(--bg-card)',
                         color: 'var(--text-dark)',
-                        width: '100px'
+                        width: '130px',
+                        minWidth: '130px'
                       }}
                       placeholder="--:--"
                     />
