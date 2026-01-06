@@ -22,6 +22,7 @@ function TeamFormation() {
   const [isSaving, setIsSaving] = useState(false);
   const [isAutoAssigning, setIsAutoAssigning] = useState(false);
   const [gameMode, setGameMode] = useState('stroke');
+  const [editingTeeTime, setEditingTeeTime] = useState(null);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -415,17 +416,18 @@ function TeamFormation() {
       if (teamMembers.length === 0) return;
 
       const memberStrings = teamMembers.map(m => getMemberString(m));
+      const teeTimeStr = team.teeTime ? ` (${team.teeTime})` : '';
 
       if (gameMode === 'foursome' && memberStrings.length >= 2) {
         const teamA = memberStrings.slice(0, 2).join(' & ');
         const teamB = memberStrings.slice(2, 4).join(' & ');
         if (teamB) {
-          lines.push(`${team.teamNumber}조: ${teamA} (A) vs ${teamB} (B)`);
+          lines.push(`${team.teamNumber}조${teeTimeStr}: ${teamA} (A) vs ${teamB} (B)`);
         } else {
-          lines.push(`${team.teamNumber}조: ${teamA} (A)`);
+          lines.push(`${team.teamNumber}조${teeTimeStr}: ${teamA} (A)`);
         }
       } else {
-        lines.push(`${team.teamNumber}조: ${memberStrings.join(', ')}`);
+        lines.push(`${team.teamNumber}조${teeTimeStr}: ${memberStrings.join(', ')}`);
       }
     });
 
@@ -466,6 +468,13 @@ function TeamFormation() {
     }
     
     setTeams(teams.slice(0, -1));
+    setHasUnsavedChanges(true);
+  };
+
+  const handleTeeTimeChange = (teamIndex, value) => {
+    const newTeams = [...teams];
+    newTeams[teamIndex] = { ...newTeams[teamIndex], teeTime: value };
+    setTeams(newTeams);
     setHasUnsavedChanges(true);
   };
 
@@ -803,14 +812,50 @@ function TeamFormation() {
 
           return (
             <div key={teamIndex} className="card" style={{ marginBottom: '16px' }}>
-              <h3 style={{ 
-                fontSize: '16px', 
-                fontWeight: '700',
-                marginBottom: '12px',
-                color: 'var(--primary-green)'
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'center',
+                marginBottom: '12px'
               }}>
-                {team.teamNumber}조
-              </h3>
+                <h3 style={{ 
+                  fontSize: '16px', 
+                  fontWeight: '700',
+                  color: 'var(--primary-green)',
+                  margin: 0
+                }}>
+                  {team.teamNumber}조
+                </h3>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '13px', color: '#666' }}>⏰</span>
+                  {hasAdminAccess ? (
+                    <input
+                      type="time"
+                      value={team.teeTime || ''}
+                      onChange={(e) => handleTeeTimeChange(teamIndex, e.target.value)}
+                      style={{
+                        padding: '6px 10px',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '6px',
+                        fontSize: '14px',
+                        fontWeight: '500',
+                        background: 'var(--bg-card)',
+                        color: 'var(--text-dark)',
+                        width: '100px'
+                      }}
+                      placeholder="--:--"
+                    />
+                  ) : (
+                    <span style={{ 
+                      fontSize: '14px', 
+                      fontWeight: '600',
+                      color: team.teeTime ? 'var(--primary-green)' : '#999'
+                    }}>
+                      {team.teeTime || '--:--'}
+                    </span>
+                  )}
+                </div>
+              </div>
               
               {gameMode === 'foursome' ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
