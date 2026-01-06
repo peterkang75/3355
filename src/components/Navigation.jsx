@@ -93,14 +93,12 @@ function Navigation({ user, onLogout }) {
         </a>
       )}
       <a 
-        href="/about" 
-        className={isActive('/about') ? 'nav-item active' : 'nav-item'}
-        onClick={(e) => handleNavClick(e, '/about')}
+        href="/menu" 
+        className={isActive('/menu') || isActive('/games') || isActive('/about') ? 'nav-item active' : 'nav-item'}
+        onClick={(e) => handleNavClick(e, '/menu')}
       >
-        <span className="nav-icon">
-          <img src={aboutIcon} alt="About" style={{ width: '24px', height: '24px' }} />
-        </span>
-        <span>About</span>
+        <span className="nav-icon" style={{ fontSize: '20px' }}>☰</span>
+        <span>메뉴</span>
       </a>
     </nav>
   );

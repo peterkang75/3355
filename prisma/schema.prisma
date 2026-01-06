@@ -42,6 +42,8 @@ model Member {
   transactions          Transaction[] @relation("MemberTransactions")
   executedTransactions  Transaction[] @relation("ExecutorTransactions")
   activityLogs          ActivityLog[]
+  voterPredictions      WinnerPrediction[] @relation("VoterPredictions")
+  predictedWinnerOf     WinnerPrediction[] @relation("PredictedWinner")
 }
 
 model Post {
@@ -90,7 +92,8 @@ model Booking {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
-  transactions Transaction[]
+  transactions      Transaction[]
+  winnerPredictions WinnerPrediction[]
 
   @@index([organizerId])
   @@index([date])
@@ -238,4 +241,20 @@ model ActivityLog {
 
   @@index([memberId])
   @@index([createdAt])
+}
+
+model WinnerPrediction {
+  id                String   @id @default(cuid())
+  roundingId        String
+  booking           Booking  @relation(fields: [roundingId], references: [id], onDelete: Cascade)
+  voterId           String
+  voter             Member   @relation("VoterPredictions", fields: [voterId], references: [id], onDelete: Cascade)
+  predictedWinnerId String
+  predictedWinner   Member   @relation("PredictedWinner", fields: [predictedWinnerId], references: [id], onDelete: Cascade)
+  grade             String
+  createdAt         DateTime @default(now())
+
+  @@unique([roundingId, voterId, grade])
+  @@index([roundingId])
+  @@index([voterId])
 }

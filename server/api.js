@@ -2563,4 +2563,57 @@ router.get("/online-members", async (req, res) => {
   }
 });
 
+router.get("/winner-predictions/:roundingId", async (req, res) => {
+  try {
+    const predictions = await prisma.winnerPrediction.findMany({
+      where: { roundingId: req.params.roundingId },
+      include: {
+        voter: {
+          select: { id: true, name: true, nickname: true }
+        },
+        predictedWinner: {
+          select: { id: true, name: true, nickname: true }
+        }
+      }
+    });
+    res.json({ predictions });
+  } catch (error) {
+    console.error("Error fetching winner predictions:", error);
+    res.status(500).json({ error: "Failed to fetch winner predictions" });
+  }
+});
+
+router.post("/winner-predictions", async (req, res) => {
+  try {
+    const { roundingId, voterId, predictions } = req.body;
+    
+    const existing = await prisma.winnerPrediction.findFirst({
+      where: { roundingId, voterId }
+    });
+    
+    if (existing) {
+      return res.status(409).json({ error: "이미 투표하셨습니다." });
+    }
+    
+    const predictionData = Object.entries(predictions).map(([grade, predictedWinnerId]) => ({
+      roundingId,
+      voterId,
+      predictedWinnerId,
+      grade
+    }));
+    
+    await prisma.winnerPrediction.createMany({
+      data: predictionData
+    });
+    
+    res.json({ success: true });
+  } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(409).json({ error: "이미 투표하셨습니다." });
+    }
+    console.error("Error creating winner prediction:", error);
+    res.status(500).json({ error: "Failed to create winner prediction" });
+  }
+});
+
 module.exports = router;

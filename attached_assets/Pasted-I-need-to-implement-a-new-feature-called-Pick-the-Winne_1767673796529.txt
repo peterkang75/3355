@@ -1,0 +1,54 @@
+I need to implement a new feature called **"Pick the Winners"** and refactor the Bottom Navigation.
+
+**1. Navigation Refactor (`Layout.jsx` / `App.js`):**
+* Replace the "About" tab in the bottom navigation with a **"Menu" (☰)** tab.
+* When clicked, it should navigate to a new page (`/menu`) or open a Bottom Sheet containing:
+    * **🏆 우승자 맞추기 (Pick the Winners)** - Links to `/games/pick-winner`
+    * **ℹ️ About** - Links to the existing About page.
+    * (Placeholder for future "Bingo Game").
+
+**2. Database Schema (`schema.prisma`):**
+* Create a model `WinnerPrediction` to store members' votes.
+    * `id`: Int, PK
+    * `roundingId`: Int (Relation to Booking)
+    * `voterId`: Int (Relation to Member - who voted)
+    * `predictedWinnerId`: Int (Relation to Member - candidate chosen)
+    * `grade`: String (e.g., "A", "B", "C", "D") - which grade this prediction is for.
+    * `createdAt`: DateTime
+
+**3. Frontend - Pick the Winner Page (`/games/pick-winner`):**
+
+**Phase A: List of Roundings**
+* Show active/upcoming roundings. User selects one to enter the game.
+
+**Phase B: Voting Screen (Before Deadline)**
+* **Condition:** Current Time < Rounding Start Time.
+* **Data Fetching:**
+    * Get CONFIRMED participants for the selected rounding.
+    * Sort them into Grades (A, B, C, D) based on the **Rounding's Grade Settings** and their Handicap (Priority: GA > HH).
+* **UI Layout:**
+    * **Section A (Grade A):** List of names as toggle buttons.
+    * **Section B (Grade B):** ... and so on.
+    * **Interaction:** User selects ONE person per grade. Selected item changes color (Green).
+    * **Action:** "투표하기 (Submit Vote)" button at the bottom.
+
+**Phase C: Voting Results (After Voting / Before Round Ends)**
+* Show the same list, but instead of selecting, show **Vote Counts** next to each candidate.
+* Sort candidates by vote count descending (e.g., "Winner Candidate: Dongbaek (10 votes)").
+
+**Phase D: Final Game Results (After Round Ends / Scores Finalized)**
+* **Condition:** Rounding is completed and winners are decided.
+* **Logic:**
+    * Compare `WinnerPrediction` vs `RoundingRankings`.
+    * Calculate how many winners each voter guessed correctly.
+* **UI Layout:**
+    * **Top Banner:** 🎉 **Game Winner(s)** (User who guessed the most correct).
+    * **List:** Show the Actual Rounding Winner for each grade.
+        * Under each winner, list the names of members who voted for them.
+        * Example:
+            * **Grade A Winner: Dongbaek**
+            * *Correct Pickers: Natto, Chulsoo...*
+
+**4. Implementation Notes:**
+* Ensure a user can only vote once per rounding.
+* If a user visits the page after the deadline but hasn't voted, show "Voting Closed".
