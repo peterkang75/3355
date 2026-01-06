@@ -1,0 +1,47 @@
+I need to implement a **"Squad-based Waitlist System"** for roundings and update the **Participant Display Styling**.
+
+**1. Database Schema (`schema.prisma`):**
+* Add a boolean field `useSquadWaitlist` (default: `false`) to the `Booking` model.
+* This flag determines whether the "4-person squad rule" applies to the rounding.
+
+**2. Frontend - Rounding Management (`RoundingManagement.jsx`):**
+* Add a **Toggle Switch** labeled "4인 기준 대기자 운영 (Squad Waitlist)" when creating/editing a rounding.
+* This controls the `useSquadWaitlist` field.
+
+**3. Frontend - Participant Logic (`BookingListCard.jsx`):**
+* **Logic Calculation:**
+    * If `useSquadWaitlist === true`:
+        * Calculate the `cutoffIndex`. It should be the largest multiple of 4 less than or equal to the total number of participants (`Math.floor(totalCount / 4) * 4`).
+        * Participants with `index < cutoffIndex` are **Confirmed**.
+        * Participants with `index >= cutoffIndex` are **Waitlisted**.
+    * If `useSquadWaitlist === false`: Everyone is **Confirmed**.
+* **Ordering:** Ensure participants are sorted by `joinedAt` (Join Date) ASC to respect "First-come, First-served".
+
+**4. Frontend - Participant Styling (`BookingListCard.jsx`):**
+* Update the styling of the participant chips based on the **Rounding Type** and **User Status**.
+
+**[Case A: Regular Rounding (정기 라운딩)]**
+* **Style:** Always **Thin Font (`font-light`)**, **No Background**.
+* Ignore waitlist/guest colors.
+
+**[Case B: Club Competition (클럽 컴페티션)]**
+* Apply styles based on the participant type:
+    1.  **Confirmed Member:**
+        * **Bold Font (`font-bold`)**.
+        * No Background.
+    2.  **Waitlisted Member:**
+        * **Thin Font (`font-light`)**.
+        * No Background. (Maybe add a label or text color change to indicate 'Waitlist').
+    3.  **Club External Member (클럽외부회원 - e.g., Green Guests):**
+        * **Background:** Green (`bg-[#D1E7DD]` or similar).
+        * **Icon:** **REMOVE** the person icon. Just show the name.
+    4.  **External Guest (외부게스트 - New Category if exists):**
+        * **Background:** Blue (`bg-blue-100`).
+* *Note:* If the data doesn't strictly distinguish "External Guest" vs "Club External Member" yet, apply the Green style to the standard non-member guests (`isGuest === true`) as requested ("Same as now").
+
+**Goal:**
+Start with 0 confirmed. As users join:
+- 1st~3rd: Waitlist (Thin font).
+- 4th joins: All 4 become Confirmed (Bold font).
+- 5th joins: Waitlist (Thin font).
+- And so on.
