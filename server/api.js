@@ -2616,4 +2616,30 @@ router.post("/winner-predictions", async (req, res) => {
   }
 });
 
+router.put("/winner-predictions", async (req, res) => {
+  try {
+    const { roundingId, voterId, predictions } = req.body;
+    
+    await prisma.winnerPrediction.deleteMany({
+      where: { roundingId, voterId }
+    });
+    
+    const predictionData = Object.entries(predictions).map(([grade, predictedWinnerId]) => ({
+      roundingId,
+      voterId,
+      predictedWinnerId,
+      grade
+    }));
+    
+    await prisma.winnerPrediction.createMany({
+      data: predictionData
+    });
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error updating winner prediction:", error);
+    res.status(500).json({ error: "Failed to update winner prediction" });
+  }
+});
+
 module.exports = router;

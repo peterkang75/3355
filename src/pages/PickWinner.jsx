@@ -17,6 +17,8 @@ function PickWinner() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [openMenuId, setOpenMenuId] = useState(null);
 
   const activeBookings = useMemo(() => {
     const now = new Date();
@@ -37,9 +39,13 @@ function PickWinner() {
       if (booking) {
         loadPredictions(bookingId);
       }
+      const editMode = searchParams.get('edit') === 'true';
+      if (editMode) {
+        setIsEditing(true);
+      }
     }
     setLoading(false);
-  }, [bookingId, bookings]);
+  }, [bookingId, bookings, searchParams]);
 
   const loadPredictions = async (roundingId) => {
     try {
@@ -56,7 +62,10 @@ function PickWinner() {
             votesMap[v.grade] = v.predictedWinnerId;
           });
           setMyVotes(votesMap);
-          setPredictions(votesMap);
+          const editMode = searchParams.get('edit') === 'true';
+          if (editMode) {
+            setPredictions(votesMap);
+          }
         }
       }
     } catch (error) {
@@ -195,11 +204,21 @@ function PickWinner() {
   };
 
   const handleSelect = (grade, memberId) => {
-    if (hasVoted) return;
+    if (hasVoted && !isEditing) return;
     setPredictions(prev => ({
       ...prev,
       [grade]: prev[grade] === memberId ? null : memberId
     }));
+  };
+
+  const handleStartEdit = () => {
+    setIsEditing(true);
+    setPredictions({ ...myVotes });
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setPredictions({ ...myVotes });
   };
 
   const handleSubmit = async () => {
@@ -213,8 +232,9 @@ function PickWinner() {
 
     setIsSubmitting(true);
     try {
+      const method = isEditing ? 'PUT' : 'POST';
       const response = await fetch('/api/winner-predictions', {
-        method: 'POST',
+        method: method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           roundingId: selectedBooking.id,
@@ -225,9 +245,10 @@ function PickWinner() {
 
       if (response.ok) {
         setHasVoted(true);
+        setIsEditing(false);
         setMyVotes(predictions);
         await loadPredictions(selectedBooking.id);
-        alert('투표가 완료되었습니다!');
+        alert(isEditing ? '투표가 수정되었습니다!' : '투표가 완료되었습니다!');
       } else {
         const error = await response.text();
         alert(`투표 실패: ${error}`);
@@ -321,36 +342,97 @@ function PickWinner() {
           ) : (
             activeBookings.map(booking => {
               const phaseInfo = getPhaseInfo(booking);
+              const userVotedForThis = allVotes.some(v => v.roundingId === booking.id && v.voterId === user?.id);
               return (
                 <div
                   key={booking.id}
                   className="card"
-                  onClick={() => navigate(`/games/pick-winner?id=${booking.id}`)}
-                  style={{ cursor: 'pointer', marginBottom: '12px', padding: '16px' }}
+                  style={{ marginBottom: '12px', padding: '16px', position: 'relative' }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div>
-                      <div style={{ fontWeight: '600', marginBottom: '4px' }}>
-                        {booking.title || booking.courseName}
+                  <div 
+                    onClick={() => navigate(`/games/pick-winner?id=${booking.id}`)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div>
+                        <div style={{ fontWeight: '600', marginBottom: '4px' }}>
+                          {booking.title || booking.courseName}
+                        </div>
+                        <div style={{ fontSize: '13px', color: '#666' }}>
+                          {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
+                        </div>
                       </div>
-                      <div style={{ fontSize: '13px', color: '#666' }}>
-                        {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <div style={{
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          fontWeight: '600',
+                          background: phaseInfo.phase === 'voting' ? '#D1E7DD' : 
+                                      phaseInfo.phase === 'results' ? '#FFE5B4' : '#f0f0f0',
+                          color: phaseInfo.phase === 'voting' ? '#0A5C36' : 
+                                 phaseInfo.phase === 'results' ? '#8B6914' : '#666'
+                        }}>
+                          {phaseInfo.phase === 'voting' ? '투표 중' : 
+                           phaseInfo.phase === 'results' ? '결과 확인' : '투표 마감'}
+                        </div>
                       </div>
-                    </div>
-                    <div style={{
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      fontSize: '11px',
-                      fontWeight: '600',
-                      background: phaseInfo.phase === 'voting' ? '#D1E7DD' : 
-                                  phaseInfo.phase === 'results' ? '#FFE5B4' : '#f0f0f0',
-                      color: phaseInfo.phase === 'voting' ? '#0A5C36' : 
-                             phaseInfo.phase === 'results' ? '#8B6914' : '#666'
-                    }}>
-                      {phaseInfo.phase === 'voting' ? '투표 중' : 
-                       phaseInfo.phase === 'results' ? '결과 확인' : '투표 마감'}
                     </div>
                   </div>
+                  
+                  {phaseInfo.phase === 'voting' && (
+                    <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setOpenMenuId(openMenuId === booking.id ? null : booking.id);
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          padding: '4px 8px',
+                          fontSize: '16px',
+                          color: '#666'
+                        }}
+                      >
+                        ⋮
+                      </button>
+                      {openMenuId === booking.id && (
+                        <div style={{
+                          position: 'absolute',
+                          top: '100%',
+                          right: 0,
+                          background: '#fff',
+                          border: '1px solid #e0e0e0',
+                          borderRadius: '8px',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                          zIndex: 100,
+                          minWidth: '100px'
+                        }}>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenMenuId(null);
+                              navigate(`/games/pick-winner?id=${booking.id}&edit=true`);
+                            }}
+                            style={{
+                              display: 'block',
+                              width: '100%',
+                              padding: '12px 16px',
+                              border: 'none',
+                              background: 'none',
+                              textAlign: 'left',
+                              cursor: 'pointer',
+                              fontSize: '14px'
+                            }}
+                          >
+                            ✏️ 수정
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               );
             })
@@ -555,7 +637,7 @@ function PickWinner() {
                     <button
                       key={p.id}
                       onClick={() => handleSelect(grade, p.id)}
-                      disabled={hasVoted || phaseInfo.phase === 'voting_closed'}
+                      disabled={(hasVoted && !isEditing) || phaseInfo.phase === 'voting_closed'}
                       style={{
                         padding: '8px 12px',
                         borderRadius: '20px',
@@ -563,7 +645,7 @@ function PickWinner() {
                         background: isSelected ? 'var(--bg-green)' : 'white',
                         color: isSelected ? 'var(--primary-green)' : '#333',
                         fontWeight: isSelected || isMyVote ? '600' : '400',
-                        cursor: hasVoted || phaseInfo.phase === 'voting_closed' ? 'default' : 'pointer',
+                        cursor: (hasVoted && !isEditing) || phaseInfo.phase === 'voting_closed' ? 'default' : 'pointer',
                         fontSize: '14px',
                         display: 'flex',
                         alignItems: 'center',
@@ -591,25 +673,45 @@ function PickWinner() {
           );
         })}
 
-        {phaseInfo.canVote && (
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitting}
-            style={{
-              width: '100%',
-              padding: '16px',
-              background: isSubmitting ? '#ccc' : 'var(--primary-green)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: isSubmitting ? 'not-allowed' : 'pointer',
-              marginBottom: '20px'
-            }}
-          >
-            {isSubmitting ? '제출 중...' : '투표하기'}
-          </button>
+        {(phaseInfo.canVote || isEditing) && (
+          <div style={{ marginBottom: '20px' }}>
+            {isEditing && (
+              <button
+                onClick={handleCancelEdit}
+                style={{
+                  width: '100%',
+                  padding: '16px',
+                  background: 'white',
+                  color: '#666',
+                  border: '1px solid #ddd',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  marginBottom: '8px'
+                }}
+              >
+                취소
+              </button>
+            )}
+            <button
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              style={{
+                width: '100%',
+                padding: '16px',
+                background: isSubmitting ? '#ccc' : 'var(--primary-green)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: isSubmitting ? 'not-allowed' : 'pointer'
+              }}
+            >
+              {isSubmitting ? '제출 중...' : (isEditing ? '수정하기' : '투표하기')}
+            </button>
+          </div>
         )}
       </div>
     </div>
