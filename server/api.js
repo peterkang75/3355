@@ -2642,4 +2642,19 @@ router.put("/winner-predictions", async (req, res) => {
   }
 });
 
+router.delete("/winner-predictions/:roundingId/:voterId", async (req, res) => {
+  try {
+    const { roundingId, voterId } = req.params;
+    
+    await prisma.winnerPrediction.deleteMany({
+      where: { roundingId, voterId }
+    });
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting winner prediction:", error);
+    res.status(500).json({ error: "Failed to delete winner prediction" });
+  }
+});
+
 module.exports = router;

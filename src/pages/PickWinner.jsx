@@ -19,6 +19,9 @@ function PickWinner() {
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
+  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [selectedVoterId, setSelectedVoterId] = useState(null);
+  const [adminPredictions, setAdminPredictions] = useState({});
 
   const activeBookings = useMemo(() => {
     const now = new Date();
@@ -40,12 +43,16 @@ function PickWinner() {
         loadPredictions(bookingId);
       }
       const editMode = searchParams.get('edit') === 'true';
+      const adminMode = searchParams.get('admin') === 'true';
       if (editMode) {
         setIsEditing(true);
       }
+      if (adminMode && user?.isAdmin) {
+        setIsAdminMode(true);
+      }
     }
     setLoading(false);
-  }, [bookingId, bookings, searchParams]);
+  }, [bookingId, bookings, searchParams, user]);
 
   const loadPredictions = async (roundingId) => {
     try {
@@ -260,6 +267,94 @@ function PickWinner() {
     }
   };
 
+  const getVotersList = () => {
+    const voterIds = [...new Set(allVotes.map(v => v.voterId))];
+    return voterIds.map(voterId => {
+      const member = members.find(m => m.id === voterId);
+      const votes = allVotes.filter(v => v.voterId === voterId);
+      return {
+        voterId,
+        name: member?.nickname || member?.name || '알수없음',
+        votes
+      };
+    });
+  };
+
+  const handleAdminSelectVoter = (voterId) => {
+    setSelectedVoterId(voterId);
+    const voterVotes = allVotes.filter(v => v.voterId === voterId);
+    const votesMap = {};
+    voterVotes.forEach(v => {
+      votesMap[v.grade] = v.predictedWinnerId;
+    });
+    setAdminPredictions(votesMap);
+  };
+
+  const handleAdminSelect = (grade, memberId) => {
+    setAdminPredictions(prev => ({
+      ...prev,
+      [grade]: prev[grade] === memberId ? null : memberId
+    }));
+  };
+
+  const handleAdminUpdate = async () => {
+    const grades = ['A', 'B', 'C', 'D'];
+    const missingGrades = grades.filter(g => !adminPredictions[g]);
+    
+    if (missingGrades.length > 0) {
+      alert(`모든 그레이드에서 우승자를 선택해주세요. (누락: ${missingGrades.join(', ')})`);
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch('/api/winner-predictions', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roundingId: selectedBooking.id,
+          voterId: selectedVoterId,
+          predictions: adminPredictions
+        })
+      });
+
+      if (response.ok) {
+        await loadPredictions(selectedBooking.id);
+        setSelectedVoterId(null);
+        setAdminPredictions({});
+        alert('투표가 수정되었습니다!');
+      } else {
+        const error = await response.text();
+        alert(`수정 실패: ${error}`);
+      }
+    } catch (error) {
+      alert('수정 중 오류가 발생했습니다.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleAdminDelete = async (voterId) => {
+    if (!confirm('해당 회원의 투표를 삭제하시겠습니까?')) return;
+    
+    try {
+      const response = await fetch(`/api/winner-predictions/${selectedBooking.id}/${voterId}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        await loadPredictions(selectedBooking.id);
+        setSelectedVoterId(null);
+        setAdminPredictions({});
+        alert('투표가 삭제되었습니다.');
+      } else {
+        alert('삭제에 실패했습니다.');
+      }
+    } catch (error) {
+      alert('삭제 중 오류가 발생했습니다.');
+    }
+  };
+
   const getActualWinners = (booking) => {
     if (!booking?.dailyHandicaps) return {};
     
@@ -380,7 +475,7 @@ function PickWinner() {
                     </div>
                   </div>
                   
-                  {phaseInfo.phase === 'voting' && (
+                  {phaseInfo.phase === 'voting' && user?.isAdmin && (
                     <div style={{ position: 'absolute', top: '12px', right: '12px' }}>
                       <button
                         onClick={(e) => {
@@ -408,13 +503,13 @@ function PickWinner() {
                           borderRadius: '8px',
                           boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                           zIndex: 100,
-                          minWidth: '100px'
+                          minWidth: '120px'
                         }}>
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
                               setOpenMenuId(null);
-                              navigate(`/games/pick-winner?id=${booking.id}&edit=true`);
+                              navigate(`/games/pick-winner?id=${booking.id}&admin=true`);
                             }}
                             style={{
                               display: 'block',
@@ -427,7 +522,7 @@ function PickWinner() {
                               fontSize: '14px'
                             }}
                           >
-                            ✏️ 수정
+                            👥 투표 관리
                           </button>
                         </div>
                       )}
@@ -462,6 +557,199 @@ function PickWinner() {
     C: '#CD7F32',
     D: '#4A9D6A'
   };
+
+  if (isAdminMode && user?.isAdmin) {
+    const votersList = getVotersList();
+    
+    return (
+      <div className="page-content">
+        <PageHeader 
+          title="투표 관리" 
+          onBack={() => {
+            setIsAdminMode(false);
+            setSelectedVoterId(null);
+            navigate(`/games/pick-winner?id=${selectedBooking.id}`);
+          }} 
+        />
+        
+        <div style={{ padding: '0 16px' }}>
+          <div className="card" style={{ marginBottom: '16px', padding: '12px' }}>
+            <div style={{ fontSize: '14px', fontWeight: '600' }}>
+              {selectedBooking.title || selectedBooking.courseName}
+            </div>
+            <div style={{ fontSize: '13px', color: '#666' }}>
+              총 {votersList.length}명 투표
+            </div>
+          </div>
+
+          {!selectedVoterId ? (
+            <>
+              {votersList.length === 0 ? (
+                <div className="card" style={{ textAlign: 'center', padding: '40px', color: '#888' }}>
+                  아직 투표한 회원이 없습니다
+                </div>
+              ) : (
+                votersList.map(voter => (
+                  <div
+                    key={voter.voterId}
+                    className="card"
+                    style={{ marginBottom: '8px', padding: '12px', cursor: 'pointer' }}
+                    onClick={() => handleAdminSelectVoter(voter.voterId)}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <div style={{ fontWeight: '500' }}>{voter.name}</div>
+                      <div style={{ display: 'flex', gap: '4px' }}>
+                        {grades.map(g => {
+                          const vote = voter.votes.find(v => v.grade === g);
+                          const predicted = vote ? members.find(m => m.id === vote.predictedWinnerId) : null;
+                          return (
+                            <div
+                              key={g}
+                              style={{
+                                background: gradeColors[g],
+                                color: g === 'A' ? '#333' : 'white',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                fontSize: '10px',
+                                fontWeight: '600'
+                              }}
+                              title={predicted?.nickname || predicted?.name || '-'}
+                            >
+                              {g}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </>
+          ) : (
+            <>
+              <div className="card" style={{ marginBottom: '16px', padding: '12px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ fontWeight: '600' }}>
+                    {members.find(m => m.id === selectedVoterId)?.nickname || 
+                     members.find(m => m.id === selectedVoterId)?.name || '알수없음'}의 투표
+                  </div>
+                  <button
+                    onClick={() => handleAdminDelete(selectedVoterId)}
+                    style={{
+                      background: '#dc3545',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                      padding: '6px 12px',
+                      fontSize: '12px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    삭제
+                  </button>
+                </div>
+              </div>
+
+              {grades.map(grade => {
+                const participants = gradedParticipants[grade] || [];
+                if (participants.length === 0) return null;
+
+                return (
+                  <div key={grade} className="card" style={{ marginBottom: '12px', padding: '16px' }}>
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      marginBottom: '12px'
+                    }}>
+                      <div style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '6px',
+                        background: gradeColors[grade],
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: '700',
+                        color: grade === 'A' ? '#333' : 'white',
+                        fontSize: '14px'
+                      }}>
+                        {grade}
+                      </div>
+                      <span style={{ fontWeight: '600' }}>그레이드 {grade}</span>
+                    </div>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                      {participants.map(p => {
+                        const isSelected = adminPredictions[grade] === p.id;
+                        return (
+                          <button
+                            key={p.id}
+                            onClick={() => handleAdminSelect(grade, p.id)}
+                            style={{
+                              padding: '8px 12px',
+                              borderRadius: '20px',
+                              border: isSelected ? '2px solid var(--primary-green)' : '1px solid #ddd',
+                              background: isSelected ? 'var(--bg-green)' : 'white',
+                              color: isSelected ? 'var(--primary-green)' : '#333',
+                              fontWeight: isSelected ? '600' : '400',
+                              cursor: 'pointer',
+                              fontSize: '14px'
+                            }}
+                          >
+                            {p.nickname || p.name}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+                <button
+                  onClick={() => {
+                    setSelectedVoterId(null);
+                    setAdminPredictions({});
+                  }}
+                  style={{
+                    flex: 1,
+                    padding: '16px',
+                    background: 'white',
+                    color: '#666',
+                    border: '1px solid #ddd',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  취소
+                </button>
+                <button
+                  onClick={handleAdminUpdate}
+                  disabled={isSubmitting}
+                  style={{
+                    flex: 1,
+                    padding: '16px',
+                    background: isSubmitting ? '#ccc' : 'var(--primary-green)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    cursor: isSubmitting ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {isSubmitting ? '저장 중...' : '저장'}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   if (phaseInfo.phase === 'results') {
     const actualWinners = getActualWinners(selectedBooking);
@@ -567,7 +855,7 @@ function PickWinner() {
           <div style={{ fontSize: '13px', color: '#666' }}>
             📅 {new Date(selectedBooking.date).toLocaleDateString('ko-KR')} {selectedBooking.time}
           </div>
-          {hasVoted && (
+          {hasVoted && !isEditing && (
             <div style={{
               marginTop: '8px',
               padding: '8px',
@@ -575,9 +863,42 @@ function PickWinner() {
               borderRadius: '6px',
               fontSize: '13px',
               color: '#0A5C36',
+              fontWeight: '500',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <span>✓ 투표 완료!</span>
+              {phaseInfo.phase === 'voting' && (
+                <button
+                  onClick={handleStartEdit}
+                  style={{
+                    background: 'white',
+                    color: '#0A5C36',
+                    border: '1px solid #0A5C36',
+                    borderRadius: '4px',
+                    padding: '4px 10px',
+                    fontSize: '12px',
+                    fontWeight: '600',
+                    cursor: 'pointer'
+                  }}
+                >
+                  다시 투표하기
+                </button>
+              )}
+            </div>
+          )}
+          {isEditing && (
+            <div style={{
+              marginTop: '8px',
+              padding: '8px',
+              background: '#FFF3CD',
+              borderRadius: '6px',
+              fontSize: '13px',
+              color: '#856404',
               fontWeight: '500'
             }}>
-              ✓ 투표 완료! 아래에서 현재 투표 현황을 확인하세요.
+              ✏️ 투표 수정 중입니다. 변경 후 아래 수정하기 버튼을 눌러주세요.
             </div>
           )}
           {phaseInfo.phase === 'voting_closed' && !hasVoted && (
