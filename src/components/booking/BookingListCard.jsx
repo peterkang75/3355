@@ -550,7 +550,7 @@ const BookingListCard = memo(function BookingListCard({
                     let fontWeight = '400';
 
                     if (isRegularRounding) {
-                      fontWeight = '300';
+                      fontWeight = '400';
                     } else {
                       if (waitlisted) {
                         fontWeight = '300';
