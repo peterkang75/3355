@@ -493,8 +493,22 @@ function Dashboard() {
   today.setHours(0, 0, 0, 0);
   
   const canViewBooking = (booking) => {
+    if (booking.type === '정기모임') {
+      return true;
+    }
     if (booking.type === '컴페티션') {
-      return user.club === booking.courseName;
+      if (booking.isGuestAllowed) {
+        return true;
+      }
+      if (user.club === booking.courseName) {
+        return true;
+      }
+      const participants = parseParticipants(booking.participants);
+      const isParticipant = participants.some(p => p.phone === user.phone);
+      if (isParticipant) {
+        return true;
+      }
+      return false;
     }
     return true;
   };
