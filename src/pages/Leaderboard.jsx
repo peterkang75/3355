@@ -135,6 +135,7 @@ function Leaderboard() {
 
         return {
           odId: score.userId,
+          phone: member?.phone || score.userId,
           nickname,
           handicap,
           grade,
@@ -194,16 +195,19 @@ function Leaderboard() {
           [pairA, pairB].forEach(pair => {
             for (const member of pair.members) {
               if (!member) continue;
-              const memberScore = processedScores.find(s => {
-                const memberObj = members.find(m => m.phone === member.phone);
-                return s.odId === memberObj?.id || s.odId === member.phone;
-              });
+              const memberObj = members.find(m => m.phone === member.phone);
+              const memberScore = processedScores.find(s => 
+                s.odId === memberObj?.id || 
+                s.odId === member.phone || 
+                s.phone === member.phone
+              );
               if (memberScore && memberScore.totalScore > 0) {
                 pair.score = memberScore.totalScore;
                 pair.overUnder = memberScore.overUnder;
                 pair.playedPar = memberScore.playedPar;
                 pair.outScore = memberScore.outScore;
                 pair.inScore = memberScore.inScore;
+                pair.holes = memberScore.holes;
                 // Net Score 계산: Gross Score - Team Handicap
                 if (pair.teamHandicap != null) {
                   pair.netScore = parseFloat((memberScore.totalScore - pair.teamHandicap).toFixed(1));
