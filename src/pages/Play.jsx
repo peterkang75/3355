@@ -275,58 +275,8 @@ function Play() {
     }
   }, [bookingId, bookings, user?.phone, courses, members]);
 
-  // 실시간 저장
-  useEffect(() => {
-    if (step !== 'scorecard' || !booking || !selectedTeammate || !courseData) return;
-    if (skipAutoSaveRef.current) return;
-
-    const saveScore = async () => {
-      if (skipAutoSaveRef.current) return;
-      try {
-        const userParArr = courseData?.holePars?.[user?.gender === 'F' ? 'female' : 'male'] || [];
-        const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
-
-        const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
-        const coursePar = userParArr.reduce((a, b) => a + b, 0);
-        
-        if (!user?.id || !booking?.title) {
-          console.log('⚠️ 스코어 저장 스킵 - 필수 데이터 없음:', { userId: user?.id, bookingTitle: booking?.title });
-          return;
-        }
-        
-        // 포썸 메타데이터 생성
-        const myGameMetadata = gameMode === 'foursome' && foursomeData ? {
-          partner: { name: foursomeData.partner?.nickname || foursomeData.partner?.name, phone: foursomeData.partner?.phone },
-          opponents: foursomeData.opponents?.map(o => ({ name: o?.nickname || o?.name, phone: o?.phone })) || [],
-          recordedBy: user?.nickname || user?.name,
-        } : null;
-        
-        const scoreData = {
-          markerId: user.id,
-          roundingName: booking.title,
-          date: scoreDate,
-          courseName: booking.courseName,
-          totalScore: totalMe,
-          coursePar,
-          holes: holeScores.me,
-          gameMode: gameMode === 'foursome' ? 'foursome' : null,
-          gameMetadata: myGameMetadata,
-        };
-        
-        // 내 스코어 저장
-        await fetch('/api/scores', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ...scoreData, memberId: user.id })
-        });
-      } catch (e) {
-        console.error('저장 오류:', e);
-      }
-    };
-
-    const timer = setTimeout(saveScore, 500);
-    return () => clearTimeout(timer);
-  }, [holeScores, step, booking, selectedTeammate, courseData, user, gameMode, foursomeData, members]);
+  // 실시간 저장 - sessionStorage에만 저장 (서버 저장은 명시적으로 완료할 때만)
+  // 서버 자동 저장 비활성화: 사용자가 저장하지 않고 종료하면 데이터가 남지 않도록 함
 
   const isAllHolesComplete = () => {
     return holeScores.me.every(score => score > 0) && holeScores.teammate.every(score => score > 0);
