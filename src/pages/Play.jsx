@@ -78,10 +78,28 @@ function Play() {
   const isVerySmallScreen = screenHeight < 600;
   const isTinyScreen = screenHeight < 550;
 
-  // Play 페이지 진입 시 항상 selectMember 단계로 시작 (자동 스코어카드 열림 방지)
+  // Play 페이지 진입 시 저장된 상태 복원 또는 초기화
   useEffect(() => {
-    // 저장된 상태 삭제 (스코어카드 자동 열림 방지)
-    sessionStorage.removeItem(`play_state_${bookingId}`);
+    if (!bookingId) return;
+    
+    // 저장된 상태가 있으면 복원
+    const savedState = sessionStorage.getItem(`play_state_${bookingId}`);
+    if (savedState) {
+      try {
+        const parsed = JSON.parse(savedState);
+        console.log('🔄 저장된 스코어 복원:', parsed);
+        if (parsed.holeScores) setHoleScores(parsed.holeScores);
+        if (parsed.currentHole) setCurrentHole(parsed.currentHole);
+        if (parsed.selectedTeammate) setSelectedTeammate(parsed.selectedTeammate);
+        if (parsed.step) setStep(parsed.step);
+        if (parsed.roundStartTime) setRoundStartTime(parsed.roundStartTime);
+        if (parsed.foursomeData) setFoursomeData(parsed.foursomeData);
+        lastRestoredBookingRef.current = bookingId;
+        return;
+      } catch (e) {
+        console.error('저장된 상태 복원 오류:', e);
+      }
+    }
     
     // 새 bookingId면 초기화
     if (lastRestoredBookingRef.current !== bookingId) {
@@ -94,6 +112,22 @@ function Play() {
       console.log('🔄 Play 페이지 초기화:', bookingId);
     }
   }, [bookingId]);
+
+  // 스코어 변경 시 sessionStorage에 자동 저장
+  useEffect(() => {
+    if (!bookingId || step === 'selectMember') return;
+    
+    const stateToSave = {
+      holeScores,
+      currentHole,
+      selectedTeammate,
+      step,
+      roundStartTime,
+      foursomeData
+    };
+    sessionStorage.setItem(`play_state_${bookingId}`, JSON.stringify(stateToSave));
+    console.log('💾 스코어 자동 저장:', currentHole, holeScores);
+  }, [bookingId, holeScores, currentHole, selectedTeammate, step, roundStartTime, foursomeData]);
 
   useEffect(() => {
     console.log('🎯 Play 페이지 로드:', bookingId);
@@ -1302,9 +1336,7 @@ function Play() {
         </div>
         <button
           onClick={() => {
-            // 리더보드 이동 시 상태 저장하지 않음 (돌아올 때 자동으로 스코어카드 열리는 문제 방지)
-            sessionStorage.removeItem(`play_state_${bookingId}`);
-            console.log('🗑️ 리더보드 이동 - 상태 저장 안함');
+            console.log('📊 리더보드 이동 - 상태 유지');
             navigate(`/leaderboard?id=${bookingId}`);
           }}
           style={{
