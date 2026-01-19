@@ -5968,11 +5968,29 @@ function Admin() {
                                       {index + 1}
                                     </div>
                                     <div>
-                                      <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-dark)' }}>
-                                        {member?.nickname || member?.name || participant.nickname || participant.name}
+                                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-dark)' }}>
+                                          {member?.nickname || member?.name || participant.nickname || participant.name}
+                                        </span>
+                                        {score.gameMode === 'foursome' && (
+                                          <span style={{
+                                            background: '#9333ea',
+                                            color: 'white',
+                                            padding: '1px 5px',
+                                            borderRadius: '4px',
+                                            fontSize: '10px',
+                                            fontWeight: '600'
+                                          }}>포썸</span>
+                                        )}
                                       </div>
                                       <div style={{ fontSize: '12px', color: 'var(--text-dark)', opacity: 0.7 }}>
                                         HC: {member?.handicap || '-'}
+                                        {score.gameMode === 'foursome' && score.gameMetadata && (() => {
+                                          try {
+                                            const meta = typeof score.gameMetadata === 'string' ? JSON.parse(score.gameMetadata) : score.gameMetadata;
+                                            return ` · 파트너: ${meta.partner?.name || '?'}`;
+                                          } catch { return ''; }
+                                        })()}
                                       </div>
                                     </div>
                                   </div>
@@ -6135,11 +6153,29 @@ function Admin() {
                                 {index + 1}
                               </div>
                               <div>
-                                <div style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-dark)' }}>
-                                  {member?.nickname || member?.name || '알 수 없음'}
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                  <span style={{ fontSize: '16px', fontWeight: '600', color: 'var(--text-dark)' }}>
+                                    {member?.nickname || member?.name || '알 수 없음'}
+                                  </span>
+                                  {score.gameMode === 'foursome' && (
+                                    <span style={{
+                                      background: '#9333ea',
+                                      color: 'white',
+                                      padding: '1px 5px',
+                                      borderRadius: '4px',
+                                      fontSize: '10px',
+                                      fontWeight: '600'
+                                    }}>포썸</span>
+                                  )}
                                 </div>
                                 <div style={{ fontSize: '12px', color: 'var(--text-dark)', opacity: 0.7 }}>
                                   HC: {member?.handicap || '-'}
+                                  {score.gameMode === 'foursome' && score.gameMetadata && (() => {
+                                    try {
+                                      const meta = typeof score.gameMetadata === 'string' ? JSON.parse(score.gameMetadata) : score.gameMetadata;
+                                      return ` · 파트너: ${meta.partner?.name || '?'}`;
+                                    } catch { return ''; }
+                                  })()}
                                 </div>
                               </div>
                             </div>

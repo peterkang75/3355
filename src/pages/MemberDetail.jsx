@@ -1436,6 +1436,38 @@ function MemberDetail() {
                       }}>
                         {score.courseName} · {new Date(score.date).toLocaleDateString('ko-KR')}
                       </div>
+                      {score.gameMode === 'foursome' && (() => {
+                        let metadata = null;
+                        try {
+                          metadata = score.gameMetadata 
+                            ? (typeof score.gameMetadata === 'string' ? JSON.parse(score.gameMetadata) : score.gameMetadata)
+                            : null;
+                        } catch (e) {}
+                        return metadata ? (
+                          <div style={{
+                            marginTop: '4px',
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            gap: '4px',
+                            alignItems: 'center'
+                          }}>
+                            <span style={{
+                              background: '#9333ea',
+                              color: 'white',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              fontSize: '11px',
+                              fontWeight: '600'
+                            }}>포썸</span>
+                            <span style={{ fontSize: '12px', color: '#666' }}>
+                              파트너: {metadata.partner?.name || '?'}
+                            </span>
+                            <span style={{ fontSize: '12px', color: '#888' }}>
+                              vs {metadata.opponents?.map(o => o?.name).filter(Boolean).join(' & ') || '?'}
+                            </span>
+                          </div>
+                        ) : null;
+                      })()}
                     </div>
                     <div style={{
                       display: 'flex',

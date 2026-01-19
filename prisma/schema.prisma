@@ -160,6 +160,8 @@ model Score {
   completed    Boolean  @default(false)
   verified     Boolean  @default(false)
   verifiedBy   String?
+  gameMode     String?
+  gameMetadata String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

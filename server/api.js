@@ -987,6 +987,8 @@ router.post("/scores", async (req, res) => {
       coursePar,
       holes,
       isVerification,
+      gameMode,
+      gameMetadata,
     } = req.body;
 
     const isSelfEntry = !markerId || markerId === memberId;
@@ -1049,6 +1051,8 @@ router.post("/scores", async (req, res) => {
         markerId: isSelfEntry ? memberId : markerId,
         verified: false,
         verifiedBy: null,
+        gameMode: gameMode || null,
+        gameMetadata: gameMetadata ? JSON.stringify(gameMetadata) : null,
       },
       create: {
         userId: memberId,
@@ -1060,6 +1064,8 @@ router.post("/scores", async (req, res) => {
         coursePar,
         holes: JSON.stringify(holes),
         verified: false,
+        gameMode: gameMode || null,
+        gameMetadata: gameMetadata ? JSON.stringify(gameMetadata) : null,
       },
     });
 
@@ -1097,9 +1103,22 @@ router.post("/scores", async (req, res) => {
                   // 같은 페어의 파트너 찾기 (0-1이 페어A, 2-3이 페어B)
                   const partnerIndex = memberIndex % 2 === 0 ? memberIndex + 1 : memberIndex - 1;
                   const partner = team.members[partnerIndex];
+                  
+                  // 상대팀 찾기
+                  const isTeamA = memberIndex < 2;
+                  const opponentIndices = isTeamA ? [2, 3] : [0, 1];
+                  const opponents = opponentIndices.map(i => team.members[i]).filter(Boolean);
+                  
                   if (partner?.phone) {
                     const partnerMember = await prisma.member.findFirst({ where: { phone: partner.phone } });
                     if (partnerMember && partnerMember.id !== memberId) {
+                      // 파트너 관점의 메타데이터 생성 (파트너가 원래 기록자)
+                      const partnerGameMetadata = {
+                        partner: { name: member.nickname || member.name, phone: member.phone },
+                        opponents: opponents.map(o => ({ name: o.nickname || o.name, phone: o.phone })),
+                        recordedBy: member.nickname || member.name,
+                      };
+                      
                       // 파트너 스코어 동기화
                       await prisma.score.upsert({
                         where: {
@@ -1117,6 +1136,8 @@ router.post("/scores", async (req, res) => {
                           markerId: memberId,
                           verified: false,
                           verifiedBy: null,
+                          gameMode: 'foursome',
+                          gameMetadata: JSON.stringify(partnerGameMetadata),
                         },
                         create: {
                           userId: partnerMember.id,
@@ -1128,6 +1149,8 @@ router.post("/scores", async (req, res) => {
                           coursePar,
                           holes: JSON.stringify(holes),
                           verified: false,
+                          gameMode: 'foursome',
+                          gameMetadata: JSON.stringify(partnerGameMetadata),
                         },
                       });
                       console.log(`🏌️ 포썸 파트너 스코어 동기화: ${member.nickname} → ${partnerMember.nickname}`);

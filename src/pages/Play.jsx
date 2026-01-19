@@ -294,6 +294,13 @@ function Play() {
           return;
         }
         
+        // 포썸 메타데이터 생성
+        const myGameMetadata = gameMode === 'foursome' && foursomeData ? {
+          partner: { name: foursomeData.partner?.nickname || foursomeData.partner?.name, phone: foursomeData.partner?.phone },
+          opponents: foursomeData.opponents?.map(o => ({ name: o?.nickname || o?.name, phone: o?.phone })) || [],
+          recordedBy: user?.nickname || user?.name,
+        } : null;
+        
         const scoreData = {
           markerId: user.id,
           roundingName: booking.title,
@@ -301,7 +308,9 @@ function Play() {
           courseName: booking.courseName,
           totalScore: totalMe,
           coursePar,
-          holes: holeScores.me
+          holes: holeScores.me,
+          gameMode: gameMode === 'foursome' ? 'foursome' : null,
+          gameMetadata: myGameMetadata,
         };
         
         // 내 스코어 저장
@@ -310,18 +319,6 @@ function Play() {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ...scoreData, memberId: user.id })
         });
-        
-        // 포썸 모드: 파트너 스코어도 동일하게 저장
-        if (gameMode === 'foursome' && foursomeData?.partner) {
-          const partnerId = members?.find(m => m.phone === foursomeData.partner.phone)?.id;
-          if (partnerId) {
-            await fetch('/api/scores', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ ...scoreData, memberId: partnerId })
-            });
-          }
-        }
       } catch (e) {
         console.error('저장 오류:', e);
       }
@@ -1249,6 +1246,13 @@ function Play() {
         return;
       }
 
+      // 포썸 메타데이터 생성
+      const myGameMetadata = gameMode === 'foursome' && foursomeData ? {
+        partner: { name: foursomeData.partner?.nickname || foursomeData.partner?.name, phone: foursomeData.partner?.phone },
+        opponents: foursomeData.opponents?.map(o => ({ name: o?.nickname || o?.name, phone: o?.phone })) || [],
+        recordedBy: user?.nickname || user?.name,
+      } : null;
+      
       const scoreData = {
         markerId: user.id,
         roundingName: booking.title,
@@ -1256,7 +1260,9 @@ function Play() {
         courseName: courseData?.name,
         totalScore: totalMe,
         coursePar,
-        holes: holeScores.me
+        holes: holeScores.me,
+        gameMode: gameMode === 'foursome' ? 'foursome' : null,
+        gameMetadata: myGameMetadata,
       };
 
       // 내 스코어 저장
@@ -1265,19 +1271,6 @@ function Play() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...scoreData, memberId: user.id })
       });
-
-      // 포썸 모드: 파트너 스코어도 동일하게 저장 (중요!)
-      if (gameMode === 'foursome' && foursomeData?.partner) {
-        const partnerId = members?.find(m => m.phone === foursomeData.partner.phone)?.id;
-        if (partnerId) {
-          await fetch('/api/scores', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...scoreData, memberId: partnerId })
-          });
-          console.log('🏌️ 포썸 파트너 스코어 저장 완료:', foursomeData.partner.nickname);
-        }
-      }
     } catch (e) {
       console.error('점수 저장 오류:', e);
     }
