@@ -536,29 +536,34 @@ function TeamFormation() {
         </div>
 
         {hasAdminAccess && (
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+          <div style={{ display: 'flex', gap: '6px', marginBottom: '16px', alignItems: 'stretch' }}>
             <LoadingButton
               onClick={handleAutoAssign}
               loading={isAutoAssigning}
-              loadingText="배정중..."
+              loadingText="..."
               className="btn-outline"
-              style={{ flex: 1 }}
+              style={{ 
+                padding: '10px 12px',
+                fontSize: '13px',
+                whiteSpace: 'nowrap'
+              }}
             >
-              ⚡ 자동 배정
+              ⚡ 자동배정
             </LoadingButton>
             <button
               onClick={handleRemoveTeam}
               disabled={teams.length === 0}
               style={{
-                padding: '12px 16px',
+                padding: '10px 12px',
                 background: teams.length === 0 ? '#ccc' : '#EF4444',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
-                fontSize: '18px',
+                fontSize: '16px',
                 fontWeight: '700',
                 cursor: teams.length === 0 ? 'not-allowed' : 'pointer',
-                minWidth: '48px'
+                minWidth: '36px',
+                lineHeight: '1'
               }}
             >
               −
@@ -566,15 +571,16 @@ function TeamFormation() {
             <button
               onClick={handleAddTeam}
               style={{
-                padding: '12px 16px',
+                padding: '10px 12px',
                 background: 'var(--primary-green)',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
-                fontSize: '18px',
+                fontSize: '16px',
                 fontWeight: '700',
                 cursor: 'pointer',
-                minWidth: '48px'
+                minWidth: '36px',
+                lineHeight: '1'
               }}
             >
               +
@@ -582,32 +588,36 @@ function TeamFormation() {
             <LoadingButton
               onClick={handleSaveTeams}
               loading={isSaving}
-              loadingText="저장중..."
+              loadingText="..."
               style={{ 
                 flex: 1,
-                padding: '12px 24px',
+                padding: '10px 14px',
                 background: hasUnsavedChanges ? 'var(--alert-red)' : 'var(--primary-green)',
                 color: 'var(--text-light)',
                 border: 'none',
                 borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: '600'
+                fontSize: '13px',
+                fontWeight: '600',
+                whiteSpace: 'nowrap'
               }}
             >
-              {hasUnsavedChanges ? '× 저장안됨' : '✓ 저장됨'}
+              {hasUnsavedChanges ? '✕ 저장안됨' : '✓ 저장됨'}
             </LoadingButton>
             <button
               onClick={handleCopyTeamText}
               style={{
-                padding: '12px 16px',
+                padding: '10px 10px',
                 background: '#6B7280',
                 color: 'white',
                 border: 'none',
                 borderRadius: '8px',
-                fontSize: '14px',
+                fontSize: '12px',
                 fontWeight: '600',
                 cursor: 'pointer',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px'
               }}
             >
               📋 텍스트 복사
