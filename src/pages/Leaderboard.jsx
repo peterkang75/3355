@@ -435,6 +435,24 @@ function Leaderboard() {
             foursomeTeams.map((team, index) => (
               <div
                 key={`${team.teamNumber}-${team.pairLabel}-${index}`}
+                onClick={() => {
+                  if (team.score) {
+                    setSelectedScore({
+                      odId: `team-${team.teamNumber}-${team.pairLabel}`,
+                      nickname: team.memberNames,
+                      handicap: team.teamHandicap,
+                      totalScore: team.score,
+                      overUnder: team.overUnder,
+                      holes: team.holes || [],
+                      outScore: team.outScore,
+                      inScore: team.inScore,
+                      isFoursomeTeam: true,
+                      teamNumber: team.teamNumber,
+                      pairLabel: team.pairLabel,
+                      netScore: team.netScore
+                    });
+                  }
+                }}
                 style={{
                   display: 'grid',
                   gridTemplateColumns: '32px 1fr 32px 32px 44px 40px 44px',
@@ -445,7 +463,8 @@ function Leaderboard() {
                     : index % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
                   borderBottom: '1px solid rgba(255,255,255,0.1)',
                   alignItems: 'center',
-                  borderLeft: index === 0 && team.netScore != null ? '3px solid #FFD700' : 'none'
+                  borderLeft: index === 0 && team.netScore != null ? '3px solid #FFD700' : 'none',
+                  cursor: team.score ? 'pointer' : 'default'
                 }}
               >
                 <div style={{ 
@@ -897,8 +916,20 @@ function Leaderboard() {
                 borderBottom: '1px solid rgba(255,255,255,0.1)'
               }}>
                 <div>
-                  <div style={{ color: 'white', fontSize: '18px', fontWeight: '700' }}>
-                    {selectedScore.nickname}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <span style={{ color: 'white', fontSize: '18px', fontWeight: '700' }}>
+                      {selectedScore.nickname}
+                    </span>
+                    {selectedScore.isFoursomeTeam && (
+                      <span style={{
+                        background: '#9333ea',
+                        color: 'white',
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                        fontSize: '11px',
+                        fontWeight: '600'
+                      }}>포썸</span>
+                    )}
                   </div>
                   <div style={{ 
                     display: 'flex', 
@@ -906,15 +937,38 @@ function Leaderboard() {
                     gap: '8px',
                     marginTop: '4px'
                   }}>
-                    <span style={{
-                      background: 'rgba(255,255,255,0.2)',
-                      padding: '4px 8px',
-                      borderRadius: '4px',
-                      fontSize: '12px',
-                      color: 'white'
-                    }}>
-                      HCP: {selectedScore.handicap || '-'}
-                    </span>
+                    {selectedScore.isFoursomeTeam ? (
+                      <>
+                        <span style={{
+                          background: selectedScore.pairLabel === 'A' ? '#3B82F6' : '#EF4444',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          fontSize: '12px',
+                          color: 'white'
+                        }}>
+                          {selectedScore.teamNumber}조 {selectedScore.pairLabel}팀
+                        </span>
+                        <span style={{
+                          background: 'rgba(255,255,255,0.2)',
+                          padding: '4px 8px',
+                          borderRadius: '4px',
+                          fontSize: '12px',
+                          color: 'white'
+                        }}>
+                          팀 핸디: {selectedScore.handicap || '-'}
+                        </span>
+                      </>
+                    ) : (
+                      <span style={{
+                        background: 'rgba(255,255,255,0.2)',
+                        padding: '4px 8px',
+                        borderRadius: '4px',
+                        fontSize: '12px',
+                        color: 'white'
+                      }}>
+                        HCP: {selectedScore.handicap || '-'}
+                      </span>
+                    )}
                   </div>
                 </div>
                 {(() => {
@@ -936,9 +990,15 @@ function Leaderboard() {
                           {diffText}
                         </span>
                       </div>
-                      <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '12px' }}>
-                        RANK {rank}
-                      </div>
+                      {selectedScore.isFoursomeTeam ? (
+                        <div style={{ color: '#60a5fa', fontSize: '12px', fontWeight: '600' }}>
+                          NET {selectedScore.netScore}
+                        </div>
+                      ) : (
+                        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '12px' }}>
+                          RANK {rank}
+                        </div>
+                      )}
                     </div>
                   );
                 })()}
