@@ -1604,7 +1604,36 @@ function Play() {
                   try {
                     const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
                     const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
+                    const userParArr = courseData?.holePars?.[user?.gender === 'F' ? 'female' : 'male'] || [];
+                    const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
+                    const coursePar = userParArr.reduce((a, b) => a + b, 0);
                     
+                    // 포썸 메타데이터 생성
+                    const myGameMetadata = gameMode === 'foursome' && foursomeData ? {
+                      partner: { name: foursomeData.partner?.nickname || foursomeData.partner?.name, phone: foursomeData.partner?.phone },
+                      opponents: foursomeData.opponents?.map(o => ({ name: o?.nickname || o?.name, phone: o?.phone })) || [],
+                      recordedBy: user?.nickname || user?.name,
+                    } : null;
+                    
+                    // 내 스코어 저장
+                    await fetch('/api/scores', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        memberId: user.id,
+                        markerId: user.id,
+                        roundingName: booking.title,
+                        date: scoreDate,
+                        courseName: courseData?.name || booking.courseName,
+                        totalScore: totalMe,
+                        coursePar,
+                        holes: holeScores.me,
+                        gameMode: gameMode === 'foursome' ? 'foursome' : null,
+                        gameMetadata: myGameMetadata,
+                      })
+                    });
+                    
+                    // 스코어 완료 처리
                     await fetch('/api/scores/complete', {
                       method: 'POST',
                       headers: { 'Content-Type': 'application/json' },
