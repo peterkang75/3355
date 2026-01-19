@@ -23,9 +23,10 @@ function TeamFormation() {
   const [isAutoAssigning, setIsAutoAssigning] = useState(false);
   const [gameMode, setGameMode] = useState('stroke');
   const [editingTeeTime, setEditingTeeTime] = useState(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   useEffect(() => {
-    if (bookingId && bookings.length > 0) {
+    if (bookingId && bookings.length > 0 && !isInitialized) {
       const foundBooking = bookings.find(b => b.id === bookingId);
       setBooking(foundBooking);
       
@@ -109,9 +110,20 @@ function TeamFormation() {
         } else {
           initializeTeams(allParticipants);
         }
+        
+        setIsInitialized(true);
       }
     }
-  }, [bookingId, bookings, members]);
+  }, [bookingId, bookings, members, isInitialized]);
+
+  useEffect(() => {
+    if (bookingId && bookings.length > 0 && isInitialized) {
+      const foundBooking = bookings.find(b => b.id === bookingId);
+      if (foundBooking) {
+        setBooking(foundBooking);
+      }
+    }
+  }, [bookingId, bookings, isInitialized]);
 
   const parseParticipants = (participants) => {
     if (!participants || !Array.isArray(participants)) {
