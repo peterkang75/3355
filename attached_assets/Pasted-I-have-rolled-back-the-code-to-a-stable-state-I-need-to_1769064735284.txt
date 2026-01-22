@@ -1,0 +1,47 @@
+I have rolled back the code to a stable state. I need to implement a NEW feature called **"Net 2-Ball Best Ball (2BB)"**.
+
+🚨 **STRICT CONSTRAINT: DO NOT CHANGE THE GAME FLOW** 🚨
+
+You previously attempted to create a "Team vs Team" Match Start Screen (like Foursome).
+**THIS IS WRONG. DELETE THAT IDEA.**
+
+**1. Core Concept (Read Carefully):**
+* **Game Mode:** Standard Stroke Play (Everyone plays their own ball).
+* **Input:** Individual Scores only.
+* **The "Team" aspect:** Just a background calculation for a secondary leaderboard.
+* **Start Screen:** There is **NO** "Match Start" screen. Users go directly to the **Marker Selection** list.
+
+---
+
+**Implementation Tasks:**
+
+**1. Database & Settings (`schema.prisma` & `RoundingManagement.jsx`):**
+* Add a toggle switch `is2BB` (Boolean) to the Rounding Settings.
+* Create a `TwoBallTeam` model to link partners (gameId, player1Id, player2Id).
+* **Auto-Teaming Logic:**
+    * When `is2BB` is ON, automatically generate teams based on Handicap Rank.
+    * **4 Players:** Rank 1+4 (Team A), Rank 2+3 (Team B).
+    * **3 Players:** Rank 1+2 (Team A), Rank 1+3 (Team B). (Rank 1 is Pivot).
+
+**2. UI Requirement: Marker Selection Screen (`MarkerSelection.jsx`):**
+* **DO NOT create a new "Versus" screen.**
+* Use the **EXISTING list-based UI** where users pick a marker from a list of names.
+* **Modifications ONLY for `is2BB === true`:**
+    * **Visual:** Add a distinct Badge (e.g., `[🤝 2BB Partner]`) next to the partner's name in the list.
+    * **Logic (The 4-Player Rule):**
+        * If the Squad has 4 people: **DISABLE** the selection button for the 2BB Partner. (Reason: Partners cannot mark each other).
+        * If the Squad has 3 people: **ENABLE** the button (Reason: Pivot player exception).
+
+**3. UI Requirement: Score Input:**
+* Keep the **Standard Individual Input** screen.
+* Do NOT ask for Team Scores.
+
+**4. UI Requirement: Leaderboard:**
+* If `is2BB === true`, add a second tab: **[Team 2BB]**.
+* **Calculation:**
+    * For each hole, take the **Lowest Net Score** of the pair.
+    * Sum the Best Balls for the Total Team Score.
+* **Display:** Rank | Team Members (e.g. "Dongbaek & Natto") | Total Net Score.
+
+**Summary:**
+Implement 2BB as a "Hidden Calculation Layer". Visually, the app should look like a normal game, except for the "Partner Badge" in the marker list and the extra tab in the leaderboard.

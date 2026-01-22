@@ -87,9 +87,11 @@ model Booking {
   isGuestAllowed       Boolean  @default(false)
   useSquadWaitlist     Boolean  @default(false)
   votingEnabled        Boolean  @default(true)
+  is2BB                Boolean  @default(false)
   teams                Json?
   gradeSettings        Json?
   dailyHandicaps       Json?
+  twoBallTeams         Json?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
