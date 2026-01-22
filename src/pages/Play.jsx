@@ -662,32 +662,59 @@ function Play() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
             {teammates.map(teammate => {
               const isSelected = selectedTeammate?.phone === teammate.phone;
+              const is2BBPartner = gameMode === 'foursome' && foursomeData?.partner?.phone === teammate.phone;
+              const squadSize = teammates.length + 1;
+              const isDisabled = is2BBPartner && squadSize === 4;
+              
               return (
                 <div
                   key={teammate.phone}
-                  onClick={() => setSelectedTeammate(teammate)}
+                  onClick={() => {
+                    if (isDisabled) return;
+                    setSelectedTeammate(teammate);
+                  }}
                   style={{
                     padding: '16px',
                     border: isSelected ? '2px solid #2196F3' : '1px solid var(--border-color)',
                     borderRadius: '8px',
-                    background: isSelected ? '#E3F2FD' : 'var(--text-light)',
-                    cursor: 'pointer',
+                    background: isDisabled ? '#f5f5f5' : isSelected ? '#E3F2FD' : 'var(--text-light)',
+                    cursor: isDisabled ? 'not-allowed' : 'pointer',
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'center'
+                    alignItems: 'center',
+                    opacity: isDisabled ? 0.6 : 1
                   }}
                 >
                   <div>
-                    <div style={{ fontWeight: '600', fontSize: '16px', color: isSelected ? '#1565C0' : 'inherit' }}>
-                      {teammate.nickname || teammate.name}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ fontWeight: '600', fontSize: '16px', color: isDisabled ? '#999' : isSelected ? '#1565C0' : 'inherit' }}>
+                        {teammate.nickname || teammate.name}
+                      </span>
+                      {is2BBPartner && (
+                        <span style={{
+                          background: '#3B82F6',
+                          color: 'white',
+                          padding: '2px 8px',
+                          borderRadius: '4px',
+                          fontSize: '11px',
+                          fontWeight: '600'
+                        }}>
+                          🤝 2BB 파트너
+                        </span>
+                      )}
                     </div>
-                    <div style={{ fontSize: '14px', color: isSelected ? '#1976D2' : 'var(--text-dark)', marginTop: '4px' }}>
+                    <div style={{ fontSize: '14px', color: isDisabled ? '#bbb' : isSelected ? '#1976D2' : 'var(--text-dark)', marginTop: '4px' }}>
                       핸디캡 : {teammate.gaHandy ? `GA${teammate.gaHandy}` : teammate.golflinkNumber && teammate.handicap ? `GA${teammate.handicap}` : teammate.houseHandy ? `HH${teammate.houseHandy}` : teammate.handicap || '-'}
                     </div>
+                    {isDisabled && (
+                      <div style={{ fontSize: '12px', color: '#e74c3c', marginTop: '4px' }}>
+                        파트너는 마커로 선택할 수 없습니다
+                      </div>
+                    )}
                   </div>
                   <div style={{ 
                     fontSize: '20px', 
-                    color: isSelected ? '#2196F3' : '#ccc',
+                    color: isDisabled ? '#ddd' : isSelected ? '#2196F3' : '#ccc',
                     fontWeight: '600'
                   }}>
                     ›
