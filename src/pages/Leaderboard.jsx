@@ -274,50 +274,41 @@ function Leaderboard() {
             
             if (partnerScores.length < 2) return;
             
-            // 각 홀별 베스트볼 계산 (NET 점수 기준)
+            // 각 홀별 베스트볼 계산 (per-hole NET best ball)
+            // 2BB: 각 홀에서 두 파트너의 NET 점수 중 낮은 점수 선택
+            const handicap1 = parseFloat(partnerScores[0]?.handicap) || 0;
+            const handicap2 = parseFloat(partnerScores[1]?.handicap) || 0;
+            
             const bestBallHoles = [];
-            let totalBestBall = 0;
+            let totalBestBallNet = 0;
             let playedHoles = 0;
+            let playedPar = 0;
             
             for (let i = 0; i < 18; i++) {
               const score1 = partnerScores[0]?.holes?.[i] || 0;
               const score2 = partnerScores[1]?.holes?.[i] || 0;
-              const handicap1 = parseFloat(partnerScores[0]?.handicap) || 0;
-              const handicap2 = parseFloat(partnerScores[1]?.handicap) || 0;
+              const holePar = holePars[i] || 4;
               
-              // 홀별 핸디캡 적용 (18홀에 균등 분배)
-              const holeHcp1 = handicap1 / 18;
-              const holeHcp2 = handicap2 / 18;
-              
+              // 두 파트너 모두 플레이한 홀만 베스트볼 계산
               if (score1 > 0 && score2 > 0) {
+                // 핸디캡을 18홀에 균등 분배하여 홀별 NET 계산
+                const holeHcp1 = handicap1 / 18;
+                const holeHcp2 = handicap2 / 18;
                 const net1 = score1 - holeHcp1;
                 const net2 = score2 - holeHcp2;
                 const bestNet = Math.min(net1, net2);
+                
                 bestBallHoles.push(bestNet);
-                totalBestBall += bestNet;
+                totalBestBallNet += bestNet;
                 playedHoles++;
-              } else if (score1 > 0) {
-                const net1 = score1 - holeHcp1;
-                bestBallHoles.push(net1);
-                totalBestBall += net1;
-                playedHoles++;
-              } else if (score2 > 0) {
-                const net2 = score2 - holeHcp2;
-                bestBallHoles.push(net2);
-                totalBestBall += net2;
-                playedHoles++;
+                playedPar += holePar;
               } else {
-                bestBallHoles.push(0);
+                bestBallHoles.push(null);
               }
             }
             
-            // 플레이한 홀의 파 합계
-            let playedPar = 0;
-            bestBallHoles.forEach((_, idx) => {
-              if (bestBallHoles[idx] > 0) {
-                playedPar += holePars[idx] || 4;
-              }
-            });
+            // 플레이한 홀 기준 팀 총점 (이미 NET으로 계산됨)
+            const totalBestBall = totalBestBallNet;
             
             const memberNames = pair.members.map(m => {
               if (!m) return '미정';
@@ -334,8 +325,9 @@ function Leaderboard() {
               totalBestBall: parseFloat(totalBestBall.toFixed(1)),
               playedHoles,
               playedPar,
-              overUnder: parseFloat((totalBestBall - playedPar).toFixed(1)),
-              partnerScores
+              overUnder: playedHoles > 0 ? parseFloat((totalBestBall - playedPar).toFixed(1)) : null,
+              partnerScores,
+              handicaps: { player1: handicap1, player2: handicap2 }
             });
           });
         });
