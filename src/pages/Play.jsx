@@ -36,6 +36,8 @@ function Play() {
   }));
   const skipAutoSaveRef = useRef(false);
   const lastRestoredBookingRef = useRef(null);
+  const serverSaveTimerRef = useRef(null);
+  const lastSavedScoresRef = useRef(null);
   
   useEffect(() => {
     let rafId;
@@ -126,8 +128,98 @@ function Play() {
       foursomeData
     };
     sessionStorage.setItem(`play_state_${bookingId}`, JSON.stringify(stateToSave));
-    console.log('💾 스코어 자동 저장:', currentHole, holeScores);
+    console.log('💾 스코어 sessionStorage 저장:', currentHole, holeScores);
   }, [bookingId, holeScores, currentHole, selectedTeammate, step, roundStartTime, foursomeData]);
+
+  // 스코어 변경 시 서버에 실시간 자동 저장 (debounced)
+  useEffect(() => {
+    if (!bookingId || !booking || !user || !selectedTeammate || step === 'selectMember' || skipAutoSaveRef.current) return;
+    
+    // 스코어가 모두 0이면 저장하지 않음
+    const hasAnyScore = holeScores.me.some(s => s > 0) || holeScores.teammate.some(s => s > 0);
+    if (!hasAnyScore) return;
+
+    // 이전 저장과 동일하면 저장하지 않음
+    const currentScoresKey = JSON.stringify({ me: holeScores.me, teammate: holeScores.teammate });
+    if (lastSavedScoresRef.current === currentScoresKey) return;
+
+    // 디바운스: 500ms 후에 서버에 저장
+    if (serverSaveTimerRef.current) {
+      clearTimeout(serverSaveTimerRef.current);
+    }
+    
+    serverSaveTimerRef.current = setTimeout(async () => {
+      try {
+        const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+        const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
+        const userParArr = courseData?.holePars?.[user?.gender === 'F' ? 'female' : 'male'] || Array(18).fill(4);
+        const teammateParArr = courseData?.holePars?.[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || userParArr;
+        const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
+        const totalTeammate = holeScores.teammate.reduce((a, b) => a + b, 0);
+        const coursePar = userParArr.reduce((a, b) => a + b, 0);
+        
+        // 포썸 메타데이터 생성
+        const myGameMetadata = gameMode === 'foursome' && foursomeData ? {
+          partner: { name: foursomeData.partner?.nickname || foursomeData.partner?.name, phone: foursomeData.partner?.phone },
+          opponents: foursomeData.opponents?.map(o => ({ name: o?.nickname || o?.name, phone: o?.phone })) || [],
+          recordedBy: user?.nickname || user?.name,
+        } : null;
+        
+        const teammateGameMetadata = gameMode === 'foursome' && foursomeData ? {
+          partner: { name: foursomeData.partner?.nickname || foursomeData.partner?.name, phone: foursomeData.partner?.phone },
+          opponents: foursomeData.opponents?.map(o => ({ name: o?.nickname || o?.name, phone: o?.phone })) || [],
+          recordedBy: user?.nickname || user?.name,
+        } : null;
+
+        // 내 스코어 저장
+        await fetch('/api/scores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            memberId: user.id,
+            markerId: user.id,
+            roundingName: booking.title,
+            date: scoreDate,
+            courseName: courseData?.name || booking.courseName,
+            totalScore: totalMe,
+            coursePar,
+            holes: holeScores.me,
+            gameMode: gameMode === 'foursome' ? 'foursome' : null,
+            gameMetadata: myGameMetadata,
+          })
+        });
+        
+        // 팀원 스코어 저장
+        await fetch('/api/scores', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            memberId: teammateMemberId,
+            markerId: user.id,
+            roundingName: booking.title,
+            date: scoreDate,
+            courseName: courseData?.name || booking.courseName,
+            totalScore: totalTeammate,
+            coursePar: teammateParArr.reduce((a, b) => a + b, 0),
+            holes: holeScores.teammate,
+            gameMode: gameMode === 'foursome' ? 'foursome' : null,
+            gameMetadata: teammateGameMetadata,
+          })
+        });
+        
+        lastSavedScoresRef.current = currentScoresKey;
+        console.log('🌐 서버에 스코어 실시간 저장 완료');
+      } catch (e) {
+        console.error('서버 저장 오류:', e);
+      }
+    }, 500);
+
+    return () => {
+      if (serverSaveTimerRef.current) {
+        clearTimeout(serverSaveTimerRef.current);
+      }
+    };
+  }, [bookingId, booking, user, selectedTeammate, holeScores, step, courseData, gameMode, foursomeData, members]);
 
   useEffect(() => {
     console.log('🎯 Play 페이지 로드:', bookingId);
@@ -1678,6 +1770,13 @@ function Play() {
               <button
                 onClick={async () => {
                   if (isEndingRound) return;
+                  
+                  // 자동저장 타이머 취소
+                  if (serverSaveTimerRef.current) {
+                    clearTimeout(serverSaveTimerRef.current);
+                    serverSaveTimerRef.current = null;
+                  }
+                  
                   setIsEndingRound(true);
                   try {
                     const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
@@ -1723,6 +1822,8 @@ function Play() {
                       })
                     });
                     
+                    // 서버 저장 상태 초기화
+                    lastSavedScoresRef.current = null;
                     sessionStorage.removeItem(`play_state_${bookingId}`);
                     setShowEndRoundModal(false);
                     navigate(-1);
@@ -1756,6 +1857,11 @@ function Play() {
                     return;
                   }
                   
+                  // 즉시 자동저장 타이머 취소
+                  if (serverSaveTimerRef.current) {
+                    clearTimeout(serverSaveTimerRef.current);
+                    serverSaveTimerRef.current = null;
+                  }
                   skipAutoSaveRef.current = true;
                   setIsEndingRound(true);
                   
@@ -1763,11 +1869,18 @@ function Play() {
                     const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
                     const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
                     
-                    await new Promise(resolve => setTimeout(resolve, 600));
-                    
-                    await fetch(`/api/scores/member/${encodeURIComponent(teammateMemberId)}/${encodeURIComponent(user.id)}/${encodeURIComponent(scoreDate)}/${encodeURIComponent(booking?.title || '')}`, {
+                    // 팀원 스코어 삭제
+                    await fetch(`/api/scores/member/${encodeURIComponent(teammateMemberId)}/${encodeURIComponent(scoreDate)}/${encodeURIComponent(booking?.title || '')}`, {
                       method: 'DELETE'
-                    });
+                    }).catch(() => {});
+                    
+                    // 내 스코어 삭제
+                    await fetch(`/api/scores/member/${encodeURIComponent(user.id)}/${encodeURIComponent(scoreDate)}/${encodeURIComponent(booking?.title || '')}`, {
+                      method: 'DELETE'
+                    }).catch(() => {});
+                    
+                    // 서버 저장 상태 초기화
+                    lastSavedScoresRef.current = null;
                     
                     sessionStorage.removeItem(`play_state_${bookingId}`);
                     setShowEndRoundModal(false);
