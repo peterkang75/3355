@@ -220,15 +220,13 @@ function Play() {
               teamBHandicap
             });
             
-            console.log('🏌️ 포썸 데이터:', {
+            console.log('🏌️ 2BB 데이터:', {
               partner: enrichedPartner?.name,
               opponents: [enrichedOpponent1?.name, enrichedOpponent2?.name]
             });
             
-            // 상대 팀 첫 번째 선수를 자동 선택 (마커 로직 유지)
-            if (enrichedOpponent1) {
-              setSelectedTeammate(enrichedOpponent1);
-            }
+            // 2BB 모드: 마커 자동 선택 하지 않음 - 사용자가 직접 선택
+            // 4인 조에서는 파트너 선택 불가, 3인 조에서는 모두 선택 가능
             
             // 전체 팀원 (파트너 + 상대 모두)
             const allTeammates = [enrichedPartner, enrichedOpponent1, enrichedOpponent2].filter(Boolean);
