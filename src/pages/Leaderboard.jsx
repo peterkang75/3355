@@ -20,6 +20,8 @@ function Leaderboard() {
   const [bookingGradeSettings, setBookingGradeSettings] = useState(null);
   const [gameMode, setGameMode] = useState('stroke');
   const [foursomeTeams, setFoursomeTeams] = useState([]);
+  const [twoBBTeams, setTwoBBTeams] = useState([]);
+  const [leaderboardTab, setLeaderboardTab] = useState('individual');
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -242,6 +244,115 @@ function Leaderboard() {
         setFoursomeTeams([]);
       }
       
+      // 2BB (2 Ball Best Ball) 팀 랭킹 계산
+      if (detectedGameMode === 'foursome' && booking.teams) {
+        const teamsData = typeof booking.teams === 'string' ? JSON.parse(booking.teams) : booking.teams;
+        const twoBBPairs = [];
+        
+        teamsData.forEach((team) => {
+          if (!team.members || team.members.length < 2) return;
+          
+          // Pair A: slots 0, 1
+          const pairAMembers = [team.members[0], team.members[1]].filter(Boolean);
+          // Pair B: slots 2, 3
+          const pairBMembers = [team.members[2], team.members[3]].filter(Boolean);
+          
+          [{ members: pairAMembers, label: 'A', teamHandicap: team.pairAHandicap },
+           { members: pairBMembers, label: 'B', teamHandicap: team.pairBHandicap }].forEach(pair => {
+            if (pair.members.length < 2) return;
+            
+            // 두 파트너의 개인 스코어 찾기
+            const partnerScores = pair.members.map(m => {
+              if (!m) return null;
+              const memberObj = members.find(fm => fm.phone === m.phone);
+              return processedScores.find(s => 
+                s.odId === memberObj?.id || 
+                s.odId === m.phone || 
+                s.phone === m.phone
+              );
+            }).filter(Boolean);
+            
+            if (partnerScores.length < 2) return;
+            
+            // 각 홀별 베스트볼 계산 (NET 점수 기준)
+            const bestBallHoles = [];
+            let totalBestBall = 0;
+            let playedHoles = 0;
+            
+            for (let i = 0; i < 18; i++) {
+              const score1 = partnerScores[0]?.holes?.[i] || 0;
+              const score2 = partnerScores[1]?.holes?.[i] || 0;
+              const handicap1 = parseFloat(partnerScores[0]?.handicap) || 0;
+              const handicap2 = parseFloat(partnerScores[1]?.handicap) || 0;
+              
+              // 홀별 핸디캡 적용 (18홀에 균등 분배)
+              const holeHcp1 = handicap1 / 18;
+              const holeHcp2 = handicap2 / 18;
+              
+              if (score1 > 0 && score2 > 0) {
+                const net1 = score1 - holeHcp1;
+                const net2 = score2 - holeHcp2;
+                const bestNet = Math.min(net1, net2);
+                bestBallHoles.push(bestNet);
+                totalBestBall += bestNet;
+                playedHoles++;
+              } else if (score1 > 0) {
+                const net1 = score1 - holeHcp1;
+                bestBallHoles.push(net1);
+                totalBestBall += net1;
+                playedHoles++;
+              } else if (score2 > 0) {
+                const net2 = score2 - holeHcp2;
+                bestBallHoles.push(net2);
+                totalBestBall += net2;
+                playedHoles++;
+              } else {
+                bestBallHoles.push(0);
+              }
+            }
+            
+            // 플레이한 홀의 파 합계
+            let playedPar = 0;
+            bestBallHoles.forEach((_, idx) => {
+              if (bestBallHoles[idx] > 0) {
+                playedPar += holePars[idx] || 4;
+              }
+            });
+            
+            const memberNames = pair.members.map(m => {
+              if (!m) return '미정';
+              const fullMember = members.find(fm => fm.phone === m.phone);
+              return fullMember?.nickname || fullMember?.name || m.nickname || m.name || '미정';
+            }).join(' & ');
+            
+            twoBBPairs.push({
+              teamNumber: team.teamNumber,
+              pairLabel: pair.label,
+              members: pair.members,
+              memberNames,
+              bestBallHoles,
+              totalBestBall: parseFloat(totalBestBall.toFixed(1)),
+              playedHoles,
+              playedPar,
+              overUnder: parseFloat((totalBestBall - playedPar).toFixed(1)),
+              partnerScores
+            });
+          });
+        });
+        
+        // 베스트볼 총점 기준 정렬
+        twoBBPairs.sort((a, b) => {
+          if (a.playedHoles === 0 && b.playedHoles === 0) return 0;
+          if (a.playedHoles === 0) return 1;
+          if (b.playedHoles === 0) return -1;
+          return a.overUnder - b.overUnder;
+        });
+        
+        setTwoBBTeams(twoBBPairs);
+      } else {
+        setTwoBBTeams([]);
+      }
+      
       // 자동 스코어카드 열기 (한 번만 실행, sessionStorage로 중복 방지)
       const autoSelectKey = `leaderboard_autoselect_${bookingId}`;
       const alreadyAutoSelected = sessionStorage.getItem(autoSelectKey);
@@ -385,28 +496,73 @@ function Leaderboard() {
         </div>
       </div>
 
-      {/* 포썸 모드: 팀 랭킹 표시 */}
-      {gameMode === 'foursome' ? (
+      {/* 2BB 모드: 개인/팀 탭 */}
+      {gameMode === 'foursome' && (
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          gap: '8px', 
+          padding: '12px 16px',
+          borderBottom: '1px solid rgba(255,255,255,0.1)'
+        }}>
+          <button
+            onClick={() => setLeaderboardTab('individual')}
+            style={{
+              flex: 1,
+              padding: '12px 16px',
+              borderRadius: '8px',
+              border: leaderboardTab === 'individual' ? '2px solid #3B82F6' : '1px solid rgba(255,255,255,0.3)',
+              background: leaderboardTab === 'individual' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+              color: 'white',
+              fontSize: '14px',
+              fontWeight: leaderboardTab === 'individual' ? '700' : '500',
+              cursor: 'pointer'
+            }}
+          >
+            👤 개인 순위
+          </button>
+          <button
+            onClick={() => setLeaderboardTab('2bb')}
+            style={{
+              flex: 1,
+              padding: '12px 16px',
+              borderRadius: '8px',
+              border: leaderboardTab === '2bb' ? '2px solid #9333EA' : '1px solid rgba(255,255,255,0.3)',
+              background: leaderboardTab === '2bb' ? 'rgba(147, 51, 234, 0.2)' : 'transparent',
+              color: 'white',
+              fontSize: '14px',
+              fontWeight: leaderboardTab === '2bb' ? '700' : '500',
+              cursor: 'pointer'
+            }}
+          >
+            🤝 2BB 팀 순위
+          </button>
+        </div>
+      )}
+
+      {/* 2BB 팀 순위 */}
+      {gameMode === 'foursome' && leaderboardTab === '2bb' ? (
         <div style={{ padding: '0 16px' }}>
           <div style={{
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: 'linear-gradient(135deg, #9333EA 0%, #7C3AED 100%)',
             borderRadius: '12px',
             padding: '16px',
+            marginTop: '16px',
             marginBottom: '16px',
             textAlign: 'center'
           }}>
             <div style={{ fontSize: '20px', marginBottom: '4px' }}>🏆</div>
             <div style={{ color: 'white', fontSize: '16px', fontWeight: '700' }}>
-              포썸 팀 랭킹
+              2BB 베스트볼 팀 순위
             </div>
             <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', marginTop: '4px' }}>
-              2인 1팀 대결
+              각 홀 파트너 중 낮은 NET 점수 합산
             </div>
           </div>
           
           <div style={{
             display: 'grid',
-            gridTemplateColumns: '32px 1fr 32px 32px 44px 40px 44px',
+            gridTemplateColumns: '32px 1fr 60px 48px',
             gap: '4px',
             padding: '12px 4px',
             borderBottom: '2px solid rgba(255,255,255,0.3)',
@@ -416,69 +572,47 @@ function Leaderboard() {
           }}>
             <div>순위</div>
             <div>팀원</div>
-            <div style={{ textAlign: 'center' }}>OUT</div>
-            <div style={{ textAlign: 'center' }}>IN</div>
-            <div style={{ textAlign: 'center' }}>총타</div>
-            <div style={{ textAlign: 'center' }}>핸디</div>
-            <div style={{ textAlign: 'center' }}>NET</div>
+            <div style={{ textAlign: 'center' }}>2BB NET</div>
+            <div style={{ textAlign: 'center' }}>+/-</div>
           </div>
 
-          {foursomeTeams.length === 0 ? (
+          {twoBBTeams.length === 0 ? (
             <div style={{ 
               textAlign: 'center', 
               color: 'rgba(255,255,255,0.5)', 
               padding: '40px 0' 
             }}>
-              아직 스코어가 없습니다
+              두 파트너 모두 스코어를 입력해야 2BB 순위가 계산됩니다
             </div>
           ) : (
-            foursomeTeams.map((team, index) => (
+            twoBBTeams.map((team, index) => (
               <div
                 key={`${team.teamNumber}-${team.pairLabel}-${index}`}
-                onClick={() => {
-                  if (team.score) {
-                    setSelectedScore({
-                      odId: `team-${team.teamNumber}-${team.pairLabel}`,
-                      nickname: team.memberNames,
-                      handicap: team.teamHandicap,
-                      totalScore: team.score,
-                      overUnder: team.overUnder,
-                      holes: team.holes || [],
-                      outScore: team.outScore,
-                      inScore: team.inScore,
-                      isFoursomeTeam: true,
-                      teamNumber: team.teamNumber,
-                      pairLabel: team.pairLabel,
-                      netScore: team.netScore
-                    });
-                  }
-                }}
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: '32px 1fr 32px 32px 44px 40px 44px',
+                  gridTemplateColumns: '32px 1fr 60px 48px',
                   gap: '4px',
                   padding: '12px 4px',
-                  background: index === 0 && team.netScore != null
+                  background: index === 0 && team.playedHoles > 0
                     ? 'linear-gradient(90deg, rgba(255,215,0,0.2) 0%, rgba(255,215,0,0.05) 100%)' 
                     : index % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
                   borderBottom: '1px solid rgba(255,255,255,0.1)',
                   alignItems: 'center',
-                  borderLeft: index === 0 && team.netScore != null ? '3px solid #FFD700' : 'none',
-                  cursor: team.score ? 'pointer' : 'default'
+                  borderLeft: index === 0 && team.playedHoles > 0 ? '3px solid #FFD700' : 'none'
                 }}
               >
                 <div style={{ 
-                  color: index === 0 && team.netScore != null ? '#FFD700' : 'white', 
+                  color: index === 0 && team.playedHoles > 0 ? '#FFD700' : 'white', 
                   fontSize: '13px',
                   fontWeight: '700',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '2px'
                 }}>
-                  {index === 0 && team.netScore != null && <span>🥇</span>}
-                  {index === 1 && team.netScore != null && <span style={{ opacity: 0.8 }}>🥈</span>}
-                  {index === 2 && team.netScore != null && <span style={{ opacity: 0.6 }}>🥉</span>}
-                  {(index > 2 || team.netScore == null) && <span>{index + 1}</span>}
+                  {index === 0 && team.playedHoles > 0 && <span>🥇</span>}
+                  {index === 1 && team.playedHoles > 0 && <span style={{ opacity: 0.8 }}>🥈</span>}
+                  {index === 2 && team.playedHoles > 0 && <span style={{ opacity: 0.6 }}>🥉</span>}
+                  {(index > 2 || team.playedHoles === 0) && <span>{index + 1}</span>}
                 </div>
                 <div>
                   <div style={{ 
@@ -495,47 +629,25 @@ function Leaderboard() {
                       color: team.pairLabel === 'A' ? '#3B82F6' : '#EF4444',
                       fontWeight: '600'
                     }}>
-                      {team.teamNumber}조 {team.pairLabel}팀
+                      {team.teamNumber}조 {team.pairLabel}팀 • {team.playedHoles}홀
                     </span>
                   </div>
                 </div>
                 <div style={{ 
                   textAlign: 'center', 
-                  color: 'rgba(255,255,255,0.9)',
-                  fontSize: '11px'
-                }}>
-                  {team.outScore || '-'}
-                </div>
-                <div style={{ 
-                  textAlign: 'center', 
-                  color: 'rgba(255,255,255,0.9)',
-                  fontSize: '11px'
-                }}>
-                  {team.inScore || '-'}
-                </div>
-                <div style={{ 
-                  textAlign: 'center', 
-                  color: 'white',
-                  fontSize: '11px',
-                  fontWeight: '600'
-                }}>
-                  {team.score || '-'}
-                </div>
-                <div style={{ 
-                  textAlign: 'center', 
-                  color: '#60a5fa',
-                  fontSize: '11px',
-                  fontWeight: '600'
-                }}>
-                  {team.teamHandicap != null ? team.teamHandicap : '-'}
-                </div>
-                <div style={{ 
-                  textAlign: 'center', 
                   color: '#fbbf24',
-                  fontSize: '12px',
+                  fontSize: '14px',
                   fontWeight: '700'
                 }}>
-                  {team.netScore != null ? team.netScore : '-'}
+                  {team.playedHoles > 0 ? team.totalBestBall : '-'}
+                </div>
+                <div style={{ 
+                  textAlign: 'center', 
+                  color: team.overUnder > 0 ? '#ef4444' : team.overUnder < 0 ? '#22c55e' : 'white',
+                  fontSize: '12px',
+                  fontWeight: '600'
+                }}>
+                  {team.playedHoles > 0 ? (team.overUnder > 0 ? `+${team.overUnder}` : team.overUnder) : '-'}
                 </div>
               </div>
             ))
@@ -543,7 +655,7 @@ function Leaderboard() {
         </div>
       ) : (
         <>
-          {/* 스트로크 모드: 기존 그레이드 탭 표시 */}
+          {/* 개인 순위 (스트로크 모드 또는 2BB 개인 탭) */}
           <div style={{ 
             display: 'flex', 
             justifyContent: 'center', 
