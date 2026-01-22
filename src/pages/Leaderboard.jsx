@@ -22,6 +22,7 @@ function Leaderboard() {
   const [foursomeTeams, setFoursomeTeams] = useState([]);
   const [twoBallTeams, setTwoBallTeams] = useState([]);
   const [is2BB, setIs2BB] = useState(false);
+  const [viewMode, setViewMode] = useState('individual'); // 'individual' or '2bb'
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -521,6 +522,164 @@ function Leaderboard() {
         </div>
       </div>
 
+      {/* 2BB 모드 전환 버튼 */}
+      {is2BB && (
+        <div style={{ padding: '0 16px', marginBottom: '12px' }}>
+          <button
+            onClick={() => setViewMode(viewMode === 'individual' ? '2bb' : 'individual')}
+            style={{
+              width: '100%',
+              padding: '12px',
+              background: viewMode === '2bb' 
+                ? 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)' 
+                : 'rgba(255,152,0,0.15)',
+              border: viewMode === '2bb' ? 'none' : '1px solid rgba(255,152,0,0.5)',
+              borderRadius: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              cursor: 'pointer'
+            }}
+          >
+            <span style={{ fontSize: '16px' }}>🤝</span>
+            <span style={{ 
+              color: viewMode === '2bb' ? 'white' : '#FF9800', 
+              fontWeight: '600',
+              fontSize: '14px'
+            }}>
+              {viewMode === '2bb' ? '개인 리더보드 보기' : '2BB 팀 리더보드 보기'}
+            </span>
+          </button>
+        </div>
+      )}
+
+      {/* 2BB 팀 리더보드 */}
+      {is2BB && viewMode === '2bb' ? (
+        <div style={{ padding: '0 16px' }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)',
+            borderRadius: '12px',
+            padding: '16px',
+            marginBottom: '16px',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '20px', marginBottom: '4px' }}>🤝</div>
+            <div style={{ color: 'white', fontSize: '16px', fontWeight: '700' }}>
+              2BB Best Ball 팀 랭킹
+            </div>
+            <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', marginTop: '4px' }}>
+              각 홀에서 더 낮은 Net Score 선택
+            </div>
+          </div>
+          
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '32px 1fr 32px 32px 44px 44px',
+            gap: '4px',
+            padding: '12px 4px',
+            borderBottom: '2px solid rgba(255,255,255,0.3)',
+            color: 'rgba(255,255,255,0.9)',
+            fontSize: '12px',
+            fontWeight: '700'
+          }}>
+            <div>순위</div>
+            <div>팀원</div>
+            <div style={{ textAlign: 'center' }}>OUT</div>
+            <div style={{ textAlign: 'center' }}>IN</div>
+            <div style={{ textAlign: 'center' }}>총타</div>
+            <div style={{ textAlign: 'center' }}>NET</div>
+          </div>
+          
+          {twoBallTeams.length === 0 ? (
+            <div style={{ 
+              textAlign: 'center', 
+              color: 'rgba(255,255,255,0.5)', 
+              padding: '40px 0' 
+            }}>
+              아직 스코어가 없습니다
+            </div>
+          ) : twoBallTeams.map((team, index) => (
+            <div
+              key={`2bb-${team.teamName}-${index}`}
+              style={{
+                display: 'grid',
+                gridTemplateColumns: '32px 1fr 32px 32px 44px 44px',
+                gap: '4px',
+                padding: '12px 4px',
+                background: index === 0 
+                  ? 'linear-gradient(90deg, rgba(255,152,0,0.2) 0%, rgba(255,152,0,0.05) 100%)' 
+                  : index % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
+                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                alignItems: 'center',
+                borderLeft: index === 0 ? '3px solid #FF9800' : 'none'
+              }}
+            >
+              <div style={{ 
+                color: index === 0 ? '#FF9800' : 'white', 
+                fontSize: '13px',
+                fontWeight: '700',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '2px'
+              }}>
+                {index === 0 && <span>🥇</span>}
+                {index === 1 && <span style={{ opacity: 0.8 }}>🥈</span>}
+                {index === 2 && <span style={{ opacity: 0.6 }}>🥉</span>}
+                {index > 2 && <span>{index + 1}</span>}
+              </div>
+              <div>
+                <div style={{ 
+                  color: index === 0 ? '#FF9800' : 'white', 
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  lineHeight: '1.3'
+                }}>
+                  {team.memberNames}
+                </div>
+                <div style={{
+                  color: 'rgba(255,255,255,0.6)',
+                  fontSize: '10px',
+                  marginTop: '2px'
+                }}>
+                  {team.teamName} · {team.completedHoles}홀
+                </div>
+              </div>
+              <div style={{ 
+                textAlign: 'center', 
+                color: 'rgba(255,255,255,0.9)',
+                fontSize: '11px'
+              }}>
+                {team.outScore || '-'}
+              </div>
+              <div style={{ 
+                textAlign: 'center', 
+                color: 'rgba(255,255,255,0.9)',
+                fontSize: '11px'
+              }}>
+                {team.inScore || '-'}
+              </div>
+              <div style={{ 
+                textAlign: 'center', 
+                color: 'white',
+                fontSize: '11px',
+                fontWeight: '600'
+              }}>
+                {team.grossScore || '-'}
+              </div>
+              <div style={{ 
+                textAlign: 'center', 
+                color: '#fbbf24',
+                fontSize: '12px',
+                fontWeight: '700'
+              }}>
+                {team.netScore != null ? team.netScore : '-'}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <>
       {/* 포썸 모드: 팀 랭킹 표시 */}
       {gameMode === 'foursome' ? (
         <div style={{ padding: '0 16px' }}>
@@ -679,132 +838,6 @@ function Leaderboard() {
         </div>
       ) : (
         <>
-          {/* 2BB 모드: 팀 Best Ball 랭킹 */}
-          {is2BB && (
-            <div style={{ padding: '0 16px', marginBottom: '16px' }}>
-              <div style={{
-                background: 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)',
-                borderRadius: '12px',
-                padding: '16px',
-                marginBottom: '16px',
-                textAlign: 'center'
-              }}>
-                <div style={{ fontSize: '20px', marginBottom: '4px' }}>🤝</div>
-                <div style={{ color: 'white', fontSize: '16px', fontWeight: '700' }}>
-                  2BB Best Ball 팀 랭킹
-                </div>
-                <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', marginTop: '4px' }}>
-                  각 홀에서 더 낮은 Net Score 선택
-                </div>
-              </div>
-              
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: '32px 1fr 32px 32px 44px 44px',
-                gap: '4px',
-                padding: '12px 4px',
-                borderBottom: '2px solid rgba(255,255,255,0.3)',
-                color: 'rgba(255,255,255,0.9)',
-                fontSize: '12px',
-                fontWeight: '700'
-              }}>
-                <div>순위</div>
-                <div>팀원</div>
-                <div style={{ textAlign: 'center' }}>OUT</div>
-                <div style={{ textAlign: 'center' }}>IN</div>
-                <div style={{ textAlign: 'center' }}>총타</div>
-                <div style={{ textAlign: 'center' }}>NET</div>
-              </div>
-              
-              {twoBallTeams.length === 0 ? (
-                <div style={{ 
-                  textAlign: 'center', 
-                  color: 'rgba(255,255,255,0.5)', 
-                  padding: '40px 0' 
-                }}>
-                  아직 스코어가 없습니다
-                </div>
-              ) : twoBallTeams.map((team, index) => (
-                <div
-                  key={`2bb-${team.teamName}-${index}`}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '32px 1fr 32px 32px 44px 44px',
-                    gap: '4px',
-                    padding: '12px 4px',
-                    background: index === 0 
-                      ? 'linear-gradient(90deg, rgba(255,152,0,0.2) 0%, rgba(255,152,0,0.05) 100%)' 
-                      : index % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
-                    borderBottom: '1px solid rgba(255,255,255,0.1)',
-                    alignItems: 'center',
-                    borderLeft: index === 0 ? '3px solid #FF9800' : 'none'
-                  }}
-                >
-                  <div style={{ 
-                    color: index === 0 ? '#FF9800' : 'white', 
-                    fontSize: '13px',
-                    fontWeight: '700',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '2px'
-                  }}>
-                    {index === 0 && <span>🥇</span>}
-                    {index === 1 && <span style={{ opacity: 0.8 }}>🥈</span>}
-                    {index === 2 && <span style={{ opacity: 0.6 }}>🥉</span>}
-                    {index > 2 && <span>{index + 1}</span>}
-                  </div>
-                  <div>
-                    <div style={{ 
-                      color: index === 0 ? '#FF9800' : 'white', 
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      lineHeight: '1.3'
-                    }}>
-                      {team.memberNames}
-                    </div>
-                    <div style={{
-                      color: 'rgba(255,255,255,0.6)',
-                      fontSize: '10px',
-                      marginTop: '2px'
-                    }}>
-                      {team.teamName} · {team.completedHoles}홀
-                    </div>
-                  </div>
-                  <div style={{ 
-                    textAlign: 'center', 
-                    color: 'rgba(255,255,255,0.9)',
-                    fontSize: '11px'
-                  }}>
-                    {team.outScore || '-'}
-                  </div>
-                  <div style={{ 
-                    textAlign: 'center', 
-                    color: 'rgba(255,255,255,0.9)',
-                    fontSize: '11px'
-                  }}>
-                    {team.inScore || '-'}
-                  </div>
-                  <div style={{ 
-                    textAlign: 'center', 
-                    color: 'white',
-                    fontSize: '11px',
-                    fontWeight: '600'
-                  }}>
-                    {team.grossScore || '-'}
-                  </div>
-                  <div style={{ 
-                    textAlign: 'center', 
-                    color: '#fbbf24',
-                    fontSize: '12px',
-                    fontWeight: '700'
-                  }}>
-                    {team.netScore != null ? team.netScore : '-'}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          
           {/* 스트로크 모드: 기존 그레이드 탭 표시 */}
           <div style={{ 
             display: 'flex', 
@@ -944,6 +977,8 @@ function Leaderboard() {
             )}
           </div>
         </>
+      )}
+      </>
       )}
 
       {/* 스코어카드 모달 - Admin 페이지와 동일한 UI */}
