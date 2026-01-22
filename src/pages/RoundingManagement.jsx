@@ -26,6 +26,18 @@ function RoundingManagement() {
       const foundBooking = bookings.find(b => b.id === bookingId);
       setBooking(foundBooking);
       if (foundBooking && !editData) {
+        let gameMode = 'stroke';
+        if (foundBooking.gradeSettings) {
+          try {
+            const parsed = typeof foundBooking.gradeSettings === 'string'
+              ? JSON.parse(foundBooking.gradeSettings)
+              : foundBooking.gradeSettings;
+            gameMode = parsed.mode || 'stroke';
+          } catch (e) {
+            console.error('gradeSettings 파싱 오류:', e);
+          }
+        }
+        
         setEditData({
           title: foundBooking.title || '',
           courseName: foundBooking.courseName,
@@ -37,7 +49,8 @@ function RoundingManagement() {
           membershipFee: foundBooking.membershipFee || '',
           registrationDeadline: foundBooking.registrationDeadline || '',
           restaurantName: foundBooking.restaurantName || '',
-          restaurantAddress: foundBooking.restaurantAddress || ''
+          restaurantAddress: foundBooking.restaurantAddress || '',
+          gameMode: gameMode
         });
       }
     }
@@ -92,8 +105,10 @@ function RoundingManagement() {
         ...editData,
         greenFee: parseInt(editData.greenFee) || null,
         cartFee: parseInt(editData.cartFee) || null,
-        membershipFee: parseInt(editData.membershipFee) || null
+        membershipFee: parseInt(editData.membershipFee) || null,
+        gradeSettings: JSON.stringify({ mode: editData.gameMode || 'stroke' })
       };
+      delete updatedData.gameMode;
 
       await apiService.updateBooking(bookingId, updatedData);
       await refreshBookings();
@@ -330,6 +345,48 @@ function RoundingManagement() {
               onChange={(e) => setEditData({ ...editData, courseName: e.target.value })}
               style={{ marginBottom: '16px' }}
             />
+
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ fontSize: '13px', color: '#666', marginBottom: '6px', display: 'block' }}>
+                경기 방식
+              </label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                  type="button"
+                  onClick={() => setEditData({ ...editData, gameMode: 'stroke' })}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    border: editData.gameMode === 'stroke' ? '2px solid var(--primary-green)' : '1px solid #ddd',
+                    borderRadius: '8px',
+                    background: editData.gameMode === 'stroke' ? '#e8f5e9' : 'white',
+                    color: editData.gameMode === 'stroke' ? 'var(--primary-green)' : '#666',
+                    fontWeight: editData.gameMode === 'stroke' ? '700' : '500',
+                    fontSize: '14px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  ⛳ 스트로크
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEditData({ ...editData, gameMode: 'foursome' })}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    border: editData.gameMode === 'foursome' ? '2px solid #9333ea' : '1px solid #ddd',
+                    borderRadius: '8px',
+                    background: editData.gameMode === 'foursome' ? '#f3e8ff' : 'white',
+                    color: editData.gameMode === 'foursome' ? '#9333ea' : '#666',
+                    fontWeight: editData.gameMode === 'foursome' ? '700' : '500',
+                    fontSize: '14px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  🏌️ 포썸
+                </button>
+              </div>
+            </div>
 
             <input
               className="input-field"
