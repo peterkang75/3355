@@ -1,0 +1,39 @@
+🚨 **CRITICAL CORRECTION: Game Mode Concept & UI Logic** 🚨
+
+You have implemented a "Foursome Match" (Alternate Shot) UI based on the screenshot (`image_81adc1`).
+**This is WRONG.**
+
+We are playing **"Net 2-Ball Best Ball (2BB)"**, which is completely different from Foursome.
+
+**1. Concept Definition (Please Read Carefully):**
+* **NOT Foursome:** Players do NOT share a ball. They do NOT alternate shots. They do NOT use a combined Team Handicap.
+* **YES 2BB (Four-Ball):**
+    * **Play Style:** All 4 players play their own ball (Stroke Play) from tee to hole.
+    * **Scoring:** We record **Individual Scores** for every player.
+    * **Team Result:** For each hole, the system compares the **Net Scores** (Gross - Handicap) of the two partners. The **LOWER (Better) Net Score** becomes the "Team Score" for that hole.
+
+**2. UI Correction - "Marker Selection Screen" (Pre-game):**
+* **Remove** the "Team A vs Team B" start screen you created.
+* **Restore/Create** the **"Marker Selection Screen"** (`MarkerSelection.jsx`).
+* **Logic & Layout:**
+    * **Header:** "오늘의 마커를 선택해주세요 (Select your Marker)".
+    * **List:** Show the other 3 members of the squad.
+    * **Visual Indicator:** If a member is my **2BB Partner** (based on `TwoBallTeam` data), show a badge **[🤝 2BB Partner]** next to their name.
+    * **Interaction Rules (Crucial):**
+        * **If Squad Size = 4:** You **MUST DISABLE** the select button for the user marked as "2BB Partner". (Partners cannot mark each other).
+        * **If Squad Size = 3:** Keep the "2BB Partner" badge visible, but **ENABLE** the select button (Allow selection because options are limited).
+
+**3. UI Correction - "Score Input":**
+* **Input:** Users input **Individual Gross Scores** only. Do NOT ask for team scores.
+* **System:** The system calculates the Net 2BB result in the background.
+
+**4. UI Correction - "Leaderboard":**
+* Create two tabs:
+    * **Tab 1: Individual (Stroke):** Shows standard individual rankings based on Handicap.
+    * **Tab 2: Team (Net 2BB):**
+        * Shows Team Names (e.g., "Natto & Dongbaek").
+        * Shows **Total Team Net Score** (Sum of the "Best Net Score" of each hole).
+
+**Summary of Action:**
+Scrap the Foursome/Team-vs-Team start screen.
+Build a **Marker Selection Screen** that visualizes partners but enforces individual play rules.
