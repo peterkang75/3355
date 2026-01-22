@@ -220,13 +220,15 @@ function Play() {
               teamBHandicap
             });
             
-            console.log('🏌️ 2BB 데이터:', {
+            console.log('🏌️ 포썸 데이터:', {
               partner: enrichedPartner?.name,
               opponents: [enrichedOpponent1?.name, enrichedOpponent2?.name]
             });
             
-            // 2BB 모드: 마커 자동 선택 하지 않음 - 사용자가 직접 선택
-            // 4인 조에서는 파트너 선택 불가, 3인 조에서는 모두 선택 가능
+            // 상대 팀 첫 번째 선수를 자동 선택 (마커 로직 유지)
+            if (enrichedOpponent1) {
+              setSelectedTeammate(enrichedOpponent1);
+            }
             
             // 전체 팀원 (파트너 + 상대 모두)
             const allTeammates = [enrichedPartner, enrichedOpponent1, enrichedOpponent2].filter(Boolean);
@@ -411,84 +413,281 @@ function Play() {
       );
     }
     
-    // 마커 선택 UI (스트로크 모드 및 2BB 모드 공용)
+    // 포썸 모드: 팀 대 팀 확인 UI
+    if (gameMode === 'foursome' && foursomeData) {
+      const partnerName = foursomeData.partner?.nickname || foursomeData.partner?.name || '파트너 없음';
+      const opponentNames = foursomeData.opponents.map(o => o?.nickname || o?.name).filter(Boolean).join(' & ') || '상대 없음';
+      const myName = user?.nickname || user?.name || '나';
+      const teamLabel = foursomeData.isTeamA ? 'A팀' : 'B팀';
+      const opponentTeamLabel = foursomeData.isTeamA ? 'B팀' : 'A팀';
+      const myTeamHandicap = foursomeData.isTeamA ? foursomeData.teamAHandicap : foursomeData.teamBHandicap;
+      const opponentTeamHandicap = foursomeData.isTeamA ? foursomeData.teamBHandicap : foursomeData.teamAHandicap;
+      
+      const handleStartFoursome = async () => {
+        if (isStartingRound) return;
+        
+        setIsStartingRound(true);
+        try {
+          const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+          const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
+          const res = await fetch(`/api/scores/check?memberId=${teammateMemberId}&date=${scoreDate}&roundingName=${encodeURIComponent(booking?.title || '')}`);
+          const data = await res.json();
+          
+          if (data.exists && data.completed) {
+            alert('이미 점수가 입력되었습니다.');
+            setIsStartingRound(false);
+            return;
+          }
+        } catch (e) {
+          console.error('점수 확인 오류:', e);
+        }
+        
+        console.log('🎮 포썸 스코어카드 시작:', { opponents: opponentNames, courseData: courseData?.name });
+        setRoundStartTime(Date.now());
+        setCurrentHole(1);
+        setHoleScores({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
+        setShowMismatches(false);
+        setStep('scorecard');
+        setIsStartingRound(false);
+      };
+      
+      return (
+        <div style={{ minHeight: '100vh', padding: '16px', paddingBottom: '80px', background: '#223B3F' }}>
+          <div className="header">
+            <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', padding: '8px 16px' }}>← Back</button>
+          </div>
+          <div className="card" style={{ marginTop: '16px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <div style={{ 
+                display: 'inline-block',
+                padding: '6px 16px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '20px',
+                color: 'white',
+                fontSize: '14px',
+                fontWeight: '700',
+                marginBottom: '12px'
+              }}>
+                포썸 매치
+              </div>
+              <h2 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
+                팀 대 팀 경기를 시작합니다
+              </h2>
+              <div style={{ fontSize: '14px', color: '#666' }}>
+                {courseData?.name}
+              </div>
+            </div>
+            
+            {/* 우리 팀 */}
+            <div style={{
+              background: 'rgba(59, 130, 246, 0.1)',
+              borderRadius: '12px',
+              padding: '16px',
+              marginBottom: '12px'
+            }}>
+              <div style={{ 
+                fontSize: '12px', 
+                fontWeight: '700', 
+                color: '#3B82F6', 
+                marginBottom: '8px',
+                textAlign: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}>
+                <span>{teamLabel} (우리 팀)</span>
+                {myTeamHandicap != null && (
+                  <span style={{
+                    background: '#3B82F6',
+                    color: 'white',
+                    padding: '2px 8px',
+                    borderRadius: '10px',
+                    fontSize: '11px',
+                    fontWeight: '600'
+                  }}>
+                    핸디 {myTeamHandicap}
+                  </span>
+                )}
+              </div>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <div style={{
+                  background: '#3B82F6',
+                  color: 'white',
+                  padding: '10px 16px',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  fontSize: '15px'
+                }}>
+                  {myName}
+                </div>
+                <span style={{ fontWeight: '600', color: '#3B82F6' }}>&</span>
+                <div style={{
+                  background: '#3B82F6',
+                  color: 'white',
+                  padding: '10px 16px',
+                  borderRadius: '8px',
+                  fontWeight: '600',
+                  fontSize: '15px'
+                }}>
+                  {partnerName}
+                </div>
+              </div>
+            </div>
+            
+            {/* VS 구분선 */}
+            <div style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '8px 0'
+            }}>
+              <div style={{
+                background: 'linear-gradient(90deg, transparent, #ddd, transparent)',
+                height: '1px',
+                flex: 1
+              }} />
+              <span style={{
+                padding: '6px 20px',
+                fontSize: '16px',
+                fontWeight: '800',
+                color: '#888',
+                background: 'white',
+                borderRadius: '16px',
+                border: '2px solid #ddd'
+              }}>
+                VS
+              </span>
+              <div style={{
+                background: 'linear-gradient(90deg, transparent, #ddd, transparent)',
+                height: '1px',
+                flex: 1
+              }} />
+            </div>
+            
+            {/* 상대 팀 */}
+            <div style={{
+              background: 'rgba(239, 68, 68, 0.1)',
+              borderRadius: '12px',
+              padding: '16px',
+              marginTop: '12px',
+              marginBottom: '20px'
+            }}>
+              <div style={{ 
+                fontSize: '12px', 
+                fontWeight: '700', 
+                color: '#EF4444', 
+                marginBottom: '8px',
+                textAlign: 'center',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px'
+              }}>
+                <span>{opponentTeamLabel} (상대 팀)</span>
+                {opponentTeamHandicap != null && (
+                  <span style={{
+                    background: '#EF4444',
+                    color: 'white',
+                    padding: '2px 8px',
+                    borderRadius: '10px',
+                    fontSize: '11px',
+                    fontWeight: '600'
+                  }}>
+                    핸디 {opponentTeamHandicap}
+                  </span>
+                )}
+              </div>
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center',
+                gap: '12px',
+                flexWrap: 'wrap'
+              }}>
+                {foursomeData.opponents.map((opponent, idx) => (
+                  <React.Fragment key={opponent?.phone || idx}>
+                    {idx > 0 && <span style={{ fontWeight: '600', color: '#EF4444' }}>&</span>}
+                    <div style={{
+                      background: '#EF4444',
+                      color: 'white',
+                      padding: '10px 16px',
+                      borderRadius: '8px',
+                      fontWeight: '600',
+                      fontSize: '15px'
+                    }}>
+                      {opponent?.nickname || opponent?.name || '상대'}
+                    </div>
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+            
+            <button
+              onClick={handleStartFoursome}
+              disabled={isStartingRound || !selectedTeammate}
+              style={{
+                width: '100%',
+                padding: '16px',
+                background: (!isStartingRound && selectedTeammate) ? 'var(--primary-green)' : 'var(--bg-card)',
+                border: 'none',
+                borderRadius: '8px',
+                color: 'white',
+                fontWeight: '700',
+                fontSize: '16px',
+                cursor: (!isStartingRound && selectedTeammate) ? 'pointer' : 'not-allowed',
+                opacity: (!isStartingRound && selectedTeammate) ? 1 : 0.5
+              }}
+            >
+              {isStartingRound ? '확인 중...' : '매치 시작'}
+            </button>
+          </div>
+        </div>
+      );
+    }
+    
+    // 스트로크 모드: 기존 UI
     return (
       <div style={{ minHeight: '100vh', padding: '16px', paddingBottom: '80px', background: '#223B3F' }}>
         <div className="header">
           <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', padding: '8px 16px' }}>← Back</button>
         </div>
         <div className="card" style={{ marginTop: '16px' }}>
-          {gameMode === 'foursome' && (
-            <div style={{ 
-              display: 'inline-block',
-              padding: '6px 16px',
-              background: 'linear-gradient(135deg, #9333EA 0%, #7C3AED 100%)',
-              borderRadius: '20px',
-              color: 'white',
-              fontSize: '13px',
-              fontWeight: '700',
-              marginBottom: '12px'
-            }}>
-              🤝 2BB 모드
-            </div>
-          )}
-          <h2 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>오늘의 마커를 선택해주세요</h2>
+          <h2 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>내가 마크할 회원을 선택하세요</h2>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
             {teammates.map(teammate => {
               const isSelected = selectedTeammate?.phone === teammate.phone;
-              const is2BBPartner = gameMode === 'foursome' && foursomeData?.partner?.phone === teammate.phone;
-              const squadSize = teammates.length + 1;
-              const isDisabled = is2BBPartner && squadSize === 4;
-              
               return (
                 <div
                   key={teammate.phone}
-                  onClick={() => {
-                    if (isDisabled) return;
-                    setSelectedTeammate(teammate);
-                  }}
+                  onClick={() => setSelectedTeammate(teammate)}
                   style={{
                     padding: '16px',
                     border: isSelected ? '2px solid #2196F3' : '1px solid var(--border-color)',
                     borderRadius: '8px',
-                    background: isDisabled ? '#f5f5f5' : isSelected ? '#E3F2FD' : 'var(--text-light)',
-                    cursor: isDisabled ? 'not-allowed' : 'pointer',
+                    background: isSelected ? '#E3F2FD' : 'var(--text-light)',
+                    cursor: 'pointer',
                     display: 'flex',
                     justifyContent: 'space-between',
-                    alignItems: 'center',
-                    opacity: isDisabled ? 0.6 : 1
+                    alignItems: 'center'
                   }}
                 >
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <span style={{ fontWeight: '600', fontSize: '16px', color: isDisabled ? '#999' : isSelected ? '#1565C0' : 'inherit' }}>
-                        {teammate.nickname || teammate.name}
-                      </span>
-                      {is2BBPartner && (
-                        <span style={{
-                          background: '#3B82F6',
-                          color: 'white',
-                          padding: '2px 8px',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: '600'
-                        }}>
-                          🤝 2BB 파트너
-                        </span>
-                      )}
+                    <div style={{ fontWeight: '600', fontSize: '16px', color: isSelected ? '#1565C0' : 'inherit' }}>
+                      {teammate.nickname || teammate.name}
                     </div>
-                    <div style={{ fontSize: '14px', color: isDisabled ? '#bbb' : isSelected ? '#1976D2' : 'var(--text-dark)', marginTop: '4px' }}>
+                    <div style={{ fontSize: '14px', color: isSelected ? '#1976D2' : 'var(--text-dark)', marginTop: '4px' }}>
                       핸디캡 : {teammate.gaHandy ? `GA${teammate.gaHandy}` : teammate.golflinkNumber && teammate.handicap ? `GA${teammate.handicap}` : teammate.houseHandy ? `HH${teammate.houseHandy}` : teammate.handicap || '-'}
                     </div>
-                    {isDisabled && (
-                      <div style={{ fontSize: '12px', color: '#e74c3c', marginTop: '4px' }}>
-                        파트너는 마커로 선택할 수 없습니다
-                      </div>
-                    )}
                   </div>
                   <div style={{ 
                     fontSize: '20px', 
-                    color: isDisabled ? '#ddd' : isSelected ? '#2196F3' : '#ccc',
+                    color: isSelected ? '#2196F3' : '#ccc',
                     fontWeight: '600'
                   }}>
                     ›

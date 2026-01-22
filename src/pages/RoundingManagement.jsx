@@ -20,7 +20,6 @@ function RoundingManagement() {
   const [isTogglingAnnounce, setIsTogglingAnnounce] = useState(false);
   const [isTogglingPlay, setIsTogglingPlay] = useState(false);
   const [isTogglingGuest, setIsTogglingGuest] = useState(false);
-  const [isToggling2BB, setIsToggling2BB] = useState(false);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -149,38 +148,6 @@ function RoundingManagement() {
       alert('외부 공개 상태 변경에 실패했습니다.');
     } finally {
       setIsTogglingGuest(false);
-    }
-  };
-
-  const is2BBEnabled = () => {
-    try {
-      const settings = booking?.gradeSettings 
-        ? (typeof booking.gradeSettings === 'string' ? JSON.parse(booking.gradeSettings) : booking.gradeSettings)
-        : {};
-      return settings.mode === 'foursome';
-    } catch {
-      return false;
-    }
-  };
-
-  const handleToggle2BB = async () => {
-    if (isToggling2BB) return;
-    
-    setIsToggling2BB(true);
-    try {
-      const currentSettings = booking?.gradeSettings 
-        ? (typeof booking.gradeSettings === 'string' ? JSON.parse(booking.gradeSettings) : booking.gradeSettings)
-        : {};
-      
-      const newMode = currentSettings.mode === 'foursome' ? 'stroke' : 'foursome';
-      const newSettings = { ...currentSettings, mode: newMode };
-      
-      await apiService.updateBooking(bookingId, { gradeSettings: JSON.stringify(newSettings) });
-      await refreshBookings();
-    } catch (error) {
-      alert('2BB 모드 변경에 실패했습니다.');
-    } finally {
-      setIsToggling2BB(false);
     }
   };
   
@@ -601,63 +568,6 @@ function RoundingManagement() {
                 position: 'absolute',
                 top: '3px',
                 left: booking.isGuestAllowed ? '25px' : '3px',
-                transition: 'left 0.2s',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-              }} />
-            </button>
-          </div>
-
-          <div
-            style={{
-              padding: '16px 20px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              borderTop: '1px solid var(--border-color)'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ 
-                width: '36px', 
-                height: '36px', 
-                borderRadius: '10px', 
-                background: '#EDE7F6',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '18px'
-              }}>🤝</div>
-              <div>
-                <div style={{ fontSize: '15px', fontWeight: '600', color: '#1a1a1a' }}>2BB (포썸) 모드</div>
-                <div style={{ fontSize: '13px', color: '#888', marginTop: '2px' }}>
-                  {is2BBEnabled() ? '팀 단위 경기 방식' : '개인 스트로크 플레이'}
-                </div>
-              </div>
-            </div>
-            <button
-              onClick={handleToggle2BB}
-              disabled={isToggling2BB}
-              style={{
-                width: '52px',
-                height: '30px',
-                borderRadius: '15px',
-                border: 'none',
-                background: is2BBEnabled() ? '#9333EA' : '#ddd',
-                cursor: isToggling2BB ? 'not-allowed' : 'pointer',
-                position: 'relative',
-                transition: 'background 0.2s',
-                opacity: isToggling2BB ? 0.6 : 1,
-                flexShrink: 0
-              }}
-            >
-              <div style={{
-                width: '24px',
-                height: '24px',
-                borderRadius: '50%',
-                background: 'white',
-                position: 'absolute',
-                top: '3px',
-                left: is2BBEnabled() ? '25px' : '3px',
                 transition: 'left 0.2s',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
               }} />
