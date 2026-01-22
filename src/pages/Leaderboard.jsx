@@ -488,8 +488,39 @@ function Leaderboard() {
       <div style={{ 
         textAlign: 'center', 
         padding: '20px 16px',
-        borderBottom: '1px solid rgba(255,255,255,0.1)'
+        borderBottom: '1px solid rgba(255,255,255,0.1)',
+        position: 'relative'
       }}>
+        {/* 2BB 모드 토글 버튼 - 우측 상단 */}
+        {is2BB && (
+          <button
+            onClick={() => setViewMode(viewMode === 'individual' ? '2bb' : 'individual')}
+            style={{
+              position: 'absolute',
+              top: '12px',
+              right: '16px',
+              padding: '6px 10px',
+              background: viewMode === '2bb' 
+                ? 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)' 
+                : 'rgba(255,152,0,0.2)',
+              border: viewMode === '2bb' ? 'none' : '1px solid rgba(255,152,0,0.5)',
+              borderRadius: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '4px',
+              cursor: 'pointer'
+            }}
+          >
+            <span style={{ fontSize: '12px' }}>🤝</span>
+            <span style={{ 
+              color: viewMode === '2bb' ? 'white' : '#FF9800', 
+              fontWeight: '600',
+              fontSize: '11px'
+            }}>
+              {viewMode === '2bb' ? '개인' : '2BB'}
+            </span>
+          </button>
+        )}
         <div style={{ 
           display: 'flex', 
           justifyContent: 'center', 
@@ -521,38 +552,6 @@ function Leaderboard() {
           {booking?.type || 'Stableford'}
         </div>
       </div>
-
-      {/* 2BB 모드 전환 버튼 */}
-      {is2BB && (
-        <div style={{ padding: '0 16px', marginBottom: '12px' }}>
-          <button
-            onClick={() => setViewMode(viewMode === 'individual' ? '2bb' : 'individual')}
-            style={{
-              width: '100%',
-              padding: '12px',
-              background: viewMode === '2bb' 
-                ? 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)' 
-                : 'rgba(255,152,0,0.15)',
-              border: viewMode === '2bb' ? 'none' : '1px solid rgba(255,152,0,0.5)',
-              borderRadius: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              cursor: 'pointer'
-            }}
-          >
-            <span style={{ fontSize: '16px' }}>🤝</span>
-            <span style={{ 
-              color: viewMode === '2bb' ? 'white' : '#FF9800', 
-              fontWeight: '600',
-              fontSize: '14px'
-            }}>
-              {viewMode === '2bb' ? '개인 리더보드 보기' : '2BB 팀 리더보드 보기'}
-            </span>
-          </button>
-        </div>
-      )}
 
       {/* 2BB 팀 리더보드 */}
       {is2BB && viewMode === '2bb' ? (
