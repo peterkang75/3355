@@ -663,6 +663,7 @@ function Play() {
             {(() => {
               // 2BB 파트너 확인
               let my2BBPartnerPhone = null;
+              let my2BBTeamName = null;
               const is2BB = booking?.is2BB || false;
               const squadSize = teammates.length + 1; // 나 포함
               
@@ -678,6 +679,7 @@ function Play() {
                     if (myIndex !== -1) {
                       const partnerIndex = myIndex === 0 ? 1 : 0;
                       my2BBPartnerPhone = teamMembers[partnerIndex]?.phone;
+                      my2BBTeamName = team.teamName;
                       break;
                     }
                   }
@@ -686,10 +688,39 @@ function Play() {
                 }
               }
               
-              return teammates.map(teammate => {
-                const isSelected = selectedTeammate?.phone === teammate.phone;
-                const is2BBPartner = my2BBPartnerPhone === teammate.phone;
-                const isDisabled = is2BB && is2BBPartner && squadSize === 4;
+              return (
+                <>
+                  {is2BB && (
+                    <div style={{
+                      background: 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)',
+                      borderRadius: '8px',
+                      padding: '12px',
+                      marginBottom: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}>
+                      <span style={{ fontSize: '16px' }}>🤝</span>
+                      <div>
+                        <div style={{ color: 'white', fontSize: '14px', fontWeight: '600' }}>
+                          Net 2-Ball Best Ball 모드
+                        </div>
+                        {my2BBTeamName ? (
+                          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px' }}>
+                            {my2BBTeamName} · 4인조에서는 파트너 마크 불가
+                          </div>
+                        ) : (
+                          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px' }}>
+                            파트너 정보 없음 (조편성 후 2BB 재활성화 필요)
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {teammates.map(teammate => {
+                    const isSelected = selectedTeammate?.phone === teammate.phone;
+                    const is2BBPartner = my2BBPartnerPhone === teammate.phone;
+                    const isDisabled = is2BB && is2BBPartner && squadSize === 4;
                 
                 return (
                   <div
@@ -738,7 +769,9 @@ function Play() {
                     </div>
                   </div>
                 );
-              });
+              })}
+                </>
+              );
             })()}
           </div>
           <button
