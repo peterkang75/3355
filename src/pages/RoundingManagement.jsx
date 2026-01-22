@@ -20,6 +20,7 @@ function RoundingManagement() {
   const [isTogglingAnnounce, setIsTogglingAnnounce] = useState(false);
   const [isTogglingPlay, setIsTogglingPlay] = useState(false);
   const [isTogglingGuest, setIsTogglingGuest] = useState(false);
+  const [isToggling2BB, setIsToggling2BB] = useState(false);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -163,6 +164,20 @@ function RoundingManagement() {
       alert('외부 공개 상태 변경에 실패했습니다.');
     } finally {
       setIsTogglingGuest(false);
+    }
+  };
+
+  const handleToggle2BB = async () => {
+    if (isToggling2BB) return;
+    
+    setIsToggling2BB(true);
+    try {
+      await apiService.updateBooking(bookingId, { is2BB: !booking.is2BB });
+      await refreshBookings();
+    } catch (error) {
+      alert('2BB 모드 변경에 실패했습니다.');
+    } finally {
+      setIsToggling2BB(false);
     }
   };
   
@@ -625,6 +640,63 @@ function RoundingManagement() {
                 position: 'absolute',
                 top: '3px',
                 left: booking.isGuestAllowed ? '25px' : '3px',
+                transition: 'left 0.2s',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+              }} />
+            </button>
+          </div>
+
+          <div
+            style={{
+              padding: '16px 20px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              borderTop: '1px solid var(--border-color)'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+              <div style={{ 
+                width: '36px', 
+                height: '36px', 
+                borderRadius: '10px', 
+                background: '#FFF3E0',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '18px'
+              }}>🏆</div>
+              <div>
+                <div style={{ fontSize: '15px', fontWeight: '600', color: '#1a1a1a' }}>2BB (Two Best Ball)</div>
+                <div style={{ fontSize: '13px', color: '#888', marginTop: '2px' }}>
+                  {booking.is2BB ? '팀 베스트볼 계산 활성화' : '개인 스트로크만'}
+                </div>
+              </div>
+            </div>
+            <button
+              onClick={handleToggle2BB}
+              disabled={isToggling2BB}
+              style={{
+                width: '52px',
+                height: '30px',
+                borderRadius: '15px',
+                border: 'none',
+                background: booking.is2BB ? '#FF9800' : '#ddd',
+                cursor: isToggling2BB ? 'not-allowed' : 'pointer',
+                position: 'relative',
+                transition: 'background 0.2s',
+                opacity: isToggling2BB ? 0.6 : 1,
+                flexShrink: 0
+              }}
+            >
+              <div style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                background: 'white',
+                position: 'absolute',
+                top: '3px',
+                left: booking.is2BB ? '25px' : '3px',
                 transition: 'left 0.2s',
                 boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
               }} />
