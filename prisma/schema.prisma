@@ -87,6 +87,7 @@ model Booking {
   isGuestAllowed       Boolean  @default(false)
   useSquadWaitlist     Boolean  @default(false)
   votingEnabled        Boolean  @default(true)
+  is2BB                Boolean  @default(false)
   teams                Json?
   gradeSettings        Json?
   dailyHandicaps       Json?
@@ -95,9 +96,22 @@ model Booking {
 
   transactions      Transaction[]
   winnerPredictions WinnerPrediction[]
+  twoBallTeams      TwoBallTeam[]
 
   @@index([organizerId])
   @@index([date])
+}
+
+model TwoBallTeam {
+  id        String   @id @default(cuid())
+  bookingId String
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  player1   String
+  player2   String
+  createdAt DateTime @default(now())
+
+  @@unique([bookingId, player1, player2])
+  @@index([bookingId])
 }
 
 model Fee {
