@@ -20,6 +20,8 @@ function Leaderboard() {
   const [bookingGradeSettings, setBookingGradeSettings] = useState(null);
   const [gameMode, setGameMode] = useState('stroke');
   const [foursomeTeams, setFoursomeTeams] = useState([]);
+  const [twoBallTeams, setTwoBallTeams] = useState([]);
+  const [is2BB, setIs2BB] = useState(false);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -240,6 +242,140 @@ function Leaderboard() {
         setFoursomeTeams(teamPairs);
       } else {
         setFoursomeTeams([]);
+      }
+      
+      // 2BB Best Ball 팀 랭킹 계산
+      const bookingIs2BB = booking.is2BB || false;
+      setIs2BB(bookingIs2BB);
+      
+      if (bookingIs2BB && booking.twoBallTeams) {
+        const twoBallTeamsData = typeof booking.twoBallTeams === 'string' 
+          ? JSON.parse(booking.twoBallTeams) 
+          : booking.twoBallTeams;
+        
+        const processedTwoBallTeams = twoBallTeamsData
+          .filter(team => (team.members || []).length === 2)  // 정확히 2명인 팀만 처리
+          .map(team => {
+          const teamMembers = team.members || [];
+          
+          // 팀원들의 스코어 찾기
+          const memberScores = teamMembers.map(m => {
+            const memberObj = members.find(fm => fm.phone === m?.phone);
+            const score = processedScores.find(s => 
+              s.odId === memberObj?.id || 
+              s.odId === m?.phone || 
+              s.phone === m?.phone
+            );
+            const hcp = dailyHandicaps[m?.phone] || memberObj?.handicap || 0;
+            return { 
+              member: m, 
+              memberObj, 
+              score, 
+              handicap: parseFloat(hcp) || 0 
+            };
+          }).filter(ms => ms.score && ms.score.holes?.length > 0);
+          
+          // Best Ball 계산: 각 홀에서 두 플레이어 중 더 낮은 Net Score 선택
+          let bestBallHoles = [];
+          let bestBallNetHoles = [];
+          let totalBestBallGross = 0;
+          let totalBestBallNet = 0;
+          let completedHoles = 0;
+          
+          if (memberScores.length === 2) {
+            // 두 멤버 모두 스코어가 있는 경우
+            const player1 = memberScores[0];
+            const player2 = memberScores[1];
+            
+            for (let h = 0; h < 18; h++) {
+              const p1Gross = player1.score.holes[h] || 0;
+              const p2Gross = player2.score.holes[h] || 0;
+              
+              if (p1Gross > 0 && p2Gross > 0) {
+                // 홀 핸디캡 적용 (전체 핸디를 18홀에 분배)
+                const p1HoleHcp = player1.handicap / 18;
+                const p2HoleHcp = player2.handicap / 18;
+                
+                const p1Net = p1Gross - p1HoleHcp;
+                const p2Net = p2Gross - p2HoleHcp;
+                
+                // Best Ball: 더 낮은 Net Score 선택
+                if (p1Net <= p2Net) {
+                  bestBallHoles.push(p1Gross);
+                  bestBallNetHoles.push(p1Net);
+                } else {
+                  bestBallHoles.push(p2Gross);
+                  bestBallNetHoles.push(p2Net);
+                }
+                completedHoles++;
+              } else if (p1Gross > 0) {
+                bestBallHoles.push(p1Gross);
+                bestBallNetHoles.push(p1Gross - (player1.handicap / 18));
+                completedHoles++;
+              } else if (p2Gross > 0) {
+                bestBallHoles.push(p2Gross);
+                bestBallNetHoles.push(p2Gross - (player2.handicap / 18));
+                completedHoles++;
+              } else {
+                bestBallHoles.push(0);
+                bestBallNetHoles.push(0);
+              }
+            }
+          } else if (memberScores.length === 1) {
+            // 한 멤버만 스코어가 있는 경우
+            const player = memberScores[0];
+            for (let h = 0; h < 18; h++) {
+              const gross = player.score.holes[h] || 0;
+              if (gross > 0) {
+                bestBallHoles.push(gross);
+                bestBallNetHoles.push(gross - (player.handicap / 18));
+                completedHoles++;
+              } else {
+                bestBallHoles.push(0);
+                bestBallNetHoles.push(0);
+              }
+            }
+          }
+          
+          totalBestBallGross = bestBallHoles.reduce((a, b) => a + b, 0);
+          totalBestBallNet = bestBallNetHoles.reduce((a, b) => a + b, 0);
+          
+          // 플레이한 홀의 Par 합계
+          let playedPar = 0;
+          bestBallHoles.forEach((_, idx) => {
+            if (bestBallHoles[idx] > 0) {
+              playedPar += holePars[idx] || 4;
+            }
+          });
+          
+          const memberNames = teamMembers.map(m => {
+            if (!m) return '미정';
+            const fullMember = members.find(fm => fm.phone === m.phone);
+            return fullMember?.nickname || fullMember?.name || m.nickname || m.name || '미정';
+          }).join(' & ');
+          
+          return {
+            teamName: team.teamName,
+            members: teamMembers,
+            memberNames,
+            bestBallHoles,
+            bestBallNetHoles,
+            grossScore: totalBestBallGross,
+            netScore: parseFloat(totalBestBallNet.toFixed(1)),
+            overUnder: totalBestBallGross - playedPar,
+            outScore: bestBallHoles.slice(0, 9).reduce((a, b) => a + b, 0),
+            inScore: bestBallHoles.slice(9, 18).reduce((a, b) => a + b, 0),
+            completedHoles,
+            playedPar
+          };
+        }).filter(t => t.completedHoles > 0);
+        
+        // Net Score 기준 정렬
+        processedTwoBallTeams.sort((a, b) => a.netScore - b.netScore);
+        
+        setTwoBallTeams(processedTwoBallTeams);
+      } else {
+        setTwoBallTeams([]);
       }
       
       // 자동 스코어카드 열기 (한 번만 실행, sessionStorage로 중복 방지)
@@ -543,6 +679,132 @@ function Leaderboard() {
         </div>
       ) : (
         <>
+          {/* 2BB 모드: 팀 Best Ball 랭킹 */}
+          {is2BB && (
+            <div style={{ padding: '0 16px', marginBottom: '16px' }}>
+              <div style={{
+                background: 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)',
+                borderRadius: '12px',
+                padding: '16px',
+                marginBottom: '16px',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '20px', marginBottom: '4px' }}>🤝</div>
+                <div style={{ color: 'white', fontSize: '16px', fontWeight: '700' }}>
+                  2BB Best Ball 팀 랭킹
+                </div>
+                <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', marginTop: '4px' }}>
+                  각 홀에서 더 낮은 Net Score 선택
+                </div>
+              </div>
+              
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: '32px 1fr 32px 32px 44px 44px',
+                gap: '4px',
+                padding: '12px 4px',
+                borderBottom: '2px solid rgba(255,255,255,0.3)',
+                color: 'rgba(255,255,255,0.9)',
+                fontSize: '12px',
+                fontWeight: '700'
+              }}>
+                <div>순위</div>
+                <div>팀원</div>
+                <div style={{ textAlign: 'center' }}>OUT</div>
+                <div style={{ textAlign: 'center' }}>IN</div>
+                <div style={{ textAlign: 'center' }}>총타</div>
+                <div style={{ textAlign: 'center' }}>NET</div>
+              </div>
+              
+              {twoBallTeams.length === 0 ? (
+                <div style={{ 
+                  textAlign: 'center', 
+                  color: 'rgba(255,255,255,0.5)', 
+                  padding: '40px 0' 
+                }}>
+                  아직 스코어가 없습니다
+                </div>
+              ) : twoBallTeams.map((team, index) => (
+                <div
+                  key={`2bb-${team.teamName}-${index}`}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: '32px 1fr 32px 32px 44px 44px',
+                    gap: '4px',
+                    padding: '12px 4px',
+                    background: index === 0 
+                      ? 'linear-gradient(90deg, rgba(255,152,0,0.2) 0%, rgba(255,152,0,0.05) 100%)' 
+                      : index % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
+                    borderBottom: '1px solid rgba(255,255,255,0.1)',
+                    alignItems: 'center',
+                    borderLeft: index === 0 ? '3px solid #FF9800' : 'none'
+                  }}
+                >
+                  <div style={{ 
+                    color: index === 0 ? '#FF9800' : 'white', 
+                    fontSize: '13px',
+                    fontWeight: '700',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '2px'
+                  }}>
+                    {index === 0 && <span>🥇</span>}
+                    {index === 1 && <span style={{ opacity: 0.8 }}>🥈</span>}
+                    {index === 2 && <span style={{ opacity: 0.6 }}>🥉</span>}
+                    {index > 2 && <span>{index + 1}</span>}
+                  </div>
+                  <div>
+                    <div style={{ 
+                      color: index === 0 ? '#FF9800' : 'white', 
+                      fontSize: '12px',
+                      fontWeight: '600',
+                      lineHeight: '1.3'
+                    }}>
+                      {team.memberNames}
+                    </div>
+                    <div style={{
+                      color: 'rgba(255,255,255,0.6)',
+                      fontSize: '10px',
+                      marginTop: '2px'
+                    }}>
+                      {team.teamName} · {team.completedHoles}홀
+                    </div>
+                  </div>
+                  <div style={{ 
+                    textAlign: 'center', 
+                    color: 'rgba(255,255,255,0.9)',
+                    fontSize: '11px'
+                  }}>
+                    {team.outScore || '-'}
+                  </div>
+                  <div style={{ 
+                    textAlign: 'center', 
+                    color: 'rgba(255,255,255,0.9)',
+                    fontSize: '11px'
+                  }}>
+                    {team.inScore || '-'}
+                  </div>
+                  <div style={{ 
+                    textAlign: 'center', 
+                    color: 'white',
+                    fontSize: '11px',
+                    fontWeight: '600'
+                  }}>
+                    {team.grossScore || '-'}
+                  </div>
+                  <div style={{ 
+                    textAlign: 'center', 
+                    color: '#fbbf24',
+                    fontSize: '12px',
+                    fontWeight: '700'
+                  }}>
+                    {team.netScore != null ? team.netScore : '-'}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          
           {/* 스트로크 모드: 기존 그레이드 탭 표시 */}
           <div style={{ 
             display: 'flex', 
