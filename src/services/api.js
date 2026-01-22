@@ -239,6 +239,31 @@ class ApiService {
     return response.json();
   }
 
+  async toggle2BB(id) {
+    const response = await fetch(`${API_BASE}/bookings/${id}/toggle-2bb`, {
+      method: 'PATCH'
+    });
+    if (!response.ok) throw new Error('Failed to toggle 2BB');
+    this.invalidateCache('bookings');
+    return response.json();
+  }
+
+  async get2BBTeams(bookingId) {
+    const response = await fetch(`${API_BASE}/bookings/${bookingId}/2bb-teams`);
+    if (!response.ok) throw new Error('Failed to fetch 2BB teams');
+    return response.json();
+  }
+
+  async update2BBTeams(bookingId, teams) {
+    const response = await fetch(`${API_BASE}/bookings/${bookingId}/2bb-teams`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ teams })
+    });
+    if (!response.ok) throw new Error('Failed to update 2BB teams');
+    return response.json();
+  }
+
   async fetchFees() {
     const response = await fetch(`${API_BASE}/fees`);
     if (!response.ok) throw new Error('Failed to fetch fees');
