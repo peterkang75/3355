@@ -503,77 +503,77 @@ router.put("/bookings/:id", async (req, res) => {
     }
 
     // Auto-generate 2BB teams when is2BB is toggled on
+    // Generate 2BB teams PER SQUAD (조), not globally
     if (req.body.is2BB === true && !oldBooking.is2BB) {
       try {
         const teamsData = booking.teams ? (typeof booking.teams === 'string' ? JSON.parse(booking.teams) : booking.teams) : [];
         
-        // Get all assigned members from teams
-        const assignedMembers = [];
-        for (const team of teamsData) {
-          for (const member of (team.members || [])) {
+        let allTwoBallTeams = [];
+        
+        // Process each squad (조) separately
+        for (const squad of teamsData) {
+          const squadMembers = [];
+          
+          // Get members with handicaps for this squad
+          for (const member of (squad.members || [])) {
             if (member && member.phone) {
               const memberRecord = await prisma.member.findFirst({
                 where: { phone: member.phone }
               });
               if (memberRecord) {
-                assignedMembers.push({
+                squadMembers.push({
                   ...member,
                   handicap: parseFloat(memberRecord.handicap) || parseFloat(memberRecord.gaHandy) || 36
                 });
+              } else {
+                // Guest - use provided handicap or default
+                squadMembers.push({
+                  ...member,
+                  handicap: parseFloat(member.gaHandy) || parseFloat(member.houseHandy) || parseFloat(member.handicap) || 36
+                });
               }
+            }
+          }
+          
+          if (squadMembers.length >= 3 && squadMembers.length <= 4) {
+            // Sort by handicap (ascending = lower handicap = higher rank)
+            squadMembers.sort((a, b) => a.handicap - b.handicap);
+            
+            const squadLabel = `${squad.teamNumber}조`;
+            
+            if (squadMembers.length === 4) {
+              // 4 Players: Rank 1+4 (Team A), Rank 2+3 (Team B)
+              allTwoBallTeams.push({ 
+                teamName: `${squadLabel} A팀`, 
+                squadNumber: squad.teamNumber,
+                members: [squadMembers[0], squadMembers[3]]
+              });
+              allTwoBallTeams.push({ 
+                teamName: `${squadLabel} B팀`, 
+                squadNumber: squad.teamNumber,
+                members: [squadMembers[1], squadMembers[2]]
+              });
+            } else if (squadMembers.length === 3) {
+              // 3 Players: Rank 1+2 (Team A), Rank 1+3 (Team B). Rank 1 is Pivot
+              allTwoBallTeams.push({ 
+                teamName: `${squadLabel} A팀`, 
+                squadNumber: squad.teamNumber,
+                members: [squadMembers[0], squadMembers[1]]
+              });
+              allTwoBallTeams.push({ 
+                teamName: `${squadLabel} B팀`, 
+                squadNumber: squad.teamNumber,
+                members: [squadMembers[0], squadMembers[2]]
+              });
             }
           }
         }
         
-        if (assignedMembers.length >= 3) {
-          // Sort by handicap (ascending = lower handicap = higher rank)
-          assignedMembers.sort((a, b) => a.handicap - b.handicap);
-          
-          let twoBallTeams = [];
-          
-          if (assignedMembers.length === 4) {
-            // 4 Players: Rank 1+4 (Team A), Rank 2+3 (Team B)
-            twoBallTeams = [
-              { 
-                teamName: 'Team A', 
-                members: [assignedMembers[0], assignedMembers[3]]
-              },
-              { 
-                teamName: 'Team B', 
-                members: [assignedMembers[1], assignedMembers[2]]
-              }
-            ];
-          } else if (assignedMembers.length === 3) {
-            // 3 Players: Rank 1+2 (Team A), Rank 1+3 (Team B). Rank 1 is Pivot
-            twoBallTeams = [
-              { 
-                teamName: 'Team A', 
-                members: [assignedMembers[0], assignedMembers[1]]
-              },
-              { 
-                teamName: 'Team B', 
-                members: [assignedMembers[0], assignedMembers[2]]
-              }
-            ];
-          } else {
-            // For more than 4 players, pair them: 1+last, 2+second-to-last, etc.
-            const midPoint = Math.ceil(assignedMembers.length / 2);
-            for (let i = 0; i < midPoint; i++) {
-              const partner1 = assignedMembers[i];
-              const partner2 = assignedMembers[assignedMembers.length - 1 - i];
-              if (partner1 && partner2 && partner1.phone !== partner2.phone) {
-                twoBallTeams.push({
-                  teamName: `Team ${String.fromCharCode(65 + i)}`,
-                  members: [partner1, partner2]
-                });
-              }
-            }
-          }
-          
-          // Save the 2BB teams
+        // Save all 2BB teams
+        if (allTwoBallTeams.length > 0) {
           await prisma.booking.update({
             where: { id: req.params.id },
-            data: { twoBallTeams: JSON.stringify(twoBallTeams) }
+            data: { twoBallTeams: JSON.stringify(allTwoBallTeams) }
           });
         }
       } catch (error) {
