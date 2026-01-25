@@ -157,7 +157,8 @@ function PickWinner() {
       const member = members.find(m => m.phone === p.phone);
       if (!member) return;
 
-      const handicap = getHandicapValue(member, p, booking);
+      const rawHandicap = getHandicapValue(member, p, booking);
+      const handicap = Math.round(rawHandicap);
       
       let grade = 'D';
       
