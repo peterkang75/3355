@@ -39,14 +39,23 @@ function Leaderboard() {
     const interval = setInterval(() => {
       fetchScores(booking, true);
     }, 30000);
-    return () => clearInterval(interval);
+    
+    const pageRefreshInterval = setInterval(() => {
+      window.location.reload();
+    }, 180000);
+    
+    return () => {
+      clearInterval(interval);
+      clearInterval(pageRefreshInterval);
+    };
   }, [booking]);
 
   const fetchScores = async (booking, silent = false) => {
     try {
       if (!silent) setLoading(true);
       let bookingScores = [];
-      const res = await fetch(`/api/scores/by-rounding/${encodeURIComponent(booking.title)}`);
+      const timestamp = Date.now();
+      const res = await fetch(`/api/scores/by-rounding/${encodeURIComponent(booking.title)}?t=${timestamp}`);
       if (res.ok) {
         bookingScores = await res.json();
       }
