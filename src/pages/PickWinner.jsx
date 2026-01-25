@@ -393,24 +393,30 @@ function PickWinner() {
     const actualWinners = getActualWinners(selectedBooking);
     const voterScores = {};
     
+    // 먼저 모든 투표자의 점수를 0으로 초기화
+    const uniqueVoters = [...new Set(allVotes.map(v => v.voterId))];
+    uniqueVoters.forEach(voterId => {
+      voterScores[voterId] = 0;
+    });
+    
+    // 맞춘 예측 개수 계산
     allVotes.forEach(v => {
       if (actualWinners[v.grade] === v.predictedWinnerId) {
         voterScores[v.voterId] = (voterScores[v.voterId] || 0) + 1;
       }
     });
     
-    const maxScore = Math.max(...Object.values(voterScores), 0);
-    if (maxScore === 0) return [];
-    
+    // 점수 순으로 정렬하여 모든 참가자 반환
     return Object.entries(voterScores)
-      .filter(([_, score]) => score === maxScore)
       .map(([voterId, score]) => {
         const member = members.find(m => m.id === voterId);
         return {
+          voterId,
           name: member?.nickname || member?.name || '알수없음',
           score
         };
-      });
+      })
+      .sort((a, b) => b.score - a.score);
   };
 
   if (loading) {
@@ -824,21 +830,49 @@ function PickWinner() {
         
         <div style={{ padding: '0 16px' }}>
           {gameWinners.length > 0 && (
-            <div className="card" style={{ 
-              marginBottom: '16px', 
-              padding: '20px',
-              background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
-              color: 'white',
-              textAlign: 'center'
-            }}>
-              <div style={{ fontSize: '24px', marginBottom: '8px' }}>🎉</div>
-              <div style={{ fontSize: '14px', marginBottom: '4px' }}>게임 우승자</div>
-              <div style={{ fontSize: '20px', fontWeight: '700' }}>
-                {gameWinners.map(w => w.name).join(', ')}
+            <div className="card" style={{ marginBottom: '16px', padding: '16px' }}>
+              <div style={{ 
+                fontSize: '16px', 
+                fontWeight: '700', 
+                marginBottom: '12px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                🎯 예측 순위
               </div>
-              <div style={{ fontSize: '12px', marginTop: '4px', opacity: 0.9 }}>
-                {gameWinners[0]?.score}개 적중!
-              </div>
+              {gameWinners.map((w, idx) => (
+                <div key={w.voterId} style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '10px 12px',
+                  background: idx === 0 && w.score > 0 ? 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)' : '#f5f5f5',
+                  borderRadius: '8px',
+                  marginBottom: '8px',
+                  color: idx === 0 && w.score > 0 ? 'white' : '#333'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ 
+                      fontWeight: '700', 
+                      fontSize: '16px',
+                      width: '24px'
+                    }}>
+                      {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}`}
+                    </span>
+                    <span style={{ fontWeight: '600' }}>{w.name}</span>
+                  </div>
+                  <span style={{ 
+                    fontWeight: '700',
+                    background: idx === 0 && w.score > 0 ? 'rgba(255,255,255,0.3)' : '#e0e0e0',
+                    padding: '4px 10px',
+                    borderRadius: '12px',
+                    fontSize: '13px'
+                  }}>
+                    {w.score}개 적중
+                  </span>
+                </div>
+              ))}
             </div>
           )}
 
