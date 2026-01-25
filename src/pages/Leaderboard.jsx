@@ -130,16 +130,22 @@ function Leaderboard() {
         // 플레이한 홀의 점수 합계와 해당 홀의 파 합계 계산
         let currentTotalScore = 0;
         let playedPar = 0;
+        let hasHoleData = false;
         if (holesArray && holesArray.length > 0) {
           holesArray.forEach((holeScore, idx) => {
             if (holeScore > 0) {
               currentTotalScore += holeScore;
               playedPar += (holePars[idx] || 4);
+              hasHoleData = true;
             }
           });
         }
         
+        // 수동 입력된 총타수가 있고 홀 데이터가 없으면 18홀 기준 파72 적용
         const totalScore = currentTotalScore || (score.totalScore || 0);
+        if (!hasHoleData && score.totalScore > 0) {
+          playedPar = 72; // 18홀 기준 파
+        }
         const overUnder = totalScore - playedPar;
         
         const outScore = holesArray?.slice(0, 9).reduce((a, b) => a + b, 0) || 0;
