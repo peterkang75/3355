@@ -135,6 +135,10 @@ function Leaderboard() {
         
         const outScore = holesArray?.slice(0, 9).reduce((a, b) => a + b, 0) || 0;
         const inScore = holesArray?.slice(9, 18).reduce((a, b) => a + b, 0) || 0;
+        
+        const hcp = Math.round(Number(handicap) || 0);
+        const netScore = totalScore - hcp;
+        const netOverUnder = netScore - playedPar;
 
         return {
           odId: score.userId,
@@ -145,6 +149,8 @@ function Leaderboard() {
           thru,
           totalScore,
           overUnder,
+          netScore,
+          netOverUnder,
           completedHoles,
           holes: holesArray || [],
           outScore,
@@ -157,7 +163,7 @@ function Leaderboard() {
         if (a.completedHoles === 0 && b.completedHoles === 0) return 0;
         if (a.completedHoles === 0) return 1;
         if (b.completedHoles === 0) return -1;
-        return a.overUnder - b.overUnder;
+        return a.netOverUnder - b.netOverUnder;
       });
 
       setScores(processedScores);
@@ -961,15 +967,15 @@ function Leaderboard() {
                     fontSize: '12px',
                     fontWeight: '600'
                   }}>
-                    {score.totalScore || '-'}
+                    {score.netScore || '-'}
                   </div>
                   <div style={{ 
                     textAlign: 'center', 
-                    color: score.overUnder > 0 ? '#ff6b6b' : score.overUnder < 0 ? '#51cf66' : 'white',
+                    color: score.netOverUnder > 0 ? '#ff6b6b' : score.netOverUnder < 0 ? '#51cf66' : 'white',
                     fontSize: '13px',
                     fontWeight: '600'
                   }}>
-                    {score.totalScore ? (score.overUnder > 0 ? `+${score.overUnder}` : score.overUnder === 0 ? 'E' : score.overUnder) : '-'}
+                    {score.netScore ? (score.netOverUnder > 0 ? `+${score.netOverUnder}` : score.netOverUnder === 0 ? 'E' : score.netOverUnder) : '-'}
                   </div>
                 </div>
               );})
