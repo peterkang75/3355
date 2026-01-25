@@ -124,7 +124,11 @@ function Leaderboard() {
         }
 
         const holesArray = typeof score.holes === 'string' ? JSON.parse(score.holes) : score.holes;
-        const completedHoles = holesArray?.filter(h => h > 0).length || 0;
+        let completedHoles = holesArray?.filter(h => h > 0).length || 0;
+        // 수동 입력된 총타수가 있으면 18홀 완료로 간주
+        if (completedHoles === 0 && score.totalScore > 0) {
+          completedHoles = 18;
+        }
         const thru = completedHoles === 18 ? 'F' : completedHoles.toString();
         
         // 플레이한 홀의 점수 합계와 해당 홀의 파 합계 계산
@@ -175,10 +179,12 @@ function Leaderboard() {
       });
 
       processedScores.sort((a, b) => {
-        if (a.completedHoles === 0 && b.completedHoles === 0) return 0;
-        if (a.completedHoles === 0) return 1;
-        if (b.completedHoles === 0) return -1;
-        return a.netOverUnder - b.netOverUnder;
+        // 스코어가 없는 사람은 뒤로
+        if (a.totalScore === 0 && b.totalScore === 0) return 0;
+        if (a.totalScore === 0) return 1;
+        if (b.totalScore === 0) return -1;
+        // 넷 스코어 낮은 순 (오름차순)
+        return a.netScore - b.netScore;
       });
 
       setScores(processedScores);
