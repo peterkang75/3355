@@ -107,8 +107,13 @@ function PickWinner() {
       ? (typeof booking.dailyHandicaps === 'string' ? JSON.parse(booking.dailyHandicaps) : booking.dailyHandicaps)
       : {};
     
-    if (member?.id && dailyHandicaps[member.id]?.handicap != null) {
-      return parseFloat(dailyHandicaps[member.id].handicap);
+    const phone = member?.phone || participant?.phone;
+    if (phone && dailyHandicaps[phone] != null) {
+      const dhValue = dailyHandicaps[phone];
+      if (typeof dhValue === 'object' && dhValue.handicap != null) {
+        return parseFloat(dhValue.handicap);
+      }
+      return parseFloat(dhValue);
     }
     
     if (member?.gaHandy) return parseFloat(member.gaHandy);
