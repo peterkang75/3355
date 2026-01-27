@@ -986,7 +986,7 @@ function Admin() {
       const [balanceData, bookingsData, response] = await Promise.all([
         apiService.fetchClubBalance(),
         apiService.fetchBookingsWithTransactions(),
-        apiService.fetchTransactions({ page, limit: 100, includeCharges, memberId, bookingId })
+        apiService.fetchTransactions({ page, limit: 50, includeCharges, memberId, bookingId })
       ]);
       
       transactions = response.transactions || [];
