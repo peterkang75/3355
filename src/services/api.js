@@ -433,6 +433,12 @@ class ApiService {
     return response.json();
   }
 
+  async fetchBookingsWithTransactions() {
+    const response = await fetch(`${API_BASE}/transactions/bookings`);
+    if (!response.ok) throw new Error('Failed to fetch bookings with transactions');
+    return response.json();
+  }
+
   async fetchTransactionDetails(transactionId) {
     const response = await fetch(`${API_BASE}/transactions/${transactionId}/details`);
     if (!response.ok) throw new Error('Failed to fetch transaction details');

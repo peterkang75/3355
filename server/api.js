@@ -1780,6 +1780,32 @@ router.get('/transactions/club-balance', async (req, res) => {
   }
 });
 
+// 장부에 기록된 라운딩 목록 조회
+router.get("/transactions/bookings", async (req, res) => {
+  try {
+    const bookingsWithTransactions = await prisma.booking.findMany({
+      where: {
+        transactions: {
+          some: {}
+        }
+      },
+      select: {
+        id: true,
+        title: true,
+        courseName: true,
+        date: true
+      },
+      orderBy: {
+        date: 'desc'
+      }
+    });
+    res.json(bookingsWithTransactions);
+  } catch (error) {
+    console.error('Error fetching bookings with transactions:', error);
+    res.status(500).json({ error: 'Failed to fetch bookings' });
+  }
+});
+
 // 회원별 미수금 조회 (최적화: N+1 쿼리 해결)
 router.get("/transactions/outstanding", async (req, res) => {
   try {

@@ -88,6 +88,7 @@ function Admin() {
   const [ledgerCurrentPage, setLedgerCurrentPage] = useState(1);
   const [ledgerTotalPages, setLedgerTotalPages] = useState(1);
   const [ledgerStats, setLedgerStats] = useState({ income: {}, expense: {} });
+  const [ledgerBookings, setLedgerBookings] = useState([]);
   const [editImageUploading, setEditImageUploading] = useState(false);
   const [isUpdatingTransaction, setIsUpdatingTransaction] = useState(false);
 
@@ -982,20 +983,20 @@ function Admin() {
       let transactions;
       let totalPages = 1;
       
-      const balancePromise = apiService.fetchClubBalance();
-
-      // fetchTransactions API가 memberId를 백엔드로 전달하여 통합 또는 페이지네이션을 결정하도록 함
-      const response = await apiService.fetchTransactions({ page, limit: 20, includeCharges, memberId });
+      const [balanceData, bookingsData, response] = await Promise.all([
+        apiService.fetchClubBalance(),
+        apiService.fetchBookingsWithTransactions(),
+        apiService.fetchTransactions({ page, limit: 20, includeCharges, memberId })
+      ]);
       
       transactions = response.transactions || [];
       totalPages = response.pagination?.totalPages || 1;
-      
-      const balanceData = await balancePromise;
 
       setAllTransactions(Array.isArray(transactions) ? transactions : []);
       setLedgerCurrentPage(page);
       setLedgerTotalPages(totalPages);
       setClubBalance(balanceData.balance || 0);
+      setLedgerBookings(bookingsData || []);
       
       // 서버에서 계산된 전역 통계 사용
       setLedgerStats({
@@ -3521,10 +3522,7 @@ function Admin() {
                 }}
               >
                 <option value="all">전체 라운딩</option>
-                {[...new Map(allTransactions
-                  .filter(t => t.booking)
-                  .map(t => [t.booking.id, t.booking])
-                ).values()].map(booking => (
+                {ledgerBookings.map(booking => (
                   <option key={booking.id} value={booking.id}>
                     {booking.title || booking.courseName}
                   </option>
