@@ -420,6 +420,7 @@ class ApiService {
       if (options.page) params.append('page', options.page);
       if (options.includeCharges) params.append('includeCharges', 'true');
       if (options.memberId && options.memberId !== 'all') params.append('memberId', options.memberId);
+      if (options.bookingId && options.bookingId !== 'all') params.append('bookingId', options.bookingId);
     }
     const url = params.toString() ? `${API_BASE}/transactions?${params}` : `${API_BASE}/transactions`;
     const response = await fetch(url);

@@ -976,7 +976,7 @@ function Admin() {
     }
   };
 
-  const loadLedgerData = async (page = 1, includeCharges = ledgerFilter.showCharges, memberId = ledgerFilter.memberId) => {
+  const loadLedgerData = async (page = 1, includeCharges = ledgerFilter.showCharges, memberId = ledgerFilter.memberId, bookingId = summaryBookingFilter) => {
     try {
       setIsLoadingTransactions(true);
       
@@ -986,7 +986,7 @@ function Admin() {
       const [balanceData, bookingsData, response] = await Promise.all([
         apiService.fetchClubBalance(),
         apiService.fetchBookingsWithTransactions(),
-        apiService.fetchTransactions({ page, limit: 20, includeCharges, memberId })
+        apiService.fetchTransactions({ page, limit: 100, includeCharges, memberId, bookingId })
       ]);
       
       transactions = response.transactions || [];
@@ -3511,7 +3511,11 @@ function Admin() {
               </div>
               <select
                 value={summaryBookingFilter}
-                onChange={(e) => setSummaryBookingFilter(e.target.value)}
+                onChange={(e) => {
+                  const newBookingId = e.target.value;
+                  setSummaryBookingFilter(newBookingId);
+                  loadLedgerData(1, ledgerFilter.showCharges, ledgerFilter.memberId, newBookingId);
+                }}
                 style={{ 
                   padding: '8px 12px',
                   borderRadius: '6px',

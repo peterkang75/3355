@@ -1589,8 +1589,14 @@ router.get("/transactions", async (req, res) => {
     const limit = req.query.limit ? parseInt(req.query.limit) : 20;
     const skip = (page - 1) * limit;
     const includeCharges = req.query.includeCharges === 'true';
+    const bookingId = req.query.bookingId;
 
-    const whereClause = includeCharges ? {} : { type: { not: "charge" } };
+    let whereClause = includeCharges ? {} : { type: { not: "charge" } };
+    
+    // 라운딩 필터 추가
+    if (bookingId && bookingId !== 'all') {
+      whereClause = { ...whereClause, bookingId };
+    }
 
     const [transactions, total] = await Promise.all([
       prisma.transaction.findMany({
