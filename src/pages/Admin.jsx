@@ -976,7 +976,7 @@ function Admin() {
     }
   };
 
-  const loadLedgerData = async (page = 1, includeCharges = ledgerFilter.showCharges, memberId = ledgerFilter.memberId, bookingId = summaryBookingFilter) => {
+  const loadLedgerData = async (page = 1, includeCharges = ledgerFilter.showCharges, memberId = ledgerFilter.memberId, bookingId = summaryBookingFilter, skipBookingsFetch = false) => {
     try {
       setIsLoadingTransactions(true);
       
@@ -987,11 +987,20 @@ function Admin() {
       // 전체 조회 시에는 페이지당 20건
       const limit = (bookingId && bookingId !== 'all') ? 200 : 20;
       
-      const [balanceData, bookingsData, response] = await Promise.all([
+      // 라운딩 목록은 처음 한 번만 가져오고, 이후에는 스킵
+      const fetchPromises = [
         apiService.fetchClubBalance(),
-        apiService.fetchBookingsWithTransactions(),
         apiService.fetchTransactions({ page, limit, includeCharges, memberId, bookingId })
-      ]);
+      ];
+      
+      if (!skipBookingsFetch && ledgerBookings.length === 0) {
+        fetchPromises.push(apiService.fetchBookingsWithTransactions());
+      }
+      
+      const results = await Promise.all(fetchPromises);
+      const balanceData = results[0];
+      const response = results[1];
+      const bookingsData = results[2];
       
       transactions = response.transactions || [];
       totalPages = response.pagination?.totalPages || 1;
@@ -1000,7 +1009,9 @@ function Admin() {
       setLedgerCurrentPage(page);
       setLedgerTotalPages(totalPages);
       setClubBalance(balanceData.balance || 0);
-      setLedgerBookings(bookingsData || []);
+      if (bookingsData) {
+        setLedgerBookings(bookingsData);
+      }
       
       // 서버에서 계산된 전역 통계 사용
       setLedgerStats({
@@ -3518,7 +3529,7 @@ function Admin() {
                 onChange={(e) => {
                   const newBookingId = e.target.value;
                   setSummaryBookingFilter(newBookingId);
-                  loadLedgerData(1, ledgerFilter.showCharges, ledgerFilter.memberId, newBookingId);
+                  loadLedgerData(1, ledgerFilter.showCharges, ledgerFilter.memberId, newBookingId, true);
                 }}
                 style={{ 
                   padding: '8px 12px',
