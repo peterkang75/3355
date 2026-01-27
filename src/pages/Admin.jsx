@@ -983,10 +983,14 @@ function Admin() {
       let transactions;
       let totalPages = 1;
       
+      // 특정 라운딩 선택 시 해당 라운딩의 모든 거래를 가져옴 (최대 200건)
+      // 전체 조회 시에는 페이지당 20건
+      const limit = (bookingId && bookingId !== 'all') ? 200 : 20;
+      
       const [balanceData, bookingsData, response] = await Promise.all([
         apiService.fetchClubBalance(),
         apiService.fetchBookingsWithTransactions(),
-        apiService.fetchTransactions({ page, limit: 20, includeCharges, memberId, bookingId })
+        apiService.fetchTransactions({ page, limit, includeCharges, memberId, bookingId })
       ]);
       
       transactions = response.transactions || [];
