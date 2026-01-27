@@ -76,7 +76,7 @@ function Admin() {
   const [ledgerFilter, setLedgerFilter] = useState({
     type: 'all',
     memberId: 'all',
-    showCharges: true
+    showCharges: false
   });
   const [summaryBookingFilter, setSummaryBookingFilter] = useState('all');
   const [selectedSummaryCategories, setSelectedSummaryCategories] = useState([]);
