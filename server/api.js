@@ -5,10 +5,40 @@ const router = express.Router();
 
 router.get("/members", async (req, res) => {
   try {
+    const includePhoto = req.query.includePhoto === 'true';
+    
     // 비활성화된 회원은 제외하고 조회
+    // 초기 로딩 시 사진 제외 (성능 최적화)
     const members = await prisma.member.findMany({
       where: { isActive: true },
       orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        phone: true,
+        nickname: true,
+        gender: true,
+        birthYear: true,
+        region: true,
+        isClubMember: true,
+        club: true,
+        handicap: true,
+        gaHandy: true,
+        houseHandy: true,
+        golflinkNumber: true,
+        clubMemberNumber: true,
+        isAdmin: true,
+        role: true,
+        balance: true,
+        photo: includePhoto,
+        isActive: true,
+        approvalStatus: true,
+        canManageFees: true,
+        isFeeExempt: true,
+        lastActiveAt: true,
+        createdAt: true,
+        updatedAt: true
+      }
     });
     res.json(members);
   } catch (error) {
