@@ -72,12 +72,9 @@ export function AppProvider({ children }) {
       }
       
       try {
-        const [membersData, postsData, bookingsData, feesData, coursesData, settingsData] = await Promise.all([
+        // 초기 로딩 최적화: 필수 데이터만 먼저 로드 (회원, 설정)
+        const [membersData, settingsData] = await Promise.all([
           apiService.fetchMembers().catch(() => []),
-          apiService.fetchPosts().catch(() => []),
-          apiService.fetchBookings().catch(() => []),
-          apiService.fetchFees().catch(() => []),
-          apiService.fetchCourses().catch(() => []),
           apiService.fetchSettings().catch(() => [])
         ]);
 
@@ -126,17 +123,27 @@ export function AppProvider({ children }) {
           }
         }
 
-        if (postsData?.length > 0) setPosts(postsData);
-        if (bookingsData?.length > 0) setBookings(bookingsData);
-        if (feesData?.length > 0) setFees(feesData);
-        if (coursesData?.length > 0) setCourses(coursesData);
+        // 로딩 완료 - 앱 표시
+        setLoading(false);
+
+        // 나머지 데이터는 백그라운드에서 로드 (블로킹 없음)
+        Promise.all([
+          apiService.fetchPosts().catch(() => []),
+          apiService.fetchBookings().catch(() => []),
+          apiService.fetchFees().catch(() => []),
+          apiService.fetchCourses().catch(() => [])
+        ]).then(([postsData, bookingsData, feesData, coursesData]) => {
+          if (postsData?.length > 0) setPosts(postsData);
+          if (bookingsData?.length > 0) setBookings(bookingsData);
+          if (feesData?.length > 0) setFees(feesData);
+          if (coursesData?.length > 0) setCourses(coursesData);
+        });
 
         if (savedUserId) {
-          await loadUserData(savedUserId);
+          loadUserData(savedUserId);
         }
       } catch (error) {
         console.error('데이터 로드 실패:', error);
-      } finally {
         setLoading(false);
       }
     };
