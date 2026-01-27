@@ -3331,16 +3331,17 @@ function Admin() {
                           return true;
                         })
                         .map(transaction => {
-                        // Club Tab: expense is always negative
+                        // Club Tab: expense, charge, credit are negative (money going out from club)
                         const typeColor =
                           transaction.type === 'payment' ? 'var(--success-green)' :
                           transaction.type === 'donation' ? 'var(--success-green)' :
                           transaction.type === 'creditDonation' ? 'var(--success-green)' :
                           transaction.type === 'charge' ? 'var(--alert-red)' :
                           transaction.type === 'expense' ? 'var(--alert-red)' :
+                          transaction.type === 'credit' ? 'var(--alert-red)' :
                           'var(--success-green)';
 
-                        // Club Tab: expense is always negative
+                        // Club Tab: expense, charge, credit are negative (club pays out)
                         const sign = 
                           (transaction.type === 'payment' || transaction.type === 'donation' || transaction.type === 'creditDonation') ? '+' : '-';
                         
@@ -3381,6 +3382,8 @@ function Admin() {
                           }
                         } else if (transaction.type === 'creditDonation') {
                           categoryName = transaction.description || '크레딧 도네이션';
+                        } else if (transaction.type === 'credit') {
+                          categoryName = transaction.description || transaction.category || '크레딧 지급';
                         } else {
                           categoryName = transaction.type;
                         }
@@ -4246,16 +4249,17 @@ function Admin() {
                           return selectedSummaryCategories.includes(catKey);
                         })
                         .map(transaction => {
-                          // Club Tab: expense is always negative (member used credit)
+                          // Club Tab: expense, charge, credit are negative (money going out from club)
                           const typeColor =
                             transaction.type === 'payment' ? 'var(--success-green)' :
                             transaction.type === 'donation' ? 'var(--success-green)' :
                             transaction.type === 'creditDonation' ? 'var(--success-green)' :
                             transaction.type === 'charge' ? 'var(--alert-red)' :
                             transaction.type === 'expense' ? 'var(--alert-red)' :
+                            transaction.type === 'credit' ? 'var(--alert-red)' :
                             'var(--success-green)';
 
-                          // Club Tab: expense is always negative
+                          // Club Tab: expense, charge, credit are negative (club pays out)
                           const sign = 
                             (transaction.type === 'payment' || transaction.type === 'donation' || transaction.type === 'creditDonation') ? '+' : '-';
                           
@@ -4303,6 +4307,8 @@ function Admin() {
                             }
                           } else if (transaction.type === 'creditDonation') {
                             categoryName = transaction.description || '크레딧 도네이션';
+                          } else if (transaction.type === 'credit') {
+                            categoryName = transaction.description || transaction.category || '크레딧 지급';
                           } else {
                             categoryName = transaction.type;
                           }
