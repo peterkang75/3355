@@ -3793,6 +3793,7 @@ function Admin() {
                       })
                       .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                       .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
+                      .filter(t => summaryBookingFilter === 'all' || t.bookingId === summaryBookingFilter)
                       .filter(t => {
                         if (selectedSummaryCategories.length === 0) return true;
                         
@@ -3989,6 +3990,7 @@ function Admin() {
                 })
                 .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                 .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
+                .filter(t => summaryBookingFilter === 'all' || t.bookingId === summaryBookingFilter)
                 .filter(t => {
                   if (selectedSummaryCategories.length === 0) return true;
                   
@@ -4065,6 +4067,7 @@ function Admin() {
                                   })
                                   .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                                   .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
+                                  .filter(t => summaryBookingFilter === 'all' || t.bookingId === summaryBookingFilter)
                                   .filter(t => {
                                     if (selectedSummaryCategories.length === 0) return true;
                                     let catKey = '';
@@ -4115,6 +4118,7 @@ function Admin() {
                                   })
                                   .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                                   .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
+                                  .filter(t => summaryBookingFilter === 'all' || t.bookingId === summaryBookingFilter)
                                   .filter(t => {
                                     if (selectedSummaryCategories.length === 0) return true;
                                     let catKey = '';
@@ -4187,6 +4191,7 @@ function Admin() {
                         })
                         .filter(t => ledgerFilter.type === 'all' || t.type === ledgerFilter.type)
                         .filter(t => ledgerFilter.memberId === 'all' || t.memberId === ledgerFilter.memberId)
+                        .filter(t => summaryBookingFilter === 'all' || t.bookingId === summaryBookingFilter)
                         .filter(t => {
                           if (selectedSummaryCategories.length === 0) return true;
                           
