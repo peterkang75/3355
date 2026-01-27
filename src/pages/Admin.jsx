@@ -9163,30 +9163,52 @@ function Admin() {
               <label style={{ display: 'block', fontSize: '13px', marginBottom: '4px', fontWeight: '600' }}>
                 유형
               </label>
-              <div style={{ 
-                padding: '10px 12px', 
-                background: 'var(--bg-light)', 
-                borderRadius: '6px',
-                fontSize: '14px'
-              }}>
-                {editingTransaction.type === 'payment' ? '회비 납부' :
-                 editingTransaction.type === 'expense' ? '지출' :
-                 editingTransaction.type === 'donation' ? '도네이션' : editingTransaction.type}
-              </div>
+              <select
+                value={editingTransaction.type || ''}
+                onChange={(e) => setEditingTransaction({
+                  ...editingTransaction,
+                  type: e.target.value
+                })}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border-color)',
+                  fontSize: '14px'
+                }}
+              >
+                <option value="payment">회비 납부</option>
+                <option value="expense">지출</option>
+                <option value="donation">도네이션</option>
+                <option value="charge">청구</option>
+              </select>
             </div>
 
             <div style={{ marginBottom: '12px' }}>
               <label style={{ display: 'block', fontSize: '13px', marginBottom: '4px', fontWeight: '600' }}>
                 회원
               </label>
-              <div style={{ 
-                padding: '10px 12px', 
-                background: 'var(--bg-light)', 
-                borderRadius: '6px',
-                fontSize: '14px'
-              }}>
-                {editingTransaction.member?.nickname || editingTransaction.member?.name || '-'}
-              </div>
+              <select
+                value={editingTransaction.memberId || ''}
+                onChange={(e) => setEditingTransaction({
+                  ...editingTransaction,
+                  memberId: e.target.value || null
+                })}
+                style={{
+                  width: '100%',
+                  padding: '10px 12px',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border-color)',
+                  fontSize: '14px'
+                }}
+              >
+                <option value="">회원 없음</option>
+                {members.map(member => (
+                  <option key={member.id} value={member.id}>
+                    {member.nickname || member.name}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div style={{ marginBottom: '12px' }}>
