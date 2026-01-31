@@ -447,7 +447,35 @@ function Dashboard() {
     return diffDays;
   };
 
+  const getCompetitionDeadline = (roundingDateStr) => {
+    const roundingDate = new Date(roundingDateStr);
+    
+    // Get the start of the rounding week (Monday-based week)
+    const roundingDayOfWeek = roundingDate.getDay();
+    const daysFromMonday = roundingDayOfWeek === 0 ? 6 : roundingDayOfWeek - 1;
+    const startOfRoundingWeek = new Date(roundingDate);
+    startOfRoundingWeek.setDate(roundingDate.getDate() - daysFromMonday);
+    
+    // Go back one week
+    const oneWeekBefore = new Date(startOfRoundingWeek);
+    oneWeekBefore.setDate(startOfRoundingWeek.getDate() - 7);
+    
+    // Get the Saturday of that week (5 days after Monday)
+    const deadline = new Date(oneWeekBefore);
+    deadline.setDate(oneWeekBefore.getDate() + 5);
+    deadline.setHours(18, 0, 0, 0); // 6 PM
+    
+    return deadline;
+  };
+
   const isRegistrationClosed = (booking) => {
+    // For competition rounds, use automatic deadline: Saturday 6 PM, one week before
+    if (booking.type === '컴페티션') {
+      const deadline = getCompetitionDeadline(booking.date);
+      return new Date() > deadline;
+    }
+    
+    // For regular rounds, use manual registrationDeadline if set
     if (!booking.registrationDeadline) return false;
     const today = new Date();
     today.setHours(0, 0, 0, 0);
