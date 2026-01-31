@@ -449,7 +449,7 @@ const BookingListCard = memo(function BookingListCard({
                     {effectiveDeadline.getHours()}시
                   </span>
                 )}
-                {getRemainingTime(effectiveDeadline) && (
+                {getRemainingTime(effectiveDeadline) ? (
                   <span style={{ 
                     marginLeft: '8px', 
                     fontSize: '12px', 
@@ -457,6 +457,15 @@ const BookingListCard = memo(function BookingListCard({
                     fontWeight: getRemainingTime(effectiveDeadline) === '마감 임박' ? '600' : '400'
                   }}>
                     ({getRemainingTime(effectiveDeadline)})
+                  </span>
+                ) : (
+                  <span style={{ 
+                    marginLeft: '8px', 
+                    fontSize: '12px', 
+                    color: '#e74c3c',
+                    fontWeight: '600'
+                  }}>
+                    (마감완료)
                   </span>
                 )}
               </span>
