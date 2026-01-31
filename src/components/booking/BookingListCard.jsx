@@ -62,11 +62,37 @@ const BookingListCard = memo(function BookingListCard({
     return index >= cutoff;
   };
 
-  const getRemainingTime = (deadline) => {
-    if (!deadline) return null;
+  const getCompetitionDeadline = (roundingDateStr) => {
+    const roundingDate = new Date(roundingDateStr);
+    
+    // Get the start of the rounding week (Monday-based week)
+    const roundingDayOfWeek = roundingDate.getDay();
+    const daysFromMonday = roundingDayOfWeek === 0 ? 6 : roundingDayOfWeek - 1;
+    const startOfRoundingWeek = new Date(roundingDate);
+    startOfRoundingWeek.setDate(roundingDate.getDate() - daysFromMonday);
+    
+    // Go back one week
+    const oneWeekBefore = new Date(startOfRoundingWeek);
+    oneWeekBefore.setDate(startOfRoundingWeek.getDate() - 7);
+    
+    // Get the Saturday of that week (5 days after Monday)
+    const deadline = new Date(oneWeekBefore);
+    deadline.setDate(oneWeekBefore.getDate() + 5);
+    deadline.setHours(18, 0, 0, 0); // 6 PM
+    
+    return deadline;
+  };
+
+  const getEffectiveDeadline = () => {
+    if (booking.type === '컴페티션') {
+      return getCompetitionDeadline(booking.date);
+    }
+    return booking.registrationDeadline ? new Date(booking.registrationDeadline) : null;
+  };
+
+  const getRemainingTime = (deadlineDate) => {
+    if (!deadlineDate) return null;
     const now = new Date();
-    const deadlineDate = new Date(deadline);
-    deadlineDate.setHours(23, 59, 59, 999);
     const diff = deadlineDate - now;
     if (diff <= 0) return null;
     
@@ -77,6 +103,8 @@ const BookingListCard = memo(function BookingListCard({
     if (hours > 0) return `${hours}시간 남음`;
     return '마감 임박';
   };
+
+  const effectiveDeadline = getEffectiveDeadline();
 
   // Calculate isPlayTime: 30 minutes before rounding start time
   const isPlayTime = (() => {
@@ -405,7 +433,7 @@ const BookingListCard = memo(function BookingListCard({
             </div>
           )}
 
-          {booking.registrationDeadline && (
+          {effectiveDeadline && (
             <div style={{ 
               display: 'flex',
               alignItems: 'center',
@@ -415,15 +443,20 @@ const BookingListCard = memo(function BookingListCard({
             }}>
               <span style={{ fontWeight: '600', color: 'var(--primary-green)' }}>◔ 접수 마감:</span>
               <span>
-                {new Date(booking.registrationDeadline).toLocaleDateString('ko-KR')}
-                {getRemainingTime(booking.registrationDeadline) && (
+                {effectiveDeadline.toLocaleDateString('ko-KR')}
+                {booking.type === '컴페티션' && (
+                  <span style={{ marginLeft: '4px', fontSize: '12px', color: '#888' }}>
+                    {effectiveDeadline.getHours()}시
+                  </span>
+                )}
+                {getRemainingTime(effectiveDeadline) && (
                   <span style={{ 
                     marginLeft: '8px', 
                     fontSize: '12px', 
-                    color: getRemainingTime(booking.registrationDeadline) === '마감 임박' ? '#e74c3c' : '#888',
-                    fontWeight: getRemainingTime(booking.registrationDeadline) === '마감 임박' ? '600' : '400'
+                    color: getRemainingTime(effectiveDeadline) === '마감 임박' ? '#e74c3c' : '#888',
+                    fontWeight: getRemainingTime(effectiveDeadline) === '마감 임박' ? '600' : '400'
                   }}>
-                    ({getRemainingTime(booking.registrationDeadline)})
+                    ({getRemainingTime(effectiveDeadline)})
                   </span>
                 )}
               </span>
