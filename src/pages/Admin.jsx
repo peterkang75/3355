@@ -189,9 +189,29 @@ function Admin() {
 
   useEffect(() => {
     if (contextMembers) {
-      setMembers(contextMembers);
+      setMembers(prev => {
+        const hasPhotos = prev.some(m => m.photo);
+        if (hasPhotos) {
+          return prev.map(pm => {
+            const updated = contextMembers.find(cm => cm.id === pm.id);
+            return updated ? { ...updated, photo: pm.photo } : pm;
+          });
+        }
+        return contextMembers;
+      });
     }
   }, [contextMembers]);
+
+  useEffect(() => {
+    if (activeTab === 'members') {
+      const hasPhotos = members.some(m => m.photo);
+      if (!hasPhotos) {
+        apiService.fetchMembersWithPhotos().then(data => {
+          if (data) setMembers(data);
+        }).catch(() => {});
+      }
+    }
+  }, [activeTab]);
 
   useEffect(() => {
     loadPermissions();

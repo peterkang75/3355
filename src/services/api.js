@@ -44,6 +44,12 @@ class ApiService {
     });
   }
 
+  async fetchMembersWithPhotos() {
+    const response = await fetch(`${API_BASE}/members?includePhoto=true`);
+    if (!response.ok) throw new Error('Failed to fetch members');
+    return response.json();
+  }
+
   async createMember(memberData) {
     const response = await fetch(`${API_BASE}/members`, {
       method: 'POST',
