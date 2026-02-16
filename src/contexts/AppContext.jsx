@@ -8,19 +8,8 @@ export const AppContext = createContext();
 const checkRequiredFields = (member) => {
   if (!member) return false;
   
-  const baseRequiredFields = ['name', 'nickname', 'photo', 'phone', 'gender', 'birthYear', 'region', 'handicap'];
-  const baseFieldsComplete = baseRequiredFields.every(field => member[field] && String(member[field]).trim() !== '');
-  
-  if (!baseFieldsComplete) return false;
-  
-  if (!member.isClubMember || member.isClubMember === '') return false;
-  
-  if (member.isClubMember === 'yes') {
-    const clubRequiredFields = ['club', 'golflinkNumber', 'clubMemberNumber'];
-    return clubRequiredFields.every(field => member[field] && String(member[field]).trim() !== '');
-  }
-  
-  return true;
+  const requiredFields = ['name', 'nickname', 'birthYear'];
+  return requiredFields.every(field => member[field] && String(member[field]).trim() !== '');
 };
 
 export function AppProvider({ children }) {

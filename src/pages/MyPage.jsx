@@ -52,9 +52,8 @@ function MyPage() {
   };
 
   const handleSave = async () => {
-    if (!editData.name || !editData.nickname || !editData.phone || !editData.photo || 
-        !editData.gender || !editData.birthYear || !editData.region) {
-      alert('이름, 대화명, 전화번호, 사진, 성별, 출생연도, 지역은 필수 입력 항목입니다.');
+    if (!editData.name || !editData.nickname || !editData.birthYear) {
+      alert('이름, 대화명, 출생연도는 필수 입력 항목입니다.');
       return;
     }
 
