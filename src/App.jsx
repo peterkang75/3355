@@ -23,6 +23,7 @@ import BingoGame from './pages/BingoGame';
 import MemberInfoForm from './pages/MemberInfoForm';
 import Menu from './pages/Menu';
 import PickWinner from './pages/PickWinner';
+import RoundingListV2 from './pages/RoundingListV2';
 import Navigation from './components/Navigation';
 import InstallPrompt from './components/InstallPrompt';
 import defaultLogoImage from './assets/logo-transparent.png';
@@ -69,6 +70,7 @@ function AppRoutes({ user, logout, requiresProfileComplete }) {
         <Route path="/bingo" element={<BingoGame />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/games/pick-winner" element={<PickWinner />} />
+        <Route path="/v2/roundings" element={<RoundingListV2 />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       {location.pathname !== '/play' && <Navigation user={user} onLogout={logout} />}
