@@ -311,6 +311,31 @@ function RoundingListV2() {
     return <span>{names.slice(0, maxShow).join(', ')} +{names.length - maxShow}명</span>;
   };
 
+  const getTypeBadge = (booking) => {
+    const typeLabel = booking.title || booking.type || '';
+    let bg = '#BF4D34';
+    let color = 'white';
+    if (typeLabel.includes('컴페티션')) { bg = '#2d5355'; color = 'white'; }
+    else if (typeLabel.includes('그린피')) { bg = '#1E40AF'; color = 'white'; }
+    else if (typeLabel.includes('소셜') || typeLabel.includes('Social')) { bg = '#059669'; color = 'white'; }
+    else if (typeLabel.includes('정기')) { bg = '#BF4D34'; color = 'white'; }
+    if (!typeLabel) return null;
+    return (
+      <span style={{
+        fontSize: '11px',
+        fontWeight: '700',
+        padding: '4px 10px',
+        borderRadius: '6px',
+        background: bg,
+        color: color,
+        display: 'inline-block',
+        marginBottom: '6px',
+      }}>
+        {typeLabel}
+      </span>
+    );
+  };
+
   const getStatusBadge = (booking) => {
     const participants = parseParticipants(booking.participants);
     const max = booking.maxMembers || 4;
@@ -347,18 +372,24 @@ function RoundingListV2() {
           overflow: 'hidden',
         }}
       >
-        <div style={{ position: 'absolute', top: '12px', right: '14px' }}>
-          <span style={{
-            background: '#D4AF37',
-            color: '#1A3D2F',
-            padding: '3px 10px',
-            borderRadius: '10px',
-            fontSize: '10px',
-            fontWeight: '700',
-            letterSpacing: '0.5px',
-          }}>
-            공식
-          </span>
+        <div style={{ marginBottom: '6px' }}>
+          {(() => {
+            const typeLabel = booking.title || booking.type || '정기모임';
+            const isComp = typeLabel.includes('컴페티션');
+            const bg = isComp ? '#2d5355' : '#BF4D34';
+            return (
+              <span style={{
+                fontSize: '11px',
+                fontWeight: '700',
+                padding: '4px 10px',
+                borderRadius: '6px',
+                background: bg,
+                color: 'white',
+              }}>
+                {typeLabel}
+              </span>
+            );
+          })()}
         </div>
         <div style={{ color: '#D4AF37', fontSize: '13px', fontWeight: '600', marginBottom: '4px' }}>
           {formatDate(booking.date)}
@@ -404,33 +435,13 @@ function RoundingListV2() {
           transition: 'transform 0.15s',
         }}
       >
+        <div style={{ marginBottom: '6px' }}>
+          {getTypeBadge(booking)}
+        </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-              <span style={{ fontSize: '15px', fontWeight: '700', color: theme.colors.text_main }}>
-                {booking.courseName}
-              </span>
-              {(() => {
-                const typeLabel = booking.title || booking.type || '소셜 라운딩';
-                const isCompetition = typeLabel.includes('컴페티션');
-                const isGreenfee = typeLabel.includes('그린피');
-                let badgeBg = '#F0FDF4';
-                let badgeColor = '#065F46';
-                if (isCompetition) { badgeBg = '#FEF3C7'; badgeColor = '#92400E'; }
-                else if (isGreenfee) { badgeBg = '#DBEAFE'; badgeColor = '#1E40AF'; }
-                return (
-                  <span style={{
-                    fontSize: '10px',
-                    fontWeight: '600',
-                    padding: '2px 8px',
-                    borderRadius: '8px',
-                    background: badgeBg,
-                    color: badgeColor,
-                  }}>
-                    {typeLabel}
-                  </span>
-                );
-              })()}
+            <div style={{ fontSize: '15px', fontWeight: '700', color: theme.colors.text_main, marginBottom: '4px' }}>
+              {booking.courseName}
             </div>
             <div style={{ fontSize: '13px', color: theme.colors.text_sub, display: 'flex', alignItems: 'center', gap: '4px' }}>
               <span style={{ fontWeight: '500' }}>주최: {getMemberName(booking.organizerId)}</span>
