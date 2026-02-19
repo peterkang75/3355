@@ -739,7 +739,7 @@ function RoundingListV2() {
       <>
         <div
           onClick={() => setShowTypeSelector(false)}
-          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.4)', zIndex: 999 }}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 999, backdropFilter: 'blur(2px)' }}
         />
         <div style={{
           position: 'fixed',
@@ -747,63 +747,119 @@ function RoundingListV2() {
           left: 0,
           right: 0,
           background: '#FFFFFF',
-          borderRadius: '20px 20px 0 0',
+          borderRadius: '24px 24px 0 0',
           zIndex: 1000,
+          boxShadow: '0 -4px 16px rgba(0,0,0,0.1)',
           animation: 'slideUp 0.25s ease-out',
         }}>
-          <div style={{ textAlign: 'center', padding: '12px 0 4px' }}>
-            <div style={{ width: '36px', height: '4px', background: '#D1D5DB', borderRadius: '2px', margin: '0 auto' }} />
+          <div style={{ width: '48px', height: '6px', background: '#E5E7EB', borderRadius: '3px', margin: '12px auto 20px' }} />
+
+          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <div style={{ fontSize: '20px', fontWeight: '700', color: '#111827' }}>
+              새로운 라운딩 만들기
+            </div>
           </div>
-          <h3 style={{ fontSize: '18px', fontWeight: '700', color: theme.colors.primary, textAlign: 'center', padding: '8px 20px 12px', marginBottom: 0 }}>
-            라운딩 유형 선택
-          </h3>
+
           <div style={{ padding: '0 20px', paddingBottom: 'max(100px, calc(90px + env(safe-area-inset-bottom)))' }}>
-            <button
+            <div
               onClick={() => {
                 setShowTypeSelector(false);
                 setCreateMode('official');
                 setShowCreateModal(true);
               }}
               style={{
-                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
                 padding: '16px',
-                borderRadius: '14px',
-                border: '2px solid #B45309',
-                background: '#FFFBEB',
+                borderRadius: '16px',
+                border: '1px solid #F3F4F6',
+                background: '#FFFFFF',
                 cursor: 'pointer',
-                marginBottom: '10px',
-                textAlign: 'left',
+                marginBottom: '12px',
+                transition: 'background 0.15s',
               }}
             >
-              <div style={{ fontSize: '16px', fontWeight: '700', color: '#92400E', marginBottom: '4px' }}>
-                👑 정기 라운딩 만들기
+              <div style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                background: '#FFFBEB',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '22px',
+                marginRight: '16px',
+                flexShrink: 0,
+              }}>
+                👑
               </div>
-              <div style={{ fontSize: '12px', color: '#B45309' }}>
-                비용, 마감일 등 상세 설정 · 관리자 전용
+              <div>
+                <div style={{ fontSize: '16px', fontWeight: '700', color: '#111827', marginBottom: '2px' }}>
+                  정기 라운딩 개설
+                </div>
+                <div style={{ fontSize: '13px', color: '#9CA3AF', lineHeight: '1.4' }}>
+                  관리자 전용. 회비, 마감일 등 상세 설정이 가능합니다.
+                </div>
               </div>
-            </button>
-            <button
+            </div>
+
+            <div
               onClick={() => {
                 setShowTypeSelector(false);
                 setCreateMode('social');
                 setShowCreateModal(true);
               }}
               style={{
-                width: '100%',
+                display: 'flex',
+                alignItems: 'center',
                 padding: '16px',
-                borderRadius: '14px',
-                border: `2px solid ${theme.colors.primary}`,
-                background: '#F0FDF4',
+                borderRadius: '16px',
+                border: '1px solid #F3F4F6',
+                background: '#FFFFFF',
                 cursor: 'pointer',
-                textAlign: 'left',
+                marginBottom: '16px',
+                transition: 'background 0.15s',
               }}
             >
-              <div style={{ fontSize: '16px', fontWeight: '700', color: theme.colors.primary, marginBottom: '4px' }}>
-                ⚡ 소셜/번개 라운딩 만들기
+              <div style={{
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                background: '#F0FDF4',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '22px',
+                marginRight: '16px',
+                flexShrink: 0,
+              }}>
+                ⚡
               </div>
-              <div style={{ fontSize: '12px', color: '#3a7d54' }}>
-                간편하게 라운딩 모집
+              <div>
+                <div style={{ fontSize: '16px', fontWeight: '700', color: '#111827', marginBottom: '2px' }}>
+                  소셜/번개 개설
+                </div>
+                <div style={{ fontSize: '13px', color: '#9CA3AF', lineHeight: '1.4' }}>
+                  누구나 쉽고 빠르게. 골프장과 시간만 선택하세요.
+                </div>
               </div>
+            </div>
+
+            <button
+              onClick={() => setShowTypeSelector(false)}
+              style={{
+                width: '100%',
+                padding: '14px',
+                background: 'transparent',
+                border: 'none',
+                color: '#9CA3AF',
+                fontSize: '15px',
+                fontWeight: '500',
+                cursor: 'pointer',
+                marginTop: '4px',
+              }}
+            >
+              닫기
             </button>
           </div>
         </div>
