@@ -1,0 +1,71 @@
+I have analyzed the existing `Booking.jsx` and `RoundingManagement.jsx`.
+I want to create a **NEW page** called `RoundingListV2.jsx` that serves as a **Mobile-First Social Rounding Lounge**.
+
+**Objective:**
+Create a modern, card-based list view that separates "Official Roundings" from "Social Roundings", optimized for a club where many users do not have profile photos.
+
+**Technical Context (Based on `Booking.jsx`):**
+* **State:** Use `useApp()` to get `{ user, bookings, addBooking, updateBooking, members }`.
+* **Data Parsing:** You MUST include the `parseParticipants` helper function (participants are stored as JSON strings).
+* **Filtering:** Use `isBookingActive(booking)` and `canViewBooking(booking)` logic.
+
+---
+
+**Step 1: Database & API (Prerequisites)**
+* **Schema:** Ensure `Booking` model has `isSocial` (Boolean, default false) and `maxMembers` (Int, default 4).
+* **API:** Ensure backend supports saving these fields.
+
+**Step 2: Create `client/src/pages/RoundingListV2.jsx`**
+
+**UI Specifications (Mobile First - Text Based):**
+
+1.  **Header:**
+    * Title: "Rounding Lounge"
+    * Style: Clean, minimal, sticky top.
+
+2.  **Section A: Official Roundings (Pinned Top)**
+    * **Filter:** `!booking.isSocial` AND `isBookingActive`.
+    * **Style:** Distinct "Premium" look (Gold/Dark border).
+    * **Content:** Date, Course, "Official Event" badge.
+
+3.  **Section B: Social Roundings (Scrollable List)**
+    * **Filter:** `booking.isSocial` AND `isBookingActive`.
+    * **Style:** Modern Cards (White bg, shadow-sm).
+    * **Card Content:**
+        * **Top Row:** Time (Big font, e.g., "12:30") | **Course Name** (Bold).
+        * **Middle Row (Host):** Display "👑 HostName" (Use `organizerId` to find name).
+        * **Bottom Row (Participants - TEXT ONLY):**
+            * Do NOT use Avatars/Images.
+            * Display a text summary of nicknames.
+            * **Format:** "Name1, Name2, Name3 + N others" (e.g., "Natto, Chulsoo + 2").
+            * If list is empty: "Recruiting..."
+        * **Status Badge:** [Recruiting (Cur/Max)] (Green) or [Full] (Red).
+
+4.  **Interaction: Bottom Sheet (Detail View)**
+    * **Trigger:** Clicking ANY card opens a **Bottom Sheet** (Slide-up panel).
+    * **Content:** Full list of participant nicknames (Vertical list), Fees, Notes.
+    * **Action Buttons (Fixed at bottom of sheet):**
+        * **"Join / Leave"**: Calls `handleJoinBooking`.
+        * **"Manage"**: ONLY visible if `user.id === booking.organizerId` or `user.isAdmin`.
+            * **Action:** `Maps('/rounding-management?id=' + booking.id)` (Reuses existing management page).
+
+5.  **Interaction: Create Rounding (FAB)**
+    * **Trigger:** Floating Action Button (+) at bottom-right.
+    * **UI:** A simple Modal/Sheet.
+    * **Inputs:** Date, Time, Course, Max Members.
+    * **Submit:** Calls `addBooking` with:
+        * `type: 'Social'`
+        * `isSocial: true`
+        * `organizerId: user.id`
+        * `title: 'Social Rounding'`
+
+**Code Structure Requirements:**
+* **Reuse Logic:** Copy `parseParticipants`, `isBookingActive`, `canViewBooking` logic from `Booking.jsx`.
+* **Styling:** Use inline styles or `theme` object.
+* **Layout:** Use Flexbox/Grid. Make sure text truncation is handled for long lists of names.
+
+**Step 3: Routing**
+* Add the route `/v2/roundings` to `App.jsx`.
+
+**Deliverable:**
+Write the full code for `RoundingListV2.jsx` and the necessary schema/router updates.

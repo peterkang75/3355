@@ -88,6 +88,8 @@ model Booking {
   useSquadWaitlist     Boolean  @default(false)
   votingEnabled        Boolean  @default(true)
   is2BB                Boolean  @default(false)
+  isSocial             Boolean  @default(false)
+  maxMembers           Int      @default(4)
   teams                Json?
   gradeSettings        Json?
   dailyHandicaps       Json?
