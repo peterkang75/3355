@@ -577,20 +577,22 @@ function Booking() {
         title={
           <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             라운딩
-            <span
-              onClick={() => navigate('/v2/roundings')}
-              style={{
-                fontSize: '12px',
-                fontWeight: '700',
-                color: '#FFFFFF',
-                background: theme.colors.primary,
-                padding: '2px 8px',
-                borderRadius: '6px',
-                cursor: 'pointer',
-              }}
-            >
-              V2
-            </span>
+            {user.role === '관리자' && (
+              <span
+                onClick={() => navigate('/v2/roundings')}
+                style={{
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  color: '#FFFFFF',
+                  background: theme.colors.primary,
+                  padding: '2px 8px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                }}
+              >
+                V2
+              </span>
+            )}
           </span>
         }
         rightContent={<ProfileBadge user={user} showGreeting={true} />}

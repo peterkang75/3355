@@ -1,0 +1,37 @@
+I need a **Complete Redesign of the Admin "Create Rounding" Bottom Sheet** in `RoundingListV2.jsx`. The current look is outdated and crude. It needs to be modern, sophisticated, and visually engaging.
+
+**UI/UX Redesign Specifications:**
+
+**1. Sheet Container (Modern Base):**
+* **Shape:** `rounded-t-3xl` (Large rounded top corners).
+* **Background:** Clean White (`bg-white`).
+* **Shadow:** Heavy, deep shadow (`shadow-[0_-4px_16px_rgba(0,0,0,0.1)]`) to make it pop up.
+* **Drag Handle:** Add a small, centered gray pill (`w-12 h-1.5 bg-gray-200 rounded-full mx-auto mt-3 mb-5`) at the top to indicate it's a sheet.
+
+**2. Header Title:**
+* Add a clear, friendly title below the handle:
+* **Text:** "새로운 라운딩 만들기" (Create New Rounding)
+* **Style:** `text-xl font-bold text-gray-900 text-center mb-6`.
+
+**3. Action Cards (Replacing buttons):**
+* Instead of simple buttons, create two distinct **Action Cards**.
+* **Layout:** Stacked vertically with padding (`p-4`).
+* **Interaction:** Subtle background change on tap (`active:bg-gray-50`), rounded corners (`rounded-xl`), and a thin border (`border border-gray-100`).
+
+* **Card A: [👑 Create Official Rounding] (Premium look)**
+    * **Icon:** A large Gold crown icon inside a subtle gold circle container (`bg-amber-50 text-amber-600 p-3 rounded-full mr-4`).
+    * **Text Content:**
+        * **Title:** "👑 정기 라운딩 개설" (Bold, Dark text).
+        * **Subtitle:** "관리자 전용. 회비, 마감일 등 상세 설정이 가능합니다." (Gray text, smaller size).
+
+* **Card B: [⚡ Create Social Rounding] (Fresh look)**
+    * **Icon:** A large Teal lightning bolt icon inside a subtle teal circle container (`bg-teal-50 text-teal-600 p-3 rounded-full mr-4`).
+    * **Text Content:**
+        * **Title:** "⚡ 소셜/번개 개설" (Bold, Dark text).
+        * **Subtitle:** "누구나 쉽고 빠르게. 골프장과 시간만 선택하세요." (Gray text, smaller size).
+
+**4. Cancel Button (Subtle):**
+* Add a simple "닫기" button at the very bottom.
+* **Style:** Full width, centered text, subtle gray color (`text-gray-500 py-4 mt-2 font-medium`).
+
+**Goal:** Make the admin feel like they are interacting with a high-quality, modern application when creating an event.
