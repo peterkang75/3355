@@ -379,8 +379,6 @@ function RoundingListV2() {
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
           {getTypeBadge(booking)}
           <span style={{ fontSize: '13px', color: '#2563EB', fontWeight: '700' }}>{formatDate(booking.date)}</span>
-          <span style={{ fontSize: '13px', color: '#9CA3AF' }}>·</span>
-          <span style={{ fontSize: '13px', color: '#6B7280' }}>{booking.time}</span>
         </div>
         <div style={{ fontSize: '17px', fontWeight: '700', color: '#111827', marginBottom: '6px' }}>
           {booking.courseName}
@@ -420,8 +418,6 @@ function RoundingListV2() {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {getTypeBadge(booking)}
             <span style={{ fontSize: '13px', color: '#2563EB', fontWeight: '700' }}>{formatDate(booking.date)}</span>
-            <span style={{ fontSize: '13px', color: '#9CA3AF' }}>·</span>
-            <span style={{ fontSize: '13px', color: '#6B7280' }}>{booking.time}</span>
           </div>
           {getStatusBadge(booking)}
         </div>
