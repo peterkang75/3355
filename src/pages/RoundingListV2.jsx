@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useApp } from '../contexts/AppContext';
+import apiService from '../services/api';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import theme from '../styles/theme';
 import { ProfileBadge } from '../components/common';
@@ -23,7 +24,7 @@ const isBookingActive = (booking) => {
 };
 
 function RoundingListV2() {
-  const { user, bookings, members, courses, addBooking, updateBooking } = useApp();
+  const { user, bookings, members, courses, addBooking, updateBooking, refreshBookings } = useApp();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -32,6 +33,7 @@ function RoundingListV2() {
   const [showTypeSelector, setShowTypeSelector] = useState(false);
   const [createMode, setCreateMode] = useState('social');
   const [isJoining, setIsJoining] = useState(false);
+  const [isRentalLoading, setIsRentalLoading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [newRounding, setNewRounding] = useState({
     date: '',
@@ -133,10 +135,54 @@ function RoundingListV2() {
         ].map(p => JSON.stringify(p));
         await updateBooking(booking.id, { participants: updatedParticipants });
       }
-      setSelectedBooking(null);
     } finally {
       setIsJoining(false);
     }
+  };
+
+  const handleToggleRental = async (bookingId) => {
+    if (isRentalLoading) return;
+    setIsRentalLoading(true);
+    try {
+      const booking = bookings.find(b => b.id === bookingId);
+      const isCurrentlyRenting = booking.numberRentals && booking.numberRentals.includes(user.phone);
+      await apiService.toggleNumberRental(bookingId, user.phone);
+      await refreshBookings();
+      if (!isCurrentlyRenting) {
+        alert(`${user.nickname}님, 번호 대여 감사합니다!`);
+      }
+    } catch (error) {
+      alert('번호대여 상태 변경 중 오류가 발생했습니다.');
+    } finally {
+      setIsRentalLoading(false);
+    }
+  };
+
+  const getBookingStatusFlags = (booking) => {
+    const bookingDate = new Date(booking.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const isPastRoundingDate = bookingDate < today;
+    const isRoundingDay = bookingDate.toDateString() === new Date().toDateString();
+
+    let isRegistrationClosed = false;
+    if (booking.registrationDeadline) {
+      isRegistrationClosed = new Date(booking.registrationDeadline) < new Date();
+    }
+    if (booking.type === '컴페티션') {
+      const roundingDayOfWeek = bookingDate.getDay();
+      const daysFromMonday = roundingDayOfWeek === 0 ? 6 : roundingDayOfWeek - 1;
+      const startOfRoundingWeek = new Date(bookingDate);
+      startOfRoundingWeek.setDate(bookingDate.getDate() - daysFromMonday);
+      const oneWeekBefore = new Date(startOfRoundingWeek);
+      oneWeekBefore.setDate(startOfRoundingWeek.getDate() - 7);
+      const deadline = new Date(oneWeekBefore);
+      deadline.setDate(oneWeekBefore.getDate() + 5);
+      deadline.setHours(18, 0, 0, 0);
+      isRegistrationClosed = new Date() > deadline;
+    }
+
+    return { isPastRoundingDate, isRoundingDay, isRegistrationClosed };
   };
 
   const isStrathfield = newRounding.courseName.toLowerCase().includes('strathfield');
@@ -596,52 +642,107 @@ function RoundingListV2() {
             padding: '12px 20px',
             paddingBottom: 'max(100px, calc(90px + env(safe-area-inset-bottom)))',
             borderTop: '1px solid #E5E7EB',
-            display: 'flex',
-            gap: '10px',
           }}>
-            {canManage && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedBooking(null);
-                  navigate(`/rounding-management?id=${booking.id}`);
-                }}
-                style={{
-                  flex: 1,
-                  padding: '14px',
-                  borderRadius: '12px',
-                  border: `1px solid ${theme.colors.primary}`,
-                  background: 'white',
-                  color: theme.colors.primary,
-                  fontSize: '15px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                }}
-              >
-                관리
-              </button>
-            )}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                handleJoinLeave(booking);
-              }}
-              disabled={isJoining || (!isJoined && isFull)}
-              style={{
-                flex: 2,
+            {(() => {
+              const statusFlags = getBookingStatusFlags(booking);
+              const { isPastRoundingDate, isRegistrationClosed } = statusFlags;
+              const hasResults = booking.dailyHandicaps || isPastRoundingDate;
+              const isRenting = booking.numberRentals && booking.numberRentals.includes(user.phone);
+              const isCompetition = booking.type === '컴페티션';
+
+              const btnStyle = (bg, color, border) => ({
+                flex: 1,
                 padding: '14px',
                 borderRadius: '12px',
-                border: 'none',
-                background: isJoined ? '#FEE2E2' : (isFull ? '#E5E7EB' : theme.colors.primary),
-                color: isJoined ? '#DC2626' : (isFull ? '#9CA3AF' : 'white'),
+                border: border || 'none',
+                background: bg,
+                color: color,
                 fontSize: '15px',
                 fontWeight: '600',
-                cursor: (isJoining || (!isJoined && isFull)) ? 'not-allowed' : 'pointer',
-                opacity: isJoining ? 0.6 : 1,
-              }}
-            >
-              {isJoining ? '처리중...' : isJoined ? '참가 취소' : isFull ? '마감됨' : '참가하기'}
-            </button>
+                cursor: 'pointer',
+              });
+
+              if (hasResults) {
+                return (
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    {canManage && (
+                      <button onClick={() => { setSelectedBooking(null); navigate(`/rounding-management?id=${booking.id}`); }} style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}>
+                        관리
+                      </button>
+                    )}
+                    <button onClick={() => navigate(`/leaderboard?id=${booking.id}`)} style={btnStyle('#3B82F6', 'white')}>
+                      ▲ 결과보기
+                    </button>
+                  </div>
+                );
+              }
+
+              if (isRegistrationClosed) {
+                return (
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    {canManage && (
+                      <button onClick={() => { setSelectedBooking(null); navigate(`/rounding-management?id=${booking.id}`); }} style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}>
+                        관리
+                      </button>
+                    )}
+                    <button onClick={() => navigate(`/team-formation?id=${booking.id}`)} style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}>
+                      📋 조편성 보기
+                    </button>
+                    {booking.playEnabled && (
+                      <button onClick={() => navigate(`/play?id=${booking.id}`)} style={btnStyle('#3B82F6', 'white')}>
+                        ⛳ 플레이
+                      </button>
+                    )}
+                  </div>
+                );
+              }
+
+              return (
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  {canManage && (
+                    <button onClick={() => { setSelectedBooking(null); navigate(`/rounding-management?id=${booking.id}`); }} style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}>
+                      관리
+                    </button>
+                  )}
+                  {isJoined ? (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleJoinLeave(booking); }}
+                      disabled={isJoining}
+                      style={{ ...btnStyle('white', '#DC2626', '1px solid #DC2626'), opacity: isJoining ? 0.6 : 1 }}
+                    >
+                      {isJoining ? '처리중...' : '참가 취소'}
+                    </button>
+                  ) : (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); handleJoinLeave(booking); }}
+                      disabled={isJoining || isFull || isRenting}
+                      style={{ ...btnStyle(isFull ? '#E5E7EB' : theme.colors.primary, isFull ? '#9CA3AF' : 'white'), opacity: (isJoining || isRenting) ? 0.6 : 1 }}
+                    >
+                      {isJoining ? '처리중...' : isFull ? '마감됨' : '참가하기'}
+                    </button>
+                  )}
+                  {isCompetition && (
+                    isRenting ? (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleToggleRental(booking.id); }}
+                        disabled={isRentalLoading}
+                        style={{ ...btnStyle('#E6AA68', 'white'), opacity: isRentalLoading ? 0.6 : 1 }}
+                      >
+                        {isRentalLoading ? '처리중...' : '대여 취소'}
+                      </button>
+                    ) : (
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleToggleRental(booking.id); }}
+                        disabled={isRentalLoading || isJoined}
+                        style={{ ...btnStyle('white', '#E6AA68', '1px solid #E6AA68'), opacity: (isRentalLoading || isJoined) ? 0.5 : 1 }}
+                      >
+                        {isRentalLoading ? '처리중...' : '번호 대여'}
+                      </button>
+                    )
+                  )}
+                </div>
+              );
+            })()}
           </div>
         </div>
       </>
