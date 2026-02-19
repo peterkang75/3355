@@ -167,14 +167,14 @@ function RoundingListV2() {
       }
     }
 
-    let title = 'Social Rounding';
+    let title = '소셜 라운딩';
     let type = '소셜';
     if (isStrathfield) {
       if (newRounding.roundingType === 'competition') {
-        title = 'Club Competition';
+        title = '클럽 컴페티션';
         type = '컴페티션';
       } else {
-        title = 'Social Play';
+        title = '소셜 플레이';
         type = '소셜';
       }
     }
@@ -298,7 +298,7 @@ function RoundingListV2() {
             fontWeight: '700',
             letterSpacing: '0.5px',
           }}>
-            OFFICIAL
+            공식
           </span>
         </div>
         <div style={{ color: '#D4AF37', fontSize: '13px', fontWeight: '600', marginBottom: '4px' }}>
@@ -805,8 +805,8 @@ function RoundingListV2() {
                   <label style={labelStyle}>라운딩 타입</label>
                   <div style={{ display: 'flex', borderRadius: '10px', overflow: 'hidden', border: '1px solid #E5E7EB' }}>
                     {[
-                      { key: 'competition', label: '🏆 Club Competition' },
-                      { key: 'social', label: '☕ Social' },
+                      { key: 'competition', label: '🏆 클럽 컴페티션' },
+                      { key: 'social', label: '☕ 소셜' },
                     ].map(opt => (
                       <button
                         key={opt.key}
@@ -1011,7 +1011,7 @@ function RoundingListV2() {
         alignItems: 'center',
       }}>
         <h1 style={{ fontSize: '20px', fontWeight: '700', color: theme.colors.primary, margin: 0 }}>
-          Rounding Lounge
+          라운딩
         </h1>
         <ProfileBadge user={user} showGreeting={false} />
       </div>
@@ -1020,7 +1020,7 @@ function RoundingListV2() {
         {officialRoundings.length > 0 && (
           <div style={{ marginBottom: '24px' }}>
             <div style={{ fontSize: '13px', fontWeight: '600', color: theme.colors.text_sub, marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              Official Roundings
+              정기모임
             </div>
             {officialRoundings.map(renderOfficialCard)}
           </div>
@@ -1028,7 +1028,7 @@ function RoundingListV2() {
 
         <div>
           <div style={{ fontSize: '13px', fontWeight: '600', color: theme.colors.text_sub, marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-            Social Roundings
+            소셜 라운딩
           </div>
           {socialRoundings.length === 0 ? (
             <div style={{
