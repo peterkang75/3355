@@ -169,14 +169,15 @@ function RoundingListV2() {
 
     let title = '소셜 라운딩';
     let type = '소셜';
-    if (isStrathfield) {
-      if (newRounding.roundingType === 'competition') {
-        title = '클럽 컴페티션';
-        type = '컴페티션';
-      } else {
-        title = '소셜 플레이';
-        type = '소셜';
-      }
+    if (newRounding.roundingType === 'competition') {
+      title = '클럽 컴페티션';
+      type = '컴페티션';
+    } else if (newRounding.roundingType === 'greenfee') {
+      title = '그린피';
+      type = '그린피';
+    } else {
+      title = '소셜 라운딩';
+      type = '소셜';
     }
 
     setIsCreating(true);
@@ -354,14 +355,19 @@ function RoundingListV2() {
               {(() => {
                 const typeLabel = booking.title || booking.type || '소셜 라운딩';
                 const isCompetition = typeLabel.includes('컴페티션');
+                const isGreenfee = typeLabel.includes('그린피');
+                let badgeBg = '#F0FDF4';
+                let badgeColor = '#065F46';
+                if (isCompetition) { badgeBg = '#FEF3C7'; badgeColor = '#92400E'; }
+                else if (isGreenfee) { badgeBg = '#DBEAFE'; badgeColor = '#1E40AF'; }
                 return (
                   <span style={{
                     fontSize: '10px',
                     fontWeight: '600',
                     padding: '2px 8px',
                     borderRadius: '8px',
-                    background: isCompetition ? '#FEF3C7' : '#F0FDF4',
-                    color: isCompetition ? '#92400E' : '#065F46',
+                    background: badgeBg,
+                    color: badgeColor,
                   }}>
                     {typeLabel}
                   </span>
@@ -811,13 +817,14 @@ function RoundingListV2() {
                 </select>
               </div>
 
-              {/* Step 2: Rounding Type (only for Strathfield) */}
-              {newRounding.courseName && isStrathfield && (
+              {/* Step 2: Rounding Type */}
+              {newRounding.courseName && (
                 <div style={{ marginBottom: '14px' }}>
                   <label style={labelStyle}>라운딩 타입</label>
                   <div style={{ display: 'flex', borderRadius: '10px', overflow: 'hidden', border: '1px solid #E5E7EB' }}>
                     {[
-                      { key: 'competition', label: '🏆 클럽 컴페티션' },
+                      { key: 'competition', label: '🏆 컴페티션' },
+                      { key: 'greenfee', label: '💵 그린피' },
                       { key: 'social', label: '☕ 소셜' },
                     ].map(opt => (
                       <button
