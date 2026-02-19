@@ -409,8 +409,8 @@ function RoundingListV2() {
           padding: '20px',
           marginBottom: '12px',
           cursor: 'pointer',
-          boxShadow: isJoined ? '0 2px 8px rgba(16, 185, 129, 0.2)' : '0 2px 8px rgba(0,0,0,0.06)',
-          border: isJoined ? '1px solid #A7F3D0' : 'none',
+          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+          border: 'none',
           transition: 'transform 0.15s, box-shadow 0.15s',
         }}
       >
