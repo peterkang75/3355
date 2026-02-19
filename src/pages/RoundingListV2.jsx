@@ -479,16 +479,18 @@ function RoundingListV2() {
           background: '#FFFFFF',
           borderRadius: '20px 20px 0 0',
           zIndex: 1000,
-          padding: '20px',
-          paddingBottom: 'max(20px, env(safe-area-inset-bottom))',
+          maxHeight: '85vh',
+          display: 'flex',
+          flexDirection: 'column',
           animation: 'slideUp 0.25s ease-out',
         }}>
-          <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+          <div style={{ textAlign: 'center', padding: '12px 0 4px' }}>
             <div style={{ width: '36px', height: '4px', background: '#D1D5DB', borderRadius: '2px', margin: '0 auto' }} />
           </div>
-          <h3 style={{ fontSize: '18px', fontWeight: '700', color: theme.colors.primary, marginBottom: '20px', textAlign: 'center' }}>
+          <h3 style={{ fontSize: '18px', fontWeight: '700', color: theme.colors.primary, marginBottom: '0', textAlign: 'center', padding: '8px 20px 16px' }}>
             소셜 라운딩 만들기
           </h3>
+          <div style={{ overflowY: 'auto', flex: 1, padding: '0 20px' }}>
 
           <div style={{ marginBottom: '14px' }}>
             <label style={{ fontSize: '13px', fontWeight: '600', color: theme.colors.text_sub, display: 'block', marginBottom: '6px' }}>날짜</label>
@@ -560,24 +562,28 @@ function RoundingListV2() {
             />
           </div>
 
-          <button
-            onClick={handleCreateRounding}
-            disabled={isCreating}
-            style={{
-              width: '100%',
-              padding: '15px',
-              borderRadius: '12px',
-              border: 'none',
-              background: theme.colors.primary,
-              color: 'white',
-              fontSize: '16px',
-              fontWeight: '600',
-              cursor: isCreating ? 'not-allowed' : 'pointer',
-              opacity: isCreating ? 0.6 : 1,
-            }}
-          >
-            {isCreating ? '생성중...' : '라운딩 만들기'}
-          </button>
+          </div>
+
+          <div style={{ padding: '12px 20px', paddingBottom: 'max(20px, env(safe-area-inset-bottom))' }}>
+            <button
+              onClick={handleCreateRounding}
+              disabled={isCreating}
+              style={{
+                width: '100%',
+                padding: '15px',
+                borderRadius: '12px',
+                border: 'none',
+                background: theme.colors.primary,
+                color: 'white',
+                fontSize: '16px',
+                fontWeight: '600',
+                cursor: isCreating ? 'not-allowed' : 'pointer',
+                opacity: isCreating ? 0.6 : 1,
+              }}
+            >
+              {isCreating ? '생성중...' : '라운딩 만들기'}
+            </button>
+          </div>
         </div>
       </>
     );
