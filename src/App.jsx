@@ -37,8 +37,6 @@ function AppRoutes({ user, logout, requiresProfileComplete }) {
   useEffect(() => {
     if (requiresProfileComplete && user?.id) {
       navigate(`/member/${user.id}`);
-    } else {
-      navigate('/');
     }
   }, []);
 
