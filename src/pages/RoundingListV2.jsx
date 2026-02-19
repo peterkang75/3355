@@ -124,6 +124,11 @@ function RoundingListV2() {
           .map(p => JSON.stringify(p));
         await updateBooking(booking.id, { participants: updatedParticipants });
       } else {
+        if (booking.type === '컴페티션' && (!user.golflinkNumber || user.golflinkNumber.trim() === '')) {
+          alert('클럽 컴페티션은 골프링크 번호가 필수입니다. 마이페이지에서 등록해주세요.');
+          setIsJoining(false);
+          return;
+        }
         const max = latest.maxMembers || 4;
         if (participants.length >= max) {
           alert('이미 정원이 마감되었습니다.');

@@ -181,17 +181,9 @@ function RoundingManagement() {
     }
   };
   
-  if (!hasAdminAccess) {
-    return (
-      <div className="page-content">
-        <div className="card">
-          <p style={{ textAlign: 'center' }}>
-            관리자 또는 운영진만 접근할 수 있습니다.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const isOrganizer = booking && user?.id === booking.organizerId;
+  const canAccess = hasAdminAccess || isOrganizer;
+  const isOfficial = booking?.type === '정기모임' || user?.isAdmin;
 
   if (!booking) {
     return (
@@ -199,6 +191,18 @@ function RoundingManagement() {
         <div className="card">
           <p style={{ textAlign: 'center' }}>
             라운딩을 찾을 수 없습니다.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!canAccess) {
+    return (
+      <div className="page-content">
+        <div className="card">
+          <p style={{ textAlign: 'center' }}>
+            관리자 또는 운영진만 접근할 수 있습니다.
           </p>
         </div>
       </div>
@@ -522,6 +526,7 @@ function RoundingManagement() {
           </div>
         )}
 
+        {isOfficial && (
         <div className="card" style={{ marginBottom: '16px', padding: 0, overflow: 'hidden' }}>
           <div style={{ 
             padding: '16px 20px', 
@@ -703,6 +708,7 @@ function RoundingManagement() {
             </button>
           </div>
         </div>
+        )}
 
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
           <div style={{ 
@@ -721,30 +727,34 @@ function RoundingManagement() {
               bg: '#FFF3E0', 
               title: '참가자 관리', 
               desc: '참가자 추가/삭제 및 관리',
-              path: `/participant-management?id=${bookingId}`
+              path: `/participant-management?id=${bookingId}`,
+              officialOnly: false
             },
             { 
               icon: '📋', 
               bg: '#F3E5F5', 
               title: '조편성하기', 
               desc: '참가자들을 팀으로 편성',
-              path: `/team-formation?id=${bookingId}`
+              path: `/team-formation?id=${bookingId}`,
+              officialOnly: false
             },
             { 
               icon: '✏️', 
               bg: '#E0F7FA', 
               title: booking.dailyHandicaps ? '결과보기' : '스코어 입력', 
               desc: booking.dailyHandicaps ? '라운딩 결과 및 순위' : '참가자 스코어 입력',
-              path: `/member-score-entry?id=${bookingId}`
+              path: `/member-score-entry?id=${bookingId}`,
+              officialOnly: true
             },
             { 
               icon: '⚙️', 
               bg: '#ECEFF1', 
               title: '그레이드 설정', 
               desc: '핸디캡 그레이드 기준',
-              path: `/grade-settings?id=${bookingId}`
+              path: `/grade-settings?id=${bookingId}`,
+              officialOnly: true
             }
-          ].map((item, idx, arr) => (
+          ].filter(item => !item.officialOnly || isOfficial).map((item, idx, arr) => (
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
