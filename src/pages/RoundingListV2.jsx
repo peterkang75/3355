@@ -404,7 +404,7 @@ function RoundingListV2() {
 
           <div style={{
             padding: '12px 20px',
-            paddingBottom: 'max(12px, env(safe-area-inset-bottom))',
+            paddingBottom: 'max(80px, calc(70px + env(safe-area-inset-bottom)))',
             borderTop: '1px solid #E5E7EB',
             display: 'flex',
             gap: '10px',
