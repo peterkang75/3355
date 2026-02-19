@@ -574,7 +574,27 @@ function Booking() {
   return (
     <div>
       <PageHeader 
-        title="라운딩" 
+        title={
+          <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            라운딩
+            {user.isAdmin && (
+              <span
+                onClick={() => navigate('/v2/roundings')}
+                style={{
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  color: '#FFFFFF',
+                  background: theme.colors.primary,
+                  padding: '2px 8px',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                }}
+              >
+                V2
+              </span>
+            )}
+          </span>
+        }
         rightContent={<ProfileBadge user={user} showGreeting={true} />}
       />
 
