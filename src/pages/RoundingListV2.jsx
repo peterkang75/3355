@@ -336,37 +336,48 @@ function RoundingListV2() {
               {participants.length === 0 ? (
                 <div style={{ fontSize: '13px', color: '#9CA3AF', fontStyle: 'italic' }}>아직 참가자가 없습니다</div>
               ) : (
-                participants.map((p, i) => (
-                  <div key={i} style={{
-                    padding: '8px 0',
-                    borderBottom: i < participants.length - 1 ? '1px solid #E5E7EB' : 'none',
-                    fontSize: '14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                  }}>
-                    <span style={{
-                      width: '28px',
-                      height: '28px',
-                      borderRadius: '50%',
-                      background: p.phone === user.phone ? '#D1FAE5' : '#F3F4F6',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '12px',
-                      fontWeight: '600',
-                      color: p.phone === user.phone ? '#059669' : '#6B7280',
-                    }}>
-                      {i + 1}
-                    </span>
-                    <span style={{ fontWeight: p.phone === user.phone ? '600' : '400', color: theme.colors.text_main }}>
-                      {p.nickname || p.name}
-                    </span>
-                    {p.phone === user.phone && (
-                      <span style={{ fontSize: '11px', color: '#059669', fontWeight: '500' }}>나</span>
-                    )}
-                  </div>
-                ))
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  {participants.map((p, i) => {
+                    const isHost = p.memberId === booking.organizerId;
+                    const isMe = p.phone === user.phone;
+                    const isGuest = p.isGuest;
+                    let chipBg = '#F3F4F6';
+                    let chipColor = theme.colors.text_main;
+                    let chipBorder = 'transparent';
+                    let chipWeight = '500';
+                    if (isHost) {
+                      chipBg = '#FEF3C7';
+                      chipColor = '#92400E';
+                    }
+                    if (isMe) {
+                      chipBg = '#D1FAE5';
+                      chipColor = '#065F46';
+                      chipWeight = '700';
+                    }
+                    if (isGuest) {
+                      chipBg = '#FFFFFF';
+                      chipBorder = '#D1D5DB';
+                      chipColor = '#6B7280';
+                    }
+                    return (
+                      <span key={i} style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '3px',
+                        padding: '4px 12px',
+                        borderRadius: '9999px',
+                        background: chipBg,
+                        color: chipColor,
+                        fontWeight: chipWeight,
+                        fontSize: '13px',
+                        border: `1px solid ${chipBorder}`,
+                        whiteSpace: 'nowrap',
+                      }}>
+                        {isHost && '👑 '}{p.nickname || p.name}
+                      </span>
+                    );
+                  })}
+                </div>
               )}
             </div>
 
