@@ -35,7 +35,10 @@ function RoundingListV2() {
     time: '',
     courseName: '',
     maxMembers: 4,
-    notes: ''
+    notes: '',
+    roundingType: '',
+    timeMode: 'recruit',
+    timeSlot: 'Morning',
   });
   const sheetRef = useRef(null);
 
@@ -108,30 +111,77 @@ function RoundingListV2() {
     }
   };
 
+  const isStrathfield = newRounding.courseName.toLowerCase().includes('strathfield');
+
+  const timeSlotMap = {
+    'Morning': { label: '오전', value: '08:00' },
+    'Afternoon': { label: '오후', value: '13:00' },
+    'Evening': { label: '저녁', value: '17:00' },
+    'TBD': { label: '시간미정', value: '23:59' },
+    'Exact': { label: '직접 입력', value: '' },
+  };
+
   const handleCreateRounding = async () => {
     if (isCreating) return;
-    if (!newRounding.date || !newRounding.time || !newRounding.courseName) {
-      alert('날짜, 시간, 골프장은 필수 입력입니다.');
+    if (!newRounding.courseName) {
+      alert('골프장을 선택해주세요.');
       return;
     }
+
+    let finalDate = newRounding.date;
+    let finalTime = newRounding.time;
+    let playEnabled = false;
+
+    if (newRounding.timeMode === 'now') {
+      const now = new Date();
+      finalDate = now.toISOString().split('T')[0];
+      finalTime = now.toTimeString().slice(0, 5);
+      playEnabled = true;
+    } else {
+      if (!finalDate) {
+        alert('날짜를 선택해주세요.');
+        return;
+      }
+      if (newRounding.timeSlot === 'Exact' && !finalTime) {
+        alert('시간을 입력해주세요.');
+        return;
+      }
+      if (newRounding.timeSlot !== 'Exact') {
+        finalTime = timeSlotMap[newRounding.timeSlot].value;
+      }
+    }
+
+    let title = 'Social Rounding';
+    let type = '소셜';
+    if (isStrathfield) {
+      if (newRounding.roundingType === 'competition') {
+        title = 'Club Competition';
+        type = '컴페티션';
+      } else {
+        title = 'Social Play';
+        type = '소셜';
+      }
+    }
+
     setIsCreating(true);
     try {
       const bookingData = {
-        title: 'Social Rounding',
-        type: '정기모임',
+        title,
+        type,
         isSocial: true,
         courseName: newRounding.courseName,
-        date: newRounding.date,
-        time: newRounding.time,
+        date: finalDate,
+        time: finalTime,
         maxMembers: parseInt(newRounding.maxMembers) || 4,
         notes: newRounding.notes || '',
         organizerId: user.id,
         participants: [JSON.stringify({ name: user.name, nickname: user.nickname, phone: user.phone })],
         isGuestAllowed: true,
+        playEnabled,
       };
       await addBooking(bookingData);
       setShowCreateModal(false);
-      setNewRounding({ date: '', time: '', courseName: '', maxMembers: 4, notes: '' });
+      setNewRounding({ date: '', time: '', courseName: '', maxMembers: 4, notes: '', roundingType: '', timeMode: 'recruit', timeSlot: 'Morning' });
     } catch (err) {
       alert('라운딩 생성에 실패했습니다.');
     } finally {
@@ -499,35 +549,16 @@ function RoundingListV2() {
             <div style={{ width: '36px', height: '4px', background: '#D1D5DB', borderRadius: '2px', margin: '0 auto' }} />
           </div>
           <h3 style={{ fontSize: '18px', fontWeight: '700', color: theme.colors.primary, marginBottom: '0', textAlign: 'center', padding: '8px 20px 16px' }}>
-            소셜 라운딩 만들기
+            라운딩 만들기
           </h3>
           <div style={{ overflowY: 'auto', flex: 1, padding: '0 20px' }}>
 
+          {/* Step 1: Course Selection */}
           <div style={{ marginBottom: '14px' }}>
-            <label style={{ fontSize: '13px', fontWeight: '600', color: theme.colors.text_sub, display: 'block', marginBottom: '6px' }}>날짜</label>
-            <input
-              type="date"
-              value={newRounding.date}
-              onChange={(e) => setNewRounding({ ...newRounding, date: e.target.value })}
-              style={inputStyle}
-            />
-          </div>
-
-          <div style={{ marginBottom: '14px' }}>
-            <label style={{ fontSize: '13px', fontWeight: '600', color: theme.colors.text_sub, display: 'block', marginBottom: '6px' }}>시간</label>
-            <input
-              type="time"
-              value={newRounding.time}
-              onChange={(e) => setNewRounding({ ...newRounding, time: e.target.value })}
-              style={inputStyle}
-            />
-          </div>
-
-          <div style={{ marginBottom: '14px' }}>
-            <label style={{ fontSize: '13px', fontWeight: '600', color: theme.colors.text_sub, display: 'block', marginBottom: '6px' }}>골프장</label>
+            <label style={labelStyle}>골프장</label>
             <select
               value={newRounding.courseName}
-              onChange={(e) => setNewRounding({ ...newRounding, courseName: e.target.value })}
+              onChange={(e) => setNewRounding({ ...newRounding, courseName: e.target.value, roundingType: '' })}
               style={inputStyle}
             >
               <option value="">골프장 선택</option>
@@ -537,41 +568,174 @@ function RoundingListV2() {
             </select>
           </div>
 
-          <div style={{ marginBottom: '14px' }}>
-            <label style={{ fontSize: '13px', fontWeight: '600', color: theme.colors.text_sub, display: 'block', marginBottom: '6px' }}>최대 인원</label>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              {[2, 3, 4, 5, 6, 8].map(n => (
-                <button
-                  key={n}
-                  onClick={() => setNewRounding({ ...newRounding, maxMembers: n })}
-                  style={{
-                    flex: 1,
-                    padding: '10px 0',
-                    borderRadius: '10px',
-                    border: newRounding.maxMembers === n ? `2px solid ${theme.colors.primary}` : '1px solid #E5E7EB',
-                    background: newRounding.maxMembers === n ? '#EBF5F0' : 'white',
-                    color: newRounding.maxMembers === n ? theme.colors.primary : theme.colors.text_sub,
-                    fontWeight: '600',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                  }}
-                >
-                  {n}명
-                </button>
-              ))}
+          {/* Step 2: Rounding Type (only for Strathfield) */}
+          {newRounding.courseName && isStrathfield && (
+            <div style={{ marginBottom: '14px' }}>
+              <label style={labelStyle}>라운딩 타입</label>
+              <div style={{ display: 'flex', borderRadius: '10px', overflow: 'hidden', border: '1px solid #E5E7EB' }}>
+                {[
+                  { key: 'competition', label: '🏆 Club Competition' },
+                  { key: 'social', label: '☕ Social' },
+                ].map(opt => (
+                  <button
+                    key={opt.key}
+                    onClick={() => setNewRounding({ ...newRounding, roundingType: opt.key })}
+                    style={{
+                      flex: 1,
+                      padding: '11px 0',
+                      border: 'none',
+                      background: newRounding.roundingType === opt.key ? theme.colors.primary : '#FFFFFF',
+                      color: newRounding.roundingType === opt.key ? '#FFFFFF' : theme.colors.text_sub,
+                      fontWeight: '600',
+                      fontSize: '13px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          <div style={{ marginBottom: '20px' }}>
-            <label style={{ fontSize: '13px', fontWeight: '600', color: theme.colors.text_sub, display: 'block', marginBottom: '6px' }}>메모 (선택)</label>
-            <textarea
-              value={newRounding.notes}
-              onChange={(e) => setNewRounding({ ...newRounding, notes: e.target.value })}
-              placeholder="추가 정보를 입력하세요"
-              rows={2}
-              style={{ ...inputStyle, resize: 'none' }}
-            />
-          </div>
+          {/* Step 3: Time Mode */}
+          {newRounding.courseName && (
+            <>
+              <div style={{ marginBottom: '14px' }}>
+                <label style={labelStyle}>시간 설정</label>
+                <div style={{ display: 'flex', borderRadius: '10px', overflow: 'hidden', border: '1px solid #E5E7EB' }}>
+                  {[
+                    { key: 'now', label: '⚡ 바로 시작' },
+                    { key: 'recruit', label: '📅 멤버 모집' },
+                  ].map(opt => (
+                    <button
+                      key={opt.key}
+                      onClick={() => setNewRounding({ ...newRounding, timeMode: opt.key, date: '', time: '', timeSlot: 'Morning' })}
+                      style={{
+                        flex: 1,
+                        padding: '11px 0',
+                        border: 'none',
+                        background: newRounding.timeMode === opt.key ? theme.colors.primary : '#FFFFFF',
+                        color: newRounding.timeMode === opt.key ? '#FFFFFF' : theme.colors.text_sub,
+                        fontWeight: '600',
+                        fontSize: '13px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                      }}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {newRounding.timeMode === 'now' ? (
+                <div style={{
+                  marginBottom: '14px',
+                  padding: '14px',
+                  background: '#F0FDF4',
+                  borderRadius: '10px',
+                  textAlign: 'center',
+                  fontSize: '14px',
+                  color: '#065F46',
+                  fontWeight: '500',
+                }}>
+                  ⚡ 바로 시작합니다 — 현재 시간으로 자동 설정됩니다
+                </div>
+              ) : (
+                <>
+                  <div style={{ marginBottom: '14px' }}>
+                    <label style={labelStyle}>날짜</label>
+                    <input
+                      type="date"
+                      value={newRounding.date}
+                      onChange={(e) => setNewRounding({ ...newRounding, date: e.target.value })}
+                      style={inputStyle}
+                    />
+                  </div>
+
+                  <div style={{ marginBottom: '14px' }}>
+                    <label style={labelStyle}>시간대</label>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                      {Object.entries(timeSlotMap).map(([key, { label }]) => (
+                        <button
+                          key={key}
+                          onClick={() => setNewRounding({ ...newRounding, timeSlot: key, time: '' })}
+                          style={{
+                            padding: '9px 16px',
+                            borderRadius: '10px',
+                            border: newRounding.timeSlot === key ? `2px solid ${theme.colors.primary}` : '1px solid #E5E7EB',
+                            background: newRounding.timeSlot === key ? '#EBF5F0' : 'white',
+                            color: newRounding.timeSlot === key ? theme.colors.primary : theme.colors.text_sub,
+                            fontWeight: '600',
+                            fontSize: '13px',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {newRounding.timeSlot === 'Exact' && (
+                    <div style={{ marginBottom: '14px' }}>
+                      <label style={labelStyle}>정확한 시간</label>
+                      <input
+                        type="time"
+                        value={newRounding.time}
+                        onChange={(e) => setNewRounding({ ...newRounding, time: e.target.value })}
+                        style={inputStyle}
+                      />
+                    </div>
+                  )}
+                </>
+              )}
+            </>
+          )}
+
+          {/* Max Members */}
+          {newRounding.courseName && (
+            <div style={{ marginBottom: '14px' }}>
+              <label style={labelStyle}>최대 인원</label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {[2, 3, 4, 5, 6, 8].map(n => (
+                  <button
+                    key={n}
+                    onClick={() => setNewRounding({ ...newRounding, maxMembers: n })}
+                    style={{
+                      flex: 1,
+                      padding: '10px 0',
+                      borderRadius: '10px',
+                      border: newRounding.maxMembers === n ? `2px solid ${theme.colors.primary}` : '1px solid #E5E7EB',
+                      background: newRounding.maxMembers === n ? '#EBF5F0' : 'white',
+                      color: newRounding.maxMembers === n ? theme.colors.primary : theme.colors.text_sub,
+                      fontWeight: '600',
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {n}명
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Notes */}
+          {newRounding.courseName && (
+            <div style={{ marginBottom: '20px' }}>
+              <label style={labelStyle}>메모 (선택)</label>
+              <textarea
+                value={newRounding.notes}
+                onChange={(e) => setNewRounding({ ...newRounding, notes: e.target.value })}
+                placeholder="추가 정보를 입력하세요"
+                rows={2}
+                style={{ ...inputStyle, resize: 'none' }}
+              />
+            </div>
+          )}
 
           </div>
 
@@ -688,6 +852,14 @@ function RoundingListV2() {
     </div>
   );
 }
+
+const labelStyle = {
+  fontSize: '13px',
+  fontWeight: '600',
+  color: '#6B7280',
+  display: 'block',
+  marginBottom: '6px',
+};
 
 const inputStyle = {
   width: '100%',

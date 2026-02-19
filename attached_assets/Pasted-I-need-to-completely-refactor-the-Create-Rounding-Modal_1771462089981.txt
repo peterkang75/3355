@@ -1,0 +1,39 @@
+I need to **completely refactor the "Create Rounding" Modal logic** in `RoundingListV2.jsx` to improve the UX.
+
+**Current Issue:** The form flow is illogical.
+**Goal:** Implement a "Course-First" flow with conditional logic for "Strathfield" and simplified time selection for recruiting.
+
+**Required Changes (Step-by-Step Logic):**
+
+**1. Step 1: Course Selection (MUST BE FIRST)**
+* **UI:** Move the "Golf Course" dropdown to the **very top** of the modal.
+* **Logic:** The user must select a course *before* seeing other options.
+
+**2. Step 2: Rounding Type Logic (Dependent on Course)**
+* **Condition:** IF `courseName` includes "Strathfield":
+    * Show a Toggle/Segmented Control: **[🏆 Club Competition]** vs **[☕ Social]**.
+    * *Logic:*
+        * **Competition:** Sets `type="컴페티션"`, `title="Club Competition"`.
+        * **Social:** Sets `type="소셜"`, `title="Social Play"`.
+* **Condition:** IF `courseName` is NOT "Strathfield":
+    * Hide the toggle.
+    * Automatically set `type="소셜"`, `title="Social Rounding"`.
+
+**3. Step 3: Date & Time Logic (Play Now vs Recruit)**
+* Show two tabs for Time Mode: **[⚡ Play Now]** vs **[📅 Recruit Members]**.
+
+    * **Mode A: [⚡ Play Now] (Instant Start)**
+        * **UI:** Hide Date/Time inputs. Show text: "Starting immediately."
+        * **Data:** On submit, set `date = today`, `time = current HH:mm`, `playEnabled = true`.
+
+    * **Mode B: [📅 Recruit Members] (Booking)**
+        * **UI:** Show **Date Picker**.
+        * **UI:** Instead of an exact Time Picker, show a **"Time Slot" Dropdown**:
+            * Options:
+                * `"Morning"` (Display: "오전", Value: "08:00")
+                * `"Afternoon"` (Display: "오후", Value: "13:00")
+                * `"Evening"` (Display: "저녁", Value: "17:00")
+                * `"TBD"` (Display: "시간미정", Value: "23:59")
+                * `"Exact Time"` (If selected, show the standard HH:mm input)
+        * **Data Storage:**
+            * Save the `Value` (e.g., "08:00") to the DB `time` field (for sorting).
