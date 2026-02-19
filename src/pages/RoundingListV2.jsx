@@ -1238,16 +1238,41 @@ function RoundingListV2() {
 
       <div style={{ padding: '20px 16px 100px' }}>
         {officialRoundings.length > 0 && (
-          <div style={{ marginBottom: '28px' }}>
-            <div style={{ fontSize: '12px', fontWeight: '700', color: '#6B7280', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+          <div style={{ marginBottom: '12px' }}>
+            <div style={{ 
+              fontSize: '16px', 
+              fontWeight: '800', 
+              color: '#1F2937', 
+              marginBottom: '14px', 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '8px' 
+            }}>
+              <span style={{ fontSize: '18px' }}>🏆</span>
               정기모임
             </div>
             {officialRoundings.map(renderOfficialCard)}
           </div>
         )}
 
+        {officialRoundings.length > 0 && socialRoundings.length > 0 && (
+          <div style={{ 
+            margin: '24px 0', 
+            borderTop: '1px solid #E5E7EB', 
+          }} />
+        )}
+
         <div>
-          <div style={{ fontSize: '12px', fontWeight: '700', color: '#6B7280', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
+          <div style={{ 
+            fontSize: '16px', 
+            fontWeight: '800', 
+            color: '#1F2937', 
+            marginBottom: '14px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '8px' 
+          }}>
+            <span style={{ fontSize: '18px' }}>⛳</span>
             소셜 라운딩
           </div>
           {socialRoundings.length === 0 ? (
