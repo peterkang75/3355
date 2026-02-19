@@ -315,10 +315,10 @@ function RoundingListV2() {
     const typeLabel = booking.title || booking.type || '';
     let bg = '#FFEDD5';
     let color = '#9A3412';
-    if (typeLabel.includes('컴페티션')) { bg = '#DBEAFE'; color = '#1E40AF'; }
+    if (typeLabel.includes('컴페티션')) { bg = '#1E293B'; color = '#FFFFFF'; }
     else if (typeLabel.includes('그린피')) { bg = '#D1FAE5'; color = '#065F46'; }
     else if (typeLabel.includes('소셜') || typeLabel.includes('Social')) { bg = '#FFEDD5'; color = '#9A3412'; }
-    else if (typeLabel.includes('정기')) { bg = '#FEF3C7'; color = '#92400E'; }
+    else if (typeLabel.includes('정기')) { bg = '#BF4D34'; color = '#FFFFFF'; }
     if (!typeLabel) return null;
     return (
       <span style={{
