@@ -1,0 +1,35 @@
+I need to perform a **Major Visual Redesign** of `RoundingListV2.jsx` to make it look modern, sophisticated, and consistent with the app's theme.
+
+**1. Header Redesign (Consistency):**
+* **Background:** Use the App's Primary Dark Green theme color (e.g., `bg-[#1a3d47]`) instead of white.
+* **Text:** Change title text color to `text-white`.
+* **Layout:** Clean and simple "Rounding Lounge". Remove any clutter.
+
+**2. Card Redesign (Modern & Airy):**
+* **Remove:** The solid dark green background blocks and thick borders. They look outdated.
+* **New Base Style:**
+    * **Background:** Clean White (`bg-white`).
+    * **Shadow:** Soft, elevated shadow (`shadow-md`).
+    * **Border:** None (remove `border-2`). Use `rounded-2xl` for smooth corners.
+    * **Padding:** Increase internal padding (`p-5`) for better whitespace.
+
+**3. "Rounding Type Badge" System (Top of Card):**
+* **Requirement:** Display a small, pill-shaped badge indicating the rounding type as the **very first element** in the card.
+* **Color Logic (Pastel Tones):**
+    * **"정기모임" (Official):** `bg-amber-100 text-amber-800` (Gold/Premium look).
+    * **"컴페티션" (Competition):** `bg-blue-100 text-blue-800` (Sporty/Blue).
+    * **"그린피" (Green Fee):** `bg-emerald-100 text-emerald-800` (Nature/Green).
+    * **"소셜" (Social) / Default:** `bg-orange-100 text-orange-800` (Warm/Casual).
+* **Style:** `text-xs font-bold px-2.5 py-1 rounded-full mb-3 inline-block`.
+
+**4. Visual Accents per Type:**
+* **Official Rounding:** Add a **Gold Left Border Accent** (`border-l-4 border-amber-500`) to the white card to make it stand out subtly.
+* **Social Rounding:** Keep it clean and borderless (just shadow).
+
+**5. Typography Updates:**
+* **Course Name:** Bold, Dark Gray (`text-gray-900`).
+* **Time:** Use a distinct color (e.g., `text-blue-600` or `text-gray-600`) and font weight.
+* **Participants:** Keep the text summary logic but ensure it's readable (`text-gray-500 text-sm`).
+
+**Goal:**
+Transform the list from a "Database Table look" to a **"Modern App Feed look"** (like Airbnb or Eventbrite). Focus on whitespace, shadows, and the new Badge system instead of heavy outlines.

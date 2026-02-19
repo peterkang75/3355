@@ -313,23 +313,22 @@ function RoundingListV2() {
 
   const getTypeBadge = (booking) => {
     const typeLabel = booking.title || booking.type || '';
-    let bg = '#BF4D34';
-    let color = 'white';
-    if (typeLabel.includes('컴페티션')) { bg = '#2d5355'; color = 'white'; }
-    else if (typeLabel.includes('그린피')) { bg = '#1E40AF'; color = 'white'; }
-    else if (typeLabel.includes('소셜') || typeLabel.includes('Social')) { bg = '#059669'; color = 'white'; }
-    else if (typeLabel.includes('정기')) { bg = '#BF4D34'; color = 'white'; }
+    let bg = '#FFEDD5';
+    let color = '#9A3412';
+    if (typeLabel.includes('컴페티션')) { bg = '#DBEAFE'; color = '#1E40AF'; }
+    else if (typeLabel.includes('그린피')) { bg = '#D1FAE5'; color = '#065F46'; }
+    else if (typeLabel.includes('소셜') || typeLabel.includes('Social')) { bg = '#FFEDD5'; color = '#9A3412'; }
+    else if (typeLabel.includes('정기')) { bg = '#FEF3C7'; color = '#92400E'; }
     if (!typeLabel) return null;
     return (
       <span style={{
         fontSize: '11px',
         fontWeight: '700',
         padding: '4px 10px',
-        borderRadius: '6px',
+        borderRadius: '9999px',
         background: bg,
         color: color,
         display: 'inline-block',
-        marginBottom: '6px',
       }}>
         {typeLabel}
       </span>
@@ -362,57 +361,36 @@ function RoundingListV2() {
         key={booking.id}
         onClick={() => setSelectedBooking(booking)}
         style={{
-          background: 'linear-gradient(135deg, #1A3D2F 0%, #2D5A45 100%)',
-          borderRadius: '14px',
-          padding: '18px',
+          background: '#FFFFFF',
+          borderRadius: '16px',
+          padding: '20px',
           marginBottom: '12px',
           cursor: 'pointer',
-          border: '1px solid #D4AF37',
-          position: 'relative',
-          overflow: 'hidden',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          borderLeft: '4px solid #D97706',
+          transition: 'transform 0.15s, box-shadow 0.15s',
         }}
       >
-        <div style={{ marginBottom: '6px' }}>
-          {(() => {
-            const typeLabel = booking.title || booking.type || '정기모임';
-            const isComp = typeLabel.includes('컴페티션');
-            const bg = isComp ? '#2d5355' : '#BF4D34';
-            return (
-              <span style={{
-                fontSize: '11px',
-                fontWeight: '700',
-                padding: '4px 10px',
-                borderRadius: '6px',
-                background: bg,
-                color: 'white',
-              }}>
-                {typeLabel}
-              </span>
-            );
-          })()}
+        <div style={{ marginBottom: '12px' }}>
+          {getTypeBadge(booking)}
         </div>
-        <div style={{ color: '#D4AF37', fontSize: '13px', fontWeight: '600', marginBottom: '4px' }}>
-          {formatDate(booking.date)}
-        </div>
-        <div style={{ color: '#FFFFFF', fontSize: '18px', fontWeight: '700', marginBottom: '6px' }}>
+        <div style={{ fontSize: '17px', fontWeight: '700', color: '#111827', marginBottom: '6px' }}>
           {booking.courseName}
         </div>
-        <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <span>{booking.time}</span>
+        <div style={{ fontSize: '13px', color: '#6B7280', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
+          <span style={{ color: '#2563EB', fontWeight: '600' }}>{formatDate(booking.date)}</span>
           <span>·</span>
+          <span>{booking.time}</span>
+        </div>
+        <div style={{ fontSize: '13px', color: '#9CA3AF', display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span>{participants.length}명 참가</span>
           {isJoined && (
             <>
               <span>·</span>
-              <span style={{ color: '#D4AF37' }}>참가중</span>
+              <span style={{ color: '#059669', fontWeight: '600' }}>참가중</span>
             </>
           )}
         </div>
-        {booking.title && (
-          <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', marginTop: '6px' }}>
-            {booking.title}
-          </div>
-        )}
       </div>
     );
   };
@@ -426,33 +404,28 @@ function RoundingListV2() {
         onClick={() => setSelectedBooking(booking)}
         style={{
           background: '#FFFFFF',
-          borderRadius: '14px',
-          padding: '16px',
-          marginBottom: '10px',
+          borderRadius: '16px',
+          padding: '20px',
+          marginBottom: '12px',
           cursor: 'pointer',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
-          border: isJoined ? '2px solid #10B981' : '1px solid #E5E7EB',
-          transition: 'transform 0.15s',
+          boxShadow: isJoined ? '0 2px 8px rgba(16, 185, 129, 0.2)' : '0 2px 8px rgba(0,0,0,0.06)',
+          border: isJoined ? '1px solid #A7F3D0' : 'none',
+          transition: 'transform 0.15s, box-shadow 0.15s',
         }}
       >
-        <div style={{ marginBottom: '6px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
           {getTypeBadge(booking)}
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-          <div>
-            <div style={{ fontSize: '15px', fontWeight: '700', color: theme.colors.text_main, marginBottom: '4px' }}>
-              {booking.courseName}
-            </div>
-            <div style={{ fontSize: '13px', color: theme.colors.text_sub, display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <span style={{ fontWeight: '500' }}>주최: {getMemberName(booking.organizerId)}</span>
-              <span style={{ margin: '0 4px', color: '#D1D5DB' }}>|</span>
-              <span style={{ color: '#9CA3AF' }}>{formatDate(booking.date)}</span>
-            </div>
-          </div>
           {getStatusBadge(booking)}
         </div>
-
-        <div style={{ fontSize: '13px', color: theme.colors.text_sub }}>
+        <div style={{ fontSize: '16px', fontWeight: '700', color: '#111827', marginBottom: '6px' }}>
+          {booking.courseName}
+        </div>
+        <div style={{ fontSize: '13px', color: '#6B7280', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px' }}>
+          <span style={{ fontWeight: '500' }}>주최: {getMemberName(booking.organizerId)}</span>
+          <span style={{ margin: '0 4px', color: '#D1D5DB' }}>|</span>
+          <span style={{ color: '#9CA3AF' }}>{formatDate(booking.date)}</span>
+        </div>
+        <div style={{ fontSize: '13px', color: '#9CA3AF' }}>
           {renderParticipantsSummary(booking)}
         </div>
       </div>
@@ -1188,28 +1161,27 @@ function RoundingListV2() {
   };
 
   return (
-    <div style={{ background: theme.colors.bg_app, minHeight: '100vh' }}>
+    <div style={{ background: '#F3F4F6', minHeight: '100vh' }}>
       <div style={{
         position: 'sticky',
         top: 0,
         zIndex: 100,
-        background: 'white',
-        borderBottom: '1px solid #E5E7EB',
-        padding: '14px 20px',
+        background: '#1A3D2F',
+        padding: '16px 20px',
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
       }}>
-        <h1 style={{ fontSize: '20px', fontWeight: '700', color: theme.colors.primary, margin: 0 }}>
-          라운딩
+        <h1 style={{ fontSize: '20px', fontWeight: '700', color: '#FFFFFF', margin: 0 }}>
+          라운딩 라운지
         </h1>
         <ProfileBadge user={user} showGreeting={false} />
       </div>
 
-      <div style={{ padding: '16px 16px 100px' }}>
+      <div style={{ padding: '20px 16px 100px' }}>
         {officialRoundings.length > 0 && (
-          <div style={{ marginBottom: '24px' }}>
-            <div style={{ fontSize: '13px', fontWeight: '600', color: theme.colors.text_sub, marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          <div style={{ marginBottom: '28px' }}>
+            <div style={{ fontSize: '12px', fontWeight: '700', color: '#6B7280', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
               정기모임
             </div>
             {officialRoundings.map(renderOfficialCard)}
@@ -1217,19 +1189,22 @@ function RoundingListV2() {
         )}
 
         <div>
-          <div style={{ fontSize: '13px', fontWeight: '600', color: theme.colors.text_sub, marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+          <div style={{ fontSize: '12px', fontWeight: '700', color: '#6B7280', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '1px' }}>
             소셜 라운딩
           </div>
           {socialRoundings.length === 0 ? (
             <div style={{
               textAlign: 'center',
-              padding: '40px 20px',
+              padding: '48px 20px',
               color: '#9CA3AF',
               fontSize: '14px',
+              background: '#FFFFFF',
+              borderRadius: '16px',
+              boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
             }}>
               <div style={{ fontSize: '40px', marginBottom: '12px' }}>⛳</div>
-              <div>아직 소셜 라운딩이 없습니다</div>
-              <div style={{ marginTop: '4px', fontSize: '13px' }}>+ 버튼을 눌러 라운딩을 만들어보세요</div>
+              <div style={{ fontWeight: '500' }}>아직 소셜 라운딩이 없습니다</div>
+              <div style={{ marginTop: '6px', fontSize: '13px', color: '#D1D5DB' }}>+ 버튼을 눌러 라운딩을 만들어보세요</div>
             </div>
           ) : (
             socialRoundings.map(renderSocialCard)
