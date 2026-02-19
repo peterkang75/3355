@@ -564,7 +564,7 @@ function RoundingListV2() {
 
           </div>
 
-          <div style={{ padding: '12px 20px', paddingBottom: 'max(80px, calc(70px + env(safe-area-inset-bottom)))' }}>
+          <div style={{ padding: '12px 20px', paddingBottom: 'max(100px, calc(90px + env(safe-area-inset-bottom)))' }}>
             <button
               onClick={handleCreateRounding}
               disabled={isCreating}
