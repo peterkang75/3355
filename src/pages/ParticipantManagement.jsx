@@ -234,18 +234,8 @@ function ParticipantManagement() {
   };
 
   const hasAdminAccess = user?.role === '관리자' || user?.role === '방장' || user?.role === '운영진' || user?.role === '클럽운영진' || user?.isAdmin;
-  
-  if (!hasAdminAccess) {
-    return (
-      <div className="page-content">
-        <div className="card">
-          <p style={{ textAlign: 'center', opacity: 0.7 }}>
-            관리자 또는 운영진만 접근할 수 있습니다.
-          </p>
-        </div>
-      </div>
-    );
-  }
+  const isOrganizer = booking && user?.id === booking.organizerId;
+  const canAccess = hasAdminAccess || isOrganizer;
 
   if (!booking) {
     return (
@@ -253,6 +243,18 @@ function ParticipantManagement() {
         <div className="card">
           <p style={{ textAlign: 'center', opacity: 0.7 }}>
             라운딩을 찾을 수 없습니다.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!canAccess) {
+    return (
+      <div className="page-content">
+        <div className="card">
+          <p style={{ textAlign: 'center', opacity: 0.7 }}>
+            관리자 또는 운영진만 접근할 수 있습니다.
           </p>
         </div>
       </div>

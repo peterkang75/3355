@@ -203,8 +203,9 @@ function TeamFormation() {
 
   const handleSlotClick = (teamIndex, slotIndex, currentMember) => {
     const hasAdminAccess = user?.role === '관리자' || user?.role === '방장' || user?.role === '운영진' || user?.role === '클럽운영진' || user?.isAdmin;
+    const isOrganizer = booking && user?.id === booking.organizerId;
     
-    if (!hasAdminAccess) {
+    if (!hasAdminAccess && !isOrganizer) {
       return;
     }
     
@@ -491,6 +492,8 @@ function TeamFormation() {
   };
 
   const hasAdminAccess = user?.role === '관리자' || user?.role === '방장' || user?.role === '운영진' || user?.role === '클럽운영진' || user?.isAdmin;
+  const isOrganizerAccess = booking && user?.id === booking.organizerId;
+  const canAccess = hasAdminAccess || isOrganizerAccess;
 
   if (!booking) {
     return (
@@ -508,7 +511,7 @@ function TeamFormation() {
     <div>
       <PageHeader 
         title="조편성"
-        onBack={() => hasAdminAccess ? navigate(`/rounding-management?id=${bookingId}`) : navigate('/booking')}
+        onBack={() => canAccess ? navigate(`/rounding-management?id=${bookingId}`) : navigate('/booking')}
         rightContent={<ProfileBadge user={user} onClick={() => navigate('/mypage')} />}
       />
 
@@ -535,7 +538,7 @@ function TeamFormation() {
           </div>
         </div>
 
-        {hasAdminAccess && (
+        {canAccess && (
           <div style={{ display: 'flex', gap: '6px', marginBottom: '16px', alignItems: 'stretch' }}>
             <LoadingButton
               onClick={handleAutoAssign}
@@ -625,7 +628,7 @@ function TeamFormation() {
           </div>
         )}
 
-        {hasAdminAccess && (
+        {canAccess && (
           <button
             onClick={() => navigate(`/play?id=${bookingId}`)}
             style={{
@@ -850,7 +853,7 @@ function TeamFormation() {
                 </h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '13px', color: '#666' }}>⏰</span>
-                  {hasAdminAccess ? (
+                  {canAccess ? (
                     <input
                       type="time"
                       value={team.teeTime || ''}
