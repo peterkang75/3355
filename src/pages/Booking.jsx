@@ -579,18 +579,19 @@ function Booking() {
             라운딩
             {user.role === '관리자' && (
               <span
-                onClick={() => navigate('/v2/roundings')}
+                onClick={(e) => { e.stopPropagation(); navigate('/v2/roundings'); }}
                 style={{
-                  fontSize: '12px',
+                  fontSize: '11px',
                   fontWeight: '700',
-                  color: '#FFFFFF',
-                  background: theme.colors.primary,
-                  padding: '2px 8px',
-                  borderRadius: '6px',
+                  color: '#D97706',
+                  background: '#FEF3C7',
+                  padding: '3px 10px',
+                  borderRadius: '9999px',
                   cursor: 'pointer',
+                  border: '1px solid #FDE68A',
                 }}
               >
-                V2
+                V2 라운지
               </span>
             )}
           </span>
