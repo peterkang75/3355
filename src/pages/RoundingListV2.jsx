@@ -345,27 +345,39 @@ function RoundingListV2() {
           transition: 'transform 0.15s',
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px' }}>
-            <span style={{ fontSize: '22px', fontWeight: '700', color: theme.colors.primary, lineHeight: 1 }}>
-              {booking.time}
-            </span>
-            <span style={{ fontSize: '15px', fontWeight: '600', color: theme.colors.text_main }}>
-              {booking.courseName}
-            </span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <span style={{ fontSize: '15px', fontWeight: '700', color: theme.colors.text_main }}>
+                {booking.courseName}
+              </span>
+              {(() => {
+                const typeLabel = booking.title || booking.type || '소셜 라운딩';
+                const isCompetition = typeLabel.includes('컴페티션');
+                return (
+                  <span style={{
+                    fontSize: '10px',
+                    fontWeight: '600',
+                    padding: '2px 8px',
+                    borderRadius: '8px',
+                    background: isCompetition ? '#FEF3C7' : '#F0FDF4',
+                    color: isCompetition ? '#92400E' : '#065F46',
+                  }}>
+                    {typeLabel}
+                  </span>
+                );
+              })()}
+            </div>
+            <div style={{ fontSize: '13px', color: theme.colors.text_sub, display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontWeight: '500' }}>주최: {getMemberName(booking.organizerId)}</span>
+              <span style={{ margin: '0 4px', color: '#D1D5DB' }}>|</span>
+              <span style={{ color: '#9CA3AF' }}>{formatDate(booking.date)}</span>
+            </div>
           </div>
           {getStatusBadge(booking)}
         </div>
 
-        <div style={{ fontSize: '13px', color: theme.colors.text_sub, marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <span style={{ fontSize: '14px' }}>👑</span>
-          <span style={{ fontWeight: '500' }}>{getMemberName(booking.organizerId)}</span>
-          <span style={{ margin: '0 4px', color: '#D1D5DB' }}>|</span>
-          <span style={{ color: '#9CA3AF' }}>{formatDate(booking.date)}</span>
-        </div>
-
-        <div style={{ fontSize: '13px', color: theme.colors.text_sub, display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <span style={{ color: '#9CA3AF' }}>⛳</span>
+        <div style={{ fontSize: '13px', color: theme.colors.text_sub }}>
           {renderParticipantsSummary(booking)}
         </div>
       </div>
