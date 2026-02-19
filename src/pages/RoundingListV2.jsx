@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import theme from '../styles/theme';
 import { ProfileBadge } from '../components/common';
 
@@ -25,6 +25,7 @@ const isBookingActive = (booking) => {
 function RoundingListV2() {
   const { user, bookings, members, courses, addBooking, updateBooking } = useApp();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -57,6 +58,17 @@ function RoundingListV2() {
   });
   const isAdmin = user.role === '관리자';
   const sheetRef = useRef(null);
+
+  useEffect(() => {
+    const idParam = searchParams.get('id');
+    if (idParam && bookings.length > 0) {
+      const found = bookings.find(b => b.id === idParam);
+      if (found) {
+        setSelectedBooking(found);
+        setSearchParams({}, { replace: true });
+      }
+    }
+  }, [searchParams, bookings]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -390,6 +402,33 @@ function RoundingListV2() {
     );
   };
 
+  const handleShare = async (booking) => {
+    const shareUrl = `${window.location.origin}/v2/roundings?id=${booking.id}`;
+    const shareText = `${booking.courseName} ${formatDate(booking.date)} 라운딩에 참가하세요!`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: '라운딩 초대',
+          text: shareText,
+          url: shareUrl,
+        });
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          await navigator.clipboard.writeText(shareUrl);
+          alert('링크가 복사되었습니다!');
+        }
+      }
+    } else {
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        alert('링크가 복사되었습니다!');
+      } catch {
+        prompt('아래 링크를 복사하세요:', shareUrl);
+      }
+    }
+  };
+
   const renderBottomSheet = () => {
     if (!selectedBooking) return null;
     const booking = bookings.find(b => b.id === selectedBooking.id) || selectedBooking;
@@ -437,7 +476,27 @@ function RoundingListV2() {
                   {formatDate(booking.date)} · {booking.time}
                 </div>
               </div>
-              {getStatusBadge(booking)}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleShare(booking); }}
+                  style={{
+                    width: '36px',
+                    height: '36px',
+                    borderRadius: '50%',
+                    border: '1px solid #E5E7EB',
+                    background: '#F9FAFB',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '16px',
+                  }}
+                  title="공유"
+                >
+                  📤
+                </button>
+                {getStatusBadge(booking)}
+              </div>
             </div>
 
             <div style={{ fontSize: '13px', color: theme.colors.text_sub, marginBottom: '14px' }}>
