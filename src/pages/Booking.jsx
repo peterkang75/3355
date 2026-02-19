@@ -577,7 +577,7 @@ function Booking() {
         title={
           <span style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             라운딩
-            {user.role === '관리자' && (
+            {(user?.role === '관리자' || user?.isAdmin) && (
               <span
                 onClick={(e) => { e.stopPropagation(); navigate('/v2/roundings'); }}
                 style={{
