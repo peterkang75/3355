@@ -376,16 +376,14 @@ function RoundingListV2() {
           transition: 'transform 0.15s, box-shadow 0.15s',
         }}
       >
-        <div style={{ marginBottom: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
           {getTypeBadge(booking)}
+          <span style={{ fontSize: '13px', color: '#2563EB', fontWeight: '700' }}>{formatDate(booking.date)}</span>
+          <span style={{ fontSize: '13px', color: '#9CA3AF' }}>·</span>
+          <span style={{ fontSize: '13px', color: '#6B7280' }}>{booking.time}</span>
         </div>
         <div style={{ fontSize: '17px', fontWeight: '700', color: '#111827', marginBottom: '6px' }}>
           {booking.courseName}
-        </div>
-        <div style={{ fontSize: '13px', color: '#6B7280', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
-          <span style={{ color: '#2563EB', fontWeight: '600' }}>{formatDate(booking.date)}</span>
-          <span>·</span>
-          <span>{booking.time}</span>
         </div>
         <div style={{ fontSize: '13px', color: '#9CA3AF', display: 'flex', alignItems: 'center', gap: '6px' }}>
           <span>{participants.length}명 참가</span>
@@ -419,7 +417,12 @@ function RoundingListV2() {
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-          {getTypeBadge(booking)}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {getTypeBadge(booking)}
+            <span style={{ fontSize: '13px', color: '#2563EB', fontWeight: '700' }}>{formatDate(booking.date)}</span>
+            <span style={{ fontSize: '13px', color: '#9CA3AF' }}>·</span>
+            <span style={{ fontSize: '13px', color: '#6B7280' }}>{booking.time}</span>
+          </div>
           {getStatusBadge(booking)}
         </div>
         <div style={{ fontSize: '16px', fontWeight: '700', color: '#111827', marginBottom: '6px' }}>
@@ -427,8 +430,6 @@ function RoundingListV2() {
         </div>
         <div style={{ fontSize: '13px', color: '#6B7280', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '8px' }}>
           <span style={{ fontWeight: '500' }}>주최: {getMemberName(booking.organizerId)}</span>
-          <span style={{ margin: '0 4px', color: '#D1D5DB' }}>|</span>
-          <span style={{ color: '#9CA3AF' }}>{formatDate(booking.date)}</span>
         </div>
         <div style={{ fontSize: '13px', color: '#9CA3AF' }}>
           {renderParticipantsSummary(booking)}
