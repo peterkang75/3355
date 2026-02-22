@@ -312,19 +312,11 @@ class ApiService {
   }
 
   async deleteScore(id) {
-    const response = await fetch(`${API_BASE}/scores/${id}`, {
-      method: 'DELETE'
-    });
-    if (!response.ok) throw new Error('Failed to delete score');
-    return response.json();
+    throw new Error('스코어 삭제가 비활성화되었습니다.');
   }
 
   async deleteBookingScores(date, courseName) {
-    const response = await fetch(`${API_BASE}/scores/booking/${encodeURIComponent(date)}/${encodeURIComponent(courseName)}`, {
-      method: 'DELETE'
-    });
-    if (!response.ok) throw new Error('Failed to delete booking scores');
-    return response.json();
+    throw new Error('스코어 삭제가 비활성화되었습니다.');
   }
 
   async fetchCourses() {

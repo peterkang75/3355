@@ -5759,35 +5759,6 @@ function Admin() {
                   <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
                     전체 스코어 ({allScoresData.length}건)
                   </h3>
-                  {selectedScoreIds.length > 0 && (
-                    <button
-                      onClick={async () => {
-                        if (!confirm(`선택한 ${selectedScoreIds.length}개의 스코어를 삭제하시겠습니까?`)) return;
-                        try {
-                          for (const id of selectedScoreIds) {
-                            await fetch(`/api/scores/${id}`, { method: 'DELETE' });
-                          }
-                          setAllScoresData(prev => prev.filter(s => !selectedScoreIds.includes(s.id)));
-                          setSelectedScoreIds([]);
-                        } catch (e) {
-                          console.error('스코어 삭제 에러:', e);
-                          alert('삭제에 실패했습니다.');
-                        }
-                      }}
-                      style={{
-                        padding: '8px 16px',
-                        background: 'var(--alert-red)',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      선택 삭제 ({selectedScoreIds.length})
-                    </button>
-                  )}
                 </div>
                 {allScoresData.length === 0 ? (
                   <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
@@ -6307,25 +6278,15 @@ function Admin() {
                         수정
                       </button>
                       <button
-                        onClick={async () => {
-                          if (window.confirm('이 스코어를 삭제하시겠습니까?')) {
-                            try {
-                              await fetch(`/api/scores/${selectedPlayerForScore.id}`, { method: 'DELETE' });
-                              setRoundScores(prev => prev.filter(s => s.id !== selectedPlayerForScore.id));
-                              setScoreManagementView('leaderboard');
-                              setSelectedPlayerForScore(null);
-                            } catch (e) {
-                              console.error('삭제 에러:', e);
-                              alert('삭제에 실패했습니다');
-                            }
-                          }
+                        onClick={() => {
+                          alert('스코어는 삭제할 수 없습니다.');
                         }}
                         style={{
-                          background: '#e74c3c',
+                          background: '#ccc',
                           border: 'none',
                           borderRadius: '6px',
                           padding: '8px 16px',
-                          color: 'white',
+                          color: '#999',
                           fontSize: '14px',
                           fontWeight: '600',
                           cursor: 'pointer'

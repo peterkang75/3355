@@ -257,30 +257,8 @@ function MemberScoreEntry() {
   };
 
   const handleDeleteAllScores = async () => {
-    if (!window.confirm('정말 모든 스코어를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.')) {
-      return;
-    }
-
-    setSaving(true);
-    
-    try {
-      await apiService.deleteBookingScores(booking.date, booking.courseName);
-      
-      alert('모든 스코어가 삭제되었습니다.');
-      
-      setLeaderboard(null);
-      
-      const initialScores = {};
-      participants.forEach(p => {
-        initialScores[p.phone] = '';
-      });
-      setScores(initialScores);
-    } catch (error) {
-      console.error('스코어 삭제 실패:', error);
-      alert('스코어 삭제에 실패했습니다.');
-    } finally {
-      setSaving(false);
-    }
+    alert('스코어는 삭제할 수 없습니다.');
+    return;
   };
 
   const handleSaveScores = async () => {

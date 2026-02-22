@@ -1850,63 +1850,26 @@ function Play() {
                 {isEndingRound ? '처리중...' : '스코어 저장하고 종료하기'}
               </button>
               <button
-                onClick={async () => {
-                  if (isEndingRound) return;
-                  
-                  if (!confirm('저장하지 않고 종료하면 현재까지 입력한 점수가 모두 삭제됩니다. 계속하시겠습니까?')) {
+                onClick={() => {
+                  if (!confirm('입력 화면을 나가시겠습니까? 이미 저장된 스코어는 유지됩니다.')) {
                     return;
                   }
-                  
-                  // 즉시 자동저장 타이머 취소
-                  if (serverSaveTimerRef.current) {
-                    clearTimeout(serverSaveTimerRef.current);
-                    serverSaveTimerRef.current = null;
-                  }
-                  skipAutoSaveRef.current = true;
-                  setIsEndingRound(true);
-                  
-                  try {
-                    const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
-                    const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
-                    
-                    // 팀원 스코어 삭제
-                    await fetch(`/api/scores/member/${encodeURIComponent(teammateMemberId)}/${encodeURIComponent(scoreDate)}/${encodeURIComponent(booking?.title || '')}`, {
-                      method: 'DELETE'
-                    }).catch(() => {});
-                    
-                    // 내 스코어 삭제
-                    await fetch(`/api/scores/member/${encodeURIComponent(user.id)}/${encodeURIComponent(scoreDate)}/${encodeURIComponent(booking?.title || '')}`, {
-                      method: 'DELETE'
-                    }).catch(() => {});
-                    
-                    // 서버 저장 상태 초기화
-                    lastSavedScoresRef.current = null;
-                    
-                    sessionStorage.removeItem(`play_state_${bookingId}`);
-                    setShowEndRoundModal(false);
-                    navigate(-1);
-                  } catch (e) {
-                    console.error('스코어 삭제 오류:', e);
-                    alert('처리 중 오류가 발생했습니다.');
-                    skipAutoSaveRef.current = false;
-                  } finally {
-                    setIsEndingRound(false);
-                  }
+                  sessionStorage.removeItem(`play_state_${bookingId}`);
+                  setShowEndRoundModal(false);
+                  navigate(-1);
                 }}
-                disabled={isEndingRound}
                 style={{
                   padding: '14px',
-                  background: isEndingRound ? '#999' : '#e74c3c',
+                  background: '#6b7280',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
                   fontWeight: '700',
                   fontSize: '15px',
-                  cursor: isEndingRound ? 'not-allowed' : 'pointer',
-                  opacity: isEndingRound ? 0.7 : 1
+                  cursor: 'pointer'
                 }}
               >
-                {isEndingRound ? '처리중...' : '저장하지않고 종료하기'}
+                종료하기
               </button>
               <button
                 onClick={() => setShowEndRoundModal(false)}

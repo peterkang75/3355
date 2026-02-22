@@ -317,26 +317,12 @@ function MemberDetail() {
   };
 
   const handleDeleteScore = async (scoreId) => {
-    if (!confirm('정말로 이 스코어를 삭제하시겠습니까?')) return;
-
+    alert('스코어는 삭제할 수 없습니다.');
+    return;
     try {
-      await apiService.deleteScore(scoreId);
-      
-      const updatedScores = await apiService.fetchScores(id);
-      setScores(updatedScores || []);
-      
-      const validScores = (updatedScores || []).filter(s => s.totalScore && s.totalScore > 0);
-      const calculatedHandicap = calculateHandicap(member, validScores);
-      
-      await apiService.updateMember(id, { 
-        handicap: String(calculatedHandicap.value) 
-      });
-      await refreshMembers();
-      
-      alert('스코어가 삭제되고 핸디캡이 업데이트되었습니다!');
+      console.log('Score deletion is disabled');
     } catch (error) {
       console.error('스코어 삭제 실패:', error);
-      alert('스코어 삭제에 실패했습니다.');
     }
   };
 
