@@ -80,16 +80,18 @@ function Play() {
   const isVerySmallScreen = screenHeight < 600;
   const isTinyScreen = screenHeight < 550;
 
-  // Play 페이지 진입 시 저장된 상태 복원 또는 초기화
+  const serverRestoreAttemptedRef = useRef(null);
+
+  // Play 페이지 진입 시 저장된 상태 복원 또는 서버에서 불러오기
   useEffect(() => {
     if (!bookingId) return;
     
-    // 저장된 상태가 있으면 복원
-    const savedState = sessionStorage.getItem(`play_state_${bookingId}`);
+    // 1단계: localStorage에서 복원 시도 (앱 재시작 후에도 유지됨)
+    const savedState = localStorage.getItem(`play_state_${bookingId}`);
     if (savedState) {
       try {
         const parsed = JSON.parse(savedState);
-        console.log('🔄 저장된 스코어 복원:', parsed);
+        console.log('🔄 localStorage에서 스코어 복원:', parsed);
         if (parsed.holeScores) setHoleScores(parsed.holeScores);
         if (parsed.currentHole) setCurrentHole(parsed.currentHole);
         if (parsed.selectedTeammate) setSelectedTeammate(parsed.selectedTeammate);
@@ -99,23 +101,119 @@ function Play() {
         lastRestoredBookingRef.current = bookingId;
         return;
       } catch (e) {
-        console.error('저장된 상태 복원 오류:', e);
+        console.error('localStorage 복원 오류:', e);
       }
     }
     
-    // 새 bookingId면 초기화
-    if (lastRestoredBookingRef.current !== bookingId) {
-      setSelectedTeammate(null);
-      setStep('selectMember');
-      setCurrentHole(1);
-      setHoleScores({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
-      setRoundStartTime(null);
-      lastRestoredBookingRef.current = bookingId;
-      console.log('🔄 Play 페이지 초기화:', bookingId);
-    }
-  }, [bookingId]);
+    // 2단계: 아직 데이터가 로드되지 않았으면 대기 (초기화하지 않음)
+    if (!user?.id || !bookings || bookings.length === 0 || !members || members.length === 0) return;
+    
+    const foundBooking = bookings.find(b => b.id === bookingId);
+    if (!foundBooking) return;
+    
+    // 이미 이 bookingId에 대해 서버 복원을 시도했으면 스킵
+    if (serverRestoreAttemptedRef.current === bookingId) return;
 
-  // 스코어 변경 시 sessionStorage에 자동 저장
+    // 3단계: 서버에서 기존 스코어 복원 시도
+    const restoreFromServer = async () => {
+      serverRestoreAttemptedRef.current = bookingId;
+      
+      try {
+        // 같은 라운딩의 모든 스코어 불러오기
+        const allScoresRes = await fetch(`/api/scores/by-rounding/${encodeURIComponent(foundBooking.title)}`);
+        if (!allScoresRes.ok) throw new Error('Failed to fetch scores');
+        const allScores = await allScoresRes.json();
+        
+        // 내 스코어 찾기
+        const myScore = allScores.find(s => s.userId === user.id);
+        
+        if (myScore && myScore.holes) {
+          const holesData = typeof myScore.holes === 'string' ? JSON.parse(myScore.holes) : myScore.holes;
+          const hasAnyScore = holesData.some(s => s > 0);
+          
+          if (hasAnyScore) {
+            console.log('🌐 서버에서 내 스코어 복원:', holesData);
+            
+            // 팀원 스코어 복원 시도 (여러 경우 처리)
+            let teammateHoles = Array(18).fill(0);
+            let restoredTeammate = null;
+            
+            // 경우 1: 내가 마커인 스코어 찾기 (내가 다른 사람을 마크한 경우)
+            const markedByMe = allScores.find(s => s.markerId === user.id && s.userId !== user.id);
+            if (markedByMe) {
+              if (markedByMe.holes) {
+                teammateHoles = typeof markedByMe.holes === 'string' ? JSON.parse(markedByMe.holes) : markedByMe.holes;
+              }
+              const teammateMember = members?.find(m => m.id === markedByMe.userId);
+              if (teammateMember) restoredTeammate = teammateMember;
+            }
+            
+            // 경우 2: 내가 마커인 스코어가 없으면, 조편성에서 팀원 찾기
+            if (!restoredTeammate && foundBooking.teams) {
+              try {
+                const teams = typeof foundBooking.teams === 'string' ? JSON.parse(foundBooking.teams) : foundBooking.teams;
+                const userTeam = teams.find(t => t.members?.some(m => m?.phone === user?.phone));
+                if (userTeam) {
+                  const teamMembers = userTeam.members.filter(m => m && m.phone !== user?.phone);
+                  for (const tm of teamMembers) {
+                    const tmMember = members?.find(m => m.phone === tm.phone);
+                    if (tmMember) {
+                      const tmScore = allScores.find(s => s.userId === tmMember.id);
+                      if (tmScore && tmScore.holes) {
+                        teammateHoles = typeof tmScore.holes === 'string' ? JSON.parse(tmScore.holes) : tmScore.holes;
+                        restoredTeammate = tmMember;
+                        break;
+                      }
+                    }
+                  }
+                  // 팀원 스코어가 없더라도 첫번째 팀원을 선택
+                  if (!restoredTeammate && teamMembers.length > 0) {
+                    const firstTm = members?.find(m => m.phone === teamMembers[0]?.phone);
+                    if (firstTm) restoredTeammate = firstTm;
+                  }
+                }
+              } catch (e) {
+                console.error('조편성 파싱 오류:', e);
+              }
+            }
+            
+            setHoleScores({ me: holesData, teammate: teammateHoles });
+            const lastPlayedHole = holesData.reduce((last, score, idx) => score > 0 ? idx + 1 : last, 1);
+            setCurrentHole(Math.min(lastPlayedHole + 1, 18));
+            
+            if (restoredTeammate) {
+              setSelectedTeammate(restoredTeammate);
+              setStep('scoring');
+            } else {
+              // 팀원 정보는 없지만 스코어는 복원 - 마커 선택 화면으로
+              setStep('selectMember');
+            }
+            
+            lastRestoredBookingRef.current = bookingId;
+            console.log('✅ 서버에서 스코어 복원 완료, 팀원:', restoredTeammate?.nickname || '없음');
+            return;
+          }
+        }
+      } catch (e) {
+        console.error('서버 스코어 복원 오류:', e);
+      }
+      
+      // 서버에도 없으면 초기화
+      if (lastRestoredBookingRef.current !== bookingId) {
+        setSelectedTeammate(null);
+        setStep('selectMember');
+        setCurrentHole(1);
+        setHoleScores({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
+        setRoundStartTime(null);
+        lastRestoredBookingRef.current = bookingId;
+        console.log('🔄 Play 페이지 초기화:', bookingId);
+      }
+    };
+    
+    restoreFromServer();
+  }, [bookingId, user?.id, bookings, members]);
+
+  // 스코어 변경 시 localStorage에 자동 저장 (앱 종료/폰 재시작 후에도 유지)
   useEffect(() => {
     if (!bookingId || step === 'selectMember') return;
     
@@ -127,8 +225,8 @@ function Play() {
       roundStartTime,
       foursomeData
     };
-    sessionStorage.setItem(`play_state_${bookingId}`, JSON.stringify(stateToSave));
-    console.log('💾 스코어 sessionStorage 저장:', currentHole, holeScores);
+    localStorage.setItem(`play_state_${bookingId}`, JSON.stringify(stateToSave));
+    console.log('💾 스코어 localStorage 저장:', currentHole, holeScores);
   }, [bookingId, holeScores, currentHole, selectedTeammate, step, roundStartTime, foursomeData]);
 
   // 스코어 변경 시 서버에 실시간 자동 저장 (debounced)
@@ -367,7 +465,7 @@ function Play() {
     }
   }, [bookingId, bookings, user?.phone, courses, members]);
 
-  // 실시간 저장 - sessionStorage에만 저장 (서버 저장은 명시적으로 완료할 때만)
+  // 실시간 저장 - localStorage + 서버에 자동 저장
   // 서버 자동 저장 비활성화: 사용자가 저장하지 않고 종료하면 데이터가 남지 않도록 함
 
   const isAllHolesComplete = () => {
@@ -1824,7 +1922,7 @@ function Play() {
                     
                     // 서버 저장 상태 초기화
                     lastSavedScoresRef.current = null;
-                    sessionStorage.removeItem(`play_state_${bookingId}`);
+                    localStorage.removeItem(`play_state_${bookingId}`);
                     setShowEndRoundModal(false);
                     navigate(-1);
                   } catch (e) {
@@ -1854,7 +1952,7 @@ function Play() {
                   if (!confirm('입력 화면을 나가시겠습니까? 이미 저장된 스코어는 유지됩니다.')) {
                     return;
                   }
-                  sessionStorage.removeItem(`play_state_${bookingId}`);
+                  localStorage.removeItem(`play_state_${bookingId}`);
                   setShowEndRoundModal(false);
                   navigate(-1);
                 }}
