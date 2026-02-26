@@ -21,6 +21,8 @@ function MemberInfoForm() {
     isClubMember: '',
     club: '',
     handicap: '',
+    gaHandy: '',
+    houseHandy: '',
     golflinkNumber: '',
     clubMemberNumber: '',
     photo: ''
@@ -34,9 +36,11 @@ function MemberInfoForm() {
         gender: currentMember.gender || '',
         birthYear: currentMember.birthYear || '',
         region: currentMember.region || '',
-        isClubMember: currentMember.club ? 'yes' : '',
+        isClubMember: currentMember.isClubMember || (currentMember.club ? 'yes' : ''),
         club: currentMember.club || '',
         handicap: currentMember.handicap || '',
+        gaHandy: currentMember.gaHandy || currentMember.handicap || '',
+        houseHandy: currentMember.houseHandy || currentMember.handicap || '',
         golflinkNumber: currentMember.golflinkNumber || '',
         clubMemberNumber: currentMember.clubMemberNumber || '',
         photo: currentMember.photo || ''
@@ -95,8 +99,11 @@ function MemberInfoForm() {
         gender: formData.gender,
         birthYear: formData.birthYear,
         region: formData.region,
+        isClubMember: formData.isClubMember,
         club: formData.isClubMember === 'yes' ? formData.club : null,
-        handicap: formData.isClubMember === 'yes' ? formData.handicap : null,
+        handicap: formData.isClubMember === 'yes' ? formData.gaHandy : formData.houseHandy,
+        gaHandy: formData.isClubMember === 'yes' ? formData.gaHandy : null,
+        houseHandy: formData.isClubMember === 'no' ? formData.houseHandy : null,
         golflinkNumber: formData.isClubMember === 'yes' ? formData.golflinkNumber : null,
         clubMemberNumber: formData.isClubMember === 'yes' ? formData.clubMemberNumber : null,
         photo: formData.photo
@@ -300,62 +307,7 @@ function MemberInfoForm() {
 
           <div style={{ marginBottom: '16px' }}>
             <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '600' }}>
-              성별 *
-            </label>
-            <div style={{ display: 'flex', gap: '16px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                <input
-                  type="radio"
-                  name="gender"
-                  value="남"
-                  checked={formData.gender === '남'}
-                  onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                />
-                <span>남</span>
-              </label>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                <input
-                  type="radio"
-                  name="gender"
-                  value="여"
-                  checked={formData.gender === '여'}
-                  onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                />
-                <span>여</span>
-              </label>
-            </div>
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '600' }}>
-              출생연도 *
-            </label>
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="예: 1990"
-              value={formData.birthYear}
-              onChange={(e) => setFormData({ ...formData, birthYear: e.target.value })}
-              style={{ width: '100%' }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '600' }}>
-              사는 지역 *
-            </label>
-            <input
-              type="text"
-              placeholder="예: Lidcombe, Ryde"
-              value={formData.region}
-              onChange={(e) => setFormData({ ...formData, region: e.target.value })}
-              style={{ width: '100%' }}
-            />
-          </div>
-
-          <div style={{ marginBottom: '16px' }}>
-            <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '600' }}>
-              클럽 멤버이신가요?
+              클럽 멤버이신가요? *
             </label>
             <div style={{ display: 'flex', gap: '16px' }}>
               <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
@@ -427,19 +379,90 @@ function MemberInfoForm() {
 
               <div style={{ marginBottom: '16px' }}>
                 <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '600' }}>
-                  핸디캡 *
+                  GA 핸디캡 *
                 </label>
                 <input
                   type="number"
                   inputMode="numeric"
-                  placeholder="핸디캡"
-                  value={formData.handicap}
-                  onChange={(e) => setFormData({ ...formData, handicap: e.target.value })}
+                  placeholder="GA 핸디캡"
+                  value={formData.gaHandy}
+                  onChange={(e) => setFormData({ ...formData, gaHandy: e.target.value })}
                   style={{ width: '100%' }}
                 />
               </div>
             </>
           )}
+
+          {formData.isClubMember === 'no' && (
+            <div style={{ marginBottom: '16px' }}>
+              <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '600' }}>
+                핸디캡 *
+              </label>
+              <input
+                type="number"
+                inputMode="numeric"
+                placeholder="핸디캡을 입력하세요"
+                value={formData.houseHandy}
+                onChange={(e) => setFormData({ ...formData, houseHandy: e.target.value })}
+                style={{ width: '100%' }}
+              />
+            </div>
+          )}
+
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '600' }}>
+              성별 *
+            </label>
+            <div style={{ display: 'flex', gap: '16px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                <input
+                  type="radio"
+                  name="gender"
+                  value="남"
+                  checked={formData.gender === '남'}
+                  onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                />
+                <span>남</span>
+              </label>
+              <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                <input
+                  type="radio"
+                  name="gender"
+                  value="여"
+                  checked={formData.gender === '여'}
+                  onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
+                />
+                <span>여</span>
+              </label>
+            </div>
+          </div>
+
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '600' }}>
+              출생연도 *
+            </label>
+            <input
+              type="number"
+              inputMode="numeric"
+              placeholder="예: 1990"
+              value={formData.birthYear}
+              onChange={(e) => setFormData({ ...formData, birthYear: e.target.value })}
+              style={{ width: '100%' }}
+            />
+          </div>
+
+          <div style={{ marginBottom: '16px' }}>
+            <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '600' }}>
+              사는 지역 *
+            </label>
+            <input
+              type="text"
+              placeholder="예: Lidcombe, Ryde"
+              value={formData.region}
+              onChange={(e) => setFormData({ ...formData, region: e.target.value })}
+              style={{ width: '100%' }}
+            />
+          </div>
 
           {error && (
             <div className="error" style={{ marginBottom: '16px' }}>

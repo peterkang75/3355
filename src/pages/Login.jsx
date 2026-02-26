@@ -22,6 +22,8 @@ function Login({ onLogin }) {
     isClubMember: '',
     club: '',
     handicap: '',
+    gaHandy: '',
+    houseHandy: '',
     golflinkNumber: '',
     clubMemberNumber: '',
     photo: ''
@@ -95,8 +97,8 @@ function Login({ onLogin }) {
     }
 
     if (newMember.isClubMember === 'yes') {
-      if (!newMember.club || !newMember.handicap || !newMember.clubMemberNumber || !newMember.golflinkNumber) {
-        setError('소속 클럽 선택 시 핸디캡, 클럽회원번호, Golflink 번호는 필수 입력 항목입니다.');
+      if (!newMember.club || !newMember.gaHandy || !newMember.clubMemberNumber || !newMember.golflinkNumber) {
+        setError('소속 클럽 선택 시 GA 핸디캡, 클럽회원번호, Golflink 번호는 필수 입력 항목입니다.');
         return;
       }
     }
@@ -105,6 +107,7 @@ function Login({ onLogin }) {
 
     const userData = {
       ...newMember,
+      handicap: newMember.isClubMember === 'yes' ? newMember.gaHandy : newMember.houseHandy,
       isAdmin: false,
       balance: 0
     };
@@ -138,6 +141,8 @@ function Login({ onLogin }) {
       isClubMember: '',
       club: '',
       handicap: '',
+      gaHandy: '',
+      houseHandy: '',
       golflinkNumber: '',
       clubMemberNumber: '',
       photo: ''
@@ -356,48 +361,6 @@ function Login({ onLogin }) {
             </div>
             <div style={{ marginBottom: '12px' }}>
               <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                성별
-              </label>
-              <div style={{ display: 'flex', gap: '16px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="남"
-                    checked={newMember.gender === '남'}
-                    onChange={(e) => setNewMember({ ...newMember, gender: e.target.value })}
-                  />
-                  <span>남</span>
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="여"
-                    checked={newMember.gender === '여'}
-                    onChange={(e) => setNewMember({ ...newMember, gender: e.target.value })}
-                  />
-                  <span>여</span>
-                </label>
-              </div>
-            </div>
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="출생연도 (예: 1990)"
-              value={newMember.birthYear}
-              onChange={(e) => setNewMember({ ...newMember, birthYear: e.target.value })}
-              style={{ marginBottom: '12px', width: '100%' }}
-            />
-            <input
-              type="text"
-              placeholder="사는 지역 (예: Lidcombe, Ryde)"
-              value={newMember.region}
-              onChange={(e) => setNewMember({ ...newMember, region: e.target.value })}
-              style={{ marginBottom: '12px', width: '100%' }}
-            />
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
                 클럽 멤버이신가요?
               </label>
               <div style={{ display: 'flex', gap: '16px' }}>
@@ -440,7 +403,7 @@ function Login({ onLogin }) {
                 <input
                   type="text"
                   inputMode="numeric"
-                  placeholder="Golflink Number (선택)"
+                  placeholder="Golflink Number *"
                   value={newMember.golflinkNumber}
                   onChange={(e) => setNewMember({ ...newMember, golflinkNumber: e.target.value })}
                   style={{ marginBottom: '12px', width: '100%' }}
@@ -448,7 +411,7 @@ function Login({ onLogin }) {
                 <input
                   type="text"
                   inputMode="numeric"
-                  placeholder="클럽 회원번호 (선택)"
+                  placeholder="클럽 회원번호 *"
                   value={newMember.clubMemberNumber}
                   onChange={(e) => setNewMember({ ...newMember, clubMemberNumber: e.target.value })}
                   style={{ marginBottom: '12px', width: '100%' }}
@@ -456,13 +419,65 @@ function Login({ onLogin }) {
                 <input
                   type="number"
                   inputMode="numeric"
-                  placeholder="핸디 (선택)"
-                  value={newMember.handicap}
-                  onChange={(e) => setNewMember({ ...newMember, handicap: e.target.value })}
+                  placeholder="GA 핸디캡 *"
+                  value={newMember.gaHandy}
+                  onChange={(e) => setNewMember({ ...newMember, gaHandy: e.target.value })}
                   style={{ marginBottom: '12px', width: '100%' }}
                 />
               </>
             )}
+            {newMember.isClubMember === 'no' && (
+              <input
+                type="number"
+                inputMode="numeric"
+                placeholder="핸디캡"
+                value={newMember.houseHandy}
+                onChange={(e) => setNewMember({ ...newMember, houseHandy: e.target.value })}
+                style={{ marginBottom: '12px', width: '100%' }}
+              />
+            )}
+            <div style={{ marginBottom: '12px' }}>
+              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                성별
+              </label>
+              <div style={{ display: 'flex', gap: '16px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="남"
+                    checked={newMember.gender === '남'}
+                    onChange={(e) => setNewMember({ ...newMember, gender: e.target.value })}
+                  />
+                  <span>남</span>
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                  <input
+                    type="radio"
+                    name="gender"
+                    value="여"
+                    checked={newMember.gender === '여'}
+                    onChange={(e) => setNewMember({ ...newMember, gender: e.target.value })}
+                  />
+                  <span>여</span>
+                </label>
+              </div>
+            </div>
+            <input
+              type="number"
+              inputMode="numeric"
+              placeholder="출생연도 (예: 1990)"
+              value={newMember.birthYear}
+              onChange={(e) => setNewMember({ ...newMember, birthYear: e.target.value })}
+              style={{ marginBottom: '12px', width: '100%' }}
+            />
+            <input
+              type="text"
+              placeholder="사는 지역 (예: Lidcombe, Ryde)"
+              value={newMember.region}
+              onChange={(e) => setNewMember({ ...newMember, region: e.target.value })}
+              style={{ marginBottom: '12px', width: '100%' }}
+            />
             {error && (
               <div className="error" style={{ marginBottom: '12px' }}>
                 {error}

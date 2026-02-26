@@ -1200,19 +1200,6 @@ function MemberDetail() {
               )}
             </div>
 
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="핸디캡 *"
-              value={editData.handicap || ''}
-              onChange={(e) => setEditData({ ...editData, handicap: e.target.value })}
-              style={{ 
-                marginBottom: '12px',
-                borderColor: !editData.handicap?.toString().trim() ? '#e74c3c' : undefined,
-                boxShadow: !editData.handicap?.toString().trim() ? '0 0 0 1px #e74c3c' : undefined
-              }}
-            />
-
             <div style={{ 
               marginBottom: '12px',
               padding: (!editData.isClubMember || editData.isClubMember === '') ? '8px' : undefined,
@@ -1288,22 +1275,32 @@ function MemberDetail() {
                   }}
                 />
                 <input
-                  type="text"
-                  placeholder="GA 핸디캡"
+                  type="number"
+                  inputMode="numeric"
+                  placeholder="GA 핸디캡 *"
                   value={editData.gaHandy || ''}
-                  onChange={(e) => setEditData({ ...editData, gaHandy: e.target.value })}
-                  style={{ marginBottom: '12px' }}
+                  onChange={(e) => setEditData({ ...editData, gaHandy: e.target.value, handicap: e.target.value })}
+                  style={{ 
+                    marginBottom: '12px',
+                    borderColor: !editData.gaHandy?.toString().trim() ? '#e74c3c' : undefined,
+                    boxShadow: !editData.gaHandy?.toString().trim() ? '0 0 0 1px #e74c3c' : undefined
+                  }}
                 />
               </>
             )}
 
             {editData.isClubMember === 'no' && (
               <input
-                type="text"
-                placeholder="HH 핸디캡 (하우스 핸디)"
-                value={editData.houseHandy || ''}
-                onChange={(e) => setEditData({ ...editData, houseHandy: e.target.value })}
-                style={{ marginBottom: '12px' }}
+                type="number"
+                inputMode="numeric"
+                placeholder="핸디캡 *"
+                value={editData.handicap || ''}
+                onChange={(e) => setEditData({ ...editData, handicap: e.target.value, houseHandy: e.target.value })}
+                style={{ 
+                  marginBottom: '12px',
+                  borderColor: !editData.handicap?.toString().trim() ? '#e74c3c' : undefined,
+                  boxShadow: !editData.handicap?.toString().trim() ? '0 0 0 1px #e74c3c' : undefined
+                }}
               />
             )}
             
