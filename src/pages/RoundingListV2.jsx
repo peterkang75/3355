@@ -687,11 +687,40 @@ function RoundingListV2() {
             fontSize: '11px',
             color: '#9CA3AF',
             fontWeight: '500',
-            marginBottom: '6px',
+            marginBottom: '4px',
           }}>
             {time}
           </div>
         )}
+
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '1px',
+          marginBottom: '4px',
+          flex: 1,
+          justifyContent: 'center',
+        }}>
+          {participants.slice(0, 4).map((p, i) => (
+            <div key={i} style={{
+              fontSize: participants.length >= 4 ? '9px' : '10px',
+              color: p.phone === user.phone ? '#1a3d47' : '#6B7280',
+              fontWeight: p.phone === user.phone ? '700' : '500',
+              lineHeight: 1.3,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              maxWidth: '76px',
+            }}>
+              {p.nickname || p.name}
+            </div>
+          ))}
+          {participants.length > 4 && (
+            <div style={{ fontSize: '9px', color: '#9CA3AF', fontWeight: '500' }}>...</div>
+          )}
+        </div>
+
         <div style={{
           fontSize: '10px',
           fontWeight: '600',
