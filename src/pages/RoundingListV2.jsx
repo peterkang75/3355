@@ -487,6 +487,8 @@ function RoundingListV2() {
 
   const formatTileTime = (timeStr) => {
     if (!timeStr || timeStr === '23:59') return '';
+    if (timeStr.startsWith('08:00')) return '오전';
+    if (timeStr.startsWith('13:00')) return '오후';
     return timeStr.slice(0, 5);
   };
 
