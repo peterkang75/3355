@@ -74,6 +74,7 @@ function RoundingListV2() {
     meetingTime: '',
   });
   const isAdmin = user.role === '관리자';
+  const canCreateBooking = true;
   const sheetRef = useRef(null);
 
   useEffect(() => {
@@ -2591,10 +2592,37 @@ function RoundingListV2() {
             );
           })()}
 
-          <div style={{ marginBottom: '16px' }}>
+          <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <div style={{ fontSize: '18px', fontWeight: '800', color: '#111827' }}>
               개설된 라운딩
             </div>
+            {canCreateBooking && (
+              <button
+                onClick={() => {
+                  if (isAdmin) {
+                    setShowTypeSelector(true);
+                  } else {
+                    setCreateMode('social');
+                    setShowCreateModal(true);
+                  }
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px',
+                  background: 'transparent',
+                  border: '1.5px solid #1a3d47',
+                  color: '#1a3d47',
+                  borderRadius: '20px',
+                  padding: '5px 12px',
+                  fontSize: '13px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                }}
+              >
+                <span style={{ fontSize: '16px', lineHeight: 1 }}>+</span> 라운딩 생성
+              </button>
+            )}
           </div>
 
           {renderWeeklyTimeline()}
@@ -2602,38 +2630,40 @@ function RoundingListV2() {
 
       </div>
 
-      <button
-        onClick={() => {
-          if (isAdmin) {
-            setShowTypeSelector(true);
-          } else {
-            setCreateMode('social');
-            setShowCreateModal(true);
-          }
-        }}
-        style={{
-          position: 'fixed',
-          bottom: '80px',
-          right: '20px',
-          width: '56px',
-          height: '56px',
-          borderRadius: '50%',
-          border: 'none',
-          background: theme.colors.primary,
-          color: 'white',
-          fontSize: '28px',
-          fontWeight: '300',
-          boxShadow: '0 4px 12px rgba(26, 61, 47, 0.35)',
-          cursor: 'pointer',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 50,
-          lineHeight: 1,
-        }}
-      >
-        +
-      </button>
+      {canCreateBooking && (
+        <button
+          onClick={() => {
+            if (isAdmin) {
+              setShowTypeSelector(true);
+            } else {
+              setCreateMode('social');
+              setShowCreateModal(true);
+            }
+          }}
+          style={{
+            position: 'fixed',
+            bottom: '100px',
+            right: '20px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '6px',
+            border: 'none',
+            background: '#1a3d47',
+            color: 'white',
+            padding: '12px 20px',
+            borderRadius: '30px',
+            fontWeight: 'bold',
+            fontSize: '15px',
+            boxShadow: '0 4px 16px rgba(0,0,0,0.25), 0 0 0 4px rgba(26,61,71,0.12)',
+            cursor: 'pointer',
+            zIndex: 1000,
+            animation: 'fabPulse 2.8s ease-in-out infinite',
+          }}
+        >
+          <span style={{ fontSize: '20px', lineHeight: 1 }}>+</span>
+          라운딩 만들기
+        </button>
+      )}
 
       {renderHostManage()}
       {renderBottomSheet()}
@@ -2644,6 +2674,10 @@ function RoundingListV2() {
         @keyframes slideUp {
           from { transform: translateY(100%); }
           to { transform: translateY(0); }
+        }
+        @keyframes fabPulse {
+          0%, 100% { box-shadow: 0 4px 16px rgba(0,0,0,0.25), 0 0 0 4px rgba(26,61,71,0.12); }
+          50% { box-shadow: 0 6px 20px rgba(0,0,0,0.32), 0 0 0 8px rgba(26,61,71,0.08); }
         }
       `}</style>
     </div>
