@@ -726,33 +726,44 @@ function RoundingListV2() {
           </div>
         )}
 
-        <div style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '1px',
-          marginBottom: '4px',
-          flex: 1,
-          justifyContent: 'center',
-        }}>
-          {participants.slice(0, 4).map((p, i) => (
-            <div key={i} style={{
-              fontSize: participants.length >= 4 ? '9px' : '10px',
-              color: p.phone === user.phone ? '#1a3d47' : '#6B7280',
-              fontWeight: p.phone === user.phone ? '700' : '500',
-              lineHeight: 1.3,
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              maxWidth: '76px',
+        {(() => {
+          const isSingle = tilesInRow === 1;
+          const maxShow = isSingle ? 99 : tilesInRow <= 2 ? 4 : tilesInRow <= 3 ? 3 : tilesInRow <= 4 ? 3 : 2;
+          const shown = participants.slice(0, maxShow);
+          const hidden = participants.length - shown.length;
+          return (
+            <div style={{
+              display: 'flex',
+              flexDirection: isSingle ? 'row' : 'column',
+              flexWrap: isSingle ? 'wrap' : 'nowrap',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: isSingle ? '3px 6px' : '1px',
+              marginBottom: '4px',
+              flex: 1,
+              width: '100%',
+              padding: isSingle ? '0 12px' : '0',
             }}>
-              {p.nickname || p.name}
+              {shown.map((p, i) => (
+                <div key={i} style={{
+                  fontSize: isSingle ? '11px' : (participants.length >= 4 ? '9px' : '10px'),
+                  color: p.phone === user.phone ? '#1a3d47' : '#6B7280',
+                  fontWeight: p.phone === user.phone ? '700' : '500',
+                  lineHeight: 1.3,
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  maxWidth: isSingle ? 'none' : '76px',
+                }}>
+                  {p.nickname || p.name}
+                </div>
+              ))}
+              {hidden > 0 && (
+                <div style={{ fontSize: '9px', color: '#9CA3AF', fontWeight: '500' }}>+{hidden}</div>
+              )}
             </div>
-          ))}
-          {participants.length > 4 && (
-            <div style={{ fontSize: '9px', color: '#9CA3AF', fontWeight: '500' }}>...</div>
-          )}
-        </div>
+          );
+        })()}
 
         <div style={{
           fontSize: '10px',
