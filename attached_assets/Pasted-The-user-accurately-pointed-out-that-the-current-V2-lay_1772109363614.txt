@@ -1,0 +1,22 @@
+The user accurately pointed out that the current V2 layout feels visually overwhelming ("무섭다", "정신없다"). 
+The core issue is poor whitespace distribution: the inside of the Rounding Cards is too crammed/claustrophobic, while the outside (between weekly sections) feels too empty and disconnected.
+
+The user wants a layout that feels like browsing a comfortable "Calendar" or "Agenda".
+
+**Please apply the following whitespace and layout adjustments in `RoundingListV2.jsx`:**
+
+**1. Create "Breathing Room" Inside the Cards (Increase Vertical Height):**
+* Locate the Rounding Card container.
+* **Increase Inner Padding:** Change padding from e.g., `p-4` to `p-5`.
+* **Add Vertical Gaps:** The elements inside (Badges, Date, Participants, Status) are currently touching. Wrap them in a flex-col container with a gap: `<div className="flex flex-col h-full gap-3">` (or `gap-2.5`).
+* **Optional Min-Height:** Add `min-h-[140px]` so the cards don't look like squished rectangles, giving them a comfortable "ticket" proportion.
+* Ensure the bottom status badge is still pushed to the bottom using `mt-auto`.
+
+**2. Add "Agenda" Dividers Outside the Cards (Weekly Sections):**
+* Locate the container mapping over the weekly groups (e.g., the div holding the "3월 1주차" title).
+* **Add a subtle top border and padding to separate the weeks like a calendar planner.**
+* **Classes for the Week Container:** Add `border-t border-gray-200 pt-6 mt-6`. *(Note: conditionally remove the `border-t` and `mt-6` for the very first week so it doesn't have a weird line at the very top of the feed).*
+* **Refine the Week Title:** Make the title slightly softer but structured: `text-base font-bold text-gray-800 mb-4`.
+
+**Goal:** 1. The cards should be slightly taller with comfortable whitespace between the text lines inside.
+2. The weekly sections should be separated by a soft, elegant horizontal line, grounding the layout and making it look like a physical diary/planner, removing the "floating in an empty ocean" feeling.

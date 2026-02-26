@@ -720,17 +720,18 @@ function RoundingListV2() {
         style={{
           flex: '1 1 0',
           minWidth: '115px',
+          minHeight: '140px',
           background: '#FFFFFF',
           borderRadius: '16px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
           border: '1px solid #F0F1F3',
           display: 'flex',
           flexDirection: 'column',
-          padding: '12px 12px 10px',
+          padding: '14px 14px 12px',
           cursor: 'pointer',
           position: 'relative',
           transition: 'box-shadow 0.15s ease',
-          gap: '4px',
+          gap: '8px',
         }}
       >
         {/* Row 1: location badge first, then type badge, then joined dot */}
@@ -767,7 +768,7 @@ function RoundingListV2() {
         </div>
 
         {/* Row 2: Date + Time (hero) */}
-        <div style={{ marginTop: '2px' }}>
+        <div>
           <div style={{ fontSize: '16px', fontWeight: '800', color: '#111827', lineHeight: 1.2 }}>
             {formatTileDate(booking.date)}
           </div>
@@ -784,7 +785,6 @@ function RoundingListV2() {
             fontSize: '11px',
             fontWeight: '500',
             color: '#6B7280',
-            marginTop: '2px',
             whiteSpace: 'nowrap',
             overflow: 'hidden',
             textOverflow: 'ellipsis',
@@ -831,12 +831,17 @@ function RoundingListV2() {
     }
 
     return groupedByWeek.map((week, idx) => (
-      <div key={week.monday.toISOString()} style={{ marginTop: idx === 0 ? 0 : '32px', marginBottom: '24px' }}>
+      <div key={week.monday.toISOString()} style={{
+        borderTop: idx === 0 ? 'none' : '1px solid #E5E7EB',
+        paddingTop: idx === 0 ? 0 : '24px',
+        marginTop: idx === 0 ? 0 : '24px',
+        marginBottom: '8px',
+      }}>
         <div style={{
-          fontSize: '15px',
-          fontWeight: '800',
-          color: '#1F2937',
-          marginBottom: '12px',
+          fontSize: '14px',
+          fontWeight: '700',
+          color: '#374151',
+          marginBottom: '14px',
         }}>
           {week.label}
         </div>
