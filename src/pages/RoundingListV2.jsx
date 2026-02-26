@@ -653,7 +653,7 @@ function RoundingListV2() {
         <div style={{
           position: 'absolute',
           top: '8px',
-          right: '8px',
+          left: '8px',
           width: '7px',
           height: '7px',
           borderRadius: '50%',
@@ -664,7 +664,7 @@ function RoundingListV2() {
           <div style={{
             position: 'absolute',
             top: '8px',
-            left: '8px',
+            right: '8px',
             width: '6px',
             height: '6px',
             borderRadius: '50%',
