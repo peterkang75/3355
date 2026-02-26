@@ -315,11 +315,25 @@ router.post("/bookings", async (req, res) => {
   try {
     const {
       title, type, isSocial, courseName, date, time, gatheringTime,
-      organizerId, participants, notes, greenFee, cartFee, membershipFee,
+      organizerId, organizerPhone, participants, notes, greenFee, cartFee, membershipFee,
       registrationDeadline, maxMembers, isGuestAllowed, playEnabled,
       restaurantName, restaurantAddress, is2BB, isAnnounced,
       playManuallyDisabled, useSquadWaitlist, votingEnabled, status,
     } = req.body;
+
+    // organizerId 검증: 존재하지 않으면 phone으로 fallback
+    let resolvedOrganizerId = organizerId;
+    if (organizerId) {
+      const orgMember = await prisma.member.findUnique({ where: { id: organizerId }, select: { id: true } });
+      if (!orgMember && organizerPhone) {
+        const byPhone = await prisma.member.findFirst({ where: { phone: organizerPhone }, select: { id: true } });
+        if (byPhone) {
+          resolvedOrganizerId = byPhone.id;
+          console.log(`organizerId 불일치 → phone fallback 사용: ${organizerPhone} → ${byPhone.id}`);
+        }
+      }
+    }
+
     const data = {
       ...(title !== undefined && { title }),
       ...(type !== undefined && { type }),
@@ -328,7 +342,7 @@ router.post("/bookings", async (req, res) => {
       ...(date !== undefined && { date }),
       ...(time !== undefined && { time }),
       ...(gatheringTime !== undefined && { gatheringTime }),
-      ...(organizerId !== undefined && { organizerId }),
+      ...(resolvedOrganizerId !== undefined && { organizerId: resolvedOrganizerId }),
       ...(participants !== undefined && { participants }),
       ...(notes !== undefined && { notes }),
       ...(greenFee !== undefined && { greenFee: parseInt(greenFee) || null }),

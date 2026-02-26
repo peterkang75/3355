@@ -1,0 +1,20 @@
+The user had an excellent foresight: If a single week has 5-6 or more roundings, the current flex layout might squeeze the cards, making them too narrow and breaking the UI. 
+
+We need to implement a **Horizontal Scroll (Carousel) with Fixed Card Widths** for the weekly rows to ensure the cards always look perfect, no matter how many there are.
+
+**Please update the layout in `RoundingListV2.jsx` with these exact specifications:**
+
+**1. Prevent Cards from Shrinking (The Card UI):**
+* Apply the `flex-none` class to the Rounding Card wrapper to prevent it from squeezing when the container runs out of space.
+* Set a fixed or minimum width that looks optimal. For example, `w-[150px]` or `min-w-[160px] max-w-[180px]`. 
+* Ensure the card wrapper classes look something like this: `flex-none w-[160px] bg-white rounded-2xl shadow-sm ...`
+
+**2. Enable Smooth Horizontal Scrolling (The Row Container):**
+* Ensure the flex container holding the weekly cards has `overflow-x-auto`.
+* **Important:** Add padding to the horizontal edges so the scrolling feels natural (e.g., `px-4`), and remove horizontal margins if they interfere with the scroll overflow.
+* Keep `justify-end` if you want them aligned to the right by default, but typically horizontally scrolling lists on mobile feel best with `justify-start` and scrolling from right to left. *If you keep `justify-end`, ensure the scroll direction works intuitively.* (Let's stick to your right-aligned preference: `flex justify-end gap-3 overflow-x-auto pb-4`).
+
+**3. Hide the Ugly Scrollbar (Optional but recommended):**
+* Use a Tailwind plugin or custom CSS to hide the scrollbar for a cleaner app-like feel. (e.g., `scrollbar-width: none;` and `::-webkit-scrollbar { display: none; }`). In Tailwind, you can often add a custom class like `scrollbar-hide` if defined in global css.
+
+**Goal:** Users can swipe horizontally through the cards if there are many in a week, and every single card retains its beautiful, readable proportions without getting squished.

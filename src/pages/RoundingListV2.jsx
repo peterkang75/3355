@@ -457,6 +457,7 @@ function RoundingListV2() {
         maxMembers: parseInt(newRounding.maxMembers) || 4,
         notes: newRounding.notes || '',
         organizerId: user.id,
+        organizerPhone: user.phone,
         participants: [JSON.stringify({ name: user.name, nickname: user.nickname, phone: user.phone })],
         isGuestAllowed: true,
         playEnabled,
@@ -494,6 +495,7 @@ function RoundingListV2() {
         maxMembers: parseInt(officialForm.maxMembers) || 28,
         notes: officialForm.notes || null,
         organizerId: user.id,
+        organizerPhone: user.phone,
         participants: [JSON.stringify({ name: user.name, nickname: user.nickname, phone: user.phone })],
         isGuestAllowed: true,
       };
