@@ -37,6 +37,7 @@ function MemberDetail() {
   const [isTogglingFeeExempt, setIsTogglingFeeExempt] = useState(false);
   const [validationError, setValidationError] = useState('');
   const [permissions, setPermissions] = useState({});
+  const [showPhotoLightbox, setShowPhotoLightbox] = useState(false);
 
   useEffect(() => {
     loadMemberData();
@@ -107,11 +108,24 @@ function MemberDetail() {
     };
   }, [openMenuId, showMemberMenu]);
 
-  const loadMemberData = () => {
+  const loadMemberData = async () => {
     const foundMember = members.find(m => m.id === id);
     if (foundMember) {
       setMember(foundMember);
       setEditData(foundMember);
+      // 사진은 성능상 컨텍스트에서 제외되므로 서버에서 별도 로드
+      try {
+        const res = await fetch(`/api/members/${id}`);
+        if (res.ok) {
+          const fullMember = await res.json();
+          if (fullMember.photo) {
+            setMember(prev => prev ? { ...prev, photo: fullMember.photo } : prev);
+            setEditData(prev => prev ? { ...prev, photo: fullMember.photo } : prev);
+          }
+        }
+      } catch (e) {
+        console.error('사진 로드 실패:', e);
+      }
     }
   };
 
@@ -539,10 +553,11 @@ function MemberDetail() {
             <label 
               htmlFor={isAdmin ? "photoUpload" : undefined}
               style={{ 
-                cursor: isAdmin ? 'pointer' : 'default',
+                cursor: isAdmin ? 'pointer' : (member.photo ? 'zoom-in' : 'default'),
                 display: 'block',
                 position: 'relative'
               }}
+              onClick={!isAdmin && member.photo ? (e) => { e.preventDefault(); setShowPhotoLightbox(true); } : undefined}
             >
               {member.photo ? (
                 <img 
@@ -570,7 +585,7 @@ function MemberDetail() {
                   ●
                 </div>
               )}
-              {isAdmin && (
+              {isAdmin ? (
                 <div style={{
                   position: 'absolute',
                   bottom: '0',
@@ -585,8 +600,78 @@ function MemberDetail() {
                 }}>
                   사진 변경
                 </div>
-              )}
+              ) : member.photo ? (
+                <div
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowPhotoLightbox(true); }}
+                  style={{
+                    position: 'absolute',
+                    bottom: '0',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: 'rgba(0,0,0,0.5)',
+                    color: 'white',
+                    padding: '4px 10px',
+                    borderRadius: '12px',
+                    fontSize: '11px',
+                    fontWeight: '500',
+                    cursor: 'zoom-in',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  🔍 확대
+                </div>
+              ) : null}
             </label>
+
+            {showPhotoLightbox && member.photo && (
+              <div
+                onClick={() => setShowPhotoLightbox(false)}
+                style={{
+                  position: 'fixed',
+                  inset: 0,
+                  background: 'rgba(0,0,0,0.9)',
+                  zIndex: 9999,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'zoom-out',
+                }}
+              >
+                <button
+                  onClick={() => setShowPhotoLightbox(false)}
+                  style={{
+                    position: 'absolute',
+                    top: '20px',
+                    right: '20px',
+                    background: 'rgba(255,255,255,0.15)',
+                    border: 'none',
+                    borderRadius: '50%',
+                    width: '40px',
+                    height: '40px',
+                    color: 'white',
+                    fontSize: '20px',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  ✕
+                </button>
+                <img
+                  src={member.photo}
+                  alt={member.name}
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    maxWidth: '90vw',
+                    maxHeight: '90vh',
+                    objectFit: 'contain',
+                    borderRadius: '12px',
+                    boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                  }}
+                />
+              </div>
+            )}
             
             {member.role && ['관리자', '방장', '운영진', '클럽운영진'].includes(member.role) && (
               <div style={{

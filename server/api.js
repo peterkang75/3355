@@ -47,6 +47,19 @@ router.get("/members", async (req, res) => {
   }
 });
 
+router.get("/members/:id", async (req, res) => {
+  try {
+    const member = await prisma.member.findUnique({
+      where: { id: req.params.id },
+    });
+    if (!member) return res.status(404).json({ error: "Member not found" });
+    res.json(member);
+  } catch (error) {
+    console.error("Error fetching member:", error);
+    res.status(500).json({ error: "Failed to fetch member" });
+  }
+});
+
 router.post("/members", async (req, res) => {
   try {
     // 이미 존재하는 전화번호인지 확인
