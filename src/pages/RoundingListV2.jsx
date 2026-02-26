@@ -646,7 +646,7 @@ function RoundingListV2() {
   const getTileTypeBadge = (booking) => {
     const type = (booking.type || '').trim();
     if (type === '정기모임') return { label: '정기', bg: '#FDF4E7', color: '#B45309' };
-    if (type === '컴페티션') return { label: '컴', bg: '#EEF0F8', color: '#4338CA' };
+    if (type === '컴페티션') return { label: '컴페티션', bg: '#EEF0F8', color: '#4338CA' };
     if (type === '그린피') return { label: '그린피', bg: '#E6F4F3', color: '#0F766E' };
     return { label: '소셜', bg: '#FBF0EC', color: '#C2410C' };
   };
@@ -732,22 +732,37 @@ function RoundingListV2() {
         {(() => {
           const { label: typeLabel, bg: typeBg, color: typeColor } = getTileTypeBadge(booking);
           return (
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-              <span style={{
-                fontSize: '10px',
-                fontWeight: '700',
-                color: typeColor,
-                background: typeBg,
-                borderRadius: '5px',
-                padding: '2px 6px',
-                whiteSpace: 'nowrap',
-              }}>
-                {typeLabel}
-              </span>
-              {isJoined && (
-                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22C55E', flexShrink: 0 }} />
+            <>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                <span style={{
+                  fontSize: '10px',
+                  fontWeight: '700',
+                  color: typeColor,
+                  background: typeBg,
+                  borderRadius: '5px',
+                  padding: '2px 6px',
+                  whiteSpace: 'nowrap',
+                }}>
+                  {typeLabel}
+                </span>
+                {isJoined && (
+                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22C55E', flexShrink: 0 }} />
+                )}
+              </div>
+              {booking.courseName && (
+                <div style={{
+                  fontSize: '10px',
+                  color: '#9CA3AF',
+                  fontWeight: '500',
+                  marginBottom: '6px',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}>
+                  {booking.courseName}
+                </div>
               )}
-            </div>
+            </>
           );
         })()}
 
