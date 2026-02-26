@@ -36,6 +36,7 @@ function RoundingListV2() {
   const [isRentalLoading, setIsRentalLoading] = useState(false);
   const [hoveredTileId, setHoveredTileId] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [isMyBookingsOpen, setIsMyBookingsOpen] = useState(false);
   const [showHostManage, setShowHostManage] = useState(false);
   const [hmBooking, setHmBooking] = useState(null);
   const [hmType, setHmType] = useState('');
@@ -2342,6 +2343,128 @@ function RoundingListV2() {
               </div>
             ))}
           </div>
+          {(() => {
+            const myBookings = bookings
+              .filter(b => isBookingActive(b))
+              .filter(b => {
+                const parts = parseParticipants(b.participants);
+                return parts.some(p => p.phone === user.phone);
+              })
+              .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            return (
+              <div style={{ marginBottom: '16px' }}>
+                <div
+                  onClick={() => setIsMyBookingsOpen(!isMyBookingsOpen)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '14px 0',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div style={{
+                      width: '24px',
+                      height: '24px',
+                      borderRadius: '50%',
+                      background: '#F3F4F6',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '14px',
+                      color: '#6B7280',
+                      fontWeight: '600',
+                      flexShrink: 0,
+                    }}>
+                      {isMyBookingsOpen ? '−' : '+'}
+                    </div>
+                    <span style={{ fontSize: '15px', fontWeight: '700', color: '#1F2937' }}>나의 라운딩</span>
+                    {myBookings.length > 0 && (
+                      <span style={{
+                        fontSize: '11px',
+                        fontWeight: '600',
+                        color: '#1D4ED8',
+                        background: '#EFF6FF',
+                        padding: '2px 8px',
+                        borderRadius: '9999px',
+                      }}>
+                        {myBookings.length}
+                      </span>
+                    )}
+                  </div>
+                  <svg
+                    width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                    style={{ transform: isMyBookingsOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}
+                  >
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </div>
+
+                {isMyBookingsOpen && (
+                  <div style={{
+                    background: '#FFFFFF',
+                    borderRadius: '14px',
+                    border: '1px solid #F3F4F6',
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+                    overflow: 'hidden',
+                    marginBottom: '8px',
+                  }}>
+                    {myBookings.length === 0 ? (
+                      <div style={{ padding: '20px', textAlign: 'center', fontSize: '14px', color: '#9CA3AF' }}>
+                        예정된 라운딩이 없습니다
+                      </div>
+                    ) : (
+                      myBookings.map((b, idx) => {
+                        const parts = parseParticipants(b.participants);
+                        const names = parts.map(p => p.nickname || p.name);
+                        const summary = names.length <= 2
+                          ? names.join(', ')
+                          : `${names.slice(0, 2).join(', ')} 외 ${names.length - 2}명`;
+                        const d = new Date(b.date);
+                        const days = ['일', '월', '화', '수', '목', '금', '토'];
+                        const dateStr = `${d.getMonth() + 1}/${d.getDate()} (${days[d.getDay()]})`;
+                        const timeStr = b.time && b.time !== '23:59' ? ` ${b.time.slice(0, 5)}` : '';
+
+                        return (
+                          <div
+                            key={b.id}
+                            onClick={() => setSelectedBooking(b)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'space-between',
+                              padding: '14px 16px',
+                              cursor: 'pointer',
+                              borderBottom: idx < myBookings.length - 1 ? '1px solid #F9FAFB' : 'none',
+                              transition: 'background 0.1s',
+                            }}
+                          >
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontSize: '14px', fontWeight: '700', color: '#111827' }}>
+                                {dateStr}{timeStr}
+                              </div>
+                              <div style={{ fontSize: '13px', fontWeight: '500', color: '#374151', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                                {b.courseName} <span style={{ color: '#9CA3AF' }}>({b.type || '소셜'})</span>
+                              </div>
+                              <div style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '2px' }}>
+                                {summary}
+                              </div>
+                            </div>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginLeft: '8px' }}>
+                              <polyline points="9 18 15 12 9 6"/>
+                            </svg>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
           {renderWeeklyTimeline()}
         </div>
 

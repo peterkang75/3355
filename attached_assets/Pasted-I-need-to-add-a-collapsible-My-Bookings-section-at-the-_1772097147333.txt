@@ -1,0 +1,29 @@
+I need to add a collapsible **"My Bookings" (나의 라운딩)** section at the very top of the feed in `RoundingListV2.jsx`, just below the main header. This is inspired by standard golf club apps but must match our chic, minimal V2 design language.
+
+**Implementation Steps:**
+
+**1. Data & State:**
+* Create a state: `const [isMyBookingsOpen, setIsMyBookingsOpen] = useState(false);`
+* Filter the bookings for the current user: `const myBookings = activeBookings.filter(b => b.participants.some(p => p.id === currentUser.id));`
+
+**2. Accordion Header (The Toggle Bar):**
+* **Placement:** Directly under the main dark green App Header, before the "Weekly Tile View" starts.
+* **UI:** A full-width white block (`bg-white`) with a bottom border (`border-b border-gray-100`).
+* **Content:** Flex container (`flex justify-between items-center p-4`).
+* **Left Side:** A toggle icon (`+` if closed, `-` if open) inside a small circular subtle background, followed by bold text "나의 라운딩" (My Bookings) and a small badge showing the count (e.g., `text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full text-xs`).
+* **Action:** Clicking this entire bar toggles `isMyBookingsOpen`.
+
+**3. Expanded List View:**
+* **Condition:** Render this block if `isMyBookingsOpen` is true.
+* **Layout:** A white background container (`bg-white shadow-sm mb-4 pb-2`).
+* **Empty State:** If `myBookings.length === 0`, show a subtle text: "예정된 라운딩이 없습니다." (No upcoming roundings).
+* **List Items:** Map through `myBookings`. Render each as a horizontal row (NOT a tile) to distinguish from the main feed.
+    * **Row UI:** `flex justify-between items-center p-4 border-b border-gray-50 active:bg-gray-50 transition-colors`.
+    * **Left Content:**
+        * Date & Time: E.g., "3/4 (수) 08:00" (`font-bold text-gray-900 text-sm`).
+        * Title/Course: E.g., "Strathfield (소셜)" (`text-gray-700 font-medium mt-0.5`).
+        * Participants Summary: E.g., "동백, 낫또 외 2명" (`text-gray-500 text-xs mt-1`).
+    * **Right Content:** A simple gray chevron right icon (`>`) to indicate it's clickable.
+    * **Action:** `onClick={() => openBottomSheet(booking)}` (Opens the exact same detail view as the main feed).
+
+**Design Goal:** The section should feel like a premium, integrated part of the V2 interface—clean white, subtle borders, deep green/blue text accents, avoiding any clunky dropdown feelings.
