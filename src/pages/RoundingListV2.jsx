@@ -646,7 +646,7 @@ function RoundingListV2() {
   const formatTileDate = (dateStr) => {
     const d = new Date(dateStr);
     const days = ['일', '월', '화', '수', '목', '금', '토'];
-    return `${d.getMonth() + 1}/${d.getDate()} (${days[d.getDay()]})`;
+    return `${d.getMonth() + 1}월${d.getDate()}일 (${days[d.getDay()]})`;
   };
 
   const formatTileTime = (timeStr) => {
