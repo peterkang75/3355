@@ -42,6 +42,8 @@ function RoundingListV2() {
   const [hmTime, setHmTime] = useState('');
   const [hmParticipants, setHmParticipants] = useState([]);
   const [hmGuestName, setHmGuestName] = useState('');
+  const [hmMemberSearch, setHmMemberSearch] = useState('');
+  const [hmMemberDropdownOpen, setHmMemberDropdownOpen] = useState(false);
   const [hmSaving, setHmSaving] = useState(false);
   const [hmDeleteConfirm, setHmDeleteConfirm] = useState(false);
   const [newRounding, setNewRounding] = useState({
@@ -933,30 +935,101 @@ function RoundingListV2() {
             {(() => {
               const participantPhones = hmParticipants.map(p => p.phone);
               const availableMembers = members.filter(m => m.isActive && m.approvalStatus === 'approved' && !participantPhones.includes(m.phone));
+              const searchTerm = hmMemberSearch.trim().toLowerCase();
+              const filteredMembers = searchTerm
+                ? availableMembers.filter(m => (m.nickname || m.name || '').toLowerCase().includes(searchTerm) || (m.name || '').toLowerCase().includes(searchTerm))
+                : availableMembers;
               return (
-                <select
-                  onChange={(e) => {
-                    const m = availableMembers.find(m => m.id === e.target.value);
-                    if (m) handleHmAddMember(m);
-                    e.target.value = '';
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '11px 14px',
-                    borderRadius: '14px',
-                    border: '1px solid #E5E7EB',
-                    fontSize: '15px',
-                    background: '#FFFFFF',
-                    color: '#374151',
-                    marginBottom: '10px',
-                    boxSizing: 'border-box',
-                  }}
-                >
-                  <option value="">+ 회원 추가하기...</option>
-                  {availableMembers.map(m => (
-                    <option key={m.id} value={m.id}>{m.nickname || m.name}</option>
-                  ))}
-                </select>
+                <div style={{ position: 'relative', marginBottom: '10px' }}>
+                  <input
+                    type="text"
+                    value={hmMemberSearch}
+                    onChange={(e) => { setHmMemberSearch(e.target.value); setHmMemberDropdownOpen(true); }}
+                    onFocus={() => setHmMemberDropdownOpen(true)}
+                    onBlur={() => setTimeout(() => setHmMemberDropdownOpen(false), 150)}
+                    placeholder="+ 회원 검색 또는 추가..."
+                    style={{
+                      width: '100%',
+                      padding: '11px 14px',
+                      borderRadius: '14px',
+                      border: `1px solid ${hmMemberDropdownOpen ? '#1a3d47' : '#E5E7EB'}`,
+                      fontSize: '15px',
+                      background: '#FFFFFF',
+                      color: '#374151',
+                      boxSizing: 'border-box',
+                      outline: 'none',
+                      transition: 'border-color 0.15s',
+                    }}
+                  />
+                  {hmMemberDropdownOpen && filteredMembers.length > 0 && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: 0,
+                      right: 0,
+                      background: '#FFFFFF',
+                      border: '1px solid #E5E7EB',
+                      borderRadius: '12px',
+                      marginTop: '4px',
+                      maxHeight: '180px',
+                      overflowY: 'auto',
+                      zIndex: 10,
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+                    }}>
+                      {filteredMembers.map(m => (
+                        <div
+                          key={m.id}
+                          onClick={() => { handleHmAddMember(m); setHmMemberSearch(''); setHmMemberDropdownOpen(false); }}
+                          style={{
+                            padding: '10px 14px',
+                            fontSize: '15px',
+                            color: '#374151',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            borderBottom: '1px solid #F9FAFB',
+                          }}
+                        >
+                          <div style={{
+                            width: '24px',
+                            height: '24px',
+                            borderRadius: '50%',
+                            background: '#EFF6FF',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '11px',
+                            color: '#3B82F6',
+                            flexShrink: 0,
+                          }}>
+                            {(m.nickname || m.name || '').charAt(0)}
+                          </div>
+                          {m.nickname || m.name}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {hmMemberDropdownOpen && filteredMembers.length === 0 && searchTerm && (
+                    <div style={{
+                      position: 'absolute',
+                      top: '100%',
+                      left: 0,
+                      right: 0,
+                      background: '#FFFFFF',
+                      border: '1px solid #E5E7EB',
+                      borderRadius: '12px',
+                      marginTop: '4px',
+                      padding: '12px 14px',
+                      fontSize: '14px',
+                      color: '#9CA3AF',
+                      zIndex: 10,
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.08)',
+                    }}>
+                      검색 결과가 없습니다
+                    </div>
+                  )}
+                </div>
               );
             })()}
 

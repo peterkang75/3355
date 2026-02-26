@@ -1,0 +1,29 @@
+I need to apply the new **"Modern & Deep-Green" Design Theme** to the **Rounding Detail Bottom Sheet** (the view that opens when clicking a rounding card) in `RoundingListV2.jsx`. The current pastel mints, bright blues, and harsh borders look tacky and inconsistent.
+
+**Please update the following UI elements:**
+
+**1. Status Badge ("모집중 1/4" etc.):**
+* **Issue:** Tacky pastel mint background.
+* **Fix:** Change it to a refined, neutral look or use the primary theme color subtle tint. Use `bg-gray-100 text-gray-800 font-semibold` or `bg-[#1a3d47]/10 text-[#1a3d47] font-semibold` instead of the emerald/mint colors.
+
+**2. Participant Chips (e.g., "동백"):**
+* **Issue:** Mint green background looks childish.
+* **Fix:** Use a clean, neutral style. 
+    * Default participant: `bg-gray-100 text-gray-700 rounded-full px-3 py-1 text-sm`.
+    * Host (if distinct): Maybe `bg-gray-50 border border-gray-200 text-gray-800`.
+    * Current User (Me): Bold text or deep green text `text-[#1a3d47] font-bold`.
+
+**3. Action Buttons (관리, 참가 취소):**
+* **Issue:** The black border for 'Manage' and bright red border for 'Cancel' look too harsh and basic.
+* **Fix:** Soften the outlines. Make them look like modern app buttons (`rounded-xl py-3 font-medium`).
+    * **관리 (Manage):** `border border-gray-200 text-gray-700 bg-white hover:bg-gray-50`.
+    * **참가 취소 (Leave):** `border border-gray-200 text-rose-600 bg-white hover:bg-rose-50` (Use rose instead of harsh red, keep the border neutral gray).
+
+**4. Primary Action Button (플레이하기 / 참가하기):**
+* **Issue:** The bright default blue (`bg-blue-500`) totally breaks the app's color scheme.
+* **Fix:** Change it to the **App's Signature Deep Green** (`bg-[#1a3d47] text-white`). Keep it large, with `rounded-xl` and a subtle shadow (`shadow-md hover:shadow-lg`).
+
+**5. Share Button (Top Right 📤):**
+* **Fix:** Ensure the circle button has a very subtle background (`bg-gray-50 hover:bg-gray-100`) and the icon is dark gray (`text-gray-600`) without any borders.
+
+**Goal:** Remove all default/tacky colors (mint, bright blue, harsh red) and replace them with a sophisticated palette of White, Light Grays, and Deep Green to match the rest of the V2 redesign.
