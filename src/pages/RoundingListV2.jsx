@@ -74,6 +74,7 @@ function RoundingListV2() {
     meetingTime: '',
   });
   const isAdmin = user.role === '관리자';
+  const canSelectType = ['관리자', '방장', '운영진', '클럽운영진'].includes(user.role);
   const canCreateBooking = true;
   const sheetRef = useRef(null);
 
@@ -2599,7 +2600,7 @@ function RoundingListV2() {
             {canCreateBooking && (
               <button
                 onClick={() => {
-                  if (isAdmin) {
+                  if (canSelectType) {
                     setShowTypeSelector(true);
                   } else {
                     setCreateMode('social');
@@ -2633,7 +2634,7 @@ function RoundingListV2() {
       {canCreateBooking && (
         <button
           onClick={() => {
-            if (isAdmin) {
+            if (canSelectType) {
               setShowTypeSelector(true);
             } else {
               setCreateMode('social');
