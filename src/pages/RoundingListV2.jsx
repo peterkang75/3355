@@ -689,7 +689,7 @@ function RoundingListV2() {
           left: '8px',
           width: '7px',
           height: '7px',
-          borderRadius: '50%',
+          borderRadius: '2px',
           background: accentColor,
         }} />
 
