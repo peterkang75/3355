@@ -558,13 +558,12 @@ function RoundingListV2() {
         {isJoined && (
           <div style={{
             position: 'absolute',
-            top: '8px',
-            right: '8px',
-            width: '8px',
-            height: '8px',
+            top: '7px',
+            right: '7px',
+            width: '7px',
+            height: '7px',
             borderRadius: '50%',
             background: '#22C55E',
-            boxShadow: '0 0 0 2px #FFFFFF, 0 0 0 3px #22C55E',
           }} />
         )}
         <div style={{
