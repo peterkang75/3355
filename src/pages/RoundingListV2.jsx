@@ -834,12 +834,18 @@ function RoundingListV2() {
                 borderRadius: '50%',
                 width: '36px',
                 height: '36px',
+                minWidth: '36px',
+                minHeight: '36px',
+                maxWidth: '36px',
+                maxHeight: '36px',
+                padding: 0,
                 cursor: 'pointer',
-                fontSize: '14px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#6B7280',
+                flexShrink: 0,
+                boxSizing: 'border-box',
               }}
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
