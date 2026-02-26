@@ -2464,7 +2464,13 @@ function RoundingListV2() {
               .sort((a, b) => new Date(a.date) - new Date(b.date));
 
             return (
-              <div style={{ marginBottom: '16px' }}>
+              <div style={{
+                background: '#F8FAFC',
+                borderRadius: '16px',
+                border: '1px solid #E5E7EB',
+                padding: '0 16px',
+                marginBottom: '28px',
+              }}>
                 <div
                   onClick={() => setIsMyBookingsOpen(!isMyBookingsOpen)}
                   style={{
@@ -2575,6 +2581,24 @@ function RoundingListV2() {
               </div>
             );
           })()}
+
+          <div style={{ marginBottom: '16px' }}>
+            <div style={{ fontSize: '18px', fontWeight: '800', color: '#111827', marginBottom: '10px' }}>
+              ⛳ 개설된 라운딩
+            </div>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              {[
+                { label: '정기모임', color: '#B45309' },
+                { label: '컴페티션', color: '#4338CA' },
+                { label: '소셜', color: '#15803D' },
+              ].map(({ label, color }) => (
+                <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: color, flexShrink: 0 }} />
+                  <span style={{ fontSize: '12px', fontWeight: '500', color: '#6B7280' }}>{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
 
           {renderWeeklyTimeline()}
         </div>
