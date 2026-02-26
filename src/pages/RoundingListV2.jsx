@@ -500,6 +500,27 @@ function RoundingListV2() {
     const isFull = participants.length >= max;
     const accentColor = getTileAccentColor(booking);
     const time = formatTileTime(booking.time);
+    const { isRegistrationClosed } = getBookingStatusFlags(booking);
+
+    // 배지 표시 규칙: 기존 카드와 동일한 마감 규칙 적용
+    // - 정기모임(official): 접수마감/인원마감 여부만 표시, 인원수 기본 표시
+    // - 소셜/컴페티션: isRegistrationClosed 또는 인원 마감 시 "마감"
+    let badgeText;
+    let badgeBg;
+    let badgeColor;
+    if (isRegistrationClosed) {
+      badgeText = '접수마감';
+      badgeBg = '#FEE2E2';
+      badgeColor = '#DC2626';
+    } else if (isFull) {
+      badgeText = '마감';
+      badgeBg = '#FEE2E2';
+      badgeColor = '#DC2626';
+    } else {
+      badgeText = `${participants.length}명`;
+      badgeBg = '#DCFCE7';
+      badgeColor = '#15803D';
+    }
 
     return (
       <div
@@ -560,11 +581,11 @@ function RoundingListV2() {
           fontWeight: '600',
           padding: '3px 8px',
           borderRadius: '9999px',
-          background: isFull ? '#FEE2E2' : '#DCFCE7',
-          color: isFull ? '#DC2626' : '#15803D',
+          background: badgeBg,
+          color: badgeColor,
           marginTop: 'auto',
         }}>
-          {isFull ? '마감' : `${participants.length}명`}
+          {badgeText}
         </div>
       </div>
     );
