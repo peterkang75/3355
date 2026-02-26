@@ -720,20 +720,20 @@ function RoundingListV2() {
         style={{
           flex: '1 1 0',
           minWidth: '115px',
-          minHeight: '140px',
           background: '#FFFFFF',
           borderRadius: '16px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
           border: '1px solid #F0F1F3',
           display: 'flex',
           flexDirection: 'column',
-          padding: '14px 14px 12px',
+          padding: '20px',
           cursor: 'pointer',
           position: 'relative',
           transition: 'box-shadow 0.15s ease',
-          gap: '8px',
+          minHeight: '160px',
         }}
       >
+        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '12px' }}>
         {/* Row 1: location badge first, then type badge, then joined dot */}
         <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '4px' }}>
           {shortLocation && (
@@ -807,6 +807,7 @@ function RoundingListV2() {
         }}>
           {badgeText}
         </div>
+        </div>
       </div>
     );
   };
@@ -832,9 +833,9 @@ function RoundingListV2() {
 
     return groupedByWeek.map((week, idx) => (
       <div key={week.monday.toISOString()} style={{
-        borderTop: idx === 0 ? 'none' : '1px solid #E5E7EB',
+        borderTop: idx === 0 ? 'none' : '2px solid #F3F4F6',
         paddingTop: idx === 0 ? 0 : '24px',
-        marginTop: idx === 0 ? 0 : '24px',
+        marginTop: idx === 0 ? '16px' : '32px',
         marginBottom: '8px',
       }}>
         <div style={{
