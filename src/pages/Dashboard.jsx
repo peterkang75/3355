@@ -622,34 +622,34 @@ function Dashboard() {
 
         {/* 핸디캡 & 잔액 */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
-          <Card padding="16px 12px" style={{ textAlign: 'center', background: '#F8FAFC', borderLeft: '4px solid var(--primary-green)' }}>
-            <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-              <span>⛳</span> 핸디캡
+          <Card padding="16px 12px" style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '12px', fontWeight: '600', color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              핸디캡
             </div>
-            <div style={{ fontSize: '28px', fontWeight: '800', color: 'var(--primary-green)', marginBottom: '4px' }}>
+            <div style={{ fontSize: '28px', fontWeight: '800', color: '#111827', marginBottom: '4px' }}>
               {user?.handicap ?? user?.calculatedHandicap ?? 18}
             </div>
-            <div style={{ fontSize: '11px', color: '#888', marginBottom: user?.handicapExplanation ? '4px' : '0' }}>
+            <div style={{ fontSize: '11px', color: '#9CA3AF', marginBottom: user?.handicapExplanation ? '4px' : '0' }}>
               추천: {user?.calculatedHandicap ?? user?.handicap ?? 18}
             </div>
             {user?.handicapExplanation && (
-              <div style={{ fontSize: '10px', color: '#666', fontStyle: 'italic', lineHeight: '1.3', marginTop: '4px' }}>{user.handicapExplanation}</div>
+              <div style={{ fontSize: '10px', color: '#9CA3AF', fontStyle: 'italic', lineHeight: '1.3', marginTop: '4px' }}>{user.handicapExplanation}</div>
             )}
           </Card>
-          <Card padding="16px 12px" style={{ textAlign: 'center', background: '#F8FAFC', borderLeft: '4px solid var(--accent-gold)' }}>
-            <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
-              <span>💳</span> 참가비 잔액
+          <Card padding="16px 12px" style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: '12px', fontWeight: '600', color: '#6B7280', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              참가비 잔액
             </div>
-            <div style={{ fontSize: '28px', fontWeight: '800', color: calculatedBalance < 0 ? 'var(--alert-red)' : 'var(--accent-gold)' }}>
+            <div style={{ fontSize: '28px', fontWeight: '800', color: calculatedBalance < 0 ? '#DC2626' : '#111827' }}>
               ${calculatedBalance.toLocaleString()}
             </div>
           </Card>
         </div>
 
         {/* 게시판 */}
-        <Card style={{ borderLeft: '3px solid var(--accent-bright-green)' }}>
+        <Card>
           <div onClick={() => setIsBoardOpen(!isBoardOpen)} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isBoardOpen ? '13px' : '0', cursor: 'pointer' }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--accent-bright-green)', margin: 0 }}>✎ 게시판</h3>
+            <h3 style={{ fontSize: '17px', fontWeight: '700', color: '#111827', margin: 0 }}>게시판</h3>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {isBoardOpen && canCreatePost && (
                 <Button onClick={(e) => { e.stopPropagation(); setShowNewPost(!showNewPost); }} variant={showNewPost ? 'outline' : 'primary'} size="sm">
@@ -699,9 +699,8 @@ function Dashboard() {
           )}
 
           {posts.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '32px', opacity: 0.7, background: 'var(--bg-green)', borderRadius: '8px' }}>
-              <div style={{ fontSize: '48px', marginBottom: '13px' }}>✎</div>
-              <p>아직 공지사항이 없습니다</p>
+            <div style={{ textAlign: 'center', padding: '32px', background: '#F9FAFB', borderRadius: '12px' }}>
+              <p style={{ color: '#9CA3AF', fontSize: '14px' }}>아직 공지사항이 없습니다</p>
               {canCreatePost && (
                 <p style={{ fontSize: '14px', marginTop: '6px' }}>
                   상단의 작성 버튼을 눌러 첫 공지를 작성하세요
@@ -825,17 +824,7 @@ function Dashboard() {
                         {post.comments && post.comments.length > 0 && (
                           <>
                             <span>•</span>
-                            <div style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '3px',
-                              color: 'var(--primary-green)',
-                              fontWeight: '600',
-                              opacity: 1
-                            }}>
-                              <span>💬</span>
-                              <span>{post.comments.length}</span>
-                            </div>
+                            <span style={{ color: '#6B7280', fontWeight: '600' }}>댓글 {post.comments.length}</span>
                           </>
                         )}
                       </div>

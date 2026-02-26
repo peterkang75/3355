@@ -167,22 +167,24 @@ function MyPage() {
                   width: '120px',
                   height: '120px',
                   objectFit: 'cover',
-                  borderRadius: '50%'
+                  borderRadius: '50%',
+                  border: '3px solid #E5E7EB'
                 }}
               />
             ) : (
               <div style={{
                 width: '120px',
                 height: '120px',
-                background: '#ddd',
+                background: '#F3F4F6',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: '60px',
-                color: '#999'
+                fontSize: '48px',
+                color: '#9CA3AF',
+                border: '3px solid #E5E7EB'
               }}>
-                •
+                👤
               </div>
             )}
             
@@ -232,7 +234,7 @@ function MyPage() {
             fontSize: '24px', 
             fontWeight: '700',
             marginBottom: '8px',
-            color: 'var(--primary-green)'
+            color: '#111827'
           }}>
             {user.nickname || user.name}
           </h2>
@@ -257,11 +259,11 @@ function MyPage() {
               alignItems: 'center',
               gap: '8px',
               padding: '8px 16px',
-              background: 'var(--bg-green)',
+              background: '#F3F4F6',
               borderRadius: '20px',
-              fontSize: '18px',
+              fontSize: '16px',
               fontWeight: '700',
-              color: 'var(--primary-green)'
+              color: '#374151'
             }}>
               추천핸디: {handicapType}({handicapValue})
             </div>
@@ -292,7 +294,7 @@ function MyPage() {
                   fontSize: '16px', 
                   fontWeight: '700',
                   margin: 0,
-                  color: 'var(--primary-green)'
+                  color: '#111827'
                 }}>
                   기본 정보
                 </h3>
@@ -301,7 +303,7 @@ function MyPage() {
                   variant="outline"
                   size="sm"
                 >
-                  ✎ 수정
+                  수정
                 </Button>
               </div>
               
@@ -508,7 +510,7 @@ function MyPage() {
               fontSize: '16px', 
               fontWeight: '700',
               margin: 0,
-              color: 'var(--primary-green)'
+              color: '#111827'
             }}>
               스코어 히스토리
             </h3>
@@ -548,9 +550,9 @@ function MyPage() {
                     onClick={handleScoreClick}
                     style={{
                       padding: '12px',
-                      background: 'var(--bg-green)',
-                      borderRadius: '6px',
-                      borderBottom: '1px solid var(--border-color)',
+                      background: '#F9FAFB',
+                      borderRadius: '10px',
+                      border: '1px solid #E5E7EB',
                       cursor: matchingBooking ? 'pointer' : 'default',
                       transition: 'transform 0.1s ease'
                     }}
@@ -564,20 +566,20 @@ function MyPage() {
                       <div style={{
                         fontSize: '15px',
                         fontWeight: '700',
-                        color: 'var(--primary-green)',
+                        color: '#111827',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '6px'
                       }}>
                         {score.roundingName}
                         {matchingBooking && (
-                          <span style={{ fontSize: '10px', color: 'var(--primary-green)' }}>→</span>
+                          <span style={{ fontSize: '10px', color: '#9CA3AF' }}>→</span>
                         )}
                       </div>
                       <div style={{
                         fontSize: '18px',
                         fontWeight: '700',
-                        color: 'var(--primary-green)'
+                        color: '#111827'
                       }}>
                         {score.totalScore}
                       </div>

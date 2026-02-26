@@ -538,10 +538,10 @@ function RoundingListV2() {
     const typeLabel = booking.title || booking.type || '';
     let bg = '#FFEDD5';
     let color = '#9A3412';
-    if (typeLabel.includes('컴페티션')) { bg = '#1E293B'; color = '#FFFFFF'; }
+    if (typeLabel.includes('컴페티션')) { bg = '#0F766E'; color = '#FFFFFF'; }
     else if (typeLabel.includes('그린피')) { bg = '#D1FAE5'; color = '#065F46'; }
-    else if (typeLabel.includes('소셜') || typeLabel.includes('Social')) { bg = '#FFEDD5'; color = '#9A3412'; }
-    else if (typeLabel.includes('정기')) { bg = '#BF4D34'; color = '#FFFFFF'; }
+    else if (typeLabel.includes('소셜') || typeLabel.includes('Social')) { bg = '#F3F4F6'; color = '#374151'; }
+    else if (typeLabel.includes('정기')) { bg = '#1A3D2F'; color = '#FFFFFF'; }
     if (!typeLabel) return null;
     return (
       <span style={{
@@ -608,7 +608,6 @@ function RoundingListV2() {
           marginBottom: '12px',
           cursor: 'pointer',
           boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-          borderLeft: '4px solid #D97706',
           transition: 'transform 0.15s, box-shadow 0.15s',
         }}
       >
@@ -672,18 +671,18 @@ function RoundingListV2() {
 
   const getTileAccentColor = (booking) => {
     const typeLabel = (booking.title || booking.type || '').toLowerCase();
-    if (typeLabel.includes('정기') || typeLabel.includes('official')) return '#D97706';
-    if (typeLabel.includes('컴페티션') || typeLabel.includes('competition')) return '#1D4ED8';
+    if (typeLabel.includes('정기') || typeLabel.includes('official')) return '#374151';
+    if (typeLabel.includes('컴페티션') || typeLabel.includes('competition')) return '#0F766E';
     if (typeLabel.includes('그린피') || typeLabel.includes('greenfee')) return '#059669';
     return '#EA580C';
   };
 
   const getTileTypeBadge = (booking) => {
     const type = (booking.type || '').trim();
-    if (type === '정기모임') return { label: '정기', bg: '#FDF4E7', color: '#B45309' };
-    if (type === '컴페티션') return { label: '컴페티션', bg: '#EEF0F8', color: '#4338CA' };
-    if (type === '그린피') return { label: '그린피', bg: '#E6F4F3', color: '#0F766E' };
-    return { label: '소셜', bg: '#FBF0EC', color: '#C2410C' };
+    if (type === '정기모임') return { label: '정기', bg: '#F3F4F6', color: '#374151' };
+    if (type === '컴페티션') return { label: '컴페티션', bg: '#0F766E', color: '#FFFFFF' };
+    if (type === '그린피') return { label: '그린피', bg: '#CCFBF1', color: '#0F766E' };
+    return { label: '소셜', bg: '#F3F4F6', color: '#374151' };
   };
 
   const formatTileDate = (dateStr) => {
@@ -938,7 +937,7 @@ function RoundingListV2() {
     if (!showHostManage || !hmBooking) return null;
 
     const typeOptions = [
-      { key: '컴페티션', label: '컴페티션', icon: '🏆' },
+      { key: '컴페티션', label: '컴페티션', icon: '🏅' },
       { key: '그린피', label: '그린피', icon: '⛳' },
       { key: '소셜', label: '소셜', icon: '☕' },
     ];
@@ -1894,7 +1893,7 @@ function RoundingListV2() {
                   onClick={() => navigate(`/play?id=${booking.id}`)}
                   style={{ width: '100%', padding: '14px', borderRadius: '14px', border: 'none', background: deepGreen, color: 'white', fontSize: '16px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 8px rgba(26,61,71,0.2)' }}
                 >
-                  ⛳ 플레이하기
+                  플레이하기
                 </button>
               );
 
@@ -1941,7 +1940,7 @@ function RoundingListV2() {
                       <button
                         onClick={(e) => { e.stopPropagation(); handleJoinLeave(booking); }}
                         disabled={isJoining}
-                        style={{ ...btnStyle('#FFFFFF', '#E11D48', '1px solid #E5E7EB'), opacity: isJoining ? 0.6 : 1 }}
+                        style={{ ...btnStyle('#FFFFFF', '#4B5563', '1px solid #D1D5DB'), opacity: isJoining ? 0.6 : 1 }}
                       >
                         {isJoining ? '처리중...' : '참가 취소'}
                       </button>
@@ -2279,7 +2278,7 @@ function RoundingListV2() {
                   <label style={labelStyle}>라운딩 타입</label>
                   <div style={{ display: 'flex', borderRadius: '10px', overflow: 'hidden', border: '1px solid #E5E7EB' }}>
                     {[
-                      { key: 'competition', label: '🏆 컴페티션' },
+                      { key: 'competition', label: '컴페티션' },
                       { key: 'greenfee', label: '💵 그린피' },
                       { key: 'social', label: '☕ 소셜' },
                     ].map(opt => (
