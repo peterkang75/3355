@@ -247,9 +247,9 @@ input:focus, textarea:focus, select:focus {
 }
 
 .header {
-  background: rgba(255, 255, 255, 0.55);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  background: rgba(255, 255, 255, 0.30);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
   color: #111827;
   padding: 0 16px;
   height: 56px;
@@ -263,7 +263,7 @@ input:focus, textarea:focus, select:focus {
   width: 100%;
   max-width: var(--layout-max);
   z-index: 200;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.20);
   box-sizing: border-box;
 }
 

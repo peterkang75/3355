@@ -731,8 +731,8 @@ function RoundingListV2() {
           gap: '6px',
         }}
       >
-        {/* Row 1: type badge + joined dot */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        {/* Row 1: type badge + location badge + joined dot */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
           <span style={{
             fontSize: '10px',
             fontWeight: '700',
@@ -741,35 +741,39 @@ function RoundingListV2() {
             borderRadius: '5px',
             padding: '2px 7px',
             whiteSpace: 'nowrap',
+            flexShrink: 0,
           }}>
             {typeLabel}
           </span>
+          {(booking.courseName || booking.title) && (
+            <span style={{
+              fontSize: '10px',
+              fontWeight: '500',
+              color: '#475569',
+              background: '#F1F5F9',
+              borderRadius: '5px',
+              padding: '2px 6px',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+              minWidth: 0,
+              flex: 1,
+            }}>
+              📍 {booking.courseName || booking.title}
+            </span>
+          )}
           {isJoined && (
             <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#22C55E', flexShrink: 0 }} />
           )}
         </div>
 
-        {/* Row 2: Course name (hero text) */}
-        <div style={{
-          fontSize: '14px',
-          fontWeight: '700',
-          color: '#111827',
-          lineHeight: 1.25,
-          overflow: 'hidden',
-          display: '-webkit-box',
-          WebkitLineClamp: 2,
-          WebkitBoxOrient: 'vertical',
-        }}>
-          {booking.courseName || booking.title || '골프장'}
-        </div>
-
-        {/* Row 3: Date + Time */}
+        {/* Row 2: Date + Time (hero) */}
         <div>
-          <div style={{ fontSize: '13px', fontWeight: '700', color: '#374151', lineHeight: 1.3 }}>
+          <div style={{ fontSize: '16px', fontWeight: '800', color: '#111827', lineHeight: 1.2 }}>
             {formatTileDate(booking.date)}
           </div>
           {time && (
-            <div style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: '500', marginTop: '1px' }}>
+            <div style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600', marginTop: '2px' }}>
               {time}
             </div>
           )}
