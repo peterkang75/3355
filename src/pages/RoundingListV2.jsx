@@ -769,11 +769,11 @@ function RoundingListV2() {
 
         {/* Row 2: Date + Time (hero) */}
         <div>
-          <div style={{ fontSize: '14px', fontWeight: '700', color: '#111827', lineHeight: 1.2, whiteSpace: 'nowrap', letterSpacing: '-0.025em' }}>
+          <div style={{ fontSize: 'clamp(16px, 4.5vw, 20px)', fontWeight: '800', color: '#111827', lineHeight: 1.2, whiteSpace: 'nowrap', letterSpacing: '-0.5px', display: 'block' }}>
             {formatTileDate(booking.date)}
           </div>
           {time && (
-            <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '2px' }}>
+            <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '2px' }}>
               {time}
             </div>
           )}
