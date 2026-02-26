@@ -832,38 +832,45 @@ function RoundingListV2() {
     }
 
     return groupedByWeek.map((week, idx) => (
-      <div key={week.monday.toISOString()} style={{
-        borderTop: idx === 0 ? 'none' : '2px solid #F3F4F6',
-        paddingTop: idx === 0 ? 0 : '24px',
-        marginTop: idx === 0 ? '16px' : '32px',
-        marginBottom: '8px',
-      }}>
+      <React.Fragment key={week.monday.toISOString()}>
+        {idx > 0 && (
+          <hr style={{
+            border: 'none',
+            borderTop: '1px solid #E5E7EB',
+            margin: '32px 0',
+          }} />
+        )}
         <div style={{
-          fontSize: '14px',
-          fontWeight: '700',
-          color: '#374151',
-          marginBottom: '14px',
+          marginTop: idx === 0 ? '16px' : 0,
+          marginBottom: '8px',
         }}>
-          {week.label}
+          <div style={{
+            fontSize: '14px',
+            fontWeight: '700',
+            color: '#374151',
+            marginBottom: '14px',
+          }}>
+            {week.label}
+          </div>
+          <div
+            className="scroll-hide"
+            style={{
+              display: 'flex',
+              justifyContent: 'flex-end',
+              alignItems: 'stretch',
+              gap: '8px',
+              overflowX: 'auto',
+              paddingBottom: '8px',
+              marginLeft: '-16px',
+              marginRight: '-16px',
+              paddingLeft: '16px',
+              paddingRight: '16px',
+            }}
+          >
+            {week.bookings.map(b => renderWeekTile(b, week.bookings.length))}
+          </div>
         </div>
-        <div
-          className="scroll-hide"
-          style={{
-            display: 'flex',
-            justifyContent: 'flex-end',
-            alignItems: 'stretch',
-            gap: '8px',
-            overflowX: 'auto',
-            paddingBottom: '8px',
-            marginLeft: '-16px',
-            marginRight: '-16px',
-            paddingLeft: '16px',
-            paddingRight: '16px',
-          }}
-        >
-          {week.bookings.map(b => renderWeekTile(b, week.bookings.length))}
-        </div>
-      </div>
+      </React.Fragment>
     ));
   };
 
