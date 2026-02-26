@@ -64,7 +64,7 @@ function PageHeader({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: isDark ? 'var(--text-light)' : '#1A3D2F',
+            color: '#1F2937',
             minWidth: '32px'
           }}
         >
@@ -76,7 +76,7 @@ function PageHeader({
         flex: 1, 
         fontSize: '20px', 
         fontWeight: '800',
-        color: isDark ? 'var(--text-light)' : '#1A3D2F',
+        color: '#111827',
         margin: 0,
         marginLeft: shouldShowBack ? '4px' : '0'
       }}>

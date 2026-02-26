@@ -86,7 +86,7 @@ function ProfileBadge({ user, showGreeting = false, size = 36 }) {
           style={{ 
             fontSize: '14px', 
             fontWeight: '500', 
-            color: 'var(--text-light)',
+            color: '#374151',
             cursor: canSwitchUsers ? 'pointer' : 'default',
             display: 'flex',
             alignItems: 'center',
@@ -113,14 +113,14 @@ function ProfileBadge({ user, showGreeting = false, size = 36 }) {
           height: `${size}px`,
           borderRadius: '50%',
           overflow: 'hidden',
-          background: 'var(--primary-green)',
+          background: 'rgba(26, 61, 71, 0.1)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: 'white',
-          fontWeight: '600',
+          color: '#1a3d47',
+          fontWeight: '700',
           fontSize: `${Math.round(size * 0.39)}px`,
-          border: '2px solid var(--border-color)'
+          border: 'none',
         }}>
           {user.photo ? (
             <img 
