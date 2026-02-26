@@ -52,7 +52,7 @@ function RoundingListV2() {
   const [newRounding, setNewRounding] = useState({
     date: '',
     time: '',
-    courseName: '',
+    courseName: 'Strathfield Golf Club',
     maxMembers: 4,
     notes: '',
     roundingType: '',
@@ -428,7 +428,7 @@ function RoundingListV2() {
       };
       await addBooking(bookingData);
       setShowCreateModal(false);
-      setNewRounding({ date: '', time: '', courseName: '', maxMembers: 4, notes: '', roundingType: '', timeMode: 'recruit', timeSlot: 'Morning' });
+      setNewRounding({ date: '', time: '', courseName: 'Strathfield Golf Club', maxMembers: 4, notes: '', roundingType: '', timeMode: 'recruit', timeSlot: 'Morning' });
     } catch (err) {
       alert('라운딩 생성에 실패했습니다.\n' + (err.message || ''));
     } finally {
