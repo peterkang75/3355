@@ -108,6 +108,20 @@ export function AppProvider({ children }) {
               try {
                 localStorage.setItem('golfUser', JSON.stringify(currentUser));
               } catch (e) {}
+
+              // 사진 포함한 최신 프로필 백그라운드 로드
+              fetch(`/api/members/${currentUser.id}`)
+                .then(r => r.ok ? r.json() : null)
+                .then(fullUser => {
+                  if (fullUser) {
+                    setUser(prev => ({ ...prev, photo: fullUser.photo }));
+                    try {
+                      const stored = JSON.parse(localStorage.getItem('golfUser') || '{}');
+                      localStorage.setItem('golfUser', JSON.stringify({ ...stored, photo: fullUser.photo }));
+                    } catch (e) {}
+                  }
+                })
+                .catch(() => {});
             }
           }
         }
