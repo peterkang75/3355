@@ -755,15 +755,13 @@ function RoundingListV2() {
       );
     }
 
-    return groupedByWeek.map((week) => (
-      <div key={week.monday.toISOString()} style={{ marginBottom: '24px' }}>
+    return groupedByWeek.map((week, idx) => (
+      <div key={week.monday.toISOString()} style={{ marginTop: idx === 0 ? 0 : '32px', marginBottom: '24px' }}>
         <div style={{
-          fontSize: '12px',
-          fontWeight: '700',
-          color: '#9CA3AF',
-          marginBottom: '10px',
-          letterSpacing: '0.05em',
-          textTransform: 'uppercase',
+          fontSize: '15px',
+          fontWeight: '800',
+          color: '#1F2937',
+          marginBottom: '12px',
         }}>
           {week.label}
         </div>
