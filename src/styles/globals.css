@@ -251,7 +251,8 @@ input:focus, textarea:focus, select:focus {
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   color: #111827;
-  padding: var(--spacing-lg);
+  padding: 0 16px;
+  min-height: 56px;
   display: flex;
   align-items: center;
   justify-content: space-between;

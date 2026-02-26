@@ -4,6 +4,7 @@ import apiService from '../services/api';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import theme from '../styles/theme';
 import { ProfileBadge } from '../components/common';
+import PageHeader from '../components/common/PageHeader';
 
 const parseParticipants = (participants) => {
   if (!participants || !Array.isArray(participants)) return [];
@@ -2443,21 +2444,11 @@ function RoundingListV2() {
 
   return (
     <div style={{ background: '#F3F4F6', minHeight: '100vh' }}>
-      <div style={{
-        position: 'sticky',
-        top: 0,
-        zIndex: 100,
-        background: '#1A3D2F',
-        padding: '16px 20px',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-      }}>
-        <h1 style={{ fontSize: '20px', fontWeight: '700', color: '#FFFFFF', margin: 0 }}>
-          라운딩 라운지
-        </h1>
-        <ProfileBadge user={user} showGreeting={false} />
-      </div>
+      <PageHeader
+        title="라운딩 라운지"
+        showBackButton={false}
+        rightContent={<ProfileBadge user={user} showGreeting={false} />}
+      />
 
       <div style={{ padding: '20px 16px 100px' }}>
         <div style={{ marginBottom: '8px' }}>
