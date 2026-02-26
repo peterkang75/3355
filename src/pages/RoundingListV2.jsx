@@ -596,6 +596,7 @@ function RoundingListV2() {
     const accentColor = getTileAccentColor(booking);
     const time = formatTileTime(booking.time);
     const { isRegistrationClosed } = getBookingStatusFlags(booking);
+    const isCompetition = booking.type === '컴페티션';
 
     const deadline = getEffectiveDeadline(booking);
     const now = new Date();
@@ -606,19 +607,23 @@ function RoundingListV2() {
     let badgeText;
     let badgeBg;
     let badgeColor;
-    if (isRegistrationClosed) {
+    if (isCompetition && isRegistrationClosed) {
       badgeText = '접수마감';
       badgeBg = '#FFE4E6';
       badgeColor = '#BE123C';
-    } else if (hoursLeft <= 24) {
+    } else if (isCompetition && hoursLeft <= 24) {
       const h = Math.max(1, Math.ceil(hoursLeft));
       badgeText = `${h}시간남음`;
       badgeBg = '#FEF3C7';
       badgeColor = '#92400E';
-    } else {
+    } else if (isCompetition) {
       badgeText = `${daysLeft}일남음`;
       badgeBg = '#D1FAE5';
       badgeColor = '#047857';
+    } else {
+      badgeText = `${participants.length}명 참가`;
+      badgeBg = '#EFF6FF';
+      badgeColor = '#1D4ED8';
     }
 
     const isHovered = hoveredTileId === booking.id;
@@ -1244,6 +1249,8 @@ function RoundingListV2() {
               const hasResults = booking.dailyHandicaps || isPastRoundingDate;
               const isRenting = booking.numberRentals && booking.numberRentals.includes(user.phone);
               const isCompetition = booking.type === '컴페티션';
+              const effectiveClosed = isCompetition ? isRegistrationClosed : false;
+              const showTeamFormation = participants.length > 4;
 
               const btnStyle = (bg, color, border) => ({
                 flex: 1,
@@ -1257,123 +1264,113 @@ function RoundingListV2() {
                 cursor: 'pointer',
               });
 
+              const manageBtn = canManage && (
+                <button
+                  onClick={() => {
+                    if (isHostOnly) {
+                      openHostManage(booking);
+                    } else {
+                      setSelectedBooking(null);
+                      navigate(`/rounding-management?id=${booking.id}`);
+                    }
+                  }}
+                  style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}
+                >
+                  관리
+                </button>
+              );
+
+              const playBtn = (
+                <button
+                  onClick={() => navigate(`/play?id=${booking.id}`)}
+                  style={{ width: '100%', padding: '14px', borderRadius: '12px', border: 'none', background: '#3B82F6', color: 'white', fontSize: '16px', fontWeight: '700', cursor: 'pointer' }}
+                >
+                  ⛳ 플레이하기
+                </button>
+              );
+
               if (hasResults) {
                 return (
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    {canManage && (
-                      <button
-                        onClick={() => {
-                          if (isHostOnly) {
-                            openHostManage(booking);
-                          } else {
-                            setSelectedBooking(null);
-                            navigate(`/rounding-management?id=${booking.id}`);
-                          }
-                        }}
-                        style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}
-                      >
-                        관리
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      {manageBtn}
+                      {showTeamFormation && (
+                        <button onClick={() => navigate(`/team-formation?id=${booking.id}`)} style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}>
+                          📋 조편성
+                        </button>
+                      )}
+                      <button onClick={() => navigate(`/leaderboard?id=${booking.id}`)} style={btnStyle('white', '#3B82F6', '1px solid #3B82F6')}>
+                        ▲ 결과보기
                       </button>
-                    )}
-                    {!isCompetition && (
-                      <button onClick={() => navigate(`/play?id=${booking.id}`)} style={btnStyle(theme.colors.primary, 'white')}>
-                        ⛳ 플레이
-                      </button>
-                    )}
-                    <button onClick={() => navigate(`/leaderboard?id=${booking.id}`)} style={btnStyle('#3B82F6', 'white')}>
-                      ▲ 결과보기
-                    </button>
+                    </div>
+                    {!isCompetition && playBtn}
                   </div>
                 );
               }
 
-              if (isRegistrationClosed) {
+              if (effectiveClosed) {
                 return (
-                  <div style={{ display: 'flex', gap: '10px' }}>
-                    {canManage && (
-                      <button
-                        onClick={() => {
-                          if (isHostOnly) {
-                            openHostManage(booking);
-                          } else {
-                            setSelectedBooking(null);
-                            navigate(`/rounding-management?id=${booking.id}`);
-                          }
-                        }}
-                        style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}
-                      >
-                        관리
-                      </button>
-                    )}
-                    <button onClick={() => navigate(`/team-formation?id=${booking.id}`)} style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}>
-                      📋 조편성 보기
-                    </button>
-                    {(booking.playEnabled || !isCompetition) && (
-                      <button onClick={() => navigate(`/play?id=${booking.id}`)} style={btnStyle(theme.colors.primary, 'white')}>
-                        ⛳ 플레이
-                      </button>
-                    )}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                      {manageBtn}
+                      {showTeamFormation && (
+                        <button onClick={() => navigate(`/team-formation?id=${booking.id}`)} style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}>
+                          📋 조편성 보기
+                        </button>
+                      )}
+                    </div>
+                    {booking.playEnabled && playBtn}
                   </div>
                 );
               }
 
               return (
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  {canManage && (
-                    <button
-                      onClick={() => {
-                        if (isHostOnly) {
-                          openHostManage(booking);
-                        } else {
-                          setSelectedBooking(null);
-                          navigate(`/rounding-management?id=${booking.id}`);
-                        }
-                      }}
-                      style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}
-                    >
-                      관리
-                    </button>
-                  )}
-                  {isJoined ? (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleJoinLeave(booking); }}
-                      disabled={isJoining}
-                      style={{ ...btnStyle('white', '#DC2626', '1px solid #DC2626'), opacity: isJoining ? 0.6 : 1 }}
-                    >
-                      {isJoining ? '처리중...' : '참가 취소'}
-                    </button>
-                  ) : (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); handleJoinLeave(booking); }}
-                      disabled={isJoining || isFull || isRenting}
-                      style={{ ...btnStyle(isFull ? '#E5E7EB' : theme.colors.primary, isFull ? '#9CA3AF' : 'white'), opacity: (isJoining || isRenting) ? 0.6 : 1 }}
-                    >
-                      {isJoining ? '처리중...' : isFull ? '마감됨' : '참가하기'}
-                    </button>
-                  )}
-                  {isCompetition ? (
-                    isRenting ? (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    {manageBtn}
+                    {isJoined ? (
                       <button
-                        onClick={(e) => { e.stopPropagation(); handleToggleRental(booking.id); }}
-                        disabled={isRentalLoading}
-                        style={{ ...btnStyle('#E6AA68', 'white'), opacity: isRentalLoading ? 0.6 : 1 }}
+                        onClick={(e) => { e.stopPropagation(); handleJoinLeave(booking); }}
+                        disabled={isJoining}
+                        style={{ ...btnStyle('white', '#DC2626', '1px solid #DC2626'), opacity: isJoining ? 0.6 : 1 }}
                       >
-                        {isRentalLoading ? '처리중...' : '대여 취소'}
+                        {isJoining ? '처리중...' : '참가 취소'}
                       </button>
                     ) : (
                       <button
-                        onClick={(e) => { e.stopPropagation(); handleToggleRental(booking.id); }}
-                        disabled={isRentalLoading || isJoined}
-                        style={{ ...btnStyle('white', '#E6AA68', '1px solid #E6AA68'), opacity: (isRentalLoading || isJoined) ? 0.5 : 1 }}
+                        onClick={(e) => { e.stopPropagation(); handleJoinLeave(booking); }}
+                        disabled={isJoining || isFull || isRenting}
+                        style={{ ...btnStyle(isFull ? '#E5E7EB' : theme.colors.primary, isFull ? '#9CA3AF' : 'white'), opacity: (isJoining || isRenting) ? 0.6 : 1 }}
                       >
-                        {isRentalLoading ? '처리중...' : '번호 대여'}
+                        {isJoining ? '처리중...' : isFull ? '마감됨' : '참가하기'}
                       </button>
-                    )
-                  ) : (
-                    <button onClick={() => navigate(`/play?id=${booking.id}`)} style={btnStyle(theme.colors.primary, 'white')}>
-                      ⛳ 플레이
-                    </button>
-                  )}
+                    )}
+                    {isCompetition && (
+                      isRenting ? (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleToggleRental(booking.id); }}
+                          disabled={isRentalLoading}
+                          style={{ ...btnStyle('#E6AA68', 'white'), opacity: isRentalLoading ? 0.6 : 1 }}
+                        >
+                          {isRentalLoading ? '처리중...' : '대여 취소'}
+                        </button>
+                      ) : (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); handleToggleRental(booking.id); }}
+                          disabled={isRentalLoading || isJoined}
+                          style={{ ...btnStyle('white', '#E6AA68', '1px solid #E6AA68'), opacity: (isRentalLoading || isJoined) ? 0.5 : 1 }}
+                        >
+                          {isRentalLoading ? '처리중...' : '번호 대여'}
+                        </button>
+                      )
+                    )}
+                    {showTeamFormation && !isCompetition && (
+                      <button onClick={() => navigate(`/team-formation?id=${booking.id}`)} style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}>
+                        📋 조편성
+                      </button>
+                    )}
+                  </div>
+                  {!isCompetition && playBtn}
                 </div>
               );
             })()}
