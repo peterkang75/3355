@@ -2062,7 +2062,7 @@ function RoundingListV2() {
               </div>
               <div>
                 <div style={{ fontSize: '16px', fontWeight: '700', color: '#111827', marginBottom: '2px' }}>
-                  소셜/번개 개설
+                  클럽컴/소셜 라운딩 개설
                 </div>
                 <div style={{ fontSize: '13px', color: '#9CA3AF', lineHeight: '1.4' }}>
                   누구나 쉽고 빠르게. 골프장과 시간만 선택하세요.
