@@ -643,6 +643,14 @@ function RoundingListV2() {
     return '#EA580C';
   };
 
+  const getTileTypeBadge = (booking) => {
+    const type = (booking.type || '').trim();
+    if (type === '정기모임') return { label: '정기', bg: '#FEF3C7', color: '#92400E' };
+    if (type === '컴페티션') return { label: '컴', bg: '#EFF6FF', color: '#1D4ED8' };
+    if (type === '그린피') return { label: '그린피', bg: '#D1FAE5', color: '#065F46' };
+    return { label: '소셜', bg: '#FFEDD5', color: '#9A3412' };
+  };
+
   const formatTileDate = (dateStr) => {
     const d = new Date(dateStr);
     const days = ['일', '월', '화', '수', '목', '금', '토'];
@@ -720,13 +728,28 @@ function RoundingListV2() {
           minHeight: '110px',
         }}
       >
-        {/* Top row: type dot + joined indicator */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-          <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: accentColor, flexShrink: 0 }} />
-          {isJoined && (
-            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22C55E', flexShrink: 0 }} />
-          )}
-        </div>
+        {/* Top row: type badge + joined indicator */}
+        {(() => {
+          const { label: typeLabel, bg: typeBg, color: typeColor } = getTileTypeBadge(booking);
+          return (
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <span style={{
+                fontSize: '10px',
+                fontWeight: '700',
+                color: typeColor,
+                background: typeBg,
+                borderRadius: '5px',
+                padding: '2px 6px',
+                whiteSpace: 'nowrap',
+              }}>
+                {typeLabel}
+              </span>
+              {isJoined && (
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22C55E', flexShrink: 0 }} />
+              )}
+            </div>
+          );
+        })()}
 
         {/* Date */}
         <div style={{ fontSize: '13px', fontWeight: '800', color: '#111827', lineHeight: 1.2, marginBottom: time ? '2px' : '0' }}>
@@ -1524,7 +1547,6 @@ function RoundingListV2() {
                       alignItems: 'center',
                       justifyContent: 'space-between',
                       padding: '16px 0',
-                      borderBottom: '1px solid #F3F4F6',
                       background: 'none',
                       border: 'none',
                       borderBottom: '1px solid #F3F4F6',
@@ -2558,20 +2580,6 @@ function RoundingListV2() {
               </div>
             );
           })()}
-
-          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
-            {[
-              { color: '#F59E0B', label: '정기모임' },
-              { color: '#3B82F6', label: '컴페티션' },
-              { color: '#10B981', label: '그린피' },
-              { color: '#F97316', label: '소셜' },
-            ].map(({ color, label }) => (
-              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <div style={{ width: '10px', height: '10px', borderRadius: '2px', background: color }} />
-                <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: '500' }}>{label}</span>
-              </div>
-            ))}
-          </div>
 
           {renderWeeklyTimeline()}
         </div>
