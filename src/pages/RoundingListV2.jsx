@@ -704,11 +704,13 @@ function RoundingListV2() {
     }
 
     const isSingle = tilesInRow === 1;
-    const maxChips = isSingle ? 7 : tilesInRow <= 2 ? 6 : tilesInRow <= 3 ? 5 : tilesInRow <= 4 ? 4 : 3;
+    const maxChips = isSingle ? 5 : tilesInRow <= 2 ? 4 : 3;
     const shownParticipants = participants.slice(0, maxChips);
     const hiddenCount = participants.length - shownParticipants.length;
 
     const { label: typeLabel, bg: typeBg, color: typeColor } = getTileTypeBadge(booking);
+    const rawName = booking.courseName || booking.title || '';
+    const shortLocation = rawName.split(/\s*golf\s*/i)[0].trim();
 
     return (
       <div
@@ -724,78 +726,72 @@ function RoundingListV2() {
           border: '1px solid #F0F1F3',
           display: 'flex',
           flexDirection: 'column',
-          padding: '14px 12px 12px',
+          padding: '12px 12px 10px',
           cursor: 'pointer',
           position: 'relative',
           transition: 'box-shadow 0.15s ease',
-          gap: '6px',
+          gap: '4px',
         }}
       >
-        {/* Row 1: type badge + location badge + joined dot */}
-        {(() => {
-          const rawName = booking.courseName || booking.title || '';
-          const shortLocation = rawName.split(/\s*golf\s*/i)[0].trim();
-          return (
-            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '4px' }}>
-              <span style={{
-                fontSize: '10px',
-                fontWeight: '700',
-                color: typeColor,
-                background: typeBg,
-                borderRadius: '5px',
-                padding: '2px 7px',
-                whiteSpace: 'nowrap',
-                flexShrink: 0,
-              }}>
-                {typeLabel}
-              </span>
-              {shortLocation && (
-                <span style={{
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  color: '#374151',
-                  background: '#F3F4F6',
-                  borderRadius: '5px',
-                  padding: '2px 7px',
-                  whiteSpace: 'nowrap',
-                  flexShrink: 0,
-                }}>
-                  {shortLocation}
-                </span>
-              )}
-              {isJoined && (
-                <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#22C55E', flexShrink: 0, marginLeft: 'auto' }} />
-              )}
-            </div>
-          );
-        })()}
+        {/* Row 1: location badge first, then type badge, then joined dot */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '4px' }}>
+          {shortLocation && (
+            <span style={{
+              fontSize: '10px',
+              fontWeight: '600',
+              color: '#374151',
+              background: '#F3F4F6',
+              borderRadius: '5px',
+              padding: '2px 6px',
+              whiteSpace: 'nowrap',
+              flexShrink: 0,
+            }}>
+              {shortLocation}
+            </span>
+          )}
+          <span style={{
+            fontSize: '10px',
+            fontWeight: '700',
+            color: typeColor,
+            background: typeBg,
+            borderRadius: '5px',
+            padding: '2px 6px',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+          }}>
+            {typeLabel}
+          </span>
+          {isJoined && (
+            <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#22C55E', flexShrink: 0, marginLeft: 'auto' }} />
+          )}
+        </div>
 
         {/* Row 2: Date + Time (hero) */}
-        <div>
+        <div style={{ marginTop: '2px' }}>
           <div style={{ fontSize: '16px', fontWeight: '800', color: '#111827', lineHeight: 1.2 }}>
             {formatTileDate(booking.date)}
           </div>
           {time && (
-            <div style={{ fontSize: '12px', color: '#6B7280', fontWeight: '600', marginTop: '2px' }}>
+            <div style={{ fontSize: '11px', color: '#6B7280', fontWeight: '600', marginTop: '1px' }}>
               {time}
             </div>
           )}
         </div>
 
-        {/* Row 4: Participant chips */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', flex: 1, alignContent: 'flex-start' }}>
+        {/* Row 3: Participant chips */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px', alignContent: 'flex-start', marginTop: '2px' }}>
           {shownParticipants.map((p, i) => {
             const isMe = p.phone === user.phone;
             return (
               <span key={i} style={{
                 display: 'inline-block',
-                fontSize: '12px',
+                fontSize: '11px',
                 fontWeight: isMe ? '700' : '500',
                 color: isMe ? '#1a3d47' : '#6B7280',
-                background: isMe ? '#E8F4ED' : '#F4F5F7',
-                border: `1px solid ${isMe ? '#C6E0CF' : 'transparent'}`,
-                borderRadius: '6px',
-                padding: '3px 8px',
+                background: isMe ? '#E8F4ED' : '#F9FAFB',
+                border: `1px solid ${isMe ? '#C6E0CF' : '#F3F4F6'}`,
+                borderRadius: '5px',
+                padding: '1px 6px',
                 whiteSpace: 'nowrap',
               }}>
                 {p.nickname || p.name}
@@ -805,28 +801,29 @@ function RoundingListV2() {
           {hiddenCount > 0 && (
             <span style={{
               display: 'inline-block',
-              fontSize: '12px',
+              fontSize: '11px',
               fontWeight: '600',
               color: '#6B7280',
-              background: '#F4F5F7',
-              borderRadius: '6px',
-              padding: '3px 8px',
+              background: '#F3F4F6',
+              borderRadius: '5px',
+              padding: '1px 6px',
             }}>
               +{hiddenCount}
             </span>
           )}
         </div>
 
-        {/* Row 5: Status badge */}
+        {/* Row 4: Status badge — pushed to bottom */}
         <div style={{
           display: 'inline-block',
           alignSelf: 'flex-start',
-          fontSize: '11px',
+          fontSize: '10px',
           fontWeight: '600',
-          padding: '3px 8px',
-          borderRadius: '6px',
+          padding: '2px 7px',
+          borderRadius: '5px',
           background: badgeBg,
           color: badgeColor,
+          marginTop: 'auto',
         }}>
           {badgeText}
         </div>
