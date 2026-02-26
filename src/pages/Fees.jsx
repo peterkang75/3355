@@ -372,8 +372,8 @@ function Fees() {
 
   const getTransactionColor = (t) => {
     if (["charge", "expense", "creditDonation"].includes(t.type))
-      return "#DC2626"; // Red
-    return "#1A3D2F"; // Green/Primary
+      return "#DC2626";
+    return "#0F766E";
   };
 
   const getTransactionSign = (t) => {
@@ -409,7 +409,7 @@ function Fees() {
               border: "none",
               background: activeTab === "personal" ? "#FFF" : "transparent",
               fontWeight: activeTab === "personal" ? "800" : "600",
-              color: activeTab === "personal" ? "#1A3D2F" : "#6B7280",
+              color: activeTab === "personal" ? "#0F766E" : "#6B7280",
               cursor: "pointer",
             }}
           >
@@ -424,7 +424,7 @@ function Fees() {
               border: "none",
               background: activeTab === "club" ? "#FFF" : "transparent",
               fontWeight: activeTab === "club" ? "800" : "600",
-              color: activeTab === "club" ? "#1E40AF" : "#6B7280",
+              color: activeTab === "club" ? "#0F766E" : "#6B7280",
               cursor: "pointer",
             }}
           >
@@ -439,18 +439,17 @@ function Fees() {
               className="card"
               style={{
                 background: "#FFFFFF",
-                borderLeft: "8px solid #E59879",
                 padding: "24px",
-                borderRadius: "12px",
-                boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
               }}
             >
               <div
                 style={{
-                  fontSize: "14px",
-                  color: "#666",
+                  fontSize: "12px",
+                  color: "#6B7280",
                   fontWeight: "600",
-                  marginBottom: "4px",
+                  marginBottom: "6px",
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em",
                 }}
               >
                 현재 잔액
@@ -459,8 +458,7 @@ function Fees() {
                 style={{
                   fontSize: "40px",
                   fontWeight: "800",
-                  marginBottom: "16px",
-                  color: balance >= 0 ? "#E59879" : "#DC2626",
+                  color: balance < 0 ? "#DC2626" : "#111827",
                 }}
               >
                 ${balance.toLocaleString()}
@@ -470,23 +468,22 @@ function Fees() {
             {/* 크레딧 카드 */}
             <div
               className="card"
-              style={{ background: "#f8f9fa", border: "1px solid #dee2e6" }}
             >
               <h3
                 style={{
                   fontSize: "15px",
                   fontWeight: "700",
-                  marginBottom: "8px",
-                  color: "#495057",
+                  marginBottom: "6px",
+                  color: "#111827",
                 }}
               >
-                💳 크레딧 활용
+                크레딧 활용
               </h3>
               <p
                 style={{
                   fontSize: "12px",
-                  color: "#6B7280",
-                  marginBottom: "12px",
+                  color: "#9CA3AF",
+                  marginBottom: "14px",
                   lineHeight: "1.4",
                 }}
               >
@@ -496,20 +493,21 @@ function Fees() {
                 <div
                   style={{
                     flex: 1,
-                    background: "#F5F7F7",
-                    padding: "10px",
+                    background: "#F9FAFB",
+                    border: "1px solid #E5E7EB",
+                    padding: "12px",
                     textAlign: "center",
-                    borderRadius: "8px",
+                    borderRadius: "10px",
                   }}
                 >
-                  <div style={{ fontSize: "11px", color: "#666" }}>
+                  <div style={{ fontSize: "11px", color: "#6B7280", marginBottom: "4px" }}>
                     사용 가능
                   </div>
                   <div
                     style={{
                       fontSize: "18px",
                       fontWeight: "700",
-                      color: "#E59879",
+                      color: "#111827",
                     }}
                   >
                     ${creditBalance.toLocaleString()}
@@ -518,20 +516,21 @@ function Fees() {
                 <div
                   style={{
                     flex: 1,
-                    background: actualUnpaid > 0 ? "#f8d7da" : "#fff",
-                    padding: "10px",
+                    background: actualUnpaid > 0 ? "#FEF2F2" : "#F9FAFB",
+                    border: `1px solid ${actualUnpaid > 0 ? "#FECACA" : "#E5E7EB"}`,
+                    padding: "12px",
                     textAlign: "center",
-                    borderRadius: "8px",
+                    borderRadius: "10px",
                   }}
                 >
-                  <div style={{ fontSize: "11px", color: "#666" }}>
+                  <div style={{ fontSize: "11px", color: "#6B7280", marginBottom: "4px" }}>
                     미납 금액
                   </div>
                   <div
                     style={{
                       fontSize: "18px",
                       fontWeight: "700",
-                      color: "#dc3545",
+                      color: actualUnpaid > 0 ? "#DC2626" : "#111827",
                     }}
                   >
                     ${actualUnpaid.toLocaleString()}
@@ -539,7 +538,7 @@ function Fees() {
                 </div>
               </div>
               {creditBalance > 0 && (
-                <div style={{ display: "flex", gap: "8px", marginTop: "12px" }}>
+                <div style={{ display: "flex", gap: "8px", marginTop: "14px" }}>
                   <button
                     onClick={() => {
                       setShowCreditModal("donation");
@@ -547,15 +546,17 @@ function Fees() {
                     }}
                     style={{
                       flex: 1,
-                      padding: "10px",
-                      background: "#1A3D2F",
-                      color: "white",
-                      border: "none",
-                      borderRadius: "8px",
+                      padding: "11px",
+                      background: "white",
+                      color: "#374151",
+                      border: "1px solid #D1D5DB",
+                      borderRadius: "10px",
                       cursor: "pointer",
+                      fontWeight: "600",
+                      fontSize: "14px",
                     }}
                   >
-                    🎁 클럽에 기부하기
+                    클럽에 기부하기
                   </button>
                   {actualUnpaid > 0 && (
                     <button
@@ -567,15 +568,17 @@ function Fees() {
                       }}
                       style={{
                         flex: 1,
-                        padding: "10px",
-                        background: "#28a745",
+                        padding: "11px",
+                        background: "#0F766E",
                         color: "white",
                         border: "none",
-                        borderRadius: "8px",
+                        borderRadius: "10px",
                         cursor: "pointer",
+                        fontWeight: "600",
+                        fontSize: "14px",
                       }}
                     >
-                      💰 납부
+                      납부하기
                     </button>
                   )}
                 </div>
@@ -586,17 +589,17 @@ function Fees() {
             <div className="card">
               <h3
                 style={{
-                  fontSize: "16px",
+                  fontSize: "17px",
                   fontWeight: "700",
                   marginBottom: "16px",
-                  color: "#1A3D2F",
+                  color: "#111827",
                 }}
               >
                 거래 내역
               </h3>
               {userTransactions.length === 0 ? (
                 <div
-                  style={{ padding: "20px", textAlign: "center", opacity: 0.6 }}
+                  style={{ padding: "20px", textAlign: "center", color: "#9CA3AF", fontSize: "14px" }}
                 >
                   내역이 없습니다.
                 </div>
@@ -612,23 +615,25 @@ function Fees() {
                     <div
                       key={t.id}
                       style={{
-                        padding: "14px 0",
-                        borderBottom: "1px solid #eee",
+                        padding: "13px 0",
+                        borderBottom: "1px solid #F3F4F6",
                         display: "flex",
                         justifyContent: "space-between",
+                        alignItems: "center",
                       }}
                     >
                       <div>
-                        <div style={{ fontWeight: "600" }}>
+                        <div style={{ fontWeight: "600", color: "#111827", fontSize: "14px" }}>
                           {getTransactionLabel(t)}
                         </div>
-                        <div style={{ fontSize: "12px", color: "#888" }}>
+                        <div style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "2px" }}>
                           {new Date(t.date).toLocaleDateString()}
                         </div>
                       </div>
                       <div
                         style={{
                           fontWeight: "700",
+                          fontSize: "15px",
                           color: getTransactionColor(t),
                         }}
                       >
@@ -645,24 +650,21 @@ function Fees() {
             <div
               className="card"
               style={{
-                background: "#FFFFFF",
-                borderLeft: "8px solid #1E3A8A",
                 padding: "24px",
-                marginBottom: "16px",
-                borderRadius: "12px",
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
               }}
             >
               <div>
                 <div
                   style={{
-                    fontSize: "13px",
-                    color: "#1E40AF",
+                    fontSize: "12px",
+                    color: "#6B7280",
                     marginBottom: "6px",
                     fontWeight: "600",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
                   }}
                 >
                   클럽 잔액
@@ -671,7 +673,7 @@ function Fees() {
                   style={{
                     fontSize: "32px",
                     fontWeight: "800",
-                    color: "#1E3A8A",
+                    color: "#111827",
                   }}
                 >
                   $
@@ -683,10 +685,12 @@ function Fees() {
               <div style={{ textAlign: "right" }}>
                 <div
                   style={{
-                    fontSize: "13px",
-                    color: "#1E40AF",
+                    fontSize: "12px",
+                    color: "#6B7280",
                     marginBottom: "6px",
                     fontWeight: "600",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em",
                   }}
                 >
                   미수금 회원
@@ -695,7 +699,7 @@ function Fees() {
                   style={{
                     fontSize: "32px",
                     fontWeight: "800",
-                    color: "#1E3A8A",
+                    color: outstandingCount > 0 ? "#DC2626" : "#111827",
                   }}
                 >
                   {outstandingCount}명
@@ -706,27 +710,24 @@ function Fees() {
             <div className="card">
               <h3
                 style={{
-                  fontSize: "16px",
+                  fontSize: "17px",
                   fontWeight: "700",
                   marginBottom: "16px",
-                  color: "var(--primary-green)",
+                  color: "#111827",
                 }}
               >
                 최근 거래내역
               </h3>
 
               {loading ? (
-                <div style={{ padding: "40px", textAlign: "center" }}>
+                <div style={{ padding: "40px", textAlign: "center", color: "#9CA3AF" }}>
                   로딩 중...
                 </div>
               ) : allTransactions.length === 0 ? (
                 <div
-                  style={{ padding: "40px", textAlign: "center", opacity: 0.7 }}
+                  style={{ padding: "40px", textAlign: "center", color: "#9CA3AF", fontSize: "14px" }}
                 >
-                  <div style={{ fontSize: "48px", marginBottom: "16px" }}>
-                    📖
-                  </div>
-                  <p>거래내역이 없습니다</p>
+                  거래내역이 없습니다
                 </div>
               ) : (
                 <div>
@@ -743,8 +744,8 @@ function Fees() {
                         key={transaction.id}
                         onClick={() => handleViewReceipt(transaction)}
                         style={{
-                          padding: "14px 12px",
-                          borderBottom: "1px solid #eee",
+                          padding: "13px 0",
+                          borderBottom: "1px solid #F3F4F6",
                           display: "flex",
                           justifyContent: "space-between",
                           alignItems: "center",
@@ -762,49 +763,48 @@ function Fees() {
                           >
                             <span
                               style={{
-                                fontSize: "12px",
+                                fontSize: "11px",
                                 fontWeight: "600",
-                                padding: "2px 6px",
-                                borderRadius: "4px",
-                                background: getTransactionColor(transaction),
-                                color: "white",
+                                padding: "2px 7px",
+                                borderRadius: "20px",
+                                background: ["charge", "expense", "creditDonation"].includes(transaction.type)
+                                  ? "#FEE2E2" : "#CCFBF1",
+                                color: ["charge", "expense", "creditDonation"].includes(transaction.type)
+                                  ? "#DC2626" : "#0F766E",
                               }}
                             >
                               {getTransactionLabel(transaction)}
                             </span>
                             {transaction.member && (
                               <span
-                                style={{ fontSize: "13px", fontWeight: "600" }}
+                                style={{ fontSize: "13px", fontWeight: "600", color: "#111827" }}
                               >
                                 {transaction.member.nickname || transaction.member.name}
                               </span>
                             )}
-                            <span style={{ fontSize: "12px" }}>
-                              {transaction.receiptImage ||
-                              transaction.receiptImages
-                                ? "📎"
-                                : ""}
-                            </span>
+                            {(transaction.receiptImage || transaction.receiptImages?.length > 0) && (
+                              <span style={{ fontSize: "11px", color: "#9CA3AF" }}>영수증</span>
+                            )}
                           </div>
                           {roundingName && (
                             <div
                               style={{
                                 fontSize: "12px",
-                                color: "#1A3D2F",
-                                fontWeight: "600",
+                                color: "#6B7280",
+                                marginTop: "2px",
                               }}
                             >
-                              ⛳ {roundingName}
+                              {roundingName}
                             </div>
                           )}
-                          <div style={{ fontSize: "12px", color: "#888" }}>
+                          <div style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "2px" }}>
                             {new Date(transaction.date).toLocaleDateString()}
                           </div>
                         </div>
                         <div style={{ textAlign: "right" }}>
                           <div
                             style={{
-                              fontSize: "16px",
+                              fontSize: "15px",
                               fontWeight: "700",
                               color: transaction.type === "credit" ? "#DC2626" : getTransactionColor(transaction),
                             }}
@@ -822,9 +822,10 @@ function Fees() {
                                 marginTop: "4px",
                                 padding: "4px 8px",
                                 fontSize: "11px",
-                                background: "#eee",
+                                background: "#F3F4F6",
+                                color: "#374151",
                                 border: "none",
-                                borderRadius: "4px",
+                                borderRadius: "6px",
                                 cursor: "pointer",
                               }}
                             >
