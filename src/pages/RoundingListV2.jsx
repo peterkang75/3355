@@ -227,6 +227,15 @@ function RoundingListV2() {
     setHmDeleteConfirm(false);
     setHmSaving(false);
     setHmViewMode('basic');
+    let savedGameMode = 'stroke';
+    if (booking.gradeSettings) {
+      try {
+        const parsed = typeof booking.gradeSettings === 'string'
+          ? JSON.parse(booking.gradeSettings)
+          : booking.gradeSettings;
+        if (parsed?.mode) savedGameMode = parsed.mode;
+      } catch {}
+    }
     setHmAdvanced({
       playEnabled: booking.playEnabled || false,
       is2BB: booking.is2BB || false,
@@ -242,6 +251,7 @@ function RoundingListV2() {
       isFoursome: booking.title?.includes('포썸') || false,
       maxMembers: booking.maxMembers || 4,
       registrationDeadline: booking.registrationDeadline || '',
+      gameMode: savedGameMode,
     });
     setShowHostManage(true);
     setSelectedBooking(null);
@@ -329,6 +339,30 @@ function RoundingListV2() {
       await refreshBookings();
     } catch (err) {
       alert('삭제 중 오류가 발생했습니다.');
+    } finally {
+      setHmSaving(false);
+    }
+  };
+
+  const handleHmGameModeChange = async (mode) => {
+    setHmAdvanced(prev => ({ ...prev, gameMode: mode }));
+    setHmSaving(true);
+    try {
+      let existing = {};
+      if (hmBooking.gradeSettings) {
+        try {
+          existing = typeof hmBooking.gradeSettings === 'string'
+            ? JSON.parse(hmBooking.gradeSettings)
+            : hmBooking.gradeSettings;
+        } catch {}
+      }
+      await apiService.updateBooking(hmBooking.id, {
+        gradeSettings: JSON.stringify({ ...existing, mode }),
+      });
+      setHmBooking(prev => ({ ...prev, gradeSettings: JSON.stringify({ ...existing, mode }) }));
+      await refreshBookings();
+    } catch {
+      alert('저장 중 오류가 발생했습니다.');
     } finally {
       setHmSaving(false);
     }
@@ -1439,6 +1473,73 @@ function RoundingListV2() {
                   {sectionTitle('게임 설정')}
                   {toggleRow('플레이 활성화', 'playEnabled', '참가자가 스코어를 입력할 수 있습니다')}
                   {toggleRow('Net 2-Ball Best Ball', 'is2BB', '핸디캡 기반 2BB 팀 자동 편성')}
+
+                  {/* 경기 방식 */}
+                  <div style={{ padding: '16px 0', borderBottom: '1px solid #F3F4F6' }}>
+                    <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827', marginBottom: '4px' }}>경기 방식</div>
+                    <div style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '12px' }}>스코어 계산 방식을 선택합니다</div>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      {[
+                        { key: 'stroke', label: '⛳ 스트로크', activeColor: '#1a3d47', activeBg: '#E8F4ED', activeBorder: '#C6E0CF' },
+                        { key: 'foursome', label: '🏌️ 포썸', activeColor: '#7C3AED', activeBg: '#F3E8FF', activeBorder: '#DDD6FE' },
+                      ].map(opt => {
+                        const isActive = hmAdvanced.gameMode === opt.key;
+                        return (
+                          <button
+                            key={opt.key}
+                            onClick={() => handleHmGameModeChange(opt.key)}
+                            disabled={hmSaving}
+                            style={{
+                              flex: 1,
+                              padding: '11px 0',
+                              border: `${isActive ? '2px' : '1px'} solid ${isActive ? opt.activeBorder : '#E5E7EB'}`,
+                              borderRadius: '10px',
+                              background: isActive ? opt.activeBg : '#FFFFFF',
+                              color: isActive ? opt.activeColor : '#6B7280',
+                              fontWeight: isActive ? '700' : '500',
+                              fontSize: '14px',
+                              cursor: hmSaving ? 'not-allowed' : 'pointer',
+                              opacity: hmSaving ? 0.6 : 1,
+                              transition: 'all 0.15s',
+                            }}
+                          >
+                            {opt.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {hmAdvanced.gameMode === 'foursome' && (
+                      <div style={{ marginTop: '8px', padding: '8px 12px', background: '#F3E8FF', borderRadius: '8px', fontSize: '12px', color: '#7C3AED' }}>
+                        ※ 포썸은 2인 1조 팀 매치 방식으로 진행됩니다
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 그레이드 설정 */}
+                  <button
+                    onClick={() => { setShowHostManage(false); navigate(`/grade-settings?id=${hmBooking.id}`); }}
+                    style={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '16px 0',
+                      borderBottom: '1px solid #F3F4F6',
+                      background: 'none',
+                      border: 'none',
+                      borderBottom: '1px solid #F3F4F6',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                    }}
+                  >
+                    <div>
+                      <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827' }}>그레이드 설정</div>
+                      <div style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '2px' }}>핸디캡 그레이드 기준 설정</div>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="9 18 15 12 9 6"/>
+                    </svg>
+                  </button>
 
                   <div style={{ height: '24px' }} />
                   {sectionTitle('비용 정보')}
