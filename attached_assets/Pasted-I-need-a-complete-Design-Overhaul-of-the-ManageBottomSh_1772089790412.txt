@@ -1,0 +1,29 @@
+I need a complete **Design Overhaul** of the `ManageBottomSheet` (라운딩 관리 화면) inside `RoundingListV2.jsx`. The current design is described as "촌스럽다" (tacky/outdated) and needs to align with the app's modern, clean, deep-green tone and manner.
+
+**Specific Design Changes Required:**
+
+**1. Close Button (Top Right):**
+* **Issue:** It's a tacky oval shape.
+* **Fix:** Make it a **perfect circle** (`rounded-full`).
+* **Style:** Use a subtle light gray background (`bg-gray-100`) with a dark gray icon (`text-gray-600`) for a clean, modern look. Increase padding slightly for better touch target.
+
+**2. Rounding Type Selectors (Chips):**
+* **Issue:** The pastel colors (orange, etc.) and current icons look tacky.
+* **Fix (Unselected State):** Clean white background, thin neutral gray border (`border-gray-200`), dark gray text.
+* **Fix (Selected State):** Use the **App's Primary Deep Green** (`bg-[#1a3d47]` or similar existing theme color) for the background with **White text**. Remove the border. Add a subtle, modern shadow (`shadow-sm`).
+* **Icons:** Replace the current tacky emojis with cleaner, more minimalist icons if possible, or style the existing ones to look less cartoonish.
+
+**3. "Delete Section" Divider:**
+* **Issue:** The red dashed line is random and out of place.
+* **Fix:** **Remove the red dashed line completely.**
+* **Replacement:** Use a very subtle, solid light gray divider line (`border-t border-gray-100`) with ample padding above and below to separate the delete section cleanly.
+
+**4. Participant "Remove" (X) Button:**
+* **Issue:** The pink pastel oval is tacky.
+* **Fix:** Change it to a simple, clean circular button similar to the top close button, or a plain, subtle red text/icon button without a jarring background.
+
+**5. General Styling & Consistency:**
+* **Inputs & Buttons:** Ensure all input fields and action buttons (like "저장", "게스트 추가") share the same modern styling: clear borders, consistent rounding (`rounded-xl`), and use the primary deep green color for main actions.
+* **Typography:** Ensure font weights and colors are consistent and professional.
+
+**Goal:** Transform the management sheet into a sleek, professional interface that feels entirely native to the rest of the modern app design.

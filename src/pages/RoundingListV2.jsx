@@ -780,13 +780,15 @@ function RoundingListV2() {
     if (!showHostManage || !hmBooking) return null;
 
     const typeOptions = [
-      { key: '컴페티션', emoji: '🏆', label: '컴페티션', color: '#D97706', bg: '#FEF3C7', border: '#F59E0B' },
-      { key: '그린피', emoji: '⛳', label: '그린피', color: '#047857', bg: '#D1FAE5', border: '#10B981' },
-      { key: '소셜', emoji: '☕', label: '소셜', color: '#EA580C', bg: '#FFF7ED', border: '#F97316' },
+      { key: '컴페티션', label: '컴페티션', icon: '🏆' },
+      { key: '그린피', label: '그린피', icon: '⛳' },
+      { key: '소셜', label: '소셜', icon: '☕' },
     ];
 
+    const primaryDark = '#1a3d47';
+
     const sectionTitle = (text) => (
-      <div style={{ fontSize: '13px', fontWeight: '700', color: '#6B7280', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '10px' }}>
+      <div style={{ fontSize: '12px', fontWeight: '600', color: '#9CA3AF', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '10px' }}>
         {text}
       </div>
     );
@@ -826,9 +828,21 @@ function RoundingListV2() {
             </div>
             <button
               onClick={() => setShowHostManage(false)}
-              style={{ background: '#F3F4F6', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              style={{
+                background: '#F3F4F6',
+                border: 'none',
+                borderRadius: '50%',
+                width: '36px',
+                height: '36px',
+                cursor: 'pointer',
+                fontSize: '14px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#6B7280',
+              }}
             >
-              ✕
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
             </button>
           </div>
 
@@ -845,22 +859,23 @@ function RoundingListV2() {
                     disabled={hmSaving}
                     style={{
                       flex: 1,
-                      padding: '10px 4px',
-                      borderRadius: '12px',
-                      border: `2px solid ${active ? opt.border : '#E5E7EB'}`,
-                      background: active ? opt.bg : '#FAFAFA',
-                      color: active ? opt.color : '#9CA3AF',
+                      padding: '12px 4px',
+                      borderRadius: '14px',
+                      border: active ? 'none' : '1px solid #E5E7EB',
+                      background: active ? primaryDark : '#FFFFFF',
+                      color: active ? '#FFFFFF' : '#6B7280',
                       fontWeight: active ? '700' : '500',
                       fontSize: '14px',
                       cursor: 'pointer',
-                      transition: 'all 0.15s',
+                      transition: 'all 0.2s ease',
                       display: 'flex',
-                      flexDirection: 'column',
                       alignItems: 'center',
-                      gap: '3px',
+                      justifyContent: 'center',
+                      gap: '6px',
+                      boxShadow: active ? '0 2px 8px rgba(26,61,71,0.2)' : 'none',
                     }}
                   >
-                    <span style={{ fontSize: '20px' }}>{opt.emoji}</span>
+                    <span style={{ fontSize: '16px', filter: active ? 'brightness(1.2)' : 'grayscale(0.4)' }}>{opt.icon}</span>
                     <span>{opt.label}</span>
                   </button>
                 );
@@ -878,7 +893,7 @@ function RoundingListV2() {
                 style={{
                   flex: 1,
                   padding: '11px 14px',
-                  borderRadius: '10px',
+                  borderRadius: '14px',
                   border: '1px solid #E5E7EB',
                   fontSize: '15px',
                   outline: 'none',
@@ -890,8 +905,8 @@ function RoundingListV2() {
                 disabled={hmSaving}
                 style={{
                   padding: '11px 20px',
-                  borderRadius: '10px',
-                  background: theme.colors.primary,
+                  borderRadius: '14px',
+                  background: primaryDark,
                   color: 'white',
                   border: 'none',
                   fontWeight: '600',
@@ -922,7 +937,7 @@ function RoundingListV2() {
                   style={{
                     width: '100%',
                     padding: '11px 14px',
-                    borderRadius: '10px',
+                    borderRadius: '14px',
                     border: '1px solid #E5E7EB',
                     fontSize: '15px',
                     background: '#FFFFFF',
@@ -957,7 +972,21 @@ function RoundingListV2() {
                         border: '1px solid #F3F4F6',
                       }}
                     >
-                      <span style={{ fontSize: '14px', marginRight: '6px' }}>{isGuest ? '🧑‍🤝‍🧑' : '👤'}</span>
+                      <div style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '50%',
+                        background: isGuest ? '#F3F4F6' : '#EFF6FF',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontSize: '13px',
+                        flexShrink: 0,
+                        marginRight: '8px',
+                        color: isGuest ? '#6B7280' : '#3B82F6',
+                      }}>
+                        {isGuest ? 'G' : (p.nickname || p.name || '').charAt(0)}
+                      </div>
                       <span style={{ flex: 1, fontSize: '15px', fontWeight: '500', color: '#111827' }}>
                         {p.nickname || p.name}
                         {isGuest && <span style={{ fontSize: '12px', color: '#9CA3AF', marginLeft: '6px' }}>게스트</span>}
@@ -969,18 +998,19 @@ function RoundingListV2() {
                           width: '28px',
                           height: '28px',
                           borderRadius: '50%',
-                          background: '#FEE2E2',
+                          background: '#F3F4F6',
                           border: 'none',
-                          color: '#DC2626',
-                          fontSize: '14px',
+                          color: '#9CA3AF',
+                          fontSize: '12px',
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           flexShrink: 0,
+                          transition: 'all 0.15s',
                         }}
                       >
-                        ✕
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                       </button>
                     </div>
                   );
@@ -998,7 +1028,7 @@ function RoundingListV2() {
                 style={{
                   flex: 1,
                   padding: '11px 14px',
-                  borderRadius: '10px',
+                  borderRadius: '14px',
                   border: '1px solid #E5E7EB',
                   fontSize: '15px',
                   outline: 'none',
@@ -1011,18 +1041,18 @@ function RoundingListV2() {
                 disabled={hmSaving || !hmGuestName.trim()}
                 style={{
                   padding: '11px 16px',
-                  borderRadius: '10px',
-                  background: '#F0FDF4',
-                  color: '#16A34A',
-                  border: '1px solid #BBF7D0',
+                  borderRadius: '14px',
+                  background: primaryDark,
+                  color: '#FFFFFF',
+                  border: 'none',
                   fontWeight: '600',
                   fontSize: '14px',
                   cursor: 'pointer',
                   whiteSpace: 'nowrap',
-                  opacity: (!hmGuestName.trim() || hmSaving) ? 0.5 : 1,
+                  opacity: (!hmGuestName.trim() || hmSaving) ? 0.4 : 1,
                 }}
               >
-                + 게스트 추가
+                + 추가
               </button>
             </div>
 
@@ -1034,37 +1064,39 @@ function RoundingListV2() {
                   style={{
                     width: '100%',
                     padding: '14px',
-                    borderRadius: '12px',
-                    background: '#EFF6FF',
-                    color: '#1D4ED8',
-                    border: '1px solid #BFDBFE',
-                    fontWeight: '700',
+                    borderRadius: '14px',
+                    background: primaryDark,
+                    color: '#FFFFFF',
+                    border: 'none',
+                    fontWeight: '600',
                     fontSize: '15px',
                     cursor: 'pointer',
                     textAlign: 'center',
+                    boxShadow: '0 2px 8px rgba(26,61,71,0.15)',
                   }}
                 >
-                  📋 조편성 하기
+                  조편성 하기
                 </button>
               </>
             )}
 
-            <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px dashed #FEE2E2', textAlign: 'center' }}>
+            <div style={{ marginTop: '28px', paddingTop: '20px', borderTop: '1px solid #F3F4F6', textAlign: 'center' }}>
               <button
                 onClick={handleHmDelete}
                 disabled={hmSaving}
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: hmDeleteConfirm ? '#DC2626' : '#EF4444',
-                  fontWeight: '700',
-                  fontSize: '15px',
+                  color: hmDeleteConfirm ? '#DC2626' : '#9CA3AF',
+                  fontWeight: '500',
+                  fontSize: '14px',
                   cursor: 'pointer',
                   padding: '8px 16px',
                   opacity: hmSaving ? 0.6 : 1,
+                  transition: 'color 0.2s',
                 }}
               >
-                {hmDeleteConfirm ? '⚠️ 정말 삭제하시겠습니까? 다시 클릭하여 확인' : '라운딩 삭제'}
+                {hmDeleteConfirm ? '정말 삭제하시겠습니까? 다시 클릭하여 확인' : '라운딩 삭제'}
               </button>
             </div>
 
