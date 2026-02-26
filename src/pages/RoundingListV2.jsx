@@ -430,7 +430,7 @@ function RoundingListV2() {
       setShowCreateModal(false);
       setNewRounding({ date: '', time: '', courseName: '', maxMembers: 4, notes: '', roundingType: '', timeMode: 'recruit', timeSlot: 'Morning' });
     } catch (err) {
-      alert('라운딩 생성에 실패했습니다.');
+      alert('라운딩 생성에 실패했습니다.\n' + (err.message || ''));
     } finally {
       setIsCreating(false);
     }
@@ -451,13 +451,13 @@ function RoundingListV2() {
         courseName: officialForm.courseName,
         date: officialForm.date,
         time: officialForm.time,
-        meetingTime: officialForm.meetingTime || '',
-        greenFee: officialForm.greenFee || '',
-        cartFee: officialForm.cartFee || '',
-        membershipFee: officialForm.membershipFee || '',
-        registrationDeadline: officialForm.registrationDeadline || '',
+        gatheringTime: officialForm.meetingTime || null,
+        greenFee: parseInt(officialForm.greenFee) || null,
+        cartFee: parseInt(officialForm.cartFee) || null,
+        membershipFee: parseInt(officialForm.membershipFee) || null,
+        registrationDeadline: officialForm.registrationDeadline || null,
         maxMembers: parseInt(officialForm.maxMembers) || 28,
-        notes: officialForm.notes || '',
+        notes: officialForm.notes || null,
         organizerId: user.id,
         participants: [JSON.stringify({ name: user.name, nickname: user.nickname, phone: user.phone })],
         isGuestAllowed: true,
@@ -466,7 +466,7 @@ function RoundingListV2() {
       setShowCreateModal(false);
       setOfficialForm({ title: '', courseName: '', date: '', time: '', greenFee: '', cartFee: '', membershipFee: '', registrationDeadline: '', maxMembers: 28, notes: '', meetingTime: '' });
     } catch (err) {
-      alert('라운딩 생성에 실패했습니다.');
+      alert('라운딩 생성에 실패했습니다.\n' + (err.message || ''));
     } finally {
       setIsCreating(false);
     }

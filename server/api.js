@@ -313,15 +313,49 @@ router.get("/bookings", async (req, res) => {
 
 router.post("/bookings", async (req, res) => {
   try {
+    const {
+      title, type, isSocial, courseName, date, time, gatheringTime,
+      organizerId, participants, notes, greenFee, cartFee, membershipFee,
+      registrationDeadline, maxMembers, isGuestAllowed, playEnabled,
+      restaurantName, restaurantAddress, is2BB, isAnnounced,
+      playManuallyDisabled, useSquadWaitlist, votingEnabled, status,
+    } = req.body;
+    const data = {
+      ...(title !== undefined && { title }),
+      ...(type !== undefined && { type }),
+      ...(isSocial !== undefined && { isSocial }),
+      ...(courseName !== undefined && { courseName }),
+      ...(date !== undefined && { date }),
+      ...(time !== undefined && { time }),
+      ...(gatheringTime !== undefined && { gatheringTime }),
+      ...(organizerId !== undefined && { organizerId }),
+      ...(participants !== undefined && { participants }),
+      ...(notes !== undefined && { notes }),
+      ...(greenFee !== undefined && { greenFee: parseInt(greenFee) || null }),
+      ...(cartFee !== undefined && { cartFee: parseInt(cartFee) || null }),
+      ...(membershipFee !== undefined && { membershipFee: parseInt(membershipFee) || null }),
+      ...(registrationDeadline !== undefined && { registrationDeadline }),
+      ...(maxMembers !== undefined && { maxMembers: parseInt(maxMembers) || 4 }),
+      ...(isGuestAllowed !== undefined && { isGuestAllowed }),
+      ...(playEnabled !== undefined && { playEnabled }),
+      ...(restaurantName !== undefined && { restaurantName }),
+      ...(restaurantAddress !== undefined && { restaurantAddress }),
+      ...(is2BB !== undefined && { is2BB }),
+      ...(isAnnounced !== undefined && { isAnnounced }),
+      ...(playManuallyDisabled !== undefined && { playManuallyDisabled }),
+      ...(useSquadWaitlist !== undefined && { useSquadWaitlist }),
+      ...(votingEnabled !== undefined && { votingEnabled }),
+      ...(status !== undefined && { status }),
+    };
     const booking = await prisma.booking.create({
-      data: req.body,
+      data,
       include: { organizer: true },
     });
     req.io.emit("bookings:updated");
     res.json(booking);
   } catch (error) {
-    console.error("Error creating booking:", error);
-    res.status(500).json({ error: "Failed to create booking" });
+    console.error("Error creating booking:", error.message);
+    res.status(500).json({ error: error.message || "Failed to create booking" });
   }
 });
 

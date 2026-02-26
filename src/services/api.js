@@ -181,7 +181,10 @@ class ApiService {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(bookingData)
     });
-    if (!response.ok) throw new Error('Failed to create booking');
+    if (!response.ok) {
+      const errBody = await response.json().catch(() => ({}));
+      throw new Error(errBody.error || 'Failed to create booking');
+    }
     this.invalidateCache('bookings');
     return response.json();
   }
