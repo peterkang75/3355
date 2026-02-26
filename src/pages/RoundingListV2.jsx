@@ -101,6 +101,24 @@ function RoundingListV2() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [selectedBooking]);
 
+  useEffect(() => {
+    const isAnyModalOpen = showCreateModal || showTypeSelector || !!selectedBooking;
+    if (isAnyModalOpen) {
+      document.body.style.overflow = 'hidden';
+      document.body.style.position = 'fixed';
+      document.body.style.width = '100%';
+    } else {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+      document.body.style.position = '';
+      document.body.style.width = '';
+    };
+  }, [showCreateModal, showTypeSelector, selectedBooking]);
+
   const officialRoundings = useMemo(() => {
     return bookings
       .filter(b => !b.isSocial && isBookingActive(b))
@@ -2124,7 +2142,7 @@ function RoundingListV2() {
             position: 'fixed',
             inset: 0,
             background: 'rgba(0,0,0,0.4)',
-            zIndex: 999,
+            zIndex: 1099,
           }}
         />
         <div style={{
@@ -2134,8 +2152,8 @@ function RoundingListV2() {
           right: 0,
           background: '#FFFFFF',
           borderRadius: '20px 20px 0 0',
-          zIndex: 1000,
-          maxHeight: '85vh',
+          zIndex: 1100,
+          maxHeight: '88vh',
           display: 'flex',
           flexDirection: 'column',
           animation: 'slideUp 0.25s ease-out',
@@ -2436,7 +2454,7 @@ function RoundingListV2() {
 
           </div>
 
-          <div style={{ padding: '12px 20px', paddingBottom: 'max(100px, calc(90px + env(safe-area-inset-bottom)))' }}>
+          <div style={{ padding: '12px 20px', paddingBottom: 'max(16px, env(safe-area-inset-bottom))', flexShrink: 0 }}>
             <button
               onClick={isOfficial ? handleCreateOfficial : handleCreateRounding}
               disabled={isCreating}
