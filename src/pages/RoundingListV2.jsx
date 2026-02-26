@@ -2139,8 +2139,9 @@ function RoundingListV2() {
           display: 'flex',
           flexDirection: 'column',
           animation: 'slideUp 0.25s ease-out',
+          overflow: 'hidden',
         }}>
-          <div style={{ textAlign: 'center', padding: '12px 0 4px' }}>
+          <div style={{ textAlign: 'center', padding: '12px 0 4px', flexShrink: 0 }}>
             <div style={{ width: '36px', height: '4px', background: '#D1D5DB', borderRadius: '2px', margin: '0 auto' }} />
           </div>
           <h3 style={{
@@ -2150,10 +2151,11 @@ function RoundingListV2() {
             marginBottom: '0',
             textAlign: 'center',
             padding: '8px 20px 16px',
+            flexShrink: 0,
           }}>
             {isOfficial ? '👑 정기 라운딩 만들기' : '라운딩 만들기'}
           </h3>
-          <div style={{ overflowY: 'auto', flex: 1, padding: '0 20px' }}>
+          <div style={{ overflowY: 'auto', flex: 1, padding: '0 20px', overscrollBehavior: 'contain' }}>
 
           {isOfficial ? (
             <>
@@ -2183,13 +2185,13 @@ function RoundingListV2() {
               </div>
 
               <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: '1 1 0', minWidth: 0 }}>
                   <label style={labelStyle}>날짜</label>
-                  <input type="date" value={officialForm.date} onChange={(e) => setOfficialForm({ ...officialForm, date: e.target.value })} style={inputStyle} />
+                  <input type="date" value={officialForm.date} onChange={(e) => setOfficialForm({ ...officialForm, date: e.target.value })} style={{ ...inputStyle, width: '100%', minWidth: 0 }} />
                 </div>
-                <div style={{ flex: 1 }}>
+                <div style={{ flex: '1 1 0', minWidth: 0 }}>
                   <label style={labelStyle}>티오프 시간</label>
-                  <input type="time" value={officialForm.time} onChange={(e) => setOfficialForm({ ...officialForm, time: e.target.value })} style={inputStyle} />
+                  <input type="time" value={officialForm.time} onChange={(e) => setOfficialForm({ ...officialForm, time: e.target.value })} style={{ ...inputStyle, width: '100%', minWidth: 0 }} />
                 </div>
               </div>
 
@@ -2222,15 +2224,14 @@ function RoundingListV2() {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
-                <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>접수 마감일</label>
-                  <input type="date" value={officialForm.registrationDeadline} onChange={(e) => setOfficialForm({ ...officialForm, registrationDeadline: e.target.value })} style={inputStyle} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <label style={labelStyle}>최대 인원</label>
-                  <input type="number" value={officialForm.maxMembers} onChange={(e) => setOfficialForm({ ...officialForm, maxMembers: e.target.value })} style={inputStyle} />
-                </div>
+              <div style={{ marginBottom: '14px' }}>
+                <label style={labelStyle}>접수 마감일</label>
+                <input type="date" value={officialForm.registrationDeadline} onChange={(e) => setOfficialForm({ ...officialForm, registrationDeadline: e.target.value })} style={inputStyle} />
+              </div>
+
+              <div style={{ marginBottom: '14px' }}>
+                <label style={labelStyle}>최대 인원</label>
+                <input type="number" value={officialForm.maxMembers} onChange={(e) => setOfficialForm({ ...officialForm, maxMembers: e.target.value })} style={{ ...inputStyle, width: '100%' }} />
               </div>
 
               <div style={{ marginBottom: '20px' }}>
