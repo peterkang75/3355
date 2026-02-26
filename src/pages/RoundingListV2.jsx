@@ -645,10 +645,10 @@ function RoundingListV2() {
 
   const getTileTypeBadge = (booking) => {
     const type = (booking.type || '').trim();
-    if (type === '정기모임') return { label: '정기', bg: '#FEF3C7', color: '#92400E' };
-    if (type === '컴페티션') return { label: '컴', bg: '#EFF6FF', color: '#1D4ED8' };
-    if (type === '그린피') return { label: '그린피', bg: '#D1FAE5', color: '#065F46' };
-    return { label: '소셜', bg: '#FFEDD5', color: '#9A3412' };
+    if (type === '정기모임') return { label: '정기', bg: '#FDF4E7', color: '#B45309' };
+    if (type === '컴페티션') return { label: '컴', bg: '#EEF0F8', color: '#4338CA' };
+    if (type === '그린피') return { label: '그린피', bg: '#E6F4F3', color: '#0F766E' };
+    return { label: '소셜', bg: '#FBF0EC', color: '#C2410C' };
   };
 
   const formatTileDate = (dateStr) => {
