@@ -34,6 +34,7 @@ function RoundingListV2() {
   const [createMode, setCreateMode] = useState('social');
   const [isJoining, setIsJoining] = useState(false);
   const [isRentalLoading, setIsRentalLoading] = useState(false);
+  const [hoveredTileId, setHoveredTileId] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
   const [newRounding, setNewRounding] = useState({
     date: '',
@@ -477,7 +478,7 @@ function RoundingListV2() {
   const getTileAccentColor = (booking) => {
     const typeLabel = (booking.title || booking.type || '').toLowerCase();
     if (typeLabel.includes('정기') || typeLabel.includes('official')) return '#F59E0B';
-    if (typeLabel.includes('컴페티션') || typeLabel.includes('competition')) return '#3B82F6';
+    if (typeLabel.includes('컴페티션') || typeLabel.includes('competition')) return '#2563EB';
     if (typeLabel.includes('그린피') || typeLabel.includes('greenfee')) return '#10B981';
     return '#F97316';
   };
@@ -510,30 +511,36 @@ function RoundingListV2() {
     let badgeColor;
     if (isRegistrationClosed) {
       badgeText = '접수마감';
-      badgeBg = '#FEE2E2';
-      badgeColor = '#DC2626';
+      badgeBg = '#FFE4E6';
+      badgeColor = '#BE123C';
     } else if (isFull) {
       badgeText = '마감';
-      badgeBg = '#FEE2E2';
-      badgeColor = '#DC2626';
+      badgeBg = '#FFE4E6';
+      badgeColor = '#BE123C';
     } else {
       badgeText = `${participants.length}명`;
-      badgeBg = '#DCFCE7';
-      badgeColor = '#15803D';
+      badgeBg = '#D1FAE5';
+      badgeColor = '#047857';
     }
+
+    const isHovered = hoveredTileId === booking.id;
 
     return (
       <div
         key={booking.id}
         onClick={() => setSelectedBooking(booking)}
+        onMouseEnter={() => setHoveredTileId(booking.id)}
+        onMouseLeave={() => setHoveredTileId(null)}
         style={{
           flexShrink: 0,
           width: '90px',
           minHeight: '112px',
           background: isJoined ? '#F0FDF4' : '#FFFFFF',
-          borderRadius: '14px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-          border: isJoined ? `1px solid #86EFAC` : '1px solid #F3F4F6',
+          borderRadius: '16px',
+          boxShadow: isHovered
+            ? '0 6px 16px rgba(0,0,0,0.12)'
+            : '0 1px 4px rgba(0,0,0,0.06)',
+          border: isJoined ? '1px solid #86EFAC' : '1px solid #F3F4F6',
           borderTop: `4px solid ${accentColor}`,
           display: 'flex',
           flexDirection: 'column',
@@ -542,7 +549,8 @@ function RoundingListV2() {
           padding: '10px 6px 8px',
           cursor: 'pointer',
           position: 'relative',
-          transition: 'transform 0.15s',
+          transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
+          transition: 'transform 0.18s ease, box-shadow 0.18s ease',
         }}
       >
         {isJoined && (
