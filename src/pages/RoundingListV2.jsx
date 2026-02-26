@@ -2546,6 +2546,20 @@ function RoundingListV2() {
             );
           })()}
 
+          <div style={{
+            padding: '14px 16px',
+            background: '#FFFFFF',
+            borderRadius: '12px',
+            border: '1px solid #F3F4F6',
+            marginBottom: '16px',
+          }}>
+            <p style={{ margin: 0, fontSize: '13px', color: '#6B7280', lineHeight: 1.7 }}>
+              누구나 라운딩을 개설하여 멤버를 모집할 수 있습니다.<br />
+              아래 <strong style={{ color: '#1a3d47' }}>＋ 버튼</strong>을 눌러 라운딩을 생성해보세요.<br />
+              모임회원, 외부 게스트 모두 초대 · 스코어 기록 가능합니다.
+            </p>
+          </div>
+
           <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
             {[
               { color: '#F59E0B', label: '정기모임' },
