@@ -705,8 +705,7 @@ function RoundingListV2() {
       badgeColor = '#374151';
     }
 
-    const isSingle = tilesInRow === 1;
-    const maxChips = isSingle ? 5 : 3;
+    const maxChips = tilesInRow === 1 ? 5 : tilesInRow === 2 ? 4 : tilesInRow === 3 ? 3 : 2;
     const shownParticipants = participants.slice(0, maxChips);
     const hiddenCount = participants.length - shownParticipants.length;
 
@@ -719,8 +718,8 @@ function RoundingListV2() {
         key={booking.id}
         onClick={() => setSelectedBooking(booking)}
         style={{
-          flex: '0 0 160px',
-          width: '160px',
+          flex: '1 1 0',
+          minWidth: '115px',
           background: '#FFFFFF',
           borderRadius: '16px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
