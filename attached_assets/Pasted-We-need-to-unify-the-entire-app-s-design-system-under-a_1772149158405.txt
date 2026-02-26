@@ -1,0 +1,27 @@
+We need to unify the entire app's design system under a single **"Chic & Minimal"** concept, as the current implementation is very inconsistent across different pages (Home, Rounding, Admin, My Page). 
+
+Please execute a complete visual overhaul across all screens based on these strict guidelines:
+
+**1. Unified Background:**
+* Set the background of the *entire app's main content area* to a very light, subtle gray (`bg-gray-50`) on *all* pages (Home, Rounding List, Admin, My Page). This creates a clean "canvas" for the cards. Ensure the white header remains fixed at the top.
+
+**2. Standardized Card Design (No left borders):**
+* All informational boxes/sections must be converted into standardized, clean white cards.
+* They must have: White background (`bg-white`), very soft rounded corners (`rounded-2xl`), and a very subtle shadow (`shadow-sm`).
+* **IMPORTANT:** Completely remove any heavy left-side colored borders (like the green one in the Notices section) from all cards.
+
+**3. Minimalist Colors & Buttons:**
+* **Palette:** Use muted Teals, Grays, and Black for text. Avoid harsh, bright colors.
+* **Buttons:**
+    * "참가 취소" (Cancel Participation) style: Change from red text to neutral gray text (`text-gray-600 border border-gray-300 rounded-xl`).
+    * "조편성 보기" (View Groups) style: Change the bright green border to a muted Teal border and text.
+    * "참가비 잔액 $0": The orange color is acceptable, but ensure the card style matches.
+* **Legend ( 범례):** Replace the small colored dots with very thin, subtle colored vertical bars or keep them as small, muted dots.
+
+**4. Icon & Text Consistency:**
+* **Remove Emojis:** Completely delete all emojis used as data prefixes (📍, 🕒, ⛳, ✏, 💡) from all cards and titles.
+* **Information List:** Present data (Date, Time, Location) with clear text hierarchy (bolded labels, muted values) without leading icons.
+* **Badges:** Convert the dark green "클럽 컴페티션" badge into a clean Teal badge with white text (`bg-teal-700 text-white rounded-lg px-3 py-1 text-sm`).
+* **User Profile Image:** Ensure the circular user profile image (e.g., in Header and My Page) has a consistent style, perhaps with a subtle gray border.
+
+**Goal:** After these changes, Navigating from the Home to Rounding List, Admin, or My Page should feel like being within the exact same, premium-quality app. All pages should feature white, softly shadowed cards floating over a light gray background with minimal color use.
