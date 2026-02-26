@@ -1,0 +1,31 @@
+The user wants to revamp the main Dashboard (`Home.jsx` or `Dashboard.jsx`) to make it much more practical and personalized. 
+Currently, the "Notice Board" (게시판) takes up too much space, and the Dashboard is missing the user's upcoming schedules.
+
+**Please implement the following structural layout changes to the Dashboard component:**
+
+**1. Remove "공지된 라운딩" (Announced Roundings):**
+* Completely delete the "공지된 라운딩" section and its container. Users will use the main Rounding tab for this.
+
+**2. Make "게시판" (Notice Board) Collapsible (Accordion):**
+* Introduce a state: `const [isBoardOpen, setIsBoardOpen] = useState(false);`
+* Redesign the Notice Board header to be a clickable toggle. 
+* Use a clean UI: `<div onClick={() => setIsBoardOpen(!isBoardOpen)} className="flex justify-between items-center bg-white p-4 rounded-2xl shadow-sm mb-4 cursor-pointer">`
+* Add a Title (e.g., "✏️ 게시판") and a chevron icon (`v` or `^` depending on state).
+* Wrap the actual list of posts inside a conditional block `{isBoardOpen && ( <div className="mt-2">...</div> )}`.
+
+**3. Add "나의 라운딩" (My Bookings) as an Accordion at the Top:**
+* Import or pass down the `activeBookings` data.
+* Filter for the current user: `const myBookings = activeBookings.filter(b => b.participants.some(p => p.id === currentUser.id));`
+* Create a state: `const [isMyBookingsOpen, setIsMyBookingsOpen] = useState(true);` (Default to open so they see it immediately, or false if you prefer).
+* Build an accordion UI identical to the Notice board: "⛳️ 나의 일정 (N건)" with a toggle.
+* Inside, display the user's upcoming roundings in a simple, clean list format (Date, Course Name, Time), just like the accordion we built in `RoundingListV2`.
+
+**4. Reorder the Dashboard Layout:**
+* Arrange the sections top-to-bottom in this priority:
+  1. 나의 라운딩 (My Bookings Accordion)
+  2. 핸디캡 & 참가비 잔액 (Handicap & Balance Cards)
+  3. 게시판 (Notice Board Accordion)
+  4. 최근 스코어 (Recent Scores)
+  5. 참가비 납부 내역 (Fee Payment History)
+
+**Goal:** Transform the dashboard into a highly functional personal hub. The user shouldn't be overwhelmed by long lists upon logging in. Everything should be neatly tucked into cards or accordions.

@@ -28,6 +28,8 @@ function Dashboard() {
   const [isAddingComment, setIsAddingComment] = useState(null);
   const [isSavingPost, setIsSavingPost] = useState(false);
   const [isSavingComment, setIsSavingComment] = useState(false);
+  const [isBoardOpen, setIsBoardOpen] = useState(false);
+  const [isMyBookingsOpen, setIsMyBookingsOpen] = useState(true);
 
   useEffect(() => {
     if (location.state?.reset) {
@@ -551,6 +553,18 @@ function Dashboard() {
     })
     .sort((a, b) => new Date(a.date) - new Date(b.date));
 
+  const myBookings = bookings
+    .filter(b => {
+      const parts = parseParticipants(b.participants);
+      return parts.some(p => p.phone === user.phone);
+    })
+    .filter(b => {
+      const bDate = new Date(b.date);
+      bDate.setHours(0, 0, 0, 0);
+      return bDate >= today;
+    })
+    .sort((a, b) => new Date(a.date) - new Date(b.date));
+
   return (
     <div>
       <PageHeader 
@@ -559,31 +573,94 @@ function Dashboard() {
       />
 
       <div className="page-content">
-        <Card style={{ borderLeft: '3px solid var(--accent-bright-green)' }}>
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center',
-            marginBottom: '13px'
-          }}>
-            <h3 style={{ 
-              fontSize: '18px', 
-              fontWeight: '700',
-              color: 'var(--accent-bright-green)'
-            }}>
-              ✎ 게시판
-            </h3>
-            {canCreatePost && (
-              <Button 
-                onClick={() => setShowNewPost(!showNewPost)}
-                variant={showNewPost ? 'outline' : 'primary'}
-                size="sm"
-              >
-                {showNewPost ? '취소' : '작성'}
-              </Button>
-            )}
-          </div>
 
+        {/* 나의 라운딩 */}
+        <div style={{ background: '#F8FAFC', borderRadius: '16px', border: '1px solid #E5E7EB', padding: '0 16px', marginBottom: '16px' }}>
+          <div onClick={() => setIsMyBookingsOpen(!isMyBookingsOpen)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 0', cursor: 'pointer' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <span style={{ fontSize: '15px', fontWeight: '700', color: '#1F2937' }}>나의 라운딩</span>
+              {myBookings.length > 0 && (
+                <span style={{ fontSize: '11px', fontWeight: '600', color: '#1D4ED8', background: '#EFF6FF', padding: '2px 8px', borderRadius: '9999px' }}>
+                  {myBookings.length}
+                </span>
+              )}
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: isMyBookingsOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
+          {isMyBookingsOpen && (
+            <div style={{ background: '#FFFFFF', borderRadius: '12px', border: '1px solid #F3F4F6', overflow: 'hidden', marginBottom: '12px' }}>
+              {myBookings.length === 0 ? (
+                <div style={{ padding: '20px', textAlign: 'center', fontSize: '14px', color: '#9CA3AF' }}>예정된 라운딩이 없습니다</div>
+              ) : (
+                myBookings.map((b, idx) => {
+                  const parts = parseParticipants(b.participants);
+                  const names = parts.map(p => p.nickname || p.name);
+                  const summary = names.length <= 2 ? names.join(', ') : `${names.slice(0, 2).join(', ')} 외 ${names.length - 2}명`;
+                  const d = new Date(b.date);
+                  const days = ['일', '월', '화', '수', '목', '금', '토'];
+                  const dateStr = `${d.getMonth() + 1}/${d.getDate()} (${days[d.getDay()]})`;
+                  const timeStr = b.time && b.time !== '23:59' ? ` ${b.time.slice(0, 5)}` : '';
+                  return (
+                    <div key={b.id} onClick={() => navigate('/booking')} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', cursor: 'pointer', borderBottom: idx < myBookings.length - 1 ? '1px solid #F9FAFB' : 'none' }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: '14px', fontWeight: '700', color: '#111827' }}>{dateStr}{timeStr}</div>
+                        <div style={{ fontSize: '13px', color: '#374151', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {b.courseName} <span style={{ color: '#9CA3AF' }}>({b.type || '소셜'})</span>
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '2px' }}>{summary}</div>
+                      </div>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginLeft: '8px' }}><polyline points="9 18 15 12 9 6"/></svg>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* 핸디캡 & 잔액 */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '16px' }}>
+          <Card padding="16px 12px" style={{ textAlign: 'center', background: '#F8FAFC', borderLeft: '4px solid var(--primary-green)' }}>
+            <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+              <span>⛳</span> 핸디캡
+            </div>
+            <div style={{ fontSize: '28px', fontWeight: '800', color: 'var(--primary-green)', marginBottom: '4px' }}>
+              {user?.handicap ?? user?.calculatedHandicap ?? 18}
+            </div>
+            <div style={{ fontSize: '11px', color: '#888', marginBottom: user?.handicapExplanation ? '4px' : '0' }}>
+              추천: {user?.calculatedHandicap ?? user?.handicap ?? 18}
+            </div>
+            {user?.handicapExplanation && (
+              <div style={{ fontSize: '10px', color: '#666', fontStyle: 'italic', lineHeight: '1.3', marginTop: '4px' }}>{user.handicapExplanation}</div>
+            )}
+          </Card>
+          <Card padding="16px 12px" style={{ textAlign: 'center', background: '#F8FAFC', borderLeft: '4px solid var(--accent-gold)' }}>
+            <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+              <span>💳</span> 참가비 잔액
+            </div>
+            <div style={{ fontSize: '28px', fontWeight: '800', color: calculatedBalance < 0 ? 'var(--alert-red)' : 'var(--accent-gold)' }}>
+              ${calculatedBalance.toLocaleString()}
+            </div>
+          </Card>
+        </div>
+
+        {/* 게시판 */}
+        <Card style={{ borderLeft: '3px solid var(--accent-bright-green)' }}>
+          <div onClick={() => setIsBoardOpen(!isBoardOpen)} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: isBoardOpen ? '13px' : '0', cursor: 'pointer' }}>
+            <h3 style={{ fontSize: '18px', fontWeight: '700', color: 'var(--accent-bright-green)', margin: 0 }}>✎ 게시판</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {isBoardOpen && canCreatePost && (
+                <Button onClick={(e) => { e.stopPropagation(); setShowNewPost(!showNewPost); }} variant={showNewPost ? 'outline' : 'primary'} size="sm">
+                  {showNewPost ? '취소' : '작성'}
+                </Button>
+              )}
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ transform: isBoardOpen ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }}>
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </div>
+          </div>
           {showNewPost && canCreatePost && (
             <div style={{ 
               background: 'var(--bg-green)', 
@@ -1245,83 +1322,8 @@ function Dashboard() {
           )}
         </Card>
 
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: '1fr 1fr',
-          gap: '12px',
-          marginBottom: '16px'
-        }}>
-          <Card padding="16px 12px" style={{ 
-            textAlign: 'center',
-            background: '#F8FAFC',
-            borderLeft: '4px solid var(--primary-green)'
-          }}>
-            <div style={{ 
-              fontSize: '13px', 
-              color: '#666',
-              marginBottom: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '4px'
-            }}>
-              <span>⛳</span> 핸디캡
-            </div>
-            <div style={{ 
-              fontSize: '28px', 
-              fontWeight: '800',
-              color: 'var(--primary-green)',
-              marginBottom: '4px'
-            }}>
-              {user?.handicap ?? user?.calculatedHandicap ?? 18}
-            </div>
-            <div style={{ 
-              fontSize: '11px', 
-              color: '#888',
-              marginBottom: user?.handicapExplanation ? '4px' : '0'
-            }}>
-              추천: {user?.calculatedHandicap ?? user?.handicap ?? 18}
-            </div>
-            {user?.handicapExplanation && (
-              <div style={{ 
-                fontSize: '10px', 
-                color: '#666',
-                fontStyle: 'italic',
-                lineHeight: '1.3',
-                marginTop: '4px'
-              }}>
-                {user.handicapExplanation}
-              </div>
-            )}
-          </Card>
 
-          <Card padding="16px 12px" style={{ 
-            textAlign: 'center',
-            background: '#F8FAFC',
-            borderLeft: '4px solid var(--accent-gold)'
-          }}>
-            <div style={{ 
-              fontSize: '13px', 
-              color: '#666',
-              marginBottom: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '4px'
-            }}>
-              <span>💳</span> 참가비 잔액
-            </div>
-            <div style={{ 
-              fontSize: '28px', 
-              fontWeight: '800',
-              color: calculatedBalance < 0 ? 'var(--alert-red)' : 'var(--accent-gold)'
-            }}>
-              ${calculatedBalance.toLocaleString()}
-            </div>
-          </Card>
-        </div>
-
-        <Card style={{
+        {false && <Card style={{
           borderLeft: '3px solid var(--accent-olive)'
         }}>
           <div style={{ 
@@ -1439,7 +1441,7 @@ function Dashboard() {
               );
             })
           )}
-        </Card>
+        </Card>}
 
         <Card style={{
           borderLeft: '3px solid var(--accent-dark-olive)'
