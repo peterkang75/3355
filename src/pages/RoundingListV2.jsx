@@ -485,8 +485,8 @@ function RoundingListV2() {
         borderRadius: '12px',
         fontSize: '11px',
         fontWeight: '600',
-        background: isFull ? '#FEE2E2' : '#D1FAE5',
-        color: isFull ? '#DC2626' : '#059669',
+        background: isFull ? '#FEE2E2' : 'rgba(26,61,71,0.08)',
+        color: isFull ? '#DC2626' : '#1a3d47',
       }}>
         {isFull ? '마감' : `모집중 ${participants.length}/${max}`}
       </span>
@@ -1243,20 +1243,23 @@ function RoundingListV2() {
                 style={{
                   width: '36px',
                   height: '36px',
+                  minWidth: '36px',
+                  minHeight: '36px',
                   borderRadius: '50%',
-                  border: '1px solid #E5E7EB',
-                  background: '#F9FAFB',
+                  border: 'none',
+                  background: '#F3F4F6',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '16px',
                   flexShrink: 0,
                   marginLeft: '12px',
+                  padding: 0,
+                  color: '#6B7280',
                 }}
                 title="공유"
               >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
               </button>
             </div>
 
@@ -1282,21 +1285,23 @@ function RoundingListV2() {
                     const isMe = p.phone === user.phone;
                     const isGuest = p.isGuest;
                     let chipBg = '#F3F4F6';
-                    let chipColor = theme.colors.text_main;
+                    let chipColor = '#374151';
                     let chipBorder = 'transparent';
                     let chipWeight = '500';
                     if (isHost) {
-                      chipBg = '#FEF3C7';
-                      chipColor = '#92400E';
+                      chipBg = '#F9FAFB';
+                      chipColor = '#1a3d47';
+                      chipBorder = '#E5E7EB';
+                      chipWeight = '600';
                     }
                     if (isMe) {
-                      chipBg = '#D1FAE5';
-                      chipColor = '#065F46';
+                      chipBg = 'rgba(26,61,71,0.08)';
+                      chipColor = '#1a3d47';
                       chipWeight = '700';
                     }
                     if (isGuest) {
                       chipBg = '#FFFFFF';
-                      chipBorder = '#D1D5DB';
+                      chipBorder = '#E5E7EB';
                       chipColor = '#6B7280';
                     }
                     return (
@@ -1356,7 +1361,7 @@ function RoundingListV2() {
           <div style={{
             padding: '12px 20px',
             paddingBottom: 'max(100px, calc(90px + env(safe-area-inset-bottom)))',
-            borderTop: '1px solid #E5E7EB',
+            borderTop: '1px solid #F3F4F6',
           }}>
             {(() => {
               const statusFlags = getBookingStatusFlags(booking);
@@ -1367,10 +1372,12 @@ function RoundingListV2() {
               const effectiveClosed = isCompetition ? isRegistrationClosed : false;
               const showTeamFormation = participants.length > 4;
 
+              const deepGreen = '#1a3d47';
+
               const btnStyle = (bg, color, border) => ({
                 flex: 1,
                 padding: '14px',
-                borderRadius: '12px',
+                borderRadius: '14px',
                 border: border || 'none',
                 background: bg,
                 color: color,
@@ -1389,7 +1396,7 @@ function RoundingListV2() {
                       navigate(`/rounding-management?id=${booking.id}`);
                     }
                   }}
-                  style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}
+                  style={btnStyle('#FFFFFF', '#374151', '1px solid #E5E7EB')}
                 >
                   관리
                 </button>
@@ -1398,7 +1405,7 @@ function RoundingListV2() {
               const playBtn = (
                 <button
                   onClick={() => navigate(`/play?id=${booking.id}`)}
-                  style={{ width: '100%', padding: '14px', borderRadius: '12px', border: 'none', background: '#3B82F6', color: 'white', fontSize: '16px', fontWeight: '700', cursor: 'pointer' }}
+                  style={{ width: '100%', padding: '14px', borderRadius: '14px', border: 'none', background: deepGreen, color: 'white', fontSize: '16px', fontWeight: '700', cursor: 'pointer', boxShadow: '0 2px 8px rgba(26,61,71,0.2)' }}
                 >
                   ⛳ 플레이하기
                 </button>
@@ -1410,12 +1417,12 @@ function RoundingListV2() {
                     <div style={{ display: 'flex', gap: '10px' }}>
                       {manageBtn}
                       {showTeamFormation && (
-                        <button onClick={() => navigate(`/team-formation?id=${booking.id}`)} style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}>
-                          📋 조편성
+                        <button onClick={() => navigate(`/team-formation?id=${booking.id}`)} style={btnStyle('#FFFFFF', '#374151', '1px solid #E5E7EB')}>
+                          조편성
                         </button>
                       )}
-                      <button onClick={() => navigate(`/leaderboard?id=${booking.id}`)} style={btnStyle('white', '#3B82F6', '1px solid #3B82F6')}>
-                        ▲ 결과보기
+                      <button onClick={() => navigate(`/leaderboard?id=${booking.id}`)} style={btnStyle(deepGreen, '#FFFFFF')}>
+                        결과보기
                       </button>
                     </div>
                     {!isCompetition && playBtn}
@@ -1429,8 +1436,8 @@ function RoundingListV2() {
                     <div style={{ display: 'flex', gap: '10px' }}>
                       {manageBtn}
                       {showTeamFormation && (
-                        <button onClick={() => navigate(`/team-formation?id=${booking.id}`)} style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}>
-                          📋 조편성 보기
+                        <button onClick={() => navigate(`/team-formation?id=${booking.id}`)} style={btnStyle('#FFFFFF', '#374151', '1px solid #E5E7EB')}>
+                          조편성 보기
                         </button>
                       )}
                     </div>
@@ -1447,7 +1454,7 @@ function RoundingListV2() {
                       <button
                         onClick={(e) => { e.stopPropagation(); handleJoinLeave(booking); }}
                         disabled={isJoining}
-                        style={{ ...btnStyle('white', '#DC2626', '1px solid #DC2626'), opacity: isJoining ? 0.6 : 1 }}
+                        style={{ ...btnStyle('#FFFFFF', '#E11D48', '1px solid #E5E7EB'), opacity: isJoining ? 0.6 : 1 }}
                       >
                         {isJoining ? '처리중...' : '참가 취소'}
                       </button>
@@ -1455,7 +1462,7 @@ function RoundingListV2() {
                       <button
                         onClick={(e) => { e.stopPropagation(); handleJoinLeave(booking); }}
                         disabled={isJoining || isFull || isRenting}
-                        style={{ ...btnStyle(isFull ? '#E5E7EB' : theme.colors.primary, isFull ? '#9CA3AF' : 'white'), opacity: (isJoining || isRenting) ? 0.6 : 1 }}
+                        style={{ ...btnStyle(isFull ? '#F3F4F6' : deepGreen, isFull ? '#9CA3AF' : 'white'), opacity: (isJoining || isRenting) ? 0.6 : 1 }}
                       >
                         {isJoining ? '처리중...' : isFull ? '마감됨' : '참가하기'}
                       </button>
@@ -1473,15 +1480,15 @@ function RoundingListV2() {
                         <button
                           onClick={(e) => { e.stopPropagation(); handleToggleRental(booking.id); }}
                           disabled={isRentalLoading || isJoined}
-                          style={{ ...btnStyle('white', '#E6AA68', '1px solid #E6AA68'), opacity: (isRentalLoading || isJoined) ? 0.5 : 1 }}
+                          style={{ ...btnStyle('#FFFFFF', '#E6AA68', '1px solid #E5E7EB'), opacity: (isRentalLoading || isJoined) ? 0.5 : 1 }}
                         >
                           {isRentalLoading ? '처리중...' : '번호 대여'}
                         </button>
                       )
                     )}
                     {showTeamFormation && !isCompetition && (
-                      <button onClick={() => navigate(`/team-formation?id=${booking.id}`)} style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}>
-                        📋 조편성
+                      <button onClick={() => navigate(`/team-formation?id=${booking.id}`)} style={btnStyle('#FFFFFF', '#374151', '1px solid #E5E7EB')}>
+                        조편성
                       </button>
                     )}
                   </div>
