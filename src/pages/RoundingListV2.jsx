@@ -705,9 +705,9 @@ function RoundingListV2() {
       badgeColor = '#374151';
     }
 
-    const maxChips = tilesInRow === 1 ? 5 : tilesInRow === 2 ? 4 : tilesInRow === 3 ? 3 : 2;
-    const shownParticipants = participants.slice(0, maxChips);
-    const hiddenCount = participants.length - shownParticipants.length;
+    const visibleNames = participants.slice(0, 3).map(p => p.nickname || p.name).join(', ');
+    const remainingCount = participants.length - 3;
+    const participantText = remainingCount > 0 ? `${visibleNames} 외 ${remainingCount}명` : visibleNames;
 
     const { label: typeLabel, bg: typeBg, color: typeColor } = getTileTypeBadge(booking);
     const rawName = booking.courseName || booking.title || '';
@@ -778,40 +778,20 @@ function RoundingListV2() {
           )}
         </div>
 
-        {/* Row 3: Participant chips */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '3px', alignContent: 'flex-start', marginTop: '2px' }}>
-          {shownParticipants.map((p, i) => {
-            const isMe = p.phone === user.phone;
-            return (
-              <span key={i} style={{
-                display: 'inline-block',
-                fontSize: '11px',
-                fontWeight: isMe ? '700' : '500',
-                color: isMe ? '#1a3d47' : '#6B7280',
-                background: isMe ? '#E8F4ED' : '#F9FAFB',
-                border: `1px solid ${isMe ? '#C6E0CF' : '#F3F4F6'}`,
-                borderRadius: '5px',
-                padding: '1px 6px',
-                whiteSpace: 'nowrap',
-              }}>
-                {p.nickname || p.name}
-              </span>
-            );
-          })}
-          {hiddenCount > 0 && (
-            <span style={{
-              display: 'inline-block',
-              fontSize: '11px',
-              fontWeight: '600',
-              color: '#6B7280',
-              background: '#F3F4F6',
-              borderRadius: '5px',
-              padding: '1px 6px',
-            }}>
-              +{hiddenCount}
-            </span>
-          )}
-        </div>
+        {/* Row 3: Participants as plain text */}
+        {participantText && (
+          <div style={{
+            fontSize: '11px',
+            fontWeight: '500',
+            color: '#6B7280',
+            marginTop: '2px',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+          }}>
+            {participantText}
+          </div>
+        )}
 
         {/* Row 4: Status badge — pushed to bottom */}
         <div style={{
