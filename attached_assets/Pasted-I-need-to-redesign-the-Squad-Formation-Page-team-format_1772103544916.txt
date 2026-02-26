@@ -1,0 +1,29 @@
+I need to redesign the **Squad Formation Page (`/team-formation`)** to perfectly match our new "V2 Chic & Minimal" design language (Deep green, white, soft shadows, no harsh borders, no random pastel/primary colors).
+
+Looking at the current UI, the colors are too disconnected (bright blue, red, dark gray, pink). 
+
+**Please apply the following UI updates:**
+
+**1. Action Button Toolbar (자동배정, -, +, 저장, 복사):**
+* **Remove the rainbow colors.** * **Container:** Wrap them in a clean row with `gap-2`.
+* **Standard Buttons (자동배정, 텍스트 복사):** Use `bg-white border border-gray-200 text-gray-700 rounded-lg shadow-sm font-medium`.
+* **Icon Buttons (-, +):** Use simple square or circular buttons: `bg-white border border-gray-200 text-gray-600 rounded-lg w-10 h-10 flex items-center justify-center shadow-sm`. (No red backgrounds).
+* **Primary Button (저장됨/저장):** Use the signature Deep Green (`bg-[#1a3d47] text-white rounded-lg shadow-sm`).
+
+**2. "플레이하기" (Play) Button:**
+* **Issue:** The bright blue (`bg-blue-500`) breaks the theme entirely.
+* **Fix:** Change to the signature Deep Green: `bg-[#1a3d47] text-white hover:bg-[#153038] shadow-md rounded-xl font-bold py-3`.
+
+**3. Unassigned Participants Pool (미배정 참가자):**
+* **Container:** Clean white card (`bg-white rounded-2xl shadow-sm p-4`), remove the outer border.
+* **Participant Chips:** * Soften the shape: use `rounded-xl` or `rounded-full`.
+    * Default state: `bg-gray-50 border border-gray-100 text-gray-800`.
+    * **Selected State (Issue: Currently tacky pink):** Change the active/selected state to a subtle primary tint, e.g., `bg-emerald-50 border-emerald-200 text-emerald-800` or just a distinct shadow/border without changing the background drastically.
+
+**4. Team Cards (1조, 2조, etc.):**
+* **Card Container:** `bg-white rounded-2xl shadow-sm p-4 mb-4`. Remove harsh borders.
+* **Empty Slots (+ 추가):** Make them look like drop zones. Instead of a solid line, use a dashed line and lighter background: `border-2 border-dashed border-gray-200 bg-gray-50/50 text-gray-400 rounded-xl flex items-center justify-center h-12`.
+* **Filled Slots:** Once a player is added, render their chip inside cleanly, matching the unassigned chip style.
+* **Time Icon (⏰):** Change the red alarm clock emoji to a clean, minimal SVG icon (`text-gray-400`) if possible, or style the input cleaner without borders.
+
+**Goal:** Unify this page with the rest of the V2 app. It should feel like a premium, native iOS/Android settings screen—heavy on white space, soft shadows, and deep green accents.

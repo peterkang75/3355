@@ -544,11 +544,17 @@ function TeamFormation() {
               onClick={handleAutoAssign}
               loading={isAutoAssigning}
               loadingText="..."
-              className="btn-outline"
               style={{ 
                 padding: '10px 12px',
                 fontSize: '13px',
-                whiteSpace: 'nowrap'
+                fontWeight: '500',
+                whiteSpace: 'nowrap',
+                background: '#FFFFFF',
+                border: '1px solid #E5E7EB',
+                borderRadius: '8px',
+                color: '#374151',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                cursor: 'pointer',
               }}
             >
               ⚡ 자동배정
@@ -557,16 +563,20 @@ function TeamFormation() {
               onClick={handleRemoveTeam}
               disabled={teams.length === 0}
               style={{
-                padding: '10px 12px',
-                background: teams.length === 0 ? '#ccc' : '#EF4444',
-                color: 'white',
-                border: 'none',
+                width: '40px',
+                height: '40px',
+                background: '#FFFFFF',
+                color: teams.length === 0 ? '#D1D5DB' : '#374151',
+                border: '1px solid #E5E7EB',
                 borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: '700',
+                fontSize: '18px',
+                fontWeight: '500',
                 cursor: teams.length === 0 ? 'not-allowed' : 'pointer',
-                minWidth: '36px',
-                lineHeight: '1'
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
               }}
             >
               −
@@ -574,16 +584,20 @@ function TeamFormation() {
             <button
               onClick={handleAddTeam}
               style={{
-                padding: '10px 12px',
-                background: 'var(--primary-green)',
-                color: 'white',
-                border: 'none',
+                width: '40px',
+                height: '40px',
+                background: '#FFFFFF',
+                color: '#374151',
+                border: '1px solid #E5E7EB',
                 borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: '700',
+                fontSize: '18px',
+                fontWeight: '500',
                 cursor: 'pointer',
-                minWidth: '36px',
-                lineHeight: '1'
+                flexShrink: 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
               }}
             >
               +
@@ -595,13 +609,15 @@ function TeamFormation() {
               style={{ 
                 flex: 1,
                 padding: '10px 14px',
-                background: hasUnsavedChanges ? 'var(--alert-red)' : 'var(--primary-green)',
-                color: 'var(--text-light)',
+                background: hasUnsavedChanges ? '#EF4444' : '#1a3d47',
+                color: '#FFFFFF',
                 border: 'none',
                 borderRadius: '8px',
                 fontSize: '13px',
                 fontWeight: '600',
-                whiteSpace: 'nowrap'
+                whiteSpace: 'nowrap',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.10)',
+                cursor: 'pointer',
               }}
             >
               {hasUnsavedChanges ? '✕ 저장안됨' : '✓ 저장됨'}
@@ -610,20 +626,21 @@ function TeamFormation() {
               onClick={handleCopyTeamText}
               style={{
                 padding: '10px 10px',
-                background: '#6B7280',
-                color: 'white',
-                border: 'none',
+                background: '#FFFFFF',
+                color: '#374151',
+                border: '1px solid #E5E7EB',
                 borderRadius: '8px',
                 fontSize: '12px',
-                fontWeight: '600',
+                fontWeight: '500',
                 cursor: 'pointer',
                 whiteSpace: 'nowrap',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '4px'
+                gap: '4px',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
               }}
             >
-              📋 텍스트 복사
+              📋 복사
             </button>
           </div>
         )}
@@ -634,18 +651,19 @@ function TeamFormation() {
             style={{
               width: '100%',
               padding: '14px',
-              background: '#2196F3',
+              background: '#1a3d47',
               color: 'white',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '12px',
               fontSize: '16px',
-              fontWeight: '600',
+              fontWeight: '700',
               cursor: 'pointer',
               marginBottom: '16px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px'
+              gap: '8px',
+              boxShadow: '0 4px 12px rgba(26,61,71,0.25)',
             }}
           >
             ⛳ 플레이하기
@@ -682,18 +700,19 @@ function TeamFormation() {
           </div>
           <div style={{
             minHeight: '60px',
-            borderRadius: '8px',
+            borderRadius: '12px',
             padding: '12px',
             display: 'flex',
             flexWrap: 'wrap',
             gap: '8px',
-            border: '2px solid var(--border-color)'
+            background: '#F9FAFB',
           }}>
             {unassigned.length === 0 ? (
               <div style={{ 
                 width: '100%', 
                 textAlign: 'center', 
-                opacity: 0.7,
+                color: '#9CA3AF',
+                fontSize: '14px',
                 padding: '20px 0'
               }}>
                 모든 참가자가 배정되었습니다
@@ -706,39 +725,41 @@ function TeamFormation() {
                 const memberInfo = members.find(m => m.phone === member.phone);
                 const isFemale = memberInfo?.gender === '여';
                 
-                let bgColor = 'transparent';
-                let textColor = 'var(--primary-green)';
-                let borderColor = 'var(--border-color)';
+                let bgColor = '#FFFFFF';
+                let textColor = '#1F2937';
+                let borderColor = '#E5E7EB';
                 
                 if (isGuest) {
-                  bgColor = 'rgba(135, 206, 235, 0.3)';
-                  textColor = '#4A90A4';
-                  borderColor = '#87CEEB';
+                  bgColor = '#EFF6FF';
+                  textColor = '#1D4ED8';
+                  borderColor = '#BFDBFE';
                 } else if (isRenting) {
-                  bgColor = '#E6AA68';
-                  textColor = '#fff';
+                  bgColor = '#FEF3C7';
+                  textColor = '#92400E';
+                  borderColor = '#FDE68A';
                 } else if (isFemale) {
-                  bgColor = 'rgba(196, 129, 137, 0.3)';
-                  textColor = '#C48189';
-                  borderColor = '#C48189';
+                  bgColor = '#FDF2F8';
+                  textColor = '#9D174D';
+                  borderColor = '#FBCFE8';
                 }
                 
                 return (
                   <div
                     key={index}
                     style={{
-                      padding: '10px 14px',
-                      borderRadius: '6px',
-                      border: `2px solid ${borderColor}`,
+                      padding: '8px 14px',
+                      borderRadius: '20px',
+                      border: `1px solid ${borderColor}`,
                       background: bgColor,
                       fontSize: '14px',
-                      fontWeight: '600',
+                      fontWeight: '500',
                       color: textColor,
                       whiteSpace: 'nowrap',
                       flexShrink: 0,
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '6px'
+                      gap: '6px',
+                      boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
                     }}
                   >
                     {getParticipantDisplayName(member)}
@@ -746,15 +767,15 @@ function TeamFormation() {
                       <span style={{
                         fontSize: '10px',
                         fontWeight: '600',
-                        background: '#87CEEB',
-                        color: '#1a3a4a',
-                        padding: '2px 4px',
-                        borderRadius: '3px'
+                        background: '#BFDBFE',
+                        color: '#1D4ED8',
+                        padding: '1px 5px',
+                        borderRadius: '6px'
                       }}>
-                        게스트
+                        G
                       </span>
                     )}
-                    {handicapText && <span style={{ fontSize: '12px', opacity: 0.8 }}>({handicapText})</span>}
+                    {handicapText && <span style={{ fontSize: '12px', color: '#9CA3AF' }}>({handicapText})</span>}
                   </div>
                 );
               })
@@ -770,26 +791,48 @@ function TeamFormation() {
             const memberInfo = member ? members.find(m => m.phone === member.phone) : null;
             const isFemale = memberInfo?.gender === '여';
             
-            let bgColor = 'var(--bg-card)';
-            let textColor = 'var(--text-dark)';
-            let borderColor = 'var(--border-color)';
+            if (!member) {
+              return (
+                <button
+                  key={slotIndex}
+                  onClick={() => handleSlotClick(teamIndex, slotIndex, member)}
+                  style={{
+                    minHeight: '56px',
+                    background: '#FAFAFA',
+                    color: '#9CA3AF',
+                    borderRadius: '12px',
+                    border: '2px dashed #D1D5DB',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s',
+                    flex: 1,
+                  }}
+                >
+                  + 추가
+                </button>
+              );
+            }
+
+            let bgColor = '#F0FDF4';
+            let textColor = '#166534';
+            let borderColor = '#BBF7D0';
             
-            if (member) {
-              if (isGuest) {
-                bgColor = '#87CEEB';
-                textColor = '#1a3a4a';
-                borderColor = '#5BA3C0';
-              } else if (isRenting) {
-                bgColor = '#E6AA68';
-                textColor = '#fff';
-              } else if (isFemale) {
-                bgColor = '#C48189';
-                textColor = '#fff';
-                borderColor = '#A66A72';
-              } else {
-                bgColor = 'var(--primary-green)';
-                textColor = 'var(--text-light)';
-              }
+            if (isGuest) {
+              bgColor = '#EFF6FF';
+              textColor = '#1D4ED8';
+              borderColor = '#BFDBFE';
+            } else if (isRenting) {
+              bgColor = '#FEF3C7';
+              textColor = '#92400E';
+              borderColor = '#FDE68A';
+            } else if (isFemale) {
+              bgColor = '#FDF2F8';
+              textColor = '#9D174D';
+              borderColor = '#FBCFE8';
             }
             
             return (
@@ -797,40 +840,40 @@ function TeamFormation() {
                 key={slotIndex}
                 onClick={() => handleSlotClick(teamIndex, slotIndex, member)}
                 style={{
-                  minHeight: '60px',
+                  minHeight: '56px',
                   background: bgColor,
                   color: textColor,
-                  borderRadius: '8px',
-                  border: `2px solid ${borderColor}`,
-                  opacity: member ? 1 : 0.7,
+                  borderRadius: '12px',
+                  border: `1px solid ${borderColor}`,
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  fontSize: '15px',
+                  fontSize: '14px',
                   fontWeight: '600',
                   cursor: 'pointer',
                   transition: 'all 0.2s',
                   gap: '2px',
-                  flex: 1
+                  flex: 1,
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span>{member ? getParticipantDisplayName(member) : '+ 추가'}</span>
+                  <span>{getParticipantDisplayName(member)}</span>
                   {isGuest && (
                     <span style={{
                       fontSize: '9px',
                       fontWeight: '700',
-                      background: 'rgba(255,255,255,0.4)',
-                      color: '#1a3a4a',
-                      padding: '1px 3px',
-                      borderRadius: '2px'
+                      background: '#BFDBFE',
+                      color: '#1D4ED8',
+                      padding: '1px 4px',
+                      borderRadius: '4px'
                     }}>
                       G
                     </span>
                   )}
                 </div>
-                {handicapText && <span style={{ fontSize: '11px', opacity: 0.85 }}>{handicapText}</span>}
+                {handicapText && <span style={{ fontSize: '11px', opacity: 0.7 }}>{handicapText}</span>}
               </button>
             );
           };
@@ -852,7 +895,7 @@ function TeamFormation() {
                   {team.teamNumber}조
                 </h3>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '13px', color: '#666' }}>⏰</span>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                   {canAccess ? (
                     <input
                       type="time"
@@ -886,14 +929,15 @@ function TeamFormation() {
               {gameMode === 'foursome' ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div style={{
-                    background: 'rgba(59, 130, 246, 0.1)',
-                    borderRadius: '8px',
-                    padding: '10px'
+                    background: '#F0FDF4',
+                    borderRadius: '12px',
+                    padding: '10px',
+                    border: '1px solid #BBF7D0',
                   }}>
                     <div style={{ 
                       fontSize: '12px', 
                       fontWeight: '700', 
-                      color: '#3B82F6', 
+                      color: '#166534', 
                       marginBottom: '8px',
                       textAlign: 'center'
                     }}>
@@ -935,14 +979,15 @@ function TeamFormation() {
                   </div>
                   
                   <div style={{
-                    background: 'rgba(239, 68, 68, 0.1)',
-                    borderRadius: '8px',
-                    padding: '10px'
+                    background: '#F8FAFC',
+                    borderRadius: '12px',
+                    padding: '10px',
+                    border: '1px solid #E2E8F0',
                   }}>
                     <div style={{ 
                       fontSize: '12px', 
                       fontWeight: '700', 
-                      color: '#EF4444', 
+                      color: '#475569', 
                       marginBottom: '8px',
                       textAlign: 'center'
                     }}>
