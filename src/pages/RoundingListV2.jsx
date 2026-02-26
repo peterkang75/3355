@@ -257,6 +257,10 @@ function RoundingListV2() {
 
   const handleHmAddMember = async (member) => {
     if (hmParticipants.some(p => p.phone === member.phone)) return;
+    if (hmType === '컴페티션' && (!member.golflinkNumber || member.golflinkNumber.trim() === '')) {
+      alert(`${member.nickname || member.name}님은 골프링크 번호가 없어 컴페티션에 추가할 수 없습니다.`);
+      return;
+    }
     const newP = { name: member.name, nickname: member.nickname, phone: member.phone, memberId: member.id };
     const updated = [...hmParticipants, newP];
     setHmParticipants(updated);
