@@ -1113,36 +1113,36 @@ function RoundingListV2() {
           </div>
 
           <div style={{ padding: '8px 20px 16px', overflowY: 'auto', flex: 1 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-              <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px' }}>
+              <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '20px', fontWeight: '700', color: theme.colors.primary }}>
                   {booking.courseName}
                 </div>
-                <div style={{ fontSize: '14px', color: theme.colors.text_sub, marginTop: '2px' }}>
-                  {formatDate(booking.date)} · {booking.time}
+                <div style={{ fontSize: '14px', color: theme.colors.text_sub, marginTop: '4px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span>{formatDate(booking.date)} · {booking.time}</span>
+                  {getStatusBadge(booking)}
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <button
-                  onClick={(e) => { e.stopPropagation(); handleShare(booking); }}
-                  style={{
-                    width: '36px',
-                    height: '36px',
-                    borderRadius: '50%',
-                    border: '1px solid #E5E7EB',
-                    background: '#F9FAFB',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '16px',
-                  }}
-                  title="공유"
-                >
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-                </button>
-                {getStatusBadge(booking)}
-              </div>
+              <button
+                onClick={(e) => { e.stopPropagation(); handleShare(booking); }}
+                style={{
+                  width: '36px',
+                  height: '36px',
+                  borderRadius: '50%',
+                  border: '1px solid #E5E7EB',
+                  background: '#F9FAFB',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '16px',
+                  flexShrink: 0,
+                  marginLeft: '12px',
+                }}
+                title="공유"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+              </button>
             </div>
 
             <div style={{ fontSize: '13px', color: theme.colors.text_sub, marginBottom: '14px' }}>
