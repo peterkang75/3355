@@ -230,6 +230,9 @@ function RoundingListV2() {
     try {
       await updateBooking(hmBooking.id, fields);
       setHmBooking(prev => ({ ...prev, ...fields }));
+    } catch (err) {
+      alert('저장 중 오류가 발생했습니다.');
+      console.error('Host manage save failed:', err);
     } finally {
       setHmSaving(false);
     }
@@ -246,9 +249,9 @@ function RoundingListV2() {
 
   const handleHmRemoveParticipant = async (phone) => {
     const updated = hmParticipants.filter(p => p.phone !== phone);
+    setHmParticipants(updated);
     const serialized = updated.map(p => JSON.stringify(p));
     await hmSaveField({ participants: serialized });
-    setHmParticipants(updated);
   };
 
   const handleHmAddGuest = async () => {
@@ -259,10 +262,10 @@ function RoundingListV2() {
       phone: `guest_${Date.now()}`,
     };
     const updated = [...hmParticipants, guest];
-    const serialized = updated.map(p => JSON.stringify(p));
-    await hmSaveField({ participants: serialized });
     setHmParticipants(updated);
     setHmGuestName('');
+    const serialized = updated.map(p => JSON.stringify(p));
+    await hmSaveField({ participants: serialized });
   };
 
   const handleHmDelete = async () => {
@@ -275,6 +278,8 @@ function RoundingListV2() {
       await apiService.deleteBooking(hmBooking.id);
       setShowHostManage(false);
       await refreshBookings();
+    } catch (err) {
+      alert('삭제 중 오류가 발생했습니다.');
     } finally {
       setHmSaving(false);
     }
@@ -807,7 +812,7 @@ function RoundingListV2() {
             </button>
           </div>
 
-          <div style={{ overflowY: 'auto', flex: 1, padding: '16px 20px', paddingBottom: 'max(32px, env(safe-area-inset-bottom))' }}>
+          <div style={{ overflowY: 'auto', flex: 1, padding: '16px 20px', paddingBottom: 'max(120px, calc(100px + env(safe-area-inset-bottom)))' }}>
 
             {sectionTitle('라운딩 유형')}
             <div style={{ display: 'flex', gap: '8px', marginBottom: '4px' }}>
