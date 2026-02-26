@@ -619,7 +619,7 @@ function RoundingListV2() {
       badgeBg = '#FFFBEB';
       badgeColor = '#92400E';
     } else if (isCompetition) {
-      badgeText = `${daysLeft}일`;
+      badgeText = `마감${daysLeft}일`;
       badgeBg = '#F9FAFB';
       badgeColor = '#374151';
     } else {
