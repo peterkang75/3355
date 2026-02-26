@@ -1436,25 +1436,19 @@ function Dashboard() {
           )}
         </Card>}
 
-        <Card style={{
-          borderLeft: '3px solid var(--accent-dark-olive)'
-        }}>
+        <Card>
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
             alignItems: 'center',
-            marginBottom: '12px'
+            marginBottom: '14px'
           }}>
             <h3 style={{ 
-              fontSize: '16px', 
+              fontSize: '17px', 
               fontWeight: '700',
-              color: 'var(--accent-dark-olive)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
+              color: '#111827',
               margin: 0
             }}>
-              <span style={{ fontSize: '20px' }}>📊</span>
               최근 스코어
             </h3>
             <button
@@ -1462,11 +1456,10 @@ function Dashboard() {
               style={{
                 background: 'none',
                 border: 'none',
-                color: 'var(--accent-dark-olive)',
+                color: '#9CA3AF',
                 fontSize: '12px',
-                fontWeight: '600',
+                fontWeight: '500',
                 cursor: 'pointer',
-                textDecoration: 'underline',
                 padding: 0
               }}
             >
@@ -1482,11 +1475,12 @@ function Dashboard() {
             if (userScores.length === 0) {
               return (
                 <div style={{ 
-                  padding: '16px',
-                  background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(59, 64, 26, 0.05) 100%)',
-                  borderRadius: '8px',
+                  padding: '20px',
+                  background: '#F9FAFB',
+                  borderRadius: '10px',
                   textAlign: 'center',
-                  opacity: 0.7
+                  color: '#9CA3AF',
+                  fontSize: '14px'
                 }}>
                   기록된 스코어가 없습니다
                 </div>
@@ -1494,10 +1488,11 @@ function Dashboard() {
             }
 
             return (
-              <div>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {userScores.map((score, index) => {
                   const overPar = score.totalScore - score.coursePar;
-                  const displayScore = overPar > 0 ? `+${overPar}` : overPar === 0 ? 'E' : overPar;
+                  const displayScore = overPar > 0 ? `+${overPar}` : overPar === 0 ? 'E' : `${overPar}`;
+                  const scoreColor = overPar > 0 ? '#6B7280' : overPar === 0 ? '#374151' : '#0F766E';
                   
                   const matchingBooking = bookings.find(b => b.title === score.roundingName);
                   const handleScoreClick = () => {
@@ -1507,56 +1502,49 @@ function Dashboard() {
                   };
                   
                   return (
-                    <div key={score.id}>
-                      <div 
-                        onClick={handleScoreClick}
-                        style={{
-                          padding: '12px',
-                          background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(59, 64, 26, 0.05) 100%)',
-                          borderRadius: '8px',
-                          cursor: matchingBooking ? 'pointer' : 'default',
-                          transition: 'transform 0.1s ease'
-                        }}
-                      >
+                    <div 
+                      key={score.id}
+                      onClick={handleScoreClick}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '12px 0',
+                        borderBottom: index < userScores.length - 1 ? '1px solid #F3F4F6' : 'none',
+                        cursor: matchingBooking ? 'pointer' : 'default',
+                      }}
+                    >
+                      <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ 
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          color: '#111827',
                           display: 'flex',
-                          justifyContent: 'space-between',
                           alignItems: 'center',
-                          marginBottom: '6px'
+                          gap: '5px',
+                          marginBottom: '3px'
                         }}>
-                          <div style={{ 
-                            fontSize: '14px',
-                            fontWeight: '600',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '6px'
-                          }}>
-                            {score.roundingName || '개인 라운딩'}
-                            {matchingBooking && (
-                              <span style={{ fontSize: '10px', color: 'var(--primary-green)' }}>→</span>
-                            )}
-                          </div>
-                          <div style={{
-                            fontSize: '18px',
-                            fontWeight: '700',
-                            color: overPar > 0 ? '#d9534f' : overPar === 0 ? 'var(--accent-gold)' : 'var(--primary-green)'
-                          }}>
-                            {displayScore}
-                          </div>
+                          {score.roundingName || '개인 라운딩'}
+                          {matchingBooking && (
+                            <span style={{ fontSize: '11px', color: '#9CA3AF' }}>→</span>
+                          )}
                         </div>
-                        <div style={{ 
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          fontSize: '12px',
-                          opacity: 0.7
-                        }}>
-                          <span>{score.courseName} · {formatDateTime(score.date).split(' ')[0]}</span>
-                          <span>{score.totalScore} ({score.coursePar})</span>
+                        <div style={{ fontSize: '12px', color: '#9CA3AF' }}>
+                          {score.courseName} · {formatDateTime(score.date).split(' ')[0]}
                         </div>
                       </div>
-                      {index < userScores.length - 1 && (
-                        <div style={{ height: '8px' }} />
-                      )}
+                      <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                        <div style={{
+                          fontSize: '18px',
+                          fontWeight: '700',
+                          color: scoreColor
+                        }}>
+                          {displayScore}
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#9CA3AF' }}>
+                          {score.totalScore} ({score.coursePar})
+                        </div>
+                      </div>
                     </div>
                   );
                 })}
@@ -1565,25 +1553,19 @@ function Dashboard() {
           })()}
         </Card>
 
-        <Card style={{
-          borderLeft: '3px solid var(--accent-gold)'
-        }}>
+        <Card>
           <div style={{ 
             display: 'flex', 
             justifyContent: 'space-between', 
             alignItems: 'center',
-            marginBottom: '12px'
+            marginBottom: '14px'
           }}>
             <h3 style={{ 
-              fontSize: '16px', 
+              fontSize: '17px', 
               fontWeight: '700',
-              color: 'var(--accent-gold)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
+              color: '#111827',
               margin: 0
             }}>
-              <span style={{ fontSize: '20px' }}>💳</span>
               참가비 납부 내역
             </h3>
             <button
@@ -1591,11 +1573,10 @@ function Dashboard() {
               style={{
                 background: 'none',
                 border: 'none',
-                color: 'var(--accent-gold)',
+                color: '#9CA3AF',
                 fontSize: '12px',
-                fontWeight: '600',
+                fontWeight: '500',
                 cursor: 'pointer',
-                textDecoration: 'underline',
                 padding: 0
               }}
             >
@@ -1606,11 +1587,12 @@ function Dashboard() {
             if (recentTransactions.length === 0) {
               return (
                 <div style={{ 
-                  padding: '16px',
-                  background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(242, 163, 65, 0.05) 100%)',
-                  borderRadius: '8px',
+                  padding: '20px',
+                  background: '#F9FAFB',
+                  borderRadius: '10px',
                   textAlign: 'center',
-                  opacity: 0.7
+                  color: '#9CA3AF',
+                  fontSize: '14px'
                 }}>
                   거래 내역이 없습니다
                 </div>
@@ -1618,48 +1600,49 @@ function Dashboard() {
             }
 
             return (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6.4px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column' }}>
                 {recentTransactions.map((transaction, index) => {
                   const isCharge = transaction.type === 'charge';
                   const label = transaction.type === 'charge' 
                     ? (transaction.bookingId ? '라운딩 참가비' : '참가비 발생')
-                    : '납부';
+                    : transaction.type === 'payment' ? '납부'
+                    : transaction.type === 'credit' ? '크레딧'
+                    : transaction.description || transaction.type;
                   
                   return (
-                    <div key={transaction.id}>
-                      <div style={{
-                        padding: '12px',
-                        background: 'linear-gradient(135deg, var(--bg-green) 0%, rgba(242, 163, 65, 0.05) 100%)',
-                        borderRadius: '8px'
-                      }}>
+                    <div 
+                      key={transaction.id}
+                      style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        padding: '12px 0',
+                        borderBottom: index < recentTransactions.length - 1 ? '1px solid #F3F4F6' : 'none',
+                      }}
+                    >
+                      <div>
                         <div style={{ 
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          marginBottom: '6px'
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          color: '#111827',
+                          marginBottom: '3px'
                         }}>
-                          <div style={{ 
-                            fontSize: '14px',
-                            fontWeight: '600'
-                          }}>
-                            {label}
-                          </div>
-                          <div style={{
-                            fontSize: '16px',
-                            fontWeight: '700',
-                            color: isCharge ? 'var(--alert-red)' : 'var(--success-green)'
-                          }}>
-                            {isCharge ? '-' : '+'}{formatCurrency(transaction.amount)}
-                          </div>
+                          {label}
                         </div>
-                        <div style={{ 
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          fontSize: '12px',
-                          opacity: 0.7
+                        <div style={{ fontSize: '12px', color: '#9CA3AF' }}>
+                          {transaction.date || (transaction.createdAt ? formatDateTime(transaction.createdAt).split(' ')[0] : '')}
+                        </div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <div style={{
+                          fontSize: '15px',
+                          fontWeight: '700',
+                          color: isCharge ? '#DC2626' : '#0F766E'
                         }}>
-                          <span>{transaction.date || (transaction.createdAt ? formatDateTime(transaction.createdAt).split(' ')[0] : '')}</span>
-                          <span>잔액: {formatCurrency(transaction.balanceAfter)}</span>
+                          {isCharge ? '-' : '+'}{formatCurrency(transaction.amount)}
+                        </div>
+                        <div style={{ fontSize: '12px', color: '#9CA3AF' }}>
+                          잔액: {formatCurrency(transaction.balanceAfter)}
                         </div>
                       </div>
                     </div>
@@ -1679,16 +1662,16 @@ function Dashboard() {
           <Button
             onClick={handleRefreshData}
             disabled={isRefreshing}
-            variant="primary"
+            variant="outline"
             size="lg"
             style={{
-              background: 'linear-gradient(135deg, var(--primary-green) 0%, var(--accent-bright-green) 100%)',
-              boxShadow: '0 4px 12px rgba(45, 95, 63, 0.3)',
-              minWidth: '200px',
-              borderRadius: '12px'
+              minWidth: '160px',
+              borderRadius: '12px',
+              color: '#374151',
+              border: '1px solid #D1D5DB'
             }}
           >
-            {isRefreshing ? '🔄 새로고침 중...' : '🔄 데이터 새로고침'}
+            {isRefreshing ? '새로고침 중...' : '데이터 새로고침'}
           </Button>
         </div>
       </div>
