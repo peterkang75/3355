@@ -36,6 +36,14 @@ function RoundingListV2() {
   const [isRentalLoading, setIsRentalLoading] = useState(false);
   const [hoveredTileId, setHoveredTileId] = useState(null);
   const [isCreating, setIsCreating] = useState(false);
+  const [showHostManage, setShowHostManage] = useState(false);
+  const [hmBooking, setHmBooking] = useState(null);
+  const [hmType, setHmType] = useState('');
+  const [hmTime, setHmTime] = useState('');
+  const [hmParticipants, setHmParticipants] = useState([]);
+  const [hmGuestName, setHmGuestName] = useState('');
+  const [hmSaving, setHmSaving] = useState(false);
+  const [hmDeleteConfirm, setHmDeleteConfirm] = useState(false);
   const [newRounding, setNewRounding] = useState({
     date: '',
     time: '',
@@ -201,6 +209,74 @@ function RoundingListV2() {
       alert('번호대여 상태 변경 중 오류가 발생했습니다.');
     } finally {
       setIsRentalLoading(false);
+    }
+  };
+
+  const openHostManage = (booking) => {
+    const parts = parseParticipants(booking.participants);
+    setHmBooking(booking);
+    setHmType(booking.type || '소셜');
+    setHmTime(booking.time || '');
+    setHmParticipants(parts);
+    setHmGuestName('');
+    setHmDeleteConfirm(false);
+    setShowHostManage(true);
+    setSelectedBooking(null);
+  };
+
+  const hmSaveField = async (fields) => {
+    if (!hmBooking) return;
+    setHmSaving(true);
+    try {
+      await updateBooking(hmBooking.id, fields);
+      setHmBooking(prev => ({ ...prev, ...fields }));
+    } finally {
+      setHmSaving(false);
+    }
+  };
+
+  const handleHmTypeChange = async (newType) => {
+    setHmType(newType);
+    await hmSaveField({ type: newType });
+  };
+
+  const handleHmTimeSave = async () => {
+    await hmSaveField({ time: hmTime });
+  };
+
+  const handleHmRemoveParticipant = async (phone) => {
+    const updated = hmParticipants.filter(p => p.phone !== phone);
+    const serialized = updated.map(p => JSON.stringify(p));
+    await hmSaveField({ participants: serialized });
+    setHmParticipants(updated);
+  };
+
+  const handleHmAddGuest = async () => {
+    if (!hmGuestName.trim()) return;
+    const guest = {
+      name: hmGuestName.trim(),
+      nickname: hmGuestName.trim(),
+      phone: `guest_${Date.now()}`,
+    };
+    const updated = [...hmParticipants, guest];
+    const serialized = updated.map(p => JSON.stringify(p));
+    await hmSaveField({ participants: serialized });
+    setHmParticipants(updated);
+    setHmGuestName('');
+  };
+
+  const handleHmDelete = async () => {
+    if (!hmDeleteConfirm) {
+      setHmDeleteConfirm(true);
+      return;
+    }
+    setHmSaving(true);
+    try {
+      await apiService.deleteBooking(hmBooking.id);
+      setShowHostManage(false);
+      await refreshBookings();
+    } finally {
+      setHmSaving(false);
     }
   };
 
@@ -675,12 +751,279 @@ function RoundingListV2() {
     }
   };
 
+  const renderHostManage = () => {
+    if (!showHostManage || !hmBooking) return null;
+
+    const typeOptions = [
+      { key: '컴페티션', emoji: '🏆', label: '컴페티션', color: '#D97706', bg: '#FEF3C7', border: '#F59E0B' },
+      { key: '그린피', emoji: '⛳', label: '그린피', color: '#047857', bg: '#D1FAE5', border: '#10B981' },
+      { key: '소셜', emoji: '☕', label: '소셜', color: '#EA580C', bg: '#FFF7ED', border: '#F97316' },
+    ];
+
+    const sectionTitle = (text) => (
+      <div style={{ fontSize: '13px', fontWeight: '700', color: '#6B7280', letterSpacing: '0.5px', textTransform: 'uppercase', marginBottom: '10px' }}>
+        {text}
+      </div>
+    );
+
+    const divider = () => (
+      <div style={{ height: '1px', background: '#F3F4F6', margin: '20px 0' }} />
+    );
+
+    return (
+      <>
+        <div
+          onClick={() => setShowHostManage(false)}
+          style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 999, backdropFilter: 'blur(2px)' }}
+        />
+        <div style={{
+          position: 'fixed',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          background: '#FFFFFF',
+          borderRadius: '24px 24px 0 0',
+          zIndex: 1000,
+          maxHeight: '85vh',
+          display: 'flex',
+          flexDirection: 'column',
+          animation: 'slideUp 0.25s ease-out',
+          boxShadow: '0 -4px 24px rgba(0,0,0,0.12)',
+        }}>
+          <div style={{ textAlign: 'center', padding: '14px 0 6px' }}>
+            <div style={{ width: '40px', height: '4px', background: '#D1D5DB', borderRadius: '2px', margin: '0 auto' }} />
+          </div>
+
+          <div style={{ padding: '8px 20px 4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div>
+              <div style={{ fontSize: '18px', fontWeight: '700', color: '#111827' }}>라운딩 관리</div>
+              <div style={{ fontSize: '13px', color: '#9CA3AF', marginTop: '2px' }}>{hmBooking.courseName} · {formatDate(hmBooking.date)}</div>
+            </div>
+            <button
+              onClick={() => setShowHostManage(false)}
+              style={{ background: '#F3F4F6', border: 'none', borderRadius: '50%', width: '32px', height: '32px', cursor: 'pointer', fontSize: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              ✕
+            </button>
+          </div>
+
+          <div style={{ overflowY: 'auto', flex: 1, padding: '16px 20px', paddingBottom: 'max(32px, env(safe-area-inset-bottom))' }}>
+
+            {sectionTitle('라운딩 유형')}
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '4px' }}>
+              {typeOptions.map(opt => {
+                const active = hmType === opt.key;
+                return (
+                  <button
+                    key={opt.key}
+                    onClick={() => handleHmTypeChange(opt.key)}
+                    disabled={hmSaving}
+                    style={{
+                      flex: 1,
+                      padding: '10px 4px',
+                      borderRadius: '12px',
+                      border: `2px solid ${active ? opt.border : '#E5E7EB'}`,
+                      background: active ? opt.bg : '#FAFAFA',
+                      color: active ? opt.color : '#9CA3AF',
+                      fontWeight: active ? '700' : '500',
+                      fontSize: '14px',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '3px',
+                    }}
+                  >
+                    <span style={{ fontSize: '20px' }}>{opt.emoji}</span>
+                    <span>{opt.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+
+            {divider()}
+
+            {sectionTitle('라운딩 시간')}
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <input
+                type="time"
+                value={hmTime}
+                onChange={(e) => setHmTime(e.target.value)}
+                style={{
+                  flex: 1,
+                  padding: '11px 14px',
+                  borderRadius: '10px',
+                  border: '1px solid #E5E7EB',
+                  fontSize: '15px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+              <button
+                onClick={handleHmTimeSave}
+                disabled={hmSaving}
+                style={{
+                  padding: '11px 20px',
+                  borderRadius: '10px',
+                  background: theme.colors.primary,
+                  color: 'white',
+                  border: 'none',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  opacity: hmSaving ? 0.6 : 1,
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                저장
+              </button>
+            </div>
+
+            {divider()}
+
+            {sectionTitle(`참가자 (${hmParticipants.length}명)`)}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
+              {hmParticipants.length === 0 ? (
+                <div style={{ color: '#9CA3AF', fontSize: '14px', padding: '8px 0' }}>참가자가 없습니다.</div>
+              ) : (
+                hmParticipants.map((p, idx) => {
+                  const isGuest = p.phone && p.phone.startsWith('guest_');
+                  return (
+                    <div
+                      key={p.phone || idx}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '10px 12px',
+                        borderRadius: '10px',
+                        background: '#F9FAFB',
+                        border: '1px solid #F3F4F6',
+                      }}
+                    >
+                      <span style={{ fontSize: '14px', marginRight: '6px' }}>{isGuest ? '🧑‍🤝‍🧑' : '👤'}</span>
+                      <span style={{ flex: 1, fontSize: '15px', fontWeight: '500', color: '#111827' }}>
+                        {p.nickname || p.name}
+                        {isGuest && <span style={{ fontSize: '12px', color: '#9CA3AF', marginLeft: '6px' }}>게스트</span>}
+                      </span>
+                      <button
+                        onClick={() => handleHmRemoveParticipant(p.phone)}
+                        disabled={hmSaving}
+                        style={{
+                          width: '28px',
+                          height: '28px',
+                          borderRadius: '50%',
+                          background: '#FEE2E2',
+                          border: 'none',
+                          color: '#DC2626',
+                          fontSize: '14px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0,
+                        }}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <input
+                type="text"
+                value={hmGuestName}
+                onChange={(e) => setHmGuestName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleHmAddGuest()}
+                placeholder="게스트 이름 입력"
+                style={{
+                  flex: 1,
+                  padding: '11px 14px',
+                  borderRadius: '10px',
+                  border: '1px solid #E5E7EB',
+                  fontSize: '15px',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
+              />
+              <button
+                onClick={handleHmAddGuest}
+                disabled={hmSaving || !hmGuestName.trim()}
+                style={{
+                  padding: '11px 16px',
+                  borderRadius: '10px',
+                  background: '#F0FDF4',
+                  color: '#16A34A',
+                  border: '1px solid #BBF7D0',
+                  fontWeight: '600',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  opacity: (!hmGuestName.trim() || hmSaving) ? 0.5 : 1,
+                }}
+              >
+                + 게스트 추가
+              </button>
+            </div>
+
+            {hmParticipants.length >= 4 && (
+              <>
+                {divider()}
+                <button
+                  onClick={() => { setShowHostManage(false); navigate(`/team-formation?id=${hmBooking.id}`); }}
+                  style={{
+                    width: '100%',
+                    padding: '14px',
+                    borderRadius: '12px',
+                    background: '#EFF6FF',
+                    color: '#1D4ED8',
+                    border: '1px solid #BFDBFE',
+                    fontWeight: '700',
+                    fontSize: '15px',
+                    cursor: 'pointer',
+                    textAlign: 'center',
+                  }}
+                >
+                  📋 조편성 하기
+                </button>
+              </>
+            )}
+
+            <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px dashed #FEE2E2', textAlign: 'center' }}>
+              <button
+                onClick={handleHmDelete}
+                disabled={hmSaving}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  color: hmDeleteConfirm ? '#DC2626' : '#EF4444',
+                  fontWeight: '700',
+                  fontSize: '15px',
+                  cursor: 'pointer',
+                  padding: '8px 16px',
+                  opacity: hmSaving ? 0.6 : 1,
+                }}
+              >
+                {hmDeleteConfirm ? '⚠️ 정말 삭제하시겠습니까? 다시 클릭하여 확인' : '라운딩 삭제'}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </>
+    );
+  };
+
   const renderBottomSheet = () => {
     if (!selectedBooking) return null;
     const booking = bookings.find(b => b.id === selectedBooking.id) || selectedBooking;
     const participants = parseParticipants(booking.participants);
     const isJoined = participants.some(p => p.phone === user.phone);
     const canManage = user.id === booking.organizerId || user.isAdmin;
+    const isHostOnly = user.id === booking.organizerId && !user.isAdmin;
     const max = booking.maxMembers || 4;
     const isFull = participants.length >= max;
 
@@ -866,7 +1209,17 @@ function RoundingListV2() {
                 return (
                   <div style={{ display: 'flex', gap: '10px' }}>
                     {canManage && (
-                      <button onClick={() => { setSelectedBooking(null); navigate(`/rounding-management?id=${booking.id}`); }} style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}>
+                      <button
+                        onClick={() => {
+                          if (isHostOnly) {
+                            openHostManage(booking);
+                          } else {
+                            setSelectedBooking(null);
+                            navigate(`/rounding-management?id=${booking.id}`);
+                          }
+                        }}
+                        style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}
+                      >
                         관리
                       </button>
                     )}
@@ -881,7 +1234,17 @@ function RoundingListV2() {
                 return (
                   <div style={{ display: 'flex', gap: '10px' }}>
                     {canManage && (
-                      <button onClick={() => { setSelectedBooking(null); navigate(`/rounding-management?id=${booking.id}`); }} style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}>
+                      <button
+                        onClick={() => {
+                          if (isHostOnly) {
+                            openHostManage(booking);
+                          } else {
+                            setSelectedBooking(null);
+                            navigate(`/rounding-management?id=${booking.id}`);
+                          }
+                        }}
+                        style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}
+                      >
                         관리
                       </button>
                     )}
@@ -900,7 +1263,17 @@ function RoundingListV2() {
               return (
                 <div style={{ display: 'flex', gap: '10px' }}>
                   {canManage && (
-                    <button onClick={() => { setSelectedBooking(null); navigate(`/rounding-management?id=${booking.id}`); }} style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}>
+                    <button
+                      onClick={() => {
+                        if (isHostOnly) {
+                          openHostManage(booking);
+                        } else {
+                          setSelectedBooking(null);
+                          navigate(`/rounding-management?id=${booking.id}`);
+                        }
+                      }}
+                      style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}
+                    >
                       관리
                     </button>
                   )}
@@ -1503,6 +1876,7 @@ function RoundingListV2() {
         +
       </button>
 
+      {renderHostManage()}
       {renderBottomSheet()}
       {renderTypeSelector()}
       {renderCreateModal()}
