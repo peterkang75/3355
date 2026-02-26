@@ -255,11 +255,21 @@ function RoundingListV2() {
     await hmSaveField({ participants: serialized });
   };
 
+  const handleHmAddMember = async (member) => {
+    if (hmParticipants.some(p => p.phone === member.phone)) return;
+    const newP = { name: member.name, nickname: member.nickname, phone: member.phone, memberId: member.id };
+    const updated = [...hmParticipants, newP];
+    setHmParticipants(updated);
+    const serialized = updated.map(p => JSON.stringify(p));
+    await hmSaveField({ participants: serialized });
+  };
+
   const handleHmAddGuest = async () => {
-    if (!hmGuestName.trim()) return;
+    const name = hmGuestName.trim();
+    if (!name) return;
     const guest = {
-      name: hmGuestName.trim(),
-      nickname: hmGuestName.trim(),
+      name: name,
+      nickname: name,
       phone: `guest_${Date.now()}`,
     };
     const updated = [...hmParticipants, guest];
@@ -889,6 +899,37 @@ function RoundingListV2() {
             {divider()}
 
             {sectionTitle(`참가자 (${hmParticipants.length}명)`)}
+
+            {(() => {
+              const participantPhones = hmParticipants.map(p => p.phone);
+              const availableMembers = members.filter(m => m.isActive && m.approvalStatus === 'approved' && !participantPhones.includes(m.phone));
+              return (
+                <select
+                  onChange={(e) => {
+                    const m = availableMembers.find(m => m.id === e.target.value);
+                    if (m) handleHmAddMember(m);
+                    e.target.value = '';
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '11px 14px',
+                    borderRadius: '10px',
+                    border: '1px solid #E5E7EB',
+                    fontSize: '15px',
+                    background: '#FFFFFF',
+                    color: '#374151',
+                    marginBottom: '10px',
+                    boxSizing: 'border-box',
+                  }}
+                >
+                  <option value="">+ 회원 추가하기...</option>
+                  {availableMembers.map(m => (
+                    <option key={m.id} value={m.id}>{m.nickname || m.name}</option>
+                  ))}
+                </select>
+              );
+            })()}
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
               {hmParticipants.length === 0 ? (
                 <div style={{ color: '#9CA3AF', fontSize: '14px', padding: '8px 0' }}>참가자가 없습니다.</div>
@@ -913,7 +954,7 @@ function RoundingListV2() {
                         {isGuest && <span style={{ fontSize: '12px', color: '#9CA3AF', marginLeft: '6px' }}>게스트</span>}
                       </span>
                       <button
-                        onClick={() => handleHmRemoveParticipant(p.phone)}
+                        onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleHmRemoveParticipant(p.phone); }}
                         disabled={hmSaving}
                         style={{
                           width: '28px',
@@ -942,8 +983,8 @@ function RoundingListV2() {
               <input
                 type="text"
                 value={hmGuestName}
-                onChange={(e) => setHmGuestName(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleHmAddGuest()}
+                onChange={(e) => { e.stopPropagation(); setHmGuestName(e.target.value); }}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); handleHmAddGuest(); } }}
                 placeholder="게스트 이름 입력"
                 style={{
                   flex: 1,
@@ -956,7 +997,8 @@ function RoundingListV2() {
                 }}
               />
               <button
-                onClick={handleHmAddGuest}
+                type="button"
+                onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleHmAddGuest(); }}
                 disabled={hmSaving || !hmGuestName.trim()}
                 style={{
                   padding: '11px 16px',
