@@ -706,7 +706,7 @@ function RoundingListV2() {
     }
 
     const isSingle = tilesInRow === 1;
-    const maxChips = isSingle ? 5 : tilesInRow <= 2 ? 4 : 3;
+    const maxChips = isSingle ? 5 : 3;
     const shownParticipants = participants.slice(0, maxChips);
     const hiddenCount = participants.length - shownParticipants.length;
 
@@ -719,9 +719,8 @@ function RoundingListV2() {
         key={booking.id}
         onClick={() => setSelectedBooking(booking)}
         style={{
-          flex: tilesInRow <= 5 ? `1 1 0` : '0 0 auto',
-          minWidth: '100px',
-          maxWidth: tilesInRow <= 5 ? `${100 / tilesInRow}%` : '140px',
+          flex: '0 0 160px',
+          width: '160px',
           background: '#FFFFFF',
           borderRadius: '16px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
@@ -862,16 +861,22 @@ function RoundingListV2() {
         }}>
           {week.label}
         </div>
-        <div style={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          alignItems: 'stretch',
-          gap: '8px',
-          overflowX: week.bookings.length > 5 ? 'auto' : 'hidden',
-          paddingBottom: '4px',
-          flexWrap: week.bookings.length > 5 ? 'nowrap' : 'nowrap',
-        }}>
-          {week.bookings.map(b => renderWeekTile(b, Math.min(week.bookings.length, 5)))}
+        <div
+          className="scroll-hide"
+          style={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'stretch',
+            gap: '8px',
+            overflowX: 'auto',
+            paddingBottom: '8px',
+            marginLeft: '-16px',
+            marginRight: '-16px',
+            paddingLeft: '16px',
+            paddingRight: '16px',
+          }}
+        >
+          {week.bookings.map(b => renderWeekTile(b, week.bookings.length))}
         </div>
       </div>
     ));

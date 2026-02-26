@@ -747,6 +747,15 @@ input:focus, textarea:focus, select:focus {
 }
 
 /* Print styles */
+/* Hide scrollbar (keep scroll functionality) */
+.scroll-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scroll-hide::-webkit-scrollbar {
+  display: none;
+}
+
 @media print {
   .nav-bottom,
   .header,
