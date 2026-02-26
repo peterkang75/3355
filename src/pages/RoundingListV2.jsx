@@ -47,7 +47,7 @@ function RoundingListV2() {
   const [hmSaving, setHmSaving] = useState(false);
   const [hmDeleteConfirm, setHmDeleteConfirm] = useState(false);
   const [hmViewMode, setHmViewMode] = useState('basic');
-  const [hmAdvanced, setHmAdvanced] = useState({ playEnabled: false, is2BB: false, greenFee: '', cartFee: '', membershipFee: '', notes: '' });
+  const [hmAdvanced, setHmAdvanced] = useState({ playEnabled: false, is2BB: false, greenFee: '', cartFee: '', membershipFee: '', notes: '', courseName: '', date: '', gatheringTime: '', restaurantName: '', restaurantAddress: '', isFoursome: false, maxMembers: 4, registrationDeadline: '' });
   const [newRounding, setNewRounding] = useState({
     date: '',
     time: '',
@@ -233,6 +233,14 @@ function RoundingListV2() {
       cartFee: booking.cartFee || '',
       membershipFee: booking.membershipFee || '',
       notes: booking.notes || '',
+      courseName: booking.courseName || '',
+      date: booking.date || '',
+      gatheringTime: booking.gatheringTime || '',
+      restaurantName: booking.restaurantName || '',
+      restaurantAddress: booking.restaurantAddress || '',
+      isFoursome: booking.title?.includes('포썸') || false,
+      maxMembers: booking.maxMembers || 4,
+      registrationDeadline: booking.registrationDeadline || '',
     });
     setShowHostManage(true);
     setSelectedBooking(null);
@@ -304,7 +312,8 @@ function RoundingListV2() {
 
   const handleHmAdvancedSave = async (field, value) => {
     setHmAdvanced(prev => ({ ...prev, [field]: value }));
-    await hmSaveField({ [field]: value || null });
+    const saveVal = (field === 'maxMembers') ? (parseInt(value) || 4) : (value || null);
+    await hmSaveField({ [field]: saveVal });
   };
 
   const handleHmDelete = async () => {
@@ -1371,8 +1380,68 @@ function RoundingListV2() {
                 </div>
               );
 
+              const advInputStyle = {
+                width: '100%',
+                padding: '10px 14px',
+                borderRadius: '12px',
+                border: '1px solid #E5E7EB',
+                fontSize: '15px',
+                outline: 'none',
+                boxSizing: 'border-box',
+              };
+
               return (
                 <>
+                  {sectionTitle('라운딩 정보')}
+
+                  <div style={{ padding: '12px 0', borderBottom: '1px solid #F3F4F6' }}>
+                    <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827', marginBottom: '8px' }}>골프장</div>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <select
+                        value={hmAdvanced.courseName}
+                        onChange={(e) => setHmAdvanced(prev => ({ ...prev, courseName: e.target.value }))}
+                        style={{ ...advInputStyle, flex: 1, background: '#FFFFFF' }}
+                      >
+                        <option value="">골프장 선택...</option>
+                        {courses.map(c => (
+                          <option key={c.id} value={c.name}>{c.name}</option>
+                        ))}
+                      </select>
+                      <button
+                        onClick={() => handleHmAdvancedSave('courseName', hmAdvanced.courseName)}
+                        disabled={hmSaving}
+                        style={{ padding: '10px 16px', borderRadius: '12px', background: '#1a3d47', color: '#FFFFFF', border: 'none', fontWeight: '600', fontSize: '14px', cursor: 'pointer', opacity: hmSaving ? 0.5 : 1, whiteSpace: 'nowrap' }}
+                      >
+                        저장
+                      </button>
+                    </div>
+                  </div>
+
+                  {inputRow('날짜', 'date', 'YYYY-MM-DD', 'date')}
+
+                  <div style={{ padding: '12px 0', borderBottom: '1px solid #F3F4F6' }}>
+                    <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827', marginBottom: '8px' }}>집결 시간</div>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                      <input
+                        type="time"
+                        value={hmAdvanced.gatheringTime}
+                        onChange={(e) => setHmAdvanced(prev => ({ ...prev, gatheringTime: e.target.value }))}
+                        style={{ ...advInputStyle, flex: 1 }}
+                      />
+                      <button
+                        onClick={() => handleHmAdvancedSave('gatheringTime', hmAdvanced.gatheringTime)}
+                        disabled={hmSaving}
+                        style={{ padding: '10px 16px', borderRadius: '12px', background: '#1a3d47', color: '#FFFFFF', border: 'none', fontWeight: '600', fontSize: '14px', cursor: 'pointer', opacity: hmSaving ? 0.5 : 1, whiteSpace: 'nowrap' }}
+                      >
+                        저장
+                      </button>
+                    </div>
+                  </div>
+
+                  {inputRow('접수 마감일', 'registrationDeadline', 'YYYY-MM-DD', 'date')}
+                  {inputRow('최대 인원', 'maxMembers', '4', 'number')}
+
+                  <div style={{ height: '24px' }} />
                   {sectionTitle('게임 설정')}
                   {toggleRow('플레이 활성화', 'playEnabled', '참가자가 스코어를 입력할 수 있습니다')}
                   {toggleRow('Net 2-Ball Best Ball', 'is2BB', '핸디캡 기반 2BB 팀 자동 편성')}
@@ -1384,8 +1453,13 @@ function RoundingListV2() {
                   {inputRow('참가비', 'membershipFee', '$0', 'number')}
 
                   <div style={{ height: '24px' }} />
+                  {sectionTitle('회식 정보')}
+                  {inputRow('회식 장소', 'restaurantName', '장소 이름')}
+                  {inputRow('회식 주소', 'restaurantAddress', '주소 입력')}
+
+                  <div style={{ height: '24px' }} />
                   {sectionTitle('기타')}
-                  <div style={{ padding: '16px 0' }}>
+                  <div style={{ padding: '12px 0' }}>
                     <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827', marginBottom: '8px' }}>메모</div>
                     <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
                       <textarea
@@ -1393,34 +1467,12 @@ function RoundingListV2() {
                         onChange={(e) => setHmAdvanced(prev => ({ ...prev, notes: e.target.value }))}
                         placeholder="라운딩 메모를 입력하세요"
                         rows={3}
-                        style={{
-                          flex: 1,
-                          padding: '10px 14px',
-                          borderRadius: '12px',
-                          border: '1px solid #E5E7EB',
-                          fontSize: '15px',
-                          outline: 'none',
-                          boxSizing: 'border-box',
-                          resize: 'vertical',
-                          fontFamily: 'inherit',
-                        }}
+                        style={{ ...advInputStyle, resize: 'vertical', fontFamily: 'inherit' }}
                       />
                       <button
                         onClick={() => handleHmAdvancedSave('notes', hmAdvanced.notes)}
                         disabled={hmSaving}
-                        style={{
-                          padding: '10px 16px',
-                          borderRadius: '12px',
-                          background: '#1a3d47',
-                          color: '#FFFFFF',
-                          border: 'none',
-                          fontWeight: '600',
-                          fontSize: '14px',
-                          cursor: 'pointer',
-                          opacity: hmSaving ? 0.5 : 1,
-                          whiteSpace: 'nowrap',
-                          alignSelf: 'flex-start',
-                        }}
+                        style={{ padding: '10px 16px', borderRadius: '12px', background: '#1a3d47', color: '#FFFFFF', border: 'none', fontWeight: '600', fontSize: '14px', cursor: 'pointer', opacity: hmSaving ? 0.5 : 1, whiteSpace: 'nowrap', alignSelf: 'flex-start' }}
                       >
                         저장
                       </button>
