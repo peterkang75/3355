@@ -622,7 +622,7 @@ function RoundingListV2() {
     return timeStr.slice(0, 5);
   };
 
-  const renderWeekTile = (booking) => {
+  const renderWeekTile = (booking, tilesInRow = 3) => {
     const participants = parseParticipants(booking.participants);
     const isJoined = participants.some(p => p.phone === user.phone);
     const max = booking.maxMembers || 4;
@@ -665,9 +665,10 @@ function RoundingListV2() {
         key={booking.id}
         onClick={() => setSelectedBooking(booking)}
         style={{
-          flexShrink: 0,
-          width: '90px',
-          minHeight: '108px',
+          flex: tilesInRow <= 5 ? `1 1 0` : '0 0 auto',
+          minWidth: '64px',
+          maxWidth: tilesInRow <= 5 ? `${100 / tilesInRow}%` : '100px',
+          minHeight: '120px',
           background: '#FFFFFF',
           borderRadius: '14px',
           boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
@@ -800,12 +801,13 @@ function RoundingListV2() {
         <div style={{
           display: 'flex',
           justifyContent: 'flex-end',
-          alignItems: 'center',
-          gap: '10px',
-          overflowX: 'auto',
+          alignItems: 'stretch',
+          gap: '8px',
+          overflowX: week.bookings.length > 5 ? 'auto' : 'hidden',
           paddingBottom: '4px',
+          flexWrap: week.bookings.length > 5 ? 'nowrap' : 'nowrap',
         }}>
-          {week.bookings.map(renderWeekTile)}
+          {week.bookings.map(b => renderWeekTile(b, Math.min(week.bookings.length, 5)))}
         </div>
       </div>
     ));
