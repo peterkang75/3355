@@ -96,6 +96,46 @@ function RoundingListV2() {
       .sort((a, b) => new Date(a.date) - new Date(b.date));
   }, [bookings]);
 
+  const getMonday = (date) => {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = day === 0 ? -6 : 1 - day;
+    d.setDate(d.getDate() + diff);
+    d.setHours(0, 0, 0, 0);
+    return d;
+  };
+
+  const getWeekLabel = (monday) => {
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    const month = sunday.getMonth() + 1;
+    const weekNum = Math.ceil(sunday.getDate() / 7);
+    return `${month}월 ${weekNum}주차`;
+  };
+
+  const groupedByWeek = useMemo(() => {
+    const allActive = bookings
+      .filter(b => isBookingActive(b))
+      .sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    const weekMap = {};
+    allActive.forEach(booking => {
+      const monday = getMonday(new Date(booking.date));
+      const key = monday.toISOString().split('T')[0];
+      if (!weekMap[key]) {
+        weekMap[key] = { monday, label: getWeekLabel(monday), bookings: [] };
+      }
+      weekMap[key].bookings.push(booking);
+    });
+
+    return Object.entries(weekMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([, week]) => ({
+        ...week,
+        bookings: week.bookings.sort((a, b) => new Date(a.date) - new Date(b.date)),
+      }));
+  }, [bookings]);
+
   const getMemberName = useCallback((id) => {
     const member = members.find(m => m.id === id);
     return member?.nickname || member?.name || '알 수 없음';
@@ -432,6 +472,147 @@ function RoundingListV2() {
         </div>
       </div>
     );
+  };
+
+  const getTileAccentColor = (booking) => {
+    const typeLabel = (booking.title || booking.type || '').toLowerCase();
+    if (typeLabel.includes('정기') || typeLabel.includes('official')) return '#F59E0B';
+    if (typeLabel.includes('컴페티션') || typeLabel.includes('competition')) return '#3B82F6';
+    if (typeLabel.includes('그린피') || typeLabel.includes('greenfee')) return '#10B981';
+    return '#F97316';
+  };
+
+  const formatTileDate = (dateStr) => {
+    const d = new Date(dateStr);
+    const days = ['일', '월', '화', '수', '목', '금', '토'];
+    return `${d.getMonth() + 1}/${d.getDate()} (${days[d.getDay()]})`;
+  };
+
+  const formatTileTime = (timeStr) => {
+    if (!timeStr || timeStr === '23:59') return '';
+    return timeStr.slice(0, 5);
+  };
+
+  const renderWeekTile = (booking) => {
+    const participants = parseParticipants(booking.participants);
+    const isJoined = participants.some(p => p.phone === user.phone);
+    const max = booking.maxMembers || 4;
+    const isFull = participants.length >= max;
+    const accentColor = getTileAccentColor(booking);
+    const time = formatTileTime(booking.time);
+
+    return (
+      <div
+        key={booking.id}
+        onClick={() => setSelectedBooking(booking)}
+        style={{
+          flexShrink: 0,
+          width: '90px',
+          minHeight: '112px',
+          background: isJoined ? '#F0FDF4' : '#FFFFFF',
+          borderRadius: '14px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
+          border: isJoined ? `1px solid #86EFAC` : '1px solid #F3F4F6',
+          borderTop: `4px solid ${accentColor}`,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '10px 6px 8px',
+          cursor: 'pointer',
+          position: 'relative',
+          transition: 'transform 0.15s',
+        }}
+      >
+        {isJoined && (
+          <div style={{
+            position: 'absolute',
+            top: '7px',
+            right: '7px',
+            width: '7px',
+            height: '7px',
+            borderRadius: '50%',
+            background: '#22C55E',
+          }} />
+        )}
+        <div style={{
+          fontSize: '12px',
+          fontWeight: '800',
+          color: '#111827',
+          textAlign: 'center',
+          lineHeight: 1.3,
+          marginBottom: time ? '3px' : '6px',
+        }}>
+          {formatTileDate(booking.date)}
+        </div>
+        {time && (
+          <div style={{
+            fontSize: '11px',
+            color: '#9CA3AF',
+            fontWeight: '500',
+            marginBottom: '6px',
+          }}>
+            {time}
+          </div>
+        )}
+        <div style={{
+          fontSize: '10px',
+          fontWeight: '600',
+          padding: '3px 8px',
+          borderRadius: '9999px',
+          background: isFull ? '#FEE2E2' : '#DCFCE7',
+          color: isFull ? '#DC2626' : '#15803D',
+          marginTop: 'auto',
+        }}>
+          {isFull ? '마감' : `${participants.length}명`}
+        </div>
+      </div>
+    );
+  };
+
+  const renderWeeklyTimeline = () => {
+    if (groupedByWeek.length === 0) {
+      return (
+        <div style={{
+          textAlign: 'center',
+          padding: '48px 20px',
+          color: '#9CA3AF',
+          fontSize: '14px',
+          background: '#FFFFFF',
+          borderRadius: '16px',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+        }}>
+          <div style={{ fontSize: '40px', marginBottom: '12px' }}>⛳</div>
+          <div style={{ fontWeight: '500' }}>예정된 라운딩이 없습니다</div>
+          <div style={{ marginTop: '6px', fontSize: '13px', color: '#D1D5DB' }}>+ 버튼을 눌러 라운딩을 만들어보세요</div>
+        </div>
+      );
+    }
+
+    return groupedByWeek.map((week) => (
+      <div key={week.monday.toISOString()} style={{ marginBottom: '24px' }}>
+        <div style={{
+          fontSize: '12px',
+          fontWeight: '700',
+          color: '#9CA3AF',
+          marginBottom: '10px',
+          letterSpacing: '0.05em',
+          textTransform: 'uppercase',
+        }}>
+          {week.label}
+        </div>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          gap: '10px',
+          overflowX: 'auto',
+          paddingBottom: '4px',
+        }}>
+          {week.bookings.map(renderWeekTile)}
+        </div>
+      </div>
+    ));
   };
 
   const handleShare = async (booking) => {
@@ -1237,62 +1418,23 @@ function RoundingListV2() {
       </div>
 
       <div style={{ padding: '20px 16px 100px' }}>
-        {officialRoundings.length > 0 && (
-          <div style={{ marginBottom: '12px' }}>
-            <div style={{ 
-              fontSize: '16px', 
-              fontWeight: '800', 
-              color: '#1F2937', 
-              marginBottom: '14px', 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '8px' 
-            }}>
-              <span style={{ fontSize: '18px' }}>🏆</span>
-              정기모임
-            </div>
-            {officialRoundings.map(renderOfficialCard)}
+        <div style={{ marginBottom: '8px' }}>
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
+            {[
+              { color: '#F59E0B', label: '정기모임' },
+              { color: '#3B82F6', label: '컴페티션' },
+              { color: '#10B981', label: '그린피' },
+              { color: '#F97316', label: '소셜' },
+            ].map(({ color, label }) => (
+              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <div style={{ width: '10px', height: '10px', borderRadius: '2px', background: color }} />
+                <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: '500' }}>{label}</span>
+              </div>
+            ))}
           </div>
-        )}
-
-        {officialRoundings.length > 0 && socialRoundings.length > 0 && (
-          <div style={{ 
-            margin: '24px 0', 
-            borderTop: '1px solid #E5E7EB', 
-          }} />
-        )}
-
-        <div>
-          <div style={{ 
-            fontSize: '16px', 
-            fontWeight: '800', 
-            color: '#1F2937', 
-            marginBottom: '14px', 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '8px' 
-          }}>
-            <span style={{ fontSize: '18px' }}>⛳</span>
-            소셜 라운딩
-          </div>
-          {socialRoundings.length === 0 ? (
-            <div style={{
-              textAlign: 'center',
-              padding: '48px 20px',
-              color: '#9CA3AF',
-              fontSize: '14px',
-              background: '#FFFFFF',
-              borderRadius: '16px',
-              boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
-            }}>
-              <div style={{ fontSize: '40px', marginBottom: '12px' }}>⛳</div>
-              <div style={{ fontWeight: '500' }}>아직 소셜 라운딩이 없습니다</div>
-              <div style={{ marginTop: '6px', fontSize: '13px', color: '#D1D5DB' }}>+ 버튼을 눌러 라운딩을 만들어보세요</div>
-            </div>
-          ) : (
-            socialRoundings.map(renderSocialCard)
-          )}
+          {renderWeeklyTimeline()}
         </div>
+
       </div>
 
       <button

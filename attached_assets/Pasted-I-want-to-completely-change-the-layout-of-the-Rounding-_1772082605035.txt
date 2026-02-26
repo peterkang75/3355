@@ -1,0 +1,32 @@
+I want to completely change the layout of the Rounding List in `RoundingListV2.jsx` from a vertical list of full-width cards to a **"Weekly Timeline Tile View"**.
+
+**Core Concept:**
+Instead of one long vertical list, group the roundings by "Week" (Monday to Sunday). Display each week as a horizontal row of compact button-like tiles. 
+**Crucial Layout Rule:** The row must be **Right-Aligned** (`justify-end`). Because Sunday rounds are the main fixed events, Sunday should always appear on the far right, with earlier days in the week stacking to its left.
+
+**Please implement the following steps:**
+
+**1. Data Grouping (By Week):**
+* Create a helper function to group `activeBookings` into weeks (e.g., "3월 1주차", "3월 2주차" or just grouped by the Monday-Sunday block).
+* Sort weeks chronologically. Inside each week, sort bookings chronologically (so Sunday is always the last item in the array for that week).
+
+**2. Row Layout (Tailwind):**
+* For each week, render a section title (e.g., `text-sm font-bold text-gray-500 mb-2`).
+* Render a flex container for the tiles: `<div className="flex justify-end items-center gap-3 overflow-x-auto pb-4">`. (Using `justify-end` ensures the last item—Sunday—is pinned to the right).
+
+**3. Micro-Tile Design (The Buttons):**
+* Transform the previous large card into a compact, square-ish clickable tile.
+* **Classes:** `flex-none w-24 h-28 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center p-2 relative active:scale-95 transition-transform`.
+* **Color Coding (Top Accent):** Use a colored top border or a small colored dot at the top based on the `type`.
+    * Official (정기모임): `border-t-4 border-amber-500`
+    * Competition (컴페티션): `border-t-4 border-blue-500`
+    * Social (소셜): `border-t-4 border-orange-400`
+* **Content inside the Tile:**
+    * **Date:** `3/1 (일)` (Bold, compact).
+    * **Time:** `11:15` (Small, gray).
+    * **Status:** A small pill badge at the bottom showing joined count (e.g., `bg-green-50 text-green-700 text-[10px] px-2 py-1 rounded-full mt-2`). Text: "16명 참가".
+
+**4. Interaction:**
+* Add `onClick={() => openBottomSheet(booking)}` to these tiles. Tapping a tile should open the existing detailed Bottom Sheet, just like clicking the old cards did.
+
+**Goal:** Provide a highly scannable, calendar-like UI where up to 5 rounds per week can fit in a single horizontal row, heavily relying on color badges and minimal text to convey information, saving massive vertical screen space.
