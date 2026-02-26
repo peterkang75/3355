@@ -571,10 +571,10 @@ function RoundingListV2() {
 
   const getTileAccentColor = (booking) => {
     const typeLabel = (booking.title || booking.type || '').toLowerCase();
-    if (typeLabel.includes('정기') || typeLabel.includes('official')) return '#F59E0B';
-    if (typeLabel.includes('컴페티션') || typeLabel.includes('competition')) return '#2563EB';
-    if (typeLabel.includes('그린피') || typeLabel.includes('greenfee')) return '#10B981';
-    return '#F97316';
+    if (typeLabel.includes('정기') || typeLabel.includes('official')) return '#D97706';
+    if (typeLabel.includes('컴페티션') || typeLabel.includes('competition')) return '#1D4ED8';
+    if (typeLabel.includes('그린피') || typeLabel.includes('greenfee')) return '#059669';
+    return '#EA580C';
   };
 
   const formatTileDate = (dateStr) => {
@@ -610,74 +610,75 @@ function RoundingListV2() {
     let badgeBg;
     let badgeColor;
     if (isCompetition && isRegistrationClosed) {
-      badgeText = '접수마감';
-      badgeBg = '#FFE4E6';
-      badgeColor = '#BE123C';
+      badgeText = '마감';
+      badgeBg = '#FFF1F2';
+      badgeColor = '#9F1239';
     } else if (isCompetition && hoursLeft <= 24) {
       const h = Math.max(1, Math.ceil(hoursLeft));
-      badgeText = `${h}시간남음`;
-      badgeBg = '#FEF3C7';
+      badgeText = `${h}h`;
+      badgeBg = '#FFFBEB';
       badgeColor = '#92400E';
     } else if (isCompetition) {
-      badgeText = `${daysLeft}일남음`;
-      badgeBg = '#D1FAE5';
-      badgeColor = '#047857';
+      badgeText = `${daysLeft}일`;
+      badgeBg = '#F9FAFB';
+      badgeColor = '#374151';
     } else {
-      badgeText = `${participants.length}명 참가`;
-      badgeBg = '#EFF6FF';
-      badgeColor = '#1D4ED8';
+      badgeText = `${participants.length}명`;
+      badgeBg = '#F9FAFB';
+      badgeColor = '#374151';
     }
-
-    const isHovered = hoveredTileId === booking.id;
 
     return (
       <div
         key={booking.id}
         onClick={() => setSelectedBooking(booking)}
-        onMouseEnter={() => setHoveredTileId(booking.id)}
-        onMouseLeave={() => setHoveredTileId(null)}
         style={{
           flexShrink: 0,
           width: '90px',
-          minHeight: '112px',
+          minHeight: '108px',
           background: '#FFFFFF',
-          borderRadius: '16px',
-          boxShadow: isHovered
-            ? '0 8px 20px rgba(0,0,0,0.14)'
-            : '0 2px 8px rgba(0,0,0,0.08)',
-          borderTop: `4px solid ${accentColor}`,
-          borderLeft: '1px solid #F3F4F6',
-          borderRight: '1px solid #F3F4F6',
-          borderBottom: '1px solid #F3F4F6',
+          borderRadius: '14px',
+          boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+          border: '1px solid #F3F4F6',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          padding: '10px 6px 8px',
+          padding: '12px 6px 10px',
           cursor: 'pointer',
           position: 'relative',
-          transform: isHovered ? 'translateY(-3px)' : 'translateY(0)',
-          transition: 'transform 0.18s ease, box-shadow 0.18s ease',
+          transition: 'box-shadow 0.15s ease, border-color 0.15s ease',
         }}
       >
+        <div style={{
+          position: 'absolute',
+          top: '8px',
+          right: '8px',
+          width: '7px',
+          height: '7px',
+          borderRadius: '50%',
+          background: accentColor,
+        }} />
+
         {isJoined && (
           <div style={{
             position: 'absolute',
-            top: '7px',
-            right: '7px',
-            width: '7px',
-            height: '7px',
+            top: '8px',
+            left: '8px',
+            width: '6px',
+            height: '6px',
             borderRadius: '50%',
             background: '#22C55E',
           }} />
         )}
+
         <div style={{
-          fontSize: '12px',
-          fontWeight: '800',
+          fontSize: '13px',
+          fontWeight: '700',
           color: '#111827',
           textAlign: 'center',
           lineHeight: 1.3,
-          marginBottom: time ? '3px' : '6px',
+          marginBottom: time ? '2px' : '6px',
         }}>
           {formatTileDate(booking.date)}
         </div>
@@ -694,8 +695,8 @@ function RoundingListV2() {
         <div style={{
           fontSize: '10px',
           fontWeight: '600',
-          padding: '3px 8px',
-          borderRadius: '9999px',
+          padding: '2px 8px',
+          borderRadius: '6px',
           background: badgeBg,
           color: badgeColor,
           marginTop: 'auto',

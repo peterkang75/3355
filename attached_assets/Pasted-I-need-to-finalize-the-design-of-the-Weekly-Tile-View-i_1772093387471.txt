@@ -1,0 +1,30 @@
+I need to finalize the design of the **Weekly Tile View** in `RoundingListV2.jsx`. The current design with thick colored borders and empty spaces feels unfinished and tacky. The hover effects are also too cluttered.
+
+**Please implement a "Chic & Minimal" redesign with the following rules:**
+
+**1. Remove Tacky Elements:**
+* **Remove absolutely all colored borders** from the tiles (`border-t-4`, etc.).
+* **Remove unnecessary hover effects** like scaling or bouncing. The hover should be extremely subtle.
+
+**2. New Tile Base Style (High Finish):**
+* **Container:** Use a clean white background (`bg-white`).
+* **Border:** Add a very thin, neutral gray full border (`border border-gray-100`) to define the tile shape clearly and resolve the "unfinished" look.
+* **Shadow:** Apply a soft, refined base shadow (`shadow-sm`).
+* **Hover:** On hover, only slightly deepen the shadow (`hover:shadow-md`) and change border color slightly (`hover:border-gray-200`). No movement.
+* **Shape:** Keep `rounded-xl` or `rounded-2xl`.
+
+**3. Sophisticated Color Coding (Minimalist Dot):**
+* **Placement:** Instead of borders, place a **small, subtle colored dot (circle)** in the **top-right corner** of each tile.
+* **Size:** Small enough to be an accent, not a main feature (e.g., `w-2.5 h-2.5` or `w-3 h-3`).
+* **Color Palette (Deep & Chic):** Use deeper, more sophisticated tones.
+    * **정기모임 (Official):** Deep Amber/Gold (`bg-amber-500`)
+    * **컴페티션 (Competition):** Deep Navy Blue (`bg-blue-700`)
+    * **그린피 (Green Fee):** Deep Forest Green (`bg-emerald-600`)
+    * **소셜 (Social):** Warm Terracotta/Burnt Orange (`bg-orange-500`)
+
+**4. Inner Content Layout (Structured):**
+* **Date:** Primary focus, bold and dark (`text-gray-900 font-bold`).
+* **Time:** Secondary, smaller and lighter (`text-gray-500 text-sm`), placed directly below the date.
+* **Bottom Badge:** Refine the status badges to be less jarring. Use softer pastel backgrounds with darker text (e.g., `bg-gray-50 text-gray-600` for open, subtle `bg-rose-50 text-rose-700` for closed). Place them at the bottom to anchor the layout.
+
+**Goal:** Create a grid of highly finished, minimalist white tiles where color is used only as a tiny, sophisticated accent point, making the entire view look professional and complete.
