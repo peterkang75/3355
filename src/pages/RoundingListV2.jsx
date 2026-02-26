@@ -550,6 +550,24 @@ function RoundingListV2() {
     const participants = parseParticipants(booking.participants);
     const max = booking.maxMembers || 4;
     const isFull = participants.length >= max;
+    const isCompetition = booking.type === '컴페티션';
+
+    if (isCompetition) {
+      const { isRegistrationClosed } = getBookingStatusFlags(booking);
+      return (
+        <span style={{
+          padding: '3px 10px',
+          borderRadius: '12px',
+          fontSize: '11px',
+          fontWeight: '600',
+          background: isRegistrationClosed ? '#FEE2E2' : 'rgba(26,61,71,0.08)',
+          color: isRegistrationClosed ? '#DC2626' : '#1a3d47',
+        }}>
+          {isRegistrationClosed ? '마감' : `모집중 ${participants.length}/${max}`}
+        </span>
+      );
+    }
+
     return (
       <span style={{
         padding: '3px 10px',
@@ -1918,10 +1936,10 @@ function RoundingListV2() {
                     ) : (
                       <button
                         onClick={(e) => { e.stopPropagation(); handleJoinLeave(booking); }}
-                        disabled={isJoining || isFull || isRenting}
-                        style={{ ...btnStyle(isFull ? '#F3F4F6' : deepGreen, isFull ? '#9CA3AF' : 'white'), opacity: (isJoining || isRenting) ? 0.6 : 1 }}
+                        disabled={isJoining || (isCompetition ? (effectiveClosed || isFull) : isFull) || isRenting}
+                        style={{ ...btnStyle((isCompetition ? (effectiveClosed || isFull) : isFull) ? '#F3F4F6' : deepGreen, (isCompetition ? (effectiveClosed || isFull) : isFull) ? '#9CA3AF' : 'white'), opacity: (isJoining || isRenting) ? 0.6 : 1 }}
                       >
-                        {isJoining ? '처리중...' : isFull ? '마감됨' : '참가하기'}
+                        {isJoining ? '처리중...' : (isCompetition ? (effectiveClosed || isFull) : isFull) ? '마감됨' : '참가하기'}
                       </button>
                     )}
                     {isCompetition && (
