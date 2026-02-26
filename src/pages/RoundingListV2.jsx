@@ -694,8 +694,8 @@ function RoundingListV2() {
       badgeColor = '#92400E';
     } else if (isCompetition) {
       badgeText = `마감${daysLeft}일`;
-      badgeBg = '#F9FAFB';
-      badgeColor = '#374151';
+      badgeBg = '#DCFCE7';
+      badgeColor = '#166534';
     } else {
       badgeText = `${participants.length}명`;
       badgeBg = '#F9FAFB';
