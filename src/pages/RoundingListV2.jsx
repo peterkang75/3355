@@ -1275,6 +1275,11 @@ function RoundingListV2() {
                         관리
                       </button>
                     )}
+                    {!isCompetition && (
+                      <button onClick={() => navigate(`/play?id=${booking.id}`)} style={btnStyle(theme.colors.primary, 'white')}>
+                        ⛳ 플레이
+                      </button>
+                    )}
                     <button onClick={() => navigate(`/leaderboard?id=${booking.id}`)} style={btnStyle('#3B82F6', 'white')}>
                       ▲ 결과보기
                     </button>
@@ -1303,8 +1308,8 @@ function RoundingListV2() {
                     <button onClick={() => navigate(`/team-formation?id=${booking.id}`)} style={btnStyle('white', theme.colors.primary, `1px solid ${theme.colors.primary}`)}>
                       📋 조편성 보기
                     </button>
-                    {booking.playEnabled && (
-                      <button onClick={() => navigate(`/play?id=${booking.id}`)} style={btnStyle('#3B82F6', 'white')}>
+                    {(booking.playEnabled || !isCompetition) && (
+                      <button onClick={() => navigate(`/play?id=${booking.id}`)} style={btnStyle(theme.colors.primary, 'white')}>
                         ⛳ 플레이
                       </button>
                     )}
@@ -1346,7 +1351,7 @@ function RoundingListV2() {
                       {isJoining ? '처리중...' : isFull ? '마감됨' : '참가하기'}
                     </button>
                   )}
-                  {isCompetition && (
+                  {isCompetition ? (
                     isRenting ? (
                       <button
                         onClick={(e) => { e.stopPropagation(); handleToggleRental(booking.id); }}
@@ -1364,6 +1369,10 @@ function RoundingListV2() {
                         {isRentalLoading ? '처리중...' : '번호 대여'}
                       </button>
                     )
+                  ) : (
+                    <button onClick={() => navigate(`/play?id=${booking.id}`)} style={btnStyle(theme.colors.primary, 'white')}>
+                      ⛳ 플레이
+                    </button>
                   )}
                 </div>
               );
