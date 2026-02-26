@@ -660,119 +660,99 @@ function RoundingListV2() {
       badgeColor = '#374151';
     }
 
+    const isSingle = tilesInRow === 1;
+    const maxChips = isSingle ? 7 : tilesInRow <= 2 ? 6 : tilesInRow <= 3 ? 5 : tilesInRow <= 4 ? 4 : 3;
+    const shownParticipants = participants.slice(0, maxChips);
+    const hiddenCount = participants.length - shownParticipants.length;
+
     return (
       <div
         key={booking.id}
         onClick={() => setSelectedBooking(booking)}
         style={{
           flex: tilesInRow <= 5 ? `1 1 0` : '0 0 auto',
-          minWidth: '64px',
-          maxWidth: tilesInRow <= 5 ? `${100 / tilesInRow}%` : '100px',
-          minHeight: '120px',
+          minWidth: '80px',
+          maxWidth: tilesInRow <= 5 ? `${100 / tilesInRow}%` : '120px',
           background: '#FFFFFF',
           borderRadius: '14px',
           boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
           border: '1px solid #F3F4F6',
           display: 'flex',
           flexDirection: 'column',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '12px 6px 10px',
+          padding: '12px',
           cursor: 'pointer',
           position: 'relative',
-          transition: 'box-shadow 0.15s ease, border-color 0.15s ease',
+          transition: 'box-shadow 0.15s ease',
+          minHeight: '110px',
         }}
       >
-        <div style={{
-          position: 'absolute',
-          top: '8px',
-          left: '8px',
-          width: '7px',
-          height: '7px',
-          borderRadius: '2px',
-          background: accentColor,
-        }} />
+        {/* Top row: type dot + joined indicator */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+          <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: accentColor, flexShrink: 0 }} />
+          {isJoined && (
+            <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22C55E', flexShrink: 0 }} />
+          )}
+        </div>
 
-        {isJoined && (
-          <div style={{
-            position: 'absolute',
-            top: '8px',
-            right: '8px',
-            width: '6px',
-            height: '6px',
-            borderRadius: '50%',
-            background: '#22C55E',
-          }} />
-        )}
-
-        <div style={{
-          fontSize: '13px',
-          fontWeight: '700',
-          color: '#111827',
-          textAlign: 'center',
-          lineHeight: 1.3,
-          marginBottom: time ? '2px' : '6px',
-        }}>
+        {/* Date */}
+        <div style={{ fontSize: '13px', fontWeight: '800', color: '#111827', lineHeight: 1.2, marginBottom: time ? '2px' : '0' }}>
           {formatTileDate(booking.date)}
         </div>
+
+        {/* Time */}
         {time && (
-          <div style={{
-            fontSize: '11px',
-            color: '#9CA3AF',
-            fontWeight: '500',
-            marginBottom: '4px',
-          }}>
+          <div style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: '500', marginBottom: '8px' }}>
             {time}
           </div>
         )}
 
-        {(() => {
-          const isSingle = tilesInRow === 1;
-          const maxShow = isSingle ? 99 : tilesInRow <= 2 ? 4 : tilesInRow <= 3 ? 3 : tilesInRow <= 4 ? 3 : 2;
-          const shown = participants.slice(0, maxShow);
-          const hidden = participants.length - shown.length;
-          return (
-            <div style={{
-              display: 'flex',
-              flexDirection: isSingle ? 'row' : 'column',
-              flexWrap: isSingle ? 'wrap' : 'nowrap',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: isSingle ? '3px 6px' : '1px',
-              marginBottom: '4px',
-              flex: 1,
-              width: '100%',
-              padding: isSingle ? '0 12px' : '0',
+        {/* Participant chips */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', flex: 1, alignContent: 'flex-start', marginTop: time ? '0' : '8px' }}>
+          {shownParticipants.map((p, i) => {
+            const isMe = p.phone === user.phone;
+            return (
+              <span key={i} style={{
+                display: 'inline-block',
+                fontSize: '10px',
+                fontWeight: isMe ? '700' : '500',
+                color: isMe ? '#1a3d47' : '#6B7280',
+                background: isMe ? '#E8F4ED' : '#F9FAFB',
+                border: `1px solid ${isMe ? '#C6E0CF' : '#F3F4F6'}`,
+                borderRadius: '5px',
+                padding: '2px 6px',
+                whiteSpace: 'nowrap',
+              }}>
+                {p.nickname || p.name}
+              </span>
+            );
+          })}
+          {hiddenCount > 0 && (
+            <span style={{
+              display: 'inline-block',
+              fontSize: '10px',
+              fontWeight: '600',
+              color: '#374151',
+              background: '#F3F4F6',
+              border: '1px solid #E5E7EB',
+              borderRadius: '5px',
+              padding: '2px 6px',
             }}>
-              {shown.map((p, i) => (
-                <div key={i} style={{
-                  fontSize: isSingle ? '11px' : (participants.length >= 4 ? '9px' : '10px'),
-                  color: p.phone === user.phone ? '#1a3d47' : '#6B7280',
-                  fontWeight: p.phone === user.phone ? '700' : '500',
-                  lineHeight: 1.3,
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  maxWidth: isSingle ? 'none' : '76px',
-                }}>
-                  {p.nickname || p.name}
-                </div>
-              ))}
-              {hidden > 0 && (
-                <div style={{ fontSize: '9px', color: '#9CA3AF', fontWeight: '500' }}>+{hidden}</div>
-              )}
-            </div>
-          );
-        })()}
+              +{hiddenCount}
+            </span>
+          )}
+        </div>
 
+        {/* Status badge */}
         <div style={{
+          display: 'inline-block',
+          alignSelf: 'flex-start',
           fontSize: '10px',
           fontWeight: '600',
-          padding: '2px 8px',
-          borderRadius: '6px',
+          padding: '2px 7px',
+          borderRadius: '5px',
           background: badgeBg,
           color: badgeColor,
-          marginTop: 'auto',
+          marginTop: '8px',
         }}>
           {badgeText}
         </div>

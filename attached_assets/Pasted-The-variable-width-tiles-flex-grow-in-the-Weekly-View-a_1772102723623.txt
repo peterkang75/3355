@@ -1,0 +1,25 @@
+The variable-width tiles (flex-grow) in the Weekly View are functionally a great idea, but currently, they look too empty, white, and have poor readability because long lists of text are just center-aligned. 
+
+I need to apply a **"Smart Layout & Chip UI"** to make them look sophisticated and structured.
+
+**Please update the Tile rendering logic inside `RoundingListV2.jsx` with these rules:**
+
+**1. Participant Names to "Chips" (Texture & Readability):**
+* Instead of rendering participants as a plain text string (`p.nickname + ' ' + ...`), render them as a flex-wrapped list of small chips.
+* **Chip Style:** `<span className="inline-block bg-gray-50 border border-gray-100 text-gray-600 text-xs px-2 py-1 rounded-md">이름</span>`
+* **Limiter:** Slice the participants array to show a maximum of 5 to 7 names.
+* **Overflow Chip:** If there are more, add a final bold chip for the remainder: `<span className="inline-block bg-gray-100 text-gray-800 font-medium text-xs px-2 py-1 rounded-md">+{remainingCount}명</span>`
+
+**2. Alignment based on Space (Smart Justification):**
+* **Container:** Ensure the content inside the tile is wrapped in a flex column.
+* **Alignment:** * If the card is in a row with multiple items (narrow width), center-align text (`items-center text-center`) is fine.
+    * BUT, generally, applying `items-start text-left` works best for these cards. Make sure the Date is boldly left-aligned.
+    * Use `<div className="w-full flex flex-col items-start gap-2">` for the inner wrapper.
+
+**3. Layout Restructuring inside the Tile:**
+* **Top Row:** Date on the left (`font-bold text-gray-900`), the color Dot on the top right. 
+* **Middle Row:** The Time (e.g., `12:26`) below the date in `text-gray-500 text-sm`.
+* **Participant Area:** A `flex flex-wrap gap-1.5 mt-2` container holding the Participant Chips.
+* **Bottom/Badge:** Place the status badge (e.g., "마감") at the bottom right corner or bottom left, keeping it visually anchored.
+
+**Goal:** Transform the empty white boxes into structured, data-rich cards. The participant chips will break up the white space and make it look like a highly polished management dashboard.
