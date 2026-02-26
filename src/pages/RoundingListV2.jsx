@@ -1023,7 +1023,7 @@ function RoundingListV2() {
     const participants = parseParticipants(booking.participants);
     const isJoined = participants.some(p => p.phone === user.phone);
     const canManage = user.id === booking.organizerId || user.isAdmin;
-    const isHostOnly = user.id === booking.organizerId && !user.isAdmin;
+    const isHostOnly = user.id === booking.organizerId;
     const max = booking.maxMembers || 4;
     const isFull = participants.length >= max;
 
