@@ -708,91 +708,87 @@ function RoundingListV2() {
     const shownParticipants = participants.slice(0, maxChips);
     const hiddenCount = participants.length - shownParticipants.length;
 
+    const { label: typeLabel, bg: typeBg, color: typeColor } = getTileTypeBadge(booking);
+
     return (
       <div
         key={booking.id}
         onClick={() => setSelectedBooking(booking)}
         style={{
           flex: tilesInRow <= 5 ? `1 1 0` : '0 0 auto',
-          minWidth: '80px',
-          maxWidth: tilesInRow <= 5 ? `${100 / tilesInRow}%` : '120px',
+          minWidth: '100px',
+          maxWidth: tilesInRow <= 5 ? `${100 / tilesInRow}%` : '140px',
           background: '#FFFFFF',
-          borderRadius: '14px',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
-          border: '1px solid #F3F4F6',
+          borderRadius: '16px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+          border: '1px solid #F0F1F3',
           display: 'flex',
           flexDirection: 'column',
-          padding: '12px',
+          padding: '14px 12px 12px',
           cursor: 'pointer',
           position: 'relative',
           transition: 'box-shadow 0.15s ease',
-          minHeight: '110px',
+          gap: '6px',
         }}
       >
-        {/* Top row: type badge + joined indicator */}
-        {(() => {
-          const { label: typeLabel, bg: typeBg, color: typeColor } = getTileTypeBadge(booking);
-          return (
-            <>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                <span style={{
-                  fontSize: '10px',
-                  fontWeight: '700',
-                  color: typeColor,
-                  background: typeBg,
-                  borderRadius: '5px',
-                  padding: '2px 6px',
-                  whiteSpace: 'nowrap',
-                }}>
-                  {typeLabel}
-                </span>
-                {isJoined && (
-                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22C55E', flexShrink: 0 }} />
-                )}
-              </div>
-              {booking.courseName && (
-                <div style={{
-                  fontSize: '10px',
-                  color: '#9CA3AF',
-                  fontWeight: '500',
-                  marginBottom: '6px',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                }}>
-                  {booking.courseName}
-                </div>
-              )}
-            </>
-          );
-        })()}
-
-        {/* Date */}
-        <div style={{ fontSize: '13px', fontWeight: '800', color: '#111827', lineHeight: 1.2, marginBottom: time ? '2px' : '0' }}>
-          {formatTileDate(booking.date)}
+        {/* Row 1: type badge + joined dot */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{
+            fontSize: '10px',
+            fontWeight: '700',
+            color: typeColor,
+            background: typeBg,
+            borderRadius: '5px',
+            padding: '2px 7px',
+            whiteSpace: 'nowrap',
+          }}>
+            {typeLabel}
+          </span>
+          {isJoined && (
+            <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#22C55E', flexShrink: 0 }} />
+          )}
         </div>
 
-        {/* Time */}
-        {time && (
-          <div style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: '500', marginBottom: '8px' }}>
-            {time}
-          </div>
-        )}
+        {/* Row 2: Course name (hero text) */}
+        <div style={{
+          fontSize: '14px',
+          fontWeight: '700',
+          color: '#111827',
+          lineHeight: 1.25,
+          overflow: 'hidden',
+          display: '-webkit-box',
+          WebkitLineClamp: 2,
+          WebkitBoxOrient: 'vertical',
+        }}>
+          {booking.courseName || booking.title || '골프장'}
+        </div>
 
-        {/* Participant chips */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', flex: 1, alignContent: 'flex-start', marginTop: time ? '0' : '8px' }}>
+        {/* Row 3: Date + Time */}
+        <div>
+          <div style={{ fontSize: '13px', fontWeight: '700', color: '#374151', lineHeight: 1.3 }}>
+            {formatTileDate(booking.date)}
+          </div>
+          {time && (
+            <div style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: '500', marginTop: '1px' }}>
+              {time}
+            </div>
+          )}
+        </div>
+
+        {/* Row 4: Participant chips */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', flex: 1, alignContent: 'flex-start' }}>
           {shownParticipants.map((p, i) => {
             const isMe = p.phone === user.phone;
             return (
               <span key={i} style={{
                 display: 'inline-block',
-                fontSize: '10px',
+                fontSize: '12px',
                 fontWeight: isMe ? '700' : '500',
                 color: isMe ? '#1a3d47' : '#6B7280',
-                background: isMe ? '#E8F4ED' : '#F9FAFB',
-                border: `1px solid ${isMe ? '#C6E0CF' : '#F3F4F6'}`,
-                borderRadius: '5px',
-                padding: '2px 6px',
+                background: isMe ? '#E8F4ED' : '#F4F5F7',
+                border: `1px solid ${isMe ? '#C6E0CF' : 'transparent'}`,
+                borderRadius: '6px',
+                padding: '3px 8px',
                 whiteSpace: 'nowrap',
               }}>
                 {p.nickname || p.name}
@@ -802,30 +798,28 @@ function RoundingListV2() {
           {hiddenCount > 0 && (
             <span style={{
               display: 'inline-block',
-              fontSize: '10px',
+              fontSize: '12px',
               fontWeight: '600',
-              color: '#374151',
-              background: '#F3F4F6',
-              border: '1px solid #E5E7EB',
-              borderRadius: '5px',
-              padding: '2px 6px',
+              color: '#6B7280',
+              background: '#F4F5F7',
+              borderRadius: '6px',
+              padding: '3px 8px',
             }}>
               +{hiddenCount}
             </span>
           )}
         </div>
 
-        {/* Status badge */}
+        {/* Row 5: Status badge */}
         <div style={{
           display: 'inline-block',
           alignSelf: 'flex-start',
-          fontSize: '10px',
+          fontSize: '11px',
           fontWeight: '600',
-          padding: '2px 7px',
-          borderRadius: '5px',
+          padding: '3px 8px',
+          borderRadius: '6px',
           background: badgeBg,
           color: badgeColor,
-          marginTop: '8px',
         }}>
           {badgeText}
         </div>
