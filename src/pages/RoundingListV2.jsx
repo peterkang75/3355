@@ -220,6 +220,7 @@ function RoundingListV2() {
     setHmParticipants(parts);
     setHmGuestName('');
     setHmDeleteConfirm(false);
+    setHmSaving(false);
     setShowHostManage(true);
     setSelectedBooking(null);
   };
