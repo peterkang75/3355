@@ -204,30 +204,26 @@ function RoundingListV2() {
     }
   };
 
+  const getEffectiveDeadline = (booking) => {
+    if (booking.registrationDeadline) {
+      const d = new Date(booking.registrationDeadline);
+      if (!isNaN(d.getTime())) return d;
+    }
+    const bookingDate = new Date(booking.date);
+    const deadline = new Date(bookingDate);
+    deadline.setDate(bookingDate.getDate() - 8);
+    deadline.setHours(18, 0, 0, 0);
+    return deadline;
+  };
+
   const getBookingStatusFlags = (booking) => {
     const bookingDate = new Date(booking.date);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const isPastRoundingDate = bookingDate < today;
     const isRoundingDay = bookingDate.toDateString() === new Date().toDateString();
-
-    let isRegistrationClosed = false;
-    if (booking.registrationDeadline) {
-      isRegistrationClosed = new Date(booking.registrationDeadline) < new Date();
-    }
-    if (booking.type === '컴페티션') {
-      const roundingDayOfWeek = bookingDate.getDay();
-      const daysFromMonday = roundingDayOfWeek === 0 ? 6 : roundingDayOfWeek - 1;
-      const startOfRoundingWeek = new Date(bookingDate);
-      startOfRoundingWeek.setDate(bookingDate.getDate() - daysFromMonday);
-      const oneWeekBefore = new Date(startOfRoundingWeek);
-      oneWeekBefore.setDate(startOfRoundingWeek.getDate() - 7);
-      const deadline = new Date(oneWeekBefore);
-      deadline.setDate(oneWeekBefore.getDate() + 5);
-      deadline.setHours(18, 0, 0, 0);
-      isRegistrationClosed = new Date() > deadline;
-    }
-
+    const deadline = getEffectiveDeadline(booking);
+    const isRegistrationClosed = new Date() > deadline;
     return { isPastRoundingDate, isRoundingDay, isRegistrationClosed };
   };
 
@@ -503,9 +499,12 @@ function RoundingListV2() {
     const time = formatTileTime(booking.time);
     const { isRegistrationClosed } = getBookingStatusFlags(booking);
 
-    // 배지 표시 규칙: 기존 카드와 동일한 마감 규칙 적용
-    // - 정기모임(official): 접수마감/인원마감 여부만 표시, 인원수 기본 표시
-    // - 소셜/컴페티션: isRegistrationClosed 또는 인원 마감 시 "마감"
+    const deadline = getEffectiveDeadline(booking);
+    const now = new Date();
+    const msLeft = deadline - now;
+    const hoursLeft = msLeft / (1000 * 60 * 60);
+    const daysLeft = Math.ceil(hoursLeft / 24);
+
     let badgeText;
     let badgeBg;
     let badgeColor;
@@ -514,11 +513,16 @@ function RoundingListV2() {
       badgeBg = '#FFE4E6';
       badgeColor = '#BE123C';
     } else if (isFull) {
-      badgeText = '마감';
+      badgeText = '인원마감';
       badgeBg = '#FFE4E6';
       badgeColor = '#BE123C';
+    } else if (hoursLeft <= 24) {
+      const h = Math.max(1, Math.ceil(hoursLeft));
+      badgeText = `${h}시간남음`;
+      badgeBg = '#FEF3C7';
+      badgeColor = '#92400E';
     } else {
-      badgeText = `${participants.length}명`;
+      badgeText = `${daysLeft}일남음`;
       badgeBg = '#D1FAE5';
       badgeColor = '#047857';
     }
