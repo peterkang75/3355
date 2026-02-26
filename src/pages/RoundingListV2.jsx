@@ -1003,17 +1003,21 @@ function RoundingListV2() {
                         style={{
                           width: '28px',
                           height: '28px',
+                          minWidth: '28px',
+                          minHeight: '28px',
+                          maxWidth: '28px',
+                          maxHeight: '28px',
+                          padding: 0,
                           borderRadius: '50%',
                           background: '#F3F4F6',
                           border: 'none',
                           color: '#9CA3AF',
-                          fontSize: '12px',
                           cursor: 'pointer',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
                           flexShrink: 0,
-                          transition: 'all 0.15s',
+                          boxSizing: 'border-box',
                         }}
                       >
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
