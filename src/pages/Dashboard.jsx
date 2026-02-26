@@ -661,6 +661,8 @@ function Dashboard() {
               </svg>
             </div>
           </div>
+          {isBoardOpen && (
+          <div>
           {showNewPost && canCreatePost && (
             <div style={{ 
               background: 'var(--bg-green)', 
@@ -1319,6 +1321,8 @@ function Dashboard() {
               );
               })}
             </div>
+          )}
+          </div>
           )}
         </Card>
 
