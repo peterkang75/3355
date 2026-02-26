@@ -6,7 +6,7 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import DashboardSample from './pages/DashboardSample';
 import Board from './pages/Board';
-import Booking from './pages/Booking';
+// import Booking from './pages/Booking'; // V1 kept as fallback
 import Fees from './pages/Fees';
 import MyPage from './pages/MyPage';
 import Admin from './pages/Admin';
@@ -52,7 +52,7 @@ function AppRoutes({ user, logout, requiresProfileComplete }) {
         <Route path="/" element={<Dashboard />} />
         <Route path="/dashboard-sample" element={<DashboardSample />} />
         <Route path="/board" element={<Board />} />
-        <Route path="/booking" element={<Booking />} />
+        <Route path="/booking" element={<RoundingListV2 />} />
         <Route path="/fees" element={<Fees />} />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/admin" element={<Admin />} />
