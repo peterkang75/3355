@@ -512,10 +512,6 @@ function RoundingListV2() {
       badgeText = '접수마감';
       badgeBg = '#FFE4E6';
       badgeColor = '#BE123C';
-    } else if (isFull) {
-      badgeText = '인원마감';
-      badgeBg = '#FFE4E6';
-      badgeColor = '#BE123C';
     } else if (hoursLeft <= 24) {
       const h = Math.max(1, Math.ceil(hoursLeft));
       badgeText = `${h}시간남음`;
