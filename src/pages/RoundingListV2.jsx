@@ -46,6 +46,8 @@ function RoundingListV2() {
   const [hmMemberDropdownOpen, setHmMemberDropdownOpen] = useState(false);
   const [hmSaving, setHmSaving] = useState(false);
   const [hmDeleteConfirm, setHmDeleteConfirm] = useState(false);
+  const [hmViewMode, setHmViewMode] = useState('basic');
+  const [hmAdvanced, setHmAdvanced] = useState({ playEnabled: false, is2BB: false, greenFee: '', cartFee: '', membershipFee: '', notes: '' });
   const [newRounding, setNewRounding] = useState({
     date: '',
     time: '',
@@ -223,6 +225,15 @@ function RoundingListV2() {
     setHmGuestName('');
     setHmDeleteConfirm(false);
     setHmSaving(false);
+    setHmViewMode('basic');
+    setHmAdvanced({
+      playEnabled: booking.playEnabled || false,
+      is2BB: booking.is2BB || false,
+      greenFee: booking.greenFee || '',
+      cartFee: booking.cartFee || '',
+      membershipFee: booking.membershipFee || '',
+      notes: booking.notes || '',
+    });
     setShowHostManage(true);
     setSelectedBooking(null);
   };
@@ -283,6 +294,17 @@ function RoundingListV2() {
     setHmGuestName('');
     const serialized = updated.map(p => JSON.stringify(p));
     await hmSaveField({ participants: serialized });
+  };
+
+  const handleHmAdvancedToggle = async (field) => {
+    const newVal = !hmAdvanced[field];
+    setHmAdvanced(prev => ({ ...prev, [field]: newVal }));
+    await hmSaveField({ [field]: newVal });
+  };
+
+  const handleHmAdvancedSave = async (field, value) => {
+    setHmAdvanced(prev => ({ ...prev, [field]: value }));
+    await hmSaveField({ [field]: value || null });
   };
 
   const handleHmDelete = async () => {
@@ -852,9 +874,29 @@ function RoundingListV2() {
           </div>
 
           <div style={{ padding: '8px 20px 4px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div>
-              <div style={{ fontSize: '18px', fontWeight: '700', color: '#111827' }}>라운딩 관리</div>
-              <div style={{ fontSize: '13px', color: '#9CA3AF', marginTop: '2px' }}>{hmBooking.courseName} · {formatDate(hmBooking.date)}</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {hmViewMode === 'advanced' && (
+                <button
+                  onClick={() => setHmViewMode('basic')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    cursor: 'pointer',
+                    color: '#6B7280',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+                </button>
+              )}
+              <div>
+                <div style={{ fontSize: '18px', fontWeight: '700', color: '#111827' }}>
+                  {hmViewMode === 'basic' ? '라운딩 관리' : '고급 설정'}
+                </div>
+                <div style={{ fontSize: '13px', color: '#9CA3AF', marginTop: '2px' }}>{hmBooking.courseName} · {formatDate(hmBooking.date)}</div>
+              </div>
             </div>
             <button
               onClick={() => setShowHostManage(false)}
@@ -883,6 +925,8 @@ function RoundingListV2() {
           </div>
 
           <div style={{ overflowY: 'auto', flex: 1, padding: '16px 20px', paddingBottom: 'max(120px, calc(100px + env(safe-area-inset-bottom)))' }}>
+
+            {hmViewMode === 'basic' && (<>
 
             {sectionTitle('라운딩 유형')}
             <div style={{ display: 'flex', gap: '8px', marginBottom: '4px' }}>
@@ -1191,6 +1235,32 @@ function RoundingListV2() {
               </>
             )}
 
+            {(user.isAdmin || hmType === '정기모임' || hmType === '컴페티션') && (
+              <>
+                {divider()}
+                <button
+                  onClick={() => setHmViewMode('advanced')}
+                  style={{
+                    width: '100%',
+                    padding: '14px 16px',
+                    borderRadius: '14px',
+                    background: '#F9FAFB',
+                    border: '1px solid #F3F4F6',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B7280" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                    <span style={{ fontSize: '15px', fontWeight: '600', color: '#374151' }}>고급 설정</span>
+                  </div>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                </button>
+              </>
+            )}
+
             <div style={{ marginTop: '28px', paddingTop: '20px', borderTop: '1px solid #F3F4F6', textAlign: 'center' }}>
               <button
                 onClick={handleHmDelete}
@@ -1210,6 +1280,180 @@ function RoundingListV2() {
                 {hmDeleteConfirm ? '정말 삭제하시겠습니까? 다시 클릭하여 확인' : '라운딩 삭제'}
               </button>
             </div>
+
+            </>)}
+
+            {hmViewMode === 'advanced' && (() => {
+              const toggleRow = (label, field, description) => (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '16px 0',
+                  borderBottom: '1px solid #F3F4F6',
+                }}>
+                  <div>
+                    <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827' }}>{label}</div>
+                    {description && <div style={{ fontSize: '12px', color: '#9CA3AF', marginTop: '2px' }}>{description}</div>}
+                  </div>
+                  <button
+                    onClick={() => handleHmAdvancedToggle(field)}
+                    disabled={hmSaving}
+                    style={{
+                      width: '48px',
+                      height: '28px',
+                      borderRadius: '14px',
+                      border: 'none',
+                      background: hmAdvanced[field] ? '#1a3d47' : '#E5E7EB',
+                      cursor: 'pointer',
+                      position: 'relative',
+                      transition: 'background 0.2s',
+                      flexShrink: 0,
+                      padding: 0,
+                    }}
+                  >
+                    <div style={{
+                      width: '22px',
+                      height: '22px',
+                      borderRadius: '50%',
+                      background: '#FFFFFF',
+                      position: 'absolute',
+                      top: '3px',
+                      left: hmAdvanced[field] ? '23px' : '3px',
+                      transition: 'left 0.2s',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.15)',
+                    }} />
+                  </button>
+                </div>
+              );
+
+              const inputRow = (label, field, placeholder, type = 'text') => (
+                <div style={{
+                  padding: '16px 0',
+                  borderBottom: '1px solid #F3F4F6',
+                }}>
+                  <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827', marginBottom: '8px' }}>{label}</div>
+                  <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                    <input
+                      type={type}
+                      value={hmAdvanced[field]}
+                      onChange={(e) => setHmAdvanced(prev => ({ ...prev, [field]: e.target.value }))}
+                      placeholder={placeholder}
+                      style={{
+                        flex: 1,
+                        padding: '10px 14px',
+                        borderRadius: '12px',
+                        border: '1px solid #E5E7EB',
+                        fontSize: '15px',
+                        outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                    <button
+                      onClick={() => handleHmAdvancedSave(field, type === 'number' ? (hmAdvanced[field] ? parseInt(hmAdvanced[field]) : null) : hmAdvanced[field])}
+                      disabled={hmSaving}
+                      style={{
+                        padding: '10px 16px',
+                        borderRadius: '12px',
+                        background: '#1a3d47',
+                        color: '#FFFFFF',
+                        border: 'none',
+                        fontWeight: '600',
+                        fontSize: '14px',
+                        cursor: 'pointer',
+                        opacity: hmSaving ? 0.5 : 1,
+                        whiteSpace: 'nowrap',
+                      }}
+                    >
+                      저장
+                    </button>
+                  </div>
+                </div>
+              );
+
+              return (
+                <>
+                  {sectionTitle('게임 설정')}
+                  {toggleRow('플레이 활성화', 'playEnabled', '참가자가 스코어를 입력할 수 있습니다')}
+                  {toggleRow('Net 2-Ball Best Ball', 'is2BB', '핸디캡 기반 2BB 팀 자동 편성')}
+
+                  <div style={{ height: '24px' }} />
+                  {sectionTitle('비용 정보')}
+                  {inputRow('그린피', 'greenFee', '$0', 'number')}
+                  {inputRow('카트비', 'cartFee', '$0', 'number')}
+                  {inputRow('참가비', 'membershipFee', '$0', 'number')}
+
+                  <div style={{ height: '24px' }} />
+                  {sectionTitle('기타')}
+                  <div style={{ padding: '16px 0' }}>
+                    <div style={{ fontSize: '15px', fontWeight: '600', color: '#111827', marginBottom: '8px' }}>메모</div>
+                    <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                      <textarea
+                        value={hmAdvanced.notes}
+                        onChange={(e) => setHmAdvanced(prev => ({ ...prev, notes: e.target.value }))}
+                        placeholder="라운딩 메모를 입력하세요"
+                        rows={3}
+                        style={{
+                          flex: 1,
+                          padding: '10px 14px',
+                          borderRadius: '12px',
+                          border: '1px solid #E5E7EB',
+                          fontSize: '15px',
+                          outline: 'none',
+                          boxSizing: 'border-box',
+                          resize: 'vertical',
+                          fontFamily: 'inherit',
+                        }}
+                      />
+                      <button
+                        onClick={() => handleHmAdvancedSave('notes', hmAdvanced.notes)}
+                        disabled={hmSaving}
+                        style={{
+                          padding: '10px 16px',
+                          borderRadius: '12px',
+                          background: '#1a3d47',
+                          color: '#FFFFFF',
+                          border: 'none',
+                          fontWeight: '600',
+                          fontSize: '14px',
+                          cursor: 'pointer',
+                          opacity: hmSaving ? 0.5 : 1,
+                          whiteSpace: 'nowrap',
+                          alignSelf: 'flex-start',
+                        }}
+                      >
+                        저장
+                      </button>
+                    </div>
+                  </div>
+
+                  {user.isAdmin && (
+                    <>
+                      <div style={{ height: '16px' }} />
+                      <button
+                        onClick={() => { setShowHostManage(false); navigate(`/play?id=${hmBooking.id}`); }}
+                        style={{
+                          width: '100%',
+                          padding: '14px',
+                          borderRadius: '14px',
+                          background: '#F9FAFB',
+                          border: '1px solid #F3F4F6',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '10px',
+                          fontSize: '15px',
+                          fontWeight: '600',
+                          color: '#374151',
+                        }}
+                      >
+                        <span>📝</span> 스코어 입력 페이지로 이동
+                      </button>
+                    </>
+                  )}
+                </>
+              );
+            })()}
 
           </div>
         </div>
