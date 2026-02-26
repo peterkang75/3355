@@ -732,40 +732,43 @@ function RoundingListV2() {
         }}
       >
         {/* Row 1: type badge + location badge + joined dot */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-          <span style={{
-            fontSize: '10px',
-            fontWeight: '700',
-            color: typeColor,
-            background: typeBg,
-            borderRadius: '5px',
-            padding: '2px 7px',
-            whiteSpace: 'nowrap',
-            flexShrink: 0,
-          }}>
-            {typeLabel}
-          </span>
-          {(booking.courseName || booking.title) && (
-            <span style={{
-              fontSize: '10px',
-              fontWeight: '500',
-              color: '#475569',
-              background: '#F1F5F9',
-              borderRadius: '5px',
-              padding: '2px 6px',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-              whiteSpace: 'nowrap',
-              minWidth: 0,
-              flex: 1,
-            }}>
-              📍 {booking.courseName || booking.title}
-            </span>
-          )}
-          {isJoined && (
-            <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#22C55E', flexShrink: 0 }} />
-          )}
-        </div>
+        {(() => {
+          const rawName = booking.courseName || booking.title || '';
+          const shortLocation = rawName.split(/\s*golf\s*/i)[0].trim();
+          return (
+            <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '4px' }}>
+              <span style={{
+                fontSize: '10px',
+                fontWeight: '700',
+                color: typeColor,
+                background: typeBg,
+                borderRadius: '5px',
+                padding: '2px 7px',
+                whiteSpace: 'nowrap',
+                flexShrink: 0,
+              }}>
+                {typeLabel}
+              </span>
+              {shortLocation && (
+                <span style={{
+                  fontSize: '11px',
+                  fontWeight: '600',
+                  color: '#374151',
+                  background: '#F3F4F6',
+                  borderRadius: '5px',
+                  padding: '2px 7px',
+                  whiteSpace: 'nowrap',
+                  flexShrink: 0,
+                }}>
+                  {shortLocation}
+                </span>
+              )}
+              {isJoined && (
+                <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#22C55E', flexShrink: 0, marginLeft: 'auto' }} />
+              )}
+            </div>
+          );
+        })()}
 
         {/* Row 2: Date + Time (hero) */}
         <div>
