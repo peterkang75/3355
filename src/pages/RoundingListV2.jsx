@@ -105,17 +105,11 @@ function RoundingListV2() {
     const isAnyModalOpen = showCreateModal || showTypeSelector || !!selectedBooking;
     if (isAnyModalOpen) {
       document.body.style.overflow = 'hidden';
-      document.body.style.position = 'fixed';
-      document.body.style.width = '100%';
     } else {
       document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
     }
     return () => {
       document.body.style.overflow = '';
-      document.body.style.position = '';
-      document.body.style.width = '';
     };
   }, [showCreateModal, showTypeSelector, selectedBooking]);
 
@@ -2173,7 +2167,7 @@ function RoundingListV2() {
           }}>
             {isOfficial ? '👑 정기 라운딩 만들기' : '라운딩 만들기'}
           </h3>
-          <div style={{ overflowY: 'auto', flex: 1, padding: '0 20px', overscrollBehavior: 'contain' }}>
+          <div style={{ overflowY: 'auto', overflowX: 'hidden', flex: 1, padding: '0 20px', overscrollBehavior: 'contain' }}>
 
           {isOfficial ? (
             <>
@@ -2202,15 +2196,14 @@ function RoundingListV2() {
                 </select>
               </div>
 
-              <div style={{ display: 'flex', gap: '10px', marginBottom: '14px' }}>
-                <div style={{ flex: '1 1 0', minWidth: 0 }}>
-                  <label style={labelStyle}>날짜</label>
-                  <input type="date" value={officialForm.date} onChange={(e) => setOfficialForm({ ...officialForm, date: e.target.value })} style={{ ...inputStyle, width: '100%', minWidth: 0 }} />
-                </div>
-                <div style={{ flex: '1 1 0', minWidth: 0 }}>
-                  <label style={labelStyle}>티오프 시간</label>
-                  <input type="time" value={officialForm.time} onChange={(e) => setOfficialForm({ ...officialForm, time: e.target.value })} style={{ ...inputStyle, width: '100%', minWidth: 0 }} />
-                </div>
+              <div style={{ marginBottom: '14px' }}>
+                <label style={labelStyle}>날짜</label>
+                <input type="date" value={officialForm.date} onChange={(e) => setOfficialForm({ ...officialForm, date: e.target.value })} style={inputStyle} />
+              </div>
+
+              <div style={{ marginBottom: '14px' }}>
+                <label style={labelStyle}>티오프 시간</label>
+                <input type="time" value={officialForm.time} onChange={(e) => setOfficialForm({ ...officialForm, time: e.target.value })} style={inputStyle} />
               </div>
 
               <div style={{ marginBottom: '14px' }}>
