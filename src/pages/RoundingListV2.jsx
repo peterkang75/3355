@@ -2332,19 +2332,6 @@ function RoundingListV2() {
 
       <div style={{ padding: '20px 16px 100px' }}>
         <div style={{ marginBottom: '8px' }}>
-          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
-            {[
-              { color: '#F59E0B', label: '정기모임' },
-              { color: '#3B82F6', label: '컴페티션' },
-              { color: '#10B981', label: '그린피' },
-              { color: '#F97316', label: '소셜' },
-            ].map(({ color, label }) => (
-              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <div style={{ width: '10px', height: '10px', borderRadius: '2px', background: color }} />
-                <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: '500' }}>{label}</span>
-              </div>
-            ))}
-          </div>
           {(() => {
             const myBookings = bookings
               .filter(b => isBookingActive(b))
@@ -2466,6 +2453,20 @@ function RoundingListV2() {
               </div>
             );
           })()}
+
+          <div style={{ display: 'flex', gap: '16px', marginBottom: '16px', flexWrap: 'wrap' }}>
+            {[
+              { color: '#F59E0B', label: '정기모임' },
+              { color: '#3B82F6', label: '컴페티션' },
+              { color: '#10B981', label: '그린피' },
+              { color: '#F97316', label: '소셜' },
+            ].map(({ color, label }) => (
+              <div key={label} style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <div style={{ width: '10px', height: '10px', borderRadius: '2px', background: color }} />
+                <span style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: '500' }}>{label}</span>
+              </div>
+            ))}
+          </div>
 
           {renderWeeklyTimeline()}
         </div>
