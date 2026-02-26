@@ -837,18 +837,19 @@ function RoundingListV2() {
           <hr style={{
             border: 'none',
             borderTop: '1px solid #E5E7EB',
-            margin: '32px 0',
+            marginTop: '20px',
+            marginBottom: '20px',
           }} />
         )}
         <div style={{
-          marginTop: idx === 0 ? '16px' : 0,
-          marginBottom: '8px',
+          marginTop: idx === 0 ? '8px' : 0,
+          marginBottom: '4px',
         }}>
           <div style={{
             fontSize: '14px',
             fontWeight: '700',
             color: '#374151',
-            marginBottom: '14px',
+            marginBottom: '8px',
           }}>
             {week.label}
           </div>
