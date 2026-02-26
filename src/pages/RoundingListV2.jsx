@@ -535,13 +535,15 @@ function RoundingListV2() {
           flexShrink: 0,
           width: '90px',
           minHeight: '112px',
-          background: isJoined ? '#F0FDF4' : '#FFFFFF',
+          background: '#FFFFFF',
           borderRadius: '16px',
           boxShadow: isHovered
-            ? '0 6px 16px rgba(0,0,0,0.12)'
-            : '0 1px 4px rgba(0,0,0,0.06)',
-          border: isJoined ? '1px solid #86EFAC' : '1px solid #F3F4F6',
+            ? '0 8px 20px rgba(0,0,0,0.14)'
+            : '0 2px 8px rgba(0,0,0,0.08)',
           borderTop: `4px solid ${accentColor}`,
+          borderLeft: '1px solid #F3F4F6',
+          borderRight: '1px solid #F3F4F6',
+          borderBottom: '1px solid #F3F4F6',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -549,19 +551,20 @@ function RoundingListV2() {
           padding: '10px 6px 8px',
           cursor: 'pointer',
           position: 'relative',
-          transform: isHovered ? 'translateY(-2px)' : 'translateY(0)',
+          transform: isHovered ? 'translateY(-3px)' : 'translateY(0)',
           transition: 'transform 0.18s ease, box-shadow 0.18s ease',
         }}
       >
         {isJoined && (
           <div style={{
             position: 'absolute',
-            top: '7px',
-            right: '7px',
-            width: '7px',
-            height: '7px',
+            top: '8px',
+            right: '8px',
+            width: '8px',
+            height: '8px',
             borderRadius: '50%',
             background: '#22C55E',
+            boxShadow: '0 0 0 2px #FFFFFF, 0 0 0 3px #22C55E',
           }} />
         )}
         <div style={{
