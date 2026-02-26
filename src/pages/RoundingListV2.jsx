@@ -2450,7 +2450,7 @@ function RoundingListV2() {
         rightContent={<ProfileBadge user={user} showGreeting={false} />}
       />
 
-      <div style={{ padding: '20px 16px 100px' }}>
+      <div style={{ padding: '72px 16px 100px' }}>
         <div style={{ marginBottom: '8px' }}>
           <div style={{
             padding: '14px 16px',
