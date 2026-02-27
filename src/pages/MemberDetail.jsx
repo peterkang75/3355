@@ -2,6 +2,7 @@ import React, { useState, useEffect, memo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
+import { compressImageToBase64 } from '../utils/compressImage';
 import { calculateHandicap } from '../utils/handicap';
 import adminIcon from '../assets/role-admin.png';
 import bangjangIcon from '../assets/role-bangjang.png';
@@ -469,60 +470,17 @@ function MemberDetail() {
               id="photoUpload"
               accept="image/*"
               style={{ display: 'none' }}
-              onChange={(e) => {
+              onChange={async (e) => {
                 const file = e.target.files?.[0];
-                if (file) {
-                  const reader = new FileReader();
-                  reader.onload = (event) => {
-                    const img = new Image();
-                    img.onload = async () => {
-                      try {
-                        const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 400;
-                        const MAX_HEIGHT = 400;
-                        let width = img.width;
-                        let height = img.height;
-
-                        if (width > height) {
-                          if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                          }
-                        } else {
-                          if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
-                          }
-                        }
-
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        if (!ctx) {
-                          alert('이미지 처리 중 오류가 발생했습니다.');
-                          return;
-                        }
-                        ctx.drawImage(img, 0, 0, width, height);
-
-                        const resizedBase64 = canvas.toDataURL('image/jpeg', 0.8);
-                        
-                        await apiService.updateMember(id, { photo: resizedBase64 });
-                        await refreshMembers();
-                        alert('사진이 변경되었습니다!');
-                      } catch (error) {
-                        console.error('사진 업로드 실패:', error);
-                        alert('사진 업로드에 실패했습니다.');
-                      }
-                    };
-                    img.onerror = () => {
-                      alert('이미지를 불러오는 중 오류가 발생했습니다.');
-                    };
-                    img.src = event.target.result;
-                  };
-                  reader.onerror = () => {
-                    alert('파일을 읽는 중 오류가 발생했습니다.');
-                  };
-                  reader.readAsDataURL(file);
+                if (!file) return;
+                try {
+                  const resizedBase64 = await compressImageToBase64(file);
+                  await apiService.updateMember(id, { photo: resizedBase64 });
+                  await refreshMembers();
+                  alert('사진이 변경되었습니다!');
+                } catch (error) {
+                  console.error('사진 업로드 실패:', error);
+                  alert('사진 업로드에 실패했습니다.');
                 }
                 e.target.value = '';
               }}

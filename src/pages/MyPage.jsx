@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import apiService from '../services/api';
+import { compressImageToBase64 } from '../utils/compressImage';
 import CrownIcon from '../components/CrownIcon';
 import adminIcon from '../assets/role-admin.png';
 import bangjangIcon from '../assets/role-bangjang.png';
@@ -89,42 +90,15 @@ function MyPage() {
     }
   };
 
-  const handlePhotoUpload = (e) => {
+  const handlePhotoUpload = async (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const img = new Image();
-        img.onload = () => {
-          const canvas = document.createElement('canvas');
-          const MAX_WIDTH = 400;
-          const MAX_HEIGHT = 400;
-          let width = img.width;
-          let height = img.height;
-
-          if (width > height) {
-            if (width > MAX_WIDTH) {
-              height *= MAX_WIDTH / width;
-              width = MAX_WIDTH;
-            }
-          } else {
-            if (height > MAX_HEIGHT) {
-              width *= MAX_HEIGHT / height;
-              height = MAX_HEIGHT;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(img, 0, 0, width, height);
-          
-          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-          setEditData({ ...editData, photo: compressedDataUrl });
-        };
-        img.src = event.target.result;
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    try {
+      const base64 = await compressImageToBase64(file);
+      setEditData({ ...editData, photo: base64 });
+    } catch (err) {
+      console.error('이미지 압축 실패:', err);
+      alert('이미지 처리에 실패했습니다.');
     }
   };
 

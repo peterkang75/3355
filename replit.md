@@ -76,3 +76,5 @@
 - **Database**: PostgreSQL (Neon-hosted)
 - **ORM**: Prisma (PostgreSQL과의 상호작용을 위한)
 - **Real-time Communication**: Socket.IO
+- **Image Compression (Frontend)**: browser-image-compression (max 400px, 0.2MB, JPEG) — `src/utils/compressImage.js`
+- **Image Compression (Batch Script)**: jimp — `server/scripts/compress-photos.js` (`npm run compress:photos`)
