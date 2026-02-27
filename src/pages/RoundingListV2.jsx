@@ -2490,7 +2490,7 @@ function RoundingListV2() {
       <PageHeader
         title="라운딩 라운지"
         showBackButton={false}
-        rightContent={<ProfileBadge user={user} showGreeting={false} />}
+        rightContent={<ProfileBadge user={user} showGreeting={true} />}
       />
 
       <div style={{ padding: '72px 16px 100px' }}>

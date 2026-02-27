@@ -2,10 +2,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import PageHeader from '../components/common/PageHeader';
+import ProfileBadge from '../components/common/ProfileBadge';
 
 function Menu() {
   const navigate = useNavigate();
-  const { featureSettings } = useApp();
+  const { user, featureSettings } = useApp();
 
   const allMenuItems = [
     {
@@ -38,7 +39,7 @@ function Menu() {
 
   return (
     <div className="page-content">
-      <PageHeader title="메뉴" showBackButton={false} />
+      <PageHeader title="메뉴" showBackButton={false} rightContent={<ProfileBadge user={user} showGreeting={true} />} />
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
         {menuItems.map((item, index) => (

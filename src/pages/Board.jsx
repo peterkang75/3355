@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
+import ProfileBadge from '../components/common/ProfileBadge';
 
 function Board() {
   const navigate = useNavigate();
@@ -84,47 +85,7 @@ function Board() {
             </button>
           )}
         </div>
-        <div 
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '8px',
-            cursor: 'pointer'
-          }}
-          onClick={() => navigate('/mypage')}
-        >
-          <div style={{ fontSize: '14px', fontWeight: '500', color: 'var(--text-light)' }}>
-            환영합니다 {user.nickname || user.name}님
-          </div>
-          <div style={{
-            width: '36px',
-            height: '36px',
-            borderRadius: '50%',
-            overflow: 'hidden',
-            background: 'var(--primary-green)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontWeight: '600',
-            fontSize: '14px',
-            border: '2px solid var(--border-color)'
-          }}>
-            {user.photo ? (
-              <img 
-                src={user.photo} 
-                alt="프로필" 
-                style={{ 
-                  width: '100%', 
-                  height: '100%', 
-                  objectFit: 'cover' 
-                }} 
-              />
-            ) : (
-              <span>{(user.nickname || user.name).charAt(0)}</span>
-            )}
-          </div>
-        </div>
+        <ProfileBadge user={user} showGreeting={true} />
       </div>
 
       <div className="page-content">

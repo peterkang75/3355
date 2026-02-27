@@ -149,7 +149,7 @@ function MyPage() {
     <div style={{ paddingBottom: '80px' }}>
       <PageHeader 
         title="마이 페이지" 
-        rightContent={<ProfileBadge user={user} />}
+        rightContent={<ProfileBadge user={user} showGreeting={true} />}
       />
 
       <div className="page-content">
