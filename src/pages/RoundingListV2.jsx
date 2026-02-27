@@ -535,14 +535,15 @@ function RoundingListV2() {
   };
 
   const getTypeBadge = (booking) => {
-    const typeLabel = booking.title || booking.type || '';
+    const type = (booking.type || '').trim();
+    let label = type || booking.title || '';
     let bg = '#FFEDD5';
     let color = '#9A3412';
-    if (typeLabel.includes('컴페티션')) { bg = '#0F766E'; color = '#FFFFFF'; }
-    else if (typeLabel.includes('그린피')) { bg = '#D1FAE5'; color = '#065F46'; }
-    else if (typeLabel.includes('소셜') || typeLabel.includes('Social')) { bg = '#F3F4F6'; color = '#374151'; }
-    else if (typeLabel.includes('정기')) { bg = '#1A3D2F'; color = '#FFFFFF'; }
-    if (!typeLabel) return null;
+    if (type === '정기모임') { label = '정기모임'; bg = '#EA580C'; color = '#FFFFFF'; }
+    else if (type === '컴페티션') { label = '컴페티션'; bg = '#0F766E'; color = '#FFFFFF'; }
+    else if (type === '그린피') { label = '그린피'; bg = '#D1FAE5'; color = '#065F46'; }
+    else if (type === '소셜' || type.toLowerCase().includes('social')) { label = '소셜'; bg = '#F3F4F6'; color = '#374151'; }
+    if (!label) return null;
     return (
       <span style={{
         fontSize: '11px',
@@ -553,7 +554,7 @@ function RoundingListV2() {
         color: color,
         display: 'inline-block',
       }}>
-        {typeLabel}
+        {label}
       </span>
     );
   };
@@ -671,7 +672,7 @@ function RoundingListV2() {
 
   const getTileAccentColor = (booking) => {
     const typeLabel = (booking.title || booking.type || '').toLowerCase();
-    if (typeLabel.includes('정기') || typeLabel.includes('official')) return '#374151';
+    if (typeLabel.includes('정기') || typeLabel.includes('official')) return '#EA580C';
     if (typeLabel.includes('컴페티션') || typeLabel.includes('competition')) return '#0F766E';
     if (typeLabel.includes('그린피') || typeLabel.includes('greenfee')) return '#059669';
     return '#EA580C';
@@ -679,7 +680,7 @@ function RoundingListV2() {
 
   const getTileTypeBadge = (booking) => {
     const type = (booking.type || '').trim();
-    if (type === '정기모임') return { label: '정기', bg: '#F3F4F6', color: '#374151' };
+    if (type === '정기모임') return { label: '정기모임', bg: '#EA580C', color: '#FFFFFF' };
     if (type === '컴페티션') return { label: '컴페티션', bg: '#0F766E', color: '#FFFFFF' };
     if (type === '그린피') return { label: '그린피', bg: '#CCFBF1', color: '#0F766E' };
     return { label: '소셜', bg: '#F3F4F6', color: '#374151' };
