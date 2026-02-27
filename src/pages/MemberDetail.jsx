@@ -383,106 +383,81 @@ function MemberDetail() {
         <h1 style={{ flex: 1, marginLeft: '12px' }}>
           회원 상세
         </h1>
-        {isAdmin && (
-          <div style={{ position: 'relative' }}>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setShowMemberMenu(!showMemberMenu);
-              }}
-              style={{
-                background: 'none',
-                border: 'none',
-                fontSize: '20px',
-                cursor: 'pointer',
-                padding: '4px 8px',
-                color: 'var(--text-light)'
-              }}
-            >
-              ⋮
-            </button>
-            {showMemberMenu && (
-              <div 
-                onClick={(e) => e.stopPropagation()}
-                style={{
-                  position: 'absolute',
-                  top: '100%',
-                  right: 0,
-                  background: 'var(--bg-card)',
-                  borderRadius: '8px',
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                  minWidth: '140px',
-                  zIndex: 1000,
-                  overflow: 'hidden',
-                  border: '1px solid var(--border-color)'
-                }}
-              >
-                <button
-                  onClick={() => {
-                    setShowMemberMenu(false);
-                    handleToggleActive();
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'none',
-                    border: 'none',
-                    borderBottom: '1px solid var(--border-color)',
-                    textAlign: 'left',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    color: 'var(--text-dark)'
-                  }}
-                >
-                  {member.isActive === false ? '활성화' : '비활성화'}
-                </button>
-                <button
-                  onClick={() => {
-                    setShowMemberMenu(false);
-                    handleDelete();
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'none',
-                    border: 'none',
-                    textAlign: 'left',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    color: 'var(--alert-red)'
-                  }}
-                >
-                  삭제
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-        {!isAdmin && <div style={{ width: '24px' }}></div>}
+        <div style={{ width: '24px' }}></div>
       </div>
 
       <div className="page-content">
         <div className="card" style={{ marginBottom: '16px', textAlign: 'center', position: 'relative' }}>
           {isAdmin && !isEditing && (
-            <button
-              onClick={() => setIsEditing(true)}
-              style={{
-                position: 'absolute',
-                top: '14px',
-                right: '14px',
-                background: '#0F766E',
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: '8px',
-                padding: '6px 14px',
-                fontSize: '13px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                zIndex: 1,
-              }}
-            >
-              수정
-            </button>
+            <div style={{ position: 'absolute', top: '14px', right: '14px', zIndex: 10 }}>
+              <button
+                onClick={(e) => { e.stopPropagation(); setShowMemberMenu(prev => !prev); }}
+                style={{
+                  background: '#0F766E',
+                  color: '#FFFFFF',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '6px 14px',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                }}
+              >
+                관리 ▾
+              </button>
+              {showMemberMenu && (
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    position: 'absolute',
+                    top: 'calc(100% + 6px)',
+                    right: 0,
+                    background: '#FFFFFF',
+                    borderRadius: '10px',
+                    boxShadow: '0 4px 16px rgba(0,0,0,0.13)',
+                    minWidth: '150px',
+                    overflow: 'hidden',
+                    border: '1px solid #E5E7EB',
+                  }}
+                >
+                  <button
+                    onClick={() => { setShowMemberMenu(false); setIsEditing(true); }}
+                    style={{
+                      display: 'block', width: '100%', padding: '12px 16px',
+                      background: 'none', border: 'none',
+                      borderBottom: '1px solid #F3F4F6',
+                      textAlign: 'left', fontSize: '14px', cursor: 'pointer',
+                      color: '#111827', fontWeight: '500',
+                    }}
+                  >
+                    정보 수정
+                  </button>
+                  <button
+                    onClick={() => { setShowMemberMenu(false); handleToggleActive(); }}
+                    style={{
+                      display: 'block', width: '100%', padding: '12px 16px',
+                      background: 'none', border: 'none',
+                      borderBottom: '1px solid #F3F4F6',
+                      textAlign: 'left', fontSize: '14px', cursor: 'pointer',
+                      color: '#374151', fontWeight: '500',
+                    }}
+                  >
+                    {member.isActive === false ? '활성화' : '비활성화'}
+                  </button>
+                  <button
+                    onClick={() => { setShowMemberMenu(false); handleDelete(); }}
+                    style={{
+                      display: 'block', width: '100%', padding: '12px 16px',
+                      background: 'none', border: 'none',
+                      textAlign: 'left', fontSize: '14px', cursor: 'pointer',
+                      color: '#DC2626', fontWeight: '500',
+                    }}
+                  >
+                    회원 삭제
+                  </button>
+                </div>
+              )}
+            </div>
           )}
           <div style={{ 
             display: 'inline-block', 
