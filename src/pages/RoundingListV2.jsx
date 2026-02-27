@@ -759,8 +759,9 @@ function RoundingListV2() {
         key={booking.id}
         onClick={() => setSelectedBooking(booking)}
         style={{
-          flex: '1 1 0',
-          minWidth: '115px',
+          flex: '1 1 auto',
+          minWidth: '135px',
+          maxWidth: '100%',
           background: '#FFFFFF',
           borderRadius: '16px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
