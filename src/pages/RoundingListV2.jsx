@@ -384,15 +384,27 @@ function RoundingListV2() {
   };
 
   const getEffectiveDeadline = (booking) => {
+    const isCompetition = booking.type === '컴페티션';
+    if (isCompetition) {
+      // 클럽 컴페티션: 저장된 마감일 우선, 없으면 라운딩 8일 전 오후 6시 자동 적용
+      if (booking.registrationDeadline) {
+        const d = new Date(booking.registrationDeadline);
+        if (!isNaN(d.getTime())) return d;
+      }
+      const bookingDate = new Date(booking.date);
+      const deadline = new Date(bookingDate);
+      deadline.setDate(bookingDate.getDate() - 8);
+      deadline.setHours(18, 0, 0, 0);
+      return deadline;
+    }
+    // 소셜/정기: 사용자 지정 마감일이 있으면 사용, 없으면 라운딩 당일 자정
     if (booking.registrationDeadline) {
       const d = new Date(booking.registrationDeadline);
       if (!isNaN(d.getTime())) return d;
     }
     const bookingDate = new Date(booking.date);
-    const deadline = new Date(bookingDate);
-    deadline.setDate(bookingDate.getDate() - 8);
-    deadline.setHours(18, 0, 0, 0);
-    return deadline;
+    bookingDate.setHours(23, 59, 59, 999);
+    return bookingDate;
   };
 
   const getBookingStatusFlags = (booking) => {
@@ -1856,7 +1868,8 @@ function RoundingListV2() {
               const hasResults = booking.dailyHandicaps || isPastRoundingDate;
               const isRenting = booking.numberRentals && booking.numberRentals.includes(user.phone);
               const isCompetition = booking.type === '컴페티션';
-              const effectiveClosed = isCompetition ? isRegistrationClosed : false;
+              // 컴페티션: 마감기한 경과 여부만 / 소셜·정기: 라운딩 날짜 경과 여부
+              const effectiveClosed = isCompetition ? isRegistrationClosed : isPastRoundingDate;
               const showTeamFormation = participants.length > 4;
 
               const deepGreen = '#1a3d47';
@@ -1948,10 +1961,10 @@ function RoundingListV2() {
                     ) : (
                       <button
                         onClick={(e) => { e.stopPropagation(); handleJoinLeave(booking); }}
-                        disabled={isJoining || (isCompetition ? (effectiveClosed || isFull) : isFull) || isRenting}
-                        style={{ ...btnStyle((isCompetition ? (effectiveClosed || isFull) : isFull) ? '#F3F4F6' : deepGreen, (isCompetition ? (effectiveClosed || isFull) : isFull) ? '#9CA3AF' : 'white'), opacity: (isJoining || isRenting) ? 0.6 : 1 }}
+                        disabled={isJoining || (isCompetition ? effectiveClosed : isFull) || isRenting}
+                        style={{ ...btnStyle((isCompetition ? effectiveClosed : isFull) ? '#F3F4F6' : deepGreen, (isCompetition ? effectiveClosed : isFull) ? '#9CA3AF' : 'white'), opacity: (isJoining || isRenting) ? 0.6 : 1 }}
                       >
-                        {isJoining ? '처리중...' : (isCompetition ? (effectiveClosed || isFull) : isFull) ? '마감됨' : '참가하기'}
+                        {isJoining ? '처리중...' : (isCompetition ? effectiveClosed : isFull) ? '마감됨' : '참가하기'}
                       </button>
                     )}
                     {isCompetition && (
