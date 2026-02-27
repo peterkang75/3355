@@ -576,22 +576,12 @@ function RoundingListV2() {
     const max = booking.maxMembers || 4;
     const isFull = participants.length >= max;
     const isCompetition = booking.type === '컴페티션';
-
-    if (isCompetition) {
-      const { isRegistrationClosed } = getBookingStatusFlags(booking);
-      return (
-        <span style={{
-          padding: '3px 10px',
-          borderRadius: '12px',
-          fontSize: '11px',
-          fontWeight: '600',
-          background: isRegistrationClosed ? '#FEE2E2' : 'rgba(26,61,71,0.08)',
-          color: isRegistrationClosed ? '#DC2626' : '#1a3d47',
-        }}>
-          {isRegistrationClosed ? '마감' : `모집중 ${participants.length}/${max}`}
-        </span>
-      );
-    }
+    const { isRegistrationClosed } = getBookingStatusFlags(booking);
+    // 명시적 마감일이 지났거나 정원이 찼을 때 마감 표시
+    const hasExplicitDeadline = !!booking.registrationDeadline;
+    const isClosed = isCompetition
+      ? isRegistrationClosed
+      : (isFull || (hasExplicitDeadline && isRegistrationClosed));
 
     return (
       <span style={{
@@ -599,10 +589,10 @@ function RoundingListV2() {
         borderRadius: '12px',
         fontSize: '11px',
         fontWeight: '600',
-        background: isFull ? '#FEE2E2' : 'rgba(26,61,71,0.08)',
-        color: isFull ? '#DC2626' : '#1a3d47',
+        background: isClosed ? '#FEE2E2' : 'rgba(26,61,71,0.08)',
+        color: isClosed ? '#DC2626' : '#1a3d47',
       }}>
-        {isFull ? '마감' : `모집중 ${participants.length}/${max}`}
+        {isClosed ? '마감' : `모집중 ${participants.length}/${max}`}
       </span>
     );
   };
@@ -727,6 +717,9 @@ function RoundingListV2() {
     const hoursLeft = msLeft / (1000 * 60 * 60);
     const daysLeft = Math.ceil(hoursLeft / 24);
 
+    const hasExplicitDeadline = !!booking.registrationDeadline;
+    const nonCompClosed = !isCompetition && hasExplicitDeadline && isRegistrationClosed;
+
     let badgeText;
     let badgeBg;
     let badgeColor;
@@ -743,6 +736,10 @@ function RoundingListV2() {
       badgeText = `마감${daysLeft}일`;
       badgeBg = '#DCFCE7';
       badgeColor = '#166534';
+    } else if (nonCompClosed) {
+      badgeText = '마감';
+      badgeBg = '#FFF1F2';
+      badgeColor = '#9F1239';
     } else {
       badgeText = `${participants.length}명`;
       badgeBg = '#F9FAFB';
@@ -1868,8 +1865,11 @@ function RoundingListV2() {
               const hasResults = booking.dailyHandicaps || isPastRoundingDate;
               const isRenting = booking.numberRentals && booking.numberRentals.includes(user.phone);
               const isCompetition = booking.type === '컴페티션';
-              // 컴페티션: 마감기한 경과 여부만 / 소셜·정기: 라운딩 날짜 경과 여부
-              const effectiveClosed = isCompetition ? isRegistrationClosed : isPastRoundingDate;
+              const hasExplicitDeadline = !!booking.registrationDeadline;
+              // 컴페티션: 마감기한 / 정기모임: 명시적 마감일 또는 라운딩 날짜 / 소셜: 라운딩 날짜
+              const effectiveClosed = isCompetition
+                ? isRegistrationClosed
+                : (isPastRoundingDate || (hasExplicitDeadline && isRegistrationClosed));
               const showTeamFormation = participants.length > 4;
 
               const deepGreen = '#1a3d47';
