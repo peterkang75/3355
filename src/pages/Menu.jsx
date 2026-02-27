@@ -9,26 +9,23 @@ function Menu() {
 
   const allMenuItems = [
     {
-      icon: '🏆',
+      symbol: '🏆',
       title: '우승자 맞추기',
       description: '라운딩 우승자를 예측하고 투표하세요',
       path: '/games/pick-winner',
-      color: '#FFD700',
       featureKey: 'pickWinnerEnabled'
     },
     {
-      icon: '🎯',
+      symbol: '◉',
       title: '빙고 게임',
       description: '멤버들과 함께하는 빙고 게임',
-      path: '/bingo',
-      color: '#9C27B0'
+      path: '/bingo'
     },
     {
-      icon: 'ℹ️',
+      symbol: 'i',
       title: 'About',
       description: '앱 정보 및 버전',
-      path: '/about',
-      color: '#2196F3'
+      path: '/about'
     }
   ];
 
@@ -42,43 +39,49 @@ function Menu() {
   return (
     <div className="page-content">
       <PageHeader title="메뉴" showBackButton={false} />
-      
-      <div style={{ padding: '0 16px' }}>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
         {menuItems.map((item, index) => (
           <div
             key={index}
-            className="card"
             onClick={() => navigate(item.path)}
             style={{
               cursor: 'pointer',
-              marginBottom: '12px',
               display: 'flex',
               alignItems: 'center',
               gap: '16px',
-              padding: '16px'
+              padding: '16px',
+              background: '#FFFFFF',
+              borderBottom: index < menuItems.length - 1 ? '1px solid #F3F4F6' : 'none',
+              borderTop: index === 0 ? '1px solid #F3F4F6' : 'none',
             }}
+            onMouseEnter={(e) => e.currentTarget.style.background = '#F9FAFB'}
+            onMouseLeave={(e) => e.currentTarget.style.background = '#FFFFFF'}
           >
             <div style={{
-              width: '48px',
-              height: '48px',
-              borderRadius: '12px',
-              background: `${item.color}20`,
+              width: '44px',
+              height: '44px',
+              borderRadius: '11px',
+              background: '#F3F4F6',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: '24px'
+              fontSize: '20px',
+              flexShrink: 0,
+              color: '#374151',
+              fontWeight: '700',
             }}>
-              {item.icon}
+              {item.symbol}
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontWeight: '600', fontSize: '16px', marginBottom: '4px' }}>
+              <div style={{ fontWeight: '600', fontSize: '15px', marginBottom: '3px', color: '#111827' }}>
                 {item.title}
               </div>
-              <div style={{ fontSize: '13px', color: '#666' }}>
+              <div style={{ fontSize: '13px', color: '#9CA3AF' }}>
                 {item.description}
               </div>
             </div>
-            <div style={{ color: '#ccc', fontSize: '20px' }}>›</div>
+            <div style={{ color: '#D1D5DB', fontSize: '20px', fontWeight: '300' }}>›</div>
           </div>
         ))}
       </div>

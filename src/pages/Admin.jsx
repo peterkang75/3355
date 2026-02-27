@@ -1783,244 +1783,74 @@ function Admin() {
       </div>
 
       <div className="page-content">
-        {activeTab === 'menu' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0' }}>
-            <button
-              onClick={() => setActiveTab('members')}
-              style={{
-                padding: '16px',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                transition: 'all 0.2s',
-                background: 'var(--bg-page)',
-                borderTop: 'none',
-                borderLeft: 'none',
-                borderRight: 'none',
-                borderBottom: '1px solid var(--border-color)'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-page)'}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>≡</div>
-                <div>
-                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: 'var(--text-dark)' }}>
-                    회원 관리
-                  </div>
-                  <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
-                    회원 정보 조회 및 수정
-                  </div>
-                </div>
-              </div>
-              <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.7 }}>›</div>
-            </button>
+        {activeTab === 'menu' && (() => {
+          const adminMenuItems = [
+            { tab: 'members',        symbol: '≡',  label: '회원 관리',   desc: '회원 정보 조회 및 수정',        always: true },
+            { tab: 'fees',           symbol: '$',  label: '클럽회계관리', desc: '참가비 등록 및 납부 관리',     always: true },
+            { tab: 'ledger',         symbol: '≋',  label: '통합 장부',   desc: '모든 거래 내역 조회',          always: true },
+            { tab: 'courses',        symbol: '⚑',  label: '골프장 관리', desc: '골프장 등록 및 관리',          always: true },
+            { tab: 'scoreManagement',symbol: '◎',  label: '스코어 관리', desc: '라운딩별 스코어 조회 및 수정', always: true },
+            { tab: 'settings',       symbol: '⚙',  label: '앱 설정',     desc: '앱 기본 설정 관리',            roles: ['관리자','방장','운영진'] },
+            { tab: 'developer',      symbol: '⌥',  label: '개발자 메뉴', desc: '권한 설정 및 앱 소개문구 관리', roles: ['관리자'] },
+          ].filter(item => {
+            if (item.always) return true;
+            if (item.roles) return item.roles.includes(user.role);
+            return false;
+          });
 
-            <button
-              onClick={() => setActiveTab('fees')}
-              style={{
-                padding: '16px',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                transition: 'all 0.2s',
-                background: 'var(--bg-page)',
-                borderTop: 'none',
-                borderLeft: 'none',
-                borderRight: 'none',
-                borderBottom: '1px solid var(--border-color)'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-page)'}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>$</div>
-                <div>
-                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: 'var(--text-dark)' }}>
-                    클럽회계관리
-                  </div>
-                  <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
-                    참가비 등록 및 납부 관리
-                  </div>
-                </div>
-              </div>
-              <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.7 }}>›</div>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('ledger')}
-              style={{
-                padding: '16px',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                transition: 'all 0.2s',
-                background: 'var(--bg-page)',
-                borderTop: 'none',
-                borderLeft: 'none',
-                borderRight: 'none',
-                borderBottom: '1px solid var(--border-color)'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-page)'}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>📖</div>
-                <div>
-                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: 'var(--text-dark)' }}>
-                    통합 장부
-                  </div>
-                  <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
-                    모든 거래 내역 조회
-                  </div>
-                </div>
-              </div>
-              <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.7 }}>›</div>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('courses')}
-              style={{
-                padding: '16px',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                transition: 'all 0.2s',
-                background: 'var(--bg-page)',
-                borderTop: 'none',
-                borderLeft: 'none',
-                borderRight: 'none',
-                borderBottom: '1px solid var(--border-color)'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-page)'}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>⚑</div>
-                <div>
-                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: 'var(--text-dark)' }}>
-                    골프장 관리
-                  </div>
-                  <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
-                    골프장 등록 및 관리
-                  </div>
-                </div>
-              </div>
-              <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.7 }}>›</div>
-            </button>
-
-            <button
-              onClick={() => setActiveTab('scoreManagement')}
-              style={{
-                padding: '16px',
-                textAlign: 'left',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                transition: 'all 0.2s',
-                background: 'var(--bg-page)',
-                borderTop: 'none',
-                borderLeft: 'none',
-                borderRight: 'none',
-                borderBottom: '1px solid var(--border-color)'
-              }}
-              onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
-              onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-page)'}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>🏌</div>
-                <div>
-                  <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: 'var(--text-dark)' }}>
-                    스코어 관리
-                  </div>
-                  <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
-                    라운딩별 스코어 조회 및 수정
-                  </div>
-                </div>
-              </div>
-              <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.7 }}>›</div>
-            </button>
-
-            {['관리자', '방장', '운영진'].includes(user.role) && (
-              <button
-                onClick={() => setActiveTab('settings')}
-                style={{
-                  padding: '16px',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  transition: 'all 0.2s',
-                  background: 'var(--bg-page)',
-                  borderTop: 'none',
-                  borderLeft: 'none',
-                  borderRight: 'none',
-                  borderBottom: '1px solid var(--border-color)'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-page)'}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>⚙</div>
-                  <div>
-                    <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: 'var(--text-dark)' }}>
-                      앱 설정
+          return (
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {adminMenuItems.map((item, idx) => (
+                <button
+                  key={item.tab}
+                  onClick={() => setActiveTab(item.tab)}
+                  style={{
+                    padding: '16px',
+                    textAlign: 'left',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    background: '#FFFFFF',
+                    border: 'none',
+                    borderTop: idx === 0 ? '1px solid #F3F4F6' : 'none',
+                    borderBottom: '1px solid #F3F4F6',
+                    width: '100%',
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.background = '#F9FAFB'}
+                  onMouseLeave={(e) => e.currentTarget.style.background = '#FFFFFF'}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <div style={{
+                      width: '40px',
+                      height: '40px',
+                      borderRadius: '10px',
+                      background: '#F3F4F6',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '18px',
+                      fontWeight: '700',
+                      color: '#374151',
+                      flexShrink: 0,
+                    }}>
+                      {item.symbol}
                     </div>
-                    <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
-                      앱 기본 설정 관리
+                    <div>
+                      <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '3px', color: '#111827' }}>
+                        {item.label}
+                      </div>
+                      <div style={{ fontSize: '13px', color: '#9CA3AF' }}>
+                        {item.desc}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.7 }}>›</div>
-              </button>
-            )}
-
-            {user.role === '관리자' && (
-              <button
-                onClick={() => setActiveTab('developer')}
-                style={{
-                  padding: '16px',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  transition: 'all 0.2s',
-                  background: 'var(--bg-page)',
-                  borderTop: 'none',
-                  borderLeft: 'none',
-                  borderRight: 'none',
-                  borderBottom: '1px solid var(--border-color)'
-                }}
-                onMouseEnter={(e) => e.currentTarget.style.background = 'var(--bg-green)'}
-                onMouseLeave={(e) => e.currentTarget.style.background = 'var(--bg-page)'}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                  <div style={{ fontSize: '28px', color: 'var(--primary-green)' }}>🔧</div>
-                  <div>
-                    <div style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px', color: 'var(--text-dark)' }}>
-                      개발자 메뉴
-                    </div>
-                    <div style={{ fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
-                      권한 설정 및 앱 소개문구 관리
-                    </div>
-                  </div>
-                </div>
-                <div style={{ fontSize: '24px', color: 'var(--text-dark)', opacity: 0.7 }}>›</div>
-              </button>
-            )}
-          </div>
-        )}
+                  <div style={{ fontSize: '20px', color: '#D1D5DB', fontWeight: '300' }}>›</div>
+                </button>
+              ))}
+            </div>
+          );
+        })()}
 
         {activeTab === 'members' && (
           <div>
