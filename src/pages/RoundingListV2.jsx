@@ -919,24 +919,23 @@ function RoundingListV2() {
 
   const handleShare = async (booking) => {
     const shareUrl = `${window.location.origin}/v2/roundings?id=${booking.id}`;
-    const shareText = `${booking.courseName} ${formatDate(booking.date)} 라운딩에 참가하세요!`;
+    const shareText = `${booking.courseName} ${formatDate(booking.date)} 라운딩에 참가하세요!\n${shareUrl}`;
 
     if (navigator.share) {
       try {
         await navigator.share({
           title: '라운딩 초대',
           text: shareText,
-          url: shareUrl,
         });
       } catch (err) {
         if (err.name !== 'AbortError') {
-          await navigator.clipboard.writeText(shareUrl);
+          await navigator.clipboard.writeText(shareText);
           alert('링크가 복사되었습니다!');
         }
       }
     } else {
       try {
-        await navigator.clipboard.writeText(shareUrl);
+        await navigator.clipboard.writeText(shareText);
         alert('링크가 복사되었습니다!');
       } catch {
         prompt('아래 링크를 복사하세요:', shareUrl);
