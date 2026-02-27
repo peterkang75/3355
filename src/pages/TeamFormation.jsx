@@ -511,7 +511,7 @@ function TeamFormation() {
     <div>
       <PageHeader 
         title="조편성"
-        onBack={() => canAccess ? navigate(`/rounding-management?id=${bookingId}`) : navigate('/booking')}
+        onBack={() => navigate('/booking')}
         rightContent={<ProfileBadge user={user} onClick={() => navigate('/mypage')} />}
       />
 

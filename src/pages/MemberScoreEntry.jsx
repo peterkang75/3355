@@ -361,7 +361,7 @@ function MemberScoreEntry() {
     <div>
       <PageHeader 
         title="스코어 입력"
-        onBack={() => navigate(`/rounding-management?id=${bookingId}`)}
+        onBack={() => navigate('/booking')}
       />
 
       <div className="page-content">

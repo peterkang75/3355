@@ -1888,14 +1888,7 @@ function RoundingListV2() {
 
               const manageBtn = canManage && (
                 <button
-                  onClick={() => {
-                    if (isHostOnly) {
-                      openHostManage(booking);
-                    } else {
-                      setSelectedBooking(null);
-                      navigate(`/rounding-management?id=${booking.id}`);
-                    }
-                  }}
+                  onClick={() => openHostManage(booking)}
                   style={btnStyle('#FFFFFF', '#374151', '1px solid #E5E7EB')}
                 >
                   관리

@@ -328,7 +328,7 @@ const BookingListCard = memo(function BookingListCard({
                 }}>
                   <button
                     onClick={() => {
-                      onNavigate(`/rounding-management?id=${booking.id}`);
+                      onNavigate(`/booking`);
                       onMenuToggle(null);
                     }}
                     style={{
@@ -817,7 +817,7 @@ const BookingListCard = memo(function BookingListCard({
               }}>
                 <button
                   onClick={() => {
-                    onNavigate(`/rounding-management?id=${booking.id}`);
+                    onNavigate(`/booking`);
                     onMenuToggle(null);
                   }}
                   style={{

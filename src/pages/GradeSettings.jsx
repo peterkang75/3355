@@ -58,7 +58,7 @@ function GradeSettings() {
       }
       
       alert('그레이드 설정이 저장되었습니다!');
-      navigate(`/rounding-management?id=${bookingId}`);
+      navigate('/booking');
     } catch (error) {
       console.error('그레이드 설정 저장 실패:', error);
       alert('그레이드 설정 저장에 실패했습니다.');
@@ -95,7 +95,7 @@ function GradeSettings() {
     <div>
       <div className="header">
         <button 
-          onClick={() => navigate(`/rounding-management?id=${bookingId}`)}
+          onClick={() => navigate('/booking')}
           style={{
             background: 'transparent',
             border: 'none',

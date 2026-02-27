@@ -265,7 +265,7 @@ function ParticipantManagement() {
     <div>
       <PageHeader 
         title="참가자 관리"
-        onBack={() => navigate(`/rounding-management?id=${bookingId}`)}
+        onBack={() => navigate('/booking')}
       />
 
       <div className="page-content">
