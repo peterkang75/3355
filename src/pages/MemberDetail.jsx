@@ -420,25 +420,6 @@ function MemberDetail() {
                 <button
                   onClick={() => {
                     setShowMemberMenu(false);
-                    setIsEditing(true);
-                  }}
-                  style={{
-                    width: '100%',
-                    padding: '12px 16px',
-                    background: 'none',
-                    border: 'none',
-                    borderBottom: '1px solid var(--border-color)',
-                    textAlign: 'left',
-                    fontSize: '14px',
-                    cursor: 'pointer',
-                    color: 'var(--text-dark)'
-                  }}
-                >
-                  수정
-                </button>
-                <button
-                  onClick={() => {
-                    setShowMemberMenu(false);
                     handleToggleActive();
                   }}
                   style={{
@@ -481,7 +462,28 @@ function MemberDetail() {
       </div>
 
       <div className="page-content">
-        <div className="card" style={{ marginBottom: '16px', textAlign: 'center' }}>
+        <div className="card" style={{ marginBottom: '16px', textAlign: 'center', position: 'relative' }}>
+          {isAdmin && !isEditing && (
+            <button
+              onClick={() => setIsEditing(true)}
+              style={{
+                position: 'absolute',
+                top: '14px',
+                right: '14px',
+                background: '#0F766E',
+                color: '#FFFFFF',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '6px 14px',
+                fontSize: '13px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                zIndex: 1,
+              }}
+            >
+              수정
+            </button>
+          )}
           <div style={{ 
             display: 'inline-block', 
             position: 'relative',
