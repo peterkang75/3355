@@ -71,8 +71,6 @@ function Login({ onLogin }) {
       return;
     }
     
-    localStorage.clear();
-    
     onLogin(foundMember);
   };
 

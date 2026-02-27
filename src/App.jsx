@@ -26,6 +26,7 @@ import PickWinner from './pages/PickWinner';
 import RoundingListV2 from './pages/RoundingListV2';
 import Navigation from './components/Navigation';
 import InstallPrompt from './components/InstallPrompt';
+import KakaoTalkBanner from './components/KakaoTalkBanner';
 import defaultLogoImage from './assets/logo-transparent.png';
 
 function AppRoutes({ user, logout, requiresProfileComplete }) {
@@ -73,6 +74,7 @@ function AppRoutes({ user, logout, requiresProfileComplete }) {
       </Routes>
       {location.pathname !== '/play' && <Navigation user={user} onLogout={logout} />}
       <InstallPrompt />
+      <KakaoTalkBanner />
     </div>
   );
 }
