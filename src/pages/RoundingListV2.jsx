@@ -837,7 +837,7 @@ function RoundingListV2() {
         {/* Row 4: Status badge — pushed to bottom */}
         <div style={{
           display: 'inline-block',
-          alignSelf: 'flex-start',
+          alignSelf: 'flex-end',
           fontSize: '10px',
           fontWeight: '600',
           padding: '2px 7px',
