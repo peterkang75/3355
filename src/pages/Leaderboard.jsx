@@ -112,8 +112,10 @@ function Leaderboard() {
           if (grade === 'ALL' && gradeB.min !== '' && gradeB.max !== '' && gradeB.min !== null && gradeB.max !== null) {
             if (hcp >= gradeB.min && hcp <= gradeB.max) grade = 'B';
           }
-          if (grade === 'ALL' && gradeC.min !== '' && gradeC.max !== '' && gradeC.min !== null && gradeC.max !== null) {
-            if (hcp >= gradeC.min && hcp <= gradeC.max) grade = 'C';
+          if (grade === 'ALL' && gradeC.min !== '' && gradeC.min !== null) {
+            const cMin = parseFloat(gradeC.min);
+            const cMax = (gradeC.max !== '' && gradeC.max !== null) ? parseFloat(gradeC.max) : null;
+            if (!isNaN(cMin) && hcp >= cMin && (cMax === null || hcp <= cMax)) grade = 'C';
           }
           if (grade === 'ALL' && gradeD.value !== '' && gradeD.value !== null) {
             if ((gradeD.type === 'below' && hcp <= gradeD.value) || 

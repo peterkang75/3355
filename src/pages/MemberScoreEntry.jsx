@@ -155,8 +155,10 @@ function MemberScoreEntry() {
       if (hc >= gradeB.min && hc <= gradeB.max) return 'B';
     }
     
-    if (gradeC.min !== '' && gradeC.max !== '' && gradeC.min !== null && gradeC.max !== null) {
-      if (hc >= gradeC.min && hc <= gradeC.max) return 'C';
+    if (gradeC.min !== '' && gradeC.min !== null) {
+      const cMin = parseFloat(gradeC.min);
+      const cMax = (gradeC.max !== '' && gradeC.max !== null) ? parseFloat(gradeC.max) : null;
+      if (!isNaN(cMin) && hc >= cMin && (cMax === null || hc <= cMax)) return 'C';
     }
     
     if (gradeD.value !== '' && gradeD.value !== null) {

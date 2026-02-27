@@ -182,8 +182,9 @@ function PickWinner() {
       
       if (grade === 'D' && gradeSettings.gradeC) {
         const cMin = parseFloat(gradeSettings.gradeC.min);
-        const cMax = parseFloat(gradeSettings.gradeC.max);
-        if (!isNaN(cMin) && !isNaN(cMax) && handicap >= cMin && handicap <= cMax) {
+        const cMaxRaw = gradeSettings.gradeC.max;
+        const cMax = (cMaxRaw !== '' && cMaxRaw !== null && cMaxRaw !== undefined) ? parseFloat(cMaxRaw) : null;
+        if (!isNaN(cMin) && handicap >= cMin && (cMax === null || handicap <= cMax)) {
           grade = 'C';
         }
       }

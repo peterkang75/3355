@@ -304,6 +304,11 @@ function GradeSettings() {
                 <span style={{ fontSize: '14px', opacity: 0.7 }}>까지</span>
               </div>
             </div>
+            {(gradeSettings.gradeC.max === '' || gradeSettings.gradeC.max === null) && gradeSettings.gradeC.min !== '' && (
+              <div style={{ marginTop: '8px', fontSize: '12px', color: '#0F766E', fontWeight: '500' }}>
+                * "까지" 미입력 시 {gradeSettings.gradeC.min} 이상은 모두 C 그레이드로 분류됩니다
+              </div>
+            )}
           </div>
 
           {/* Grade D - Grade C의 까지 값이 있을 때만 표시 */}
