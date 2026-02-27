@@ -27,7 +27,6 @@ function PickWinner() {
     const now = new Date();
     return bookings.filter(b => {
       if (b.type !== '정기모임') return false;
-      if (!b.isAnnounced) return false;
       const roundingDate = new Date(b.date);
       const dayAfter = new Date(roundingDate);
       dayAfter.setDate(dayAfter.getDate() + 1);
