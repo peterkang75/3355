@@ -49,6 +49,7 @@ function RoundingListV2() {
   const [hmSaving, setHmSaving] = useState(false);
   const [hmDeleteConfirm, setHmDeleteConfirm] = useState(false);
   const [hmViewMode, setHmViewMode] = useState('basic');
+  const [hmClubMemberOnly, setHmClubMemberOnly] = useState(false);
   const [hmAdvanced, setHmAdvanced] = useState({ playEnabled: false, is2BB: false, greenFee: '', cartFee: '', membershipFee: '', notes: '', courseName: '', date: '', gatheringTime: '', restaurantName: '', restaurantAddress: '', isFoursome: false, maxMembers: 4, registrationDeadline: '' });
   const [newRounding, setNewRounding] = useState({
     date: '',
@@ -232,7 +233,7 @@ function RoundingListV2() {
     }
   };
 
-  const openHostManage = (booking) => {
+  const openHostManage = (booking, clubMemberOnly = false) => {
     const parts = parseParticipants(booking.participants);
     setHmBooking(booking);
     setHmType(booking.type || '소셜');
@@ -242,6 +243,7 @@ function RoundingListV2() {
     setHmDeleteConfirm(false);
     setHmSaving(false);
     setHmViewMode('basic');
+    setHmClubMemberOnly(clubMemberOnly);
     let savedGameMode = 'stroke';
     if (booking.gradeSettings) {
       try {
@@ -1350,7 +1352,7 @@ function RoundingListV2() {
               </>
             )}
 
-            {(user.isAdmin || hmType === '정기모임' || hmType === '컴페티션') && (
+            {!hmClubMemberOnly && (user.isAdmin || hmType === '정기모임' || hmType === '컴페티션') && (
               <>
                 {divider()}
                 <button
@@ -1376,25 +1378,27 @@ function RoundingListV2() {
               </>
             )}
 
-            <div style={{ marginTop: '28px', paddingTop: '20px', borderTop: '1px solid #F3F4F6', textAlign: 'center' }}>
-              <button
-                onClick={handleHmDelete}
-                disabled={hmSaving}
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  color: hmDeleteConfirm ? '#DC2626' : '#9CA3AF',
-                  fontWeight: '500',
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                  padding: '8px 16px',
-                  opacity: hmSaving ? 0.6 : 1,
-                  transition: 'color 0.2s',
-                }}
-              >
-                {hmDeleteConfirm ? '정말 삭제하시겠습니까? 다시 클릭하여 확인' : '라운딩 삭제'}
-              </button>
-            </div>
+            {!hmClubMemberOnly && (
+              <div style={{ marginTop: '28px', paddingTop: '20px', borderTop: '1px solid #F3F4F6', textAlign: 'center' }}>
+                <button
+                  onClick={handleHmDelete}
+                  disabled={hmSaving}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    color: hmDeleteConfirm ? '#DC2626' : '#9CA3AF',
+                    fontWeight: '500',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    padding: '8px 16px',
+                    opacity: hmSaving ? 0.6 : 1,
+                    transition: 'color 0.2s',
+                  }}
+                >
+                  {hmDeleteConfirm ? '정말 삭제하시겠습니까? 다시 클릭하여 확인' : '라운딩 삭제'}
+                </button>
+              </div>
+            )}
 
             </>)}
 
@@ -1690,8 +1694,20 @@ function RoundingListV2() {
     const booking = bookings.find(b => b.id === selectedBooking.id) || selectedBooking;
     const participants = parseParticipants(booking.participants);
     const isJoined = participants.some(p => p.phone === user.phone);
-    const canManage = user.id === booking.organizerId || user.isAdmin;
-    const isHostOnly = user.id === booking.organizerId;
+    const isOrganizer = user.id === booking.organizerId;
+    const isOperator = ['관리자', '방장', '운영진', '클럽운영진'].includes(user.role) || user.isAdmin;
+    const isRegularMeeting = booking.type === '정기모임';
+    const userClub = (user.club || '').trim().toLowerCase();
+    const bookingCourse = (booking.courseName || '').trim().toLowerCase();
+    const clubMatches = userClub && bookingCourse && (
+      userClub === bookingCourse ||
+      bookingCourse.includes(userClub.split(' ')[0]) ||
+      userClub.includes(bookingCourse.split(' ')[0])
+    );
+    const canManageAsClubMember = !isRegularMeeting && !!clubMatches;
+    const canManage = isOrganizer || isOperator || canManageAsClubMember;
+    const isClubMemberOnly = canManage && !isOrganizer && !isOperator;
+    const isHostOnly = isOrganizer;
     const max = booking.maxMembers || 4;
     const isFull = participants.length >= max;
 
@@ -1888,7 +1904,7 @@ function RoundingListV2() {
 
               const manageBtn = canManage && (
                 <button
-                  onClick={() => openHostManage(booking)}
+                  onClick={() => openHostManage(booking, isClubMemberOnly)}
                   style={btnStyle('#FFFFFF', '#374151', '1px solid #E5E7EB')}
                 >
                   관리
