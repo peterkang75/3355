@@ -23,6 +23,7 @@ function Leaderboard() {
   const [twoBallTeams, setTwoBallTeams] = useState([]);
   const [is2BB, setIs2BB] = useState(false);
   const [viewMode, setViewMode] = useState('individual'); // 'individual' or '2bb'
+  const [ntpRecords, setNtpRecords] = useState([]);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
@@ -408,6 +409,12 @@ function Leaderboard() {
         setTwoBallTeams([]);
       }
       
+      // NTP 기록 가져오기
+      try {
+        const ntpRes = await fetch(`/api/ntp/${booking.id}`);
+        if (ntpRes.ok) setNtpRecords(await ntpRes.json());
+      } catch {}
+
       // 자동 스코어카드 열기 (한 번만 실행, sessionStorage로 중복 방지)
       const autoSelectKey = `leaderboard_autoselect_${bookingId}`;
       const alreadyAutoSelected = sessionStorage.getItem(autoSelectKey);
@@ -1008,6 +1015,86 @@ function Leaderboard() {
       )}
       </>
       )}
+
+      {/* 니어 (NTP) 결과 */}
+      {ntpRecords.length > 0 && (() => {
+        // 홀별 그룹화 → 각 홀의 최단거리 1등만 표시
+        const byHole = ntpRecords.reduce((acc, r) => {
+          if (!acc[r.holeNumber]) acc[r.holeNumber] = [];
+          acc[r.holeNumber].push(r);
+          return acc;
+        }, {});
+        const holeNumbers = Object.keys(byHole).map(Number).sort((a, b) => a - b);
+
+        return (
+          <div style={{ padding: '0 16px', marginTop: '20px' }}>
+            <div style={{
+              background: 'rgba(255,255,255,0.08)',
+              borderRadius: '14px',
+              overflow: 'hidden',
+              border: '1px solid rgba(255,255,255,0.12)'
+            }}>
+              <div style={{
+                padding: '14px 16px',
+                background: 'rgba(255,255,255,0.06)',
+                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <span style={{ fontSize: '16px' }}>📍</span>
+                <span style={{ color: 'white', fontWeight: '700', fontSize: '15px' }}>니어 (NTP) 결과</span>
+              </div>
+              {holeNumbers.map(hole => {
+                const records = byHole[hole].sort((a, b) => a.distance - b.distance);
+                const winner = records[0];
+                return (
+                  <div key={hole} style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '12px 16px',
+                    borderBottom: '1px solid rgba(255,255,255,0.07)',
+                  }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div style={{
+                        background: 'rgba(251,191,36,0.2)',
+                        border: '1px solid rgba(251,191,36,0.4)',
+                        borderRadius: '8px',
+                        padding: '4px 10px',
+                        fontSize: '12px',
+                        fontWeight: '700',
+                        color: '#fbbf24',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        {hole}번홀
+                      </div>
+                      <div>
+                        <div style={{ color: 'white', fontWeight: '600', fontSize: '14px' }}>
+                          {winner.memberName}
+                        </div>
+                        {records.length > 1 && (
+                          <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px', marginTop: '1px' }}>
+                            {records.slice(1).map(r => r.memberName).join(' · ')}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div style={{
+                      color: '#51cf66',
+                      fontWeight: '700',
+                      fontSize: '14px',
+                      whiteSpace: 'nowrap'
+                    }}>
+                      {winner.distance}m
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        );
+      })()}
 
       {/* 스코어카드 모달 - Admin 페이지와 동일한 UI */}
       {selectedScore && (() => {
