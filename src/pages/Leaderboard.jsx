@@ -470,7 +470,7 @@ function Leaderboard() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#1a1a2e', paddingBottom: '20px' }}>
+    <div style={{ minHeight: '100vh', background: '#1a1a2e', paddingBottom: '100px' }}>
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
