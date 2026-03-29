@@ -449,7 +449,7 @@ function Leaderboard() {
     if (gradeB.min !== '' && gradeB.max !== '' && gradeB.min !== null && gradeB.max !== null) {
       filters.push('Grade B');
     }
-    if (gradeC.min !== '' && gradeC.max !== '' && gradeC.min !== null && gradeC.max !== null) {
+    if (gradeC.min !== '' && gradeC.min !== null) {
       filters.push('Grade C');
     }
     if (gradeD.value !== '' && gradeD.value !== null) {
