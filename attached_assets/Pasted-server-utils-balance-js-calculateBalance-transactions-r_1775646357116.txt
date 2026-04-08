@@ -1,0 +1,57 @@
+server/utils/balance.js 파일을 새로 만들었습니다. 이 파일에는 calculateBalance(transactions)와 recalculateAndUpdateBalance(memberId) 두 함수가 있습니다.
+
+server/api.js를 아래 규칙에 따라 수정해주세요:
+
+1. 파일 상단에 import 추가:
+const { calculateBalance, recalculateAndUpdateBalance } = require('./utils/balance');
+
+2. PUT /bookings/:id 엔드포인트에서 잔액 계산 부분 수정:
+- 참가자 추가(addedPhones) 루프 안에서:
+  - memberTransactionsBefore.reduce(...) 로 currentBalance를 계산하는 코드를 calculateBalance(memberTransactionsBefore)로 교체
+  - 트랜잭션 생성 후 memberTransactions.reduce(...) + prisma.member.update({ data: { balance: newBalance } }) 부분을 await recalculateAndUpdateBalance(member.id)로 교체
+- 참가자 제거(removedPhones) 루프 안에서:
+  - 트랜잭션 삭제 후 memberTransactions.reduce(...) + prisma.member.update({ data: { balance: newBalance } }) 부분을 await recalculateAndUpdateBalance(member.id)로 교체
+
+3. GET /transactions/balance/:memberId 엔드포인트:
+- 기존 reduce 로직을 calculateBalance(transactions)로 교체
+
+4. GET /transactions/outstanding 엔드포인트:
+- WHERE 조건의 OR 배열에 { type: "creditDonation" } 추가
+- 기존 forEach 안의 if/else 잔액 계산을 수정:
+  - creditDonation 타입 처리 추가: balanceByMember[t.memberId] -= t.amount
+  - payment에서 "크레딧 자동 납부", "크레딧 납부", "크레딧 자동 차감" 카테고리 제외 조건 추가
+
+5. POST /transactions 엔드포인트:
+- 트랜잭션 생성 후 balance: { increment: balanceChange } 증분 방식을 제거
+- 대신 await recalculateAndUpdateBalance(transaction.memberId) 호출
+
+6. POST /transactions/charge-with-credit 엔드포인트:
+- 트랜잭션 생성 후 balance: { increment: totalBalanceChange } 증분 방식을 제거
+- 대신 await recalculateAndUpdateBalance(memberId) 호출
+- 응답의 newBalance는 recalculate 결과값 사용
+
+7. POST /transactions/credit-to-donation 엔드포인트:
+- balance: { decrement: amount } 증분 방식을 제거
+- 대신 await recalculateAndUpdateBalance(memberId) 호출
+
+8. POST /transactions/credit-to-payment 엔드포인트:
+- balance: { decrement: amount } 증분 방식을 제거
+- 대신 await recalculateAndUpdateBalance(memberId) 호출
+
+9. PUT /transactions/:id 엔드포인트:
+- 기존 증분 잔액 업데이트 로직(amountDiff, balanceChange, increment) 전체를 제거
+- 대신 if (updatedTransaction.memberId) { await recalculateAndUpdateBalance(updatedTransaction.memberId); } 호출
+
+10. DELETE /transactions/:id 엔드포인트:
+- calcBalanceChange 헬퍼 함수와 관련 증분 업데이트 로직 전체를 제거
+- 대신 삭제 완료 후 관련 memberId에 대해 await recalculateAndUpdateBalance(memberId) 호출
+- siblingTx의 memberId와 targetTx의 memberId 모두에 대해 호출 (같은 회원이면 1번만)
+
+11. DELETE /transactions/charge/:memberId/:bookingId 엔드포인트:
+- balance: { increment: transaction.amount } 증분 방식을 제거
+- 대신 await recalculateAndUpdateBalance(memberId) 호출
+
+핵심 원칙:
+- 잔액 계산 reduce 로직이 api.js에 직접 존재하면 안 됩니다. 반드시 calculateBalance 또는 recalculateAndUpdateBalance를 사용해야 합니다.
+- balance: { increment: ... } 또는 balance: { decrement: ... } 패턴은 모두 제거하고 recalculateAndUpdateBalance로 교체합니다.
+- 기존 기능(크레딧 자동 차감, 도네이션 쌍 삭제 등)은 그대로 유지하고, 잔액 갱신 방식만 변경합니다.
