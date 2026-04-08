@@ -1,0 +1,127 @@
+server/api.js의 PUT /bookings/:id 엔드포인트에서, 참가자 추가(addedPhones) 루프 안의 금융 트랜잭션 생성 부분을 prisma.$transaction으로 묶어주세요.
+
+현재 코드에서 변경할 부분:
+
+addedPhones 루프 안에서, member를 찾고 중복 청구 확인까지는 그대로 두고,
+"if (totalAmount > 0)" 블록 내부의 트랜잭션 생성 부분만 prisma.$transaction으로 감싸주세요.
+
+구체적으로, 아래 부분을 변경합니다:
+
+변경 전 (현재 코드):
+if (totalAmount > 0) 블록 안에서
+  1. memberTransactionsBefore 조회 → calculateBalance
+  2. creditToUse 계산
+  3. prisma.transaction.create (expense - 크레딧 차감)
+  4. prisma.transaction.create (payment - 크레딧 차감)
+  5. prisma.transaction.create (charge - 남은 금액)
+이 3,4,5번이 개별적으로 실행됨
+
+변경 후:
+if (totalAmount > 0) 블록 안에서
+  1. memberTransactionsBefore 조회 → calculateBalance (이건 $transaction 밖에서)
+  2. creditToUse 계산 (이것도 $transaction 밖에서)
+  3,4,5를 prisma.$transaction 안으로 묶기
+
+코드 예시:
+
+if (totalAmount > 0) {
+  const memberTransactionsBefore = await prisma.transaction.findMany({
+    where: { memberId: member.id },
+    select: { type: true, amount: true, category: true },
+  });
+  const currentBalance = calculateBalance(memberTransactionsBefore);
+
+  const creditBalance = currentBalance > 0 ? currentBalance : 0;
+  const creditToUse = Math.min(creditBalance, totalAmount);
+  const remainingCharge = totalAmount - creditToUse;
+  const today = new Date().toISOString().split("T")[0];
+  const baseDescription = member.isFeeExempt
+    ? `${booking.title} 라운딩 (참가비 면제)`
+    : `${booking.title} 라운딩`;
+
+  // 트랜잭션 생성을 원자적으로 묶기
+  await prisma.$transaction(async (tx) => {
+    if (creditToUse > 0) {
+      await tx.transaction.create({
+        data: {
+          type: "expense",
+          amount: creditToUse,
+          description: `${baseDescription} (크레딧 자동 차감)`,
+          category: "크레딧 자동 차감",
+          date: today,
+          memberId: member.id,
+          bookingId: booking.id,
+        },
+      });
+      
+      await tx.transaction.create({
+        data: {
+          type: "payment",
+          amount: creditToUse,
+          description: `${baseDescription} (크레딧 자동 차감)`,
+          category: "크레딧 자동 차감",
+          date: today,
+          memberId: member.id,
+          bookingId: booking.id,
+        },
+      });
+    }
+
+    if (remainingCharge > 0) {
+      await tx.transaction.create({
+        data: {
+          type: "charge",
+          amount: remainingCharge,
+          description:
+            creditToUse > 0
+              ? `${baseDescription} (크레딧 $${creditToUse} 사용 후 잔액)`
+              : baseDescription,
+          date: today,
+          memberId: member.id,
+          bookingId: booking.id,
+        },
+      });
+    }
+  });
+}
+
+await recalculateAndUpdateBalance(member.id);
+
+주의사항:
+- prisma.$transaction 안에서는 prisma가 아니라 tx를 사용해야 합니다 (tx.transaction.create)
+- recalculateAndUpdateBalance는 $transaction 밖에서 호출합니다 (이 함수는 내부적으로 별도 prisma 호출을 하므로)
+- 참가자 제거(removedPhones) 루프의 deleteMany + recalculateAndUpdateBalance 부분도 동일하게 prisma.$transaction으로 묶어주세요:
+
+await prisma.$transaction(async (tx) => {
+  await tx.transaction.deleteMany({
+    where: {
+      memberId: member.id,
+      bookingId: booking.id,
+      OR: [
+        { type: "charge" },
+        { type: "expense", category: "크레딧 자동 차감" },
+        { type: "payment", category: "크레딧 자동 차감" },
+      ],
+    },
+  });
+});
+await recalculateAndUpdateBalance(member.id);
+
+또한 POST /transactions/charge-with-credit 엔드포인트도 동일한 패턴으로 수정해주세요:
+- 크레딧 차감 expense, payment, 남은 금액 charge 생성 부분을 prisma.$transaction으로 묶기
+- tx.transaction.create 사용
+- recalculateAndUpdateBalance는 $transaction 밖에서 호출
+
+POST /transactions/credit-to-donation 엔드포인트도:
+- creditDonationTx와 clubDonationTx 생성을 prisma.$transaction으로 묶기
+- recalculateAndUpdateBalance는 $transaction 밖에서 호출
+
+POST /transactions/credit-to-payment 엔드포인트도:
+- expenseTx와 paymentTx 생성을 prisma.$transaction으로 묶기
+- recalculateAndUpdateBalance는 $transaction 밖에서 호출
+
+핵심 원칙:
+- 금융 관련 트랜잭션(charge, expense, payment, credit, creditDonation)을 여러 개 생성/삭제하는 곳은 반드시 prisma.$transaction으로 묶어야 합니다
+- prisma.$transaction 안에서는 prisma 대신 tx를 사용합니다
+- recalculateAndUpdateBalance는 항상 $transaction 밖에서 호출합니다
+- 기존 기능과 로직은 변경하지 않고, 쿼리 실행 방식만 원자적으로 변경합니다
