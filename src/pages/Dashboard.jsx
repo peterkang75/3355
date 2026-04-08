@@ -342,8 +342,6 @@ function Dashboard() {
       const participants = parseParticipants(booking.participants);
       const alreadyJoined = participants.some(p => p.phone === user.phone);
       
-      const participationFee = (booking.greenFee || 0) + (booking.cartFee || 0) + (booking.membershipFee || 0);
-      
       if (alreadyJoined) {
         const updatedParticipants = participants
           .filter(p => p.phone !== user.phone)
@@ -352,10 +350,6 @@ function Dashboard() {
         await updateBooking(bookingId, {
           participants: updatedParticipants
         });
-        
-        if (participationFee > 0) {
-          await apiService.deleteChargeTransaction(user.id, bookingId);
-        }
       } else {
         const updatedParticipants = [
           ...participants,
@@ -365,19 +359,6 @@ function Dashboard() {
         await updateBooking(bookingId, {
           participants: updatedParticipants
         });
-        
-        if (participationFee > 0) {
-          const transactionData = {
-            type: 'charge',
-            amount: participationFee,
-            description: `회비 청구`,
-            date: new Date().toISOString().split('T')[0],
-            memberId: user.id,
-            bookingId: bookingId,
-            createdBy: user.id
-          };
-          await apiService.createTransaction(transactionData);
-        }
       }
       
       await refreshBookings();
