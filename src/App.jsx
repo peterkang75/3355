@@ -5,7 +5,6 @@ import { useActivityTracker } from './hooks/useActivityTracker';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Board from './pages/Board';
-// import Booking from './pages/Booking'; // V1 kept as fallback
 import Fees from './pages/Fees';
 import MyPage from './pages/MyPage';
 import Admin from './pages/Admin';
@@ -28,17 +27,11 @@ import InstallPrompt from './components/InstallPrompt';
 import KakaoTalkBanner from './components/KakaoTalkBanner';
 import defaultLogoImage from './assets/logo-transparent.png';
 
-function AppRoutes({ user, logout, requiresProfileComplete }) {
+function AuthenticatedRoutes({ user, logout, requiresProfileComplete }) {
   const navigate = useNavigate();
   const location = useLocation();
-  
-  useActivityTracker(user);
 
-  useEffect(() => {
-    if (requiresProfileComplete && user?.id) {
-      navigate(`/member/${user.id}`);
-    }
-  }, []);
+  useActivityTracker(user);
 
   useEffect(() => {
     if (requiresProfileComplete && user?.id && location.pathname !== `/member/${user.id}`) {
@@ -52,6 +45,7 @@ function AppRoutes({ user, logout, requiresProfileComplete }) {
         <Route path="/" element={<Dashboard />} />
         <Route path="/board" element={<Board />} />
         <Route path="/booking" element={<RoundingListV2 />} />
+        <Route path="/v2/roundings" element={<RoundingListV2 />} />
         <Route path="/fees" element={<Fees />} />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/admin" element={<Admin />} />
@@ -67,7 +61,6 @@ function AppRoutes({ user, logout, requiresProfileComplete }) {
         <Route path="/bingo" element={<BingoGame />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/games/pick-winner" element={<PickWinner />} />
-        <Route path="/v2/roundings" element={<RoundingListV2 />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       {location.pathname !== '/play' && <Navigation user={user} onLogout={logout} />}
@@ -78,24 +71,13 @@ function AppRoutes({ user, logout, requiresProfileComplete }) {
 }
 
 function App() {
-  const { user, loading, login, logout, requiresProfileComplete, clubLogo } = useApp();
-  const logoImage = clubLogo || defaultLogoImage;
-
-  const isMemberInfoPath = window.location.pathname === '/member-info';
-
-  if (isMemberInfoPath) {
-    return <MemberInfoForm />;
-  }
+  const { user, loading, login, logout, requiresProfileComplete } = useApp();
 
   if (loading) {
     return (
       <div className="loading-screen">
         <div className="loading-content">
-          <img 
-            src={defaultLogoImage} 
-            alt="3355 골프 클럽" 
-            className="loading-logo"
-          />
+          <img src={defaultLogoImage} alt="3355 골프 클럽" className="loading-logo" />
           <h1 className="loading-title">3355 골프 클럽</h1>
           <p className="loading-welcome">환영합니다</p>
           <div className="loading-spinner"></div>
@@ -104,13 +86,21 @@ function App() {
     );
   }
 
-  if (!user) {
-    return <Login onLogin={login} />;
-  }
-
   return (
     <Router>
-      <AppRoutes user={user} logout={logout} requiresProfileComplete={requiresProfileComplete} />
+      <Routes>
+        {/* 로그인 없이 접근 가능한 공개 라우트 */}
+        <Route path="/member-info" element={<MemberInfoForm />} />
+        {/* 인증 필요 라우트 */}
+        <Route
+          path="*"
+          element={
+            !user
+              ? <Login onLogin={login} />
+              : <AuthenticatedRoutes user={user} logout={logout} requiresProfileComplete={requiresProfileComplete} />
+          }
+        />
+      </Routes>
     </Router>
   );
 }
