@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 import PageHeader from '../components/common/PageHeader';
+import { checkIsOperator } from '../utils';
 
 function ParticipantManagement() {
   const navigate = useNavigate();
@@ -233,7 +234,7 @@ function ParticipantManagement() {
     }
   };
 
-  const hasAdminAccess = user?.role === '관리자' || user?.role === '방장' || user?.role === '운영진' || user?.role === '클럽운영진' || user?.isAdmin;
+  const hasAdminAccess = checkIsOperator(user);
   const isOrganizer = booking && user?.id === booking.organizerId;
   const canAccess = hasAdminAccess || isOrganizer;
 

@@ -5,6 +5,7 @@ import apiService from '../services/api';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 import PageHeader from '../components/common/PageHeader';
 import ProfileBadge from '../components/common/ProfileBadge';
+import { parseParticipants } from '../utils';
 
 function TeamFormation() {
   const navigate = useNavigate();
@@ -125,25 +126,6 @@ function TeamFormation() {
     }
   }, [bookingId, bookings, isInitialized]);
 
-  const parseParticipants = (participants) => {
-    if (!participants || !Array.isArray(participants)) {
-      return [];
-    }
-    
-    const parsed = participants.map(p => {
-      try {
-        let result = typeof p === 'string' ? JSON.parse(p) : p;
-        if (typeof result === 'string') {
-          result = JSON.parse(result);
-        }
-        return result;
-      } catch (e) {
-        return p;
-      }
-    });
-    
-    return parsed;
-  };
 
   const initializeTeams = (parsedParticipants) => {
     const numTeams = Math.ceil(parsedParticipants.length / 4);

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import { io } from 'socket.io-client';
+import { checkIsOperator } from '../utils';
 
 function BingoGame() {
   const navigate = useNavigate();
@@ -25,7 +26,7 @@ function BingoGame() {
   const [isSaving, setIsSaving] = useState(false);
   const [settingsChanged, setSettingsChanged] = useState(false);
 
-  const isOperator = ['관리자', '방장', '운영진'].includes(user?.role);
+  const isOperator = checkIsOperator(user);
   const storageKey = `bingoBoard:${user?.id || 'guest'}`;
 
   useEffect(() => {

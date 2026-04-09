@@ -1,0 +1,64 @@
+// ─── Participants ────────────────────────────────────────────────────────────
+
+/**
+ * participants 배열의 각 항목을 파싱 (이중 JSON 문자열 포함 처리)
+ */
+export const parseParticipants = (participants) => {
+  if (!participants || !Array.isArray(participants)) return [];
+  return participants.map(p => {
+    try {
+      let result = typeof p === 'string' ? JSON.parse(p) : p;
+      if (typeof result === 'string') result = JSON.parse(result);
+      return result;
+    } catch {
+      return p;
+    }
+  });
+};
+
+// ─── Currency ────────────────────────────────────────────────────────────────
+
+/**
+ * 금액을 한국 원화 형식으로 포맷 (예: ₩10,000)
+ */
+export const formatCurrency = (amount) => {
+  if (amount == null || amount === '') return '₩0';
+  return `₩${parseInt(amount).toLocaleString('ko-KR')}`;
+};
+
+// ─── Date ────────────────────────────────────────────────────────────────────
+
+/**
+ * 날짜를 한국어 형식으로 포맷 (예: 2026. 4. 9.)
+ */
+export const formatDate = (date) => {
+  if (!date) return '';
+  return new Date(date).toLocaleDateString('ko-KR');
+};
+
+/**
+ * 날짜 + 시간 포맷 (예: 2026. 4. 9. 오후 3:30)
+ */
+export const formatDateTime = (date) => {
+  if (!date) return '';
+  return new Date(date).toLocaleString('ko-KR', {
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+  });
+};
+
+// ─── Role ─────────────────────────────────────────────────────────────────────
+
+const ADMIN_ROLES = ['관리자', '방장'];
+const OPERATOR_ROLES = ['관리자', '방장', '운영진', '클럽운영진'];
+
+/** 관리자 여부 (순수 함수 — hook 없이 사용 가능) */
+export const checkIsAdmin = (user) =>
+  !!(user?.isAdmin || ADMIN_ROLES.includes(user?.role));
+
+/** 운영진 이상 여부 */
+export const checkIsOperator = (user) =>
+  !!(user?.isAdmin || OPERATOR_ROLES.includes(user?.role));
+
+/** 일반 회원 여부 */
+export const checkIsMember = (user) => user?.role === '회원';

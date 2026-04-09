@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 import PageHeader from '../components/common/PageHeader';
+import { parseParticipants, checkIsOperator } from '../utils';
 
 function MemberScoreEntry() {
   const navigate = useNavigate();
@@ -92,20 +93,6 @@ function MemberScoreEntry() {
     }
   };
 
-  const parseParticipants = (participants) => {
-    if (!participants || !Array.isArray(participants)) return [];
-    return participants.map(p => {
-      try {
-        let result = typeof p === 'string' ? JSON.parse(p) : p;
-        if (typeof result === 'string') {
-          result = JSON.parse(result);
-        }
-        return result;
-      } catch (e) {
-        return p;
-      }
-    });
-  };
 
   const parseTeams = (teams) => {
     if (!teams) return [];
@@ -333,7 +320,7 @@ function MemberScoreEntry() {
     }
   };
 
-  const hasAdminAccess = user?.role === '관리자' || user?.role === '방장' || user?.role === '운영진' || user?.role === '클럽운영진' || user?.isAdmin;
+  const hasAdminAccess = checkIsOperator(user);
   
   if (!hasAdminAccess) {
     return (

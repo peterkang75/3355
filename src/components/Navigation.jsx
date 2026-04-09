@@ -6,6 +6,7 @@ import mypageIcon from '../assets/mypage-icon.png';
 import adminIcon from '../assets/admin-icon.png';
 import aboutIcon from '../assets/about-icon.png';
 import feesIcon from '../assets/fees-icon.png';
+import { checkIsOperator } from '../utils';
 
 function Navigation({ user, onLogout }) {
   const navigate = useNavigate();
@@ -80,7 +81,7 @@ function Navigation({ user, onLogout }) {
         </span>
         <span>마이페이지</span>
       </a>
-      {(user?.isAdmin || user?.role === '관리자' || user?.role === '운영진' || user?.role === '클럽운영진' || user?.role === '방장') && (
+      {checkIsOperator(user) && (
         <a 
           href="/admin" 
           className={isActive('/admin') ? 'nav-item active' : 'nav-item'}

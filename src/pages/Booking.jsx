@@ -7,12 +7,13 @@ import BookingForm from '../components/booking/BookingForm';
 import BookingListCard from '../components/booking/BookingListCard';
 import { Card, Button, Badge, PageHeader, ProfileBadge } from '../components/common';
 import theme from '../styles/theme';
+import { parseParticipants, formatCurrency, checkIsOperator } from '../utils';
 
 function Booking() {
   const { user, members, bookings, courses, scores, addBooking, updateBooking, refreshBookings } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
-  const canManageBooking = user.isAdmin || user.role === '관리자' || user.role === '방장' || user.role === '운영진' || user.role === '클럽운영진';
+  const canManageBooking = checkIsOperator(user);
   const [showNewBooking, setShowNewBooking] = useState(false);
   const [editingBooking, setEditingBooking] = useState(null);
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -98,17 +99,6 @@ function Booking() {
       document.removeEventListener('click', handleClickOutside);
     };
   }, [openMenuId]);
-
-  const parseParticipants = (participants) => {
-    if (!participants || !Array.isArray(participants)) return [];
-    return participants.map(p => {
-      try {
-        return typeof p === 'string' ? JSON.parse(p) : p;
-      } catch {
-        return p;
-      }
-    });
-  };
 
   const hasTeams = (booking) => {
     if (!booking.teams) return false;
@@ -359,11 +349,6 @@ function Booking() {
     } finally {
       setIsJoining(null);
     }
-  };
-
-  const formatCurrency = (amount) => {
-    if (!amount) return '$0';
-    return `$${parseInt(amount).toLocaleString()}`;
   };
 
   const getParticipantDisplayName = (participant) => {

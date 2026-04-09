@@ -5,17 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import theme from '../styles/theme';
 import { ProfileBadge } from '../components/common';
 import PageHeader from '../components/common/PageHeader';
-
-const parseParticipants = (participants) => {
-  if (!participants || !Array.isArray(participants)) return [];
-  return participants.map(p => {
-    try {
-      return typeof p === 'string' ? JSON.parse(p) : p;
-    } catch {
-      return p;
-    }
-  });
-};
+import { parseParticipants } from '../utils';
 
 const isBookingActive = (booking) => {
   const bookingDate = new Date(booking.date);

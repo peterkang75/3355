@@ -1,6 +1,7 @@
 import React, { memo } from 'react';
 import { Badge, Button } from '../common';
 import theme from '../../styles/theme';
+import { formatCurrency as defaultFormatCurrency } from '../../utils';
 
 const BookingListCard = memo(function BookingListCard({
   booking,
@@ -20,7 +21,7 @@ const BookingListCard = memo(function BookingListCard({
   loadingStates,
   statusFlags,
   isGuest,
-  formatCurrency,
+  formatCurrency = defaultFormatCurrency,
   getParticipantDisplayName,
   onMenuToggle,
   onNavigate,

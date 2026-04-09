@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigate } from 'react-router-dom';
 import ProfileBadge from '../components/common/ProfileBadge';
+import { checkIsOperator } from '../utils';
 
 function Board() {
   const navigate = useNavigate();
   const { user, posts, addPost, updatePost } = useApp();
-  const canCreatePost = user && (user.isAdmin || user.role === '관리자' || user.role === '방장' || user.role === '운영진' || user.role === '클럽운영진');
+  const canCreatePost = user && checkIsOperator(user);
   const [showNewPost, setShowNewPost] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', content: '' });
   const [expandedPost, setExpandedPost] = useState(null);

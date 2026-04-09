@@ -6,12 +6,13 @@ import CrownIcon from '../components/CrownIcon';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 import { Badge, Card, Button, PageHeader, ProfileBadge } from '../components/common';
 import BookingListCard from '../components/booking/BookingListCard';
+import { parseParticipants, formatCurrency, checkIsOperator } from '../utils';
 
 function Dashboard() {
   const { user, members, scores, bookings, posts, fees, userTransactions, addPost, updatePost, deletePost, updateBooking, refreshBookings, refreshAllData, refreshMembers, hasFeaturePermission } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
-  const canCreatePost = user && (user.isAdmin || user.role === '관리자' || user.role === '방장' || user.role === '운영진' || user.role === '클럽운영진');
+  const canCreatePost = user && checkIsOperator(user);
   const [showNewPost, setShowNewPost] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', content: '' });
@@ -312,17 +313,6 @@ function Dashboard() {
     }
   };
 
-  const parseParticipants = (participants) => {
-    if (!participants || !Array.isArray(participants)) return [];
-    return participants.map(p => {
-      try {
-        return typeof p === 'string' ? JSON.parse(p) : p;
-      } catch {
-        return p;
-      }
-    });
-  };
-
   const hasTeams = (booking) => {
     if (!booking.teams) return false;
     try {
@@ -404,11 +394,6 @@ function Dashboard() {
       const scoreDate = new Date(score.date).toISOString().split('T')[0];
       return scoreDate === bookingDate && score.courseName === booking.courseName;
     });
-  };
-
-  const formatCurrency = (amount) => {
-    if (!amount) return '$0';
-    return `$${parseInt(amount).toLocaleString()}`;
   };
 
   const getParticipantDisplayName = (participant) => {
