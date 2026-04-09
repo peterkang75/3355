@@ -672,12 +672,24 @@ function RoundingListV2() {
     return '#EA580C';
   };
 
+  // Azure Modern palette
+  const azure = {
+    primary: '#0047AB',
+    primaryLight: '#EBF2FF',
+    surface: '#F8FAFC',
+    text: '#1E293B',
+    sub: '#64748B',
+    muted: '#94A3B8',
+    border: '#E2E8F0',
+    card: '#FFFFFF',
+  };
+
   const getTileTypeBadge = (booking) => {
     const type = (booking.type || '').trim();
-    if (type === '정기모임') return { label: '정기모임', bg: '#EA580C', color: '#FFFFFF' };
-    if (type === '컴페티션') return { label: '컴페티션', bg: '#0F766E', color: '#FFFFFF' };
-    if (type === '그린피') return { label: '그린피', bg: '#CCFBF1', color: '#0F766E' };
-    return { label: '소셜', bg: '#F3F4F6', color: '#374151' };
+    if (type === '정기모임') return { label: '정기', bg: '#F1F5F9', color: '#475569' };
+    if (type === '컴페티션') return { label: '컴페티션', bg: azure.primary, color: '#FFFFFF' };
+    if (type === '그린피') return { label: '그린피', bg: '#F0FDF4', color: '#166534' };
+    return { label: '소셜', bg: '#F1F5F9', color: azure.sub };
   };
 
   const formatTileDate = (dateStr) => {
@@ -693,154 +705,178 @@ function RoundingListV2() {
     return timeStr.slice(0, 5);
   };
 
-  const renderWeekTile = (booking, tilesInRow = 3) => {
+  const renderWeekTile = (booking) => {
     const participants = parseParticipants(booking.participants);
     const isJoined = participants.some(p => p.phone === user.phone);
     const max = booking.maxMembers || 4;
-    const isFull = participants.length >= max;
-    const accentColor = getTileAccentColor(booking);
-    const time = formatTileTime(booking.time);
     const { isRegistrationClosed } = getBookingStatusFlags(booking);
     const isCompetition = booking.type === '컴페티션';
+    const time = formatTileTime(booking.time);
 
     const deadline = getEffectiveDeadline(booking);
     const now = new Date();
     const msLeft = deadline - now;
     const hoursLeft = msLeft / (1000 * 60 * 60);
     const daysLeft = Math.ceil(hoursLeft / 24);
-
     const hasExplicitDeadline = !!booking.registrationDeadline;
-    const nonCompClosed = !isCompetition && hasExplicitDeadline && isRegistrationClosed;
+    const isClosed = isCompetition ? isRegistrationClosed : (participants.length >= max || (hasExplicitDeadline && isRegistrationClosed));
 
-    let badgeText;
-    let badgeBg;
-    let badgeColor;
-    if (isCompetition && isRegistrationClosed) {
-      badgeText = '마감';
-      badgeBg = '#FFF1F2';
-      badgeColor = '#9F1239';
-    } else if (isCompetition && hoursLeft <= 24) {
-      const h = Math.max(1, Math.ceil(hoursLeft));
-      badgeText = `${h}h`;
-      badgeBg = '#FFFBEB';
-      badgeColor = '#92400E';
-    } else if (isCompetition) {
-      badgeText = `마감${daysLeft}일`;
-      badgeBg = '#DCFCE7';
-      badgeColor = '#166534';
-    } else if (nonCompClosed) {
-      badgeText = '마감';
-      badgeBg = '#FFF1F2';
-      badgeColor = '#9F1239';
+    // Status info — Azure Modern palette
+    let statusText, statusColor;
+    if (isClosed) {
+      statusText = '마감';
+      statusColor = azure.muted;
+    } else if (isCompetition && hoursLeft <= 24 && hoursLeft > 0) {
+      statusText = `D-${Math.max(1, Math.ceil(hoursLeft))}h`;
+      statusColor = '#B45309';
+    } else if (isCompetition && daysLeft > 0) {
+      statusText = `D-${daysLeft}`;
+      statusColor = azure.primary;
     } else {
-      badgeText = `${participants.length}명`;
-      badgeBg = '#F9FAFB';
-      badgeColor = '#374151';
+      statusText = `${participants.length}/${max}`;
+      statusColor = azure.sub;
     }
+
+    const { label: typeLabel, bg: typeBg, color: typeColor } = getTileTypeBadge(booking);
+    const d = new Date(booking.date);
+    const days = ['일', '월', '화', '수', '목', '금', '토'];
+    const dateNum = d.getDate();
+    const dayName = days[d.getDay()];
+    const isDayOff = d.getDay() === 0 || d.getDay() === 6;
 
     const visibleNames = participants.slice(0, 3).map(p => p.nickname || p.name).join(', ');
     const remainingCount = participants.length - 3;
-    const participantText = remainingCount > 0 ? `${visibleNames} 외 ${remainingCount}명` : visibleNames;
-
-    const { label: typeLabel, bg: typeBg, color: typeColor } = getTileTypeBadge(booking);
-    const rawName = booking.courseName || booking.title || '';
-    const shortLocation = rawName.split(/\s*golf\s*/i)[0].trim();
+    const participantText = participants.length === 0
+      ? '모집중...'
+      : remainingCount > 0 ? `${visibleNames} 외 ${remainingCount}명` : visibleNames;
 
     return (
       <div
         key={booking.id}
         onClick={() => setSelectedBooking(booking)}
         style={{
-          flex: '1 1 auto',
-          minWidth: '135px',
-          maxWidth: '100%',
-          background: '#FFFFFF',
-          borderRadius: '16px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
-          border: '1px solid #F0F1F3',
           display: 'flex',
-          flexDirection: 'column',
-          padding: '20px',
+          alignItems: 'stretch',
+          background: '#FFFFFF',
           cursor: 'pointer',
-          position: 'relative',
-          transition: 'box-shadow 0.15s ease',
-          minHeight: '160px',
+          transition: 'background 0.1s',
+          padding: '0',
+          minHeight: '72px',
         }}
       >
-        <div style={{ display: 'flex', flexDirection: 'column', flex: 1, gap: '12px' }}>
-        {/* Row 1: location badge first, then type badge, then joined dot */}
-        <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '4px' }}>
-          {shortLocation && (
+        {/* Left: Date column */}
+        <div style={{
+          width: '52px',
+          minWidth: '52px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '12px 0',
+          borderRight: '1px solid #F1F5F9',
+        }}>
+          <div style={{
+            fontSize: '22px',
+            fontWeight: '800',
+            color: isDayOff ? azure.primary : azure.text,
+            lineHeight: 1,
+          }}>
+            {dateNum}
+          </div>
+          <div style={{
+            fontSize: '11px',
+            fontWeight: '600',
+            color: isDayOff ? azure.primary : azure.muted,
+            marginTop: '2px',
+          }}>
+            {dayName}
+          </div>
+        </div>
+
+        {/* Middle: Main info */}
+        <div style={{
+          flex: 1,
+          padding: '12px 14px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          gap: '4px',
+          minWidth: 0,
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{
+              fontSize: '15px',
+              fontWeight: '700',
+              color: azure.text,
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}>
+              {booking.courseName}
+            </span>
+            {isJoined && (
+              <div style={{
+                width: '6px',
+                height: '6px',
+                borderRadius: '50%',
+                background: '#0047AB',
+                flexShrink: 0,
+              }} />
+            )}
+          </div>
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '5px',
+            fontSize: '12px',
+            color: azure.sub,
+            minWidth: 0,
+          }}>
             <span style={{
               fontSize: '10px',
-              fontWeight: '600',
-              color: '#374151',
-              background: '#F3F4F6',
-              borderRadius: '5px',
-              padding: '2px 6px',
+              fontWeight: '700',
+              color: typeColor,
+              background: typeBg,
+              borderRadius: '4px',
+              padding: '1px 6px',
               whiteSpace: 'nowrap',
               flexShrink: 0,
             }}>
-              {shortLocation}
+              {typeLabel}
             </span>
-          )}
-          <span style={{
-            fontSize: '10px',
-            fontWeight: '700',
-            color: typeColor,
-            background: typeBg,
-            borderRadius: '5px',
-            padding: '2px 6px',
-            whiteSpace: 'nowrap',
-            flexShrink: 0,
-          }}>
-            {typeLabel}
-          </span>
-          {isJoined && (
-            <div style={{ width: '7px', height: '7px', borderRadius: '50%', background: '#22C55E', flexShrink: 0, marginLeft: 'auto' }} />
-          )}
+            {time && <span style={{ flexShrink: 0 }}>{time}</span>}
+            {time && <span style={{ color: azure.border, flexShrink: 0 }}>·</span>}
+            <span style={{
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              minWidth: 0,
+              color: participants.length === 0 ? azure.primary : azure.muted,
+              fontStyle: participants.length === 0 ? 'italic' : 'normal',
+            }}>
+              {participantText}
+            </span>
+          </div>
         </div>
 
-        {/* Row 2: Date + Time (hero) */}
-        <div>
-          <div style={{ fontSize: 'clamp(16px, 4.5vw, 20px)', fontWeight: '800', color: '#111827', lineHeight: 1.2, whiteSpace: 'nowrap', letterSpacing: '-0.5px', display: 'block' }}>
-            {formatTileDate(booking.date)}
-          </div>
-          {time && (
-            <div style={{ fontSize: '13px', color: '#6b7280', marginTop: '2px' }}>
-              {time}
-            </div>
-          )}
-        </div>
-
-        {/* Row 3: Participants as plain text */}
-        {participantText && (
-          <div style={{
-            fontSize: '11px',
-            fontWeight: '500',
-            color: '#6B7280',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-          }}>
-            {participantText}
-          </div>
-        )}
-
-        {/* Row 4: Status badge — pushed to bottom */}
+        {/* Right: Status */}
         <div style={{
-          display: 'inline-block',
-          alignSelf: 'flex-end',
-          fontSize: '10px',
-          fontWeight: '600',
-          padding: '2px 7px',
-          borderRadius: '5px',
-          background: badgeBg,
-          color: badgeColor,
-          marginTop: 'auto',
+          display: 'flex',
+          alignItems: 'center',
+          padding: '12px 14px 12px 0',
+          flexShrink: 0,
         }}>
-          {badgeText}
-        </div>
+          <span style={{
+            fontSize: '11px',
+            fontWeight: '700',
+            color: statusColor,
+            whiteSpace: 'nowrap',
+          }}>
+            {statusText}
+          </span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '4px', flexShrink: 0 }}>
+            <polyline points="9 18 15 12 9 6"/>
+          </svg>
         </div>
       </div>
     );
@@ -867,42 +903,34 @@ function RoundingListV2() {
 
     return groupedByWeek.map((week, idx) => (
       <React.Fragment key={week.monday.toISOString()}>
-        {idx > 0 && (
-          <hr style={{
-            border: 'none',
-            borderTop: '1px solid #E5E7EB',
-            marginTop: '20px',
-            marginBottom: '20px',
-          }} />
-        )}
         <div style={{
-          marginTop: idx === 0 ? '8px' : 0,
-          marginBottom: '4px',
+          marginTop: idx === 0 ? '0' : '24px',
+          marginBottom: '0',
         }}>
           <div style={{
-            fontSize: '14px',
+            fontSize: '12px',
             fontWeight: '700',
-            color: '#374151',
+            color: '#94A3B8',
             marginBottom: '8px',
+            letterSpacing: '0.5px',
           }}>
             {week.label}
           </div>
-          <div
-            className="scroll-hide"
-            style={{
-              display: 'flex',
-              justifyContent: 'flex-end',
-              alignItems: 'stretch',
-              gap: '8px',
-              overflowX: 'auto',
-              paddingBottom: '8px',
-              marginLeft: '-16px',
-              marginRight: '-16px',
-              paddingLeft: '16px',
-              paddingRight: '16px',
-            }}
-          >
-            {week.bookings.map(b => renderWeekTile(b, week.bookings.length))}
+          <div style={{
+            background: '#FFFFFF',
+            borderRadius: '16px',
+            overflow: 'hidden',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.03)',
+            border: '1px solid #E2E8F0',
+          }}>
+            {week.bookings.map((b, bIdx) => (
+              <React.Fragment key={b.id}>
+                {bIdx > 0 && (
+                  <div style={{ height: '1px', background: '#F1F5F9', marginLeft: '52px' }} />
+                )}
+                {renderWeekTile(b)}
+              </React.Fragment>
+            ))}
           </div>
         </div>
       </React.Fragment>
@@ -2485,7 +2513,7 @@ function RoundingListV2() {
   };
 
   return (
-    <div style={{ background: '#F3F4F6', minHeight: '100vh' }}>
+    <div style={{ background: '#F8FAFC', minHeight: '100vh' }}>
       <PageHeader
         title="라운딩 라운지"
         showBackButton={false}
@@ -2495,16 +2523,14 @@ function RoundingListV2() {
       <div style={{ padding: '72px 16px 100px' }}>
         <div style={{ marginBottom: '8px' }}>
           <div style={{
-            padding: '14px 16px',
+            padding: '10px 14px',
             background: '#FFFFFF',
             borderRadius: '12px',
-            border: '1px solid #F3F4F6',
+            border: '1px solid #E2E8F0',
             marginBottom: '16px',
           }}>
-            <p style={{ margin: 0, fontSize: '13px', color: '#6B7280', lineHeight: 1.7 }}>
-              누구나 라운딩을 개설하여 멤버를 모집할 수 있습니다.<br />
-              아래 <strong style={{ color: '#1a3d47' }}>＋ 버튼</strong>을 눌러 라운딩을 생성해보세요.<br />
-              모임회원, 외부 게스트 모두 초대 · 스코어 기록 가능합니다.
+            <p style={{ margin: 0, fontSize: '12px', color: '#64748B', lineHeight: 1.5 }}>
+              누구나 라운딩을 개설하고 멤버를 모집할 수 있습니다. 아래 <strong style={{ color: '#1E293B' }}>＋</strong> 버튼으로 시작하세요.
             </p>
           </div>
           {(() => {
@@ -2518,9 +2544,9 @@ function RoundingListV2() {
 
             return (
               <div style={{
-                background: '#F8FAFC',
+                background: '#FFFFFF',
                 borderRadius: '16px',
-                border: '1px solid #E5E7EB',
+                border: '1px solid #E2E8F0',
                 padding: '0 16px',
                 marginBottom: '28px',
               }}>
@@ -2550,13 +2576,13 @@ function RoundingListV2() {
                     }}>
                       {isMyBookingsOpen ? '−' : '+'}
                     </div>
-                    <span style={{ fontSize: '15px', fontWeight: '700', color: '#1F2937' }}>나의 라운딩</span>
+                    <span style={{ fontSize: '15px', fontWeight: '700', color: '#1E293B' }}>나의 라운딩</span>
                     {myBookings.length > 0 && (
                       <span style={{
                         fontSize: '11px',
                         fontWeight: '600',
-                        color: '#1D4ED8',
-                        background: '#EFF6FF',
+                        color: '#0047AB',
+                        background: '#EBF2FF',
                         padding: '2px 8px',
                         borderRadius: '9999px',
                       }}>
@@ -2636,7 +2662,7 @@ function RoundingListV2() {
           })()}
 
           <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ fontSize: '18px', fontWeight: '800', color: '#111827' }}>
+            <div style={{ fontSize: '18px', fontWeight: '800', color: '#1E293B' }}>
               개설된 라운딩
             </div>
             {canCreateBooking && (
@@ -2654,8 +2680,8 @@ function RoundingListV2() {
                   alignItems: 'center',
                   gap: '4px',
                   background: 'transparent',
-                  border: '1.5px solid #1a3d47',
-                  color: '#1a3d47',
+                  border: '1.5px solid #0047AB',
+                  color: '#0047AB',
                   borderRadius: '20px',
                   padding: '5px 12px',
                   fontSize: '13px',
@@ -2691,13 +2717,13 @@ function RoundingListV2() {
             alignItems: 'center',
             gap: '6px',
             border: 'none',
-            background: '#1a3d47',
+            background: '#0047AB',
             color: 'white',
             padding: '12px 20px',
             borderRadius: '30px',
             fontWeight: 'bold',
             fontSize: '15px',
-            boxShadow: '0 4px 16px rgba(0,0,0,0.25), 0 0 0 4px rgba(26,61,71,0.12)',
+            boxShadow: '0 4px 16px rgba(0,71,171,0.3), 0 0 0 4px rgba(0,71,171,0.08)',
             cursor: 'pointer',
             zIndex: 1000,
             animation: 'fabPulse 2.8s ease-in-out infinite',
@@ -2719,8 +2745,8 @@ function RoundingListV2() {
           to { transform: translateY(0); }
         }
         @keyframes fabPulse {
-          0%, 100% { box-shadow: 0 4px 16px rgba(0,0,0,0.25), 0 0 0 4px rgba(26,61,71,0.12); }
-          50% { box-shadow: 0 6px 20px rgba(0,0,0,0.32), 0 0 0 8px rgba(26,61,71,0.08); }
+          0%, 100% { box-shadow: 0 4px 16px rgba(0,71,171,0.3), 0 0 0 4px rgba(0,71,171,0.08); }
+          50% { box-shadow: 0 6px 20px rgba(0,71,171,0.4), 0 0 0 8px rgba(0,71,171,0.05); }
         }
       `}</style>
     </div>
