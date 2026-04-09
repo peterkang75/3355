@@ -1,644 +1,105 @@
-import React, { createContext, useState, useContext, useEffect, useRef, useMemo, useCallback } from 'react';
-import { io } from 'socket.io-client';
-import apiService from '../services/api';
-import { calculateHandicap } from '../utils/handicap';
-
-export const AppContext = createContext();
-
-const checkRequiredFields = (member) => {
-  if (!member) return false;
-  
-  const requiredFields = ['name', 'nickname', 'birthYear'];
-  return requiredFields.every(field => member[field] && String(member[field]).trim() !== '');
-};
+/**
+ * AppContext — 하위 호환 래퍼
+ *
+ * 도메인 Context가 분리되어 있습니다:
+ *   useAuth()    → AuthContext    (user, members, settings)
+ *   useBooking() → BookingContext (bookings, courses)
+ *   usePost()    → PostContext    (posts)
+ *   useFinance() → FinanceContext (fees, transactions, scores)
+ *
+ * 기존 useApp() 호출은 모두 그대로 동작합니다.
+ * 새 컴포넌트는 도메인별 훅을 직접 사용하세요.
+ */
+import React, { useCallback } from 'react';
+import { SocketProvider } from './SocketContext';
+import { AuthProvider, useAuth } from './AuthContext';
+import { BookingProvider, useBooking } from './BookingContext';
+import { PostProvider, usePost } from './PostContext';
+import { FinanceProvider, useFinance } from './FinanceContext';
 
 export function AppProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [members, setMembers] = useState([]);
-  const [posts, setPosts] = useState([]);
-  const [bookings, setBookings] = useState([]);
-  const [scores, setScores] = useState([]);
-  const [fees, setFees] = useState([]);
-  const [courses, setCourses] = useState([]);
-  const [userTransactions, setUserTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [requiresProfileComplete, setRequiresProfileComplete] = useState(false);
-  const [clubLogo, setClubLogo] = useState(null);
-  const [featurePermissions, setFeaturePermissions] = useState({});
-  const [featureSettings, setFeatureSettings] = useState({ pickWinnerEnabled: true });
-  
-  // 소켓 이벤트 핸들러에서 최신 user 값을 참조하기 위한 ref
-  const userRef = useRef(null);
-  
-  // 디바운스 타이머 refs
-  const debounceTimers = useRef({});
-  
-  // user 변경 시 ref 동기화
-  useEffect(() => {
-    userRef.current = user;
-  }, [user]);
+  return (
+    <SocketProvider>
+      <AuthProvider>
+        <BookingProvider>
+          <PostProvider>
+            <FinanceProvider>
+              {children}
+            </FinanceProvider>
+          </PostProvider>
+        </BookingProvider>
+      </AuthProvider>
+    </SocketProvider>
+  );
+}
 
-  useEffect(() => {
-    const initApp = async () => {
-      try {
-        localStorage.removeItem('golfMembers');
-        localStorage.removeItem('golfPosts');
-        localStorage.removeItem('golfBookings');
-        localStorage.removeItem('golfFees');
-      } catch (e) {}
-
-      const savedUser = localStorage.getItem('golfUser');
-      let savedUserId = null;
-
-      if (savedUser) {
-        try {
-          const userData = JSON.parse(savedUser);
-          savedUserId = userData.id;
-          setUser(userData);
-        } catch (e) {
-          localStorage.removeItem('golfUser');
-        }
-      }
-      
-      try {
-        // 초기 로딩 최적화: 필수 데이터만 먼저 로드 (회원, 설정)
-        const [membersData, settingsData] = await Promise.all([
-          apiService.fetchMembers().catch(() => []),
-          apiService.fetchSettings().catch(() => [])
-        ]);
-
-        if (settingsData?.length > 0) {
-          const logoSetting = settingsData.find(s => s.feature === 'clubLogo');
-          if (logoSetting && logoSetting.value) {
-            setClubLogo(logoSetting.value);
-          }
-          const permissionsObj = {};
-          settingsData.filter(s => s.minRole).forEach(setting => {
-            permissionsObj[setting.feature] = setting.minRole;
-          });
-          setFeaturePermissions(permissionsObj);
-          
-          const pickWinnerSetting = settingsData.find(s => s.feature === 'pickWinnerEnabled');
-          if (pickWinnerSetting) {
-            setFeatureSettings(prev => ({ ...prev, pickWinnerEnabled: pickWinnerSetting.enabled !== false }));
-          }
-        }
-
-        if (membersData?.length > 0) {
-          setMembers(membersData);
-          
-          if (savedUserId) {
-            let currentUser = membersData.find(m => m.id === savedUserId);
-            
-            // ID로 찾지 못한 경우 전화번호로 다시 찾기 (ID 불일치 해결)
-            if (!currentUser && savedUser) {
-              try {
-                const savedUserData = JSON.parse(savedUser);
-                if (savedUserData.phone) {
-                  currentUser = membersData.find(m => m.phone === savedUserData.phone);
-                  if (currentUser) {
-                    console.log('회원 ID 동기화: 전화번호로 매칭됨', currentUser.id);
-                  }
-                }
-              } catch (e) {}
-            }
-            
-            if (currentUser) {
-              setUser(currentUser);
-              try {
-                localStorage.setItem('golfUser', JSON.stringify(currentUser));
-              } catch (e) {}
-
-              // 사진 포함한 최신 프로필 백그라운드 로드
-              fetch(`/api/members/${currentUser.id}`)
-                .then(r => r.ok ? r.json() : null)
-                .then(fullUser => {
-                  if (fullUser) {
-                    setUser(prev => ({ ...prev, photo: fullUser.photo }));
-                    try {
-                      const stored = JSON.parse(localStorage.getItem('golfUser') || '{}');
-                      localStorage.setItem('golfUser', JSON.stringify({ ...stored, photo: fullUser.photo }));
-                    } catch (e) {}
-                  }
-                })
-                .catch(() => {});
-            }
-          }
-        }
-
-        // 로딩 완료 - 앱 표시
-        setLoading(false);
-
-        // 나머지 데이터는 백그라운드에서 로드 (블로킹 없음)
-        Promise.all([
-          apiService.fetchPosts().catch(() => []),
-          apiService.fetchBookings().catch(() => []),
-          apiService.fetchFees().catch(() => []),
-          apiService.fetchCourses().catch(() => [])
-        ]).then(([postsData, bookingsData, feesData, coursesData]) => {
-          if (postsData?.length > 0) setPosts(postsData);
-          if (bookingsData?.length > 0) setBookings(bookingsData);
-          if (feesData?.length > 0) setFees(feesData);
-          if (coursesData?.length > 0) setCourses(coursesData);
-        });
-
-        if (savedUserId) {
-          loadUserData(savedUserId);
-        }
-      } catch (error) {
-        console.error('데이터 로드 실패:', error);
-        setLoading(false);
-      }
-    };
-
-    initApp();
-  }, []);
-
-  useEffect(() => {
-    const isDevelopment = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-    const socketUrl = isDevelopment ? 'http://localhost:3001' : window.location.origin;
-    
-    const socket = io(socketUrl, {
-      path: '/socket.io',
-      transports: ['websocket', 'polling'],
-      reconnectionAttempts: 5,
-      reconnectionDelay: 1000
-    });
-
-    const debounce = (key, fn, delay = 300) => {
-      if (debounceTimers.current[key]) {
-        clearTimeout(debounceTimers.current[key]);
-      }
-      debounceTimers.current[key] = setTimeout(fn, delay);
-    };
-
-    socket.on('members:updated', () => {
-      debounce('members', async () => {
-        try {
-          const membersData = await apiService.fetchMembers();
-          if (membersData) {
-            setMembers(membersData);
-            const savedUser = localStorage.getItem('golfUser');
-            if (savedUser) {
-              try {
-                const userData = JSON.parse(savedUser);
-                const updatedUser = membersData.find(m => m.id === userData.id);
-                if (updatedUser) {
-                  setUser(updatedUser);
-                  localStorage.setItem('golfUser', JSON.stringify(updatedUser));
-                }
-              } catch (e) {}
-            }
-          }
-        } catch (error) {}
-      });
-    });
-
-    socket.on('posts:updated', () => {
-      debounce('posts', async () => {
-        try {
-          const postsData = await apiService.fetchPosts();
-          if (postsData) setPosts(postsData);
-        } catch (error) {}
-      });
-    });
-
-    socket.on('bookings:updated', () => {
-      debounce('bookings', async () => {
-        try {
-          const bookingsData = await apiService.fetchBookings();
-          if (bookingsData) setBookings(bookingsData);
-        } catch (error) {}
-      });
-    });
-
-    socket.on('transactions:updated', () => {
-      debounce('transactions', async () => {
-        const currentUser = userRef.current;
-        if (currentUser?.id) {
-          try {
-            const transactionsData = await apiService.fetchMemberTransactions(currentUser.id);
-            if (transactionsData) setUserTransactions(transactionsData);
-          } catch (error) {}
-        }
-      });
-    });
-
-    const handleVisibilityChange = async () => {
-      if (document.visibilityState === 'visible') {
-        try {
-          const [membersData, postsData, bookingsData] = await Promise.all([
-            apiService.fetchMembers(),
-            apiService.fetchPosts(),
-            apiService.fetchBookings()
-          ]);
-          
-          if (membersData) {
-            setMembers(membersData);
-            const savedUser = localStorage.getItem('golfUser');
-            if (savedUser) {
-              try {
-                const userData = JSON.parse(savedUser);
-                const updatedUser = membersData.find(m => m.id === userData.id);
-                if (updatedUser) {
-                  setUser(updatedUser);
-                  localStorage.setItem('golfUser', JSON.stringify(updatedUser));
-                }
-              } catch (e) {}
-            }
-          }
-          if (postsData) setPosts(postsData);
-          if (bookingsData) setBookings(bookingsData);
-        } catch (error) {}
-      }
-    };
-    
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
-      socket.disconnect();
-    };
-  }, []);
-
-  useEffect(() => {
-    const loadUserTransactions = async () => {
-      if (user?.id) {
-        try {
-          const transactionsData = await apiService.fetchMemberTransactions(user.id);
-          setUserTransactions(transactionsData || []);
-        } catch (error) {
-          setUserTransactions([]);
-        }
-      } else {
-        setUserTransactions([]);
-      }
-    };
-    loadUserTransactions();
-  }, [user?.id]);
-
-  const loadUserData = async (userId) => {
-    try {
-      const userScores = await apiService.fetchScores(userId);
-      setScores(userScores);
-      
-      setUser(prevUser => {
-        if (!prevUser) return null;
-        
-        if (userScores.length > 0) {
-          const handicapData = calculateHandicap(prevUser, userScores.map(s => ({
-            ...s,
-            holes: s.holes ? JSON.parse(s.holes) : []
-          })));
-          
-          const updatedUser = { 
-            ...prevUser, 
-            calculatedHandicap: handicapData.value,
-            handicapType: handicapData.type,
-            handicapExplanation: handicapData.explanation
-          };
-          localStorage.setItem('golfUser', JSON.stringify(updatedUser));
-          return updatedUser;
-        }
-        
-        return prevUser;
-      });
-    } catch (error) {}
-  };
-
-  const login = useCallback((userData) => {
-    setUser(userData);
-    localStorage.setItem('golfUser', JSON.stringify(userData));
-    loadUserData(userData.id);
-    
-    if (!checkRequiredFields(userData)) {
-      setRequiresProfileComplete(true);
-    } else {
-      setRequiresProfileComplete(false);
-    }
-  }, []);
-  
-  const clearRequiresProfileComplete = useCallback(() => {
-    setRequiresProfileComplete(false);
-  }, []);
-
-  const logout = useCallback(() => {
-    setUser(null);
-    localStorage.removeItem('golfUser');
-    setScores([]);
-  }, []);
-
-  const updateUser = useCallback((updates) => {
-    setUser(prevUser => {
-      const updatedUser = { ...prevUser, ...updates };
-      localStorage.setItem('golfUser', JSON.stringify(updatedUser));
-      return updatedUser;
-    });
-  }, []);
-
-  const saveScore = useCallback(async (scoreData) => {
-    try {
-      const score = await apiService.createScore({
-        ...scoreData,
-        holes: JSON.stringify(scoreData.holes)
-      });
-      
-      setScores(prevScores => {
-        const newScores = [...prevScores, { ...score, holes: JSON.parse(score.holes) }];
-        return newScores;
-      });
-      
-      setUser(prevUser => {
-        if (!prevUser) return null;
-        
-        const handicapData = calculateHandicap(prevUser, []);
-        const updatedUser = { 
-          ...prevUser, 
-          calculatedHandicap: handicapData.value,
-          handicapType: handicapData.type,
-          handicapExplanation: handicapData.explanation
-        };
-        localStorage.setItem('golfUser', JSON.stringify(updatedUser));
-        return updatedUser;
-      });
-      
-      return score;
-    } catch (error) {
-      console.error('Score save failed:', error);
-      throw error;
-    }
-  }, []);
-
-  const addPost = useCallback(async (postData) => {
-    try {
-      const post = await apiService.createPost(postData);
-      setPosts(prevPosts => [post, ...prevPosts]);
-      return post;
-    } catch (error) {
-      console.error('Post creation failed:', error);
-      throw error;
-    }
-  }, []);
-
-  const updatePost = useCallback(async (postId, updates) => {
-    try {
-      const post = await apiService.updatePost(postId, updates);
-      setPosts(prevPosts => prevPosts.map(p => p.id === postId ? post : p));
-      return post;
-    } catch (error) {
-      console.error('Post update failed:', error);
-      throw error;
-    }
-  }, []);
-
-  const deletePost = useCallback(async (postId) => {
-    try {
-      await apiService.deletePost(postId);
-      setPosts(prevPosts => prevPosts.filter(p => p.id !== postId));
-    } catch (error) {
-      console.error('Post deletion failed:', error);
-      throw error;
-    }
-  }, []);
-
-  const addBooking = useCallback(async (bookingData) => {
-    try {
-      const booking = await apiService.createBooking(bookingData);
-      setBookings(prevBookings => [booking, ...prevBookings]);
-      return booking;
-    } catch (error) {
-      console.error('Booking creation failed:', error);
-      throw error;
-    }
-  }, []);
-
-  const updateBooking = useCallback(async (bookingId, updates) => {
-    try {
-      const booking = await apiService.updateBooking(bookingId, updates);
-      setBookings(prevBookings => prevBookings.map(b => b.id === bookingId ? booking : b));
-      return booking;
-    } catch (error) {
-      console.error('Booking update failed:', error);
-      throw error;
-    }
-  }, []);
-
-  const addFee = useCallback(async (feeData) => {
-    try {
-      const fee = await apiService.createFee(feeData);
-      setFees(prevFees => [fee, ...prevFees]);
-      return fee;
-    } catch (error) {
-      console.error('Fee creation failed:', error);
-      throw error;
-    }
-  }, []);
-
-  const payFee = useCallback((feeId) => {
-    setFees(prevFees => {
-      const fee = prevFees.find(f => f.id === feeId);
-      if (fee && fee.type === 'income') {
-        setUser(prevUser => {
-          if (!prevUser) return null;
-          const updatedUser = { ...prevUser, balance: (prevUser.balance || 0) + fee.amount };
-          localStorage.setItem('golfUser', JSON.stringify(updatedUser));
-          return updatedUser;
-        });
-      }
-      return prevFees;
-    });
-  }, []);
-
-  const addCourse = useCallback(async (courseData) => {
-    try {
-      const course = await apiService.createCourse(courseData);
-      setCourses(prevCourses => [...prevCourses, course]);
-      return course;
-    } catch (error) {
-      console.error('Course creation failed:', error);
-      throw error;
-    }
-  }, []);
-
-  const refreshMembers = useCallback(async () => {
-    try {
-      const membersData = await apiService.fetchMembers();
-      if (membersData) {
-        setMembers(membersData);
-        setUser(prevUser => {
-          if (prevUser) {
-            const updatedUser = membersData.find(m => m.id === prevUser.id);
-            if (updatedUser) {
-              try { localStorage.setItem('golfUser', JSON.stringify(updatedUser)); } catch (e) {}
-              return updatedUser;
-            }
-          }
-          return prevUser;
-        });
-      }
-    } catch (error) {}
-  }, []);
-
-  const refreshCourses = useCallback(async () => {
-    try {
-      const coursesData = await apiService.fetchCourses();
-      if (coursesData) setCourses(coursesData);
-    } catch (error) {}
-  }, []);
-
-  const refreshBookings = useCallback(async () => {
-    try {
-      const bookingsData = await apiService.fetchBookings();
-      if (bookingsData) setBookings(bookingsData);
-    } catch (error) {}
-  }, []);
+/** 하위 호환: 기존 useApp() 호출이 모두 동작합니다. */
+export function useApp() {
+  const auth = useAuth();
+  const booking = useBooking();
+  const post = usePost();
+  const finance = useFinance();
 
   const refreshAllData = useCallback(async () => {
-    setLoading(true);
-    
-    try {
-      const [membersData, postsData, bookingsData, feesData, coursesData] = await Promise.all([
-        apiService.fetchMembers().catch(() => []),
-        apiService.fetchPosts().catch(() => []),
-        apiService.fetchBookings().catch(() => []),
-        apiService.fetchFees().catch(() => []),
-        apiService.fetchCourses().catch(() => [])
-      ]);
-      
-      if (Array.isArray(membersData)) {
-        setMembers(membersData);
-        setUser(prevUser => {
-          if (prevUser) {
-            const updatedUser = membersData.find(m => m.id === prevUser.id);
-            if (updatedUser) {
-              try { localStorage.setItem('golfUser', JSON.stringify(updatedUser)); } catch (e) {}
-              return updatedUser;
-            }
-          }
-          return prevUser;
-        });
-      }
+    await Promise.all([
+      auth.refreshMembers(),
+      booking.refreshBookings(),
+      booking.refreshCourses(),
+      post.refreshPosts(),
+      finance.refreshFees(),
+    ]);
+  }, [auth, booking, post, finance]);
 
-      if (Array.isArray(postsData)) setPosts(postsData);
-      if (Array.isArray(bookingsData)) setBookings(bookingsData);
-      if (Array.isArray(feesData)) setFees(feesData);
-      if (Array.isArray(coursesData)) setCourses(coursesData);
+  return {
+    // AuthContext
+    user: auth.user,
+    members: auth.members,
+    loading: auth.loading,
+    requiresProfileComplete: auth.requiresProfileComplete,
+    clubLogo: auth.clubLogo,
+    featurePermissions: auth.featurePermissions,
+    featureSettings: auth.featureSettings,
+    login: auth.login,
+    logout: auth.logout,
+    updateUser: auth.updateUser,
+    clearRequiresProfileComplete: auth.clearRequiresProfileComplete,
+    refreshMembers: auth.refreshMembers,
+    updateClubLogo: auth.updateClubLogo,
+    isAdmin: auth.isAdmin,
+    isOperator: auth.isOperator,
+    isMember: auth.isMember,
+    hasFeaturePermission: auth.hasFeaturePermission,
+    checkRequiredFields: auth.checkRequiredFields,
 
-      setLoading(false);
-      return true;
-    } catch (error) {
-      setLoading(false);
-      return false;
-    }
-  }, []);
+    // BookingContext
+    bookings: booking.bookings,
+    courses: booking.courses,
+    addBooking: booking.addBooking,
+    updateBooking: booking.updateBooking,
+    refreshBookings: booking.refreshBookings,
+    addCourse: booking.addCourse,
+    refreshCourses: booking.refreshCourses,
 
-  const isAdmin = useCallback(() => user?.role === '관리자', [user?.role]);
-  const isOperator = useCallback(() => user?.role === '운영진' || user?.role === '관리자' || user?.role === '방장' || user?.role === '클럽운영진', [user?.role]);
-  const isMember = useCallback(() => user?.role === '회원', [user?.role]);
-  
-  const roleHierarchy = ['관리자', '방장', '운영진', '클럽운영진', '회원'];
-  
-  const hasFeaturePermission = useCallback((featureId) => {
-    if (!user) return false;
-    if (user.isAdmin) return true;
-    const requiredRole = featurePermissions[featureId] || '관리자';
-    const userRoleIndex = roleHierarchy.indexOf(user.role);
-    const requiredRoleIndex = roleHierarchy.indexOf(requiredRole);
-    if (userRoleIndex === -1) return false;
-    return userRoleIndex <= requiredRoleIndex;
-  }, [user, featurePermissions]);
+    // PostContext
+    posts: post.posts,
+    addPost: post.addPost,
+    updatePost: post.updatePost,
+    deletePost: post.deletePost,
+    refreshPosts: post.refreshPosts,
 
-  const updateClubLogo = useCallback(async (logoData) => {
-    try {
-      await apiService.updateSetting('clubLogo', { value: logoData });
-      setClubLogo(logoData);
-      return true;
-    } catch (error) {
-      console.error('로고 업데이트 실패:', error);
-      return false;
-    }
-  }, []);
+    // FinanceContext
+    fees: finance.fees,
+    userTransactions: finance.userTransactions,
+    scores: finance.scores,
+    addFee: finance.addFee,
+    payFee: finance.payFee,
+    saveScore: finance.saveScore,
+    refreshFees: finance.refreshFees,
 
-  const value = useMemo(() => ({
-    user,
-    members,
-    posts,
-    bookings,
-    scores,
-    fees,
-    courses,
-    userTransactions,
-    loading,
-    login,
-    logout,
-    updateUser,
-    saveScore,
-    addPost,
-    updatePost,
-    deletePost,
-    addBooking,
-    updateBooking,
-    addFee,
-    payFee,
-    addCourse,
-    refreshMembers,
-    refreshCourses,
-    refreshBookings,
+    // 전체 새로고침
     refreshAllData,
-    isAdmin,
-    isOperator,
-    isMember,
-    requiresProfileComplete,
-    clearRequiresProfileComplete,
-    checkRequiredFields,
-    clubLogo,
-    updateClubLogo,
-    hasFeaturePermission,
-    featureSettings
-  }), [
-    user,
-    members,
-    posts,
-    bookings,
-    scores,
-    fees,
-    courses,
-    userTransactions,
-    loading,
-    login,
-    logout,
-    updateUser,
-    saveScore,
-    addPost,
-    updatePost,
-    deletePost,
-    addBooking,
-    updateBooking,
-    addFee,
-    payFee,
-    addCourse,
-    refreshMembers,
-    refreshCourses,
-    refreshBookings,
-    refreshAllData,
-    isAdmin,
-    isOperator,
-    isMember,
-    requiresProfileComplete,
-    clearRequiresProfileComplete,
-    clubLogo,
-    updateClubLogo,
-    hasFeaturePermission,
-    featureSettings
-  ]);
-
-  return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
+  };
 }
 
-export function useApp() {
-  const context = useContext(AppContext);
-  if (!context) {
-    throw new Error('useApp must be used within AppProvider');
-  }
-  return context;
-}
+// AppContext 직접 import 지원 (레거시)
+export { useAuth, useBooking, usePost, useFinance };

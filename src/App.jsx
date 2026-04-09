@@ -4,7 +4,6 @@ import { useApp } from './contexts/AppContext';
 import { useActivityTracker } from './hooks/useActivityTracker';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
-import DashboardSample from './pages/DashboardSample';
 import Board from './pages/Board';
 // import Booking from './pages/Booking'; // V1 kept as fallback
 import Fees from './pages/Fees';
@@ -51,7 +50,6 @@ function AppRoutes({ user, logout, requiresProfileComplete }) {
     <div className="app">
       <Routes>
         <Route path="/" element={<Dashboard />} />
-        <Route path="/dashboard-sample" element={<DashboardSample />} />
         <Route path="/board" element={<Board />} />
         <Route path="/booking" element={<RoundingListV2 />} />
         <Route path="/fees" element={<Fees />} />

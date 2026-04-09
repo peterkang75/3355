@@ -5,6 +5,14 @@ const CACHE_DURATION = 5000;
 const pendingRequests = new Map();
 
 class ApiService {
+  getAuthHeaders(extra = {}) {
+    const saved = localStorage.getItem('golfUser');
+    const memberId = saved ? JSON.parse(saved).id : null;
+    return {
+      ...(memberId ? { 'X-Member-Id': memberId } : {}),
+      ...extra,
+    };
+  }
   async cachedFetch(key, fetchFn, duration = CACHE_DURATION) {
     const cached = cache.get(key);
     if (cached && Date.now() - cached.timestamp < duration) {
@@ -38,14 +46,18 @@ class ApiService {
 
   async fetchMembers() {
     return this.cachedFetch('members', async () => {
-      const response = await fetch(`${API_BASE}/members`);
+      const response = await fetch(`${API_BASE}/members`, {
+        headers: this.getAuthHeaders(),
+      });
       if (!response.ok) throw new Error('Failed to fetch members');
       return response.json();
     });
   }
 
   async fetchMembersWithPhotos() {
-    const response = await fetch(`${API_BASE}/members?includePhoto=true`);
+    const response = await fetch(`${API_BASE}/members?includePhoto=true`, {
+      headers: this.getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch members');
     return response.json();
   }
@@ -53,7 +65,7 @@ class ApiService {
   async createMember(memberData) {
     const response = await fetch(`${API_BASE}/members`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(memberData)
     });
     if (!response.ok) {
@@ -73,7 +85,7 @@ class ApiService {
   async updateMember(id, memberData) {
     const response = await fetch(`${API_BASE}/members/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(memberData)
     });
     if (!response.ok) throw new Error('Failed to update member');
@@ -83,7 +95,8 @@ class ApiService {
 
   async deleteMember(id) {
     const response = await fetch(`${API_BASE}/members/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to delete member');
     this.invalidateCache('members');
@@ -92,7 +105,8 @@ class ApiService {
 
   async toggleMemberAdmin(id) {
     const response = await fetch(`${API_BASE}/members/${id}/toggle-admin`, {
-      method: 'PATCH'
+      method: 'PATCH',
+      headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to toggle admin status');
     this.invalidateCache('members');
@@ -101,7 +115,8 @@ class ApiService {
 
   async toggleMemberActive(id) {
     const response = await fetch(`${API_BASE}/members/${id}/toggle-active`, {
-      method: 'PATCH'
+      method: 'PATCH',
+      headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to toggle active status');
     this.invalidateCache('members');
@@ -110,7 +125,8 @@ class ApiService {
 
   async toggleFeesPermission(id) {
     const response = await fetch(`${API_BASE}/members/${id}/toggle-fees-permission`, {
-      method: 'PATCH'
+      method: 'PATCH',
+      headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to toggle fees permission');
     this.invalidateCache('members');
@@ -120,7 +136,7 @@ class ApiService {
   async updateMemberRole(id, role) {
     const response = await fetch(`${API_BASE}/members/${id}/role`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ role })
     });
     if (!response.ok) throw new Error('Failed to update member role');
@@ -130,7 +146,9 @@ class ApiService {
 
   async fetchPosts() {
     return this.cachedFetch('posts', async () => {
-      const response = await fetch(`${API_BASE}/posts`);
+      const response = await fetch(`${API_BASE}/posts`, {
+        headers: this.getAuthHeaders(),
+      });
       if (!response.ok) throw new Error('Failed to fetch posts');
       return response.json();
     });
@@ -139,7 +157,7 @@ class ApiService {
   async createPost(postData) {
     const response = await fetch(`${API_BASE}/posts`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(postData)
     });
     if (!response.ok) throw new Error('Failed to create post');
@@ -150,7 +168,7 @@ class ApiService {
   async updatePost(id, postData) {
     const response = await fetch(`${API_BASE}/posts/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(postData)
     });
     if (!response.ok) throw new Error('Failed to update post');
@@ -169,7 +187,9 @@ class ApiService {
 
   async fetchBookings() {
     return this.cachedFetch('bookings', async () => {
-      const response = await fetch(`${API_BASE}/bookings`);
+      const response = await fetch(`${API_BASE}/bookings`, {
+        headers: this.getAuthHeaders(),
+      });
       if (!response.ok) throw new Error('Failed to fetch bookings');
       return response.json();
     });
@@ -178,7 +198,7 @@ class ApiService {
   async createBooking(bookingData) {
     const response = await fetch(`${API_BASE}/bookings`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(bookingData)
     });
     if (!response.ok) {
@@ -192,7 +212,7 @@ class ApiService {
   async updateBooking(id, bookingData) {
     const response = await fetch(`${API_BASE}/bookings/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(bookingData)
     });
     if (!response.ok) throw new Error('Failed to update booking');
@@ -202,7 +222,8 @@ class ApiService {
 
   async deleteBooking(id) {
     const response = await fetch(`${API_BASE}/bookings/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to delete booking');
     this.invalidateCache('bookings');
@@ -211,7 +232,8 @@ class ApiService {
 
   async toggleBookingAnnounce(id) {
     const response = await fetch(`${API_BASE}/bookings/${id}/toggle-announce`, {
-      method: 'PATCH'
+      method: 'PATCH',
+      headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to toggle booking announce status');
     this.invalidateCache('bookings');
@@ -220,7 +242,8 @@ class ApiService {
 
   async togglePlayEnabled(id) {
     const response = await fetch(`${API_BASE}/bookings/${id}/toggle-play`, {
-      method: 'PATCH'
+      method: 'PATCH',
+      headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to toggle play status');
     this.invalidateCache('bookings');
@@ -230,7 +253,7 @@ class ApiService {
   async toggleNumberRental(id, userPhone) {
     const response = await fetch(`${API_BASE}/bookings/${id}/toggle-number-rental`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ userPhone })
     });
     if (!response.ok) throw new Error('Failed to toggle number rental');
@@ -241,7 +264,7 @@ class ApiService {
   async updateBookingGradeSettings(id, gradeSettings) {
     const response = await fetch(`${API_BASE}/bookings/${id}/grade-settings`, {
       method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ gradeSettings })
     });
     if (!response.ok) throw new Error('Failed to update booking grade settings');
@@ -249,7 +272,9 @@ class ApiService {
   }
 
   async fetchFees() {
-    const response = await fetch(`${API_BASE}/fees`);
+    const response = await fetch(`${API_BASE}/fees`, {
+      headers: this.getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch fees');
     return response.json();
   }
@@ -257,7 +282,7 @@ class ApiService {
   async createFee(feeData) {
     const response = await fetch(`${API_BASE}/fees`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(feeData)
     });
     if (!response.ok) throw new Error('Failed to create fee');
@@ -267,7 +292,7 @@ class ApiService {
   async updateFee(id, feeData) {
     const response = await fetch(`${API_BASE}/fees/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(feeData)
     });
     if (!response.ok) throw new Error('Failed to update fee');
@@ -276,20 +301,25 @@ class ApiService {
 
   async deleteFee(id) {
     const response = await fetch(`${API_BASE}/fees/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to delete fee');
     return response.json();
   }
 
   async fetchScores(userId) {
-    const response = await fetch(`${API_BASE}/scores/${userId}`);
+    const response = await fetch(`${API_BASE}/scores/${userId}`, {
+      headers: this.getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch scores');
     return response.json();
   }
 
   async fetchBookingScores(date, courseName) {
-    const response = await fetch(`${API_BASE}/scores/booking/${encodeURIComponent(date)}/${encodeURIComponent(courseName)}`);
+    const response = await fetch(`${API_BASE}/scores/booking/${encodeURIComponent(date)}/${encodeURIComponent(courseName)}`, {
+      headers: this.getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch booking scores');
     return response.json();
   }
@@ -297,7 +327,7 @@ class ApiService {
   async createScore(scoreData) {
     const response = await fetch(`${API_BASE}/scores`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(scoreData)
     });
     if (!response.ok) throw new Error('Failed to create score');
@@ -307,7 +337,7 @@ class ApiService {
   async updateScore(id, scoreData) {
     const response = await fetch(`${API_BASE}/scores/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(scoreData)
     });
     if (!response.ok) throw new Error('Failed to update score');
@@ -324,7 +354,9 @@ class ApiService {
 
   async fetchCourses() {
     return this.cachedFetch('courses', async () => {
-      const response = await fetch(`${API_BASE}/courses`);
+      const response = await fetch(`${API_BASE}/courses`, {
+        headers: this.getAuthHeaders(),
+      });
       if (!response.ok) throw new Error('Failed to fetch courses');
       return response.json();
     }, 30000);
@@ -333,7 +365,7 @@ class ApiService {
   async createCourse(courseData) {
     const response = await fetch(`${API_BASE}/courses`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(courseData)
     });
     if (!response.ok) throw new Error('Failed to create course');
@@ -344,7 +376,7 @@ class ApiService {
   async updateCourse(id, courseData) {
     const response = await fetch(`${API_BASE}/courses/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(courseData)
     });
     if (!response.ok) throw new Error('Failed to update course');
@@ -354,7 +386,8 @@ class ApiService {
 
   async deleteCourse(id) {
     const response = await fetch(`${API_BASE}/courses/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to delete course');
     this.invalidateCache('courses');
@@ -372,7 +405,7 @@ class ApiService {
   async updateSetting(feature, data) {
     const response = await fetch(`${API_BASE}/settings/${feature}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(data)
     });
     if (!response.ok) throw new Error('Failed to update setting');
@@ -382,7 +415,8 @@ class ApiService {
 
   async approveMember(id) {
     const response = await fetch(`${API_BASE}/members/${id}/approve`, {
-      method: 'PATCH'
+      method: 'PATCH',
+      headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to approve member');
     return response.json();
@@ -390,14 +424,17 @@ class ApiService {
 
   async rejectMember(id) {
     const response = await fetch(`${API_BASE}/members/${id}/reject`, {
-      method: 'PATCH'
+      method: 'PATCH',
+      headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to reject member');
     return response.json();
   }
 
   async fetchScores(memberId) {
-    const response = await fetch(`${API_BASE}/scores/${memberId}`);
+    const response = await fetch(`${API_BASE}/scores/${memberId}`, {
+      headers: this.getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch scores');
     return response.json();
   }
@@ -405,7 +442,7 @@ class ApiService {
   async createScore(scoreData) {
     const response = await fetch(`${API_BASE}/scores`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(scoreData)
     });
     if (!response.ok) throw new Error('Failed to create score');
@@ -424,49 +461,63 @@ class ApiService {
       if (options.bookingId && options.bookingId !== 'all') params.append('bookingId', options.bookingId);
     }
     const url = params.toString() ? `${API_BASE}/transactions?${params}` : `${API_BASE}/transactions`;
-    const response = await fetch(url);
+    const response = await fetch(url, { headers: this.getAuthHeaders() });
     if (!response.ok) throw new Error('Failed to fetch transactions');
     return response.json();
   }
 
   async fetchTransactionsWithPagination(page = 1, limit = 50) {
-    const response = await fetch(`${API_BASE}/transactions?page=${page}&limit=${limit}`);
+    const response = await fetch(`${API_BASE}/transactions?page=${page}&limit=${limit}`, {
+      headers: this.getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch transactions');
     return response.json();
   }
 
   async fetchBookingsWithTransactions() {
-    const response = await fetch(`${API_BASE}/transactions/bookings`);
+    const response = await fetch(`${API_BASE}/transactions/bookings`, {
+      headers: this.getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch bookings with transactions');
     return response.json();
   }
 
   async fetchTransactionDetails(transactionId) {
-    const response = await fetch(`${API_BASE}/transactions/${transactionId}/details`);
+    const response = await fetch(`${API_BASE}/transactions/${transactionId}/details`, {
+      headers: this.getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch transaction details');
     return response.json();
   }
 
   async fetchMemberTransactions(memberId) {
-    const response = await fetch(`${API_BASE}/transactions/member/${memberId}`);
+    const response = await fetch(`${API_BASE}/transactions/member/${memberId}`, {
+      headers: this.getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch member transactions');
     return response.json();
   }
 
   async fetchMemberBalance(memberId) {
-    const response = await fetch(`${API_BASE}/transactions/balance/${memberId}`);
+    const response = await fetch(`${API_BASE}/transactions/balance/${memberId}`, {
+      headers: this.getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch member balance');
     return response.json();
   }
 
   async fetchClubBalance() {
-    const response = await fetch(`${API_BASE}/transactions/club-balance`);
+    const response = await fetch(`${API_BASE}/transactions/club-balance`, {
+      headers: this.getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch club balance');
     return response.json();
   }
 
   async fetchOutstandingBalances() {
-    const response = await fetch(`${API_BASE}/transactions/outstanding`);
+    const response = await fetch(`${API_BASE}/transactions/outstanding`, {
+      headers: this.getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch outstanding balances');
     return response.json();
   }
@@ -474,7 +525,7 @@ class ApiService {
   async createTransaction(transactionData) {
     const response = await fetch(`${API_BASE}/transactions`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(transactionData)
     });
     if (!response.ok) throw new Error('Failed to create transaction');
@@ -484,7 +535,7 @@ class ApiService {
   async createChargeWithCredit(chargeData) {
     const response = await fetch(`${API_BASE}/transactions/charge-with-credit`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(chargeData)
     });
     if (!response.ok) {
@@ -496,7 +547,8 @@ class ApiService {
 
   async deleteTransaction(id) {
     const response = await fetch(`${API_BASE}/transactions/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to delete transaction');
     return response.json();
@@ -505,7 +557,7 @@ class ApiService {
   async updateTransaction(id, data) {
     const response = await fetch(`${API_BASE}/transactions/${id}`, {
       method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify(data)
     });
     if (!response.ok) throw new Error('Failed to update transaction');
@@ -514,7 +566,8 @@ class ApiService {
 
   async deleteChargeTransaction(memberId, bookingId) {
     const response = await fetch(`${API_BASE}/transactions/charge/${memberId}/${bookingId}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to delete charge transaction');
     return response.json();
@@ -523,7 +576,7 @@ class ApiService {
   async creditToDonation(memberId, amount, memo) {
     const response = await fetch(`${API_BASE}/transactions/credit-to-donation`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ memberId, amount, memo })
     });
     if (!response.ok) {
@@ -536,7 +589,7 @@ class ApiService {
   async creditToPayment(memberId, amount, chargeId, memo) {
     const response = await fetch(`${API_BASE}/transactions/credit-to-payment`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ memberId, amount, chargeId, memo })
     });
     if (!response.ok) {
@@ -547,7 +600,9 @@ class ApiService {
   }
 
   async fetchIncomeCategories() {
-    const response = await fetch(`${API_BASE}/income-categories`);
+    const response = await fetch(`${API_BASE}/income-categories`, {
+      headers: this.getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch income categories');
     return response.json();
   }
@@ -555,7 +610,7 @@ class ApiService {
   async createIncomeCategory(name) {
     const response = await fetch(`${API_BASE}/income-categories`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ name })
     });
     if (!response.ok) throw new Error('Failed to create income category');
@@ -564,14 +619,17 @@ class ApiService {
 
   async deleteIncomeCategory(id) {
     const response = await fetch(`${API_BASE}/income-categories/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to delete income category');
     return response.json();
   }
 
   async fetchExpenseCategories() {
-    const response = await fetch(`${API_BASE}/expense-categories`);
+    const response = await fetch(`${API_BASE}/expense-categories`, {
+      headers: this.getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch expense categories');
     return response.json();
   }
@@ -579,7 +637,7 @@ class ApiService {
   async createExpenseCategory(name) {
     const response = await fetch(`${API_BASE}/expense-categories`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ name })
     });
     if (!response.ok) throw new Error('Failed to create expense category');
@@ -588,7 +646,8 @@ class ApiService {
 
   async deleteExpenseCategory(id) {
     const response = await fetch(`${API_BASE}/expense-categories/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to delete expense category');
     return response.json();
@@ -598,7 +657,7 @@ class ApiService {
     try {
       const response = await fetch(`${API_BASE}/logs`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
         body: JSON.stringify(data)
       });
       return response.ok;
@@ -608,13 +667,17 @@ class ApiService {
   }
 
   async fetchActivityLogs(limit = 50) {
-    const response = await fetch(`${API_BASE}/logs?limit=${limit}`);
+    const response = await fetch(`${API_BASE}/logs?limit=${limit}`, {
+      headers: this.getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch activity logs');
     return response.json();
   }
 
   async fetchOnlineMembers() {
-    const response = await fetch(`${API_BASE}/online-members`);
+    const response = await fetch(`${API_BASE}/online-members`, {
+      headers: this.getAuthHeaders(),
+    });
     if (!response.ok) throw new Error('Failed to fetch online members');
     return response.json();
   }

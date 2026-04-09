@@ -1,0 +1,50 @@
+const prisma = require('../db');
+const { isOperator, isAdmin } = require('../utils/roles');
+
+// 로그인한 회원이면 통과 (active + approved)
+async function requireAuth(req, res, next) {
+  try {
+    const memberId = req.headers['x-member-id'];
+
+    if (!memberId) {
+      return res.status(401).json({ error: '인증이 필요합니다.' });
+    }
+
+    const member = await prisma.member.findUnique({
+      where: { id: memberId },
+      select: { id: true, isAdmin: true, role: true, isActive: true, approvalStatus: true },
+    });
+
+    if (!member || !member.isActive || member.approvalStatus !== 'approved') {
+      return res.status(401).json({ error: '유효하지 않은 회원입니다.' });
+    }
+
+    req.member = member;
+    next();
+  } catch (error) {
+    console.error('Auth middleware error:', error);
+    res.status(500).json({ error: '인증 처리 중 오류가 발생했습니다.' });
+  }
+}
+
+// 운영진 이상 (관리자, 방장, 운영진, 클럽운영진)
+function requireOperator(req, res, next) {
+  if (!req.member) return res.status(401).json({ error: '인증이 필요합니다.' });
+
+  if (!isOperator(req.member)) {
+    return res.status(403).json({ error: '운영진 이상 권한이 필요합니다.' });
+  }
+  next();
+}
+
+// 최고 관리자 (관리자, 방장)
+function requireAdmin(req, res, next) {
+  if (!req.member) return res.status(401).json({ error: '인증이 필요합니다.' });
+
+  if (!isAdmin(req.member)) {
+    return res.status(403).json({ error: '관리자 권한이 필요합니다.' });
+  }
+  next();
+}
+
+module.exports = { requireAuth, requireOperator, requireAdmin };

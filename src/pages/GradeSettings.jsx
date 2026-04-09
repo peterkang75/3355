@@ -7,7 +7,7 @@ function GradeSettings() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const bookingId = searchParams.get('id');
-  const { user, bookings, refreshData } = useApp();
+  const { user, bookings, refreshBookings: refreshData } = useApp();
   const [booking, setBooking] = useState(null);
   const [gradeSettings, setGradeSettings] = useState({
     gradeA: { type: 'below', value: '' },

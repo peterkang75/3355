@@ -1,8 +1,8 @@
 # 3355 골프 클럽 앱 - 리팩토링 계획서 (Plan.md)
 
 > 최초 작성일: 2026-04-07
-> 최종 수정일: 2026-04-08
-> 상태: Phase 0 완료 → Phase 1 대기
+> 최종 수정일: 2026-04-09 (Phase 1 완료)
+> 상태: Phase 1 완료, Phase 2 대기
 > 참조 문서: PRD.md
 
 ---
@@ -212,21 +212,21 @@ golf-club-app/
 
 | # | 작업 | 상세 | 상태 |
 |---|------|------|------|
-| 1-1 | 잔액 계산 함수 통일 | 중복 reduce → `calculateBalance()` 단일 함수 | ⬜ |
-| 1-2 | prisma.$transaction 적용 | 참가비/크레딧/잔액을 원자적 트랜잭션으로 | ⬜ |
-| 1-3 | 참가 처리 서버 통일 | 프론트 트랜잭션 생성 제거, 서버에서만 처리 | ⬜ |
-| 1-4 | api.js 도메인별 분리 | routes/members, bookings, scores, transactions 등 | ⬜ |
-| 1-5 | 인증 미들웨어 추가 | 기본 인증 + 역할 기반 접근 제어 | ⬜ |
-| 1-6 | 역할 체크 유틸 함수화 | isAdmin, isOperator 등 공용 함수 | ⬜ |
-| 1-7 | 정적 파일 캐시 설정 | API만 no-cache, 정적 파일 캐시 허용 | ⬜ |
-| 1-8 | DashboardSample 삭제 | 라우트 및 파일 제거 | ⬜ |
-| 1-9 | 중복 라우트 정리 | /v2/roundings 제거 | ⬜ |
+| 1-1 | 잔액 계산 함수 통일 | `server/utils/balance.js` 생성, api.js 14곳 수정, outstanding 버그 수정 | ✅ 완료 |
+| 1-2 | prisma.$transaction 적용 | 4개 엔드포인트 금융 트랜잭션 원자적 처리 | ✅ 완료 |
+| 1-3 | 참가 처리 서버 통일 | Dashboard.jsx 프론트 트랜잭션 생성/삭제 제거 | ✅ 완료 |
+| 1-4 | api.js 도메인별 분리 | routes/members, bookings, scores, transactions 등 | ✅ 완료 |
+| 1-5 | 인증 미들웨어 추가 | 기본 인증 + 역할 기반 접근 제어 | ✅ 완료 |
+| 1-6 | 역할 체크 유틸 함수화 | isAdmin, isOperator 등 공용 함수 | ✅ 완료 |
+| 1-7 | 정적 파일 캐시 설정 | API만 no-cache, 정적 파일 캐시 허용 | ✅ 완료 |
+| 1-8 | DashboardSample 삭제 | 라우트 및 파일 제거 | ✅ 완료 |
+| 1-9 | 중복 라우트 정리 | /v2/roundings 제거 | ⏭️ 스킵 — /v2/roundings가 현재 사용 중인 UI, 제거 불가 |
 
 **완료 기준:**
-- [ ] 잔액 계산이 한 곳에서만 이루어짐
-- [ ] 금융 로직이 DB 트랜잭션으로 보호됨
-- [ ] 참가비 중복 청구 불가능
-- [ ] API 무단 접근 차단됨
+- [x] 잔액 계산이 한 곳에서만 이루어짐
+- [x] 금융 로직이 DB 트랜잭션으로 보호됨
+- [x] 참가비 중복 청구 불가능
+- [x] API 무단 접근 차단됨
 
 ---
 
@@ -238,7 +238,7 @@ golf-club-app/
 
 | # | 작업 | 상태 |
 |---|------|------|
-| 2A-1 | AppContext → AuthContext, BookingContext, PostContext, FinanceContext 분리 | ⬜ |
+| 2A-1 | AppContext → AuthContext, BookingContext, PostContext, FinanceContext 분리 | ✅ 완료 |
 | 2A-2 | 공통 유틸 정리 (parseParticipants, formatCurrency₩, 역할 체크, 날짜) | ⬜ |
 | 2A-3 | 스타일 전략 확정 (CSS Module / Tailwind / 클래스 기반) | ⬜ |
 | 2A-4 | 라우트 정리 (22개 축소, MemberInfoForm 라우터 내부로) | ⬜ |
@@ -342,8 +342,24 @@ golf-club-app/
   - 삭제: DashboardSample
 - [x] Plan.md v2 전면 업데이트 (PRD 반영, 5 Phase 체계)
 - [x] PRD.md 정식 문서 작성
+- [x] 컬러 팔레트 확정: Option B 스카이 블루(#0284C7) + 그린 포인트(#16A34A)
+- [x] PRD.md 디자인 시스템 섹션 추가
+- [x] Phase 1-1: 잔액 계산 함수 통일
+  - `server/utils/balance.js` 신규 생성 (calculateBalance, recalculateAndUpdateBalance)
+  - api.js 14곳 수정: 중복 reduce 제거, 증분(increment/decrement) 방식 전면 제거
+  - 버그 수정: GET /transactions/outstanding에서 creditDonation 누락 → 추가
+- [x] Phase 1-2: prisma.$transaction 적용
+  - PUT /bookings/:id (참가자 추가 시 트랜잭션 생성)
+  - PUT /bookings/:id (참가자 취소 시 트랜잭션 삭제)
+  - POST /transactions/charge-with-credit
+  - POST /transactions/credit-to-donation
+  - POST /transactions/credit-to-payment
+- [x] Phase 1-3: 참가 처리 서버 통일
+  - Dashboard.jsx handleJoinBooking에서 apiService.createTransaction() 제거
+  - Dashboard.jsx handleJoinBooking에서 apiService.deleteChargeTransaction() 제거
+  - participationFee 관련 코드 전체 제거
 
 ---
 
-> **다음 작업:** Phase 1-1 (잔액 계산 함수 통일)
+> **다음 작업:** Phase 1-8 (DashboardSample 삭제)
 > **참조:** 모든 작업 시작 전/후 이 문서 확인 및 업데이트 필수
