@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
+import PageHeader from '../components/common/PageHeader';
 
 function GradeSettings() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const bookingId = searchParams.get('id');
   const { user, bookings, refreshBookings: refreshData } = useApp();
@@ -58,7 +60,8 @@ function GradeSettings() {
       }
       
       alert('그레이드 설정이 저장되었습니다!');
-      navigate('/booking');
+      const fromId = location.state?.fromBookingId || bookingId;
+      navigate('/booking', { state: { reopenManage: fromId } });
     } catch (error) {
       console.error('그레이드 설정 저장 실패:', error);
       alert('그레이드 설정 저장에 실패했습니다.');
@@ -92,69 +95,35 @@ function GradeSettings() {
   }
 
   return (
-    <div>
-      <div className="header">
-        <button 
-          onClick={() => navigate('/booking')}
-          style={{
-            background: 'transparent',
-            border: 'none',
-            color: 'var(--text-light)',
-            fontSize: '20px',
-            fontWeight: '700',
-            cursor: 'pointer',
-            padding: '0 8px'
-          }}
-        >
-          ←
-        </button>
-        <h1>그레이드 설정</h1>
-      </div>
+    <div style={{ background: '#F8FAFC', minHeight: '100vh' }}>
+      <PageHeader title="그레이드 설정" onBack={() => {
+        const fromId = location.state?.fromBookingId || bookingId;
+        navigate('/booking', { state: { reopenManage: fromId } });
+      }} />
 
-      <div className="page-content">
-        <div className="card">
-          <div style={{ 
-            padding: '16px',
-            borderRadius: '8px',
-            marginBottom: '16px'
-          }}>
-            {booking.title && (
-              <div style={{ fontSize: '13px', color: 'var(--primary-green)', fontWeight: '600', marginBottom: '4px' }}>
-                {booking.title}
-              </div>
-            )}
-            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
-              {booking.courseName}
-            </h3>
-            <div style={{ fontSize: '14px', opacity: 0.7 }}>
-              ◆ {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
+      <div style={{ padding: '16px 16px 100px' }}>
+        {/* 라운딩 정보 카드 */}
+        <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E8ECF0', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', padding: '16px', marginBottom: '12px' }}>
+          {booking.title && (
+            <div style={{ fontSize: '12px', color: '#0047AB', fontWeight: '700', marginBottom: '4px', letterSpacing: '0.02em' }}>
+              {booking.title}
             </div>
+          )}
+          <div style={{ fontSize: '18px', fontWeight: '800', color: '#1E293B', letterSpacing: '-0.02em', marginBottom: '6px' }}>
+            {booking.courseName}
           </div>
+          <div style={{ fontSize: '13px', color: '#64748B' }}>
+            ◆ {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
+          </div>
+        </div>
 
-          <div style={{
-            padding: '12px',
-            border: '1px solid var(--border-color)',
-            borderRadius: '6px',
-            marginBottom: '20px',
-            fontSize: '13px',
-            opacity: 0.7
-          }}>
-            ※ 이 라운딩에 적용할 핸디캡 그레이드 기준을 설정하세요
-          </div>
+        <div style={{ fontSize: '13px', color: '#94A3B8', marginBottom: '16px', paddingLeft: '4px' }}>
+          ※ 이 라운딩에 적용할 핸디캡 그레이드 기준을 설정하세요
+        </div>
 
           {/* Grade A */}
-          <div style={{
-            padding: '16px',
-            border: '1px solid var(--border-color)',
-            borderRadius: '8px',
-            marginBottom: '12px'
-          }}>
-            <div style={{ 
-              fontSize: '16px', 
-              fontWeight: '700', 
-              marginBottom: '12px',
-              color: 'var(--primary-green)'
-            }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' }}>
+            <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px', color: '#0047AB' }}>
               ▲ 그레이드 A
             </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -193,18 +162,8 @@ function GradeSettings() {
           </div>
 
           {/* Grade B */}
-          <div style={{
-            padding: '16px',
-            border: '1px solid var(--border-color)',
-            borderRadius: '8px',
-            marginBottom: '12px'
-          }}>
-            <div style={{ 
-              fontSize: '16px', 
-              fontWeight: '700', 
-              marginBottom: '12px',
-              color: 'var(--primary-green)'
-            }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' }}>
+            <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px', color: '#0047AB' }}>
               ▲ 그레이드 B
             </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -251,18 +210,8 @@ function GradeSettings() {
           </div>
 
           {/* Grade C */}
-          <div style={{
-            padding: '16px',
-            border: '1px solid var(--border-color)',
-            borderRadius: '8px',
-            marginBottom: '12px'
-          }}>
-            <div style={{ 
-              fontSize: '16px', 
-              fontWeight: '700', 
-              marginBottom: '12px',
-              color: 'var(--primary-green)'
-            }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' }}>
+            <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px', color: '#0047AB' }}>
               ▲ 그레이드 C
             </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -305,7 +254,7 @@ function GradeSettings() {
               </div>
             </div>
             {(gradeSettings.gradeC.max === '' || gradeSettings.gradeC.max === null) && gradeSettings.gradeC.min !== '' && (
-              <div style={{ marginTop: '8px', fontSize: '12px', color: '#0F766E', fontWeight: '500' }}>
+              <div style={{ marginTop: '8px', fontSize: '12px', color: '#0047AB', fontWeight: '500' }}>
                 * "까지" 미입력 시 {gradeSettings.gradeC.min} 이상은 모두 C 그레이드로 분류됩니다
               </div>
             )}
@@ -313,18 +262,8 @@ function GradeSettings() {
 
           {/* Grade D - Grade C의 까지 값이 있을 때만 표시 */}
           {gradeSettings.gradeC.max !== '' && gradeSettings.gradeC.max > 0 && (
-            <div style={{
-              padding: '16px',
-              border: '1px solid var(--border-color)',
-              borderRadius: '8px',
-              marginBottom: '20px'
-            }}>
-              <div style={{ 
-                fontSize: '16px', 
-                fontWeight: '700', 
-                marginBottom: '12px',
-                color: 'var(--primary-green)'
-              }}>
+            <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' }}>
+              <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px', color: '#0047AB' }}>
                 ▲ 그레이드 D
               </div>
               <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
@@ -366,12 +305,16 @@ function GradeSettings() {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            className="btn-primary"
-            style={{ width: '100%' }}
+            style={{
+              width: '100%', padding: '16px', borderRadius: '14px',
+              background: isSaving ? '#94A3B8' : '#0047AB', color: '#FFFFFF',
+              border: 'none', fontSize: '16px', fontWeight: '700',
+              cursor: isSaving ? 'not-allowed' : 'pointer',
+              letterSpacing: '-0.01em', marginTop: '4px',
+            }}
           >
-            {isSaving ? '저장 중...' : '■ 저장하기'}
+            {isSaving ? '저장 중...' : '저장하기'}
           </button>
-        </div>
       </div>
     </div>
   );

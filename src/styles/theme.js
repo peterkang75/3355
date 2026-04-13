@@ -1,30 +1,30 @@
-// Design System: The Curated Fairway
+// Design System: Azure Blue
 const theme = {
   colors: {
     // Brand
-    primary:           '#003629',  // Forest Deep
-    primaryContainer:  '#1b4d3e',  // Forest Mid
-    secondary:         '#775a19',  // Champagne Metallic
-    secondaryContainer:'#f0e6cc',
+    primary:           '#0047AB',  // Azure Blue
+    primaryContainer:  '#0057d4',  // Azure Blue Light
+    secondary:         '#0ea5e9',  // Sky Blue
+    secondaryContainer:'#e0f2fe',
 
     // Surface hierarchy (No-Line system)
-    surface:                   '#f7f9f7',
+    surface:                   '#f8fafc',
     surfaceContainerLowest:    '#ffffff',
-    surfaceContainerLow:       '#f4f6f4',
-    surfaceContainer:          '#eef0ee',
-    surfaceContainerHigh:      '#e8eae8',
-    surfaceContainerHighest:   '#e1e3e1',
+    surfaceContainerLow:       '#f1f5f9',
+    surfaceContainer:          '#e8edf4',
+    surfaceContainerHigh:      '#dde3ee',
+    surfaceContainerHighest:   '#d0d8e8',
 
     // Text
-    onBackground: '#191c1b',
-    onSurface:    '#191c1b',
+    onBackground: '#1e293b',
+    onSurface:    '#1e293b',
     onPrimary:    '#ffffff',
-    textSub:      '#4a5568',
-    textMuted:    '#6b7280',
+    textSub:      '#334155',
+    textMuted:    '#64748b',
 
     // Outline
-    outline:        '#8a9490',
-    outlineVariant: '#c0c9c3',
+    outline:        '#94a3b8',
+    outlineVariant: '#cbd5e1',
 
     // Semantic
     error:            '#ba1a1a',
@@ -35,18 +35,18 @@ const theme = {
     warningContainer: '#ffdea4',
 
     // Legacy aliases
-    bg_app:  '#f7f9f7',
+    bg_app:  '#f8fafc',
     bg_card: '#ffffff',
     danger:  '#ba1a1a',
   },
 
   gradients: {
-    primary: 'linear-gradient(135deg, #003629, #1b4d3e)',
+    primary: 'linear-gradient(135deg, #0047AB, #0057d4)',
   },
 
   shadows: {
-    ambient: '0 12px 40px rgba(25, 28, 27, 0.06)',
-    float:   '0 12px 40px rgba(25, 28, 27, 0.10)',
+    ambient: '0 12px 40px rgba(0, 71, 171, 0.06)',
+    float:   '0 12px 40px rgba(0, 71, 171, 0.12)',
   },
 
   glass: {

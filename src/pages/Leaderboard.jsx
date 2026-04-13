@@ -94,7 +94,9 @@ function Leaderboard() {
         const participant = participants.find(p => p.phone === score.userId);
         const guestHandicap = participant?.gaHandy || participant?.houseHandy || participant?.handicap;
         const nickname = member?.nickname || member?.name || participant?.nickname || participant?.name || score.userId;
-        const handicap = dailyHandicaps[score.userId] || member?.handicap || guestHandicap || 0;
+        const isGuestPlayer = member?.isGuest || participant?.isGuest || false;
+        const memberHandicap = member ? (parseFloat(member.gaHandy) || parseFloat(member.houseHandy) || parseFloat(member.handicap) || null) : null;
+        const handicap = dailyHandicaps[score.userId] ?? memberHandicap ?? guestHandicap ?? 0;
         
         let grade = 'ALL';
         if (gradeSettings) {
@@ -166,6 +168,7 @@ function Leaderboard() {
           odId: score.userId,
           phone: member?.phone || score.userId,
           nickname,
+          isGuest: isGuestPlayer,
           handicap,
           grade,
           thru,
@@ -297,7 +300,8 @@ function Leaderboard() {
               s.odId === m?.phone || 
               s.phone === m?.phone
             );
-            const hcp = dailyHandicaps[m?.phone] || memberObj?.handicap || 0;
+            const memberHcp = memberObj ? (parseFloat(memberObj.gaHandy) || parseFloat(memberObj.houseHandy) || parseFloat(memberObj.handicap) || 0) : 0;
+            const hcp = dailyHandicaps[m?.phone] ?? memberHcp;
             return { 
               member: m, 
               memberObj, 
@@ -478,12 +482,17 @@ function Leaderboard() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#1a1a2e', paddingBottom: '100px' }}>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
         alignItems: 'center',
         padding: '16px',
-        borderBottom: '1px solid rgba(255,255,255,0.1)'
+        paddingTop: 'calc(env(safe-area-inset-top) + 16px)',
+        borderBottom: '1px solid rgba(255,255,255,0.1)',
+        position: 'sticky',
+        top: 0,
+        background: '#1a1a2e',
+        zIndex: 200,
       }}>
         <button 
           onClick={() => navigate(-1)} 
@@ -962,12 +971,19 @@ function Leaderboard() {
                     {rankIcon}{index + 1}
                   </div>
                   <div>
-                    <div style={{ 
-                      color: 'white', 
-                      fontSize: '13px', 
-                      fontWeight: isTopRank ? '600' : '500'
-                    }}>
-                      {score.nickname}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+                      <span style={{
+                        color: 'white',
+                        fontSize: '13px',
+                        fontWeight: isTopRank ? '600' : '500'
+                      }}>
+                        {score.nickname}
+                      </span>
+                      {score.isGuest && (
+                        <span style={{ fontSize: 10, fontWeight: 700, color: '#fbbf24', background: 'rgba(251,191,36,0.18)', borderRadius: 4, padding: '1px 5px', letterSpacing: '0.02em' }}>
+                          GUEST
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div style={{ 

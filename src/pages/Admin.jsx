@@ -5,13 +5,14 @@ import apiService from '../services/api';
 import CrownIcon from '../components/CrownIcon';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 import SearchableDropdown from '../components/SearchableDropdown';
-import ProfileBadge from '../components/common/ProfileBadge';
+import PageHeader from '../components/common/PageHeader';
 
 function Admin() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, addFee, courses, addCourse, refreshMembers, refreshCourses, members: contextMembers, clubLogo, updateClubLogo } = useApp();
   const [activeTab, setActiveTab] = useState('menu');
+  const [showLedger, setShowLedger] = useState(() => localStorage.getItem('devShowLedger') === 'true');
   const [members, setMembers] = useState([]);
   const [memberSearchTerm, setMemberSearchTerm] = useState('');
   const [showPermissionMenu, setShowPermissionMenu] = useState(null);
@@ -47,6 +48,14 @@ function Admin() {
   const [editingCourse, setEditingCourse] = useState(null);
   const [editCourseData, setEditCourseData] = useState(null);
   const courseMenuRefs = useRef({});
+  const [clubSearchInput, setClubSearchInput] = useState('');
+  const [clubAiState, setClubAiState] = useState('idle'); // 'idle'|'searching'|'done'|'error'
+  const [courseSheetOpen, setCourseSheetOpen] = useState(false);
+  const [courseSheetMode, setCourseSheetMode] = useState('add'); // 'add' | 'edit'
+  const [courseSearchQuery, setCourseSearchQuery] = useState('');
+  const [courseListSearch, setCourseListSearch] = useState('');
+  const [courseSearchState, setCourseSearchState] = useState('idle'); // 'idle'|'searching'|'found'|'error'
+  const [courseSearchResult, setCourseSearchResult] = useState(null);
   const [showScoreModal, setShowScoreModal] = useState(null);
   const [scoreFormData, setScoreFormData] = useState({
     roundingName: '',
@@ -134,6 +143,8 @@ function Admin() {
   const [isAddingCategory, setIsAddingCategory] = useState(false);
   const [paymentGuideText, setPaymentGuideText] = useState('');
   const [savedPaymentGuideText, setSavedPaymentGuideText] = useState('');
+  const [kakaoOpenChatUrl, setKakaoOpenChatUrl] = useState('');
+  const [savedKakaoOpenChatUrl, setSavedKakaoOpenChatUrl] = useState('');
   const [clubIntroText, setClubIntroText] = useState('');
   const [savedClubIntroText, setSavedClubIntroText] = useState('');
   const [clubRulesText, setClubRulesText] = useState('');
@@ -147,6 +158,7 @@ function Admin() {
   const [allScoresData, setAllScoresData] = useState([]);
   const [selectedScoreIds, setSelectedScoreIds] = useState([]);
   const [selectedRoundForScore, setSelectedRoundForScore] = useState(null);
+  const [pendingScoreBookingId, setPendingScoreBookingId] = useState(null);
   const [selectedPlayerForScore, setSelectedPlayerForScore] = useState(null);
   const [roundScores, setRoundScores] = useState([]);
   const [editingScore, setEditingScore] = useState(null);
@@ -186,7 +198,31 @@ function Admin() {
       setActiveTab('menu');
       window.history.replaceState({}, document.title);
     }
+    if (location.state?.openScoreBookingId) {
+      const bookingId = location.state.openScoreBookingId;
+      setActiveTab('scoreManagement');
+      setScoreManagementView('rounds');
+      setPendingScoreBookingId(bookingId);
+      window.history.replaceState({}, document.title);
+    }
   }, [location]);
+
+  useEffect(() => {
+    if (!pendingScoreBookingId || bookings.length === 0) return;
+    const target = bookings.find(b => b.id === pendingScoreBookingId);
+    if (!target) return;
+    setPendingScoreBookingId(null);
+    setSelectedRoundForScore(target);
+    setScoreManagementView('leaderboard');
+    setIsLoadingRoundScores(true);
+    setRoundScores([]);
+    const dateStr = new Date(target.date).toISOString().split('T')[0];
+    fetch(`/api/scores/booking/${encodeURIComponent(dateStr)}/${encodeURIComponent(target.courseName)}`)
+      .then(res => res.json())
+      .then(data => setRoundScores(Array.isArray(data) ? data : []))
+      .catch(() => setRoundScores([]))
+      .finally(() => setIsLoadingRoundScores(false));
+  }, [pendingScoreBookingId, bookings]);
 
   useEffect(() => {
     if (contextMembers) {
@@ -285,6 +321,10 @@ function Admin() {
           setAppDescriptionText(setting.value || '');
           setSavedAppDescriptionText(setting.value || '');
         }
+        if (setting.feature === 'kakaoOpenChatUrl') {
+          setKakaoOpenChatUrl(setting.value || '');
+          setSavedKakaoOpenChatUrl(setting.value || '');
+        }
       });
       
       features.forEach(feature => {
@@ -301,29 +341,31 @@ function Admin() {
 
   const loadFeeDataFast = async () => {
     try {
-      // 1단계: 캐시된 항목 즉시 표시
+      // 1단계: 캐시된 항목 즉시 표시 (비어있는 캐시는 무시)
       const cachedIncome = sessionStorage.getItem('incomeCategories');
       const cachedExpense = sessionStorage.getItem('expenseCategories');
       const cachedBookings = sessionStorage.getItem('feeBookings');
-      
-      if (cachedIncome) setIncomeCategories(JSON.parse(cachedIncome));
-      if (cachedExpense) setExpenseCategories(JSON.parse(cachedExpense));
+      const parsedCachedIncome = cachedIncome ? JSON.parse(cachedIncome) : null;
+      const parsedCachedExpense = cachedExpense ? JSON.parse(cachedExpense) : null;
+
+      if (parsedCachedIncome?.length > 0) setIncomeCategories(parsedCachedIncome);
+      if (parsedCachedExpense?.length > 0) setExpenseCategories(parsedCachedExpense);
       if (cachedBookings) setBookings(JSON.parse(cachedBookings));
-      
+
       // 2단계: 중요한 데이터만 먼저 로드 (빠른 표시)
       const [balanceData, outstandingData] = await Promise.all([
         apiService.fetchClubBalance(),
         apiService.fetchOutstandingBalances()
       ]);
-      
+
       setClubBalance(balanceData.balance);
       setOutstandingBalances(outstandingData);
-      
+
       // 3단계: 나머지 데이터 백그라운드 로드 (라운딩은 항상 최신 데이터)
       const [transactionsResponse, incomeCats, expenseCats, bookingsData] = await Promise.all([
         apiService.fetchTransactions({ limit: 50 }),
-        cachedIncome ? Promise.resolve(JSON.parse(cachedIncome)) : apiService.fetchIncomeCategories(),
-        cachedExpense ? Promise.resolve(JSON.parse(cachedExpense)) : apiService.fetchExpenseCategories(),
+        (parsedCachedIncome?.length > 0) ? Promise.resolve(parsedCachedIncome) : apiService.fetchIncomeCategories(),
+        (parsedCachedExpense?.length > 0) ? Promise.resolve(parsedCachedExpense) : apiService.fetchExpenseCategories(),
         apiService.fetchBookings() // 항상 최신 라운딩 데이터 가져오기
       ]);
       
@@ -1203,6 +1245,39 @@ function Admin() {
     };
   }, [showPermissionMenu, showCourseMenu]);
 
+  const handleClubSearch = async () => {
+    const query = clubSearchInput.trim();
+    if (!query) return;
+    // 1) 기존 코스 목록에서 먼저 찾기 (대소문자 무시, 부분 일치)
+    const found = courses.find(c => c.name.toLowerCase().includes(query.toLowerCase()));
+    if (found) {
+      setNewMember(prev => ({ ...prev, club: found.name }));
+      setClubSearchInput('');
+      setClubAiState('done');
+      return;
+    }
+    // 2) 없으면 AI 검색
+    setClubAiState('searching');
+    try {
+      const result = await apiService.searchCourse(query);
+      const malePars = (result.holePars?.male || []).map(p => parseInt(p) || 4);
+      const femalePars = (result.holePars?.female || []).map(p => parseInt(p) || 4);
+      await apiService.createCourse({
+        name: result.name || query,
+        address: result.address || '',
+        holePars: { male: malePars, female: femalePars },
+        nearHoles: Array(18).fill(false),
+        isCompetition: false,
+      });
+      if (refreshCourses) await refreshCourses();
+      setNewMember(prev => ({ ...prev, club: result.name || query }));
+      setClubSearchInput('');
+      setClubAiState('done');
+    } catch {
+      setClubAiState('error');
+    }
+  };
+
   const handleAddMember = async () => {
     if (isAddingMember) return;
     if (!newMember.name || !newMember.phone) {
@@ -1619,77 +1694,7 @@ function Admin() {
   if (!hasAdminAccess) {
     return (
       <div>
-        <div className="header">
-          <button
-            onClick={() => navigate(-1)}
-            style={{
-              background: 'none',
-              border: 'none',
-              fontSize: '20px',
-              fontWeight: '700',
-              cursor: 'pointer',
-              padding: '0',
-              color: 'var(--text-light)',
-              minWidth: '24px'
-            }}
-          >
-            ‹
-          </button>
-          <h1 style={{ flex: 1, marginLeft: '12px' }}>관리자</h1>
-          <div 
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '8px',
-              cursor: 'pointer'
-            }}
-            onClick={() => navigate('/mypage')}
-          >
-            <div style={{ fontSize: '14px', fontWeight: '500' }}>
-              {user.nickname || user.name}
-            </div>
-            <div style={{ position: 'relative' }}>
-              <div style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                overflow: 'hidden',
-                background: 'var(--primary-green)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontWeight: '600',
-                fontSize: '14px',
-                border: '2px solid var(--border-color)'
-              }}>
-                {user.profileImage ? (
-                  <img 
-                    src={user.profileImage} 
-                    alt="프로필" 
-                    style={{ 
-                      width: '100%', 
-                      height: '100%', 
-                      objectFit: 'cover' 
-                    }} 
-                  />
-                ) : (
-                  <span>{(user.nickname || user.name).charAt(0)}</span>
-                )}
-              </div>
-              {user.role && ['관리자', '방장', '운영진', '클럽운영진'].includes(user.role) && (
-                <div style={{
-                  position: 'absolute',
-                  bottom: '-2px',
-                  right: '-2px',
-                  zIndex: 10
-                }}>
-                  <CrownIcon role={user.role} size={16} />
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <PageHeader title="관리자" user={user} showBackButton={false} />
         <div className="page-content">
           <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
             <div style={{ fontSize: '48px', marginBottom: '16px' }}>◆</div>
@@ -1702,169 +1707,215 @@ function Admin() {
 
   return (
     <div>
-      <div className="header">
-        <button
-          onClick={() => {
-            if (activeTab !== 'menu') {
-              setActiveTab('menu');
-              setScoreManagementView('rounds');
-              setSelectedRoundForScore(null);
-              setSelectedPlayerForScore(null);
-            } else {
-              navigate(-1);
-            }
-          }}
-          style={{
-            background: 'none',
-            border: 'none',
-            fontSize: '20px',
-            fontWeight: '700',
-            cursor: 'pointer',
-            padding: '0',
-            color: 'var(--text-light)',
-            minWidth: '24px'
-          }}
-        >
-          ‹
-        </button>
-        <h1 style={{ flex: 1, marginLeft: '12px' }}>관리자</h1>
-        <ProfileBadge user={user} showGreeting={true} />
-      </div>
+      <PageHeader
+        title="관리자"
+        user={user}
+        showBackButton={false}
+        rightContent={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#EBF2FF', borderRadius: 999, padding: '4px 10px 4px 7px' }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="#0047AB"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#0047AB' }}>Admin Mode</span>
+          </div>
+        }
+      />
 
-      <div className="page-content">
+      <div className="page-content" style={ (activeTab === 'menu' || activeTab === 'members' || activeTab === 'scoreManagement') ? { padding: 0 } : {} }>
         {activeTab === 'menu' && (() => {
           const adminMenuItems = [
-            { tab: 'members',        symbol: '≡',  label: '회원 관리',   desc: '회원 정보 조회 및 수정',        always: true },
-            { tab: 'fees',           symbol: '$',  label: '클럽회계관리', desc: '참가비 등록 및 납부 관리',     always: true },
-            { tab: 'ledger',         symbol: '≋',  label: '통합 장부',   desc: '모든 거래 내역 조회',          always: true },
-            { tab: 'courses',        symbol: '⚑',  label: '골프장 관리', desc: '골프장 등록 및 관리',          always: true },
-            { tab: 'scoreManagement',symbol: '◎',  label: '스코어 관리', desc: '라운딩별 스코어 조회 및 수정', always: true },
-            { tab: 'settings',       symbol: '⚙',  label: '앱 설정',     desc: '앱 기본 설정 관리',            roles: ['관리자','방장','운영진'] },
-            { tab: 'developer',      symbol: '⌥',  label: '개발자 메뉴', desc: '권한 설정 및 앱 소개문구 관리', roles: ['관리자'] },
+            {
+              tab: 'members',
+              label: '회원 관리',
+              desc: '회원 가입 승인, 등급 조정 및 이용 내역을 관리합니다.',
+              action: '상세 관리하기',
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#0047AB"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>,
+              always: true,
+            },
+            {
+              tab: 'clubAccounting',
+              path: '/settlement',
+              label: '클럽 회계',
+              desc: '수입·지출 입력, 미수금 납부 처리, 월 마감 및 이월을 관리합니다.',
+              action: '회계 관리하기',
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#0047AB"><path d="M4 10v7h3v-7H4zm6.5 0v7h3v-7h-3zM2 22h19v-3H2v3zm15-12v7h3v-7h-3zM11.5 1L2 6v2h19V6l-9.5-5z"/></svg>,
+              always: true,
+            },
+            {
+              tab: 'ledger',
+              label: '거래 내역',
+              desc: '전체 거래 내역을 조회하고 수정·삭제합니다.',
+              action: '내역 조회하기',
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#0047AB"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>,
+              show: showLedger,
+            },
+            {
+              tab: 'courses',
+              label: '골프장 관리',
+              desc: '코스 유지보수, 예약 현황 및 홀 컨디션을 조정합니다.',
+              action: '코스 관리하기',
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#0047AB"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z"/></svg>,
+              always: true,
+            },
+            {
+              tab: 'scoreManagement',
+              label: '스코어 관리',
+              desc: '라운딩별 스코어를 조회하고 수정합니다.',
+              action: '스코어 조회하기',
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#0047AB"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>,
+              always: true,
+            },
+            {
+              tab: 'settings',
+              label: '앱 설정',
+              desc: '앱 기본 설정 및 공지사항을 관리합니다.',
+              action: '설정 열기',
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#0047AB"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>,
+              roles: ['관리자', '방장', '운영진'],
+            },
+            {
+              tab: 'developer',
+              label: '개발자 설정',
+              desc: '권한 설정 및 앱 소개문구를 관리합니다.',
+              action: '개발자 설정',
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#0047AB"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>,
+              roles: ['관리자'],
+            },
           ].filter(item => {
             if (item.always) return true;
+            if (item.show !== undefined) return item.show;
             if (item.roles) return item.roles.includes(user.role);
             return false;
           });
 
           return (
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              {adminMenuItems.map((item, idx) => (
-                <button
-                  key={item.tab}
-                  onClick={() => setActiveTab(item.tab)}
-                  style={{
-                    padding: '16px',
-                    textAlign: 'left',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    background: '#FFFFFF',
-                    border: 'none',
-                    borderTop: idx === 0 ? '1px solid #F3F4F6' : 'none',
-                    borderBottom: '1px solid #F3F4F6',
-                    width: '100%',
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#F9FAFB'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = '#FFFFFF'}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                    <div style={{
-                      width: '40px',
-                      height: '40px',
-                      borderRadius: '10px',
-                      background: '#F3F4F6',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '18px',
-                      fontWeight: '700',
-                      color: '#374151',
-                      flexShrink: 0,
-                    }}>
-                      {item.symbol}
+            <div style={{ background: '#EEF1F6', minHeight: '100vh', paddingBottom: 100 }}>
+              {/* 히어로 배너 */}
+              <div style={{ margin: '16px 16px 20px', background: 'linear-gradient(135deg, #0047AB 0%, #1E56C5 100%)', borderRadius: 20, padding: '22px 22px 24px', boxShadow: '0 8px 24px rgba(0,71,171,0.25)' }}>
+                <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(177,197,255,0.8)', letterSpacing: '0.18em', marginBottom: 12 }}>AZURE STANDARD DASHBOARD</div>
+                <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.35, marginBottom: 10, letterSpacing: '-0.02em' }}>
+                  반갑습니다, {user.nickname || user.name}님.<br />오늘의 클럽 운영을 시작하세요.
+                </div>
+                <div style={{ fontSize: 13, color: 'rgba(177,197,255,0.85)', fontWeight: 400 }}>핵심 기능을 한눈에 제어할 수 있습니다.</div>
+              </div>
+
+              {/* 메뉴 카드 목록 */}
+              <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {adminMenuItems.map(item => (
+                  <div key={item.tab} onClick={() => item.path ? navigate(item.path) : setActiveTab(item.tab)}
+                    style={{ background: '#fff', borderRadius: 16, padding: '20px 20px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', cursor: 'pointer' }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, marginBottom: 16 }}>
+                      <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        {item.icon}
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 16, fontWeight: 800, color: '#1E293B', marginBottom: 5 }}>{item.label}</div>
+                        <div style={{ fontSize: 13, color: '#64748B', lineHeight: 1.55 }}>{item.desc}</div>
+                      </div>
                     </div>
-                    <div>
-                      <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '3px', color: '#111827' }}>
-                        {item.label}
-                      </div>
-                      <div style={{ fontSize: '13px', color: '#9CA3AF' }}>
-                        {item.desc}
-                      </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #F1F5F9', paddingTop: 13 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: '#0047AB' }}>{item.action}</span>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0047AB" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
                     </div>
                   </div>
-                  <div style={{ fontSize: '20px', color: '#D1D5DB', fontWeight: '300' }}>›</div>
-                </button>
-              ))}
+                ))}
+              </div>
             </div>
           );
         })()}
 
         {activeTab === 'members' && (
-          <div>
-            {/* 회원 검색 */}
-            <div style={{ marginBottom: '16px' }}>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type="text"
-                  placeholder="이름 또는 대화명으로 검색..."
-                  value={memberSearchTerm}
-                  onChange={(e) => setMemberSearchTerm(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '14px 16px',
-                    paddingLeft: '44px',
-                    fontSize: '15px',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '12px',
-                    background: 'var(--bg-card)',
-                    boxSizing: 'border-box'
-                  }}
-                />
-                <span style={{
-                  position: 'absolute',
-                  left: '14px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  fontSize: '18px',
-                  opacity: 0.5
-                }}>
-                  🔍
-                </span>
-                {memberSearchTerm && (
-                  <button
-                    onClick={() => setMemberSearchTerm('')}
-                    style={{
-                      position: 'absolute',
-                      right: '12px',
-                      top: '50%',
-                      transform: 'translateY(-50%)',
-                      background: 'none',
-                      border: 'none',
-                      fontSize: '18px',
-                      cursor: 'pointer',
-                      color: '#999',
-                      padding: '4px'
-                    }}
-                  >
-                    ✕
-                  </button>
-                )}
+          <div style={{ background: '#EEF1F6', minHeight: '100vh' }}>
+            <div style={{ padding: '16px 16px 0' }}>
+            {/* 가입 링크 복사 */}
+            <div style={{ background: '#fff', borderRadius: 16, padding: '14px 18px', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>회원가입 링크</div>
+                <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>링크를 공유해 누구나 가입 신청 가능</div>
+              </div>
+              <button
+                onClick={() => {
+                  const url = `${window.location.origin}/join`;
+                  if (navigator.clipboard) {
+                    navigator.clipboard.writeText(url).then(() => alert('링크가 복사되었습니다!\n\n' + url));
+                  } else {
+                    prompt('아래 링크를 복사하세요:', url);
+                  }
+                }}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: '#0047AB', color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
+                </svg>
+                링크 복사
+              </button>
+            </div>
+
+            {/* 검색 */}
+            <div style={{ position: 'relative', marginBottom: 16 }}>
+              <div style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center' }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+              </div>
+              <input
+                type="text"
+                placeholder="멤버 이름 또는 닉네임 검색"
+                value={memberSearchTerm}
+                onChange={(e) => setMemberSearchTerm(e.target.value)}
+                style={{ width: '100%', padding: '13px 16px 13px 44px', fontSize: '14px', border: 'none', borderRadius: 999, background: '#fff', boxSizing: 'border-box', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', outline: 'none' }}
+              />
+              {memberSearchTerm && (
+                <button onClick={() => setMemberSearchTerm('')}
+                  style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', fontSize: 16, cursor: 'pointer', color: '#94A3B8', padding: 4 }}>✕</button>
+              )}
+            </div>
+
+            {/* 토글 */}
+            <div style={{ background: '#fff', borderRadius: 16, padding: '14px 18px', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#1E293B' }}>활동 중인 멤버만 보기</div>
+                <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>현재 라운딩 가능한 멤버 리스트</div>
+              </div>
+              <div onClick={() => setShowInactive(!showInactive)}
+                style={{ width: 44, height: 26, borderRadius: 13, background: !showInactive ? '#0047AB' : '#CBD5E1', position: 'relative', cursor: 'pointer', transition: 'background 0.2s', flexShrink: 0 }}>
+                <div style={{ position: 'absolute', top: 3, left: !showInactive ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
               </div>
             </div>
 
-            {members.filter(m => m.approvalStatus === 'pending' && 
-              (memberSearchTerm === '' || 
-               m.name?.toLowerCase().includes(memberSearchTerm.toLowerCase()) || 
+            {/* 통계 */}
+            {(() => {
+              const totalActive = members.filter(m => m.isActive !== false && m.approvalStatus !== 'pending').length;
+              const filtered = members.filter(m =>
+                (showInactive || m.isActive !== false) &&
+                m.approvalStatus !== 'pending' &&
+                (memberSearchTerm === '' || m.name?.toLowerCase().includes(memberSearchTerm.toLowerCase()) || m.nickname?.toLowerCase().includes(memberSearchTerm.toLowerCase()))
+              ).length;
+              return (
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+                  <div style={{ background: 'linear-gradient(135deg, #0047AB 0%, #1E56C5 100%)', borderRadius: 16, padding: '16px 18px', boxShadow: '0 4px 16px rgba(0,71,171,0.25)', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ position: 'absolute', right: -10, bottom: -10, opacity: 0.1 }}>
+                      <svg width="70" height="70" viewBox="0 0 24 24" fill="white"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                    </div>
+                    <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(177,197,255,0.8)', letterSpacing: '0.12em', marginBottom: 8 }}>TOTAL MEMBERS</div>
+                    <div style={{ fontSize: 32, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{totalActive.toLocaleString()}</div>
+                  </div>
+                  <div style={{ background: '#fff', borderRadius: 16, padding: '16px 18px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
+                    <div style={{ fontSize: 9, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.12em', marginBottom: 8 }}>ACTIVE TODAY</div>
+                    <div style={{ fontSize: 32, fontWeight: 800, color: '#0047AB', lineHeight: 1 }}>{filtered}</div>
+                  </div>
+                </div>
+              );
+            })()}
+            </div>
+
+            {members.filter(m => m.approvalStatus === 'pending' &&
+              (memberSearchTerm === '' ||
+               m.name?.toLowerCase().includes(memberSearchTerm.toLowerCase()) ||
                m.nickname?.toLowerCase().includes(memberSearchTerm.toLowerCase()))).length > 0 && (
-              <div className="card" style={{ marginBottom: '16px', background: '#FFF3E0', border: '2px solid #FF9800' }}>
-                <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px', color: '#FF9800' }}>
-                  승인 대기 중 ({members.filter(m => m.approvalStatus === 'pending' && 
-                    (memberSearchTerm === '' || 
-                     m.name?.toLowerCase().includes(memberSearchTerm.toLowerCase()) || 
-                     m.nickname?.toLowerCase().includes(memberSearchTerm.toLowerCase()))).length})
-                </h3>
+              <div style={{ margin: '0 16px 16px', background: '#FFFBEB', border: '1.5px solid #FDE68A', borderRadius: 16, padding: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: '#D97706', letterSpacing: '0.1em', marginBottom: 12 }}>
+                  PENDING APPROVAL · {members.filter(m => m.approvalStatus === 'pending' &&
+                    (memberSearchTerm === '' ||
+                     m.name?.toLowerCase().includes(memberSearchTerm.toLowerCase()) ||
+                     m.nickname?.toLowerCase().includes(memberSearchTerm.toLowerCase()))).length}명
+                </div>
                 {members.filter(m => m.approvalStatus === 'pending' && 
                   (memberSearchTerm === '' || 
                    m.name?.toLowerCase().includes(memberSearchTerm.toLowerCase()) || 
@@ -1988,138 +2039,79 @@ function Admin() {
               </div>
             )}
             
-            <div className="card">
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                marginBottom: '16px' 
-              }}>
-                <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
-                  전체 회원 ({members.filter(m => 
-                    (showInactive || m.isActive !== false) &&
-                    (memberSearchTerm === '' || 
-                     m.name?.toLowerCase().includes(memberSearchTerm.toLowerCase()) || 
-                     m.nickname?.toLowerCase().includes(memberSearchTerm.toLowerCase()))).length})
-                </h3>
-                <button
-                  onClick={() => setShowInactive(!showInactive)}
-                  style={{
-                    padding: '8px 16px',
-                    background: showInactive ? 'var(--primary-green)' : 'var(--bg-card)',
-                    color: showInactive ? 'white' : 'var(--primary-green)',
-                    borderRadius: '20px',
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                >
-                  {showInactive ? '✓ 비활성 회원 포함' : '활성 회원만 보기'}
-                </button>
-              </div>
-              {members.filter(member => 
+            <div style={{ padding: '0 16px 100px' }}>
+              {/* MEMBER DIRECTORY 라벨 */}
+              <div style={{ fontSize: 10, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.12em', marginBottom: 12, paddingLeft: 2 }}>MEMBER DIRECTORY</div>
+
+              {/* 회원 카드 목록 */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {members.filter(member =>
+                member.approvalStatus !== 'pending' &&
                 (showInactive || member.isActive !== false) &&
-                (memberSearchTerm === '' || 
-                 member.name?.toLowerCase().includes(memberSearchTerm.toLowerCase()) || 
-                 member.nickname?.toLowerCase().includes(memberSearchTerm.toLowerCase()))).map(member => {
-                const handicapDisplay = member.golflinkNumber 
-                  ? `GA(${member.handicap})` 
-                  : `HH(${member.handicap})`;
-                
+                (memberSearchTerm === '' ||
+                 member.name?.toLowerCase().includes(memberSearchTerm.toLowerCase()) ||
+                 member.nickname?.toLowerCase().includes(memberSearchTerm.toLowerCase()))
+              ).map(member => {
+                const isGA = !!(member.golflinkNumber && member.golflinkNumber.toString().trim());
+                const hcpVal = isGA
+                  ? (member.gaHandy || member.handicap)
+                  : (member.houseHandy || member.handicap);
+                const hcpDisplay = hcpVal ? `${isGA ? 'GA' : 'HH'}(${hcpVal})` : '-';
+
+                const roleBadge = (() => {
+                  if (['관리자', '방장'].includes(member.role)) return { label: 'VIP', bg: '#FEF2F2', color: '#DC2626' };
+                  if (['운영진'].includes(member.role)) return { label: 'STAFF', bg: '#EFF6FF', color: '#2563EB' };
+                  if (['클럽운영진'].includes(member.role)) return { label: 'CLUB', bg: '#F0FDF4', color: '#16A34A' };
+                  return null;
+                })();
+
+                const isOnline = member.lastActiveAt && (Date.now() - new Date(member.lastActiveAt).getTime()) < 5 * 60 * 1000;
+                const onlineIndicatorColor = isOnline ? '#22C55E' : '#CBD5E1';
+
                 return (
-                  <div 
-                    key={member.id}
-                    onClick={() => navigate(`/member/${member.id}`)}
-                    style={{
-                      padding: '12px',
-                      background: member.isActive === false ? '#f5f5f5' : 'var(--bg-card)',
-                      borderRadius: '8px',
-                      marginBottom: '8px',
-                      display: 'flex',
-                      gap: '12px',
-                      alignItems: 'center',
-                      opacity: member.isActive === false ? 0.6 : 1,
-                      cursor: 'pointer',
-                      borderBottom: '1px solid var(--border-color)',
-                      transition: 'all 0.2s'
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.background = 'var(--bg-green)';
-                      e.currentTarget.style.transform = 'translateX(4px)';
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.background = member.isActive === false ? '#f5f5f5' : 'var(--bg-card)';
-                      e.currentTarget.style.transform = 'translateX(0)';
-                    }}
-                  >
-                    <div style={{ flexShrink: 0, position: 'relative' }}>
+                  <div key={member.id} onClick={() => navigate(`/member/${member.id}`)}
+                    style={{ background: '#fff', borderRadius: 16, padding: '14px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', opacity: member.isActive === false ? 0.65 : 1 }}>
+                    {/* 사진 */}
+                    <div style={{ position: 'relative', flexShrink: 0 }}>
                       {member.photo ? (
-                        <img 
-                          src={member.photo} 
-                          alt={member.name}
-                          style={{
-                            width: '60px',
-                            height: '60px',
-                            objectFit: 'cover',
-                            borderRadius: '50%',
-                            border: '2px solid var(--border-color)'
-                          }}
-                        />
+                        <img src={member.photo} alt={member.name} style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2px solid #F1F5F9' }} />
                       ) : (
-                        <div style={{
-                          width: '60px',
-                          height: '60px',
-                          background: '#ddd',
-                          borderRadius: '50%',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '28px',
-                          color: 'var(--text-dark)', opacity: 0.7
-                        }}>
-                          •
-                        </div>
+                        <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#E8ECF0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, color: '#94A3B8' }}>👤</div>
                       )}
-                      
+                      {/* 온라인 인디케이터 */}
+                      <div style={{ position: 'absolute', bottom: 1, right: 1, width: 11, height: 11, borderRadius: '50%', background: onlineIndicatorColor, border: '2px solid #fff' }} />
+                      {/* 왕관 아이콘 */}
                       {member.role && ['관리자', '방장', '운영진', '클럽운영진'].includes(member.role) && (
-                        <div style={{
-                          position: 'absolute',
-                          bottom: '-3px',
-                          right: '-3px',
-                          zIndex: 10
-                        }}>
+                        <div style={{ position: 'absolute', top: -3, right: -3, zIndex: 10 }}>
                           <CrownIcon role={member.role} size={20} />
                         </div>
                       )}
                     </div>
 
+                    {/* 정보 */}
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ 
-                        fontWeight: '700', 
-                        fontSize: '16px',
-                        marginBottom: '4px',
-                        color: 'var(--primary-green)'
-                      }}>
-                        {member.nickname || member.name}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
+                        <span style={{ fontSize: 15, fontWeight: 800, color: '#1E293B' }}>{member.nickname || member.name}</span>
+                        {roleBadge && (
+                          <span style={{ fontSize: 9, fontWeight: 800, color: roleBadge.color, background: roleBadge.bg, borderRadius: 4, padding: '2px 5px', letterSpacing: '0.05em' }}>{roleBadge.label}</span>
+                        )}
                       </div>
-                      <div style={{ fontSize: '13px', color: 'var(--text-dark)', opacity: 0.7 }}>
-                        {member.name}
+                      <div style={{ fontSize: 12, color: '#94A3B8' }}>
+                        {member.name !== (member.nickname || member.name) ? member.name : ''}
+                        {member.name !== (member.nickname || member.name) && member.club ? ' • ' : ''}
+                        {member.club || ''}
                       </div>
                     </div>
 
-                    <div style={{
-                      fontSize: '15px',
-                      fontWeight: '700',
-                      color: 'var(--primary-green)',
-                      textAlign: 'right',
-                      flexShrink: 0
-                    }}>
-                      {handicapDisplay}
+                    {/* 핸디캡 */}
+                    <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.08em', marginBottom: 3 }}>HANDICAP</div>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: '#0047AB' }}>{hcpDisplay}</div>
                     </div>
                   </div>
                 );
               })}
+              </div>
             </div>
 
             {editingMember && editMemberData && (
@@ -2273,199 +2265,260 @@ function Admin() {
               </div>
             )}
 
-            {showNewMemberForm && (
-              <div className="card">
-                <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
-                  새 회원 추가
-                </h3>
-                <input
-                  type="text"
-                  placeholder="이름"
-                  value={newMember.name}
-                  onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
-                  style={{ marginBottom: '12px' }}
-                />
-                <input
-                  type="text"
-                  placeholder="대화명 (닉네임)"
-                  value={newMember.nickname}
-                  onChange={(e) => setNewMember({ ...newMember, nickname: e.target.value })}
-                  style={{ marginBottom: '12px' }}
-                />
-                <input
-                  type="tel"
-                  placeholder="전화번호 (예: 0100 123 456)"
-                  value={newMember.phone.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3')}
-                  onChange={(e) => {
-                    const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
-                    setNewMember({ ...newMember, phone: digits });
-                  }}
-                  maxLength={12}
-                  style={{ marginBottom: '12px' }}
-                />
-                <div style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: 'var(--text-dark)', opacity: 0.7 }}>
-                    사진 (본인)
-                  </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onloadend = () => {
-                          setNewMember({ ...newMember, photo: reader.result });
-                        };
-                        reader.readAsDataURL(file);
-                      }
-                    }}
-                    style={{ marginBottom: '8px' }}
-                  />
-                  {newMember.photo && (
-                    <div style={{ marginTop: '8px' }}>
-                      <img 
-                        src={newMember.photo} 
-                        alt="미리보기" 
-                        style={{ 
-                          width: '100px', 
-                          height: '100px', 
-                          objectFit: 'cover', 
-                          borderRadius: '8px',
-                          border: '2px solid var(--border-color)'
-                        }} 
-                      />
-                    </div>
-                  )}
-                </div>
-                <div style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                    성별
-                  </label>
-                  <div style={{ display: 'flex', gap: '16px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                      <input
-                        type="radio"
-                        name="gender"
-                        value="남"
-                        checked={newMember.gender === '남'}
-                        onChange={(e) => setNewMember({ ...newMember, gender: e.target.value })}
-                      />
-                      <span>남</span>
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                      <input
-                        type="radio"
-                        name="gender"
-                        value="여"
-                        checked={newMember.gender === '여'}
-                        onChange={(e) => setNewMember({ ...newMember, gender: e.target.value })}
-                      />
-                      <span>여</span>
-                    </label>
-                  </div>
-                </div>
-                <input
-                  type="number"
-                  placeholder="출생연도 (예: 1990)"
-                  value={newMember.birthYear}
-                  onChange={(e) => setNewMember({ ...newMember, birthYear: e.target.value })}
-                  style={{ marginBottom: '12px' }}
-                />
-                <input
-                  type="text"
-                  placeholder="사는 지역 (예: Lidcombe, Ryde)"
-                  value={newMember.region}
-                  onChange={(e) => setNewMember({ ...newMember, region: e.target.value })}
-                  style={{ marginBottom: '12px' }}
-                />
-                <div style={{ marginBottom: '12px' }}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                    클럽 멤버이신가요?
-                  </label>
-                  <div style={{ display: 'flex', gap: '16px' }}>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                      <input
-                        type="radio"
-                        name="isClubMember"
-                        value="yes"
-                        checked={newMember.isClubMember === 'yes'}
-                        onChange={(e) => setNewMember({ ...newMember, isClubMember: e.target.value })}
-                      />
-                      <span>예</span>
-                    </label>
-                    <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                      <input
-                        type="radio"
-                        name="isClubMember"
-                        value="no"
-                        checked={newMember.isClubMember === 'no'}
-                        onChange={(e) => setNewMember({ ...newMember, isClubMember: e.target.value })}
-                      />
-                      <span>아니오</span>
-                    </label>
-                  </div>
-                </div>
-                {newMember.isClubMember === 'yes' && (
-                  <>
-                    <select
-                      value={newMember.club}
-                      onChange={(e) => setNewMember({ ...newMember, club: e.target.value })}
-                      style={{ marginBottom: '12px' }}
-                    >
-                      <option value="">소속 클럽 선택</option>
-                      {courses.map(course => (
-                        <option key={course.id} value={course.name}>
-                          {course.name}
-                        </option>
-                      ))}
-                    </select>
-                    <input
-                      type="text"
-                      placeholder="Golflink Number"
-                      value={newMember.golflinkNumber}
-                      onChange={(e) => setNewMember({ ...newMember, golflinkNumber: e.target.value })}
-                      style={{ marginBottom: '12px' }}
-                    />
-                    <input
-                      type="text"
-                      placeholder="클럽 회원번호"
-                      value={newMember.clubMemberNumber}
-                      onChange={(e) => setNewMember({ ...newMember, clubMemberNumber: e.target.value })}
-                      style={{ marginBottom: '12px' }}
-                    />
-                    <input
-                      type="number"
-                      placeholder="핸디"
-                      value={newMember.handicap}
-                      onChange={(e) => setNewMember({ ...newMember, handicap: e.target.value })}
-                      style={{ marginBottom: '12px' }}
-                    />
-                  </>
-                )}
-                <div style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <input
-                    type="checkbox"
-                    id="isAdmin"
-                    checked={newMember.isAdmin}
-                    onChange={(e) => setNewMember({ ...newMember, isAdmin: e.target.checked })}
-                  />
-                  <label htmlFor="isAdmin" style={{ fontSize: '14px' }}>관리자 권한 부여</label>
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                  <button className="btn-outline" onClick={() => setShowNewMemberForm(false)}>
-                    취소
-                  </button>
-                  <button className="btn-primary" onClick={handleAddMember}>
-                    추가
-                  </button>
-                </div>
-              </div>
-            )}
-
-            <button className="btn-primary" onClick={() => setShowNewMemberForm(!showNewMemberForm)}>
-              {showNewMemberForm ? '취소' : '+ 새 회원 추가'}
+            {/* FAB - 새 회원 추가 */}
+            <button onClick={() => setShowNewMemberForm(true)}
+              style={{ position: 'fixed', bottom: 90, right: 20, width: 52, height: 52, borderRadius: '50%', background: '#0047AB', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(0,71,171,0.4)', zIndex: 100 }}>
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
             </button>
+
+            {/* 새 회원 추가 바텀시트 */}
+            {showNewMemberForm && (
+              <>
+                {/* 딤 오버레이 — nav 바(z:1000) 아래 */}
+                <div
+                  onClick={() => setShowNewMemberForm(false)}
+                  style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 500, backdropFilter: 'blur(2px)' }}
+                />
+                {/* 시트 본체 — 내비 바 높이만큼 bottom 띄움 */}
+                <div style={{
+                  position: 'fixed',
+                  bottom: 'calc(60px + env(safe-area-inset-bottom))',
+                  left: 'max(0px, calc((100vw - 768px) / 2))',
+                  right: 'max(0px, calc((100vw - 768px) / 2))',
+                  background: '#fff', borderRadius: '22px 22px 0 0',
+                  zIndex: 501, display: 'flex', flexDirection: 'column',
+                  maxHeight: 'calc(90dvh - 60px)',
+                  overflow: 'hidden',
+                  touchAction: 'pan-y',
+                }}>
+                  {/* 핸들 + 헤더 (고정) */}
+                  <div style={{ flexShrink: 0, padding: '12px 20px 0' }}>
+                    <div style={{ width: 40, height: 4, background: '#D1D5DB', borderRadius: 2, margin: '0 auto 14px' }} />
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                      <span style={{ fontSize: 17, fontWeight: 800, color: '#1e293b' }}>새 회원 추가</span>
+                      <button onClick={() => setShowNewMemberForm(false)}
+                        style={{ background: '#f1f5f9', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b', fontSize: 18 }}>×</button>
+                    </div>
+                    <div style={{ height: 1, background: '#f1f5f9' }} />
+                  </div>
+
+                  {/* 스크롤 가능 폼 영역 */}
+                  <div style={{ overflowY: 'auto', overflowX: 'hidden', flex: 1, padding: '16px 20px 8px', touchAction: 'pan-y', overscrollBehavior: 'contain', WebkitOverflowScrolling: 'touch' }}>
+                    {/* 모바일 최적화 입력 스타일 */}
+                    {(() => {
+                      const fieldStyle = {
+                        width: '100%', maxWidth: '100%', boxSizing: 'border-box',
+                        padding: '13px 14px', borderRadius: 12,
+                        border: '1.5px solid #e2e8f0', fontSize: 15,
+                        color: '#1e293b', background: '#f8fafc',
+                        outline: 'none', display: 'block', marginBottom: 12,
+                        minWidth: 0,
+                      };
+                      const labelStyle = {
+                        display: 'block', fontSize: 12, fontWeight: 700,
+                        color: '#64748b', marginBottom: 6, letterSpacing: '0.03em',
+                      };
+                      const sectionStyle = { marginBottom: 16 };
+                      return (
+                        <>
+                          {/* 이름 */}
+                          <div style={sectionStyle}>
+                            <label style={labelStyle}>이름 *</label>
+                            <input type="text" placeholder="홍길동" value={newMember.name}
+                              onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
+                              style={fieldStyle} />
+                          </div>
+
+                          {/* 닉네임 */}
+                          <div style={sectionStyle}>
+                            <label style={labelStyle}>대화명 (닉네임)</label>
+                            <input type="text" placeholder="앱에서 표시될 이름" value={newMember.nickname}
+                              onChange={(e) => setNewMember({ ...newMember, nickname: e.target.value })}
+                              style={fieldStyle} />
+                          </div>
+
+                          {/* 전화번호 */}
+                          <div style={sectionStyle}>
+                            <label style={labelStyle}>전화번호</label>
+                            <input type="tel" placeholder="0100 123 456" inputMode="numeric"
+                              value={newMember.phone.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3')}
+                              onChange={(e) => {
+                                const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                setNewMember({ ...newMember, phone: digits });
+                              }}
+                              maxLength={12} style={fieldStyle} />
+                          </div>
+
+                          {/* 성별 */}
+                          <div style={sectionStyle}>
+                            <label style={labelStyle}>성별</label>
+                            <div style={{ display: 'flex', gap: 10, width: '100%' }}>
+                              {['남', '여'].map(g => (
+                                <button key={g}
+                                  onClick={() => setNewMember({ ...newMember, gender: g })}
+                                  style={{
+                                    flex: 1, padding: '12px', borderRadius: 12, border: '1.5px solid',
+                                    borderColor: newMember.gender === g ? '#0047AB' : '#e2e8f0',
+                                    background: newMember.gender === g ? '#EFF6FF' : '#f8fafc',
+                                    color: newMember.gender === g ? '#0047AB' : '#64748b',
+                                    fontWeight: 700, fontSize: 14, cursor: 'pointer',
+                                  }}>
+                                  {g === '남' ? '👨 남' : '👩 여'}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* 출생연도 */}
+                          <div style={sectionStyle}>
+                            <label style={labelStyle}>출생연도</label>
+                            <input type="number" placeholder="예: 1990" inputMode="numeric"
+                              value={newMember.birthYear}
+                              onChange={(e) => setNewMember({ ...newMember, birthYear: e.target.value })}
+                              style={fieldStyle} />
+                          </div>
+
+                          {/* 지역 */}
+                          <div style={sectionStyle}>
+                            <label style={labelStyle}>사는 지역</label>
+                            <input type="text" placeholder="예: Lidcombe, Ryde"
+                              value={newMember.region}
+                              onChange={(e) => setNewMember({ ...newMember, region: e.target.value })}
+                              style={fieldStyle} />
+                          </div>
+
+                          {/* 사진 */}
+                          <div style={sectionStyle}>
+                            <label style={labelStyle}>사진 (본인)</label>
+                            <label style={{
+                              display: 'flex', alignItems: 'center', gap: 10,
+                              padding: '12px 14px', borderRadius: 12, border: '1.5px dashed #cbd5e1',
+                              background: '#f8fafc', cursor: 'pointer',
+                              width: '100%', boxSizing: 'border-box',
+                            }}>
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                              </svg>
+                              <span style={{ fontSize: 14, color: '#64748b' }}>
+                                {newMember.photo ? '사진 변경하기' : '사진 선택하기'}
+                              </span>
+                              <input type="file" accept="image/*" style={{ display: 'none' }}
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => setNewMember({ ...newMember, photo: reader.result });
+                                    reader.readAsDataURL(file);
+                                  }
+                                }} />
+                            </label>
+                            {newMember.photo && (
+                              <img src={newMember.photo} alt="미리보기"
+                                style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 10, border: '2px solid #e2e8f0', marginTop: 8 }} />
+                            )}
+                          </div>
+
+                          {/* 클럽 멤버 */}
+                          <div style={sectionStyle}>
+                            <label style={labelStyle}>클럽 멤버이신가요?</label>
+                            <div style={{ display: 'flex', gap: 10, width: '100%' }}>
+                              {[['yes', '예'], ['no', '아니오']].map(([val, text]) => (
+                                <button key={val}
+                                  onClick={() => setNewMember({ ...newMember, isClubMember: val })}
+                                  style={{
+                                    flex: 1, padding: '12px', borderRadius: 12, border: '1.5px solid',
+                                    borderColor: newMember.isClubMember === val ? '#0047AB' : '#e2e8f0',
+                                    background: newMember.isClubMember === val ? '#EFF6FF' : '#f8fafc',
+                                    color: newMember.isClubMember === val ? '#0047AB' : '#64748b',
+                                    fontWeight: 700, fontSize: 14, cursor: 'pointer',
+                                  }}>{text}</button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* 클럽 멤버일 때 추가 필드 */}
+                          {newMember.isClubMember === 'yes' && (
+                            <>
+                              <div style={sectionStyle}>
+                                <label style={labelStyle}>소속 클럽</label>
+                                {/* 선택된 클럽 표시 */}
+                                {newMember.club && (
+                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 12px', background: '#F0FDF4', borderRadius: 10, border: '1px solid #BBF7D0', marginBottom: 8 }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                                      <span style={{ fontSize: 14, color: '#059669', fontWeight: 600 }}>✓</span>
+                                      <span style={{ fontSize: 14, color: '#059669', fontWeight: 700 }}>{newMember.club}</span>
+                                    </div>
+                                    <button onClick={() => { setNewMember(prev => ({ ...prev, club: '' })); setClubAiState('idle'); }}
+                                      style={{ background: 'none', border: 'none', color: '#6B7280', fontSize: 16, cursor: 'pointer', padding: '0 4px' }}>×</button>
+                                  </div>
+                                )}
+                                {/* 검색 입력 */}
+                                <div style={{ display: 'flex', gap: 8, width: '100%', boxSizing: 'border-box' }}>
+                                  <input
+                                    type="text"
+                                    placeholder="골프장 이름으로 검색..."
+                                    value={clubSearchInput}
+                                    onChange={(e) => { setClubSearchInput(e.target.value); setClubAiState('idle'); }}
+                                    onKeyDown={(e) => e.key === 'Enter' && handleClubSearch()}
+                                    style={{ flex: 1, minWidth: 0, padding: '13px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 15, color: '#1e293b', background: '#f8fafc', outline: 'none', boxSizing: 'border-box' }}
+                                  />
+                                  <button
+                                    onClick={handleClubSearch}
+                                    disabled={clubAiState === 'searching' || !clubSearchInput.trim()}
+                                    style={{ padding: '13px 16px', background: (clubAiState === 'searching' || !clubSearchInput.trim()) ? '#93C5FD' : '#0047AB', color: 'white', border: 'none', borderRadius: 12, fontSize: 13, fontWeight: 700, cursor: (clubAiState === 'searching' || !clubSearchInput.trim()) ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}
+                                  >
+                                    {clubAiState === 'searching' ? '검색중...' : '검색'}
+                                  </button>
+                                </div>
+                                {clubAiState === 'error' && (
+                                  <div style={{ marginTop: 6, fontSize: 12, color: '#DC2626', fontWeight: 600 }}>검색에 실패했습니다. 골프장 관리 메뉴에서 직접 추가해주세요.</div>
+                                )}
+                              </div>
+                              <div style={sectionStyle}>
+                                <label style={labelStyle}>Golflink Number</label>
+                                <input type="text" placeholder="Golflink Number" value={newMember.golflinkNumber}
+                                  onChange={(e) => setNewMember({ ...newMember, golflinkNumber: e.target.value })}
+                                  style={fieldStyle} />
+                              </div>
+                              <div style={sectionStyle}>
+                                <label style={labelStyle}>클럽 회원번호</label>
+                                <input type="text" placeholder="클럽 회원번호" value={newMember.clubMemberNumber}
+                                  onChange={(e) => setNewMember({ ...newMember, clubMemberNumber: e.target.value })}
+                                  style={fieldStyle} />
+                              </div>
+                              <div style={sectionStyle}>
+                                <label style={labelStyle}>핸디</label>
+                                <input type="number" placeholder="핸디캡" inputMode="decimal" value={newMember.handicap}
+                                  onChange={(e) => setNewMember({ ...newMember, handicap: e.target.value })}
+                                  style={fieldStyle} />
+                              </div>
+                            </>
+                          )}
+
+                        </>
+                      );
+                    })()}
+                  </div>
+
+                  {/* 하단 버튼 (고정) */}
+                  <div style={{
+                    flexShrink: 0, padding: '12px 20px 16px',
+                    background: '#fff', borderTop: '1px solid #f1f5f9',
+                  }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '8px' }}>
+                      <button onClick={() => setShowNewMemberForm(false)}
+                        style={{ padding: '14px', borderRadius: 12, border: '1.5px solid #e2e8f0', background: '#fff', color: '#64748b', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>
+                        취소
+                      </button>
+                      <button onClick={handleAddMember}
+                        style={{ padding: '14px', borderRadius: 12, border: 'none', background: '#0047AB', color: '#fff', fontWeight: 800, fontSize: 15, cursor: 'pointer' }}>
+                        추가하기
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
 
@@ -3004,12 +3057,12 @@ function Admin() {
                         <button
                           onClick={() => handleFullPayment(ob.memberId, ob.balance)}
                           style={{
-                            padding: '12px 20px',
-                            background: 'var(--primary-green)',
-                            color: 'white',
+                            padding: '10px 18px',
+                            background: '#D1FAE5',
+                            color: '#065F46',
                             border: 'none',
-                            borderRadius: '6px',
-                            fontSize: '15px',
+                            borderRadius: '10px',
+                            fontSize: '14px',
                             fontWeight: '600',
                             cursor: 'pointer',
                             whiteSpace: 'nowrap'
@@ -3038,10 +3091,10 @@ function Admin() {
                           onClick={() => handlePartialPayment(ob.memberId)}
                           style={{
                             padding: '8px 14px',
-                            background: '#4CAF50',
-                            color: 'white',
+                            background: '#D1FAE5',
+                            color: '#065F46',
                             border: 'none',
-                            borderRadius: '6px',
+                            borderRadius: '10px',
                             fontSize: '13px',
                             fontWeight: '600',
                             cursor: 'pointer',
@@ -4273,7 +4326,425 @@ function Admin() {
           </div>
         )}
 
-        {activeTab === 'courses' && (
+        {activeTab === 'courses' && (() => {
+          const PRIMARY = '#0047AB';
+          const cyclePar = (val) => { const v = parseInt(val) || 4; return v >= 5 ? 3 : v + 1; };
+          const parColor = (p) => p === 3 ? '#16A34A' : p === 5 ? '#C0392B' : '#0047AB';
+
+          const ScorecardGrid = ({ pars, nearHoles, onParClick, onNearClick, readOnly = false }) => {
+            const front = pars.slice(0, 9);
+            const back = pars.slice(9, 18);
+            const frontTotal = front.reduce((s, p) => s + (parseInt(p) || 0), 0);
+            const backTotal = back.reduce((s, p) => s + (parseInt(p) || 0), 0);
+            return (
+              <div style={{ overflowX: 'auto' }}>
+                {[front, back].map((half, hi) => (
+                  <div key={hi} style={{ marginBottom: hi === 0 ? '10px' : '0' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(10, 1fr)', gap: '3px', minWidth: '300px' }}>
+                      {/* 홀 번호 행 */}
+                      {half.map((_, i) => (
+                        <div key={i} style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#94A3B8', padding: '4px 2px' }}>
+                          {hi * 9 + i + 1}
+                        </div>
+                      ))}
+                      <div style={{ textAlign: 'center', fontSize: '10px', fontWeight: '700', color: '#94A3B8', padding: '4px 2px' }}>
+                        {hi === 0 ? 'OUT' : 'IN'}
+                      </div>
+                      {/* 파 행 */}
+                      {half.map((p, i) => {
+                        const idx = hi * 9 + i;
+                        return (
+                          <button key={i} onClick={() => !readOnly && onParClick && onParClick(idx)}
+                            style={{ textAlign: 'center', fontSize: '15px', fontWeight: '800', color: parColor(parseInt(p) || 4),
+                              background: '#F8FAFC', border: '1.5px solid #E8ECF0', borderRadius: '8px', padding: '8px 2px',
+                              cursor: readOnly ? 'default' : 'pointer', transition: 'all 0.1s' }}>
+                            {p || '—'}
+                          </button>
+                        );
+                      })}
+                      <div style={{ textAlign: 'center', fontSize: '13px', fontWeight: '800', color: '#1E293B',
+                        background: '#F1F5F9', border: '1.5px solid #E2E8F0', borderRadius: '8px', padding: '8px 2px',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {hi === 0 ? frontTotal : backTotal}
+                      </div>
+                      {/* 니어 행 */}
+                      {half.map((_, i) => {
+                        const idx = hi * 9 + i;
+                        const isNear = nearHoles?.[idx];
+                        return (
+                          <button key={i} onClick={() => !readOnly && onNearClick && onNearClick(idx)}
+                            style={{ textAlign: 'center', fontSize: '10px', fontWeight: '700',
+                              color: isNear ? '#FFFFFF' : '#94A3B8',
+                              background: isNear ? PRIMARY : '#F8FAFC',
+                              border: `1.5px solid ${isNear ? PRIMARY : '#E8ECF0'}`,
+                              borderRadius: '6px', padding: '4px 2px', cursor: readOnly ? 'default' : 'pointer' }}>
+                            N
+                          </button>
+                        );
+                      })}
+                      <div style={{ textAlign: 'center', fontSize: '10px', color: '#CBD5E1', padding: '4px 2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>—</div>
+                    </div>
+                  </div>
+                ))}
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#94A3B8' }}>
+                  <span style={{ color: '#16A34A', fontWeight: '700' }}>3</span>
+                  <span style={{ color: '#0047AB', fontWeight: '700' }}>4</span>
+                  <span style={{ color: '#C0392B', fontWeight: '700' }}>5</span>
+                  <span>탭하여 변경</span>
+                  <span style={{ marginLeft: '8px' }}>N = 니어핀</span>
+                </div>
+              </div>
+            );
+          };
+
+          const openAddSheet = () => {
+            setCourseSheetMode('add');
+            setCourseSearchQuery('');
+            setCourseSearchState('idle');
+            setCourseSearchResult(null);
+            setNewCourse({ name: '', address: '', maleHolePars: Array(18).fill(4), femaleHolePars: Array(18).fill(4), nearHoles: Array(18).fill(false), isCompetition: false });
+            setCourseSheetOpen(true);
+          };
+
+          const openEditSheet = (course) => {
+            setCourseSheetMode('edit');
+            handleEditCourse(course);
+            setCourseSheetOpen(true);
+            setShowCourseMenu(null);
+          };
+
+          const closeSheet = () => {
+            setCourseSheetOpen(false);
+            setEditingCourse(null);
+            setEditCourseData(null);
+            setCourseSearchState('idle');
+            setCourseSearchResult(null);
+          };
+
+          const handleCourseSearch = async () => {
+            if (!courseSearchQuery.trim()) return;
+            setCourseSearchState('searching');
+            setCourseSearchResult(null);
+            try {
+              const result = await apiService.searchCourse(courseSearchQuery.trim());
+              const malePars = (result.holePars?.male || []).map(p => parseInt(p) || 4);
+              const femalePars = (result.holePars?.female || []).map(p => parseInt(p) || 4);
+              setCourseSearchResult(result);
+              const courseData = {
+                name: result.name || courseSearchQuery,
+                address: result.address || '',
+                maleHolePars: malePars,
+                femaleHolePars: femalePars,
+                nearHoles: Array(18).fill(false),
+                isCompetition: false,
+              };
+              setNewCourse(prev => ({ ...prev, ...courseData }));
+              setEditCourseData(courseData);
+              setCourseSearchState('found');
+            } catch {
+              setCourseSearchState('error');
+            }
+          };
+
+          const handleConfirmAdd = async () => {
+            if (!editCourseData) return;
+            // editCourseData로 newCourse 동기화 후 저장
+            setNewCourse({
+              name: editCourseData.name,
+              address: editCourseData.address || '',
+              maleHolePars: editCourseData.maleHolePars,
+              femaleHolePars: editCourseData.femaleHolePars,
+              nearHoles: editCourseData.nearHoles,
+              isCompetition: editCourseData.isCompetition,
+            });
+            await apiService.createCourse({
+              name: editCourseData.name,
+              address: editCourseData.address || '',
+              holePars: {
+                male: editCourseData.maleHolePars.map(p => parseInt(p) || 4),
+                female: editCourseData.femaleHolePars.map(p => parseInt(p) || 4),
+              },
+              nearHoles: editCourseData.nearHoles,
+              isCompetition: editCourseData.isCompetition,
+            });
+            if (refreshCourses) await refreshCourses();
+            closeSheet();
+          };
+
+          const handleConfirmEdit = async () => {
+            await handleSaveCourseEdit();
+            closeSheet();
+          };
+
+          const handleDeleteAndClose = async (courseId) => {
+            await handleDeleteCourse(courseId);
+            closeSheet();
+          };
+
+          const filteredCourses = courseListSearch.trim()
+            ? courses.filter(c => {
+                const q = courseListSearch.trim().toLowerCase();
+                return (c.name || '').toLowerCase().includes(q) || (c.address || '').toLowerCase().includes(q);
+              })
+            : courses;
+
+          return (
+          <div>
+            {/* ── 검색창 ── */}
+            <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
+              <div style={{ position: 'relative', flex: 1 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                  style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input
+                  type="text"
+                  placeholder="골프장 이름 또는 지역 검색"
+                  value={courseListSearch}
+                  onChange={e => setCourseListSearch(e.target.value)}
+                  style={{
+                    width: '100%', boxSizing: 'border-box',
+                    padding: '12px 36px 12px 42px',
+                    border: 'none', borderRadius: '14px',
+                    fontSize: '14px', color: '#1E293B', background: '#FFFFFF',
+                    outline: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  }}
+                />
+                {courseListSearch && (
+                  <button onClick={() => setCourseListSearch('')}
+                    style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: '#F1F5F9', border: 'none', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94A3B8', fontSize: 14, fontWeight: 700 }}>
+                    ×
+                  </button>
+                )}
+              </div>
+              <button onClick={openAddSheet}
+                style={{ flexShrink: 0, width: 46, height: 46, borderRadius: 14, background: PRIMARY, color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,71,171,0.25)', fontSize: 22, fontWeight: 300 }}>
+                +
+              </button>
+            </div>
+
+            {/* ── COURSE DIRECTORY 헤더 ── */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 10, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.12em', marginBottom: 4 }}>COURSE DIRECTORY</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: '#1E293B' }}>
+                전체 <span style={{ color: PRIMARY }}>{courseListSearch.trim() ? `${filteredCourses.length}` : courses.length}개</span>
+              </div>
+            </div>
+
+            {filteredCourses.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94A3B8', fontSize: '14px', background: '#FFFFFF', borderRadius: '18px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
+                <div style={{ fontSize: '36px', marginBottom: '10px' }}>⛳</div>
+                {courses.length === 0
+                  ? <><div>등록된 골프장이 없습니다</div><div style={{ marginTop: '6px', fontSize: '12px' }}>+ 버튼을 눌러 등록하세요</div></>
+                  : <div>"{courseListSearch}"에 해당하는 골프장이 없습니다</div>
+                }
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {filteredCourses.map(course => {
+                  const male = course.holePars?.male || [];
+                  const totalPar = male.reduce((s, p) => s + (p || 0), 0);
+                  const nearCount = (course.nearHoles || []).filter(Boolean).length;
+                  // 이니셜 (이미지 없을 때 플레이스홀더)
+                  const initials = (course.name || '').slice(0, 2).toUpperCase();
+                  // 이니셜 배경색 (이름 기반 고정색)
+                  const hue = [...(course.name || '')].reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360;
+                  return (
+                    <div key={course.id} onClick={() => openEditSheet(course)}
+                      style={{ background: '#FFFFFF', borderRadius: '18px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', padding: '12px 14px 12px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 }}>
+                      {/* 썸네일 */}
+                      <div style={{ width: 64, height: 64, borderRadius: 14, flexShrink: 0, overflow: 'hidden', background: course.courseImage ? 'transparent' : `hsl(${hue},45%,55%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        {course.courseImage
+                          ? <img src={course.courseImage} alt={course.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          : <span style={{ fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em' }}>{initials}</span>
+                        }
+                      </div>
+                      {/* 정보 */}
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+                          <span style={{ fontSize: 15, fontWeight: 700, color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{course.name}</span>
+                          {course.isCompetition && (
+                            <span style={{ fontSize: '10px', fontWeight: '700', color: '#fff', background: PRIMARY, borderRadius: '4px', padding: '2px 6px', flexShrink: 0 }}>컴페티션</span>
+                          )}
+                        </div>
+                        {course.address && (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#64748B' }}>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="#94A3B8"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{course.address}</span>
+                          </div>
+                        )}
+                        {nearCount > 0 && (
+                          <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>니어핀 {nearCount}홀</div>
+                        )}
+                      </div>
+                      {/* PAR 배지 + 화살표 */}
+                      <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
+                        {totalPar > 0 && (
+                          <span style={{ fontSize: 11, fontWeight: 800, color: PRIMARY, background: '#EFF6FF', borderRadius: 8, padding: '3px 8px', letterSpacing: '0.04em' }}>
+                            PAR {totalPar}
+                          </span>
+                        )}
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* ── 바텀 시트 ── */}
+            {courseSheetOpen && (
+              <div style={{ position: 'fixed', inset: 0, zIndex: 3000 }}>
+                {/* 딤 */}
+                <div onClick={closeSheet} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }} />
+                {/* 시트 */}
+                <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px',
+                  background: '#F8FAFC', borderRadius: '20px 20px 0 0', maxHeight: '90vh', overflowY: 'auto', paddingBottom: '32px' }}>
+                  {/* 핸들 */}
+                  <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
+                    <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '2px' }} />
+                  </div>
+                  {/* 헤더 */}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px 16px' }}>
+                    <div>
+                      <div style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '4px' }}>
+                        {courseSheetMode === 'add' ? 'NEW COURSE' : 'EDIT COURSE'}
+                      </div>
+                      <div style={{ fontSize: '20px', fontWeight: '800', color: '#1E293B' }}>
+                        {courseSheetMode === 'add' ? '골프장 추가' : (editCourseData?.name || '')}
+                      </div>
+                    </div>
+                    <button onClick={closeSheet}
+                      style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#F1F5F9', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', color: '#64748B' }}>
+                      ×
+                    </button>
+                  </div>
+
+                  <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+
+                    {/* ─── ADD 모드: AI 검색 ─── */}
+                    {courseSheetMode === 'add' && (
+                      <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', padding: '16px' }}>
+                        <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', marginBottom: '8px' }}>골프장 이름으로 자동 검색</div>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <input
+                            type="text"
+                            value={courseSearchQuery}
+                            onChange={e => setCourseSearchQuery(e.target.value)}
+                            onKeyDown={e => e.key === 'Enter' && handleCourseSearch()}
+                            placeholder="예: Strathfield Golf Club"
+                            style={{ flex: 1, padding: '11px 14px', borderRadius: '10px', border: '1px solid #E8ECF0', fontSize: '14px', outline: 'none', background: '#FAFBFC' }}
+                          />
+                          <button onClick={handleCourseSearch} disabled={courseSearchState === 'searching' || !courseSearchQuery.trim()}
+                            style={{ padding: '11px 16px', borderRadius: '10px', background: PRIMARY, color: '#fff', border: 'none', fontWeight: '700', fontSize: '13px', cursor: 'pointer', opacity: courseSearchState === 'searching' || !courseSearchQuery.trim() ? 0.5 : 1, whiteSpace: 'nowrap' }}>
+                            {courseSearchState === 'searching' ? '검색 중…' : 'AI 검색'}
+                          </button>
+                        </div>
+
+                        {courseSearchState === 'error' && (
+                          <div style={{ marginTop: '10px', fontSize: '13px', color: '#DC2626', background: '#FEF2F2', padding: '10px 12px', borderRadius: '8px' }}>
+                            검색 실패. 서버의 .env에 ANTHROPIC_API_KEY를 확인하세요.
+                          </div>
+                        )}
+
+                        {courseSearchState === 'found' && courseSearchResult && (
+                          <div style={{ marginTop: '12px', background: '#EBF2FF', borderRadius: '10px', padding: '12px', border: '1px solid #BFDBFE' }}>
+                            <div style={{ fontSize: '12px', fontWeight: '700', color: PRIMARY, marginBottom: '6px' }}>✓ 골프장 정보를 찾았습니다</div>
+                            <div style={{ fontSize: '14px', fontWeight: '700', color: '#1E293B' }}>{courseSearchResult.name}</div>
+                            {courseSearchResult.address && <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>{courseSearchResult.address}</div>}
+                            <div style={{ fontSize: '12px', color: '#64748B', marginTop: '4px' }}>
+                              Par {courseSearchResult.totalMale || (courseSearchResult.holePars?.male || []).reduce((s, p) => s + p, 0)}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* ─── EDIT 모드 OR ADD 검색 완료: 기본 정보 ─── */}
+                    {(courseSheetMode === 'edit' || courseSearchState === 'found') && editCourseData && (
+                      <>
+                        <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', padding: '16px' }}>
+                          <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', marginBottom: '8px' }}>기본 정보</div>
+                          <input value={editCourseData.name}
+                            onChange={e => setEditCourseData({ ...editCourseData, name: e.target.value })}
+                            placeholder="골프장 이름"
+                            style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', border: '1px solid #E8ECF0', fontSize: '14px', outline: 'none', boxSizing: 'border-box', marginBottom: '8px' }} />
+                          <input value={editCourseData.address || ''}
+                            onChange={e => setEditCourseData({ ...editCourseData, address: e.target.value })}
+                            placeholder="주소"
+                            style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', border: '1px solid #E8ECF0', fontSize: '14px', outline: 'none', boxSizing: 'border-box', marginBottom: '12px' }} />
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <div>
+                              <div style={{ fontSize: '14px', fontWeight: '600', color: '#1E293B' }}>컴페티션 골프장</div>
+                              <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '2px' }}>대회 및 공식 경기용</div>
+                            </div>
+                            <button onClick={() => setEditCourseData(prev => ({ ...prev, isCompetition: !prev.isCompetition }))}
+                              style={{ width: '46px', height: '26px', borderRadius: '13px', border: 'none', background: editCourseData.isCompetition ? PRIMARY : '#E2E8F0', cursor: 'pointer', position: 'relative', padding: 0 }}>
+                              <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#fff', position: 'absolute', top: '3px', left: editCourseData.isCompetition ? '23px' : '3px', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.15)' }} />
+                            </button>
+                          </div>
+                        </div>
+
+                        <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', padding: '16px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                            <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748B' }}>홀별 PAR · 니어핀 설정</div>
+                            <div style={{ fontSize: '12px', fontWeight: '700', color: '#1E293B' }}>
+                              Total {editCourseData.maleHolePars.reduce((s, p) => s + (parseInt(p) || 0), 0)}
+                            </div>
+                          </div>
+                          <ScorecardGrid
+                            pars={editCourseData.maleHolePars}
+                            nearHoles={editCourseData.nearHoles}
+                            onParClick={(idx) => {
+                              const next = [...editCourseData.maleHolePars];
+                              next[idx] = cyclePar(next[idx]);
+                              const nextF = [...editCourseData.femaleHolePars];
+                              nextF[idx] = next[idx];
+                              setEditCourseData({ ...editCourseData, maleHolePars: next, femaleHolePars: nextF });
+                            }}
+                            onNearClick={(idx) => {
+                              const next = [...(editCourseData.nearHoles || Array(18).fill(false))];
+                              next[idx] = !next[idx];
+                              setEditCourseData({ ...editCourseData, nearHoles: next });
+                            }}
+                          />
+                        </div>
+
+                        <div style={{ display: 'flex', gap: '8px', paddingBottom: '8px' }}>
+                          {courseSheetMode === 'edit' && (
+                            <button onClick={() => handleDeleteAndClose(editingCourse)}
+                              style={{ padding: '14px 16px', borderRadius: '12px', background: '#FEF2F2', color: '#DC2626', border: '1px solid #FECACA', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>
+                              삭제
+                            </button>
+                          )}
+                          <button onClick={courseSheetMode === 'add' ? handleConfirmAdd : handleConfirmEdit}
+                            disabled={isSavingCourse || isAddingCourse}
+                            style={{ flex: 1, padding: '14px', borderRadius: '12px', background: PRIMARY, color: '#fff', border: 'none', fontWeight: '700', fontSize: '15px', cursor: 'pointer', opacity: (isSavingCourse || isAddingCourse) ? 0.6 : 1 }}>
+                            {(isSavingCourse || isAddingCourse) ? '저장 중…' : courseSheetMode === 'add' ? '등록' : '저장'}
+                          </button>
+                        </div>
+                      </>
+                    )}
+
+                    {/* ADD 모드: 검색 전 안내 */}
+                    {courseSheetMode === 'add' && courseSearchState === 'idle' && (
+                      <div style={{ textAlign: 'center', padding: '24px', color: '#94A3B8', fontSize: '13px' }}>
+                        골프장 이름을 입력하고 AI 검색을 누르면<br/>이름, 주소, 홀 정보가 자동으로 채워집니다.
+                      </div>
+                    )}
+
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+          );
+        })()}
+
+        {/* placeholder to keep old code reference */}
+        {false && activeTab === 'courses_old' && (
           <div>
             <div className="card">
               <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>
@@ -4800,9 +5271,38 @@ function Admin() {
         {activeTab === 'scoreManagement' && (
           <div>
             {(scoreManagementView === 'rounds' || scoreManagementView === 'memberScores' || scoreManagementView === 'allScores') && (
-              <div style={{ 
-                display: 'flex', 
-                gap: '6px', 
+              <div style={{ margin: '12px 16px 16px', background: 'linear-gradient(135deg, #0047AB 0%, #1a56db 100%)', borderRadius: '16px', padding: '36px 24px', position: 'relative', overflow: 'hidden' }}>
+                {/* 스코어카드 배경 패턴 */}
+                <svg style={{ position: 'absolute', right: -12, top: '50%', transform: 'translateY(-50%)', opacity: 0.15, pointerEvents: 'none' }} width="160" height="130" viewBox="0 0 160 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  {/* 스코어카드 본체 */}
+                  <rect x="6" y="8" width="118" height="114" rx="10" stroke="white" strokeWidth="4.5" />
+                  {/* 상단 헤더 구분선 */}
+                  <line x1="6" y1="30" x2="124" y2="30" stroke="white" strokeWidth="3.5" />
+                  {/* 세로 구분선 (홀 컬럼) */}
+                  <line x1="34" y1="30" x2="34" y2="122" stroke="white" strokeWidth="2.5" />
+                  <line x1="62" y1="30" x2="62" y2="122" stroke="white" strokeWidth="2.5" />
+                  <line x1="90" y1="30" x2="90" y2="122" stroke="white" strokeWidth="2.5" />
+                  {/* 가로 구분선 (행) */}
+                  <line x1="6" y1="52" x2="124" y2="52" stroke="white" strokeWidth="2" />
+                  <line x1="6" y1="74" x2="124" y2="74" stroke="white" strokeWidth="2" />
+                  <line x1="6" y1="96" x2="124" y2="96" stroke="white" strokeWidth="2" />
+                  {/* 헤더 텍스트 자리 (짧은 선) */}
+                  <line x1="12" y1="20" x2="28" y2="20" stroke="white" strokeWidth="3" strokeLinecap="round" />
+                  <line x1="40" y1="20" x2="56" y2="20" stroke="white" strokeWidth="3" strokeLinecap="round" />
+                  <line x1="68" y1="20" x2="84" y2="20" stroke="white" strokeWidth="3" strokeLinecap="round" />
+                  <line x1="96" y1="20" x2="118" y2="20" stroke="white" strokeWidth="3" strokeLinecap="round" />
+                  {/* 연필 */}
+                  <rect x="132" y="30" width="18" height="68" rx="4" stroke="white" strokeWidth="4" transform="rotate(15 132 30)" />
+                  <polygon points="140,98 148,98 144,112" stroke="white" strokeWidth="3" strokeLinejoin="round" fill="none" transform="rotate(15 144 98)" />
+                </svg>
+                <div style={{ position: 'relative', fontSize: '18px', fontWeight: '800', color: 'white', marginBottom: '8px' }}>전체회원 스코어관리</div>
+                <div style={{ position: 'relative', fontSize: '14px', color: 'rgba(255,255,255,0.8)', lineHeight: '1.7' }}>각 라운딩별, 회원별 스코어를 입력하고 관리하세요.</div>
+              </div>
+            )}
+            {(scoreManagementView === 'rounds' || scoreManagementView === 'memberScores' || scoreManagementView === 'allScores') && (
+              <div style={{
+                display: 'flex',
+                gap: '6px',
                 marginBottom: '16px',
                 padding: '0 16px'
               }}>
@@ -6888,172 +7388,56 @@ function Admin() {
             </div>
 
             <div className="card" style={{ marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
-                입금항목 관리
-              </h3>
-              <div style={{
-                padding: '10px 12px',
-                background: 'var(--bg-green)',
-                borderRadius: '6px',
-                marginBottom: '12px',
-                fontSize: '12px',
-                color: 'var(--text-dark)', opacity: 0.7
-              }}>
-                • 참가비 거래 시 사용할 입금 항목을 관리합니다
-              </div>
-              
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <input
-                    type="text"
-                    value={newIncomeCategoryName}
-                    onChange={(e) => setNewIncomeCategoryName(e.target.value)}
-                    placeholder="새 입금항목명 입력..."
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '8px',
-                      fontSize: '14px'
-                    }}
-                  />
-                  <button
-                    onClick={handleAddIncomeCategory}
-                    style={{
-                      padding: '12px 20px',
-                      background: 'var(--primary-green)',
-                      color: 'var(--text-light)',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    + 추가
-                  </button>
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gap: '8px' }}>
-                {incomeCategories.map((category) => (
-                  <div
-                    key={category.id}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '12px',
-                      background: 'var(--bg-green)',
-                      borderRadius: '8px'
-                    }}
-                  >
-                    <div style={{ fontSize: '15px', fontWeight: '600' }}>
-                      {category.name}
+              <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '10px' }}>입금항목 관리</h3>
+              {/* 기존 항목 목록 */}
+              {incomeCategories.length === 0 ? (
+                <div style={{ padding: '8px 0', color: '#9CA3AF', fontSize: '13px', marginBottom: '10px' }}>등록된 입금항목이 없습니다</div>
+              ) : (
+                <div style={{ marginBottom: '10px' }}>
+                  {incomeCategories.map((category, i) => (
+                    <div key={category.id} style={{
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      padding: '7px 0',
+                      borderBottom: i < incomeCategories.length - 1 ? '1px solid #F1F5F9' : 'none',
+                    }}>
+                      <span style={{ fontSize: '14px', color: '#1e293b' }}>{category.name}</span>
+                      <button onClick={() => handleDeleteIncomeCategory(category.id)}
+                        style={{ padding: '3px 10px', background: 'none', color: '#DC2626', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>삭제</button>
                     </div>
-                    <button
-                      onClick={() => handleDeleteIncomeCategory(category.id)}
-                      style={{
-                        padding: '6px 12px',
-                        background: 'var(--alert-red)',
-                        color: 'var(--text-light)',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      × 삭제
-                    </button>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              )}
+              {/* 새 항목 추가 */}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input type="text" value={newIncomeCategoryName} onChange={(e) => setNewIncomeCategoryName(e.target.value)} placeholder="새 입금항목명 입력..." style={{ flex: 1, padding: '10px 12px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '14px' }} />
+                <button onClick={handleAddIncomeCategory} style={{ padding: '10px 16px', background: '#0047AB', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
               </div>
             </div>
 
             <div className="card" style={{ marginBottom: '16px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
-                출금항목 관리
-              </h3>
-              <div style={{
-                padding: '10px 12px',
-                background: 'var(--bg-green)',
-                borderRadius: '6px',
-                marginBottom: '12px',
-                fontSize: '12px',
-                color: 'var(--text-dark)', opacity: 0.7
-              }}>
-                • 참가비 거래 시 사용할 출금 항목을 관리합니다
-              </div>
-              
-              <div style={{ marginBottom: '16px' }}>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <input
-                    type="text"
-                    value={newExpenseCategoryName}
-                    onChange={(e) => setNewExpenseCategoryName(e.target.value)}
-                    placeholder="새 출금항목명 입력..."
-                    style={{
-                      flex: 1,
-                      padding: '12px',
-                      border: '1px solid var(--border-color)',
-                      borderRadius: '8px',
-                      fontSize: '14px'
-                    }}
-                  />
-                  <button
-                    onClick={handleAddExpenseCategory}
-                    style={{
-                      padding: '12px 20px',
-                      background: 'var(--primary-green)',
-                      color: 'var(--text-light)',
-                      border: 'none',
-                      borderRadius: '8px',
-                      fontSize: '14px',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      whiteSpace: 'nowrap'
-                    }}
-                  >
-                    + 추가
-                  </button>
-                </div>
-              </div>
-
-              <div style={{ display: 'grid', gap: '8px' }}>
-                {expenseCategories.map((category) => (
-                  <div
-                    key={category.id}
-                    style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      padding: '12px',
-                      background: 'var(--bg-green)',
-                      borderRadius: '8px'
-                    }}
-                  >
-                    <div style={{ fontSize: '15px', fontWeight: '600' }}>
-                      {category.name}
+              <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '10px' }}>출금항목 관리</h3>
+              {/* 기존 항목 목록 */}
+              {expenseCategories.length === 0 ? (
+                <div style={{ padding: '8px 0', color: '#9CA3AF', fontSize: '13px', marginBottom: '10px' }}>등록된 출금항목이 없습니다</div>
+              ) : (
+                <div style={{ marginBottom: '10px' }}>
+                  {expenseCategories.map((category, i) => (
+                    <div key={category.id} style={{
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      padding: '7px 0',
+                      borderBottom: i < expenseCategories.length - 1 ? '1px solid #F1F5F9' : 'none',
+                    }}>
+                      <span style={{ fontSize: '14px', color: '#1e293b' }}>{category.name}</span>
+                      <button onClick={() => handleDeleteExpenseCategory(category.id)}
+                        style={{ padding: '3px 10px', background: 'none', color: '#DC2626', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>삭제</button>
                     </div>
-                    <button
-                      onClick={() => handleDeleteExpenseCategory(category.id)}
-                      style={{
-                        padding: '6px 12px',
-                        background: 'var(--alert-red)',
-                        color: 'var(--text-light)',
-                        border: 'none',
-                        borderRadius: '6px',
-                        fontSize: '13px',
-                        fontWeight: '600',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      × 삭제
-                    </button>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              )}
+              {/* 새 항목 추가 */}
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input type="text" value={newExpenseCategoryName} onChange={(e) => setNewExpenseCategoryName(e.target.value)} placeholder="새 출금항목명 입력..." style={{ flex: 1, padding: '10px 12px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '14px' }} />
+                <button onClick={handleAddExpenseCategory} style={{ padding: '10px 16px', background: '#0047AB', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
               </div>
             </div>
 
@@ -7225,6 +7609,58 @@ function Admin() {
                 }}
               >
                 {paymentGuideText !== savedPaymentGuideText ? '저장하기' : '저장됨'}
+              </button>
+            </div>
+
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
+                카카오톡 오픈채팅방 링크
+              </h3>
+              <div style={{ padding: '10px 12px', background: 'var(--bg-green)', borderRadius: '6px', marginBottom: '12px', fontSize: '12px', color: 'var(--text-dark)', opacity: 0.7 }}>
+                • 회원가입 완료 화면에 표시될 카카오톡 오픈채팅방 링크를 입력합니다
+              </div>
+              <input
+                type="url"
+                value={kakaoOpenChatUrl}
+                onChange={e => setKakaoOpenChatUrl(e.target.value)}
+                placeholder="https://open.kakao.com/o/..."
+                style={{ width: '100%', padding: '12px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '14px', marginBottom: '12px', boxSizing: 'border-box' }}
+              />
+              <button
+                onClick={async () => {
+                  try {
+                    await apiService.updateSetting('kakaoOpenChatUrl', { value: kakaoOpenChatUrl });
+                    setSavedKakaoOpenChatUrl(kakaoOpenChatUrl);
+                    alert('링크가 저장되었습니다.');
+                  } catch {
+                    alert('저장에 실패했습니다.');
+                  }
+                }}
+                disabled={kakaoOpenChatUrl === savedKakaoOpenChatUrl}
+                style={{ padding: '12px 24px', background: kakaoOpenChatUrl !== savedKakaoOpenChatUrl ? 'var(--primary-green)' : '#ccc', color: 'var(--text-light)', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: kakaoOpenChatUrl !== savedKakaoOpenChatUrl ? 'pointer' : 'not-allowed' }}
+              >
+                {kakaoOpenChatUrl !== savedKakaoOpenChatUrl ? '저장하기' : '저장됨'}
+              </button>
+            </div>
+
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>
+                회원가입 페이지
+              </h3>
+              <div style={{ padding: '10px 12px', background: 'var(--bg-green)', borderRadius: '6px', marginBottom: '12px', fontSize: '12px', color: 'var(--text-dark)', opacity: 0.7 }}>
+                • 아래 링크를 복사해서 공유하면 누구나 회원가입 신청을 할 수 있습니다
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0', marginBottom: 12 }}>
+                <span style={{ flex: 1, fontSize: 13, color: '#475569', wordBreak: 'break-all' }}>{window.location.origin}/join</span>
+              </div>
+              <button
+                onClick={() => {
+                  navigator.clipboard.writeText(window.location.origin + '/join');
+                  alert('링크가 복사되었습니다!');
+                }}
+                style={{ padding: '12px 24px', background: 'var(--primary-green)', color: 'var(--text-light)', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+              >
+                링크 복사하기
               </button>
             </div>
 
@@ -7691,6 +8127,36 @@ function Admin() {
                   활동 로그가 없습니다
                 </div>
               )}
+            </div>
+
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700' }}>메뉴 표시 설정</h3>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid #f0f0f0' }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-dark)' }}>거래 내역 메뉴 표시</div>
+                  <div style={{ fontSize: 12, color: 'var(--text-dark)', opacity: 0.6, marginTop: 2 }}>관리 메뉴에서 거래 내역 항목을 표시합니다</div>
+                </div>
+                <div
+                  onClick={() => {
+                    const next = !showLedger;
+                    setShowLedger(next);
+                    localStorage.setItem('devShowLedger', String(next));
+                  }}
+                  style={{
+                    width: 48, height: 28, borderRadius: 14,
+                    background: showLedger ? '#0047AB' : '#ccc',
+                    position: 'relative', cursor: 'pointer', flexShrink: 0,
+                    transition: 'background 0.2s',
+                  }}
+                >
+                  <div style={{
+                    position: 'absolute', top: 3, left: showLedger ? 23 : 3,
+                    width: 22, height: 22, borderRadius: '50%', background: '#fff',
+                    boxShadow: '0 1px 4px rgba(0,0,0,0.2)',
+                    transition: 'left 0.2s',
+                  }} />
+                </div>
+              </div>
             </div>
 
             <div className="card">

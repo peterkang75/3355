@@ -4,7 +4,6 @@ import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 import PageHeader from '../components/common/PageHeader';
-import ProfileBadge from '../components/common/ProfileBadge';
 
 function RoundingManagement() {
   const navigate = useNavigate();
@@ -211,10 +210,10 @@ function RoundingManagement() {
 
   return (
     <div>
-      <PageHeader 
+      <PageHeader
         title="라운딩 관리"
         onBack={() => navigate('/booking')}
-        rightContent={<ProfileBadge user={user} onClick={() => navigate('/mypage')} />}
+        user={user}
       />
 
       <div className="page-content">
@@ -233,7 +232,7 @@ function RoundingManagement() {
                   fontSize: '14px', 
                   fontWeight: '700',
                   color: booking.type === '컴페티션' ? 'white' : '#333',
-                  background: booking.type === '컴페티션' ? '#1a3d47' : '#ff8c42',
+                  background: booking.type === '컴페티션' ? '#0047AB' : '#ff8c42',
                   padding: '6px 10px',
                   borderRadius: '6px',
                   marginBottom: '8px',

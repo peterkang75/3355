@@ -22,10 +22,12 @@ import MemberInfoForm from './pages/MemberInfoForm';
 import Menu from './pages/Menu';
 import PickWinner from './pages/PickWinner';
 import RoundingListV2 from './pages/RoundingListV2';
+import Settlement from './pages/Settlement';
+import GuestJoin from './pages/GuestJoin';
+import JoinPage from './pages/JoinPage';
 import Navigation from './components/Navigation';
 import InstallPrompt from './components/InstallPrompt';
 import KakaoTalkBanner from './components/KakaoTalkBanner';
-import defaultLogoImage from './assets/logo-transparent.png';
 
 function AuthenticatedRoutes({ user, logout, requiresProfileComplete }) {
   const navigate = useNavigate();
@@ -45,7 +47,7 @@ function AuthenticatedRoutes({ user, logout, requiresProfileComplete }) {
         <Route path="/" element={<Dashboard />} />
         <Route path="/board" element={<Board />} />
         <Route path="/booking" element={<RoundingListV2 />} />
-        <Route path="/v2/roundings" element={<RoundingListV2 />} />
+        <Route path="/v2/roundings" element={<Navigate to="/booking" replace />} />
         <Route path="/fees" element={<Fees />} />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/admin" element={<Admin />} />
@@ -61,6 +63,8 @@ function AuthenticatedRoutes({ user, logout, requiresProfileComplete }) {
         <Route path="/bingo" element={<BingoGame />} />
         <Route path="/menu" element={<Menu />} />
         <Route path="/games/pick-winner" element={<PickWinner />} />
+        <Route path="/settlement" element={<Settlement />} />
+        <Route path="/member-info" element={<MemberInfoForm />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
       {location.pathname !== '/play' && <Navigation user={user} onLogout={logout} />}
@@ -72,25 +76,31 @@ function AuthenticatedRoutes({ user, logout, requiresProfileComplete }) {
 
 function App() {
   const { user, loading, login, logout, requiresProfileComplete } = useApp();
+  useEffect(() => {
+    if (!loading) {
+      const el = document.getElementById('splash-screen');
+      if (el) el.remove();
+    }
+  }, [loading]);
 
-  if (loading) {
-    return (
-      <div className="loading-screen">
-        <div className="loading-content">
-          <img src={defaultLogoImage} alt="3355 골프 클럽" className="loading-logo" />
-          <h1 className="loading-title">3355 골프 클럽</h1>
-          <p className="loading-welcome">환영합니다</p>
-          <div className="loading-spinner"></div>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return null;
+
+  // 게스트 세션이 있으면 /play 접근 허용
+  const hasGuestSession = (() => {
+    try {
+      const s = JSON.parse(localStorage.getItem('guestSession') || 'null');
+      return !!(s?.guestMemberId && s?.bookingId);
+    } catch { return false; }
+  })();
 
   return (
     <Router>
       <Routes>
         {/* 로그인 없이 접근 가능한 공개 라우트 */}
-        <Route path="/member-info" element={<MemberInfoForm />} />
+        <Route path="/invite/:token" element={<GuestJoin />} />
+        <Route path="/join" element={<JoinPage />} />
+        {/* 게스트 세션으로 /play 직접 접근 */}
+        {hasGuestSession && <Route path="/play" element={<Play />} />}
         {/* 인증 필요 라우트 */}
         <Route
           path="*"

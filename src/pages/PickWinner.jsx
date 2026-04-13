@@ -421,27 +421,30 @@ function PickWinner() {
 
   if (loading) {
     return (
-      <div className="page-content">
+      <>
         <PageHeader title="우승자 맞추기" onBack={() => navigate('/menu')} />
-        <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
-          로딩 중...
+        <div className="page-content" style={{ paddingTop: '12px' }}>
+          <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
+            로딩 중...
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (!bookingId) {
     return (
-      <div className="page-content">
+      <>
         <PageHeader title="우승자 맞추기" onBack={() => navigate('/menu')} />
-        
-        <div style={{ padding: '0 16px' }}>
-          <div className="card" style={{ marginBottom: '16px', padding: '16px' }}>
-            <div style={{ fontSize: '14px', color: '#666', marginBottom: '8px' }}>
-              🏆 라운딩 우승자를 예측해보세요!
+        <div className="page-content" style={{ paddingTop: '12px' }}>
+
+          {/* 안내 카드 */}
+          <div style={{ padding: '4px 4px 12px' }}>
+            <div style={{ fontSize: 17, fontWeight: 800, color: '#1E293B', marginBottom: 6, letterSpacing: '-0.02em' }}>
+              🏆 이번 라운딩의 주인공은 누구?!
             </div>
-            <div style={{ fontSize: '13px', color: '#888' }}>
-              각 그레이드별로 우승할 것 같은 선수를 선택하고 투표하세요.
+            <div style={{ fontSize: 13, color: '#64748B', lineHeight: 1.6 }}>
+              당신의 예측 본능을 발휘해 보세요! 각 그레이드별 우승할 것 같은 선수를 선택하고 투표하세요. 적중하신 분께는 소정의 상품이 지급됩니다! 🎁
             </div>
           </div>
 
@@ -452,9 +455,17 @@ function PickWinner() {
           ) : (
             activeBookings.map(booking => {
               const phaseInfo = getPhaseInfo(booking);
-              const userVotedForThis = allVotes.some(v => v.roundingId === booking.id && v.voterId === user?.id);
               const isVotingEnabled = booking.votingEnabled !== false;
-              
+              const participantCount = booking.participants?.length || booking.participantCount || 0;
+              const dateObj = new Date(booking.date);
+              const dateStr = dateObj.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
+              const phaseColor = {
+                voting: { bg: '#D1FAE5', color: '#065F46', label: '투표 중' },
+                voting_disabled: { bg: '#F3F4F6', color: '#6B7280', label: '투표 비활성' },
+                voting_closed: { bg: '#FEF3C7', color: '#92400E', label: '투표 마감' },
+                results: { bg: '#FEF3C7', color: '#92400E', label: '결과 확인' },
+              }[phaseInfo.phase] || { bg: '#F3F4F6', color: '#6B7280', label: '-' };
+
               const handleToggleVoting = async (e) => {
                 e.stopPropagation();
                 try {
@@ -466,151 +477,159 @@ function PickWinner() {
                   console.error('Failed to toggle voting:', error);
                 }
               };
-              
+
               return (
                 <div
                   key={booking.id}
-                  className="card"
-                  style={{ marginBottom: '12px', padding: '16px' }}
+                  onClick={() => navigate(`/games/pick-winner?id=${booking.id}`)}
+                  style={{
+                    position: 'relative',
+                    background: 'linear-gradient(135deg, #0047AB 0%, #1565c0 60%, #1976d2 100%)',
+                    borderRadius: 18,
+                    boxShadow: '0 4px 20px rgba(0,71,171,0.30)',
+                    marginBottom: 14,
+                    overflow: 'hidden',
+                    cursor: 'pointer',
+                  }}
                 >
-                  <div 
-                    onClick={() => navigate(`/games/pick-winner?id=${booking.id}`)}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ fontWeight: '600', marginBottom: '4px' }}>
-                          {booking.title || booking.courseName}
+                  {/* 트로피 SVG 데코레이션 */}
+                  <svg style={{ position: 'absolute', right: -8, top: '50%', transform: 'translateY(-50%)', opacity: 0.15, pointerEvents: 'none' }} width="130" height="140" viewBox="0 0 130 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    {/* 컵 본체 */}
+                    <path d="M35 10 H95 V60 Q95 95 65 105 Q35 95 35 60 Z" stroke="white" strokeWidth="5" strokeLinejoin="round" fill="none"/>
+                    {/* 왼쪽 손잡이 */}
+                    <path d="M35 20 H18 Q8 20 8 35 Q8 50 22 52 Q28 53 35 50" stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"/>
+                    {/* 오른쪽 손잡이 */}
+                    <path d="M95 20 H112 Q122 20 122 35 Q122 50 108 52 Q102 53 95 50" stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"/>
+                    {/* 기둥 */}
+                    <line x1="65" y1="105" x2="65" y2="122" stroke="white" strokeWidth="5" strokeLinecap="round"/>
+                    {/* 받침대 */}
+                    <rect x="40" y="122" width="50" height="11" rx="5" stroke="white" strokeWidth="5" fill="none"/>
+                    {/* 별 장식 */}
+                    <line x1="65" y1="32" x2="65" y2="52" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+                    <line x1="55" y1="35" x2="75" y2="49" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+                    <line x1="75" y1="35" x2="55" y2="49" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+                  </svg>
+
+                  {/* 타이틀 + 상태 */}
+                  <div style={{ padding: '16px 18px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1.2, flex: 1, marginRight: 12 }}>
+                      {booking.title || booking.courseName}
+                    </div>
+                    <div style={{ background: phaseColor.bg, color: phaseColor.color, fontSize: 11, fontWeight: 700, padding: '4px 10px', borderRadius: 20, flexShrink: 0 }}>
+                      {phaseColor.label}
+                    </div>
+                  </div>
+
+                  {/* 라운딩 정보 */}
+                  <div style={{ padding: '0 18px 16px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      {/* 날짜 */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+                          </svg>
                         </div>
-                        <div style={{ fontSize: '13px', color: '#666' }}>
-                          {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
+                        <div>
+                          <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', fontWeight: 600, marginBottom: 1 }}>날짜</div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{dateStr}</div>
                         </div>
                       </div>
-                      
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginLeft: '12px' }}>
-                        {user?.isAdmin && (
+
+                      {/* 시간 */}
+                      {booking.time && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <div style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', fontWeight: 600, marginBottom: 1 }}>시간</div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{booking.time}</div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 장소 */}
+                      {booking.courseName && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <div style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+                            </svg>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', fontWeight: 600, marginBottom: 1 }}>장소</div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{booking.courseName}</div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* 참가자 */}
+                      {participantCount > 0 && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <div style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(255,255,255,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.9)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                            </svg>
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.6)', fontWeight: 600, marginBottom: 1 }}>참가자</div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{participantCount}명</div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 관리자 토글 */}
+                    {user?.isAdmin && (
+                      <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(255,255,255,0.15)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>투표 활성화</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <button
                             onClick={phaseInfo.phase === 'voting' || phaseInfo.phase === 'voting_disabled' ? handleToggleVoting : undefined}
                             disabled={phaseInfo.phase !== 'voting' && phaseInfo.phase !== 'voting_disabled'}
-                            style={{
-                              position: 'relative',
-                              width: '40px',
-                              height: '22px',
-                              borderRadius: '11px',
-                              border: 'none',
-                              cursor: (phaseInfo.phase === 'voting' || phaseInfo.phase === 'voting_disabled') ? 'pointer' : 'not-allowed',
-                              background: (phaseInfo.phase === 'voting_closed' || phaseInfo.phase === 'results') ? '#e0e0e0' :
-                                          isVotingEnabled ? 'var(--primary-green)' : '#ccc',
-                              transition: 'background 0.2s',
-                              opacity: (phaseInfo.phase === 'voting_closed' || phaseInfo.phase === 'results') ? 0.5 : 1
-                            }}
+                            style={{ position: 'relative', width: 40, height: 22, borderRadius: 11, border: 'none', cursor: 'pointer', background: isVotingEnabled ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.25)', transition: 'background 0.2s' }}
+                            onClick={(e) => { e.stopPropagation(); handleToggleVoting(e); }}
                           >
-                            <div style={{
-                              position: 'absolute',
-                              top: '2px',
-                              left: (phaseInfo.phase === 'voting_closed' || phaseInfo.phase === 'results') ? '2px' :
-                                    isVotingEnabled ? '20px' : '2px',
-                              width: '18px',
-                              height: '18px',
-                              borderRadius: '50%',
-                              background: 'white',
-                              transition: 'left 0.2s',
-                              boxShadow: '0 1px 3px rgba(0,0,0,0.2)'
-                            }} />
+                            <div style={{ position: 'absolute', top: 2, left: isVotingEnabled ? 20 : 2, width: 18, height: 18, borderRadius: '50%', background: 'white', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
                           </button>
-                        )}
-                        
-                        <div style={{
-                          padding: '4px 8px',
-                          borderRadius: '4px',
-                          fontSize: '11px',
-                          fontWeight: '600',
-                          background: phaseInfo.phase === 'voting_disabled' ? '#f0f0f0' :
-                                      phaseInfo.phase === 'voting' ? '#D1E7DD' : 
-                                      phaseInfo.phase === 'results' ? '#FFE5B4' : '#f0f0f0',
-                          color: phaseInfo.phase === 'voting_disabled' ? '#999' :
-                                 phaseInfo.phase === 'voting' ? '#0A5C36' : 
-                                 phaseInfo.phase === 'results' ? '#8B6914' : '#666',
-                          whiteSpace: 'nowrap'
-                        }}>
-                          {phaseInfo.phase === 'voting_disabled' ? '투표 비활성' :
-                           phaseInfo.phase === 'voting' ? '투표 중' : 
-                           phaseInfo.phase === 'results' ? '결과 확인' : '투표 마감'}
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === booking.id ? null : booking.id); }}
+                            style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', fontSize: 18, color: 'rgba(255,255,255,0.7)' }}
+                          >⋮</button>
+                          {openMenuId === booking.id && (
+                            <div style={{ position: 'absolute', background: '#fff', border: '1px solid #E2E8F0', borderRadius: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.12)', zIndex: 100, minWidth: 130, right: 16 }}>
+                              <button
+                                onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); navigate(`/games/pick-winner?id=${booking.id}&admin=true`); }}
+                                style={{ display: 'block', width: '100%', padding: '12px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: 14, fontWeight: 600 }}
+                              >👥 투표 관리</button>
+                            </div>
+                          )}
                         </div>
-                        
-                        {user?.isAdmin && (
-                          <div style={{ position: 'relative' }}>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setOpenMenuId(openMenuId === booking.id ? null : booking.id);
-                              }}
-                              style={{
-                                background: 'none',
-                                border: 'none',
-                                cursor: 'pointer',
-                                padding: '4px',
-                                fontSize: '16px',
-                                color: '#666'
-                              }}
-                            >
-                              ⋮
-                            </button>
-                            {openMenuId === booking.id && (
-                              <div style={{
-                                position: 'absolute',
-                                top: '100%',
-                                right: 0,
-                                background: '#fff',
-                                border: '1px solid #e0e0e0',
-                                borderRadius: '8px',
-                                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-                                zIndex: 100,
-                                minWidth: '120px'
-                              }}>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setOpenMenuId(null);
-                                    navigate(`/games/pick-winner?id=${booking.id}&admin=true`);
-                                  }}
-                                  style={{
-                                    display: 'block',
-                                    width: '100%',
-                                    padding: '12px 16px',
-                                    border: 'none',
-                                    background: 'none',
-                                    textAlign: 'left',
-                                    cursor: 'pointer',
-                                    fontSize: '14px'
-                                  }}
-                                >
-                                  👥 투표 관리
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        )}
                       </div>
-                    </div>
+                    )}
                   </div>
                 </div>
               );
             })
           )}
         </div>
-      </div>
+      </>
     );
   }
 
   if (!selectedBooking) {
     return (
-      <div className="page-content">
+      <>
         <PageHeader title="우승자 맞추기" onBack={() => navigate('/games/pick-winner')} />
-        <div className="card" style={{ textAlign: 'center', padding: '40px', color: '#888' }}>
-          라운딩을 찾을 수 없습니다
+        <div className="page-content" style={{ paddingTop: '12px' }}>
+          <div className="card" style={{ textAlign: 'center', padding: '40px', color: '#888' }}>
+            라운딩을 찾을 수 없습니다
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -626,18 +645,18 @@ function PickWinner() {
 
   if (isAdminMode && user?.isAdmin) {
     const votersList = getVotersList();
-    
+
     return (
-      <div className="page-content">
-        <PageHeader 
-          title="투표 관리" 
+      <>
+        <PageHeader
+          title="투표 관리"
           onBack={() => {
             setIsAdminMode(false);
             setSelectedVoterId(null);
             navigate(`/games/pick-winner?id=${selectedBooking.id}`);
-          }} 
+          }}
         />
-        
+        <div className="page-content" style={{ paddingTop: '12px' }}>
         <div style={{ padding: '0 16px' }}>
           <div className="card" style={{ marginBottom: '16px', padding: '12px' }}>
             <div style={{ fontSize: '14px', fontWeight: '600' }}>
@@ -813,7 +832,8 @@ function PickWinner() {
             </>
           )}
         </div>
-      </div>
+        </div>
+      </>
     );
   }
 
@@ -822,12 +842,12 @@ function PickWinner() {
     const gameWinners = getGameWinners();
 
     return (
-      <div className="page-content">
-        <PageHeader 
-          title="게임 결과" 
-          onBack={() => navigate('/games/pick-winner')} 
+      <>
+        <PageHeader
+          title="게임 결과"
+          onBack={() => navigate('/games/pick-winner')}
         />
-        
+        <div className="page-content" style={{ paddingTop: '12px' }}>
         <div style={{ padding: '0 16px' }}>
           {gameWinners.length > 0 && (
             <div className="card" style={{ marginBottom: '16px', padding: '16px' }}>
@@ -933,17 +953,18 @@ function PickWinner() {
             );
           })}
         </div>
-      </div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="page-content">
-      <PageHeader 
+    <>
+      <PageHeader
         title={selectedBooking.title || selectedBooking.courseName}
-        onBack={() => navigate('/games/pick-winner')} 
+        onBack={() => navigate('/games/pick-winner')}
       />
-      
+      <div className="page-content" style={{ paddingTop: '12px' }}>
       <div style={{ padding: '0 16px' }}>
         <div className="card" style={{ marginBottom: '16px', padding: '12px' }}>
           <div style={{ fontSize: '13px', color: '#666' }}>
@@ -1129,7 +1150,8 @@ function PickWinner() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 

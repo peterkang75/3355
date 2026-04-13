@@ -2,8 +2,8 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-    <meta name="theme-color" content="#003629" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#0047AB" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="3355 골프" />
@@ -16,10 +16,48 @@
     <link rel="icon" type="image/png" sizes="512x512" href="/app-icon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+      @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+    </style>
     <title>3355 골프</title>
   </head>
-  <body>
+  <body style="-webkit-text-size-adjust:none;text-size-adjust:none;">
+    <!-- 정적 로딩 화면: React 초기화 전부터 표시 -->
+    <div id="splash-screen" style="position:fixed;inset:0;z-index:99999;overflow:hidden;background:linear-gradient(135deg,#0047AB 0%,#00327d 100%);">
+      <img src="/golf-members.jpeg" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;opacity:0.15;filter:contrast(120%) brightness(40%);" />
+      <div style="position:absolute;top:-96px;left:-96px;width:384px;height:384px;border-radius:50%;background:rgba(177,197,255,0.2);filter:blur(100px);pointer-events:none;"></div>
+      <div style="position:absolute;bottom:-128px;right:-128px;width:512px;height:512px;border-radius:50%;background:rgba(0,25,70,0.3);filter:blur(120px);pointer-events:none;"></div>
+      <div style="position:relative;z-index:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 32px;">
+        <div style="position:relative;width:112px;height:112px;display:flex;align-items:center;justify-content:center;margin-bottom:48px;">
+          <div style="position:absolute;width:160px;height:160px;border-radius:50%;border:1px solid rgba(177,197,255,0.2);animation:splashPulse 3s cubic-bezier(0.4,0,0.6,1) infinite;"></div>
+          <div style="position:absolute;width:224px;height:224px;border-radius:50%;border:1px solid rgba(195,198,213,0.1);animation:splashPulse 3s cubic-bezier(0.4,0,0.6,1) infinite;animation-delay:1s;"></div>
+          <div style="width:112px;height:112px;border-radius:50%;overflow:hidden;box-shadow:0 20px 40px rgba(0,0,0,0.3);border:2px solid rgba(255,255,255,0.15);">
+            <img src="/app-icon.png" alt="3355 Golf Club" style="width:100%;height:100%;object-fit:cover;" />
+          </div>
+        </div>
+        <div style="margin-bottom:64px;">
+          <h1 style="font-size:36px;font-weight:800;color:#fff;letter-spacing:-0.02em;margin:0 0 12px;font-family:Pretendard,sans-serif;">3355 GOLF CLUB</h1>
+          <div style="display:flex;align-items:center;justify-content:center;gap:16px;">
+            <div style="height:1px;width:32px;background:rgba(177,197,255,0.4);"></div>
+            <span style="font-size:11px;font-weight:600;color:rgba(177,197,255,0.9);letter-spacing:0.2em;">PRIVATE &amp; PREMIUM</span>
+            <div style="height:1px;width:32px;background:rgba(177,197,255,0.4);"></div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:12px;">
+          <p style="font-size:17px;font-weight:500;color:rgba(177,197,255,0.9);margin:0;">최고의 라운딩을 준비중입니다</p>
+          <div style="width:24px;height:24px;border-radius:50%;border:2px solid rgba(177,197,255,0.4);border-top-color:rgba(177,197,255,0.9);animation:spin 2s linear infinite;margin-top:4px;"></div>
+          <span style="font-size:10px;color:rgba(177,197,255,0.6);letter-spacing:0.2em;font-weight:500;">INITIALIZING CONCIERGE</span>
+        </div>
+      </div>
+      <div style="position:absolute;bottom:0;left:0;width:100%;height:4px;background:rgba(255,255,255,0.05);overflow:hidden;">
+        <div style="height:100%;width:33%;background:rgba(177,197,255,0.3);border-radius:0 4px 4px 0;"></div>
+      </div>
+      <style>
+        @keyframes splashPulse { 0%,100%{opacity:0.8;transform:scale(1)} 50%{opacity:1;transform:scale(1.05)} }
+        @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
+      </style>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

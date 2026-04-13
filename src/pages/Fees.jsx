@@ -1,1081 +1,430 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { useApp } from "../contexts/AppContext";
-import CrownIcon from "../components/CrownIcon";
 import apiService from "../services/api";
-import { Card, PageHeader, ProfileBadge } from "../components/common";
+import { checkIsOperator } from "../utils";
+import { PageHeader } from "../components/common";
+
+// ─── helpers ─────────────────────────────────────────────────────────────────
+
+const getTransactionLabel = (t) => {
+  if (t.type === "creditDonation") return "도네이션 (크레딧)";
+  if (t.type === "donation") return t.category || "도네이션";
+  if (t.type === "credit") return t.description || "크레딧";
+  if (t.type === "expense") {
+    if (t.category === "크레딧 자동 차감" && t.description) {
+      return `${t.description.split(" (크레딧")[0]}(크레딧차감)`;
+    }
+    return t.category || t.description || "지출";
+  }
+  if (t.type === "charge") {
+    const bookingName = t.booking?.title || t.booking?.courseName || '';
+    return bookingName ? `청구 · ${bookingName}` : "청구";
+  }
+  if (t.type === "payment") return t.description?.split(" - ")[0] || "납부";
+  return "";
+};
+
+const isDebit = (t) => ["charge", "expense", "creditDonation"].includes(t.type);
+const getTransactionSign = (t) => (isDebit(t) ? "-" : "+");
+
+const fmtDate = (d) => new Date(d).toLocaleDateString("ko-KR", { month: "numeric", day: "numeric" });
+
+// ─── BottomSheet wrapper ──────────────────────────────────────────────────────
+
+function BottomSheet({ onClose, children, maxHeight = "85vh" }) {
+  return (
+    <>
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 999, backdropFilter: "blur(2px)" }} />
+      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#fff", borderRadius: "24px 24px 0 0", zIndex: 1000, maxHeight, display: "flex", flexDirection: "column", animation: "slideUpFees 0.25s ease-out", boxShadow: "0 -4px 24px rgba(0,0,0,0.12)" }}>
+        <div style={{ textAlign: "center", padding: "14px 0 6px", flexShrink: 0 }}>
+          <div style={{ width: "40px", height: "4px", background: "#D1D5DB", borderRadius: "2px", margin: "0 auto" }} />
+        </div>
+        {children}
+      </div>
+    </>
+  );
+}
+
+// ─── CreditModal ──────────────────────────────────────────────────────────────
+
+function CreditModal({ mode, creditBalance, actualUnpaid, amount, setAmount, memo, setMemo, onConfirm, onClose, loading }) {
+  const isDonation = mode === "donation";
+  return (
+    <BottomSheet onClose={onClose} maxHeight="60vh">
+      <div style={{ padding: "8px 20px 20px" }}>
+        <div style={{ fontSize: 18, fontWeight: 700, color: "#111827", marginBottom: 4 }}>
+          {isDonation ? "클럽에 기부하기" : "크레딧으로 납부"}
+        </div>
+        <div style={{ fontSize: 13, color: "#9CA3AF", marginBottom: 20 }}>
+          {isDonation ? `사용 가능 크레딧: $${creditBalance.toLocaleString()}` : `미납: $${actualUnpaid.toLocaleString()} · 크레딧: $${creditBalance.toLocaleString()}`}
+        </div>
+        <div style={{ marginBottom: 14 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: "#6B7280", marginBottom: 6 }}>금액</div>
+          <input
+            type="number"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1px solid #E5E7EB", fontSize: 16, outline: "none", boxSizing: "border-box", fontWeight: 700 }}
+          />
+        </div>
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ fontSize: 12, fontWeight: 600, color: "#6B7280", marginBottom: 6 }}>메모 (선택)</div>
+          <input
+            type="text"
+            value={memo}
+            onChange={(e) => setMemo(e.target.value)}
+            placeholder="메모 입력"
+            style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1px solid #E5E7EB", fontSize: 14, outline: "none", boxSizing: "border-box" }}
+          />
+        </div>
+        <div style={{ display: "flex", gap: 8, paddingBottom: "max(80px, calc(68px + env(safe-area-inset-bottom)))" }}>
+          <button onClick={onClose} style={{ flex: 1, padding: 14, borderRadius: 12, border: "1.5px solid #E5E7EB", background: "#fff", color: "#6B7280", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>취소</button>
+          <button onClick={onConfirm} disabled={loading} style={{ flex: 2, padding: 14, borderRadius: 12, border: "none", background: loading ? "#94A3B8" : "#0047AB", color: "#fff", fontWeight: 700, fontSize: 14, cursor: loading ? "not-allowed" : "pointer" }}>
+            {loading ? "처리중..." : isDonation ? "기부하기" : "납부하기"}
+          </button>
+        </div>
+      </div>
+    </BottomSheet>
+  );
+}
+
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 
 function Fees() {
-  const navigate = useNavigate();
   const location = useLocation();
   const { user, userTransactions } = useApp();
 
-  // --- 상태 관리 ---
   const [activeTab, setActiveTab] = useState("personal");
-  const [allTransactions, setAllTransactions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-
-  // --- 모달 및 데이터 상태 ---
-  const [showReceiptModal, setShowReceiptModal] = useState(null);
-  const [galleryImages, setGalleryImages] = useState([]);
-  const [galleryIndex, setGalleryIndex] = useState(0);
-  const [clubBalance, setClubBalance] = useState(0);
-  const [outstandingCount, setOutstandingCount] = useState(0);
+  const [settlements, setSettlements] = useState([]);
+  const [settlementsLoading, setSettlementsLoading] = useState(false);
   const [paymentGuideText, setPaymentGuideText] = useState("");
 
-  // --- 수정/삭제 상태 ---
-  const [editingTransaction, setEditingTransaction] = useState(null);
-  const [editFormData, setEditFormData] = useState({
-    amount: "",
-    date: "",
-    description: "",
-    category: "",
-    memo: "",
-    bookingId: "",
-    receiptImage: "",
-    receiptImages: [],
-  });
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [imageUploading, setImageUploading] = useState(false);
-
-  // --- 크레딧 액션 상태 ---
   const [showCreditModal, setShowCreditModal] = useState(null);
   const [creditActionAmount, setCreditActionAmount] = useState("");
   const [creditActionMemo, setCreditActionMemo] = useState("");
   const [creditActionLoading, setCreditActionLoading] = useState(false);
   const [selectedChargeId, setSelectedChargeId] = useState(null);
 
-  const ITEMS_PER_PAGE = 20;
-
-  const canManageFees =
-    user?.isAdmin ||
-    user?.canManageFees ||
-    ["관리자", "방장", "운영진", "클럽운영진"].includes(user?.role);
-
   useEffect(() => {
-    if (location.state?.reset) {
-      setActiveTab("personal");
-      window.history.replaceState({}, document.title);
-    }
+    if (location.state?.reset) { setActiveTab("personal"); window.history.replaceState({}, document.title); }
   }, [location]);
 
-  useEffect(() => {
-    loadPaymentGuide();
-  }, []);
+  useEffect(() => { loadPaymentGuide(); }, []);
 
-  // 탭 변경 시 데이터 로드
   useEffect(() => {
-    if (activeTab === "personal") {
-      setLoading(false);
-    } else {
-      loadLedgerData(1);
-    }
-  }, [user.id, activeTab]);
+    if (activeTab === "settlements") loadSettlements();
+  }, [activeTab]);
 
   const loadPaymentGuide = async () => {
     try {
       const settings = await apiService.fetchSettings();
-      const guideSetting = settings.find(
-        (s) => s.feature === "paymentGuideText",
-      );
-      if (guideSetting && guideSetting.value)
-        setPaymentGuideText(guideSetting.value);
-    } catch (error) {
-      console.error("납부안내 로드 실패:", error);
-    }
+      const guideSetting = settings.find((s) => s.feature === "paymentGuideText");
+      if (guideSetting?.value) setPaymentGuideText(guideSetting.value);
+    } catch {}
   };
 
-  // --- 통합 장부 데이터 로드 (핵심 최적화) ---
-  const loadLedgerData = async (page) => {
+  const loadSettlements = async () => {
+    setSettlementsLoading(true);
     try {
-      setLoading(true);
-
-      const [transactionsResponse, balanceData, outstandingData] =
-        await Promise.all([
-          apiService.fetchTransactions({ page, limit: ITEMS_PER_PAGE }),
-          apiService.fetchClubBalance(),
-          apiService.fetchOutstandingBalances(),
-        ]);
-
-      // API 응답 처리 (배열/객체 호환)
-      const transactionsData = Array.isArray(transactionsResponse)
-        ? transactionsResponse
-        : transactionsResponse.transactions || [];
-
-      const pagination = transactionsResponse.pagination || { totalPages: 1 };
-
-      console.log('📊 Fees 장부 로드:', {
-        받은거래수: transactionsData.length,
-        페이지: page,
-        총페이지: pagination.totalPages,
-        총거래수: pagination.total
+      const r = await fetch('/api/settlement/closed', {
+        headers: { 'X-Member-Id': user?.id || '' },
       });
-
-      setAllTransactions(transactionsData);
-      setTotalPages(pagination.totalPages);
-      setCurrentPage(page);
-
-      setClubBalance(balanceData?.balance || 0);
-      setOutstandingCount(outstandingData?.length || 0);
-    } catch (error) {
-      console.error("장부 데이터 로드 실패:", error);
-      setAllTransactions([]);
-    } finally {
-      setLoading(false);
-    }
+      if (r.ok) setSettlements(await r.json());
+    } catch {}
+    finally { setSettlementsLoading(false); }
   };
 
-  // --- 영수증 보기 (On-Demand Loading) ---
-  const handleViewReceipt = async (transaction) => {
-    // 이미지가 이미 있으면 바로 표시
-    if (transaction.receiptImages?.length > 0) {
-      setGalleryImages(transaction.receiptImages);
-      setGalleryIndex(0);
-      return;
-    }
-    if (transaction.receiptImage) {
-      setShowReceiptModal(transaction.receiptImage);
-      return;
-    }
-
-    // 없으면 서버에서 상세 조회
-    try {
-      const details = await apiService.fetchTransactionDetails(transaction.id);
-      if (details.receiptImages?.length > 0) {
-        setGalleryImages(details.receiptImages);
-        setGalleryIndex(0);
-      } else if (details.receiptImage) {
-        setShowReceiptModal(details.receiptImage);
-      } else {
-        alert("등록된 영수증 이미지가 없습니다.");
-      }
-    } catch (e) {
-      console.error("영수증 로드 실패", e);
-      alert("영수증을 불러오는데 실패했습니다.");
-    }
-  };
-
-  // --- 모달 핸들러 ---
-  const handleOpenEditModal = async (transaction) => {
-    setEditingTransaction(transaction);
-    setEditFormData({
-      amount: transaction.amount.toString(),
-      date:
-        transaction.date ||
-        new Date(transaction.createdAt).toISOString().split("T")[0],
-      description: transaction.description || "",
-      category: transaction.category || "",
-      memo: transaction.memo || "",
-      bookingId: transaction.bookingId || "",
-      receiptImage: "",
-      receiptImages: [],
-    });
-    try {
-      const details = await apiService.fetchTransactionDetails(transaction.id);
-      setEditFormData((prev) => ({
-        ...prev,
-        receiptImage: details?.receiptImage || "",
-        receiptImages: details?.receiptImages || [],
-      }));
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
-  const handleCloseEditModal = () => {
-    setEditingTransaction(null);
-    setEditFormData({
-      amount: "",
-      date: "",
-      description: "",
-      category: "",
-      memo: "",
-      bookingId: "",
-      receiptImage: "",
-      receiptImages: [],
-    });
-  };
-
-  const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (file.size > 5 * 1024 * 1024) {
-      alert("이미지 크기는 5MB 이하여야 합니다.");
-      return;
-    }
-    setImageUploading(true);
-    try {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (editingTransaction?.type === "expense") {
-          setEditFormData((prev) => ({
-            ...prev,
-            receiptImages: [...prev.receiptImages, reader.result],
-          }));
-        } else {
-          setEditFormData((prev) => ({ ...prev, receiptImage: reader.result }));
-        }
-        setImageUploading(false);
-      };
-      reader.readAsDataURL(file);
-    } catch (error) {
-      console.error("업로드 실패:", error);
-      setImageUploading(false);
-    }
-  };
-
-  const handleRemoveImage = (index) => {
-    if (editingTransaction?.type === "expense" && typeof index === "number") {
-      setEditFormData((prev) => ({
-        ...prev,
-        receiptImages: prev.receiptImages.filter((_, i) => i !== index),
-      }));
-    } else {
-      setEditFormData((prev) => ({ ...prev, receiptImage: "" }));
-    }
-  };
-
-  const handleUpdateTransaction = async () => {
-    if (!editingTransaction) return;
-    setIsUpdating(true);
-    try {
-      const updateData = {
-        amount: parseFloat(editFormData.amount),
-        date: editFormData.date,
-        description: editFormData.description,
-        bookingId: editFormData.bookingId || null,
-      };
-      if (editingTransaction.type === "expense") {
-        updateData.category = editFormData.category || null;
-        updateData.memo = editFormData.memo || null;
-        updateData.receiptImages = editFormData.receiptImages;
-      } else {
-        updateData.receiptImage = editFormData.receiptImage || null;
-      }
-      await apiService.updateTransaction(editingTransaction.id, updateData);
-      await loadLedgerData(currentPage);
-      handleCloseEditModal();
-      alert("수정되었습니다.");
-    } catch (error) {
-      alert("수정 실패");
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const handleDeleteTransaction = async () => {
-    if (!editingTransaction || !window.confirm("삭제하시겠습니까?")) return;
-    setIsDeleting(true);
-    try {
-      await apiService.deleteTransaction(editingTransaction.id);
-      await loadLedgerData(currentPage);
-      handleCloseEditModal();
-      alert("삭제되었습니다.");
-    } catch (error) {
-      alert("삭제 실패");
-    } finally {
-      setIsDeleting(false);
-    }
-  };
-
-  // --- 개인 잔액 계산 ---
-  const totalCharges = userTransactions
-    .filter((t) => t.type === "charge")
-    .reduce((sum, t) => sum + t.amount, 0);
-  const totalPayments = userTransactions
-    .filter((t) => t.type === "payment" && t.category !== "크레딧 자동 납부" && t.category !== "크레딧 자동 차감")
-    .reduce((sum, t) => sum + t.amount, 0);
-  const totalCredits = userTransactions
-    .filter((t) => t.type === "credit")
-    .reduce((sum, t) => sum + t.amount, 0);
-  const totalExpenses = userTransactions
-    .filter((t) => t.type === "expense")
-    .reduce((sum, t) => sum + t.amount, 0);
-  const totalCreditDonations = userTransactions
-    .filter((t) => t.type === "creditDonation")
-    .reduce((sum, t) => sum + t.amount, 0);
-  const balance =
-    totalPayments +
-    totalCredits -
-    totalCharges -
-    totalExpenses -
-    totalCreditDonations;
-  const actualUnpaid = Math.max(0, -balance);
-  const creditBalance = balance > 0 ? balance : 0;
-
-  // --- 크레딧 액션 ---
   const handleCreditToDonation = async () => {
     if (creditActionLoading) return;
     const amount = parseFloat(creditActionAmount);
-    if (!amount || amount <= 0 || amount > creditBalance)
-      return alert("금액을 확인해주세요.");
+    if (!amount || amount <= 0 || amount > creditBalance) return alert("금액을 확인해주세요.");
     setCreditActionLoading(true);
     try {
       await apiService.creditToDonation(user.id, amount, creditActionMemo);
-      alert("도네이션 완료");
       setShowCreditModal(null);
       setCreditActionAmount("");
-    } catch (e) {
-      alert("실패");
-    } finally {
-      setCreditActionLoading(false);
-    }
+      setCreditActionMemo("");
+    } catch { alert("실패"); }
+    finally { setCreditActionLoading(false); }
   };
 
   const handleCreditToPayment = async () => {
     if (creditActionLoading) return;
     const amount = parseFloat(creditActionAmount);
-    if (
-      !amount ||
-      amount <= 0 ||
-      amount > creditBalance ||
-      amount > actualUnpaid
-    )
-      return alert("금액을 확인해주세요.");
+    if (!amount || amount <= 0 || amount > creditBalance || amount > actualUnpaid) return alert("금액을 확인해주세요.");
     setCreditActionLoading(true);
     try {
-      await apiService.creditToPayment(
-        user.id,
-        amount,
-        selectedChargeId,
-        creditActionMemo,
-      );
-      alert("납부 완료");
+      await apiService.creditToPayment(user.id, amount, selectedChargeId, creditActionMemo);
       setShowCreditModal(null);
       setCreditActionAmount("");
-    } catch (e) {
-      alert("실패");
-    } finally {
-      setCreditActionLoading(false);
-    }
+      setCreditActionMemo("");
+    } catch { alert("실패"); }
+    finally { setCreditActionLoading(false); }
   };
 
-  // --- UI 헬퍼 ---
-  const getTransactionLabel = (t) => {
-    if (t.type === "creditDonation") return "도네이션 (크레딧)";
-    if (t.type === "donation") return t.category || "도네이션";
-    if (t.type === "credit") return t.description || "크레딧";
-    if (t.type === "expense") {
-      if (t.category === "크레딧 자동 차감" && t.description) {
-        const itemName = t.description.split(" (크레딧")[0];
-        return `${itemName}(크레딧차감)`;
-      }
-      return t.category || t.description || "지출";
-    }
-    if (t.type === "charge") return "청구";
-    if (t.type === "payment") return t.description?.split(" - ")[0] || "납부";
-    return "";
-  };
+  // ── Balance calculations ───────────────────────────────────────────────────
+  const totalCharges = userTransactions.filter((t) => t.type === "charge").reduce((s, t) => s + t.amount, 0);
+  const totalPayments = userTransactions.filter((t) => t.type === "payment" && t.category !== "크레딧 자동 납부" && t.category !== "크레딧 자동 차감").reduce((s, t) => s + t.amount, 0);
+  const totalCredits = userTransactions.filter((t) => t.type === "credit").reduce((s, t) => s + t.amount, 0);
+  const totalExpenses = userTransactions.filter((t) => t.type === "expense").reduce((s, t) => s + t.amount, 0);
+  const totalCreditDonations = userTransactions.filter((t) => t.type === "creditDonation").reduce((s, t) => s + t.amount, 0);
+  const balance = totalPayments + totalCredits - totalCharges - totalExpenses - totalCreditDonations;
+  const actualUnpaid = Math.max(0, -balance);
+  const creditBalance = balance > 0 ? balance : 0;
 
-  const getTransactionColor = (t) => {
-    if (["charge", "expense", "creditDonation"].includes(t.type))
-      return "#DC2626";
-    return "#0F766E";
-  };
-
-  const getTransactionSign = (t) => {
-    if (["charge", "expense", "creditDonation"].includes(t.type)) return "-";
-    return "+";
-  };
-
-  // --- 렌더링 ---
+  // ── Render ─────────────────────────────────────────────────────────────────
   return (
     <div>
-      <PageHeader
-        title="회비 관리"
-        rightContent={<ProfileBadge user={user} showGreeting={true} />}
-      />
+      <PageHeader title="회비 관리" user={user} />
 
-      <div className="page-content">
-        {/* 탭 버튼 */}
-        <div
-          style={{
-            display: "flex",
-            background: "#E5E7EB",
-            borderRadius: "12px",
-            padding: "4px",
-            marginBottom: "20px",
-          }}
-        >
-          <button
-            onClick={() => setActiveTab("personal")}
-            style={{
-              flex: 1,
-              padding: "10px",
-              borderRadius: "8px",
-              border: "none",
-              background: activeTab === "personal" ? "#FFF" : "transparent",
-              fontWeight: activeTab === "personal" ? "800" : "600",
-              color: activeTab === "personal" ? "#0F766E" : "#6B7280",
-              cursor: "pointer",
-            }}
-          >
-            개인 참가비 내역
-          </button>
-          <button
-            onClick={() => setActiveTab("club")}
-            style={{
-              flex: 1,
-              padding: "10px",
-              borderRadius: "8px",
-              border: "none",
-              background: activeTab === "club" ? "#FFF" : "transparent",
-              fontWeight: activeTab === "club" ? "800" : "600",
-              color: activeTab === "club" ? "#0F766E" : "#6B7280",
-              cursor: "pointer",
-            }}
-          >
-            클럽 회계장부
-          </button>
+      <div className="page-content" style={{ paddingTop: 8, minHeight: 'calc(100dvh - 60px)' }}>
+        {/* 탭 */}
+        <div style={{ display: "flex", background: "#E2E8F0", borderRadius: 14, padding: 4, marginBottom: 16 }}>
+          {[["personal", "개인 참가비 내역"], ["settlements", "정산서"]].map(([key, label]) => (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key)}
+              style={{ flex: 1, padding: "10px", borderRadius: 10, border: "none", background: activeTab === key ? "#FFF" : "transparent", fontWeight: activeTab === key ? 800 : 600, color: activeTab === key ? "#0047AB" : "#6B7280", cursor: "pointer", transition: "all 0.18s", fontSize: 14 }}
+            >
+              {label}
+            </button>
+          ))}
         </div>
 
         {activeTab === "personal" ? (
-          <>
-            {/* 개인 잔액 카드 */}
-            <div
-              className="card"
-              style={{
-                background: "#FFFFFF",
-                padding: "24px",
-              }}
-            >
-              <div
-                style={{
-                  fontSize: "12px",
-                  color: "#6B7280",
-                  fontWeight: "600",
-                  marginBottom: "6px",
-                  textTransform: "uppercase",
-                  letterSpacing: "0.05em",
-                }}
-              >
-                현재 잔액
-              </div>
-              <div
-                style={{
-                  fontSize: "40px",
-                  fontWeight: "800",
-                  color: balance < 0 ? "#DC2626" : "#111827",
-                }}
-              >
-                ${balance.toLocaleString()}
-              </div>
-            </div>
-
-            {/* 크레딧 카드 */}
-            <div
-              className="card"
-            >
-              <h3
-                style={{
-                  fontSize: "15px",
-                  fontWeight: "700",
-                  marginBottom: "6px",
-                  color: "#111827",
-                }}
-              >
-                크레딧 활용
-              </h3>
-              <p
-                style={{
-                  fontSize: "12px",
-                  color: "#9CA3AF",
-                  marginBottom: "14px",
-                  lineHeight: "1.4",
-                }}
-              >
-                클럽에서 청구되는 금액은 현재 보유 잔액에서 자동 차감됩니다.
-              </p>
-              <div style={{ display: "flex", gap: "12px" }}>
-                <div
-                  style={{
-                    flex: 1,
-                    background: "#F9FAFB",
-                    border: "1px solid #E5E7EB",
-                    padding: "12px",
-                    textAlign: "center",
-                    borderRadius: "10px",
-                  }}
-                >
-                  <div style={{ fontSize: "11px", color: "#6B7280", marginBottom: "4px" }}>
-                    사용 가능
-                  </div>
-                  <div
-                    style={{
-                      fontSize: "18px",
-                      fontWeight: "700",
-                      color: "#111827",
-                    }}
-                  >
-                    ${creditBalance.toLocaleString()}
-                  </div>
+          <div style={{ padding: "0 0 8px" }}>
+            {/* 잔액 카드 — azure gradient */}
+            <div style={{ background: "linear-gradient(135deg, #0047AB 0%, #00327d 100%)", borderRadius: 24, padding: "28px 24px 24px", marginBottom: 24, boxShadow: "0 20px 40px rgba(0,50,125,0.18)", position: "relative", overflow: "hidden" }}>
+              {/* 지갑 배경 패턴 */}
+              <svg style={{ position: "absolute", right: -8, top: "50%", transform: "translateY(-50%)", opacity: 0.15, pointerEvents: "none" }} width="170" height="150" viewBox="0 0 170 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+                {/* 지갑 본체 */}
+                <rect x="6" y="28" width="130" height="94" rx="14" stroke="white" strokeWidth="5" />
+                {/* 지갑 상단 플랩 구분선 */}
+                <line x1="6" y1="56" x2="136" y2="56" stroke="white" strokeWidth="4" />
+                {/* 동전 포켓 (오른쪽 돌출 원형) */}
+                <rect x="108" y="60" width="55" height="52" rx="12" stroke="white" strokeWidth="5" fill="none" />
+                {/* 동전 포켓 안 원형 버튼 */}
+                <circle cx="135" cy="86" r="14" stroke="white" strokeWidth="4" fill="none" />
+                <circle cx="135" cy="86" r="5" fill="white" />
+                {/* 카드 슬롯 라인 */}
+                <rect x="22" y="70" width="72" height="6" rx="3" fill="white" />
+                <rect x="22" y="86" width="56" height="6" rx="3" fill="white" opacity="0.7" />
+              </svg>
+              <div style={{ position: "relative" }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.75)", marginBottom: 8, letterSpacing: "0.06em" }}>현재 잔액</div>
+                <div style={{ fontSize: 38, fontWeight: 800, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1.1 }}>
+                  {balance < 0 ? "-" : ""}${Math.abs(balance).toLocaleString()}
                 </div>
-                <div
-                  style={{
-                    flex: 1,
-                    background: actualUnpaid > 0 ? "#FEF2F2" : "#F9FAFB",
-                    border: `1px solid ${actualUnpaid > 0 ? "#FECACA" : "#E5E7EB"}`,
-                    padding: "12px",
-                    textAlign: "center",
-                    borderRadius: "10px",
-                  }}
-                >
-                  <div style={{ fontSize: "11px", color: "#6B7280", marginBottom: "4px" }}>
-                    미납 금액
+                <div style={{ marginTop: 24, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)", borderRadius: 999, padding: "6px 14px" }}>
+                    <span style={{ fontSize: 13 }}>✦</span>
+                    <span style={{ fontSize: 12, fontWeight: 600, color: "#fff" }}>3355 Golf Club</span>
                   </div>
-                  <div
-                    style={{
-                      fontSize: "18px",
-                      fontWeight: "700",
-                      color: actualUnpaid > 0 ? "#DC2626" : "#111827",
-                    }}
-                  >
-                    ${actualUnpaid.toLocaleString()}
-                  </div>
-                </div>
-              </div>
-              {creditBalance > 0 && (
-                <div style={{ display: "flex", gap: "8px", marginTop: "14px" }}>
-                  <button
-                    onClick={() => {
-                      setShowCreditModal("donation");
-                      setCreditActionAmount(creditBalance.toString());
-                    }}
-                    style={{
-                      flex: 1,
-                      padding: "11px",
-                      background: "white",
-                      color: "#374151",
-                      border: "1px solid #D1D5DB",
-                      borderRadius: "10px",
-                      cursor: "pointer",
-                      fontWeight: "600",
-                      fontSize: "14px",
-                    }}
-                  >
-                    클럽에 기부하기
-                  </button>
-                  {actualUnpaid > 0 && (
+                  {creditBalance > 0 && (
                     <button
-                      onClick={() => {
-                        setShowCreditModal("payment");
-                        setCreditActionAmount(
-                          Math.min(creditBalance, actualUnpaid).toString(),
-                        );
-                      }}
-                      style={{
-                        flex: 1,
-                        padding: "11px",
-                        background: "#0F766E",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "10px",
-                        cursor: "pointer",
-                        fontWeight: "600",
-                        fontSize: "14px",
-                      }}
+                      onClick={() => { setShowCreditModal("donation"); setCreditActionAmount(creditBalance.toString()); }}
+                      style={{ background: "#fff", color: "#0047AB", border: "none", borderRadius: 12, padding: "8px 18px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
                     >
-                      납부하기
+                      기부하기
                     </button>
                   )}
                 </div>
-              )}
+              </div>
             </div>
 
-            {/* 개인 거래 리스트 */}
-            <div className="card">
-              <h3
-                style={{
-                  fontSize: "17px",
-                  fontWeight: "700",
-                  marginBottom: "16px",
-                  color: "#111827",
-                }}
-              >
-                거래 내역
-              </h3>
+            {/* 청구 / 사용 가능 / 미납 금액 */}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
+              <div style={{ background: "#fff", borderRadius: 20, padding: "16px 14px", boxShadow: "0 8px 24px rgba(25,27,34,0.06)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(220,38,38,0.07)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>📋</div>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#64748B" }}>총 청구</span>
+                </div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: totalCharges > 0 ? "#DC2626" : "#111827" }}>
+                  {totalCharges > 0 ? "-" : ""}${totalCharges.toLocaleString()}
+                </div>
+              </div>
+              <div style={{ background: "#fff", borderRadius: 20, padding: "16px 14px", boxShadow: "0 8px 24px rgba(25,27,34,0.06)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(0,71,171,0.07)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>✓</div>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#64748B" }}>사용 가능</span>
+                </div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: "#111827" }}>${creditBalance.toLocaleString()}</div>
+                {creditBalance > 0 && actualUnpaid > 0 && (
+                  <button onClick={() => { setShowCreditModal("payment"); setCreditActionAmount(Math.min(creditBalance, actualUnpaid).toString()); }} style={{ marginTop: 8, width: "100%", padding: "6px 0", background: "#0047AB", color: "#fff", border: "none", borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
+                    납부
+                  </button>
+                )}
+              </div>
+              <div style={{ background: actualUnpaid > 0 ? "#FEF2F2" : "#fff", borderRadius: 20, padding: "16px 14px", boxShadow: "0 8px 24px rgba(147,0,10,0.05)" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>!</div>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: actualUnpaid > 0 ? "#991B1B" : "#64748B" }}>미납</span>
+                </div>
+                <div style={{ fontSize: 17, fontWeight: 800, color: actualUnpaid > 0 ? "#DC2626" : "#111827" }}>${actualUnpaid.toLocaleString()}</div>
+              </div>
+            </div>
+
+            {/* 거래 내역 */}
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, padding: "0 2px" }}>
+                <span style={{ fontSize: 18, fontWeight: 800, color: "#111827", letterSpacing: "-0.02em" }}>최근 내역</span>
+              </div>
               {userTransactions.length === 0 ? (
-                <div
-                  style={{ padding: "20px", textAlign: "center", color: "#9CA3AF", fontSize: "14px" }}
-                >
-                  내역이 없습니다.
-                </div>
+                <div style={{ background: "#fff", borderRadius: 16, padding: "28px 20px", textAlign: "center", color: "#9CA3AF", fontSize: 14, boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>내역이 없습니다.</div>
               ) : (
-                userTransactions
-                  .filter(
-                    (t) =>
-                      !(t.type === "donation" && t.category === "도네이션") &&
-                      !(t.type === "payment" && t.category === "크레딧 자동 차감"),
-                  )
-                  .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                  .map((t) => (
-                    <div
-                      key={t.id}
-                      style={{
-                        padding: "13px 0",
-                        borderBottom: "1px solid #F3F4F6",
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                      }}
-                    >
-                      <div>
-                        <div style={{ fontWeight: "600", color: "#111827", fontSize: "14px" }}>
-                          {getTransactionLabel(t)}
-                        </div>
-                        <div style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "2px" }}>
-                          {new Date(t.date).toLocaleDateString()}
-                        </div>
-                      </div>
-                      <div
-                        style={{
-                          fontWeight: "700",
-                          fontSize: "15px",
-                          color: getTransactionColor(t),
-                        }}
-                      >
-                        {getTransactionSign(t)}${t.amount.toLocaleString()}
-                      </div>
-                    </div>
-                  ))
-              )}
-            </div>
-          </>
-        ) : (
-          <>
-            {/* 클럽 회계 장부 탭 */}
-            <div
-              className="card"
-              style={{
-                padding: "24px",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <div>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    color: "#6B7280",
-                    marginBottom: "6px",
-                    fontWeight: "600",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                  }}
-                >
-                  클럽 잔액
-                </div>
-                <div
-                  style={{
-                    fontSize: "32px",
-                    fontWeight: "800",
-                    color: "#111827",
-                  }}
-                >
-                  $
-                  {clubBalance.toLocaleString(undefined, {
-                    minimumFractionDigits: 1,
-                  })}
-                </div>
-              </div>
-              <div style={{ textAlign: "right" }}>
-                <div
-                  style={{
-                    fontSize: "12px",
-                    color: "#6B7280",
-                    marginBottom: "6px",
-                    fontWeight: "600",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.05em",
-                  }}
-                >
-                  미수금 회원
-                </div>
-                <div
-                  style={{
-                    fontSize: "32px",
-                    fontWeight: "800",
-                    color: outstandingCount > 0 ? "#DC2626" : "#111827",
-                  }}
-                >
-                  {outstandingCount}명
-                </div>
-              </div>
-            </div>
-
-            <div className="card">
-              <h3
-                style={{
-                  fontSize: "17px",
-                  fontWeight: "700",
-                  marginBottom: "16px",
-                  color: "#111827",
-                }}
-              >
-                최근 거래내역
-              </h3>
-
-              {loading ? (
-                <div style={{ padding: "40px", textAlign: "center", color: "#9CA3AF" }}>
-                  로딩 중...
-                </div>
-              ) : allTransactions.length === 0 ? (
-                <div
-                  style={{ padding: "40px", textAlign: "center", color: "#9CA3AF", fontSize: "14px" }}
-                >
-                  거래내역이 없습니다
-                </div>
-              ) : (
-                <div>
-                  {allTransactions
-                    .filter((t) => t.type !== "creditDonation")
-                    .filter((t) => !(t.type === "expense" && (t.category === "크레딧 자동 차감" || t.category === "크레딧 납부")))
-                    .map((transaction) => {
-                    const roundingName = transaction.booking
-                      ? `${transaction.booking.courseName} (${new Date(transaction.booking.date).toLocaleDateString("ko-KR", { month: "numeric", day: "numeric" })})`
-                      : null;
-
-                    return (
-                      <div
-                        key={transaction.id}
-                        onClick={() => handleViewReceipt(transaction)}
-                        style={{
-                          padding: "13px 0",
-                          borderBottom: "1px solid #F3F4F6",
-                          display: "flex",
-                          justifyContent: "space-between",
-                          alignItems: "center",
-                          cursor: "pointer",
-                        }}
-                      >
-                        <div style={{ flex: 1 }}>
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "8px",
-                              marginBottom: "4px",
-                            }}
-                          >
-                            <span
-                              style={{
-                                fontSize: "11px",
-                                fontWeight: "600",
-                                padding: "2px 7px",
-                                borderRadius: "20px",
-                                background: ["charge", "expense", "creditDonation"].includes(transaction.type)
-                                  ? "#FEE2E2" : "#CCFBF1",
-                                color: ["charge", "expense", "creditDonation"].includes(transaction.type)
-                                  ? "#DC2626" : "#0F766E",
-                              }}
-                            >
-                              {getTransactionLabel(transaction)}
-                            </span>
-                            {transaction.member && (
-                              <span
-                                style={{ fontSize: "13px", fontWeight: "600", color: "#111827" }}
-                              >
-                                {transaction.member.nickname || transaction.member.name}
-                              </span>
-                            )}
-                            {(transaction.receiptImage || transaction.receiptImages?.length > 0) && (
-                              <span style={{ fontSize: "11px", color: "#9CA3AF" }}>영수증</span>
-                            )}
-                          </div>
-                          {roundingName && (
-                            <div
-                              style={{
-                                fontSize: "12px",
-                                color: "#6B7280",
-                                marginTop: "2px",
-                              }}
-                            >
-                              {roundingName}
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                  {userTransactions
+                    .filter((t) => !(t.type === "donation" && t.category === "도네이션") && !(t.type === "payment" && t.category === "크레딧 자동 차감"))
+                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+                    .map((t) => {
+                      const debit = isDebit(t);
+                      const iconBg = debit ? "rgba(220,38,38,0.09)" : "rgba(0,71,171,0.09)";
+                      const iconColor = debit ? "#DC2626" : "#0047AB";
+                      const TxIcon = () => {
+                        const s = { width: 20, height: 20, stroke: iconColor, fill: "none", strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" };
+                        if (t.type === "payment" || t.type === "credit") return (
+                          <svg viewBox="0 0 24 24" style={s}><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="15" x2="10" y2="15"/></svg>
+                        );
+                        if (t.type === "charge") return (
+                          <svg viewBox="0 0 24 24" style={s}><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+                        );
+                        if (t.type === "expense") return (
+                          <svg viewBox="0 0 24 24" style={s}><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+                        );
+                        if (t.type === "creditDonation" || t.type === "donation") return (
+                          <svg viewBox="0 0 24 24" style={s}><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                        );
+                        return (
+                          <svg viewBox="0 0 24 24" style={s}><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        );
+                      };
+                      return (
+                        <div key={t.id} style={{ background: "#fff", borderRadius: 16, padding: "16px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                            <div style={{ width: 44, height: 44, borderRadius: "50%", background: iconBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                              <TxIcon />
                             </div>
-                          )}
-                          <div style={{ fontSize: "12px", color: "#9CA3AF", marginTop: "2px" }}>
-                            {new Date(transaction.date).toLocaleDateString()}
+                            <div>
+                              <div style={{ fontSize: 14, fontWeight: 600, color: "#111827" }}>{getTransactionLabel(t)}</div>
+                              <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>{fmtDate(t.date || t.createdAt)}</div>
+                            </div>
+                          </div>
+                          <div style={{ textAlign: "right" }}>
+                            <div style={{ fontSize: 15, fontWeight: 700, color: iconColor }}>{getTransactionSign(t)}${t.amount.toLocaleString()}</div>
                           </div>
                         </div>
-                        <div style={{ textAlign: "right" }}>
-                          <div
-                            style={{
-                              fontSize: "15px",
-                              fontWeight: "700",
-                              color: transaction.type === "credit" ? "#DC2626" : getTransactionColor(transaction),
-                            }}
-                          >
-                            {transaction.type === "credit" ? "-" : getTransactionSign(transaction)}$
-                            {transaction.amount.toLocaleString()}
-                          </div>
-                          {canManageFees && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleOpenEditModal(transaction);
-                              }}
-                              style={{
-                                marginTop: "4px",
-                                padding: "4px 8px",
-                                fontSize: "11px",
-                                background: "#F3F4F6",
-                                color: "#374151",
-                                border: "none",
-                                borderRadius: "6px",
-                                cursor: "pointer",
-                              }}
-                            >
-                              수정
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    );
-                  })}
-
-                  {/* 페이지네이션 */}
-                  {totalPages > 1 && (
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "center",
-                        gap: "12px",
-                        marginTop: "20px",
-                      }}
-                    >
-                      <button
-                        onClick={() => loadLedgerData(currentPage - 1)}
-                        disabled={currentPage <= 1}
-                        style={{
-                          padding: "8px 16px",
-                          border: "1px solid #ddd",
-                          background: "white",
-                          borderRadius: "6px",
-                          cursor: currentPage <= 1 ? "not-allowed" : "pointer",
-                        }}
-                      >
-                        이전
-                      </button>
-                      <span
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          fontWeight: "600",
-                        }}
-                      >
-                        {currentPage} / {totalPages}
-                      </span>
-                      <button
-                        onClick={() => loadLedgerData(currentPage + 1)}
-                        disabled={currentPage >= totalPages}
-                        style={{
-                          padding: "8px 16px",
-                          border: "1px solid #ddd",
-                          background: "white",
-                          borderRadius: "6px",
-                          cursor:
-                            currentPage >= totalPages
-                              ? "not-allowed"
-                              : "pointer",
-                        }}
-                      >
-                        다음
-                      </button>
-                    </div>
-                  )}
+                      );
+                    })
+                  }
                 </div>
               )}
             </div>
-          </>
+
+            {/* 납부 안내 문구 — 맨 아래 박스 */}
+            {paymentGuideText && (
+              <div style={{ background: "#EBF2FF", borderRadius: 20, padding: "18px 20px", display: "flex", alignItems: "flex-start", gap: 14, border: "1px solid rgba(0,71,171,0.12)", marginBottom: 0 }}>
+                <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>ℹ️</span>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#0047AB", marginBottom: 6 }}>납부 안내</div>
+                  <div style={{ fontSize: 12, color: "#1e40af", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{paymentGuideText}</div>
+                </div>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div style={{ padding: "0 0 8px" }}>
+            {settlementsLoading ? (
+              <div style={{ background: "#fff", borderRadius: 18, padding: "40px 20px", textAlign: "center", color: "#9CA3AF", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>불러오는 중...</div>
+            ) : settlements.length === 0 ? (
+              <div style={{ background: "#fff", borderRadius: 18, padding: "48px 20px", textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>
+                <div style={{ fontSize: 36, marginBottom: 12 }}>📋</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#374151", marginBottom: 6 }}>아직 마감된 정산서가 없습니다</div>
+                <div style={{ fontSize: 13, color: "#9CA3AF" }}>월 마감이 완료되면 여기에 표시됩니다</div>
+              </div>
+            ) : (
+              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                {settlements.map((s) => {
+                  const [y, m] = s.yearMonth.split("-");
+                  const closedDate = s.closedAt ? new Date(s.closedAt).toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" }) : "";
+                  const isPositive = s.netBalance >= 0;
+                  return (
+                    <div key={s.yearMonth} style={{ background: "#fff", borderRadius: 20, padding: "20px 20px 16px", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>
+                      {/* 헤더 */}
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                        <div style={{ fontSize: 16, fontWeight: 800, color: "#111827", letterSpacing: "-0.02em" }}>
+                          {y}년 {parseInt(m)}월 정산서
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: 5, background: "#f0fdf4", borderRadius: 20, padding: "4px 10px" }}>
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: "#16a34a" }}>마감</span>
+                        </div>
+                      </div>
+                      {/* 수입/지출 */}
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+                        <div style={{ background: "#f0fdf4", borderRadius: 12, padding: "12px 14px" }}>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: "#64748B", marginBottom: 4 }}>수입</div>
+                          <div style={{ fontSize: 16, fontWeight: 800, color: "#16a34a" }}>+${s.totalIncome.toLocaleString()}</div>
+                        </div>
+                        <div style={{ background: "#fef2f2", borderRadius: 12, padding: "12px 14px" }}>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: "#64748B", marginBottom: 4 }}>지출</div>
+                          <div style={{ fontSize: 16, fontWeight: 800, color: "#DC2626" }}>-${s.totalExpense.toLocaleString()}</div>
+                        </div>
+                      </div>
+                      {/* 이달 손익 / 전체 잔액 */}
+                      {(() => {
+                        const monthNet = s.totalIncome - s.totalExpense;
+                        const monthPos = monthNet >= 0;
+                        return (
+                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+                            <div style={{ background: monthPos ? "#f0fdf4" : "#fef2f2", borderRadius: 12, padding: "12px 14px" }}>
+                              <div style={{ fontSize: 11, fontWeight: 600, color: "#64748B", marginBottom: 4 }}>이달 손익</div>
+                              <div style={{ fontSize: 15, fontWeight: 800, color: monthPos ? "#16a34a" : "#DC2626" }}>
+                                {monthPos ? "+" : ""}{monthNet < 0 ? "-" : ""}${Math.abs(monthNet).toLocaleString()}
+                              </div>
+                            </div>
+                            <div style={{ background: isPositive ? "#eff6ff" : "#fef2f2", borderRadius: 12, padding: "12px 14px" }}>
+                              <div style={{ fontSize: 11, fontWeight: 600, color: "#64748B", marginBottom: 4 }}>전체 잔액</div>
+                              <div style={{ fontSize: 15, fontWeight: 800, color: isPositive ? "#0047AB" : "#DC2626" }}>${s.netBalance.toLocaleString()}</div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                      {/* 마감일 */}
+                      {closedDate && (
+                        <div style={{ fontSize: 11, color: "#9CA3AF", textAlign: "right" }}>{closedDate} 마감</div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
         )}
       </div>
 
-      {showReceiptModal && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0,0,0,0.8)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
-          onClick={() => setShowReceiptModal(null)}
-        >
-          <div style={{ maxWidth: "90%", maxHeight: "90%" }}>
-            <img
-              src={showReceiptModal}
-              alt="Receipt"
-              style={{ width: "100%", borderRadius: "8px" }}
-            />
-          </div>
-        </div>
-      )}
-
-      {galleryImages.length > 0 && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0,0,0,0.9)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
-          onClick={() => {
-            setGalleryImages([]);
-            setGalleryIndex(0);
-          }}
-        >
-          <div style={{ maxWidth: "90%", maxHeight: "90%" }}>
-            <img
-              src={galleryImages[galleryIndex]}
-              alt="Receipt"
-              style={{ width: "100%", borderRadius: "8px" }}
-            />
-          </div>
-          {/* 갤러리 컨트롤 생략 - 필요시 추가 */}
-        </div>
-      )}
-
-      {editingTransaction && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              background: "white",
-              padding: "20px",
-              borderRadius: "12px",
-              width: "90%",
-              maxWidth: "400px",
-            }}
-          >
-            <h3>수정</h3>
-            {/* 간단한 수정 폼 예 */}
-            <div style={{ display: "flex", gap: "10px", marginTop: "20px" }}>
-              <button
-                onClick={handleCloseEditModal}
-                style={{ flex: 1, padding: "10px" }}
-              >
-                취소
-              </button>
-              <button
-                onClick={handleUpdateTransaction}
-                style={{
-                  flex: 1,
-                  padding: "10px",
-                  background: "#1A3D2F",
-                  color: "white",
-                }}
-              >
-                저장
-              </button>
-            </div>
-            <button
-              onClick={handleDeleteTransaction}
-              style={{
-                width: "100%",
-                marginTop: "10px",
-                padding: "10px",
-                background: "#DC2626",
-                color: "white",
-              }}
-            >
-              삭제
-            </button>
-          </div>
-        </div>
-      )}
-
       {showCreditModal && (
-        <div
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: "rgba(0,0,0,0.5)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            zIndex: 1000,
-          }}
-        >
-          <div
-            style={{
-              background: "white",
-              padding: "20px",
-              borderRadius: "12px",
-              width: "90%",
-              maxWidth: "360px",
-            }}
-          >
-            <h3>크레딧 처리</h3>
-            <input
-              type="number"
-              value={creditActionAmount}
-              onChange={(e) => setCreditActionAmount(e.target.value)}
-              style={{ width: "100%", padding: "10px", margin: "10px 0" }}
-              placeholder="금액"
-            />
-            <input
-              type="text"
-              value={creditActionMemo}
-              onChange={(e) => setCreditActionMemo(e.target.value)}
-              style={{ width: "100%", padding: "10px", margin: "10px 0" }}
-              placeholder="메모"
-            />
-            <div style={{ display: "flex", gap: "10px" }}>
-              <button
-                onClick={() => setShowCreditModal(null)}
-                style={{ flex: 1, padding: "10px" }}
-              >
-                취소
-              </button>
-              <button
-                onClick={
-                  showCreditModal === "donation"
-                    ? handleCreditToDonation
-                    : handleCreditToPayment
-                }
-                style={{
-                  flex: 1,
-                  padding: "10px",
-                  background: "#1A3D2F",
-                  color: "white",
-                }}
-              >
-                확인
-              </button>
-            </div>
-          </div>
-        </div>
+        <CreditModal
+          mode={showCreditModal}
+          creditBalance={creditBalance}
+          actualUnpaid={actualUnpaid}
+          amount={creditActionAmount}
+          setAmount={setCreditActionAmount}
+          memo={creditActionMemo}
+          setMemo={setCreditActionMemo}
+          onConfirm={showCreditModal === "donation" ? handleCreditToDonation : handleCreditToPayment}
+          onClose={() => { setShowCreditModal(null); setCreditActionAmount(""); setCreditActionMemo(""); }}
+          loading={creditActionLoading}
+        />
       )}
+
+      <style>{`
+        @keyframes slideUpFees {
+          from { transform: translateY(100%); }
+          to { transform: translateY(0); }
+        }
+      `}</style>
     </div>
   );
 }

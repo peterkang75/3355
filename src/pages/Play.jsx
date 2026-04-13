@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
+import PageHeader from '../components/common/PageHeader';
 
 function Play() {
   const navigate = useNavigate();
@@ -38,6 +39,60 @@ function Play() {
   const lastRestoredBookingRef = useRef(null);
   const serverSaveTimerRef = useRef(null);
   const lastSavedScoresRef = useRef(null);
+  const saveQueueRef = useRef([]);         // 오프라인 큐 (메모리)
+  const bookingSetupDoneRef = useRef(null); // booking setup 중복 실행 방지
+  const isOnlineRef = useRef(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  const swipeBlockedRef = useRef(false);
+  const swipeModalsRef = useRef(false);
+  const cardContainerRef = useRef(null);
+  const scorecardRootRef = useRef(null);
+  const [slideX, setSlideX] = useState(0);
+  const [slideAnimating, setSlideAnimating] = useState(false);
+  const [saveStatus, setSaveStatus] = useState('idle'); // 'idle'|'saving'|'saved'|'failed'|'queued'
+
+  // 큐 localStorage 영속화 헬퍼 — 앱 재시작 후에도 큐 복구 가능
+  const queueStorageKey = bookingId ? `score_queue_${bookingId}` : null;
+  const persistQueue = useCallback((queue) => {
+    if (!queueStorageKey) return;
+    if (queue.length > 0) {
+      localStorage.setItem(queueStorageKey, JSON.stringify(queue));
+    } else {
+      localStorage.removeItem(queueStorageKey);
+    }
+  }, [queueStorageKey]);
+
+  // 게스트 세션 (비로그인 게스트용)
+  const guestSession = useMemo(() => {
+    try { return JSON.parse(localStorage.getItem('guestSession') || 'null'); } catch { return null; }
+  }, []);
+
+  // 실제 사용할 memberId / phone (로그인 회원 우선, 없으면 게스트)
+  const effectiveUserId = user?.id || guestSession?.guestMemberId || null;
+  const effectiveUserPhone = user?.phone || guestSession?.phone || null;
+  const isGuestMode = !user && !!guestSession?.guestMemberId;
+
+  // 앱 재시작 후 오프라인 큐 복원
+  useEffect(() => {
+    if (!queueStorageKey) return;
+    try {
+      const saved = JSON.parse(localStorage.getItem(queueStorageKey) || '[]');
+      if (saved.length > 0) {
+        saveQueueRef.current = saved;
+        setSaveStatus('queued');
+        console.log('📦 오프라인 큐 복원:', saved.length, '건');
+      }
+    } catch {}
+  }, [queueStorageKey]);
+
+  // 인증 헤더 헬퍼
+  const getAuthHeaders = useCallback((extra = {}) => {
+    const memberId = effectiveUserId;
+    return {
+      'Content-Type': 'application/json',
+      ...(memberId ? { 'X-Member-Id': memberId } : {}),
+      ...extra,
+    };
+  }, [effectiveUserId]);
   
   useEffect(() => {
     let rafId;
@@ -60,17 +115,20 @@ function Play() {
   }, []);
   
   // 연속적 스케일링: 기준 뷰포트 대비 현재 뷰포트 비율 계산
-  const baseWidth = 400;  // 기준 너비 (iPhone SE 수준)
-  const baseHeight = 820; // 기준 높이
+  // 기준: iPhone 14 (390×844) — 현재 가장 일반적인 폰
+  const baseWidth = 390;
+  const baseHeight = 844;
   const widthScale = screenSize.width / baseWidth;
   const heightScale = screenSize.height / baseHeight;
-  // 너비와 높이 중 더 작은 비율을 사용하되, 0.7~1.15 범위로 제한
+  // 너비와 높이 중 더 작은 비율 사용, 0.82~1.15 범위 제한
+  // 0.82 = iPhone SE(375px) 기준 최소 → 최대 15% 축소로 제한
   const rawScale = Math.min(widthScale, heightScale);
-  const scale = Math.max(0.7, Math.min(1.15, rawScale));
-  
-  // 스케일된 값 계산 헬퍼 (최소값 보장)
-  const s = (base, min = 0) => Math.max(min, Math.round(base * scale));
-  
+  const scale = Math.max(0.82, Math.min(1.15, rawScale));
+
+  // 스케일된 값 계산 헬퍼
+  // min 기본값: base의 80% 또는 12px 중 큰 값 (폰트가 너무 작아지지 않도록)
+  const s = (base, min = Math.max(12, Math.round(base * 0.80))) => Math.max(min, Math.round(base * scale));
+
   // 터치 타겟은 최소 44px 보장
   const touchSize = (base) => Math.max(44, s(base));
   
@@ -106,7 +164,7 @@ function Play() {
     }
     
     // 2단계: 아직 데이터가 로드되지 않았으면 대기 (초기화하지 않음)
-    if (!user?.id || !bookings || bookings.length === 0 || !members || members.length === 0) return;
+    if (!effectiveUserId || !bookings || bookings.length === 0) return;
     
     const foundBooking = bookings.find(b => b.id === bookingId);
     if (!foundBooking) return;
@@ -125,7 +183,7 @@ function Play() {
         const allScores = await allScoresRes.json();
         
         // 내 스코어 찾기
-        const myScore = allScores.find(s => s.userId === user.id);
+        const myScore = allScores.find(s => s.userId === effectiveUserId);
         
         if (myScore && myScore.holes) {
           const holesData = typeof myScore.holes === 'string' ? JSON.parse(myScore.holes) : myScore.holes;
@@ -139,7 +197,7 @@ function Play() {
             let restoredTeammate = null;
             
             // 경우 1: 내가 마커인 스코어 찾기 (내가 다른 사람을 마크한 경우)
-            const markedByMe = allScores.find(s => s.markerId === user.id && s.userId !== user.id);
+            const markedByMe = allScores.find(s => s.markerId === effectiveUserId && s.userId !== user.id);
             if (markedByMe) {
               if (markedByMe.holes) {
                 teammateHoles = typeof markedByMe.holes === 'string' ? JSON.parse(markedByMe.holes) : markedByMe.holes;
@@ -152,9 +210,9 @@ function Play() {
             if (!restoredTeammate && foundBooking.teams) {
               try {
                 const teams = typeof foundBooking.teams === 'string' ? JSON.parse(foundBooking.teams) : foundBooking.teams;
-                const userTeam = teams.find(t => t.members?.some(m => m?.phone === user?.phone));
+                const userTeam = teams.find(t => t.members?.some(m => m?.phone === effectiveUserPhone));
                 if (userTeam) {
-                  const teamMembers = userTeam.members.filter(m => m && m.phone !== user?.phone);
+                  const teamMembers = userTeam.members.filter(m => m && m.phone !== effectiveUserPhone);
                   for (const tm of teamMembers) {
                     const tmMember = members?.find(m => m.phone === tm.phone);
                     if (tmMember) {
@@ -211,7 +269,7 @@ function Play() {
     };
     
     restoreFromServer();
-  }, [bookingId, user?.id, bookings, members]);
+  }, [bookingId, effectiveUserId, bookings, members]);
 
   // 스코어 변경 시 localStorage에 자동 저장 (앱 종료/폰 재시작 후에도 유지)
   useEffect(() => {
@@ -247,6 +305,7 @@ function Play() {
     }
     
     serverSaveTimerRef.current = setTimeout(async () => {
+      setSaveStatus('saving');
       try {
         const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
         const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
@@ -255,60 +314,101 @@ function Play() {
         const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
         const totalTeammate = holeScores.teammate.reduce((a, b) => a + b, 0);
         const coursePar = userParArr.reduce((a, b) => a + b, 0);
-        
-        // 포썸 메타데이터 생성
+
         const myGameMetadata = gameMode === 'foursome' && foursomeData ? {
           partner: { name: foursomeData.partner?.nickname || foursomeData.partner?.name, phone: foursomeData.partner?.phone },
           opponents: foursomeData.opponents?.map(o => ({ name: o?.nickname || o?.name, phone: o?.phone })) || [],
           recordedBy: user?.nickname || user?.name,
         } : null;
-        
-        const teammateGameMetadata = gameMode === 'foursome' && foursomeData ? {
-          partner: { name: foursomeData.partner?.nickname || foursomeData.partner?.name, phone: foursomeData.partner?.phone },
-          opponents: foursomeData.opponents?.map(o => ({ name: o?.nickname || o?.name, phone: o?.phone })) || [],
-          recordedBy: user?.nickname || user?.name,
-        } : null;
 
-        // 내 스코어 저장
-        await fetch('/api/scores', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            memberId: user.id,
-            markerId: user.id,
-            roundingName: booking.title,
-            date: scoreDate,
-            courseName: courseData?.name || booking.courseName,
-            totalScore: totalMe,
-            coursePar,
-            holes: holeScores.me,
-            gameMode: gameMode === 'foursome' ? 'foursome' : null,
-            gameMetadata: myGameMetadata,
-          })
-        });
-        
-        // 팀원 스코어 저장
-        await fetch('/api/scores', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            memberId: teammateMemberId,
-            markerId: user.id,
-            roundingName: booking.title,
-            date: scoreDate,
-            courseName: courseData?.name || booking.courseName,
-            totalScore: totalTeammate,
-            coursePar: teammateParArr.reduce((a, b) => a + b, 0),
-            holes: holeScores.teammate,
-            gameMode: gameMode === 'foursome' ? 'foursome' : null,
-            gameMetadata: teammateGameMetadata,
-          })
-        });
-        
-        lastSavedScoresRef.current = currentScoresKey;
-        console.log('🌐 서버에 스코어 실시간 저장 완료');
+        const teammateGameMetadata = myGameMetadata;
+
+        const myPayload = {
+          memberId: effectiveUserId,
+          markerId: effectiveUserId,
+          roundingName: booking.title,
+          date: scoreDate,
+          courseName: courseData?.name || booking.courseName,
+          totalScore: totalMe,
+          coursePar,
+          holes: holeScores.me,
+          gameMode: gameMode === 'foursome' ? 'foursome' : null,
+          gameMetadata: myGameMetadata,
+        };
+        const teammatePayload = {
+          memberId: teammateMemberId,
+          markerId: effectiveUserId,
+          roundingName: booking.title,
+          date: scoreDate,
+          courseName: courseData?.name || booking.courseName,
+          totalScore: totalTeammate,
+          coursePar: teammateParArr.reduce((a, b) => a + b, 0),
+          holes: holeScores.teammate,
+          gameMode: gameMode === 'foursome' ? 'foursome' : null,
+          gameMetadata: teammateGameMetadata,
+        };
+
+        if (!isOnlineRef.current) {
+          // 오프라인: 큐에 보관 + localStorage 영속화
+          saveQueueRef.current.push(myPayload, teammatePayload);
+          persistQueue(saveQueueRef.current);
+          setSaveStatus('queued');
+          console.log('📴 오프라인 — 스코어 큐 보관 + localStorage 저장');
+          return;
+        }
+
+        // 내 스코어 / 팀원 스코어 개별 저장 — 실패 건만 재큐
+        const failedPayloads = [];
+
+        try {
+          const r1 = await fetch('/api/scores', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(myPayload),
+          });
+          if (!r1.ok) {
+            console.warn('내 스코어 저장 실패:', r1.status);
+            failedPayloads.push(myPayload);
+          }
+        } catch (e) {
+          console.warn('내 스코어 네트워크 오류:', e);
+          failedPayloads.push(myPayload);
+        }
+
+        try {
+          const r2 = await fetch('/api/scores', {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify(teammatePayload),
+          });
+          if (!r2.ok) {
+            console.warn('팀원 스코어 저장 실패:', r2.status);
+            failedPayloads.push(teammatePayload);
+          }
+        } catch (e) {
+          console.warn('팀원 스코어 네트워크 오류:', e);
+          failedPayloads.push(teammatePayload);
+        }
+
+        if (failedPayloads.length > 0) {
+          // 실패한 건만 큐에 추가 + 영속화
+          saveQueueRef.current.push(...failedPayloads);
+          persistQueue(saveQueueRef.current);
+          setSaveStatus(failedPayloads.length === 2 ? 'failed' : 'queued');
+          console.warn('⚠️ 일부 저장 실패, 큐 보관:', failedPayloads.length, '건');
+        } else {
+          // 전체 성공: 큐 비우기 + localStorage 큐 제거
+          saveQueueRef.current = [];
+          persistQueue([]);
+          lastSavedScoresRef.current = currentScoresKey;
+          setSaveStatus('saved');
+          setTimeout(() => setSaveStatus('idle'), 3000);
+          console.log('🌐 서버에 스코어 실시간 저장 완료');
+        }
       } catch (e) {
-        console.error('서버 저장 오류:', e);
+        // 예외 처리 (payload 빌드 실패 등)
+        console.error('서버 저장 예외:', e);
+        setSaveStatus('failed');
       }
     }, 500);
 
@@ -320,9 +420,14 @@ function Play() {
   }, [bookingId, booking, user, selectedTeammate, holeScores, step, courseData, gameMode, foursomeData, members]);
 
   useEffect(() => {
-    console.log('🎯 Play 페이지 로드:', bookingId);
     if (!bookingId || bookings.length === 0) return;
-    
+
+    // 소켓/visibilitychange로 bookings가 갱신될 때마다 게임 상태가 리셋되지 않도록
+    // 동일한 bookingId에 대해 setup은 한 번만 실행
+    if (bookingSetupDoneRef.current === bookingId) return;
+    bookingSetupDoneRef.current = bookingId;
+
+    console.log('🎯 Play 페이지 로드:', bookingId);
     const foundBooking = bookings.find(b => b.id === bookingId);
     console.log('📌 Booking 찾음:', foundBooking?.title);
     setBooking(foundBooking);
@@ -348,11 +453,11 @@ function Play() {
       try {
         const teams = typeof foundBooking.teams === 'string' ? JSON.parse(foundBooking.teams) : foundBooking.teams;
         console.log('👥 팀 데이터:', teams);
-        const userTeam = teams.find(t => t.members?.some(m => m?.phone === user?.phone));
+        const userTeam = teams.find(t => t.members?.some(m => m?.phone === effectiveUserPhone));
         console.log('👤 사용자 팀:', userTeam);
         if (userTeam && userTeam.members) {
           // 사용자 슬롯 인덱스 찾기
-          const userSlotIndex = userTeam.members.findIndex(m => m?.phone === user?.phone);
+          const userSlotIndex = userTeam.members.findIndex(m => m?.phone === effectiveUserPhone);
           console.log('👤 사용자 슬롯:', userSlotIndex);
           
           if (detectedGameMode === 'foursome' && userSlotIndex >= 0) {
@@ -383,7 +488,7 @@ function Play() {
               return hcp;
             };
             
-            const enrichedUser = enrichMember({ phone: user?.phone });
+            const enrichedUser = enrichMember({ phone: effectiveUserPhone });
             const pairA = [userTeam.members[0], userTeam.members[1]].filter(Boolean);
             const pairB = [userTeam.members[2], userTeam.members[3]].filter(Boolean);
             
@@ -426,7 +531,7 @@ function Play() {
           } else {
             // 스트로크 모드: 기존 로직
             setFoursomeData(null);
-            const teamMembers = userTeam.members.filter(m => m && m.phone !== user?.phone);
+            const teamMembers = userTeam.members.filter(m => m && m.phone !== effectiveUserPhone);
             const enrichedTeammates = teamMembers.map(tm => {
               const fullMember = members?.find(m => m.phone === tm.phone);
               return fullMember ? { ...tm, ...fullMember } : tm;
@@ -435,8 +540,29 @@ function Play() {
             setTeammates(enrichedTeammates);
           }
         } else {
+          // 팀 있지만 내 phone이 없음 (뒤늦게 추가된 게스트 등) → 4명 이하이면 자동 구성
           console.log('⚠️ 팀 정보 없음, 팀원 배열 초기화');
-          setTeammates([]);
+          const fallbackRaw = (foundBooking.participants || []).map(p => {
+            try { return typeof p === 'string' ? JSON.parse(p) : p; } catch { return null; }
+          }).filter(Boolean);
+          const fallbackMap = new Map();
+          for (const p of fallbackRaw) {
+            const key = (p.name || '').trim().toLowerCase();
+            if (!key) continue;
+            if (!fallbackMap.has(key) || p.phone) fallbackMap.set(key, p);
+          }
+          const parsedFallback = Array.from(fallbackMap.values());
+          if (parsedFallback.length > 0) {
+            const myTeammates = parsedFallback.filter(p => p.phone !== effectiveUserPhone);
+            const enriched = myTeammates.map(tm => {
+              const fullMember = members?.find(m => m.phone === tm.phone);
+              return fullMember ? { ...tm, ...fullMember } : tm;
+            });
+            setTeammates(enriched);
+            if (enriched.length === 1) setSelectedTeammate(enriched[0]);
+          } else {
+            setTeammates([]);
+          }
           setFoursomeData(null);
         }
       } catch (e) {
@@ -445,9 +571,36 @@ function Play() {
         setFoursomeData(null);
       }
     } else {
-      console.log('⚠️ Booking에 teams 정보 없음');
-      setTeammates([]);
-      setFoursomeData(null);
+      // teams 없음 → 참가자 이름 기준 중복 제거 후 4명 이하이면 1조 자동 구성
+      const parsedRaw = (foundBooking.participants || []).map(p => {
+        try { return typeof p === 'string' ? JSON.parse(p) : p; } catch { return null; }
+      }).filter(Boolean);
+
+      // 이름 기준 dedup: phone 있는 항목 우선 보존
+      const nameMap = new Map();
+      for (const p of parsedRaw) {
+        const key = (p.name || '').trim().toLowerCase();
+        if (!key) continue;
+        if (!nameMap.has(key) || p.phone) nameMap.set(key, p);
+      }
+      const parsedAll = Array.from(nameMap.values());
+
+      // teams 없음 → 인원수 무관하게 전원 팀원으로 설정 (조편성 불필요)
+      if (parsedAll.length > 0) {
+        console.log('👥 teams 없음 → 전원 자동 구성:', parsedAll.length, '명');
+        const myTeammates = parsedAll.filter(p => p.phone !== effectiveUserPhone);
+        const enriched = myTeammates.map(tm => {
+          const fullMember = members?.find(m => m.phone === tm.phone);
+          return fullMember ? { ...tm, ...fullMember } : tm;
+        });
+        setTeammates(enriched);
+        setFoursomeData(null);
+        if (enriched.length === 1) setSelectedTeammate(enriched[0]);
+      } else {
+        console.log('⚠️ teams 없음, participants도 비어있음');
+        setTeammates([]);
+        setFoursomeData(null);
+      }
     }
 
     const course = courses.find(c => c.name === foundBooking?.courseName);
@@ -463,7 +616,155 @@ function Play() {
         }
       });
     }
-  }, [bookingId, bookings, user?.phone, courses, members]);
+  }, [bookingId, bookings, effectiveUserPhone, courses, members]);
+
+  // ─── 오프라인 큐 플러시: 네트워크 복구 시 밀린 저장 처리 ─────────────
+  const flushSaveQueue = useCallback(async () => {
+    if (saveQueueRef.current.length === 0) return;
+    const queue = [...saveQueueRef.current];
+    saveQueueRef.current = [];
+    setSaveStatus('saving');
+
+    const failed = [];
+    for (const payload of queue) {
+      try {
+        const res = await fetch('/api/scores', {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) failed.push(payload);
+      } catch {
+        failed.push(payload);
+      }
+    }
+
+    if (failed.length === 0) {
+      // 전체 성공: localStorage 큐 제거
+      persistQueue([]);
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus('idle'), 3000);
+      console.log('📡 오프라인 큐 플러시 완료:', queue.length, '건');
+    } else {
+      // 실패 건만 재보관 + 영속화
+      saveQueueRef.current = [...failed, ...saveQueueRef.current];
+      persistQueue(saveQueueRef.current);
+      setSaveStatus('queued');
+      console.warn('큐 플러시 부분 실패:', failed.length, '건 재보관');
+    }
+  }, [getAuthHeaders, persistQueue]);
+
+  // ─── 네트워크 / 앱 생명주기 이벤트 ───────────────────────────────────
+  useEffect(() => {
+    const handleOnline = () => {
+      isOnlineRef.current = true;
+      console.log('🌐 네트워크 복구 — 저장 큐 플러시');
+      flushSaveQueue();
+    };
+    const handleOffline = () => {
+      isOnlineRef.current = false;
+      setSaveStatus('queued');
+      console.log('📴 네트워크 오프라인');
+    };
+
+    // iOS: 앱 전환 시 pagehide 발생 → localStorage 즉시 동기화 확인
+    const handlePageHide = () => {
+      if (!bookingId || step === 'selectMember') return;
+      const stateToSave = { holeScores, currentHole, selectedTeammate, step, roundStartTime, foursomeData };
+      localStorage.setItem(`play_state_${bookingId}`, JSON.stringify(stateToSave));
+      console.log('📲 pagehide: localStorage 긴급 저장');
+    };
+
+    // 앱 복귀 시: localStorage와 서버 버전 비교 후 최신으로 덮어씀
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState !== 'visible') return;
+      if (!bookingId || !effectiveUserId || step === 'selectMember') return;
+
+      // 오프라인 큐가 있으면 플러시 시도
+      if (saveQueueRef.current.length > 0 && isOnlineRef.current) {
+        flushSaveQueue();
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/scores/by-rounding/${encodeURIComponent(booking?.title || '')}`, {
+          headers: getAuthHeaders(),
+        });
+        if (!res.ok) return;
+        const allScores = await res.json();
+        const myServerScore = allScores.find(s => s.userId === effectiveUserId);
+        if (!myServerScore?.holes) return;
+
+        const serverHoles = typeof myServerScore.holes === 'string'
+          ? JSON.parse(myServerScore.holes)
+          : myServerScore.holes;
+
+        // 서버 vs 로컬 홀별 정밀 비교 (합계 대신 JSON 비교 — 같은 합계라도 분포가 다를 수 있음)
+        const serverFilled = serverHoles.filter(s => s > 0).length;
+        const localFilled = holeScores.me.filter(s => s > 0).length;
+        const serverJson = JSON.stringify(serverHoles);
+        const localJson = JSON.stringify(holeScores.me);
+
+        if (serverFilled > localFilled && serverJson !== localJson) {
+          // 서버가 더 많은 홀 기록 (다른 기기에서 수정됨) → 서버로 복원
+          setHoleScores(prev => ({ ...prev, me: serverHoles }));
+          lastSavedScoresRef.current = null; // 복원된 값으로 재저장 허용
+          console.log('🔄 앱 복귀: 서버 스코어가 더 최신 → 복원');
+        } else if ((localFilled > serverFilled || (localFilled === serverFilled && localJson !== serverJson)) && saveQueueRef.current.length === 0 && localJson !== serverJson) {
+          // 로컬이 더 최신 (오프라인 중 변경됨) → 직접 저장 트리거
+          console.log('🔄 앱 복귀: 로컬 스코어가 더 최신 → 서버 동기화');
+          lastSavedScoresRef.current = null; // 중복 방지 키 초기화
+          // holeScores는 변하지 않았으므로 useEffect가 재실행되지 않음 → 직접 저장
+          setSaveStatus('saving');
+          const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+          const myPayload = {
+            memberId: effectiveUserId,
+            markerId: effectiveUserId,
+            roundingName: booking?.title,
+            date: scoreDate,
+            courseName: courseData?.name || booking?.courseName,
+            totalScore: holeScores.me.reduce((a, b) => a + b, 0),
+            holes: holeScores.me,
+          };
+          try {
+            const r = await fetch('/api/scores', {
+              method: 'POST',
+              headers: getAuthHeaders(),
+              body: JSON.stringify(myPayload),
+            });
+            if (r.ok) {
+              lastSavedScoresRef.current = localJson;
+              setSaveStatus('saved');
+              setTimeout(() => setSaveStatus('idle'), 3000);
+              console.log('✅ 앱 복귀 강제 저장 완료');
+            } else {
+              saveQueueRef.current.push(myPayload);
+              persistQueue(saveQueueRef.current);
+              setSaveStatus('queued');
+            }
+          } catch {
+            saveQueueRef.current.push(myPayload);
+            persistQueue(saveQueueRef.current);
+            setSaveStatus('queued');
+          }
+        }
+      } catch (e) {
+        console.log('앱 복귀 sync 스킵:', e.message);
+      }
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('pagehide', handlePageHide);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('pagehide', handlePageHide);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [bookingId, booking, user, step, holeScores, currentHole, selectedTeammate, roundStartTime, foursomeData, getAuthHeaders, flushSaveQueue, persistQueue, courseData, effectiveUserId, effectiveUserPhone, members]);
 
   // 실시간 저장 - localStorage + 서버에 자동 저장
   // 서버 자동 저장 비활성화: 사용자가 저장하지 않고 종료하면 데이터가 남지 않도록 함
@@ -482,14 +783,16 @@ function Play() {
       
       const dailyHandicaps = { ...existingHandicaps };
       
-      const userMember = members?.find(m => m.phone === user?.phone);
+      const userMember = members?.find(m => m.phone === effectiveUserPhone);
       if (userMember) {
-        dailyHandicaps[userMember.phone] = parseFloat(userMember.handicap) || 0;
+        const uh = parseFloat(userMember.gaHandy) || parseFloat(userMember.houseHandy) || parseFloat(userMember.handicap) || 0;
+        dailyHandicaps[userMember.phone] = uh;
       }
-      
+
       const teammateMember = members?.find(m => m.phone === selectedTeammate?.phone);
       if (teammateMember) {
-        dailyHandicaps[teammateMember.phone] = parseFloat(teammateMember.handicap) || 0;
+        const th = parseFloat(teammateMember.gaHandy) || parseFloat(teammateMember.houseHandy) || parseFloat(teammateMember.handicap) || 0;
+        dailyHandicaps[teammateMember.phone] = th;
       }
       
       if (Object.keys(dailyHandicaps).length > 0 && bookingId) {
@@ -512,9 +815,13 @@ function Play() {
   };
 
   const getTeammateMemberId = useCallback(() => {
-    if (!selectedTeammate?.phone || !members) return selectedTeammate?.phone;
-    const member = members.find(m => m.phone === selectedTeammate.phone);
-    return member?.id || selectedTeammate.phone;
+    // phone으로 members에서 정식 id 찾기 (가장 정확)
+    if (selectedTeammate?.phone && members) {
+      const member = members.find(m => m.phone === selectedTeammate.phone);
+      if (member?.id) return member.id;
+    }
+    // 버그 수정 4: selectedTeammate.id 우선 (게스트 포함), phone은 최후 폴백
+    return selectedTeammate?.id || selectedTeammate?.phone || null;
   }, [selectedTeammate, members]);
 
   const checkTeammateScores = useCallback(async () => {
@@ -525,11 +832,11 @@ function Play() {
       
       const res = await fetch('/api/scores/verify-round', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getAuthHeaders(),
         body: JSON.stringify({
           roundingName: booking.title,
           date: scoreDate,
-          myId: user.id,
+          myId: effectiveUserId,
           teammateId: teammateMemberId,
           myHoles: holeScores.me,
           teammateHolesRecordedByMe: holeScores.teammate
@@ -580,25 +887,104 @@ function Play() {
     };
   }, [step, checkTeammateScores]);
 
+  // 모달 상태 ref 동기화 (스와이프 핸들러에서 사용)
+  useEffect(() => {
+    swipeModalsRef.current = showHoleSelector || showEndRoundModal || showNtpModal || showMismatches;
+  }, [showHoleSelector, showEndRoundModal, showNtpModal, showMismatches]);
+
+  // ── 스와이프: document-level touch listeners (크로스플랫폼) ──
+  useEffect(() => {
+    let startX = null;
+
+    const onStart = (e) => {
+      if (!e.touches || !e.touches.length) return;
+      if (!cardContainerRef.current) return;
+      startX = e.touches[0].clientX;
+      const c = cardContainerRef.current;
+      c.style.transition = 'none';
+      c.style.transform = 'none';
+    };
+
+    const onMove = (e) => {
+      try { e.preventDefault(); } catch (_) {}
+      if (startX === null) return;
+      const dx = e.touches[0].clientX - startX;
+      const c = cardContainerRef.current;
+      if (c) { c.style.transition = 'none'; c.style.transform = `translateX(${dx}px)`; }
+    };
+
+    const onEnd = (e) => {
+      if (startX === null) return;
+      if (!e.changedTouches || !e.changedTouches.length) return;
+      const dx = e.changedTouches[0].clientX - startX;
+      startX = null;
+      const c = cardContainerRef.current;
+
+      if (Math.abs(dx) < 40) {
+        if (c) { c.style.transition = 'transform 200ms ease-out'; c.style.transform = 'none'; }
+        return;
+      }
+
+      const dir = dx < 0 ? -1 : 1;
+      const w = window.innerWidth;
+
+      setCurrentHole(prev => dir < 0 ? (prev < 18 ? prev + 1 : 1) : (prev > 1 ? prev - 1 : 18));
+      if (c) { c.style.transition = 'none'; c.style.transform = `translateX(${-dir * w}px)`; }
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        if (c) { c.style.transition = 'transform 200ms ease-out'; c.style.transform = 'none'; }
+      }));
+    };
+
+    document.addEventListener('touchstart', onStart, { passive: false, capture: true });
+    document.addEventListener('touchmove', onMove, { passive: false, capture: true });
+    document.addEventListener('touchend', onEnd, { passive: true, capture: true });
+
+    return () => {
+      document.removeEventListener('touchstart', onStart, { capture: true });
+      document.removeEventListener('touchmove', onMove, { capture: true });
+      document.removeEventListener('touchend', onEnd, { capture: true });
+    };
+  }, []);
+
   if (!bookingId || !booking || !courseData) {
     return (
-      <div style={{ minHeight: '100vh', padding: '16px', background: '#223B3F' }}>
-        <div className="header">
-          <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', padding: '8px 16px' }}>← Back</button>
-        </div>
-        <div style={{ marginTop: '32px', textAlign: 'center', opacity: 0.6 }}>로딩 중...</div>
+      <div style={{ minHeight: '100vh', background: '#0d1a45' }}>
+        <PageHeader title="플레이하기" onBack={() => navigate(-1)} />
+        <div style={{ padding: '32px 16px', textAlign: 'center', opacity: 0.6, color: 'white' }}>로딩 중...</div>
       </div>
     );
   }
 
   if (step === 'selectMember') {
     if (teammates.length === 0) {
+      // 디버그: 실제 participants 파싱해서 원인 확인
+      const _dbgRaw = (booking?.participants || []).map(p => { try { return typeof p === 'string' ? JSON.parse(p) : p; } catch { return null; } }).filter(Boolean);
+      const _dbgNames = new Map();
+      for (const p of _dbgRaw) { const k = (p.name||'').trim().toLowerCase(); if (k && (!_dbgNames.has(k) || p.phone)) _dbgNames.set(k, p); }
+      const _dbgUnique = Array.from(_dbgNames.values());
+      console.warn('⚠️ teammates=0 디버그:', { bookingId, hasTeams: !!booking?.teams, rawCount: _dbgRaw.length, uniqueCount: _dbgUnique.length, myPhone: effectiveUserPhone, participants: _dbgUnique });
       return (
-        <div style={{ minHeight: '100vh', padding: '16px', background: '#223B3F' }}>
-          <div className="header">
-            <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', padding: '8px 16px' }}>← Back</button>
+        <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'center', padding: '16px', paddingTop: 'calc(env(safe-area-inset-top) + 16px)', background: '#fff', borderBottom: '1px solid #F1F5F9' }}>
+            <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px 4px 0', fontSize: '20px', color: '#1E293B' }}>←</button>
+            <span style={{ fontSize: '17px', fontWeight: '700', color: '#1E293B' }}>플레이하기</span>
           </div>
-          <div style={{ marginTop: '32px', textAlign: 'center', color: 'white', opacity: 0.7 }}>팀원이 없습니다</div>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px', gap: '16px' }}>
+            <div style={{ fontSize: '48px' }}>⛳</div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '17px', fontWeight: '700', color: '#1E293B', marginBottom: '8px' }}>조편성을 먼저 해주세요</div>
+              <div style={{ fontSize: '14px', color: '#94A3B8', lineHeight: 1.6 }}>플레이를 시작하려면{'\n'}조편성이 완료되어야 합니다</div>
+              <div style={{ fontSize: '11px', color: '#CBD5E1', marginTop: '12px', fontFamily: 'monospace' }}>
+                dbg: raw={_dbgRaw.length} unique={_dbgUnique.length} teams={booking?.teams ? 'Y' : 'N'} phone={effectiveUserPhone ? effectiveUserPhone.slice(0,10) : 'null'}
+              </div>
+            </div>
+            <button
+              onClick={() => navigate(-1)}
+              style={{ marginTop: '8px', padding: '14px 32px', borderRadius: '14px', background: '#0047AB', color: '#fff', border: 'none', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}
+            >
+              돌아가기
+            </button>
+          </div>
         </div>
       );
     }
@@ -642,11 +1028,10 @@ function Play() {
       };
       
       return (
-        <div style={{ minHeight: '100vh', padding: '16px', paddingBottom: '80px', background: '#223B3F' }}>
-          <div className="header">
-            <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', padding: '8px 16px' }}>← Back</button>
-          </div>
-          <div className="card" style={{ marginTop: '16px' }}>
+        <div style={{ minHeight: '100vh', background: '#0d1a45' }}>
+          <PageHeader title="마커 선택" onBack={() => navigate(-1)} />
+          <div style={{ padding: '16px', paddingBottom: '80px' }}>
+          <div className="card">
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
               <div style={{ 
                 display: 'inline-block',
@@ -837,155 +1222,154 @@ function Play() {
               {isStartingRound ? '확인 중...' : '매치 시작'}
             </button>
           </div>
+          </div>
         </div>
       );
     }
-    
+
     // 스트로크 모드: 기존 UI
     return (
-      <div style={{ minHeight: '100vh', padding: '16px', paddingBottom: '80px', background: '#223B3F' }}>
-        <div className="header">
-          <button onClick={() => navigate(-1)} style={{ background: 'transparent', color: 'var(--text-light)', padding: '8px 16px' }}>← Back</button>
-        </div>
-        <div className="card" style={{ marginTop: '16px' }}>
-          <h2 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '16px' }}>내가 마크할 회원을 선택하세요</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '20px' }}>
-            {(() => {
-              // 2BB 파트너 확인
-              let my2BBPartnerPhone = null;
-              let my2BBTeamName = null;
-              const is2BB = booking?.is2BB || false;
-              const squadSize = teammates.length + 1; // 나 포함
-              
-              if (is2BB && booking?.twoBallTeams) {
-                try {
-                  const twoBallTeams = typeof booking.twoBallTeams === 'string' 
-                    ? JSON.parse(booking.twoBallTeams) 
-                    : booking.twoBallTeams;
-                  
-                  for (const team of twoBallTeams) {
-                    const teamMembers = team.members || [];
-                    const myIndex = teamMembers.findIndex(m => m?.phone === user?.phone);
-                    if (myIndex !== -1) {
-                      const partnerIndex = myIndex === 0 ? 1 : 0;
-                      my2BBPartnerPhone = teamMembers[partnerIndex]?.phone;
-                      my2BBTeamName = team.teamName;
-                      break;
-                    }
+      <div style={{ minHeight: '100vh', background: '#F8FAFC' }}>
+        <PageHeader title="마커 선택" onBack={() => navigate(-1)} />
+        <div style={{ padding: '20px 16px 100px' }}>
+
+          {/* 라운딩 정보 */}
+          <div style={{ background: 'linear-gradient(145deg, #08183A 0%, #003780 100%)', borderRadius: '16px', boxShadow: '0 4px 16px rgba(0,55,128,0.3)', padding: '18px 20px', marginBottom: '16px' }}>
+            <div style={{ fontSize: '17px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '-0.02em' }}>{booking?.courseName}</div>
+            <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', marginTop: '4px' }}>
+              {booking?.date ? new Date(booking.date).toLocaleDateString('ko-KR') : ''}
+            </div>
+            <div style={{ display: 'flex', gap: '6px', marginTop: '10px' }}>
+              <span style={{ fontSize: '12px', fontWeight: '700', color: '#FFFFFF', background: 'rgba(255,255,255,0.18)', borderRadius: '6px', padding: '3px 10px' }}>
+                {booking?.type === '컴페티션' ? '컴페티션' : '소셜'}
+              </span>
+              <span style={{ fontSize: '12px', fontWeight: '700', color: '#FFFFFF', background: 'rgba(255,255,255,0.18)', borderRadius: '6px', padding: '3px 10px' }}>
+                {gameMode === 'stableford' ? '스테이블포드' : gameMode === 'foursome' ? '포썸' : '스트로크'}
+              </span>
+            </div>
+          </div>
+
+          {/* 안내 */}
+          <div style={{ fontSize: '13px', fontWeight: '600', color: '#64748B', marginBottom: '12px', paddingLeft: '2px' }}>
+            내가 마크할 회원을 선택하세요
+          </div>
+
+          {/* 2BB 배지 */}
+          {(() => {
+            let my2BBPartnerPhone = null;
+            let my2BBTeamName = null;
+            const is2BB = booking?.is2BB || false;
+            const squadSize = teammates.length + 1;
+
+            if (is2BB && booking?.twoBallTeams) {
+              try {
+                const twoBallTeams = typeof booking.twoBallTeams === 'string'
+                  ? JSON.parse(booking.twoBallTeams) : booking.twoBallTeams;
+                for (const team of twoBallTeams) {
+                  const teamMembers = team.members || [];
+                  const myIndex = teamMembers.findIndex(m => m?.phone === effectiveUserPhone);
+                  if (myIndex !== -1) {
+                    my2BBPartnerPhone = teamMembers[myIndex === 0 ? 1 : 0]?.phone;
+                    my2BBTeamName = team.teamName;
+                    break;
                   }
-                } catch (e) {
-                  console.error('2BB 팀 파싱 오류:', e);
                 }
-              }
-              
-              return (
-                <>
-                  {is2BB && (
-                    <div style={{
-                      background: 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)',
-                      borderRadius: '8px',
-                      padding: '12px',
-                      marginBottom: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px'
-                    }}>
-                      <span style={{ fontSize: '16px' }}>🤝</span>
-                      <div>
-                        <div style={{ color: 'white', fontSize: '14px', fontWeight: '600' }}>
-                          Net 2-Ball Best Ball 모드
-                        </div>
-                        {my2BBTeamName ? (
-                          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px' }}>
-                            {my2BBTeamName} · 4인조에서는 파트너 마크 불가
-                          </div>
-                        ) : (
-                          <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px' }}>
-                            파트너 정보 없음 (조편성 후 2BB 재활성화 필요)
-                          </div>
-                        )}
+              } catch (e) { console.error('2BB 파싱 오류:', e); }
+            }
+
+            return (
+              <>
+                {is2BB && (
+                  <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '12px', padding: '12px 14px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <span style={{ fontSize: '16px' }}>🤝</span>
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: '700', color: '#C2410C' }}>Net 2-Ball Best Ball 모드</div>
+                      <div style={{ fontSize: '12px', color: '#EA580C', marginTop: '2px' }}>
+                        {my2BBTeamName ? `${my2BBTeamName} · 4인조에서는 파트너 마크 불가` : '파트너 정보 없음 (조편성 후 2BB 재활성화 필요)'}
                       </div>
                     </div>
-                  )}
+                  </div>
+                )}
+
+                {/* 멤버 카드 목록 */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
                   {teammates.map(teammate => {
                     const isSelected = selectedTeammate?.phone === teammate.phone;
                     const is2BBPartner = my2BBPartnerPhone === teammate.phone;
                     const isDisabled = is2BB && is2BBPartner && squadSize === 4;
-                
-                return (
-                  <div
-                    key={teammate.phone}
-                    onClick={() => !isDisabled && setSelectedTeammate(teammate)}
-                    style={{
-                      padding: '16px',
-                      border: isSelected ? '2px solid #2196F3' : '1px solid var(--border-color)',
-                      borderRadius: '8px',
-                      background: isDisabled ? '#f5f5f5' : isSelected ? '#E3F2FD' : 'var(--text-light)',
-                      cursor: isDisabled ? 'not-allowed' : 'pointer',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      opacity: isDisabled ? 0.6 : 1
-                    }}
-                  >
-                    <div>
-                      <div style={{ fontWeight: '600', fontSize: '16px', color: isSelected ? '#1565C0' : 'inherit', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                        {teammate.nickname || teammate.name}
-                        {is2BBPartner && (
-                          <span style={{
-                            background: '#FF9800',
-                            color: 'white',
-                            padding: '2px 8px',
-                            borderRadius: '4px',
-                            fontSize: '11px',
-                            fontWeight: '600',
-                            whiteSpace: 'nowrap'
-                          }}>🤝 2BB 파트너</span>
-                        )}
-                        {isDisabled && (
-                          <span style={{ fontSize: '11px', color: '#e74c3c' }}>(파트너는 마크 불가)</span>
-                        )}
+                    const handicapLabel = teammate.gaHandy ? `GA ${teammate.gaHandy}` : teammate.houseHandy ? `HH ${teammate.houseHandy}` : teammate.handicap || '-';
+                    return (
+                      <div
+                        key={teammate.phone}
+                        onClick={() => !isDisabled && setSelectedTeammate(teammate)}
+                        style={{
+                          padding: '16px',
+                          borderRadius: '14px',
+                          border: isSelected ? `2px solid #0047AB` : '1px solid #E8ECF0',
+                          background: isDisabled ? '#F8FAFC' : isSelected ? '#EBF2FF' : '#FFFFFF',
+                          boxShadow: isSelected ? '0 2px 12px rgba(0,71,171,0.12)' : '0 2px 8px rgba(0,0,0,0.07)',
+                          cursor: isDisabled ? 'not-allowed' : 'pointer',
+                          display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                          opacity: isDisabled ? 0.5 : 1,
+                          transition: 'all 0.15s',
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div style={{
+                            width: '40px', height: '40px', borderRadius: '50%',
+                            background: isSelected ? '#0047AB' : '#F1F5F9',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            fontSize: '16px', fontWeight: '700',
+                            color: isSelected ? '#FFFFFF' : '#64748B', flexShrink: 0,
+                          }}>
+                            {(teammate.nickname || teammate.name || '?')[0]}
+                          </div>
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+                              <span style={{ fontSize: '15px', fontWeight: '700', color: isSelected ? '#0047AB' : '#1E293B' }}>
+                                {teammate.nickname || teammate.name}
+                              </span>
+                              {is2BBPartner && (
+                                <span style={{ fontSize: '11px', fontWeight: '600', color: '#C2410C', background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '6px', padding: '2px 6px' }}>
+                                  2BB 파트너
+                                </span>
+                              )}
+                              {isDisabled && (
+                                <span style={{ fontSize: '11px', color: '#94A3B8' }}>마크 불가</span>
+                              )}
+                            </div>
+                            <div style={{ fontSize: '13px', color: isSelected ? '#0047AB' : '#64748B', marginTop: '2px' }}>
+                              핸디캡 {handicapLabel}
+                            </div>
+                          </div>
+                        </div>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isSelected ? '#0047AB' : '#CBD5E1'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M9 18l6-6-6-6"/>
+                        </svg>
                       </div>
-                      <div style={{ fontSize: '14px', color: isSelected ? '#1976D2' : 'var(--text-dark)', marginTop: '4px' }}>
-                        핸디캡 : {teammate.gaHandy ? `GA${teammate.gaHandy}` : teammate.golflinkNumber && teammate.handicap ? `GA${teammate.handicap}` : teammate.houseHandy ? `HH${teammate.houseHandy}` : teammate.handicap || '-'}
-                      </div>
-                    </div>
-                    <div style={{ 
-                      fontSize: '20px', 
-                      color: isDisabled ? '#ccc' : isSelected ? '#2196F3' : '#ccc',
-                      fontWeight: '600'
-                    }}>
-                      ›
-                    </div>
-                  </div>
-                );
-              })}
-                </>
-              );
-            })()}
-          </div>
+                    );
+                  })}
+                </div>
+              </>
+            );
+          })()}
+
           <button
             onClick={async () => {
               if (isStartingRound) return;
               if (!selectedTeammate) { alert('선택해주세요'); return; }
-              
               setIsStartingRound(true);
               try {
                 const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
                 const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
                 const res = await fetch(`/api/scores/check?memberId=${teammateMemberId}&date=${scoreDate}&roundingName=${encodeURIComponent(booking?.title || '')}`);
                 const data = await res.json();
-                
                 if (data.exists && data.completed) {
                   alert('이미 점수가 입력되었습니다.');
                   setIsStartingRound(false);
                   return;
                 }
-              } catch (e) {
-                console.error('점수 확인 오류:', e);
-              }
-              
-              console.log('🎮 스코어카드 시작:', { teammate: selectedTeammate?.name, courseData: courseData?.name });
+              } catch (e) { console.error('점수 확인 오류:', e); }
               setRoundStartTime(Date.now());
               setCurrentHole(1);
               setHoleScores({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
@@ -995,16 +1379,11 @@ function Play() {
             }}
             disabled={!selectedTeammate || isStartingRound}
             style={{
-              width: '100%',
-              padding: '16px',
-              background: (selectedTeammate && !isStartingRound) ? 'var(--primary-green)' : 'var(--bg-card)',
-              border: 'none',
-              borderRadius: '8px',
-              color: 'white',
-              fontWeight: '700',
-              fontSize: '16px',
+              width: '100%', padding: '16px', borderRadius: '14px',
+              background: (selectedTeammate && !isStartingRound) ? '#0047AB' : '#E2E8F0',
+              border: 'none', color: (selectedTeammate && !isStartingRound) ? '#FFFFFF' : '#94A3B8',
+              fontWeight: '700', fontSize: '16px', letterSpacing: '-0.01em',
               cursor: (selectedTeammate && !isStartingRound) ? 'pointer' : 'not-allowed',
-              opacity: (selectedTeammate && !isStartingRound) ? 1 : 0.5
             }}
           >
             {isStartingRound ? '확인 중...' : '플레이하기'}
@@ -1016,17 +1395,14 @@ function Play() {
 
   if (step === 'scoreCheck') {
     return (
-      <div style={{ minHeight: '100vh', padding: '16px', background: '#223B3F' }}>
-        <div className="header" style={{ background: '#223B3F', borderBottom: 'none' }}>
-          <button 
-            onClick={() => setStep('scorecard')} 
-            style={{ background: 'transparent', color: 'white', padding: '8px 16px', border: 'none', cursor: 'pointer' }}
-          >
+      <div style={{ minHeight: '100vh', background: '#0d1a45' }}>
+        <div style={{ display: 'flex', alignItems: 'center', padding: 'calc(env(safe-area-inset-top) + 8px) 8px 8px', background: '#0d1a45', position: 'sticky', top: 0, zIndex: 200 }}>
+          <button onClick={() => setStep('scorecard')} style={{ background: 'transparent', color: 'white', padding: '8px 12px', border: 'none', cursor: 'pointer', fontSize: '15px' }}>
             ← 돌아가기
           </button>
         </div>
-        
-        <div style={{ textAlign: 'center', color: 'white', marginTop: '60px', marginBottom: '32px' }}>
+
+        <div style={{ padding: '0 16px', textAlign: 'center', color: 'white', marginTop: '20px', marginBottom: '32px' }}>
           <div style={{ fontSize: '24px', fontWeight: '700', marginBottom: '16px' }}>점수 점검</div>
           <div style={{ fontSize: '14px', opacity: 0.8, marginBottom: '8px' }}>{booking?.title}</div>
         </div>
@@ -1143,8 +1519,30 @@ function Play() {
         )}
         
         {!teammateReady && (
-          <div style={{ textAlign: 'center', color: 'white', opacity: 0.6, fontSize: '14px' }}>
-            팀메이트가 점수 입력을 완료하면<br/>자동으로 비교가 시작됩니다
+          <div style={{ textAlign: 'center', color: 'white', fontSize: '14px' }}>
+            <div style={{ opacity: 0.6, marginBottom: '20px' }}>
+              팀메이트가 점수 입력을 완료하면<br/>자동으로 비교가 시작됩니다
+            </div>
+            {/* 버그 수정 3: 팀메이트 미입력 시 단독 완료 우회 */}
+            <button
+              onClick={() => {
+                const ok = window.confirm('팀메이트의 점수 확인 없이 라운드를 완료합니다.\n점수는 검증되지 않은 상태로 기록됩니다.\n계속하시겠습니까?');
+                if (ok) handleRoundComplete();
+              }}
+              style={{
+                background: 'rgba(255,255,255,0.12)',
+                border: '1px solid rgba(255,255,255,0.25)',
+                color: 'rgba(255,255,255,0.75)',
+                fontSize: '13px',
+                fontWeight: '600',
+                padding: '10px 20px',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                WebkitTapHighlightColor: 'transparent',
+              }}
+            >
+              팀메이트 없이 완료
+            </button>
           </div>
         )}
         
@@ -1168,10 +1566,8 @@ function Play() {
     const diffMe = totalMe - courseParMe;
     
     return (
-      <div style={{ minHeight: '100vh', padding: '16px', background: '#223B3F' }}>
-        <div className="header" style={{ background: '#223B3F', borderBottom: 'none' }}></div>
-        
-        <div style={{ textAlign: 'center', color: 'white', marginTop: '40px', marginBottom: '32px' }}>
+      <div style={{ minHeight: '100vh', padding: '16px', background: '#0d1a45', paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
+        <div style={{ textAlign: 'center', color: 'white', marginTop: '20px', marginBottom: '32px' }}>
           <div style={{ fontSize: '24px', fontWeight: '700', marginBottom: '8px' }}>🏌️ 라운드 종료!</div>
           <div style={{ fontSize: '14px', opacity: 0.8 }}>{booking?.title} - {courseData?.name}</div>
         </div>
@@ -1242,7 +1638,7 @@ function Play() {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        background: '#223B3F', 
+        background: '#0d1a45', 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
@@ -1290,144 +1686,256 @@ function Play() {
     setHoleScores(newScores);
   };
 
-  const ScoreSection = ({ title, isTeammate }) => {
+  // 스코어 라벨 (PAR/BIRDIE/BOGEY 등)
+  const getScoreLabel = (score, par) => {
+    if (!score || score === 0 || !par) return null;
+    const diff = score - par;
+    if (diff <= -3) return { text: 'ALBATROSS', color: '#7C3AED' };
+    if (diff === -2) return { text: 'EAGLE', color: '#0047AB' };
+    if (diff === -1) return { text: 'BIRDIE', color: '#16a34a' };
+    if (diff === 0) return { text: 'PAR', color: '#374151' };
+    if (diff === 1) return { text: 'BOGEY', color: '#dc2626' };
+    if (diff === 2) return { text: 'DBL BOGEY', color: '#991b1b' };
+    return { text: 'TRIPLE+', color: '#7f1d1d' };
+  };
+
+  const ScoreSection = ({ isTeammate }) => {
     const score = isTeammate ? holeScores.teammate[currentHole - 1] : holeScores.me[currentHole - 1];
-    const par = isTeammate 
+    const par = isTeammate
       ? courseData?.holePars?.[selectedTeammate?.gender === 'F' ? 'female' : 'male']?.[currentHole - 1]
       : courseData?.holePars?.[user?.gender === 'F' ? 'female' : 'male']?.[currentHole - 1];
-    
+
     const parArrForCalc = isTeammate ? parArr : userParArr;
-    let totalScore = 0, totalPar = 0;
     const scoreArr = isTeammate ? holeScores.teammate : holeScores.me;
+
+    let totalScore = 0, totalPar = 0;
     for (let i = 0; i < currentHole; i++) {
       if (scoreArr[i] > 0) { totalScore += scoreArr[i]; totalPar += (parArrForCalc[i] || 0); }
     }
-    const diff = totalScore - totalPar;
-    const diffText = diff > 0 ? '+' + diff : diff === 0 ? 'E' : String(diff);
-    
-    // OUT (1-9홀) / IN (10-18홀) 계산
-    let outScore = 0, inScore = 0;
-    for (let i = 0; i < 9; i++) {
-      if (scoreArr[i] > 0) outScore += scoreArr[i];
-    }
-    for (let i = 9; i < 18; i++) {
-      if (scoreArr[i] > 0) inScore += scoreArr[i];
-    }
-    
-    const isNearHole = !isTeammate && courseData?.nearHoles?.[currentHole - 1];
-    
-    const iosButtonStyle = { WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation', userSelect: 'none' };
-    const largeBoxSize = `${touchSize(60)}px`;
-    const currentUserMember = members?.find(m => m.phone === user?.phone);
-    const checkFemale = (gender) => gender === 'F' || gender === '여' || gender === 'female';
-    
-    // 포썸 모드에서는 팀 단위이므로 여성 스타일 강제 비활성화
-    const isFoursome = gameMode === 'foursome';
-    const isFemale = isFoursome 
-      ? false 
-      : (isTeammate 
-          ? checkFemale(selectedTeammate?.gender) 
-          : (checkFemale(user?.gender) || checkFemale(currentUserMember?.gender)));
-    const boxStyle = { width: largeBoxSize, height: largeBoxSize, padding: `${s(8, 4)}px`, background: 'white', border: '2px solid #ccc', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: '700', fontSize: `${s(24, 14)}px`, color: '#000', ...iosButtonStyle };
-    const buttonStyle = { width: largeBoxSize, height: largeBoxSize, padding: `${s(8, 4)}px`, border: '2px solid #ccc', background: 'white', color: '#000', borderRadius: '8px', fontWeight: '700', cursor: 'pointer', fontSize: `${s(24, 14)}px`, ...iosButtonStyle };
-    
-    const handleParClick = () => {
-      if (score === par) {
-        setScoreValue(isTeammate, par * 2);
-      } else if (score === par * 2) {
-        // 이미 2배인 경우 더 이상 증가하지 않음
-      } else {
-        setScoreValue(isTeammate, par);
-      }
-    };
-    
-    // 포썸 모드 타이틀 생성
-    let displayTitle = title;
-    let headerBgColor = '#6399CF';
-    
+    const ouDiff = totalScore - totalPar;
+    const ouText = ouDiff > 0 ? `+${ouDiff}` : ouDiff === 0 ? 'E' : String(ouDiff);
+    const ouColor = ouDiff > 0 ? '#dc2626' : ouDiff < 0 ? '#0047AB' : '#374151';
+
+    const scoreLabel = getScoreLabel(score, par);
+    const isNtp = !isTeammate && courseData?.nearHoles?.[currentHole - 1];
+
+    // 선수명 및 핸디 (포썸 모드 포함)
+    let playerName, handicap;
     if (gameMode === 'foursome' && foursomeData) {
-      const myTeamHandicap = foursomeData.isTeamA ? foursomeData.teamAHandicap : foursomeData.teamBHandicap;
-      const opponentTeamHandicap = foursomeData.isTeamA ? foursomeData.teamBHandicap : foursomeData.teamAHandicap;
-      
       if (isTeammate) {
-        // 상대 팀 (opponent)
-        const opponentNames = foursomeData.opponents.map(o => o?.nickname || o?.name).filter(Boolean).join(' & ');
-        const handicapText = opponentTeamHandicap != null ? ` (팀핸디 ${opponentTeamHandicap})` : '';
-        displayTitle = `상대: ${opponentNames || '상대 팀'}${handicapText}`;
-        headerBgColor = '#EF4444';
+        playerName = foursomeData.opponents?.map(o => o?.nickname || o?.name).filter(Boolean).join(' & ') || '상대팀';
+        handicap = foursomeData.isTeamA ? foursomeData.teamBHandicap : foursomeData.teamAHandicap;
       } else {
-        // 우리 팀 (me + partner)
         const myName = user?.nickname || user?.name || '나';
         const partnerName = foursomeData.partner?.nickname || foursomeData.partner?.name || '파트너';
-        const handicapText = myTeamHandicap != null ? ` (팀핸디 ${myTeamHandicap})` : '';
-        displayTitle = `우리팀: ${myName} & ${partnerName}${handicapText}`;
-        headerBgColor = '#3B82F6';
+        playerName = `${myName} & ${partnerName}`;
+        handicap = foursomeData.isTeamA ? foursomeData.teamAHandicap : foursomeData.teamBHandicap;
       }
+    } else {
+      playerName = isTeammate
+        ? (selectedTeammate?.nickname || selectedTeammate?.name || '-')
+        : (user?.nickname || user?.name || '-');
+      const m = isTeammate ? null : members?.find(me => me.phone === effectiveUserPhone);
+      handicap = isTeammate
+        ? (selectedTeammate?.gaHandy || selectedTeammate?.houseHandy || selectedTeammate?.handicap || '-')
+        : (m?.gaHandy || m?.houseHandy || m?.handicap || user?.handicap || '-');
     }
-    
+
+    const handleParClick = () => {
+      if (!par) return;
+      setScoreValue(isTeammate, score === par ? 0 : par);
+    };
+
+    const btnBase = {
+      WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent',
+      touchAction: 'none', userSelect: 'none', cursor: 'pointer',
+    };
+    const btnSize = s(68, 56);
+
+    // 흰색 박스 공통 스타일
+    const whiteBox = {
+      background: '#fff',
+      borderRadius: s(12,10),
+      border: '1px solid #E8ECF0',
+      boxShadow: '0 1px 3px rgba(0,0,0,0.07)',
+      display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+    };
+
     return (
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: 'white', borderRadius: '0', padding: '0', marginBottom: `${s(10, 4)}px`, minHeight: 0 }}>
-        <div style={{ background: headerBgColor, color: 'white', padding: `${s(12, 6)}px`, borderRadius: '0', textAlign: 'center', fontWeight: '700', fontSize: `${s(18, 12)}px`, flexShrink: 0 }}>
-          {displayTitle}
-        </div>
-        
-        <div style={{ background: 'white', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', gap: `${s(6, 1)}px`, padding: `${s(16, 4)}px ${s(16, 10)}px ${s(4, 0)}px ${s(16, 10)}px`, borderBottom: '1px solid #e0e0e0', minHeight: 0 }}>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: `${s(18, 10)}px` }}>
-            <button onClick={() => updateScore(isTeammate, -1)} style={{ width: `${touchSize(44)}px`, height: `${touchSize(44)}px`, border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: `${s(22, 14)}px`, fontWeight: '700', cursor: 'pointer', color: '#666', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>−</button>
-            <div style={{ fontSize: `${s(52, 26)}px`, fontWeight: '600', minWidth: `${s(56, 32)}px`, textAlign: 'center', color: '#000' }}>{score}</div>
-            <button onClick={() => updateScore(isTeammate, 1)} style={{ width: `${touchSize(44)}px`, height: `${touchSize(44)}px`, border: '1px solid #999', background: 'white', borderRadius: '6px', fontSize: `${s(22, 14)}px`, fontWeight: '700', cursor: 'pointer', color: '#666', WebkitUserSelect: 'none', WebkitTapHighlightColor: 'transparent', touchAction: 'manipulation' }}>+</button>
+      <div style={{
+        flex: 1, minHeight: 0,
+        background: '#fff',
+        borderRadius: s(20, 16),
+        boxShadow: '0 4px 24px rgba(0,0,0,0.09), 0 1px 4px rgba(0,0,0,0.05)',
+        border: '1px solid #EEF2F6',
+        display: 'flex', flexDirection: 'column',
+        overflow: 'hidden',
+        position: 'relative',
+      }}>
+        {/* 상단: 이름 + HC 배지 */}
+        <div style={{ padding: `${s(35,28)}px ${s(45,36)}px ${s(6,5)}px`, flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: s(8,6) }}>
+            <div style={{ fontSize: s(20,17), fontWeight: 800, color: '#111827', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+              {playerName}
+            </div>
+            <div style={{
+              background: '#EFF6FF', color: '#0047AB',
+              fontSize: s(12,11), fontWeight: 700,
+              padding: `${s(3,2)}px ${s(10,8)}px`, borderRadius: 20,
+              flexShrink: 0,
+            }}>
+              HC {handicap}
+            </div>
           </div>
-          <div style={{ fontSize: `${s(12, 8)}px`, color: '#666', fontWeight: '400' }}>{score} points</div>
         </div>
 
-        <div style={{ background: 'white', padding: `${s(10, 4)}px ${s(16, 10)}px`, display: 'flex', flexDirection: 'column', gap: `${s(10, 4)}px`, flexShrink: 0 }}>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: `${s(14, 8)}px`, flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: `${s(5, 2)}px`, alignItems: 'center' }}>
-              <div style={{ fontSize: `${s(13, 9)}px`, fontWeight: '700', color: '#666' }}>PAR</div>
-              <button 
-                onClick={handleParClick} 
-                style={{ 
-                  ...boxStyle, 
-                  border: score === par * 2 ? '3px solid #A62B1F' : '2px solid #ccc', 
-                  background: isFemale ? '#D96941' : 'white',
-                  color: isFemale ? 'white' : '#000',
-                  cursor: 'pointer' 
-                }}
-              >
-                {par}
-              </button>
+        {/* 중앙: 스코어 입력 */}
+        <div style={{
+          flex: 1, minHeight: 0,
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center',
+          padding: `${s(24,20)}px ${s(45,36)}px ${s(12,10)}px`,
+          gap: s(6,4),
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: s(32,24) }}>
+            {/* 마이너스 버튼 - 아웃라인 */}
+            <button
+              onClick={() => updateScore(isTeammate, -1)}
+              style={{
+                ...btnBase,
+                width: btnSize, height: btnSize, border: 'none',
+                borderRadius: s(18, 15),
+                background: '#fff',
+                outline: `2.5px solid #0047AB`,
+                color: '#0047AB',
+                fontSize: s(28, 24), fontWeight: 700,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 2px 8px rgba(0,71,171,0.10)',
+              }}
+            >
+              −
+            </button>
+
+            {/* 스코어 숫자 */}
+            <div style={{
+              fontSize: s(66, 54), fontWeight: 900,
+              color: score > 0 ? '#111827' : '#D1D5DB',
+              lineHeight: 1, minWidth: s(76, 62), textAlign: 'center',
+              letterSpacing: '-0.04em',
+            }}>
+              {score}
             </div>
-            
-            {isNearHole && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: `${s(5, 2)}px`, alignItems: 'center' }}>
-                <div style={{ fontSize: `${s(13, 9)}px`, fontWeight: '700', color: '#666' }}>NTP</div>
-                <button onClick={() => { setNtpDistance(''); setShowNtpModal(true); }} style={{ ...buttonStyle, background: '#6399CF', color: 'white', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0' }}>
-                  <svg width={s(36, 20)} height={s(36, 20)} viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="25" cy="15" r="8" stroke="white" strokeWidth="3"/>
-                    <line x1="25" y1="23" x2="25" y2="42" stroke="white" strokeWidth="3" strokeLinecap="round"/>
-                  </svg>
-                </button>
-              </div>
-            )}
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: `${s(5, 2)}px`, alignItems: 'center' }}>
-              <div style={{ fontSize: `${s(13, 9)}px`, fontWeight: '700', color: '#666' }}>OUT/IN</div>
-              <div style={{ 
-                ...boxStyle, 
-                flexDirection: 'column',
-                justifyContent: 'center',
-                gap: '0px',
-                padding: `${s(4, 2)}px`
+
+            {/* 플러스 버튼 - 솔리드 블루 */}
+            <button
+              onClick={() => updateScore(isTeammate, 1)}
+              style={{
+                ...btnBase,
+                width: btnSize, height: btnSize, border: 'none',
+                borderRadius: s(18, 15),
+                background: '#0047AB',
+                color: '#fff',
+                fontSize: s(28, 24), fontWeight: 700,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 4px 14px rgba(0,71,171,0.35)',
+              }}
+            >
+              +
+            </button>
+          </div>
+
+          {/* 스코어 라벨 */}
+          <div style={{
+            fontSize: s(11, 10), fontWeight: 800,
+            color: scoreLabel ? scoreLabel.color : '#D1D5DB',
+            letterSpacing: '0.10em',
+            minHeight: s(16, 14),
+          }}>
+            {scoreLabel ? scoreLabel.text : (par ? 'PAR' : '—')}
+          </div>
+        </div>
+
+        {/* 하단: 회색 배경 + 흰색 독립 박스들 */}
+        <div style={{
+          flexShrink: 0,
+          background: '#F3F6F9',
+          padding: `${s(14,11)}px ${s(12,10)}px`,
+          display: 'flex', alignItems: 'center',
+          gap: s(7,5),
+        }}>
+          {/* PAR 흰색 박스 (가장 넓음) */}
+          <button
+            onClick={handleParClick}
+            style={{
+              ...btnBase,
+              ...whiteBox,
+              flex: 2,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'flex-start',
+              padding: `${s(10,8)}px ${s(12,10)}px`,
+              gap: s(10,8),
+              height: s(82,70),
+            }}
+          >
+            <div style={{
+              background: '#0047AB', borderRadius: s(10,8),
+              width: s(52,44), height: s(52,44), flexShrink: 0,
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center',
+            }}>
+              <div style={{ fontSize: s(10,8), fontWeight: 700, color: 'rgba(255,255,255,0.75)', letterSpacing: '0.04em', lineHeight: 1 }}>PAR</div>
+              <div style={{ fontSize: s(22,18), fontWeight: 900, color: '#fff', lineHeight: 1.1 }}>{par || '—'}</div>
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: s(16,14), fontWeight: 800, color: '#1E293B', lineHeight: 1.2, letterSpacing: '-0.01em' }}>PAR {par || '—'}</div>
+              <div style={{ fontSize: s(11,10), color: '#94A3B8', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>HOLE PAR</div>
+            </div>
+          </button>
+
+          {/* NTP 흰색 박스 */}
+          {isNtp ? (
+            <button
+              onClick={() => { setNtpDistance(''); setShowNtpModal(true); }}
+              style={{
+                ...btnBase,
+                ...whiteBox,
+                width: s(60,50), height: s(82,70),
+                gap: s(4,3),
+                flexShrink: 0,
+              }}
+            >
+              <div style={{
+                width: s(30,26), height: s(30,26), borderRadius: 7,
+                background: '#38bdf8',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                animation: 'ntpBlink 1.2s ease-in-out infinite',
               }}>
-                <div style={{ fontSize: `${s(16, 11)}px`, fontWeight: '700', color: '#000', lineHeight: 1.2 }}>{outScore || '-'}</div>
-                <div style={{ width: '70%', height: '1px', background: '#ccc', margin: `${s(2, 1)}px 0` }}></div>
-                <div style={{ fontSize: `${s(16, 11)}px`, fontWeight: '700', color: '#000', lineHeight: 1.2 }}>{inScore || '-'}</div>
+                <svg width={s(16,13)} height={s(16,13)} viewBox="0 0 24 24" fill="white">
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
+                </svg>
               </div>
+              <div style={{ fontSize: s(10,9), fontWeight: 700, color: '#0369a1', letterSpacing: '0.05em' }}>NTP</div>
+            </button>
+          ) : (
+            // NTP 홀 아닐때: 빈 자리 유지 (레이아웃 일관성)
+            <div style={{ ...whiteBox, width: s(60,50), height: s(82,70), flexShrink: 0, opacity: 0 }} />
+          )}
+
+          {/* TOTAL 흰색 박스 */}
+          <div style={{ ...whiteBox, flex: 1, height: s(82,70), gap: s(3,2) }}>
+            <div style={{ fontSize: s(11,9), fontWeight: 700, color: '#94A3B8', letterSpacing: '0.08em' }}>TOTAL</div>
+            <div style={{ fontSize: s(23,19), fontWeight: 900, color: '#111827', lineHeight: 1 }}>
+              {totalScore > 0 ? totalScore : '—'}
             </div>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: `${s(5, 2)}px`, alignItems: 'center' }}>
-              <div style={{ fontSize: `${s(13, 9)}px`, fontWeight: '700', color: '#000' }}>+/−</div>
-              <div style={{ ...boxStyle }}>{diffText}</div>
+          </div>
+
+          {/* O/U 흰색 박스 */}
+          <div style={{ ...whiteBox, flex: 1, height: s(82,70), gap: s(3,2) }}>
+            <div style={{ fontSize: s(11,9), fontWeight: 700, color: '#94A3B8', letterSpacing: '0.08em' }}>O/U</div>
+            <div style={{ fontSize: s(23,19), fontWeight: 900, color: totalScore > 0 ? ouColor : '#94A3B8', lineHeight: 1 }}>
+              {totalScore > 0 ? ouText : '—'}
             </div>
           </div>
         </div>
@@ -1452,27 +1960,36 @@ function Play() {
   };
 
   const handleScoreCheck = async () => {
+    // 버그 수정 1: 미완성 홀 경고
+    const myEmptyHoles = holeScores.me.map((s, i) => s === 0 ? i + 1 : null).filter(Boolean);
+    const tmEmptyHoles = holeScores.teammate.map((s, i) => s === 0 ? i + 1 : null).filter(Boolean);
+    if (myEmptyHoles.length > 0 || tmEmptyHoles.length > 0) {
+      const lines = [];
+      if (myEmptyHoles.length > 0) lines.push(`내 스코어 미입력: ${myEmptyHoles.join(', ')}홀`);
+      if (tmEmptyHoles.length > 0) lines.push(`팀메이트 스코어 미입력: ${tmEmptyHoles.join(', ')}홀`);
+      const ok = window.confirm(`아직 입력되지 않은 홀이 있습니다.\n${lines.join('\n')}\n\n그래도 점수확인을 진행하시겠습니까?`);
+      if (!ok) return;
+    }
+
+    if (!effectiveUserId || !booking?.title) {
+      alert('로그인 정보 또는 라운딩 정보가 없습니다.');
+      return;
+    }
+
     try {
       const userParArr = courseData?.holePars?.[user?.gender === 'F' ? 'female' : 'male'] || [];
       const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
-
       const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
       const coursePar = userParArr.reduce((a, b) => a + b, 0);
 
-      if (!user?.id || !booking?.title) {
-        console.log('⚠️ 스코어 체크 저장 스킵 - 필수 데이터 없음:', { userId: user?.id, bookingTitle: booking?.title });
-        return;
-      }
-
-      // 포썸 메타데이터 생성
       const myGameMetadata = gameMode === 'foursome' && foursomeData ? {
         partner: { name: foursomeData.partner?.nickname || foursomeData.partner?.name, phone: foursomeData.partner?.phone },
         opponents: foursomeData.opponents?.map(o => ({ name: o?.nickname || o?.name, phone: o?.phone })) || [],
         recordedBy: user?.nickname || user?.name,
       } : null;
-      
+
       const scoreData = {
-        markerId: user.id,
+        markerId: effectiveUserId,
         roundingName: booking.title,
         date: scoreDate,
         courseName: courseData?.name,
@@ -1483,182 +2000,117 @@ function Play() {
         gameMetadata: myGameMetadata,
       };
 
-      // 내 스코어 저장
-      await fetch('/api/scores', {
+      // 버그 수정 2: 저장 실패 시 진행 차단
+      const res = await fetch('/api/scores', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...scoreData, memberId: user.id })
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ ...scoreData, memberId: effectiveUserId })
       });
+
+      if (!res.ok) {
+        alert('스코어 저장에 실패했습니다. 네트워크 상태를 확인하고 다시 시도해주세요.');
+        return;
+      }
     } catch (e) {
       console.error('점수 저장 오류:', e);
+      alert('네트워크 오류로 스코어를 저장하지 못했습니다. 인터넷 연결을 확인해주세요.');
+      return;
     }
-    
+
     setTeammateReady(false);
     setServerMismatches([]);
     setStep('scoreCheck');
   };
   
   return (
-    <div 
-      style={{ 
-        height: '100dvh', 
-        maxHeight: '-webkit-fill-available',
-        background: '#223B3F', 
-        display: 'flex', 
-        flexDirection: 'column', 
-        padding: '0',
+    <div
+      ref={scorecardRootRef}
+      style={{
+        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+        background: '#F1F5F9',
+        display: 'flex', flexDirection: 'column',
         overflow: 'hidden',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        width: '100%'
-      }}
-    >
-      <div className="header" style={{ 
-        background: '#223B3F', 
-        borderBottom: 'none',
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: `0 ${s(14, 8)}px`,
-        flexShrink: 0,
-        minHeight: `${s(42, 34)}px`
+        paddingTop: 'env(safe-area-inset-top)',
+        paddingBottom: 'env(safe-area-inset-bottom)',
+        touchAction: 'none',
+        overscrollBehavior: 'none',
+        WebkitTextSizeAdjust: 'none',
+        textSizeAdjust: 'none',
       }}>
-        <button
-          onClick={() => setShowEndRoundModal(true)}
-          style={{
-            background: '#e74c3c',
-            border: 'none',
-            borderRadius: '6px',
-            padding: `${s(7, 4)}px ${s(9, 5)}px`,
-            color: 'white',
-            fontSize: `${s(11, 8)}px`,
-            fontWeight: '700',
-            cursor: 'pointer',
-            whiteSpace: 'nowrap'
-          }}
-        >
-          라운드 종료
-        </button>
-        <div style={{ flex: 1, textAlign: 'center', color: 'white', fontSize: `${s(14, 10)}px`, fontWeight: '600' }}>
-          {booking?.title}
+      {/* ── 홀 네비게이션 헤더 ── */}
+      <div style={{ background: '#1B2D5E', flexShrink: 0, padding: `${s(27,21)}px ${s(16,14)}px`, touchAction: 'none' }}>
+        {/* 라운드종료 | HOLE X | Leaderboard — 한 줄 */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          {/* 좌: 라운드 종료 */}
+          <button
+            onClick={() => setShowEndRoundModal(true)}
+            style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.7)', fontSize: s(13,12), fontWeight: 600, cursor: 'pointer', padding: 0, WebkitTapHighlightColor: 'transparent', minWidth: s(70,60), textAlign: 'left' }}
+          >
+            라운드 종료
+          </button>
+
+          {/* 중앙: 홀 번호 (클릭 → 드롭다운) */}
+          <div
+            onClick={() => setShowHoleSelector(true)}
+            style={{ cursor: 'pointer', WebkitTapHighlightColor: 'transparent', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: s(2,1) }}
+          >
+            <div style={{ fontSize: s(9,8), fontWeight: 700, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.12em', lineHeight: 1 }}>
+              CURRENT HOLE
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: s(4,3) }}>
+              <div style={{ fontSize: s(22,19), fontWeight: 800, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1 }}>
+                HOLE {currentHole}
+              </div>
+              <svg width={s(11,10)} height={s(11,10)} viewBox="0 0 12 12" fill="none">
+                <path d="M2 4l4 4 4-4" stroke="rgba(255,255,255,0.6)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            </div>
+          </div>
+
+          {/* 우: 저장상태 + Leaderboard + (18홀) 점수확인 */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, minWidth: s(70,60) }}>
+            {saveStatus !== 'idle' && (
+              <div style={{
+                fontSize: s(9,8), fontWeight: 600,
+                color: saveStatus === 'saved' ? '#6ee7b7' : saveStatus === 'saving' ? '#fcd34d' : saveStatus === 'queued' ? '#fb923c' : '#fca5a5',
+              }}>
+                {saveStatus === 'saved' ? '✓ 저장됨' : saveStatus === 'saving' ? '저장 중…' : saveStatus === 'queued' ? '⚡ 오프라인' : '⚠ 실패'}
+              </div>
+            )}
+            <button
+              onClick={() => navigate(`/leaderboard?id=${bookingId}`)}
+              style={{ background: 'none', border: 'none', color: '#fff', fontSize: s(13,12), fontWeight: 700, cursor: 'pointer', padding: 0, WebkitTapHighlightColor: 'transparent', textAlign: 'right' }}
+            >
+              Leaderboard
+            </button>
+            {currentHole === 18 && (
+              <button
+                onClick={handleScoreCheck}
+                style={{
+                  background: '#3B82F6', border: 'none', color: '#fff',
+                  fontSize: s(11,10), fontWeight: 700, cursor: 'pointer',
+                  padding: `${s(4,3)}px ${s(8,6)}px`, borderRadius: 6,
+                  WebkitTapHighlightColor: 'transparent', lineHeight: 1.2,
+                }}
+              >
+                점수확인
+              </button>
+            )}
+          </div>
         </div>
-        <button
-          onClick={() => {
-            console.log('📊 리더보드 이동 - 상태 유지');
-            navigate(`/leaderboard?id=${bookingId}`);
-          }}
-          style={{
-            background: '#d69e2e',
-            border: 'none',
-            borderRadius: '6px',
-            padding: `${s(7, 4)}px ${s(10, 6)}px`,
-            color: 'white',
-            fontSize: `${s(11, 8)}px`,
-            fontWeight: '700',
-            cursor: 'pointer'
-          }}
-        >
-          Leaderboard
-        </button>
       </div>
 
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center', 
-        gap: `${s(14, 6)}px`, 
-        padding: `${s(14, 5)}px ${s(20, 10)}px`, 
-        marginBottom: '0',
-        flexShrink: 0
+      {/* ── 플레이어 카드 2개 ── */}
+      <div ref={cardContainerRef} style={{
+        flex: 1, minHeight: 0,
+        display: 'flex', flexDirection: 'column',
+        gap: s(22,18), paddingTop: s(20,16), paddingLeft: s(22,18), paddingRight: s(22,18), paddingBottom: s(32,26),
+        overflow: 'hidden',
+        willChange: 'transform',
+        touchAction: 'none',
       }}>
-        <button 
-          onClick={goToPreviousHole}
-          onTouchEnd={goToPreviousHole}
-          style={{ 
-            flex: 1,
-            border: '2px solid white', 
-            borderRadius: '8px', 
-            padding: `${s(10, 4)}px ${s(14, 6)}px`,
-            background: 'white', 
-            color: '#223B3F', 
-            fontSize: `${s(11, 8)}px`, 
-            fontWeight: '700', 
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: `${s(5, 1)}px`,
-            WebkitUserSelect: 'none',
-            WebkitTapHighlightColor: 'transparent',
-            touchAction: 'manipulation'
-          }}
-        >
-          <div style={{ fontSize: `${s(13, 9)}px`, fontWeight: '900' }}>←</div>
-          <div>이전홀</div>
-        </button>
-        <button 
-          onClick={() => setShowHoleSelector(true)}
-          style={{ 
-            border: '2px solid white', 
-            borderRadius: '8px', 
-            padding: `${s(10, 4)}px ${s(20, 10)}px`, 
-            textAlign: 'center', 
-            fontSize: `${s(11, 8)}px`, 
-            background: 'transparent', 
-            color: 'white',
-            cursor: 'pointer',
-            WebkitTapHighlightColor: 'transparent'
-          }}
-        >
-          <div style={{ fontWeight: '700', opacity: 1, fontSize: `${s(11, 8)}px` }}>HOLE ▼</div>
-          <div style={{ fontSize: `${s(30, 18)}px`, fontWeight: '700', marginTop: `${s(5, 1)}px` }}>{currentHole}</div>
-        </button>
-        <button 
-          onClick={currentHole === 18 ? handleScoreCheck : goToNextHole}
-          style={{ 
-            flex: 1,
-            border: '2px solid white', 
-            borderRadius: '8px', 
-            padding: `${s(10, 4)}px ${s(14, 6)}px`,
-            background: currentHole === 18 ? '#6399CF' : 'white', 
-            color: currentHole === 18 ? 'white' : '#223B3F', 
-            fontSize: `${s(11, 8)}px`, 
-            fontWeight: '700', 
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: `${s(5, 1)}px`,
-            WebkitUserSelect: 'none',
-            WebkitTapHighlightColor: 'transparent',
-            touchAction: 'manipulation'
-          }}
-        >
-          <div style={{ fontSize: `${s(13, 9)}px`, fontWeight: '900' }}>{currentHole === 18 ? '✓' : '→'}</div>
-          <div>{currentHole === 18 ? '점수점검' : '다음홀'}</div>
-        </button>
-      </div>
-
-      <div 
-        style={{ 
-          flex: 1, 
-          display: 'flex', 
-          flexDirection: 'column', 
-          padding: `${s(10, 3)}px ${s(20, 8)}px`, 
-          position: 'relative',
-          overflow: 'auto',
-          minHeight: 0
-        }}
-      >
-        <ScoreSection title={`${selectedTeammate?.nickname || selectedTeammate?.name} (HC: ${selectedTeammate?.handicap || '-'})`} isTeammate={true} />
-        
-        <ScoreSection title={`${user?.nickname || user?.name} (HC: ${user?.handicap || '-'})`} isTeammate={false} />
-
+        <ScoreSection isTeammate={true} />
+        <ScoreSection isTeammate={false} />
       </div>
 
       {/* 홀 선택 모달 */}
@@ -1893,10 +2345,10 @@ function Play() {
                     // 내 스코어 저장
                     await fetch('/api/scores', {
                       method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
+                      headers: getAuthHeaders(),
                       body: JSON.stringify({
-                        memberId: user.id,
-                        markerId: user.id,
+                        memberId: effectiveUserId,
+                        markerId: effectiveUserId,
                         roundingName: booking.title,
                         date: scoreDate,
                         courseName: courseData?.name || booking.courseName,
@@ -1907,14 +2359,14 @@ function Play() {
                         gameMetadata: myGameMetadata,
                       })
                     });
-                    
+
                     // 스코어 완료 처리
                     await fetch('/api/scores/complete', {
                       method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
+                      headers: getAuthHeaders(),
                       body: JSON.stringify({
                         memberId: teammateMemberId,
-                        markerId: user.id,
+                        markerId: effectiveUserId,
                         date: scoreDate,
                         roundingName: booking?.title
                       })
@@ -2029,6 +2481,7 @@ function Play() {
                 borderRadius: '8px',
                 marginBottom: '20px',
                 textAlign: 'center',
+                touchAction: 'auto', // touch-action:none 자식 상속에서 input 제외 (안드로이드 키보드)
                 boxSizing: 'border-box'
               }}
               autoFocus
@@ -2061,10 +2514,10 @@ function Play() {
                   try {
                     const response = await fetch('/api/ntp', {
                       method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
+                      headers: getAuthHeaders(),
                       body: JSON.stringify({
                         bookingId: bookingId,
-                        memberId: user.id,
+                        memberId: effectiveUserId,
                         memberName: user.nickname || user.name,
                         holeNumber: currentHole,
                         distance: parseFloat(ntpDistance)
@@ -2102,6 +2555,13 @@ function Play() {
           </div>
         </div>
       )}
+
+      <style>{`
+        @keyframes ntpBlink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.35; }
+        }
+      `}</style>
     </div>
   );
 }

@@ -19,11 +19,11 @@ export const parseParticipants = (participants) => {
 // ─── Currency ────────────────────────────────────────────────────────────────
 
 /**
- * 금액을 한국 원화 형식으로 포맷 (예: ₩10,000)
+ * 금액을 호주 달러 형식으로 포맷 (예: $10,000)
  */
 export const formatCurrency = (amount) => {
-  if (amount == null || amount === '') return '₩0';
-  return `₩${parseInt(amount).toLocaleString('ko-KR')}`;
+  if (amount == null || amount === '') return '$0';
+  return `$${parseInt(amount).toLocaleString('en-AU')}`;
 };
 
 // ─── Date ────────────────────────────────────────────────────────────────────

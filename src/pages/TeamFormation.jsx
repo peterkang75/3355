@@ -4,7 +4,6 @@ import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 import PageHeader from '../components/common/PageHeader';
-import ProfileBadge from '../components/common/ProfileBadge';
 import { parseParticipants } from '../utils';
 
 function TeamFormation() {
@@ -477,13 +476,25 @@ function TeamFormation() {
   const isOrganizerAccess = booking && user?.id === booking.organizerId;
   const canAccess = hasAdminAccess || isOrganizerAccess;
 
+  const PRIMARY = '#0047AB';
+
+  const getMemberStyle = (member) => {
+    if (!member) return null;
+    const isRenting = booking?.numberRentals?.includes(member.phone);
+    const isGuest = isGuestParticipant(member);
+    const memberInfo = members.find(m => m.phone === member.phone);
+    const isFemale = memberInfo?.gender === '여';
+    if (isGuest)   return { bg: '#F0FDF4', text: '#15803D', border: '#86EFAC' };
+    if (isRenting) return { bg: '#FFF7ED', text: '#C2410C', border: '#FED7AA' };
+    if (isFemale)  return { bg: '#FEE2E2', text: '#BE185D', border: '#FECACA' };
+    return { bg: '#E1EBF9', text: PRIMARY, border: '#BFDBFE' };
+  };
+
   if (!booking) {
     return (
       <div className="page-content">
         <div className="card">
-          <p style={{ textAlign: 'center', opacity: 0.7 }}>
-            라운딩을 찾을 수 없습니다.
-          </p>
+          <p style={{ textAlign: 'center', opacity: 0.7 }}>라운딩을 찾을 수 없습니다.</p>
         </div>
       </div>
     );
@@ -491,721 +502,353 @@ function TeamFormation() {
 
   return (
     <div>
-      <PageHeader 
+      <PageHeader
         title="조편성"
         onBack={() => navigate('/booking')}
-        rightContent={<ProfileBadge user={user} onClick={() => navigate('/mypage')} />}
+        user={user}
       />
 
       <div className="page-content">
-        <div className="card" style={{ marginBottom: '16px' }}>
-          <div style={{ 
-            padding: '16px',
-            borderRadius: '8px'
-          }}>
-            {booking.title && (
-              <div style={{ fontSize: '13px', color: 'var(--primary-green)', fontWeight: '600', marginBottom: '4px' }}>
-                {booking.title}
-              </div>
-            )}
-            <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
-              {booking.courseName}
-            </h3>
-            <div style={{ fontSize: '14px', opacity: 0.7 }}>
-              {new Date(booking.date).toLocaleDateString('ko-KR')} • {booking.time}
-            </div>
-            <div style={{ fontSize: '14px', opacity: 0.7, marginTop: '4px' }}>
-              총 {participants.length}명
-            </div>
-          </div>
-        </div>
 
-        {canAccess && (
-          <div style={{ display: 'flex', gap: '6px', marginBottom: '16px', alignItems: 'stretch' }}>
-            <LoadingButton
-              onClick={handleAutoAssign}
-              loading={isAutoAssigning}
-              loadingText="..."
-              style={{ 
-                padding: '10px 12px',
-                fontSize: '13px',
-                fontWeight: '500',
-                whiteSpace: 'nowrap',
-                background: '#FFFFFF',
-                border: '1px solid #E5E7EB',
-                borderRadius: '8px',
-                color: '#374151',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-                cursor: 'pointer',
-              }}
-            >
-              ⚡ 자동배정
-            </LoadingButton>
-            <button
-              onClick={handleRemoveTeam}
-              disabled={teams.length === 0}
-              style={{
-                width: '40px',
-                height: '40px',
-                background: '#FFFFFF',
-                color: teams.length === 0 ? '#D1D5DB' : '#374151',
-                border: '1px solid #E5E7EB',
-                borderRadius: '8px',
-                fontSize: '18px',
-                fontWeight: '500',
-                cursor: teams.length === 0 ? 'not-allowed' : 'pointer',
-                flexShrink: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-              }}
-            >
-              −
-            </button>
-            <button
-              onClick={handleAddTeam}
-              style={{
-                width: '40px',
-                height: '40px',
-                background: '#FFFFFF',
-                color: '#374151',
-                border: '1px solid #E5E7EB',
-                borderRadius: '8px',
-                fontSize: '18px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                flexShrink: 0,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-              }}
-            >
-              +
-            </button>
-            <LoadingButton
-              onClick={handleSaveTeams}
-              loading={isSaving}
-              loadingText="..."
-              style={{ 
-                flex: 1,
-                padding: '10px 14px',
-                background: hasUnsavedChanges ? '#EF4444' : '#1a3d47',
-                color: '#FFFFFF',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '13px',
-                fontWeight: '600',
-                whiteSpace: 'nowrap',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.10)',
-                cursor: 'pointer',
-              }}
-            >
-              {hasUnsavedChanges ? '✕ 저장안됨' : '✓ 저장됨'}
-            </LoadingButton>
-            <button
-              onClick={handleCopyTeamText}
-              style={{
-                padding: '10px 10px',
-                background: '#FFFFFF',
-                color: '#374151',
-                border: '1px solid #E5E7EB',
-                borderRadius: '8px',
-                fontSize: '12px',
-                fontWeight: '500',
-                cursor: 'pointer',
-                whiteSpace: 'nowrap',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-              }}
-            >
-              📋 복사
-            </button>
-          </div>
-        )}
-
-        {canAccess && (
-          <button
-            onClick={() => navigate(`/play?id=${bookingId}`)}
-            style={{
-              width: '100%',
-              padding: '14px',
-              background: '#1a3d47',
-              color: 'white',
-              border: 'none',
-              borderRadius: '12px',
-              fontSize: '16px',
-              fontWeight: '700',
-              cursor: 'pointer',
-              marginBottom: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px',
-              boxShadow: '0 4px 12px rgba(26,61,71,0.25)',
-            }}
-          >
-            ⛳ 플레이하기
-          </button>
-        )}
-
-        <div className="card" style={{ marginBottom: '16px' }}>
-          <div style={{ 
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            marginBottom: '12px'
-          }}>
-            <h3 style={{ 
-              fontSize: '16px', 
-              fontWeight: '700',
-              color: 'var(--primary-green)',
-              margin: 0
-            }}>
-              미배정 참가자 ({unassigned.length}명)
-            </h3>
-            {unassigned.filter(m => booking?.numberRentals && booking.numberRentals.includes(m.phone)).length > 0 && (
-              <span style={{
-                background: '#E6AA68',
-                color: '#fff',
-                padding: '4px 10px',
-                borderRadius: '6px',
-                fontSize: '12px',
-                fontWeight: '600'
-              }}>
-                번호대여자 {unassigned.filter(m => booking?.numberRentals && booking.numberRentals.includes(m.phone)).length}
-              </span>
-            )}
-          </div>
+        {/* ── 상단 통합 카드 ── */}
+        <div style={{
+          background: '#FFFFFF', borderRadius: '20px',
+          border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+          overflow: 'hidden', marginBottom: '14px',
+        }}>
+          {/* 헤더: 블루 그라디언트 */}
           <div style={{
-            minHeight: '60px',
-            borderRadius: '12px',
-            padding: '12px',
-            display: 'flex',
-            flexWrap: 'wrap',
-            gap: '8px',
-            background: '#F9FAFB',
+            background: 'linear-gradient(145deg, #08183A 0%, #003780 100%)',
+            padding: '18px 20px', position: 'relative',
           }}>
-            {unassigned.length === 0 ? (
-              <div style={{ 
-                width: '100%', 
-                textAlign: 'center', 
-                color: '#9CA3AF',
-                fontSize: '14px',
-                padding: '20px 0'
-              }}>
-                모든 참가자가 배정되었습니다
+            <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 80% 10%, rgba(255,255,255,0.07) 0%, transparent 55%)', pointerEvents: 'none' }} />
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px' }}>
+              <div>
+                {booking.type && (
+                  <div style={{
+                    display: 'inline-flex', alignItems: 'center',
+                    background: 'rgba(255,255,255,0.14)', border: '1px solid rgba(255,255,255,0.2)',
+                    borderRadius: '20px', padding: '3px 10px',
+                    fontSize: '10px', fontWeight: '700', color: 'rgba(255,255,255,0.9)',
+                    letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '8px',
+                  }}>
+                    {booking.type}
+                  </div>
+                )}
+                <div style={{ fontSize: '19px', fontWeight: '800', color: '#fff', letterSpacing: '-0.02em', marginBottom: '5px' }}>
+                  {booking.courseName}
+                </div>
+                <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', display: 'flex', gap: '8px' }}>
+                  <span>{new Date(booking.date).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}</span>
+                  <span>·</span>
+                  <span>총 {participants.length}명</span>
+                </div>
               </div>
-            ) : (
-              unassigned.map((member, index) => {
-                const isRenting = booking?.numberRentals && booking.numberRentals.includes(member.phone);
-                const isGuest = isGuestParticipant(member);
+              {/* 미배정 뱃지 */}
+              <div style={{
+                flexShrink: 0, textAlign: 'center',
+                background: unassigned.length > 0 ? 'rgba(220,38,38,0.18)' : 'rgba(21,128,61,0.18)',
+                border: `1px solid ${unassigned.length > 0 ? 'rgba(220,38,38,0.35)' : 'rgba(21,128,61,0.35)'}`,
+                borderRadius: '12px', padding: '6px 12px',
+              }}>
+                <div style={{ fontSize: '18px', fontWeight: '800', color: unassigned.length > 0 ? '#FCA5A5' : '#86EFAC', lineHeight: 1 }}>
+                  {unassigned.length}
+                </div>
+                <div style={{ fontSize: '10px', fontWeight: '600', color: 'rgba(255,255,255,0.55)', marginTop: '2px' }}>미배정</div>
+              </div>
+            </div>
+          </div>
+
+          {/* 미배정 칩 목록 */}
+          {unassigned.length > 0 && (
+            <div style={{ padding: '12px 16px', borderBottom: '1px solid #F1F5F9', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+              {unassigned.map((member, index) => {
+                const st = getMemberStyle(member);
                 const handicapText = getHandicapDisplay(member);
-                const memberInfo = members.find(m => m.phone === member.phone);
-                const isFemale = memberInfo?.gender === '여';
-                
-                let bgColor = '#FFFFFF';
-                let textColor = '#1F2937';
-                let borderColor = '#E5E7EB';
-                
-                if (isGuest) {
-                  bgColor = '#EFF6FF';
-                  textColor = '#1D4ED8';
-                  borderColor = '#BFDBFE';
-                } else if (isRenting) {
-                  bgColor = '#FEF3C7';
-                  textColor = '#92400E';
-                  borderColor = '#FDE68A';
-                } else if (isFemale) {
-                  bgColor = '#FDF2F8';
-                  textColor = '#9D174D';
-                  borderColor = '#FBCFE8';
-                }
-                
                 return (
-                  <div
-                    key={index}
-                    style={{
-                      padding: '8px 14px',
-                      borderRadius: '20px',
-                      border: `1px solid ${borderColor}`,
-                      background: bgColor,
-                      fontSize: '14px',
-                      fontWeight: '500',
-                      color: textColor,
-                      whiteSpace: 'nowrap',
-                      flexShrink: 0,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      boxShadow: '0 1px 2px rgba(0,0,0,0.04)',
-                    }}
-                  >
+                  <div key={index} style={{
+                    display: 'inline-flex', alignItems: 'center', gap: '4px',
+                    padding: '5px 11px', borderRadius: '20px',
+                    background: st.bg, border: `1px solid ${st.border}`,
+                    fontSize: '12px', fontWeight: '600', color: st.text,
+                  }}>
                     {getParticipantDisplayName(member)}
-                    {isGuest && (
-                      <span style={{
-                        fontSize: '10px',
-                        fontWeight: '600',
-                        background: '#BFDBFE',
-                        color: '#1D4ED8',
-                        padding: '1px 5px',
-                        borderRadius: '6px'
-                      }}>
-                        G
-                      </span>
-                    )}
-                    {handicapText && <span style={{ fontSize: '12px', color: '#9CA3AF' }}>({handicapText})</span>}
+                    {handicapText && <span style={{ fontSize: '10px', opacity: 0.65 }}>({handicapText})</span>}
                   </div>
                 );
-              })
-            )}
-          </div>
+              })}
+            </div>
+          )}
+          {unassigned.length === 0 && (
+            <div style={{ padding: '10px 16px', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#15803D" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              <span style={{ fontSize: '12px', fontWeight: '600', color: '#15803D' }}>모든 참가자 배정 완료</span>
+            </div>
+          )}
+
+          {/* 액션 바 */}
+          {canAccess && (
+            <div style={{ padding: '10px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <LoadingButton
+                onClick={handleAutoAssign}
+                loading={isAutoAssigning}
+                loadingText="배정중…"
+                style={{
+                  display: 'flex', alignItems: 'center', gap: '5px',
+                  padding: '8px 12px', borderRadius: '10px',
+                  background: '#F1F5F9', border: 'none',
+                  fontSize: '12px', fontWeight: '600', color: '#334155',
+                  cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
+                }}
+              >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+                자동배정
+              </LoadingButton>
+
+              <div style={{ width: '1px', height: '24px', background: '#E2E8F0', flexShrink: 0 }} />
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+                <button onClick={handleRemoveTeam} disabled={teams.length === 0}
+                  style={{ width: '28px', height: '28px', borderRadius: '7px', border: '1px solid #E2E8F0', background: '#fff', color: teams.length === 0 ? '#CBD5E1' : '#475569', fontSize: '16px', cursor: teams.length === 0 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>−</button>
+                <span style={{ fontSize: '12px', fontWeight: '700', color: '#1E293B', minWidth: '28px', textAlign: 'center' }}>{teams.length}조</span>
+                <button onClick={handleAddTeam}
+                  style={{ width: '28px', height: '28px', borderRadius: '7px', border: '1px solid #E2E8F0', background: '#fff', color: '#475569', fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>+</button>
+              </div>
+
+              <div style={{ width: '1px', height: '24px', background: '#E2E8F0', flexShrink: 0 }} />
+
+              <LoadingButton onClick={handleSaveTeams} loading={isSaving} loadingText="저장중…"
+                style={{
+                  flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px',
+                  padding: '8px 10px', borderRadius: '10px', border: 'none',
+                  background: hasUnsavedChanges ? '#FEF3C7' : '#F0FDF4',
+                  color: hasUnsavedChanges ? '#92400E' : '#15803D',
+                  fontSize: '12px', fontWeight: '700', cursor: 'pointer',
+                }}>
+                {hasUnsavedChanges
+                  ? <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>미저장</>
+                  : <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>저장됨</>
+                }
+              </LoadingButton>
+
+              <button onClick={handleCopyTeamText}
+                style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '8px 10px', borderRadius: '10px', border: '1px solid #E2E8F0', background: '#fff', fontSize: '12px', fontWeight: '600', color: '#475569', cursor: 'pointer', flexShrink: 0 }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                복사
+              </button>
+            </div>
+          )}
         </div>
 
+        {/* 조 카드들 */}
         {teams.map((team, teamIndex) => {
-          const renderSlotButton = (member, slotIndex) => {
-            const isRenting = member && booking?.numberRentals && booking.numberRentals.includes(member.phone);
-            const isGuest = isGuestParticipant(member);
-            const handicapText = member ? getHandicapDisplay(member) : '';
-            const memberInfo = member ? members.find(m => m.phone === member.phone) : null;
-            const isFemale = memberInfo?.gender === '여';
-            
+          const renderSlot = (member, slotIndex) => {
             if (!member) {
               return (
                 <button
                   key={slotIndex}
                   onClick={() => handleSlotClick(teamIndex, slotIndex, member)}
                   style={{
-                    minHeight: '56px',
-                    background: '#FAFAFA',
-                    color: '#9CA3AF',
-                    borderRadius: '12px',
-                    border: '2px dashed #D1D5DB',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    cursor: 'pointer',
-                    transition: 'all 0.2s',
-                    flex: 1,
+                    minHeight: '64px', flex: 1,
+                    background: '#F8FAFC', color: '#CBD5E1',
+                    borderRadius: '12px', border: '1.5px dashed #CBD5E1',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '20px', cursor: 'pointer', transition: 'all 0.15s',
                   }}
                 >
-                  + 추가
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 </button>
               );
             }
-
-            let bgColor = '#F0FDF4';
-            let textColor = '#166534';
-            let borderColor = '#BBF7D0';
-            
-            if (isGuest) {
-              bgColor = '#EFF6FF';
-              textColor = '#1D4ED8';
-              borderColor = '#BFDBFE';
-            } else if (isRenting) {
-              bgColor = '#FEF3C7';
-              textColor = '#92400E';
-              borderColor = '#FDE68A';
-            } else if (isFemale) {
-              bgColor = '#FDF2F8';
-              textColor = '#9D174D';
-              borderColor = '#FBCFE8';
-            }
-            
+            const st = getMemberStyle(member);
+            const handicapText = getHandicapDisplay(member);
+            const isGuest = isGuestParticipant(member);
             return (
               <button
                 key={slotIndex}
                 onClick={() => handleSlotClick(teamIndex, slotIndex, member)}
                 style={{
-                  minHeight: '56px',
-                  background: bgColor,
-                  color: textColor,
-                  borderRadius: '12px',
-                  border: `1px solid ${borderColor}`,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '14px',
-                  fontWeight: '600',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  gap: '2px',
-                  flex: 1,
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                  minHeight: '64px', flex: 1,
+                  background: st.bg, color: st.text,
+                  borderRadius: '12px', border: `1.5px solid ${st.border}`,
+                  display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                  fontSize: '14px', fontWeight: '700', cursor: 'pointer',
+                  gap: '3px', padding: '8px 4px',
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <span>{getParticipantDisplayName(member)}</span>
-                  {isGuest && (
-                    <span style={{
-                      fontSize: '9px',
-                      fontWeight: '700',
-                      background: '#BFDBFE',
-                      color: '#1D4ED8',
-                      padding: '1px 4px',
-                      borderRadius: '4px'
-                    }}>
-                      G
-                    </span>
-                  )}
-                </div>
-                {handicapText && <span style={{ fontSize: '11px', opacity: 0.7 }}>{handicapText}</span>}
+                <span style={{ lineHeight: 1.2 }}>{getParticipantDisplayName(member)}</span>
+                {isGuest && <span style={{ fontSize: '10px', fontWeight: '600', background: 'rgba(255,255,255,0.6)', padding: '1px 6px', borderRadius: '6px' }}>게스트</span>}
+                {handicapText && <span style={{ fontSize: '11px', opacity: 0.65, fontWeight: '500' }}>{handicapText}</span>}
               </button>
             );
           };
 
           return (
-            <div key={teamIndex} className="card" style={{ marginBottom: '16px' }}>
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                marginBottom: '12px'
-              }}>
-                <h3 style={{ 
-                  fontSize: '16px', 
-                  fontWeight: '700',
-                  color: 'var(--primary-green)',
-                  margin: 0
-                }}>
-                  {team.teamNumber}조
-                </h3>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            <div key={teamIndex} style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px 20px', marginBottom: '12px' }}>
+              {/* 조 헤더 */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <div style={{
+                    width: '32px', height: '32px', borderRadius: '10px',
+                    background: '#EBF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: '14px', fontWeight: '800', color: PRIMARY,
+                  }}>
+                    {team.teamNumber}
+                  </div>
+                  <span style={{ fontSize: '15px', fontWeight: '700', color: '#1E293B' }}>{team.teamNumber}조</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                   {canAccess ? (
                     <input
                       type="time"
                       value={team.teeTime || ''}
                       onChange={(e) => handleTeeTimeChange(teamIndex, e.target.value)}
                       style={{
-                        padding: '6px 12px',
-                        border: '1px solid var(--border-color)',
-                        borderRadius: '6px',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        background: 'var(--bg-card)',
-                        color: 'var(--text-dark)',
-                        width: '130px',
-                        minWidth: '130px'
+                        padding: '5px 10px', border: '1px solid #E2E8F0',
+                        borderRadius: '8px', fontSize: '13px', fontWeight: '600',
+                        background: '#F8FAFC', color: '#1E293B', outline: 'none',
                       }}
-                      placeholder="--:--"
                     />
                   ) : (
-                    <span style={{ 
-                      fontSize: '14px', 
-                      fontWeight: '600',
-                      color: team.teeTime ? 'var(--primary-green)' : '#999'
-                    }}>
+                    <span style={{ fontSize: '13px', fontWeight: '600', color: team.teeTime ? PRIMARY : '#CBD5E1' }}>
                       {team.teeTime || '--:--'}
                     </span>
                   )}
                 </div>
               </div>
-              
+
+              {/* 멤버 슬롯 */}
               {gameMode === 'foursome' ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div style={{
-                    background: '#F0FDF4',
-                    borderRadius: '12px',
-                    padding: '10px',
-                    border: '1px solid #BBF7D0',
-                  }}>
-                    <div style={{ 
-                      fontSize: '12px', 
-                      fontWeight: '700', 
-                      color: '#166534', 
-                      marginBottom: '8px',
-                      textAlign: 'center'
-                    }}>
-                      A팀
-                    </div>
+                  <div>
+                    <div style={{ fontSize: '11px', fontWeight: '700', color: '#64748B', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '6px', paddingLeft: '2px' }}>A팀</div>
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      {renderSlotButton(team.members[0], 0)}
-                      {renderSlotButton(team.members[1], 1)}
+                      {renderSlot(team.members[0], 0)}
+                      {renderSlot(team.members[1], 1)}
                     </div>
                   </div>
-                  
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    padding: '4px 0'
-                  }}>
-                    <div style={{
-                      background: 'linear-gradient(90deg, transparent, var(--border-color), transparent)',
-                      height: '1px',
-                      flex: 1
-                    }} />
-                    <span style={{
-                      padding: '4px 16px',
-                      fontSize: '14px',
-                      fontWeight: '800',
-                      color: 'var(--text-gray)',
-                      background: 'var(--bg-card)',
-                      borderRadius: '12px',
-                      border: '2px solid var(--border-color)'
-                    }}>
-                      VS
-                    </span>
-                    <div style={{
-                      background: 'linear-gradient(90deg, transparent, var(--border-color), transparent)',
-                      height: '1px',
-                      flex: 1
-                    }} />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ flex: 1, height: '1px', background: '#E8ECF0' }} />
+                    <span style={{ fontSize: '11px', fontWeight: '800', color: '#94A3B8', letterSpacing: '0.1em' }}>VS</span>
+                    <div style={{ flex: 1, height: '1px', background: '#E8ECF0' }} />
                   </div>
-                  
-                  <div style={{
-                    background: '#F8FAFC',
-                    borderRadius: '12px',
-                    padding: '10px',
-                    border: '1px solid #E2E8F0',
-                  }}>
-                    <div style={{ 
-                      fontSize: '12px', 
-                      fontWeight: '700', 
-                      color: '#475569', 
-                      marginBottom: '8px',
-                      textAlign: 'center'
-                    }}>
-                      B팀
-                    </div>
+                  <div>
+                    <div style={{ fontSize: '11px', fontWeight: '700', color: '#64748B', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '6px', paddingLeft: '2px' }}>B팀</div>
                     <div style={{ display: 'flex', gap: '8px' }}>
-                      {renderSlotButton(team.members[2], 2)}
-                      {renderSlotButton(team.members[3], 3)}
+                      {renderSlot(team.members[2], 2)}
+                      {renderSlot(team.members[3], 3)}
                     </div>
                   </div>
                 </div>
               ) : (
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
-                  gap: '12px'
-                }}>
-                  {team.members.map((member, slotIndex) => renderSlotButton(member, slotIndex))}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                  {team.members.map((member, slotIndex) => renderSlot(member, slotIndex))}
                 </div>
               )}
             </div>
           );
         })}
+
       </div>
 
+      {/* 참가자 선택 바텀시트 */}
       {showSelectModal && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '16px'
-        }}>
+        <>
+          <div onClick={() => { setShowSelectModal(false); setSelectedSlot(null); setSelectedParticipants([]); }}
+            style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 999, backdropFilter: 'blur(3px)' }} />
           <div style={{
-            background: 'var(--bg-card)',
-            border: '2px solid var(--border-color)',
-            borderRadius: '12px',
-            padding: '24px',
-            width: '100%',
-            maxWidth: '400px',
-            maxHeight: '80vh',
-            display: 'flex',
-            flexDirection: 'column'
+            position: 'fixed', bottom: 'calc(60px + env(safe-area-inset-bottom))', left: 0, right: 0,
+            background: '#F8FAFC', borderRadius: '24px 24px 0 0',
+            zIndex: 1000, maxHeight: '72vh', display: 'flex', flexDirection: 'column',
+            boxShadow: '0 -4px 24px rgba(0,0,0,0.12)',
           }}>
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
-              alignItems: 'center',
-              marginBottom: '12px',
-              gap: '8px'
-            }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
-                <h3 style={{ fontSize: '18px', fontWeight: '700', margin: 0 }}>
-                  참가자 선택 ({selectedParticipants.length}/4)
-                </h3>
-                {unassigned.filter(m => booking?.numberRentals && booking.numberRentals.includes(m.phone)).length > 0 && (
-                  <span style={{
-                    background: '#E6AA68',
-                    color: '#fff',
-                    padding: '4px 10px',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    fontWeight: '600'
-                  }}>
-                    번호대여자 {unassigned.filter(m => booking?.numberRentals && booking.numberRentals.includes(m.phone)).length}
-                  </span>
-                )}
+            {/* 핸들 */}
+            <div style={{ textAlign: 'center', padding: '14px 0 4px' }}>
+              <div style={{ width: '40px', height: '4px', background: '#D1D5DB', borderRadius: '2px', margin: '0 auto' }} />
+            </div>
+            {/* 헤더 */}
+            <div style={{ padding: '8px 20px 14px', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div>
+                <div style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.08em', textTransform: 'uppercase' }}>SELECT</div>
+                <div style={{ fontSize: '18px', fontWeight: '800', color: '#1E293B', letterSpacing: '-0.02em' }}>
+                  참가자 선택 <span style={{ fontSize: '14px', fontWeight: '600', color: PRIMARY }}>({selectedParticipants.length}/4)</span>
+                </div>
               </div>
-              <button
-                onClick={() => {
-                  setShowSelectModal(false);
-                  setSelectedSlot(null);
-                  setSelectedParticipants([]);
-                }}
-                style={{
-                  background: 'transparent',
-                  border: 'none',
-                  fontSize: '24px',
-                  cursor: 'pointer',
-                  opacity: 0.7
-                }}
-              >
-                ×
+              <button onClick={() => { setShowSelectModal(false); setSelectedSlot(null); setSelectedParticipants([]); }}
+                style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#F1F5F9', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
-
-            <p style={{ 
-              fontSize: '13px', 
-              opacity: 0.7,
-              marginBottom: '16px',
-              textAlign: 'center'
-            }}>
-              최대 4명까지 선택할 수 있습니다
-            </p>
-
-            <div style={{ 
-              flex: 1, 
-              overflow: 'auto', 
-              marginBottom: '16px' 
-            }}>
+            {/* 목록 */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px' }}>
               {unassigned.length === 0 ? (
-                <p style={{ textAlign: 'center', opacity: 0.7, padding: '32px 0' }}>
-                  배정 가능한 참가자가 없습니다.
-                </p>
+                <p style={{ textAlign: 'center', color: '#94A3B8', padding: '32px 0', fontSize: '14px' }}>배정 가능한 참가자가 없습니다.</p>
               ) : (
                 <div style={{ display: 'grid', gap: '6px' }}>
                   {unassigned.map((participant, index) => {
                     const isSelected = selectedParticipants.some(p => p.phone === participant.phone);
-                    const isRenting = booking?.numberRentals && booking.numberRentals.includes(participant.phone);
-                    const isGuest = isGuestParticipant(participant);
-                    
-                    let bgColor, textColor, borderColor;
-                    borderColor = 'var(--border-color)';
-                    if (isSelected) {
-                      bgColor = isGuest ? '#5BA3C0' : 'var(--primary-green)';
-                      textColor = 'white';
-                      borderColor = isGuest ? '#87CEEB' : 'var(--primary-green)';
-                    } else if (isGuest) {
-                      bgColor = 'rgba(135, 206, 235, 0.3)';
-                      textColor = '#4A90A4';
-                      borderColor = '#87CEEB';
-                    } else if (isRenting) {
-                      bgColor = '#E6AA68';
-                      textColor = '#fff';
-                    } else {
-                      bgColor = 'var(--bg-card)';
-                      textColor = 'var(--primary-green)';
-                    }
-                    
+                    const st = getMemberStyle(participant);
                     const handicapText = getHandicapDisplay(participant);
+                    const isGuest = isGuestParticipant(participant);
                     return (
                       <button
                         key={index}
                         onClick={() => handleToggleParticipant(participant)}
                         style={{
-                          padding: '12px 14px',
-                          background: bgColor,
-                          border: `2px solid ${borderColor}`,
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          textAlign: 'center',
-                          fontSize: '15px',
-                          fontWeight: '600',
-                          color: textColor,
-                          transition: 'all 0.2s',
-                          position: 'relative',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: '2px'
+                          padding: '13px 16px', borderRadius: '12px',
+                          background: isSelected ? PRIMARY : '#FFFFFF',
+                          border: isSelected ? 'none' : `1.5px solid ${st.border}`,
+                          cursor: 'pointer', textAlign: 'left',
+                          display: 'flex', alignItems: 'center', gap: '12px',
+                          transition: 'all 0.15s',
                         }}
                       >
-                        {isSelected && (
-                          <span style={{ 
-                            position: 'absolute', 
-                            left: '10px', 
-                            top: '50%',
-                            transform: 'translateY(-50%)',
-                            fontSize: '16px' 
-                          }}>
-                            ✓
-                          </span>
-                        )}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                          <span>
-                            {getParticipantDisplayName(participant)}
-                          </span>
-                          {isGuest && (
-                            <span style={{
-                              fontSize: '10px',
-                              fontWeight: '600',
-                              background: isSelected ? 'rgba(255,255,255,0.3)' : '#87CEEB',
-                              color: isSelected ? '#fff' : '#1a3a4a',
-                              padding: '2px 4px',
-                              borderRadius: '3px'
-                            }}>
-                              게스트
-                            </span>
-                          )}
+                        <div style={{
+                          width: '36px', height: '36px', borderRadius: '10px', flexShrink: 0,
+                          background: isSelected ? 'rgba(255,255,255,0.2)' : st.bg,
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          fontSize: '14px', fontWeight: '800',
+                          color: isSelected ? 'white' : st.text,
+                        }}>
+                          {isSelected
+                            ? <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            : (participant.nickname || participant.name || '?').charAt(0)
+                          }
                         </div>
-                        {handicapText && <span style={{ fontSize: '11px', opacity: 0.8 }}>{handicapText}</span>}
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: '15px', fontWeight: '700', color: isSelected ? 'white' : '#1E293B', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            {getParticipantDisplayName(participant)}
+                            {isGuest && <span style={{ fontSize: '10px', fontWeight: '600', background: isSelected ? 'rgba(255,255,255,0.25)' : st.bg, color: isSelected ? 'white' : st.text, padding: '2px 6px', borderRadius: '6px' }}>게스트</span>}
+                          </div>
+                          {handicapText && <div style={{ fontSize: '12px', color: isSelected ? 'rgba(255,255,255,0.75)' : '#94A3B8', marginTop: '1px' }}>{handicapText}</div>}
+                        </div>
                       </button>
                     );
                   })}
                 </div>
               )}
             </div>
-
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                onClick={() => {
-                  setShowSelectModal(false);
-                  setSelectedSlot(null);
-                  setSelectedParticipants([]);
-                }}
-                style={{
-                  flex: 1,
-                  padding: '14px 24px',
-                  background: '#BD5B43',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: 'pointer'
-                }}
-              >
-                취소하기
-              </button>
+            {/* 확인 버튼 */}
+            <div style={{ padding: '12px 16px', paddingBottom: 'max(16px, env(safe-area-inset-bottom))', borderTop: '1px solid #F1F5F9', background: '#F8FAFC' }}>
               <button
                 onClick={handleConfirmSelection}
                 disabled={selectedParticipants.length === 0}
                 style={{
-                  flex: 1,
-                  padding: '14px 24px',
-                  background: selectedParticipants.length > 0 ? 'var(--primary-green)' : '#ccc',
-                  color: 'white',
-                  border: 'none',
-                  borderRadius: '8px',
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  cursor: selectedParticipants.length > 0 ? 'pointer' : 'not-allowed'
+                  width: '100%', padding: '15px', borderRadius: '14px', border: 'none',
+                  background: selectedParticipants.length > 0 ? PRIMARY : '#E2E8F0',
+                  color: selectedParticipants.length > 0 ? 'white' : '#94A3B8',
+                  fontSize: '16px', fontWeight: '700',
+                  cursor: selectedParticipants.length > 0 ? 'pointer' : 'not-allowed',
+                  boxShadow: selectedParticipants.length > 0 ? '0 4px 12px rgba(0,71,171,0.3)' : 'none',
+                  transition: 'all 0.2s',
                 }}
               >
-                완료
+                {selectedParticipants.length > 0 ? `${selectedParticipants.length}명 배정하기` : '참가자를 선택하세요'}
               </button>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );

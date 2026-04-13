@@ -62,6 +62,38 @@ router.delete("/:id", requireAuth, async (req, res) => {
   }
 });
 
+// 대시보드 메인 공지 등록/해제 (한 번에 하나만 featured)
+router.patch("/:id/toggle-featured", requireAuth, async (req, res) => {
+  try {
+    const post = await prisma.post.findUnique({ where: { id: req.params.id } });
+    if (!post) return res.status(404).json({ error: "Post not found" });
+
+    if (post.isFeatured) {
+      // 해제
+      const updated = await prisma.post.update({
+        where: { id: req.params.id },
+        data: { isFeatured: false },
+        include: { author: true },
+      });
+      req.io.emit("posts:updated");
+      return res.json(updated);
+    } else {
+      // 기존 featured 해제 후 이 글을 featured로
+      await prisma.post.updateMany({ where: { isFeatured: true }, data: { isFeatured: false } });
+      const updated = await prisma.post.update({
+        where: { id: req.params.id },
+        data: { isFeatured: true },
+        include: { author: true },
+      });
+      req.io.emit("posts:updated");
+      return res.json(updated);
+    }
+  } catch (error) {
+    console.error("Error toggling post featured status:", error);
+    res.status(500).json({ error: "Failed to toggle featured status" });
+  }
+});
+
 router.patch("/:id/toggle-active", requireAuth, async (req, res) => {
   try {
     const post = await prisma.post.findUnique({

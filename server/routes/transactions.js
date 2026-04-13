@@ -169,9 +169,13 @@ router.get("/bookings", requireAuth, requireOperator, async (req, res) => {
   }
 });
 
-// 회원별 미수금 조회
+// 회원별 미수금 조회 (yearMonth 쿼리 파라미터로 월 필터 가능)
 router.get("/outstanding", requireAuth, requireOperator, async (req, res) => {
   try {
+    const { yearMonth } = req.query; // e.g. "2026-04" — 없으면 전체 기간
+
+    const dateFilter = yearMonth ? { date: { startsWith: yearMonth } } : {};
+
     const [members, transactions] = await Promise.all([
       prisma.member.findMany({
         where: { isActive: true },
@@ -179,9 +183,10 @@ router.get("/outstanding", requireAuth, requireOperator, async (req, res) => {
       }),
       prisma.transaction.findMany({
         where: {
+          ...dateFilter,
           OR: [
             { type: "charge" }, { type: "payment" }, { type: "credit" },
-            { type: "donation" }, { type: "expense" }, { type: "creditDonation" },
+            { type: "creditDonation" },
           ],
         },
         select: { memberId: true, type: true, amount: true, category: true },
@@ -204,8 +209,6 @@ router.get("/outstanding", requireAuth, requireOperator, async (req, res) => {
         balanceByMember[t.memberId] += t.amount;
       } else if (t.type === "credit") {
         balanceByMember[t.memberId] += t.amount;
-      } else if (t.type === "expense") {
-        balanceByMember[t.memberId] -= t.amount;
       } else if (t.type === "creditDonation") {
         balanceByMember[t.memberId] -= t.amount;
       }
@@ -676,6 +679,63 @@ router.delete("/expense-categories/:id", requireAuth, requireOperator, async (re
   } catch (error) {
     console.error("Error deleting expense category:", error);
     res.status(500).json({ error: "Failed to delete expense category" });
+  }
+});
+
+// 현금 납부 처리 — charge를 payment로 전환
+router.post("/mark-paid", requireAuth, requireOperator, async (req, res) => {
+  try {
+    const { chargeId, memo } = req.body;
+
+    if (!chargeId) {
+      return res.status(400).json({ error: "chargeId is required" });
+    }
+
+    const charge = await prisma.transaction.findUnique({
+      where: { id: chargeId },
+      include: { booking: true },
+    });
+
+    if (!charge) {
+      return res.status(404).json({ error: "Charge not found" });
+    }
+    if (charge.type !== "charge") {
+      return res.status(400).json({ error: "Transaction is not a charge" });
+    }
+
+    // 자동청구 참가비는 charge 날짜 기준으로 수입 기록 (처리일 기준 X)
+    const paymentDate = charge.date;
+    const bookingLabel = charge.booking?.courseName
+      ? `${charge.booking.courseName} 참가비`
+      : charge.description || "참가비";
+    const description = memo
+      ? `${bookingLabel} (현금 납부: ${memo})`
+      : `${bookingLabel} (현금 납부)`;
+
+    let paymentTx;
+    await prisma.$transaction(async (tx) => {
+      paymentTx = await tx.transaction.create({
+        data: {
+          type: "payment",
+          amount: charge.amount,
+          description,
+          category: "참가비",
+          date: paymentDate,
+          memberId: charge.memberId,
+          bookingId: charge.bookingId || null,
+          createdBy: req.member.id,
+        },
+      });
+    });
+
+    const newBalance = await recalculateAndUpdateBalance(charge.memberId);
+
+    req.io.emit("transactions:updated");
+    req.io.emit("members:updated");
+    res.json({ success: true, paymentTx, newBalance });
+  } catch (error) {
+    console.error("Error marking charge as paid:", error);
+    res.status(500).json({ error: "Failed to mark as paid" });
   }
 });
 

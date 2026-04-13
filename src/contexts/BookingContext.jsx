@@ -31,7 +31,11 @@ export function BookingProvider({ children }) {
       debounceRef.current = setTimeout(async () => {
         try {
           const data = await apiService.fetchBookings();
-          if (data) setBookings(data);
+          if (data) setBookings(prev => {
+            if (prev.length !== data.length) return data;
+            const changed = data.some((b, i) => b.id !== prev[i]?.id || b.updatedAt !== prev[i]?.updatedAt);
+            return changed ? data : prev;
+          });
         } catch (e) {}
       }, 300);
     };
@@ -40,13 +44,17 @@ export function BookingProvider({ children }) {
     return () => socket.off('bookings:updated', handleBookingsUpdated);
   }, [socket]);
 
-  // 앱 복귀 시 갱신
+  // 앱 복귀 시 갱신 (Play/Leaderboard 화면 리렌더 방지: 실제 변경분만 반영)
   useEffect(() => {
     const handleVisibility = async () => {
       if (document.visibilityState !== 'visible') return;
       try {
         const data = await apiService.fetchBookings();
-        if (data) setBookings(data);
+        if (data) setBookings(prev => {
+          if (prev.length !== data.length) return data;
+          const changed = data.some((b, i) => b.id !== prev[i]?.id || b.updatedAt !== prev[i]?.updatedAt);
+          return changed ? data : prev;
+        });
       } catch (e) {}
     };
     document.addEventListener('visibilitychange', handleVisibility);

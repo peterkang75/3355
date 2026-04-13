@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import CrownIcon from '../CrownIcon';
 import { useApp } from '../../contexts/AppContext';
 
-function ProfileBadge({ user, showGreeting = false, size = 36 }) {
+function ProfileBadge({ user, showGreeting = false, size = 36, clubMode = false }) {
   const navigate = useNavigate();
   const { members, login } = useApp();
   const [showMemberDropdown, setShowMemberDropdown] = useState(false);
@@ -113,14 +113,14 @@ function ProfileBadge({ user, showGreeting = false, size = 36 }) {
           height: `${size}px`,
           borderRadius: '50%',
           overflow: 'hidden',
-          background: 'rgba(26, 61, 71, 0.1)',
+          background: clubMode ? 'rgba(255,255,255,0.20)' : 'rgba(0, 71, 171, 0.1)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#1a3d47',
+          color: clubMode ? '#ffffff' : '#0047AB',
           fontWeight: '700',
           fontSize: `${Math.round(size * 0.39)}px`,
-          border: 'none',
+          border: clubMode ? '1.5px solid rgba(255,255,255,0.35)' : 'none',
         }}>
           {user.photo ? (
             <img 

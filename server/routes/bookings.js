@@ -25,7 +25,7 @@ router.post("/", requireAuth, requireOperator, async (req, res) => {
       organizerId, organizerPhone, participants, notes, greenFee, cartFee, membershipFee,
       registrationDeadline, maxMembers, isGuestAllowed, playEnabled,
       restaurantName, restaurantAddress, is2BB, isAnnounced,
-      playManuallyDisabled, useSquadWaitlist, votingEnabled, status,
+      playManuallyDisabled, useSquadWaitlist, votingEnabled, status, isRecruiting,
     } = req.body;
 
     let resolvedOrganizerId = organizerId;
@@ -61,6 +61,7 @@ router.post("/", requireAuth, requireOperator, async (req, res) => {
       ...(restaurantName !== undefined && { restaurantName }),
       ...(restaurantAddress !== undefined && { restaurantAddress }),
       ...(is2BB !== undefined && { is2BB }),
+      ...(isRecruiting !== undefined && { isRecruiting }),
       ...(isAnnounced !== undefined && { isAnnounced }),
       ...(playManuallyDisabled !== undefined && { playManuallyDisabled }),
       ...(useSquadWaitlist !== undefined && { useSquadWaitlist }),
@@ -354,6 +355,107 @@ router.patch("/:id/toggle-voting", requireAuth, requireOperator, async (req, res
   } catch (error) {
     console.error("Error toggling voting status:", error);
     res.status(500).json({ error: "Failed to toggle voting status" });
+  }
+});
+
+// 회원 참가/취소 (일반 회원 포함) — 자동 청구/취소 처리
+router.patch("/:id/toggle-join", requireAuth, async (req, res) => {
+  try {
+    const booking = await prisma.booking.findUnique({ where: { id: req.params.id } });
+    if (!booking) return res.status(404).json({ error: "Booking not found" });
+
+    const member = await prisma.member.findUnique({ where: { id: req.member.id } });
+    if (!member) return res.status(404).json({ error: "Member not found" });
+
+    const parseParticipant = (p) => {
+      try { return typeof p === "string" ? JSON.parse(p) : p; } catch { return p; }
+    };
+
+    const participants = (booking.participants || []).map(parseParticipant);
+    const alreadyJoined = participants.some(p => p.phone === member.phone);
+
+    let updatedParticipants;
+    if (alreadyJoined) {
+      // 취소: 참가자 제거 + 청구 트랜잭션 삭제
+      updatedParticipants = participants.filter(p => p.phone !== member.phone);
+
+      await prisma.$transaction(async (tx) => {
+        await tx.transaction.deleteMany({
+          where: {
+            memberId: member.id,
+            bookingId: booking.id,
+            OR: [
+              { type: "charge" },
+              { type: "expense", category: "크레딧 자동 차감" },
+              { type: "payment", category: "크레딧 자동 차감" },
+            ],
+          },
+        });
+      });
+      await recalculateAndUpdateBalance(member.id);
+    } else {
+      // 참가: 정원 확인
+      const max = booking.maxMembers || 4;
+      if (participants.length >= max) {
+        return res.status(400).json({ error: "정원이 마감되었습니다." });
+      }
+      if (booking.registrationDeadline && new Date() > new Date(booking.registrationDeadline)) {
+        return res.status(400).json({ error: "참가 신청 마감일이 지났습니다." });
+      }
+
+      updatedParticipants = [
+        ...participants,
+        { name: member.name, nickname: member.nickname, phone: member.phone },
+      ];
+
+      // 중복 청구 방지
+      const existingCharge = await prisma.transaction.findFirst({
+        where: { memberId: member.id, bookingId: booking.id, type: { in: ["charge", "expense"] } },
+      });
+
+      if (!existingCharge) {
+        const totalAmount = member.isFeeExempt
+          ? (booking.greenFee || 0) + (booking.cartFee || 0)
+          : (booking.greenFee || 0) + (booking.cartFee || 0) + (booking.membershipFee || 0);
+
+        if (totalAmount > 0) {
+          const memberTransactions = await prisma.transaction.findMany({ where: { memberId: member.id } });
+          const currentBalance = calculateBalance(memberTransactions);
+          const creditBalance = currentBalance > 0 ? currentBalance : 0;
+          const creditToUse = Math.min(creditBalance, totalAmount);
+          const remainingCharge = totalAmount - creditToUse;
+          const today = new Date().toISOString().split("T")[0];
+          const baseDescription = member.isFeeExempt
+            ? `${booking.title || booking.courseName} 라운딩 (참가비 면제)`
+            : `${booking.title || booking.courseName} 라운딩`;
+
+          await prisma.$transaction(async (tx) => {
+            if (creditToUse > 0) {
+              await tx.transaction.create({ data: { type: "expense", amount: creditToUse, description: `${baseDescription} (크레딧 자동 차감)`, category: "크레딧 자동 차감", date: today, memberId: member.id, bookingId: booking.id } });
+              await tx.transaction.create({ data: { type: "payment", amount: creditToUse, description: `${baseDescription} (크레딧 자동 차감)`, category: "크레딧 자동 차감", date: today, memberId: member.id, bookingId: booking.id } });
+            }
+            if (remainingCharge > 0) {
+              await tx.transaction.create({ data: { type: "charge", amount: remainingCharge, description: creditToUse > 0 ? `${baseDescription} (크레딧 $${creditToUse} 사용 후 잔액)` : baseDescription, date: today, memberId: member.id, bookingId: booking.id } });
+            }
+          });
+          await recalculateAndUpdateBalance(member.id);
+        }
+      }
+    }
+
+    const updated = await prisma.booking.update({
+      where: { id: req.params.id },
+      data: { participants: updatedParticipants.map(p => JSON.stringify(p)) },
+      include: { organizer: true },
+    });
+
+    req.io.emit("bookings:updated");
+    req.io.emit("transactions:updated");
+    req.io.emit("members:updated");
+    res.json({ booking: updated, joined: !alreadyJoined });
+  } catch (error) {
+    console.error("Error toggling join:", error);
+    res.status(500).json({ error: "Failed to toggle join" });
   }
 });
 

@@ -90,8 +90,7 @@ export function AuthProvider({ children }) {
               try { localStorage.setItem('golfUser', JSON.stringify(currentUser)); } catch (e) {}
 
               // 사진 포함 프로필 백그라운드 로드
-              fetch(`/api/members/${currentUser.id}`)
-                .then(r => r.ok ? r.json() : null)
+              apiService.fetchMember(currentUser.id)
                 .then(fullUser => {
                   if (fullUser) {
                     setUser(prev => ({ ...prev, photo: fullUser.photo }));
@@ -146,20 +145,24 @@ export function AuthProvider({ children }) {
     return () => socket.off('members:updated', handleMembersUpdated);
   }, [socket]);
 
-  // 앱 복귀 시 회원 데이터 갱신
+  // 앱 복귀 시 회원 데이터 갱신 (실제 변경분만 반영)
   useEffect(() => {
     const handleVisibility = async () => {
       if (document.visibilityState !== 'visible') return;
       try {
         const membersData = await apiService.fetchMembers();
         if (membersData) {
-          setMembers(membersData);
+          setMembers(prev => {
+            if (prev.length !== membersData.length) return membersData;
+            const changed = membersData.some((m, i) => m.id !== prev[i]?.id || m.updatedAt !== prev[i]?.updatedAt);
+            return changed ? membersData : prev;
+          });
           const savedUser = localStorage.getItem('golfUser');
           if (savedUser) {
             try {
               const userData = JSON.parse(savedUser);
               const updatedUser = membersData.find(m => m.id === userData.id);
-              if (updatedUser) {
+              if (updatedUser && updatedUser.updatedAt !== userData.updatedAt) {
                 setUser(updatedUser);
                 localStorage.setItem('golfUser', JSON.stringify(updatedUser));
               }

@@ -1,38 +1,20 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import defaultLogoImage from '../assets/logo-new.png';
-import apiService from '../services/api';
-import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
+import LoadingButton from '../components/LoadingButton';
 
 function Login({ onLogin }) {
-  const { courses, members, refreshMembers, clubLogo } = useApp();
+  const { members, clubLogo } = useApp();
   const logoImage = clubLogo || defaultLogoImage;
+  const navigate = useNavigate();
   const [phoneLastSix, setPhoneLastSix] = useState('');
   const [error, setError] = useState('');
-  const [showSignup, setShowSignup] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-  const [isSigningUp, setIsSigningUp] = useState(false);
-  const [newMember, setNewMember] = useState({
-    name: '',
-    nickname: '',
-    phone: '',
-    gender: '',
-    birthYear: '',
-    region: '',
-    isClubMember: '',
-    club: '',
-    handicap: '',
-    gaHandy: '',
-    houseHandy: '',
-    golflinkNumber: '',
-    clubMemberNumber: '',
-    photo: ''
-  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isLoggingIn) return;
-    
     setError('');
 
     if (phoneLastSix.length !== 6 || !/^\d+$/.test(phoneLastSix)) {
@@ -70,141 +52,47 @@ function Login({ onLogin }) {
       setIsLoggingIn(false);
       return;
     }
-    
+
     onLogin(foundMember);
   };
 
-  const handleSignup = async () => {
-    if (isSigningUp) return;
-    
-    if (!newMember.name || !newMember.nickname || !newMember.phone || !newMember.photo || 
-        !newMember.gender || !newMember.birthYear || !newMember.region) {
-      setError('이름, 대화명, 전화번호, 사진, 성별, 출생연도, 지역은 필수 입력 항목입니다.');
-      return;
-    }
-
-    if (newMember.phone.length !== 10 || !/^\d+$/.test(newMember.phone)) {
-      setError('전화번호 10자리를 정확히 입력해주세요.');
-      return;
-    }
-
-    const existingMember = members.find(m => m.phone === newMember.phone);
-    if (existingMember) {
-      setError('이미 회원가입이 되어있습니다. 전화번호 끝 6자리 입력하여 로그인해 주세요.');
-      return;
-    }
-
-    if (newMember.isClubMember === 'yes') {
-      if (!newMember.club || !newMember.gaHandy || !newMember.clubMemberNumber || !newMember.golflinkNumber) {
-        setError('소속 클럽 선택 시 GA 핸디캡, 클럽회원번호, Golflink 번호는 필수 입력 항목입니다.');
-        return;
-      }
-    }
-
-    setIsSigningUp(true);
-
-    const userData = {
-      ...newMember,
-      handicap: newMember.isClubMember === 'yes' ? newMember.gaHandy : newMember.houseHandy,
-      isAdmin: false,
-      balance: 0
-    };
-    
-    try {
-      const result = await apiService.createMember(userData);
-      
-      if (refreshMembers) {
-        await refreshMembers();
-      }
-      
-      if (result.approvalStatus === 'pending') {
-        alert('회원가입이 완료되었습니다! 운영진의 승인을 기다려주세요.');
-      } else {
-        alert('회원가입이 완료되었습니다! 전화번호 끝 6자리로 로그인해주세요.');
-      }
-      setShowSignup(false);
-    } catch (error) {
-      setError('회원가입 중 오류가 발생했습니다. 다시 시도해주세요.');
-      setIsSigningUp(false);
-      return;
-    }
-    setIsSigningUp(false);
-    setNewMember({
-      name: '',
-      nickname: '',
-      phone: '',
-      gender: '',
-      birthYear: '',
-      region: '',
-      isClubMember: '',
-      club: '',
-      handicap: '',
-      gaHandy: '',
-      houseHandy: '',
-      golflinkNumber: '',
-      clubMemberNumber: '',
-      photo: ''
-    });
-    setPhoneLastSix('');
-  };
-
   return (
-    <div style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
+    <div style={{
+      minHeight: '100dvh',
+      display: 'flex',
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      background: '#223B3F',
-      padding: '20px'
+      background: 'linear-gradient(160deg, #0047AB 0%, #1565c0 50%, #0d47a1 100%)',
+      padding: '24px 20px',
+      paddingTop: 'max(24px, env(safe-area-inset-top))',
+      paddingBottom: 'max(24px, env(safe-area-inset-bottom))',
     }}>
       <div style={{
-        background: 'var(--bg-card)',
-        border: '2px solid var(--border-color)',
-        borderRadius: '16px',
-        padding: '40px 30px',
+        background: '#fff',
+        borderRadius: 24,
+        padding: '36px 28px',
         width: '100%',
-        maxWidth: '400px'
+        maxWidth: '400px',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.20)',
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '32px' }}>
-          <img 
-            src={logoImage} 
-            alt="3355 골프 클럽 로고" 
-            style={{ 
-              width: '120px', 
-              height: '120px', 
-              marginBottom: '16px',
-              objectFit: 'cover',
-              borderRadius: '50%'
-            }} 
+        <div style={{ textAlign: 'center', marginBottom: '28px' }}>
+          <img
+            src={logoImage}
+            alt="3355 골프 클럽 로고"
+            style={{ width: 88, height: 88, marginBottom: 16, objectFit: 'cover', borderRadius: '50%', border: '3px solid #eff6ff' }}
           />
-          <h1 style={{ 
-            fontSize: '24px', 
-            color: 'var(--primary-green)',
-            marginBottom: '8px',
-            fontWeight: '700'
-          }}>
-            3355 골프 클럽
+          <h1 style={{ fontSize: 22, color: 'var(--on-background)', marginBottom: 6, fontWeight: 800, letterSpacing: '-0.03em' }}>
+            3355 골프모임
           </h1>
-          <p style={{ 
-            color: 'var(--primary-green)', 
-            fontSize: '20px',
-            fontFamily: "'Dancing Script', cursive",
-            fontWeight: '600',
-            fontStyle: 'italic'
-          }}>
+          <p style={{ color: 'var(--text-muted)', fontSize: 13, fontWeight: 500 }}>
             Love golf, Love people
           </p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: '20px' }}>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '8px',
-              fontSize: '14px',
-              fontWeight: '600'
-            }}>
+            <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
               전화번호 끝 6자리
             </label>
             <input
@@ -215,283 +103,40 @@ function Login({ onLogin }) {
               placeholder="예: 123456"
               maxLength={6}
               style={{
-                fontSize: '18px',
+                fontSize: 22,
                 textAlign: 'center',
-                letterSpacing: '2px'
+                letterSpacing: 4,
+                background: '#f8fafc',
+                border: '2px solid #e2e8f0',
+                borderRadius: 12,
+                padding: '14px',
+                fontWeight: 700,
               }}
             />
           </div>
 
           {error && (
-            <div className="error" style={{ marginBottom: '16px' }}>
+            <div style={{ background: '#fef2f2', border: '1px solid #fee2e2', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#dc2626', marginBottom: 14 }}>
               {error}
             </div>
           )}
 
-          <LoadingButton 
-            type="submit" 
-            className="btn-primary"
+          <LoadingButton
+            type="submit"
             loading={isLoggingIn}
             loadingText="로그인 중..."
-            style={{ width: '100%' }}
+            style={{ width: '100%', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 12, padding: '15px', fontSize: 16, fontWeight: 700, cursor: 'pointer' }}
           >
             로그인
           </LoadingButton>
         </form>
 
-        <button 
-          onClick={() => setShowSignup(!showSignup)}
-          style={{
-            width: '100%',
-            marginTop: '12px',
-            padding: '14px',
-            background: 'white',
-            color: 'var(--primary-green)',
-            borderBottom: '1px solid var(--primary-green)',
-            borderRadius: '8px',
-            fontSize: '16px',
-            fontWeight: '600',
-            cursor: 'pointer'
-          }}
+        <button
+          onClick={() => navigate('/join')}
+          style={{ width: '100%', marginTop: 12, padding: '14px', background: 'transparent', color: 'var(--text-muted)', border: 'none', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
         >
-          {showSignup ? '로그인으로 돌아가기' : '회원가입'}
+          처음이신가요? 회원가입 →
         </button>
-
-        {showSignup && (
-          <div style={{ 
-            marginTop: '24px',
-            padding: '20px',
-            background: 'var(--bg-card)',
-            border: '2px solid var(--border-color)',
-            borderRadius: '8px'
-          }}>
-            <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--primary-green)' }}>
-              새 회원 가입
-            </h3>
-            <input
-              type="text"
-              placeholder="이름"
-              value={newMember.name}
-              onChange={(e) => setNewMember({ ...newMember, name: e.target.value })}
-              style={{ marginBottom: '12px', width: '100%' }}
-            />
-            <input
-              type="text"
-              placeholder="대화명 (닉네임)"
-              value={newMember.nickname}
-              onChange={(e) => setNewMember({ ...newMember, nickname: e.target.value })}
-              style={{ marginBottom: '12px', width: '100%' }}
-            />
-            <input
-              type="tel"
-              inputMode="numeric"
-              placeholder="전화번호 (예: 0100 123 456)"
-              value={newMember.phone.replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3')}
-              onChange={(e) => {
-                const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
-                setNewMember({ ...newMember, phone: digits });
-              }}
-              maxLength={12}
-              style={{ marginBottom: '12px', width: '100%' }}
-            />
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', opacity: 0.7 }}>
-                사진 (본인)
-              </label>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                      const img = new Image();
-                      img.onload = () => {
-                        const canvas = document.createElement('canvas');
-                        const MAX_WIDTH = 400;
-                        const MAX_HEIGHT = 400;
-                        let width = img.width;
-                        let height = img.height;
-
-                        if (width > height) {
-                          if (width > MAX_WIDTH) {
-                            height *= MAX_WIDTH / width;
-                            width = MAX_WIDTH;
-                          }
-                        } else {
-                          if (height > MAX_HEIGHT) {
-                            width *= MAX_HEIGHT / height;
-                            height = MAX_HEIGHT;
-                          }
-                        }
-
-                        canvas.width = width;
-                        canvas.height = height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0, width, height);
-                        
-                        const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.7);
-                        setNewMember({ ...newMember, photo: compressedDataUrl });
-                      };
-                      img.src = event.target.result;
-                    };
-                    reader.readAsDataURL(file);
-                  }
-                }}
-                style={{ marginBottom: '8px', width: '100%' }}
-              />
-              {newMember.photo && (
-                <div style={{ marginTop: '8px' }}>
-                  <img 
-                    src={newMember.photo} 
-                    alt="미리보기" 
-                    style={{ 
-                      width: '100px', 
-                      height: '100px', 
-                      objectFit: 'cover', 
-                      borderRadius: '8px',
-                      border: '1px solid var(--border-color)'
-                    }} 
-                  />
-                </div>
-              )}
-            </div>
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                클럽 멤버이신가요?
-              </label>
-              <div style={{ display: 'flex', gap: '16px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                  <input
-                    type="radio"
-                    name="isClubMember"
-                    value="yes"
-                    checked={newMember.isClubMember === 'yes'}
-                    onChange={(e) => setNewMember({ ...newMember, isClubMember: e.target.value })}
-                  />
-                  <span>예</span>
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                  <input
-                    type="radio"
-                    name="isClubMember"
-                    value="no"
-                    checked={newMember.isClubMember === 'no'}
-                    onChange={(e) => setNewMember({ ...newMember, isClubMember: e.target.value })}
-                  />
-                  <span>아니오</span>
-                </label>
-              </div>
-            </div>
-            {newMember.isClubMember === 'yes' && (
-              <>
-                <select
-                  value={newMember.club}
-                  onChange={(e) => setNewMember({ ...newMember, club: e.target.value })}
-                  style={{ marginBottom: '12px', width: '100%' }}
-                >
-                  <option value="">소속 클럽 선택</option>
-                  {courses.map(course => (
-                    <option key={course.id} value={course.name}>
-                      {course.name}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="Golflink Number *"
-                  value={newMember.golflinkNumber}
-                  onChange={(e) => setNewMember({ ...newMember, golflinkNumber: e.target.value })}
-                  style={{ marginBottom: '12px', width: '100%' }}
-                />
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="클럽 회원번호 *"
-                  value={newMember.clubMemberNumber}
-                  onChange={(e) => setNewMember({ ...newMember, clubMemberNumber: e.target.value })}
-                  style={{ marginBottom: '12px', width: '100%' }}
-                />
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  placeholder="GA 핸디캡 *"
-                  value={newMember.gaHandy}
-                  onChange={(e) => setNewMember({ ...newMember, gaHandy: e.target.value })}
-                  style={{ marginBottom: '12px', width: '100%' }}
-                />
-              </>
-            )}
-            {newMember.isClubMember === 'no' && (
-              <input
-                type="number"
-                inputMode="numeric"
-                placeholder="핸디캡"
-                value={newMember.houseHandy}
-                onChange={(e) => setNewMember({ ...newMember, houseHandy: e.target.value })}
-                style={{ marginBottom: '12px', width: '100%' }}
-              />
-            )}
-            <div style={{ marginBottom: '12px' }}>
-              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
-                성별
-              </label>
-              <div style={{ display: 'flex', gap: '16px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="남"
-                    checked={newMember.gender === '남'}
-                    onChange={(e) => setNewMember({ ...newMember, gender: e.target.value })}
-                  />
-                  <span>남</span>
-                </label>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
-                  <input
-                    type="radio"
-                    name="gender"
-                    value="여"
-                    checked={newMember.gender === '여'}
-                    onChange={(e) => setNewMember({ ...newMember, gender: e.target.value })}
-                  />
-                  <span>여</span>
-                </label>
-              </div>
-            </div>
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="출생연도 (예: 1990)"
-              value={newMember.birthYear}
-              onChange={(e) => setNewMember({ ...newMember, birthYear: e.target.value })}
-              style={{ marginBottom: '12px', width: '100%' }}
-            />
-            <input
-              type="text"
-              placeholder="사는 지역 (예: Lidcombe, Ryde)"
-              value={newMember.region}
-              onChange={(e) => setNewMember({ ...newMember, region: e.target.value })}
-              style={{ marginBottom: '12px', width: '100%' }}
-            />
-            {error && (
-              <div className="error" style={{ marginBottom: '12px' }}>
-                {error}
-              </div>
-            )}
-            <LoadingButton 
-              onClick={handleSignup}
-              className="btn-primary"
-              loading={isSigningUp}
-              loadingText="가입 중..."
-              style={{ width: '100%' }}
-            >
-              가입하기
-            </LoadingButton>
-          </div>
-        )}
       </div>
     </div>
   );

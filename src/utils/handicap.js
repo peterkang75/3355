@@ -4,15 +4,46 @@
  */
 
 /**
+ * 회원의 실효 핸디캡을 반환
+ * 우선순위: GA (gaHandy + golflinkNumber) > HH (houseHandy) > 레거시 handicap 필드
+ * @param {Object} member - 회원 정보
+ * @returns {{ value: number|null, type: 'GA'|'HH'|null, display: string }}
+ */
+export function getEffectiveHandicap(member) {
+  if (!member) return { value: null, type: null, display: '-' };
+
+  // GA 우선: golflinkNumber가 있고 gaHandy가 있는 경우
+  const gaVal = parseFloat(member.gaHandy);
+  if (member.golflinkNumber && member.golflinkNumber.toString().trim() && !isNaN(gaVal)) {
+    return { value: gaVal, type: 'GA', display: `GA ${gaVal}` };
+  }
+
+  // House Handicap
+  const hhVal = parseFloat(member.houseHandy);
+  if (!isNaN(hhVal)) {
+    return { value: hhVal, type: 'HH', display: `HH ${hhVal}` };
+  }
+
+  // 레거시 handicap 필드 (이전 데이터 호환)
+  const legacyVal = parseFloat(member.handicap);
+  if (!isNaN(legacyVal)) {
+    const type = member.golflinkNumber ? 'GA' : 'HH';
+    return { value: legacyVal, type, display: `${type} ${legacyVal}` };
+  }
+
+  return { value: null, type: null, display: '-' };
+}
+
+/**
  * 회원의 추천핸디 계산
- * @param {Object} member - 회원 정보 (golflinkNumber, handicap 포함)
+ * @param {Object} member - 회원 정보 (golflinkNumber, gaHandy, houseHandy, handicap 포함)
  * @param {Array} rounds - 스코어 기록
  * @returns {Object} { value: 핸디값, explanation: 계산설명 }
  */
 export function calculateHandicap(member, rounds) {
-  // GA (Golflink Number가 있는 회원)
-  if (member?.golflinkNumber && member.golflinkNumber.trim()) {
-    const gaHandicap = parseFloat(member.handicap) || 0;
+  // GA (Golflink Number가 있는 회원): gaHandy 우선, 없으면 handicap 레거시
+  if (member?.golflinkNumber && member.golflinkNumber.toString().trim()) {
+    const gaHandicap = parseFloat(member.gaHandy) || parseFloat(member.handicap) || 0;
     return {
       value: gaHandicap,
       type: 'GA',

@@ -114,11 +114,14 @@ router.post("/verify-round", requireAuth, async (req, res) => {
       },
     });
 
-    if (!teammateScore) {
+    // 본인 self-entry가 없으면 미준비로 판단
+    // (마커가 auto-save로 심어놓은 레코드만 있는 경우도 TEAMMATE_NOT_READY)
+    const isTeammateSelfEntry = teammateScore && teammateScore.markerId === teammateScore.userId;
+    if (!isTeammateSelfEntry) {
       return res.json({
         success: false,
         error: "TEAMMATE_NOT_READY",
-        message: "팀메이트가 아직 스코어를 입력하지 않았습니다.",
+        message: "팀메이트가 아직 본인 스코어를 입력하지 않았습니다.",
       });
     }
 
@@ -250,6 +253,19 @@ router.post("/", requireAuth, async (req, res) => {
         verificationSuccess: true,
         message: "스코어가 검증되었습니다.",
       });
+    }
+
+    // 마커 입력인 경우, 본인 self-entry가 이미 존재하면 덮어쓰기 금지
+    // (3인 순환마킹 race condition 방지: 마커 auto-save가 본인 입력을 덮어쓰는 문제)
+    if (!isSelfEntry) {
+      const existing = await prisma.score.findUnique({
+        where: { userId_date_roundingName: { userId: memberId, date, roundingName: roundingName || "" } },
+        select: { markerId: true, userId: true },
+      });
+      if (existing && existing.markerId === existing.userId) {
+        // 본인 self-entry 존재 → 마커 입력으로 덮어쓰기 차단
+        return res.json({ success: true, selfEntryPreserved: true });
+      }
     }
 
     const score = await prisma.score.upsert({

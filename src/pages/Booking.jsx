@@ -321,31 +321,12 @@ function Booking() {
 
   const handleJoinBooking = async (bookingId) => {
     if (isJoining === bookingId) return;
-    
     setIsJoining(bookingId);
     try {
-      const booking = bookings.find(b => b.id === bookingId);
-      const participants = parseParticipants(booking.participants);
-      const alreadyJoined = participants.some(p => p.phone === user.phone);
-      
-      if (alreadyJoined) {
-        const updatedParticipants = participants
-          .filter(p => p.phone !== user.phone)
-          .map(p => JSON.stringify(p));
-        
-        await updateBooking(bookingId, {
-          participants: updatedParticipants
-        });
-      } else {
-        const updatedParticipants = [
-          ...participants,
-          { name: user.name, nickname: user.nickname, phone: user.phone }
-        ].map(p => JSON.stringify(p));
-        
-        await updateBooking(bookingId, {
-          participants: updatedParticipants
-        });
-      }
+      await apiService.toggleJoinBooking(bookingId);
+      await refreshBookings();
+    } catch (e) {
+      alert(e.message || '참가 처리 중 오류가 발생했습니다.');
     } finally {
       setIsJoining(null);
     }
@@ -581,7 +562,7 @@ function Booking() {
             )}
           </span>
         }
-        rightContent={<ProfileBadge user={user} showGreeting={true} />}
+        user={user}
       />
 
       <div className="page-content" style={{ background: theme.colors.bg_app }}>

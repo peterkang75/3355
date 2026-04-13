@@ -1,6 +1,5 @@
 import React, { memo } from 'react';
 import { Badge, Button } from '../common';
-import theme from '../../styles/theme';
 import { formatCurrency as defaultFormatCurrency } from '../../utils';
 
 const BookingListCard = memo(function BookingListCard({

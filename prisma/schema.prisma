@@ -23,6 +23,7 @@ model Member {
   golflinkNumber   String?
   clubMemberNumber String?
   isAdmin          Boolean   @default(false)
+  isGuest          Boolean   @default(false)
   role             String    @default("회원")
   balance          Int       @default(0)
   photo            String?
@@ -54,9 +55,10 @@ model Post {
   author    Member   @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments  Json     @default("[]")
   likes     Json     @default("[]")
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  isActive    Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@index([authorId])
 }
@@ -88,6 +90,8 @@ model Booking {
   useSquadWaitlist     Boolean  @default(false)
   votingEnabled        Boolean  @default(true)
   is2BB                Boolean  @default(false)
+  isRecruiting         Boolean  @default(false)
+  inviteToken          String?  @unique
   isSocial             Boolean  @default(false)
   maxMembers           Int      @default(4)
   teams                Json?
@@ -147,6 +151,20 @@ model Transaction {
   @@index([createdBy])
   @@index([type])
   @@index([date])
+}
+
+model MonthlySettlement {
+  id          String    @id @default(cuid())
+  yearMonth   String    @unique  // "2026-04"
+  carryover   Int       @default(0)  // 전달 이월금
+  isClosed    Boolean   @default(false)
+  closedAt    DateTime?
+  closedBy    String?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([yearMonth])
 }
 
 model Score {
