@@ -27,7 +27,7 @@ function RoundingListV2() {
   const [isJoining, setIsJoining] = useState(false);
   const [isRentalLoading, setIsRentalLoading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
-  const [showAllMyBookings, setShowAllMyBookings] = useState(false);
+  const [myBookingsExpanded, setMyBookingsExpanded] = useState(false);
   const sheetRef = useRef(null);
 
   // ── Host Manage state ──────────────────────────────────────────────────────
@@ -483,8 +483,11 @@ function RoundingListV2() {
         {/* ── 나의 라운딩 (컴팩트 컬러 카드) ──────────────────────────────── */}
         <div style={{ marginBottom: '20px' }}>
           <div style={{ borderRadius: '14px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1px solid #dbe6f7' }}>
-            {/* 컬러 타이틀 헤더 */}
-            <div style={{ background: 'linear-gradient(135deg, #0047AB 0%, #1A6FD4 100%)', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            {/* 컬러 타이틀 헤더 (클릭 시 펼침/접힘 토글) */}
+            <div
+              onClick={() => setMyBookingsExpanded(v => !v)}
+              style={{ background: 'linear-gradient(135deg, #0047AB 0%, #1A6FD4 100%)', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', WebkitTapHighlightColor: 'transparent', userSelect: 'none' }}
+            >
               <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
                 <span style={{ fontSize: '14px', fontWeight: '800', color: '#fff', letterSpacing: '-0.01em' }}>나의 라운딩</span>
                 {myBookings.length > 0 && (
@@ -493,56 +496,49 @@ function RoundingListV2() {
                   </span>
                 )}
               </div>
-              <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)' }}>＋ 버튼으로 개설</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.65)' }}>＋ 버튼으로 개설</span>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                  style={{ transform: myBookingsExpanded ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+                  <polyline points="6 9 12 15 18 9"/>
+                </svg>
+              </div>
             </div>
 
-            {/* 리스트 */}
-            <div style={{ background: '#fff' }}>
-              {myBookings.length === 0 ? (
-                <div style={{ padding: '12px 14px', textAlign: 'center', fontSize: '13px', color: '#9CA3AF' }}>예정된 라운딩이 없습니다</div>
-              ) : (() => {
-                const visibleBookings = showAllMyBookings ? myBookings : myBookings.slice(0, 3);
-                return (
-                  <>
-                    {visibleBookings.map((b, idx) => {
-                      const parts = parseParticipants(b.participants);
-                      const names = parts.map(p => p.nickname || p.name);
-                      const summary = names.length <= 3 ? names.join(', ') : `${names.slice(0, 3).join(', ')} 외 ${names.length - 3}명`;
-                      const d = new Date(b.date);
-                      const days2 = ['일', '월', '화', '수', '목', '금', '토'];
-                      return (
-                        <div key={b.id} onClick={() => setSelectedBooking(b)}
-                          style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 14px', cursor: 'pointer', borderTop: idx === 0 ? 'none' : '1px solid #F3F4F6' }}>
-                          <div style={{ minWidth: '32px', textAlign: 'center', flexShrink: 0 }}>
-                            <div style={{ fontSize: '16px', fontWeight: '700', color: '#0047AB', lineHeight: 1 }}>{d.getDate()}</div>
-                            <div style={{ fontSize: '10px', color: '#9CA3AF', marginTop: '1px' }}>{days2[d.getDay()]}</div>
-                          </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: '13px', fontWeight: '600', color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {b.title || b.courseName}
-                            </div>
-                            <div style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.courseName} · {summary}</div>
-                          </div>
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                            <polyline points="9 18 15 12 9 6"/>
-                          </svg>
+            {/* 리스트 — 펼쳐진 경우에만 */}
+            {myBookingsExpanded && (
+              <div style={{ background: '#fff' }}>
+                {myBookings.length === 0 ? (
+                  <div style={{ padding: '12px 14px', textAlign: 'center', fontSize: '13px', color: '#9CA3AF' }}>예정된 라운딩이 없습니다</div>
+                ) : (
+                  myBookings.map((b, idx) => {
+                    const parts = parseParticipants(b.participants);
+                    const names = parts.map(p => p.nickname || p.name);
+                    const summary = names.length <= 3 ? names.join(', ') : `${names.slice(0, 3).join(', ')} 외 ${names.length - 3}명`;
+                    const d = new Date(b.date);
+                    const days2 = ['일', '월', '화', '수', '목', '금', '토'];
+                    return (
+                      <div key={b.id} onClick={() => setSelectedBooking(b)}
+                        style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 14px', cursor: 'pointer', borderTop: idx === 0 ? 'none' : '1px solid #F3F4F6' }}>
+                        <div style={{ minWidth: '32px', textAlign: 'center', flexShrink: 0 }}>
+                          <div style={{ fontSize: '16px', fontWeight: '700', color: '#0047AB', lineHeight: 1 }}>{d.getDate()}</div>
+                          <div style={{ fontSize: '10px', color: '#9CA3AF', marginTop: '1px' }}>{days2[d.getDay()]}</div>
                         </div>
-                      );
-                    })}
-                    {myBookings.length > 3 && (
-                      <div onClick={() => setShowAllMyBookings(!showAllMyBookings)}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px', padding: '9px', borderTop: '1px solid #F3F4F6', cursor: 'pointer', fontSize: '12px', fontWeight: '600', color: '#6B7280' }}>
-                        {showAllMyBookings ? '접기' : `더보기 (${myBookings.length - 3}개 더)`}
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                          style={{ transform: showAllMyBookings ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
-                          <polyline points="6 9 12 15 18 9"/>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: '13px', fontWeight: '600', color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {b.title || b.courseName}
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#9CA3AF', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.courseName} · {summary}</div>
+                        </div>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                          <polyline points="9 18 15 12 9 6"/>
                         </svg>
                       </div>
-                    )}
-                  </>
-                );
-              })()}
-            </div>
+                    );
+                  })
+                )}
+              </div>
+            )}
           </div>
         </div>
 
