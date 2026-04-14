@@ -220,10 +220,10 @@ function PickWinner() {
   };
 
   const getGradeRangeLabel = (grade) => {
-    if (!booking || !booking.gradeSettings) return '';
-    const gs = typeof booking.gradeSettings === 'string'
-      ? (() => { try { return JSON.parse(booking.gradeSettings); } catch { return null; } })()
-      : booking.gradeSettings;
+    if (!selectedBooking || !selectedBooking.gradeSettings) return '';
+    const gs = typeof selectedBooking.gradeSettings === 'string'
+      ? (() => { try { return JSON.parse(selectedBooking.gradeSettings); } catch { return null; } })()
+      : selectedBooking.gradeSettings;
     if (!gs) return '';
     const fmtBound = (g) => {
       if (!g) return '';

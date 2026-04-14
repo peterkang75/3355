@@ -229,8 +229,23 @@ router.post("/complete", requireAuth, async (req, res) => {
   }
 });
 
-router.delete("/member/:memberId/:date/:roundingName", async (req, res) => {
-  res.status(403).json({ error: "스코어 삭제가 비활성화되었습니다. 스코어는 삭제할 수 없습니다." });
+router.delete("/member/:memberId/:date/:roundingName", requireAuth, requireOperator, async (req, res) => {
+  try {
+    const { memberId, date, roundingName } = req.params;
+    await prisma.score.delete({
+      where: {
+        userId_date_roundingName: {
+          userId: decodeURIComponent(memberId),
+          date: decodeURIComponent(date),
+          roundingName: decodeURIComponent(roundingName),
+        },
+      },
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting member scores:", error);
+    res.status(500).json({ error: "Failed to delete member scores" });
+  }
 });
 
 router.post("/", requireAuth, async (req, res) => {
@@ -443,12 +458,30 @@ router.put("/:id", requireAuth, requireOperator, async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
-  res.status(403).json({ error: "스코어 삭제가 비활성화되었습니다. 스코어는 삭제할 수 없습니다." });
+router.delete("/:id", requireAuth, requireOperator, async (req, res) => {
+  try {
+    await prisma.score.delete({ where: { id: req.params.id } });
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting score:", error);
+    res.status(500).json({ error: "Failed to delete score" });
+  }
 });
 
-router.delete("/booking/:date/:courseName", async (req, res) => {
-  res.status(403).json({ error: "스코어 삭제가 비활성화되었습니다. 스코어는 삭제할 수 없습니다." });
+router.delete("/booking/:date/:courseName", requireAuth, requireOperator, async (req, res) => {
+  try {
+    const { date, courseName } = req.params;
+    await prisma.score.deleteMany({
+      where: {
+        date: decodeURIComponent(date),
+        courseName: decodeURIComponent(courseName),
+      },
+    });
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting booking scores:", error);
+    res.status(500).json({ error: "Failed to delete booking scores" });
+  }
 });
 
 // 포썸 파트너 스코어 동기화 (관리자용)
