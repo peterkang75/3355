@@ -44,9 +44,11 @@ router.get("/by-rounding/:roundingName", async (req, res) => {
       select: {
         id: true,
         userId: true,
+        markerId: true,
         totalScore: true,
         coursePar: true,
         holes: true,
+        markerHoles: true,
         courseName: true,
         date: true,
         user: {

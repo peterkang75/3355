@@ -33,6 +33,7 @@ function Play() {
   const [showEndRoundModal, setShowEndRoundModal] = useState(false);
   const [isEndingRound, setIsEndingRound] = useState(false);
   const [showHoleSelector, setShowHoleSelector] = useState(false);
+  const [peerScores, setPeerScores] = useState({ teammateSelf: null, myByTeammate: null });
   const [screenSize, setScreenSize] = useState(() => ({
     width: typeof window !== 'undefined' ? window.innerWidth : 400,
     height: typeof window !== 'undefined' ? window.innerHeight : 800
@@ -896,6 +897,77 @@ function Play() {
     socket.on('scores:updated', onScoresUpdated);
     return () => { socket.off('scores:updated', onScoresUpdated); };
   }, [socket, step, checkTeammateScores]);
+
+  // 라운딩 중 상대 스코어 주기 fetch (홀별 불일치 실시간 감지용)
+  // - 소켓 이벤트로 즉시 재호출
+  // - 15초 polling을 백업으로 병행 (소켓 연결 끊김 대비)
+  const fetchPeerScores = useCallback(async () => {
+    if (!booking?.title || !selectedTeammate) return;
+    const teammateMemberId = getTeammateMemberId();
+    if (!teammateMemberId || !effectiveUserId) return;
+    try {
+      const res = await fetch(`/api/scores/by-rounding/${encodeURIComponent(booking.title)}`, {
+        headers: getAuthHeaders(),
+      });
+      if (!res.ok) return;
+      const all = await res.json();
+      const myRow = all.find(s => s.userId === effectiveUserId);
+      const tmRow = all.find(s => s.userId === teammateMemberId);
+      const parse = (v) => {
+        if (!v) return null;
+        try { return typeof v === 'string' ? JSON.parse(v) : v; } catch { return null; }
+      };
+      // teammateSelf: 팀메이트 본인이 기록한 자기 점수 (markerId === userId인 경우만 유효)
+      const teammateSelf = tmRow && tmRow.markerId === tmRow.userId ? parse(tmRow.holes) : null;
+      // myByTeammate: 팀메이트가 기록한 내 점수 (markerHoles 필드)
+      const myByTeammate = parse(myRow?.markerHoles);
+      setPeerScores({ teammateSelf, myByTeammate });
+    } catch (e) {
+      // 네트워크 오류는 조용히 무시 (다음 polling에서 재시도)
+    }
+  }, [booking, selectedTeammate, getTeammateMemberId, effectiveUserId]);
+
+  useEffect(() => {
+    if (!booking || !selectedTeammate || step === 'selectMember') return;
+    fetchPeerScores();
+    const interval = setInterval(fetchPeerScores, 15000);
+    return () => clearInterval(interval);
+  }, [booking, selectedTeammate, step, fetchPeerScores]);
+
+  useEffect(() => {
+    if (!socket) return;
+    const onScoresUpdated = () => { fetchPeerScores(); };
+    socket.on('scores:updated', onScoresUpdated);
+    return () => { socket.off('scores:updated', onScoresUpdated); };
+  }, [socket, fetchPeerScores]);
+
+  // 홀별 불일치 판정
+  // 규칙: 한 홀에 대해 두 쌍(내 self ↔ 팀메이트가 본 나 / 팀메이트 self ↔ 내가 본 팀메이트)
+  // 중 어느 하나라도 "양쪽 모두 >0이고 값이 다름"이면 불일치.
+  // 한쪽이 미입력(0)인 쌍은 대기 상태로 취급 (판정 제외).
+  const mismatchHoles = useMemo(() => {
+    const result = [];
+    const { teammateSelf, myByTeammate } = peerScores;
+    const mySelf = holeScores.me;
+    const teammateByMe = holeScores.teammate;
+    for (let i = 0; i < 18; i++) {
+      let bad = false;
+      // 방향 1: 내 self vs 팀메이트가 본 나
+      if (myByTeammate) {
+        const a = mySelf?.[i] || 0;
+        const b = myByTeammate[i] || 0;
+        if (a > 0 && b > 0 && a !== b) bad = true;
+      }
+      // 방향 2: 팀메이트 self vs 내가 본 팀메이트
+      if (!bad && teammateSelf) {
+        const c = teammateSelf[i] || 0;
+        const d = teammateByMe?.[i] || 0;
+        if (c > 0 && d > 0 && c !== d) bad = true;
+      }
+      if (bad) result.push(i + 1);
+    }
+    return result;
+  }, [peerScores, holeScores]);
 
   // 모달 상태 ref 동기화 (스와이프 핸들러에서 사용)
   useEffect(() => {
@@ -2144,28 +2216,43 @@ function Play() {
               gridTemplateColumns: 'repeat(6, 1fr)', 
               gap: '8px'
             }}>
-              {Array.from({ length: 18 }, (_, i) => i + 1).map(hole => (
-                <button
-                  key={hole}
-                  onClick={() => {
-                    setCurrentHole(hole);
-                    setShowHoleSelector(false);
-                  }}
-                  style={{
-                    padding: '12px 8px',
-                    background: currentHole === hole ? '#4a9d6a' : 'rgba(255,255,255,0.1)',
-                    color: 'white',
-                    border: currentHole === hole ? '2px solid #4a9d6a' : '2px solid rgba(255,255,255,0.2)',
-                    borderRadius: '8px',
-                    fontSize: '16px',
-                    fontWeight: '700',
-                    cursor: 'pointer',
-                    WebkitTapHighlightColor: 'transparent'
-                  }}
-                >
-                  {hole}
-                </button>
-              ))}
+              {Array.from({ length: 18 }, (_, i) => i + 1).map(hole => {
+                const isCurrent = currentHole === hole;
+                const isMismatch = mismatchHoles.includes(hole);
+                // 현재 홀은 기존 초록 스타일 유지. 불일치 홀은 배경 빨강.
+                const bg = isCurrent
+                  ? '#4a9d6a'
+                  : isMismatch
+                    ? '#e74c3c'
+                    : 'rgba(255,255,255,0.1)';
+                const borderColor = isCurrent
+                  ? '#4a9d6a'
+                  : isMismatch
+                    ? '#e74c3c'
+                    : 'rgba(255,255,255,0.2)';
+                return (
+                  <button
+                    key={hole}
+                    onClick={() => {
+                      setCurrentHole(hole);
+                      setShowHoleSelector(false);
+                    }}
+                    style={{
+                      padding: '12px 8px',
+                      background: bg,
+                      color: 'white',
+                      border: `2px solid ${borderColor}`,
+                      borderRadius: '8px',
+                      fontSize: '16px',
+                      fontWeight: '700',
+                      cursor: 'pointer',
+                      WebkitTapHighlightColor: 'transparent'
+                    }}
+                  >
+                    {hole}
+                  </button>
+                );
+              })}
             </div>
             <button
               onClick={() => setShowHoleSelector(false)}
