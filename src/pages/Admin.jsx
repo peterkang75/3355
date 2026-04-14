@@ -6501,11 +6501,11 @@ function Admin() {
             )}
 
             {scoreManagementView === 'scorecard' && selectedPlayerForScore && (
-              <div style={{ background: '#1a1a2e', minHeight: '100vh', margin: '-16px', padding: '16px' }}>
-                <div style={{ 
-                  display: 'flex', 
+              <div style={{ background: '#001A3D', minHeight: '100vh', margin: '-16px', padding: '32px 16px 16px' }}>
+                <div style={{
+                  display: 'flex',
                   justifyContent: 'space-between',
-                  alignItems: 'center', 
+                  alignItems: 'center',
                   marginBottom: '16px'
                 }}>
                   <button
@@ -6557,15 +6557,30 @@ function Admin() {
                         수정
                       </button>
                       <button
-                        onClick={() => {
-                          alert('스코어는 삭제할 수 없습니다.');
+                        onClick={async () => {
+                          if (!selectedPlayerForScore?.id) return;
+                          if (!confirm('이 스코어를 삭제하시겠습니까?\n삭제 후에는 되돌릴 수 없습니다.')) return;
+                          try {
+                            const res = await fetch(`/api/scores/${selectedPlayerForScore.id}`, { method: 'DELETE' });
+                            if (!res.ok) {
+                              alert('삭제에 실패했습니다.');
+                              return;
+                            }
+                            setRoundScores(prev => prev.filter(s => s.id !== selectedPlayerForScore.id));
+                            setScoreManagementView('leaderboard');
+                            setSelectedPlayerForScore(null);
+                            alert('스코어가 삭제되었습니다.');
+                          } catch (e) {
+                            console.error('스코어 삭제 실패:', e);
+                            alert('삭제에 실패했습니다.');
+                          }
                         }}
                         style={{
-                          background: '#ccc',
+                          background: '#dc3545',
                           border: 'none',
                           borderRadius: '6px',
                           padding: '8px 16px',
-                          color: '#999',
+                          color: 'white',
                           fontSize: '14px',
                           fontWeight: '600',
                           cursor: 'pointer'
