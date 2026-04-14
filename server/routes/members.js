@@ -94,11 +94,31 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", requireAuth, requireOperator, async (req, res) => {
+router.put("/:id", requireAuth, async (req, res) => {
+  // 자기 자신은 수정 가능, 타인 수정은 운영진 이상만 가능
+  const isSelf = req.member.id === req.params.id;
+  const { isOperator } = require('../utils/roles');
+  if (!isSelf && !isOperator(req.member)) {
+    return res.status(403).json({ error: '운영진 이상 권한이 필요합니다.' });
+  }
+
   try {
+    // 일반 회원이 자신의 정보를 수정할 때는 허용된 필드만 수정 가능
+    let data = req.body;
+    if (isSelf && !isOperator(req.member)) {
+      const { name, nickname, phone, club, gaHandy, houseHandy, handicap,
+              golflinkNumber, clubMemberNumber, photo, gender, birthYear,
+              region, isClubMember } = req.body;
+      data = { name, nickname, phone, club, gaHandy, houseHandy, handicap,
+               golflinkNumber, clubMemberNumber, photo, gender, birthYear,
+               region, isClubMember };
+      // undefined 필드 제거
+      Object.keys(data).forEach(k => data[k] === undefined && delete data[k]);
+    }
+
     const member = await prisma.member.update({
       where: { id: req.params.id },
-      data: req.body,
+      data,
     });
     req.io.emit("members:updated");
     res.json(member);
