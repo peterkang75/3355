@@ -219,6 +219,36 @@ function PickWinner() {
     return counts;
   };
 
+  const getGradeRangeLabel = (grade) => {
+    if (!booking || !booking.gradeSettings) return '';
+    const gs = typeof booking.gradeSettings === 'string'
+      ? (() => { try { return JSON.parse(booking.gradeSettings); } catch { return null; } })()
+      : booking.gradeSettings;
+    if (!gs) return '';
+    const fmtBound = (g) => {
+      if (!g) return '';
+      if (g.value !== '' && g.value !== null && g.value !== undefined) {
+        const v = g.value;
+        return g.type === 'below' ? `~${v}` : `${v}~`;
+      }
+      return '';
+    };
+    const fmtRange = (g) => {
+      if (!g) return '';
+      const minOk = g.min !== '' && g.min !== null && g.min !== undefined;
+      const maxOk = g.max !== '' && g.max !== null && g.max !== undefined;
+      if (minOk && maxOk) return `${g.min}-${g.max}`;
+      if (minOk) return `${g.min}~`;
+      if (maxOk) return `~${g.max}`;
+      return '';
+    };
+    if (grade === 'A') return fmtBound(gs.gradeA);
+    if (grade === 'B') return fmtRange(gs.gradeB);
+    if (grade === 'C') return fmtRange(gs.gradeC);
+    if (grade === 'D') return fmtBound(gs.gradeD);
+    return '';
+  };
+
   const handleSelect = (grade, memberId) => {
     if (hasVoted && !isEditing) return;
     setPredictions(prev => ({
@@ -762,6 +792,9 @@ function PickWinner() {
                         {grade}
                       </div>
                       <span style={{ fontWeight: '600' }}>그레이드 {grade}</span>
+                      {getGradeRangeLabel(grade) && (
+                        <span style={{ fontSize: '12px', color: '#666', fontWeight: '500' }}>({getGradeRangeLabel(grade)})</span>
+                      )}
                     </div>
 
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -1060,6 +1093,9 @@ function PickWinner() {
                   {grade}
                 </div>
                 <span style={{ fontWeight: '600' }}>그레이드 {grade}</span>
+                {getGradeRangeLabel(grade) && (
+                  <span style={{ fontSize: '12px', color: '#666', fontWeight: '500' }}>({getGradeRangeLabel(grade)})</span>
+                )}
                 <span style={{ fontSize: '12px', color: '#888' }}>({participants.length}명)</span>
               </div>
 
