@@ -1815,8 +1815,12 @@ function Play() {
     const btnSize = s(68, 56);
 
     // 여성 회원 스코어 버튼은 Azure Blue 대신 깊은 red(#B91C1C)로 표시
+    // selectedTeammate 객체에는 gender가 없을 수 있으므로 members 배열에서도 조회
+    const teammateMemberRecord = isTeammate
+      ? members?.find(m => m.phone === selectedTeammate?.phone || m.id === selectedTeammate?.id)
+      : null;
     const isFemale = isTeammate
-      ? selectedTeammate?.gender === 'F'
+      ? (teammateMemberRecord?.gender === 'F' || selectedTeammate?.gender === 'F')
       : user?.gender === 'F';
     const accent = isFemale ? '#B91C1C' : '#0047AB';
     const accentShadowSm = isFemale ? 'rgba(185,28,28,0.10)' : 'rgba(0,71,171,0.10)';
@@ -1889,10 +1893,10 @@ function Play() {
 
             {/* 스코어 숫자 */}
             <div style={{
-              fontSize: s(66, 54), fontWeight: 900,
+              fontSize: s(56, 46), fontWeight: 800,
               color: score > 0 ? '#111827' : '#D1D5DB',
-              lineHeight: 1, minWidth: s(76, 62), textAlign: 'center',
-              letterSpacing: '-0.04em',
+              lineHeight: 1, minWidth: s(68, 56), textAlign: 'center',
+              letterSpacing: '-0.03em',
             }}>
               {score}
             </div>
@@ -1934,24 +1938,23 @@ function Play() {
           display: 'flex', alignItems: 'center',
           gap: s(7,5),
         }}>
-          {/* PAR 흰색 박스 (가장 넓음) */}
+          {/* PAR 흰색 박스 */}
           <button
             onClick={handleParClick}
             style={{
               ...btnBase,
               ...whiteBox,
-              flex: 2,
+              flex: 1.4,
               flexDirection: 'row',
               alignItems: 'center',
-              justifyContent: 'flex-start',
-              padding: `${s(10,8)}px ${s(12,10)}px`,
-              gap: s(10,8),
+              justifyContent: 'center',
+              padding: `${s(8,6)}px ${s(10,8)}px`,
               height: s(82,70),
             }}
           >
             <div style={{
               background: '#0047AB', borderRadius: s(10,8),
-              width: s(52,44), height: s(52,44), flexShrink: 0,
+              width: '100%', height: s(58,50), flexShrink: 0,
               display: 'flex', flexDirection: 'column',
               alignItems: 'center', justifyContent: 'center',
             }}>
@@ -1967,7 +1970,7 @@ function Play() {
               style={{
                 ...btnBase,
                 ...whiteBox,
-                width: s(60,50), height: s(82,70),
+                width: s(72,60), height: s(82,70),
                 gap: s(4,3),
                 flexShrink: 0,
               }}
@@ -1986,7 +1989,7 @@ function Play() {
             </button>
           ) : (
             // NTP 홀 아닐때: 빈 자리 유지 (레이아웃 일관성)
-            <div style={{ ...whiteBox, width: s(60,50), height: s(82,70), flexShrink: 0, opacity: 0 }} />
+            <div style={{ ...whiteBox, width: s(72,60), height: s(82,70), flexShrink: 0, opacity: 0 }} />
           )}
 
           {/* TOTAL 흰색 박스 */}
@@ -2135,14 +2138,7 @@ function Play() {
 
           {/* 우: 저장상태 + Leaderboard + (18홀) 점수확인 */}
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, minWidth: s(70,60) }}>
-            {saveStatus !== 'idle' && (
-              <div style={{
-                fontSize: s(9,8), fontWeight: 600,
-                color: saveStatus === 'saved' ? '#6ee7b7' : saveStatus === 'saving' ? '#fcd34d' : saveStatus === 'queued' ? '#fb923c' : '#fca5a5',
-              }}>
-                {saveStatus === 'saved' ? '✓ 저장됨' : saveStatus === 'saving' ? '저장 중…' : saveStatus === 'queued' ? '⚡ 오프라인' : '⚠ 실패'}
-              </div>
-            )}
+            {/* 저장 상태 라벨 제거 — 헤더 높이 흔들림 방지 (내부 저장 로직은 그대로) */}
             <button
               onClick={() => navigate(`/leaderboard?id=${bookingId}`)}
               style={{ background: 'none', border: 'none', color: '#fff', fontSize: s(13,12), fontWeight: 700, cursor: 'pointer', padding: 0, WebkitTapHighlightColor: 'transparent', textAlign: 'right' }}
