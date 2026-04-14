@@ -10,12 +10,6 @@ const ChevronLeftIcon = () => (
   </svg>
 );
 
-const BellIcon = () => (
-  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
-  </svg>
-);
-
 // 루트 페이지에서 사용하는 대시보드형 헤더
 function RootHeader({ title, user, rightContent }) {
   return (
@@ -31,23 +25,28 @@ function RootHeader({ title, user, rightContent }) {
       zIndex: 200,
       boxShadow: '0 1px 0 rgba(0,71,171,0.07)',
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        {user && <ProfileBadge user={user} size={34} />}
-        <span style={{
-          fontSize: 17,
-          fontWeight: 800,
-          color: 'var(--on-background)',
-          letterSpacing: '-0.03em',
-        }}>
-          {title}
-        </span>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+      <span style={{
+        fontSize: 17,
+        fontWeight: 800,
+        color: 'var(--on-background)',
+        letterSpacing: '-0.03em',
+      }}>
+        {title}
+      </span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         {rightContent}
         {user && (
-          <button style={{ background: 'none', border: 'none', padding: 6, cursor: 'pointer', color: 'var(--text-muted)', opacity: 0.65, display: 'flex', alignItems: 'center' }}>
-            <BellIcon />
-          </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+            <span style={{
+              fontSize: 14,
+              fontWeight: 600,
+              color: 'var(--on-background)',
+              letterSpacing: '-0.02em',
+            }}>
+              {user.nickname || user.name}
+            </span>
+            <ProfileBadge user={user} size={34} />
+          </div>
         )}
       </div>
     </div>
