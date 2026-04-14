@@ -1814,6 +1814,14 @@ function Play() {
     };
     const btnSize = s(68, 56);
 
+    // 여성 회원 스코어 버튼은 Azure Blue 대신 깊은 red(#B91C1C)로 표시
+    const isFemale = isTeammate
+      ? selectedTeammate?.gender === 'F'
+      : user?.gender === 'F';
+    const accent = isFemale ? '#B91C1C' : '#0047AB';
+    const accentShadowSm = isFemale ? 'rgba(185,28,28,0.10)' : 'rgba(0,71,171,0.10)';
+    const accentShadowLg = isFemale ? 'rgba(185,28,28,0.35)' : 'rgba(0,71,171,0.35)';
+
     // 흰색 박스 공통 스타일
     const whiteBox = {
       background: '#fff',
@@ -1869,11 +1877,11 @@ function Play() {
                 width: btnSize, height: btnSize, border: 'none',
                 borderRadius: s(18, 15),
                 background: '#fff',
-                outline: `2.5px solid #0047AB`,
-                color: '#0047AB',
+                outline: `2.5px solid ${accent}`,
+                color: accent,
                 fontSize: s(28, 24), fontWeight: 700,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 2px 8px rgba(0,71,171,0.10)',
+                boxShadow: `0 2px 8px ${accentShadowSm}`,
               }}
             >
               −
@@ -1896,11 +1904,11 @@ function Play() {
                 ...btnBase,
                 width: btnSize, height: btnSize, border: 'none',
                 borderRadius: s(18, 15),
-                background: '#0047AB',
+                background: accent,
                 color: '#fff',
                 fontSize: s(28, 24), fontWeight: 700,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 4px 14px rgba(0,71,171,0.35)',
+                boxShadow: `0 4px 14px ${accentShadowLg}`,
               }}
             >
               +
@@ -1949,10 +1957,6 @@ function Play() {
             }}>
               <div style={{ fontSize: s(10,8), fontWeight: 700, color: 'rgba(255,255,255,0.75)', letterSpacing: '0.04em', lineHeight: 1 }}>PAR</div>
               <div style={{ fontSize: s(22,18), fontWeight: 900, color: '#fff', lineHeight: 1.1 }}>{par || '—'}</div>
-            </div>
-            <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: s(16,14), fontWeight: 800, color: '#1E293B', lineHeight: 1.2, letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>PAR {par || '—'}</div>
-              <div style={{ fontSize: s(11,10), color: '#94A3B8', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>HOLE PAR</div>
             </div>
           </button>
 
