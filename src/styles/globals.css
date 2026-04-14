@@ -4,18 +4,20 @@
   box-sizing: border-box;
 }
 
-/* iOS PWA standalone 모드에서 시스템 텍스트 크기 설정이 폰트를 키우는 것 차단 */
+/* iOS PWA standalone 모드에서 시스템 폰트 크기 설정(Dynamic Type) 차단
+   - font-size: 16px 고정 → rem 단위 모두 16px 기준으로 고정 (시스템 설정 무시)
+   - html에 overflow 설정 금지 → 걸면 body 스크롤이 차단되는 브라우저 quirk 있음 */
 html {
+  font-size: 16px;
   -webkit-text-size-adjust: none;
   text-size-adjust: none;
-  overflow-x: hidden;
-  overflow-y: auto;
   width: 100%;
 }
 
 body {
   -webkit-text-size-adjust: none;
   text-size-adjust: none;
+  overflow-x: hidden;
 }
 
 /* 스코어카드 스와이프 영역: 브라우저 제스처 완전 차단, 모든 터치를 JS에서 처리 */
