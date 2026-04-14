@@ -1819,9 +1819,12 @@ function Play() {
     const teammateMemberRecord = isTeammate
       ? members?.find(m => m.phone === selectedTeammate?.phone || m.id === selectedTeammate?.id)
       : null;
-    const isFemale = isTeammate
-      ? (teammateMemberRecord?.gender === 'F' || selectedTeammate?.gender === 'F')
-      : user?.gender === 'F';
+    const rawGender = isTeammate
+      ? (teammateMemberRecord?.gender ?? selectedTeammate?.gender)
+      : user?.gender;
+    // 'F', 'female', 'Female', '여', '여성' 등 가능한 모든 여성 표기 대응
+    const genderNorm = String(rawGender ?? '').trim().toLowerCase();
+    const isFemale = ['f', 'female', '여', '여성', 'w', 'woman'].includes(genderNorm);
     const accent = isFemale ? '#B91C1C' : '#0047AB';
     const accentShadowSm = isFemale ? 'rgba(185,28,28,0.10)' : 'rgba(0,71,171,0.10)';
     const accentShadowLg = isFemale ? 'rgba(185,28,28,0.35)' : 'rgba(0,71,171,0.35)';
@@ -1860,6 +1863,15 @@ function Play() {
               flexShrink: 0,
             }}>
               HC {handicap}
+            </div>
+            {/* 임시 디버그: gender 값 확인 후 제거 예정 */}
+            <div style={{
+              background: '#FEF3C7', color: '#92400E',
+              fontSize: s(10,9), fontWeight: 700,
+              padding: `${s(2,1)}px ${s(6,5)}px`, borderRadius: 6,
+              flexShrink: 0,
+            }}>
+              g:{JSON.stringify(rawGender)} {isFemale ? '♀' : '♂'}
             </div>
           </div>
         </div>
