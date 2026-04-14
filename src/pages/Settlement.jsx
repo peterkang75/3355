@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import { formatCurrency, checkIsOperator } from '../utils';
 import apiService from '../services/api';
+import { ProfileBadge } from '../components/common';
 
 // ─── 아이콘 ───────────────────────────────────────────────────────────────────
 const BackIcon = () => (
@@ -629,7 +630,16 @@ function Settlement() {
           <BackIcon />
         </button>
         <span style={{ fontSize: 17, fontWeight: 800, color: '#1e293b', letterSpacing: '-0.02em' }}>Monthly Settlement</span>
-        <div style={{ width: 38 }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          {user && (
+            <>
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#1e293b', letterSpacing: '-0.02em' }}>
+                {user.nickname || user.name}
+              </span>
+              <ProfileBadge user={user} size={32} />
+            </>
+          )}
+        </div>
       </div>
 
       <div style={{ padding: '8px 16px 120px' }}>

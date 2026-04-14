@@ -12,7 +12,7 @@ import { getEffectiveHandicap, calculateHandicap } from '../utils/handicap';
 import { Button, PageHeader } from '../components/common';
 
 function MyPage() {
-  const { user, logout, refreshMembers, courses, bookings } = useApp();
+  const { user, logout, updateUser, courses, bookings } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
   const [isEditing, setIsEditing] = useState(false);
@@ -21,6 +21,7 @@ function MyPage() {
   const [expandedSection, setExpandedSection] = useState(null);
   const [showHandicapInfo, setShowHandicapInfo] = useState(false);
   const [applyingHcp, setApplyingHcp] = useState(false);
+  const [photoStatus, setPhotoStatus] = useState(null); // 사진 업로드 상태 메시지
 
   useEffect(() => {
     if (location.state?.reset) {
@@ -82,7 +83,7 @@ function MyPage() {
         isClubMember: editData.isMember
       };
       await apiService.updateMember(user.id, updateData);
-      await refreshMembers();
+      updateUser(updateData); // 즉시 UI에 반영 (사진 포함 전체 필드)
       setIsEditing(false);
       alert('프로필 정보가 수정되었습니다!');
     } catch {
@@ -95,16 +96,23 @@ function MyPage() {
     if (!file) return;
     e.target.value = '';
     try {
+      setPhotoStatus('이미지 압축 중...');
       const base64 = await compressImageToBase64(file);
       if (isEditing) {
-        setEditData({ ...editData, photo: base64 });
+        setEditData(prev => ({ ...prev, photo: base64 }));
+        setPhotoStatus('사진이 선택되었습니다. 저장 버튼을 눌러 적용하세요.');
+        setTimeout(() => setPhotoStatus(null), 3000);
       } else {
+        setPhotoStatus('서버에 저장 중...');
         await apiService.updateMember(user.id, { photo: base64 });
-        await refreshMembers();
+        updateUser({ photo: base64 }); // 즉시 UI에 반영 (refreshMembers 제거 - 목록 API는 사진 미포함)
+        setPhotoStatus('사진이 업데이트되었습니다!');
+        setTimeout(() => setPhotoStatus(null), 2500);
       }
     } catch (err) {
-      console.error('이미지 압축 실패:', err);
-      alert('이미지 처리에 실패했습니다.');
+      console.error('이미지 업로드 실패:', err);
+      setPhotoStatus('이미지 처리에 실패했습니다. 다시 시도하세요.');
+      setTimeout(() => setPhotoStatus(null), 3000);
     }
   };
 
@@ -204,8 +212,8 @@ function MyPage() {
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 0 20px' }}>
           <label htmlFor="photoUpload" style={{ position: 'relative', cursor: 'pointer', marginBottom: 16 }}>
             <div style={{ width: 96, height: 96, borderRadius: '50%', border: '3px solid #0047AB', padding: 3 }}>
-              {user.photo ? (
-                <img src={user.photo} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+              {(isEditing ? editData.photo : user.photo) ? (
+                <img src={isEditing ? editData.photo : user.photo} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
               ) : (
                 <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#E8ECF0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>👤</div>
               )}
@@ -225,6 +233,16 @@ function MyPage() {
             )}
           </label>
           <input id="photoUpload" type="file" accept="image/*" onChange={handlePhotoUpload} style={{ display: 'none' }} />
+          {photoStatus && (
+            <div style={{
+              fontSize: 12, fontWeight: 600,
+              color: photoStatus.includes('실패') ? '#DC2626' : photoStatus.includes('완료') || photoStatus.includes('업데이트') ? '#16A34A' : '#0047AB',
+              background: photoStatus.includes('실패') ? '#FEF2F2' : photoStatus.includes('완료') || photoStatus.includes('업데이트') ? '#F0FDF4' : '#EFF6FF',
+              borderRadius: 8, padding: '6px 14px', marginBottom: 10, textAlign: 'center',
+            }}>
+              {photoStatus}
+            </div>
+          )}
           <div style={{ fontSize: 22, fontWeight: 800, color: '#1E293B', marginBottom: 4 }}>{user.nickname || user.name}</div>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#0047AB' }}>3355 Golf Club</div>
         </div>

@@ -8,11 +8,6 @@ import golfBg from '../assets/golf-bg.jpeg';
 
 // ─── 아이콘 ───────────────────────────────────────────────────────────────────
 
-const BellIcon = () => (
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
-  </svg>
-);
 const ChevronRight = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="9 18 15 12 9 6"/>
@@ -250,7 +245,6 @@ function Dashboard() {
     <div style={{
       background: 'var(--background)',
       minHeight: '100dvh',
-      paddingTop: 'env(safe-area-inset-top)',
     }}>
       {/* ── 헤더 ── */}
       <div style={{
@@ -258,25 +252,37 @@ function Dashboard() {
         alignItems: 'center',
         justifyContent: 'space-between',
         padding: '14px 20px 10px',
+        paddingTop: 'calc(env(safe-area-inset-top) + 14px)',
+        background: '#fff',
+        position: 'sticky',
+        top: 0,
+        zIndex: 200,
+        boxShadow: '0 1px 0 rgba(0,71,171,0.07)',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <ProfileBadge user={user} size={34} />
-          <span style={{
-            fontFamily: 'var(--font-sans)',
-            fontSize: 15,
-            fontWeight: 700,
-            color: 'var(--on-background)',
-            letterSpacing: '-0.01em',
-          }}>
-            3355 골프클럽
-          </span>
+        <span style={{
+          fontFamily: 'var(--font-sans)',
+          fontSize: 17,
+          fontWeight: 800,
+          color: 'var(--on-background)',
+          letterSpacing: '-0.03em',
+        }}>
+          3355 골프클럽
+        </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          {user && (
+            <>
+              <span style={{
+                fontSize: 14,
+                fontWeight: 600,
+                color: 'var(--on-background)',
+                letterSpacing: '-0.02em',
+              }}>
+                {user.nickname || user.name}
+              </span>
+              <ProfileBadge user={user} size={34} />
+            </>
+          )}
         </div>
-        <button
-          style={{ background: 'none', border: 'none', padding: '6px', cursor: 'pointer', color: 'var(--on-background)', opacity: 0.65 }}
-          aria-label="알림"
-        >
-          <BellIcon />
-        </button>
       </div>
 
       {/* ── 환영 헤드라인 ── */}
