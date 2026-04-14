@@ -1,5 +1,5 @@
 const prisma = require('../db');
-const { isOperator, isAdmin } = require('../utils/roles');
+const { isOperator, isAdmin, isSelfOrOperator } = require('../utils/roles');
 
 // 로그인한 회원이면 통과 (active + approved)
 async function requireAuth(req, res, next) {
@@ -47,4 +47,14 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-module.exports = { requireAuth, requireOperator, requireAdmin };
+// 본인이거나 운영진 이상 (자신의 데이터 수정 또는 운영진)
+function requireSelfOrOperator(req, res, next) {
+  if (!req.member) return res.status(401).json({ error: '인증이 필요합니다.' });
+
+  if (!isSelfOrOperator(req.member, req.params.id)) {
+    return res.status(403).json({ error: '본인 또는 운영진 이상 권한이 필요합니다.' });
+  }
+  next();
+}
+
+module.exports = { requireAuth, requireOperator, requireAdmin, requireSelfOrOperator };
