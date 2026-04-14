@@ -1951,8 +1951,8 @@ function Play() {
               <div style={{ fontSize: s(22,18), fontWeight: 900, color: '#fff', lineHeight: 1.1 }}>{par || '—'}</div>
             </div>
             <div style={{ textAlign: 'left' }}>
-              <div style={{ fontSize: s(16,14), fontWeight: 800, color: '#1E293B', lineHeight: 1.2, letterSpacing: '-0.01em' }}>PAR {par || '—'}</div>
-              <div style={{ fontSize: s(11,10), color: '#94A3B8', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase' }}>HOLE PAR</div>
+              <div style={{ fontSize: s(16,14), fontWeight: 800, color: '#1E293B', lineHeight: 1.2, letterSpacing: '-0.01em', whiteSpace: 'nowrap' }}>PAR {par || '—'}</div>
+              <div style={{ fontSize: s(11,10), color: '#94A3B8', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>HOLE PAR</div>
             </div>
           </button>
 
