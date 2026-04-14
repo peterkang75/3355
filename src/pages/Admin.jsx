@@ -6122,12 +6122,12 @@ function Admin() {
 
             {scoreManagementView === 'leaderboard' && selectedRoundForScore && (
               <div>
-                <div style={{ 
-                  display: 'flex', 
-                  alignItems: 'center', 
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
                   justifyContent: 'space-between',
                   marginBottom: '16px',
-                  padding: '0 16px'
+                  padding: '16px 16px 0'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                     <button
