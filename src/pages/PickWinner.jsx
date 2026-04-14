@@ -283,7 +283,7 @@ function PickWinner() {
       const method = isEditing ? 'PUT' : 'POST';
       const response = await fetch('/api/winner-predictions', {
         method: method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Member-Id': user.id },
         body: JSON.stringify({
           roundingId: selectedBooking.id,
           voterId: user.id,
@@ -353,7 +353,7 @@ function PickWinner() {
     try {
       const response = await fetch('/api/winner-predictions', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Member-Id': user.id },
         body: JSON.stringify({
           roundingId: selectedBooking.id,
           voterId: selectedVoterId,
@@ -382,7 +382,8 @@ function PickWinner() {
     
     try {
       const response = await fetch(`/api/winner-predictions/${selectedBooking.id}/${voterId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: { 'X-Member-Id': user.id }
       });
 
       if (response.ok) {
