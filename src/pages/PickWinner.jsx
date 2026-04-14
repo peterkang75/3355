@@ -622,7 +622,6 @@ function PickWinner() {
                         <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', fontWeight: 600 }}>투표 활성화</span>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <button
-                            onClick={phaseInfo.phase === 'voting' || phaseInfo.phase === 'voting_disabled' ? handleToggleVoting : undefined}
                             disabled={phaseInfo.phase !== 'voting' && phaseInfo.phase !== 'voting_disabled'}
                             style={{ position: 'relative', width: 40, height: 22, borderRadius: 11, border: 'none', cursor: 'pointer', background: isVotingEnabled ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.25)', transition: 'background 0.2s' }}
                             onClick={(e) => { e.stopPropagation(); handleToggleVoting(e); }}
