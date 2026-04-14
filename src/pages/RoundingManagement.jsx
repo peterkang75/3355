@@ -20,11 +20,21 @@ function RoundingManagement() {
   const [isTogglingPlay, setIsTogglingPlay] = useState(false);
   const [isTogglingGuest, setIsTogglingGuest] = useState(false);
   const [isToggling2BB, setIsToggling2BB] = useState(false);
+  const [inviteUrl, setInviteUrl] = useState('');
+  const [inviteLoading, setInviteLoading] = useState(false);
+  const [guestName, setGuestName] = useState('');
+  const [guestHandicap, setGuestHandicap] = useState('');
+  const [addingGuest, setAddingGuest] = useState(false);
 
   useEffect(() => {
     if (bookingId && bookings.length > 0) {
       const foundBooking = bookings.find(b => b.id === bookingId);
       setBooking(foundBooking);
+      if (foundBooking?.inviteToken) {
+        setInviteUrl(`${window.location.origin}/invite/${foundBooking.inviteToken}`);
+      } else {
+        setInviteUrl('');
+      }
       if (foundBooking && !editData) {
         let gameMode = 'stroke';
         if (foundBooking.gradeSettings) {
@@ -163,6 +173,80 @@ function RoundingManagement() {
       alert('외부 공개 상태 변경에 실패했습니다.');
     } finally {
       setIsTogglingGuest(false);
+    }
+  };
+
+  const handleGenerateInvite = async () => {
+    if (inviteLoading) return;
+    setInviteLoading(true);
+    try {
+      const { inviteUrl: url } = await apiService.generateInviteLink(bookingId);
+      setInviteUrl(url);
+      await refreshBookings();
+    } catch {
+      alert('초대링크 생성에 실패했습니다.');
+    } finally {
+      setInviteLoading(false);
+    }
+  };
+
+  const handleShareInvite = async () => {
+    if (!inviteUrl) return;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: '라운딩 초대', url: inviteUrl });
+      } catch (err) {
+        if (err.name !== 'AbortError') {
+          await navigator.clipboard.writeText(inviteUrl);
+          alert('링크가 복사되었습니다.');
+        }
+      }
+    } else {
+      await navigator.clipboard.writeText(inviteUrl);
+      alert('링크가 복사되었습니다.');
+    }
+  };
+
+  const handleDeleteInvite = async () => {
+    if (inviteLoading) return;
+    if (!confirm('초대링크를 삭제하면 기존 링크로 접속할 수 없게 됩니다.')) return;
+    setInviteLoading(true);
+    try {
+      await apiService.deleteInviteLink(bookingId);
+      setInviteUrl('');
+      await refreshBookings();
+    } catch {
+      alert('초대링크 삭제에 실패했습니다.');
+    } finally {
+      setInviteLoading(false);
+    }
+  };
+
+  const handleAddGuest = async () => {
+    const name = guestName.trim();
+    if (!name || addingGuest) return;
+    setAddingGuest(true);
+    try {
+      const parsedParts = (booking.participants || []).map(p => {
+        try { return typeof p === 'string' ? JSON.parse(p) : p; } catch { return null; }
+      }).filter(Boolean);
+      const hc = guestHandicap !== '' ? parseFloat(guestHandicap) : 36;
+      const newGuest = {
+        name,
+        nickname: name,
+        phone: `guest_${Date.now()}`,
+        isGuest: true,
+        handicap: isNaN(hc) ? 36 : hc,
+      };
+      const updated = [...parsedParts, newGuest].map(p => JSON.stringify(p));
+      await apiService.updateBooking(bookingId, { participants: updated });
+      await refreshBookings();
+      setGuestName('');
+      setGuestHandicap('');
+    } catch {
+      alert('게스트 추가에 실패했습니다.');
+    } finally {
+      setAddingGuest(false);
     }
   };
 
@@ -709,9 +793,80 @@ function RoundingManagement() {
         </div>
         )}
 
+        {isOfficial && booking.isGuestAllowed && (
+          <div className="card" style={{ marginBottom: '16px', padding: 0, overflow: 'hidden' }}>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--border-color)', background: '#f8f9fa' }}>
+              <h3 style={{ fontSize: '14px', fontWeight: '600', color: '#666', margin: 0, textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                게스트
+              </h3>
+            </div>
+
+            {/* 게스트 초대링크 */}
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #f0f0f0' }}>
+              <div style={{ fontSize: '13px', fontWeight: '600', color: '#666', marginBottom: '10px' }}>초대링크 (당일만 유효)</div>
+              {inviteUrl ? (
+                <>
+                  <div style={{ fontSize: '12px', color: '#64748B', wordBreak: 'break-all', marginBottom: '10px', background: '#F8FAFC', borderRadius: '8px', padding: '10px 12px', border: '1px solid #E8ECF0' }}>
+                    {inviteUrl}
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button
+                      onClick={handleShareInvite}
+                      style={{ flex: 1, padding: '11px', borderRadius: '10px', border: 'none', background: '#0047AB', color: '#fff', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}>
+                      {typeof navigator !== 'undefined' && navigator.share ? '공유하기' : '링크 복사'}
+                    </button>
+                    <button
+                      onClick={handleDeleteInvite}
+                      disabled={inviteLoading}
+                      style={{ padding: '11px 16px', borderRadius: '10px', border: '1px solid #E8ECF0', background: '#FFFFFF', color: '#64748B', fontSize: '13px', fontWeight: '600', cursor: inviteLoading ? 'not-allowed' : 'pointer', opacity: inviteLoading ? 0.6 : 1 }}>
+                      삭제
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <button
+                  onClick={handleGenerateInvite}
+                  disabled={inviteLoading}
+                  style={{ width: '100%', padding: '12px 16px', borderRadius: '10px', border: '1.5px dashed #CBD5E1', background: '#FAFBFC', color: inviteLoading ? '#94A3B8' : '#475569', fontSize: '14px', fontWeight: '600', cursor: inviteLoading ? 'not-allowed' : 'pointer' }}>
+                  {inviteLoading ? '생성 중…' : '게스트 초대링크 생성'}
+                </button>
+              )}
+            </div>
+
+            {/* 게스트 직접 추가 */}
+            <div style={{ padding: '16px 20px' }}>
+              <div style={{ fontSize: '13px', fontWeight: '600', color: '#666', marginBottom: '10px' }}>게스트 직접 추가</div>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+                <input
+                  type="text"
+                  value={guestName}
+                  onChange={(e) => setGuestName(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddGuest(); } }}
+                  placeholder="이름"
+                  style={{ flex: 2, padding: '12px', borderRadius: '10px', border: '1px solid #E8ECF0', fontSize: '14px', outline: 'none' }}
+                />
+                <input
+                  type="number"
+                  value={guestHandicap}
+                  onChange={(e) => setGuestHandicap(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddGuest(); } }}
+                  placeholder="핸디 (기본 36)"
+                  style={{ flex: 1, padding: '12px', borderRadius: '10px', border: '1px solid #E8ECF0', fontSize: '14px', outline: 'none', minWidth: 0 }}
+                />
+              </div>
+              <button
+                onClick={handleAddGuest}
+                disabled={!guestName.trim() || addingGuest}
+                style={{ width: '100%', padding: '12px', borderRadius: '10px', background: '#0047AB', color: '#fff', border: 'none', fontWeight: '700', fontSize: '14px', cursor: (!guestName.trim() || addingGuest) ? 'not-allowed' : 'pointer', opacity: (!guestName.trim() || addingGuest) ? 0.4 : 1 }}>
+                {addingGuest ? '추가 중…' : '게스트 추가'}
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-          <div style={{ 
-            padding: '16px 20px', 
+          <div style={{
+            padding: '16px 20px',
             borderBottom: '1px solid var(--border-color)',
             background: '#f8f9fa'
           }}>
