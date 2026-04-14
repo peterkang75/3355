@@ -1003,104 +1003,152 @@ function PickWinner() {
       />
       <div className="page-content" style={{ paddingTop: '12px' }}>
       <div style={{ padding: '0 16px' }}>
-        <div className="card" style={{ marginBottom: '16px', padding: '12px' }}>
-          <div style={{ fontSize: '13px', color: '#666' }}>
-            📅 {new Date(selectedBooking.date).toLocaleDateString('ko-KR')} {selectedBooking.time}
-          </div>
-          {hasVoted && !isEditing && (
-            <div style={{
-              marginTop: '8px',
-              padding: '8px',
-              background: '#D1E7DD',
-              borderRadius: '6px',
-              fontSize: '13px',
-              color: '#0A5C36',
-              fontWeight: '500',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <span>✓ 투표 완료!</span>
-              {phaseInfo.phase === 'voting' && (
-                <button
-                  onClick={handleStartEdit}
-                  style={{
-                    background: 'white',
-                    color: '#0A5C36',
-                    border: '1px solid #0A5C36',
-                    borderRadius: '4px',
-                    padding: '4px 10px',
-                    fontSize: '12px',
-                    fontWeight: '600',
-                    cursor: 'pointer'
-                  }}
-                >
-                  다시 투표하기
-                </button>
-              )}
-            </div>
-          )}
-          {isEditing && (
-            <div style={{
-              marginTop: '8px',
-              padding: '8px',
-              background: '#FFF3CD',
-              borderRadius: '6px',
-              fontSize: '13px',
-              color: '#856404',
-              fontWeight: '500'
-            }}>
-              ✏️ 투표 수정 중입니다. 변경 후 아래 수정하기 버튼을 눌러주세요.
-            </div>
-          )}
-          {phaseInfo.phase === 'voting_closed' && !hasVoted && (
-            <div style={{
-              marginTop: '8px',
-              padding: '8px',
-              background: '#FFF3CD',
-              borderRadius: '6px',
-              fontSize: '13px',
-              color: '#856404',
-              fontWeight: '500'
-            }}>
-              투표가 마감되었습니다.
-            </div>
-          )}
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px',
+          padding: '8px 14px',
+          background: '#E8F0FE',
+          borderRadius: '999px',
+          marginBottom: '16px'
+        }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#0047AB">
+            <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/>
+          </svg>
+          <span style={{ fontSize: '13px', fontWeight: '700', color: '#0047AB' }}>
+            {new Date(selectedBooking.date).toLocaleDateString('ko-KR')} {selectedBooking.time}
+          </span>
         </div>
+
+        <div style={{ marginBottom: '20px' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#0F172A', margin: '0 0 4px', letterSpacing: '-0.02em' }}>
+            참석자 명단
+          </h2>
+          <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>
+            라운딩 그룹별 배정 현황입니다.
+          </p>
+        </div>
+
+        {hasVoted && !isEditing && (
+          <div style={{
+            marginBottom: '12px',
+            padding: '10px 12px',
+            background: '#D1E7DD',
+            borderRadius: '8px',
+            fontSize: '13px',
+            color: '#0A5C36',
+            fontWeight: '500',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <span>✓ 투표 완료!</span>
+            {phaseInfo.phase === 'voting' && (
+              <button
+                onClick={handleStartEdit}
+                style={{
+                  background: 'white',
+                  color: '#0A5C36',
+                  border: '1px solid #0A5C36',
+                  borderRadius: '4px',
+                  padding: '4px 10px',
+                  fontSize: '12px',
+                  fontWeight: '600',
+                  cursor: 'pointer'
+                }}
+              >
+                다시 투표하기
+              </button>
+            )}
+          </div>
+        )}
+        {isEditing && (
+          <div style={{
+            marginBottom: '12px',
+            padding: '10px 12px',
+            background: '#FFF3CD',
+            borderRadius: '8px',
+            fontSize: '13px',
+            color: '#856404',
+            fontWeight: '500'
+          }}>
+            ✏️ 투표 수정 중입니다. 변경 후 아래 수정하기 버튼을 눌러주세요.
+          </div>
+        )}
+        {phaseInfo.phase === 'voting_closed' && !hasVoted && (
+          <div style={{
+            marginBottom: '12px',
+            padding: '10px 12px',
+            background: '#FFF3CD',
+            borderRadius: '8px',
+            fontSize: '13px',
+            color: '#856404',
+            fontWeight: '500'
+          }}>
+            투표가 마감되었습니다.
+          </div>
+        )}
 
         {grades.map(grade => {
           const participants = gradedParticipants[grade] || [];
           const voteCounts = getVoteCounts(grade);
-          
+
           if (participants.length === 0) return null;
 
+          const badgeStyle = {
+            A: { bg: '#FEF3C7', color: '#B45309' },
+            B: { bg: '#E5E7EB', color: '#4B5563' },
+            C: { bg: '#FFE4D6', color: '#C2410C' },
+            D: { bg: '#D1FAE5', color: '#047857' }
+          }[grade] || { bg: '#E5E7EB', color: '#4B5563' };
+
           return (
-            <div key={grade} className="card" style={{ marginBottom: '12px', padding: '16px' }}>
+            <div key={grade} style={{
+              background: 'white',
+              borderRadius: '16px',
+              padding: '16px',
+              marginBottom: '12px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.07)'
+            }}>
               <div style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px',
-                marginBottom: '12px'
+                gap: '12px',
+                marginBottom: '14px'
               }}>
                 <div style={{
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '6px',
-                  background: gradeColors[grade],
+                  width: '44px',
+                  height: '44px',
+                  borderRadius: '50%',
+                  background: badgeStyle.bg,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontWeight: '700',
-                  color: grade === 'A' ? '#333' : 'white',
-                  fontSize: '14px'
+                  color: badgeStyle.color,
+                  fontSize: '18px',
+                  flexShrink: 0
                 }}>
                   {grade}
                 </div>
-                <span style={{ fontWeight: '600' }}>그레이드 {grade}</span>
-                {getGradeRangeLabel(grade) && (
-                  <span style={{ fontSize: '12px', color: '#666', fontWeight: '500' }}>({getGradeRangeLabel(grade)})</span>
-                )}
-                <span style={{ fontSize: '12px', color: '#888' }}>({participants.length}명)</span>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
+                    <span style={{ fontSize: '16px', fontWeight: '700', color: '#0F172A' }}>
+                      그레이드 {grade}
+                    </span>
+                    {getGradeRangeLabel(grade) && (
+                      <span style={{ fontSize: '12px', color: '#64748B', fontWeight: '500' }}>
+                        ({getGradeRangeLabel(grade)})
+                      </span>
+                    )}
+                  </div>
+                  <div style={{ fontSize: '13px', color: '#94A3B8', marginTop: '2px' }}>
+                    {participants.length}명 참여 중
+                  </div>
+                </div>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
               </div>
 
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
@@ -1108,35 +1156,37 @@ function PickWinner() {
                   const isSelected = predictions[grade] === p.id;
                   const voteCount = voteCounts[p.id] || 0;
                   const isMyVote = myVotes[grade] === p.id;
+                  const disabled = (hasVoted && !isEditing) || phaseInfo.phase === 'voting_closed';
 
                   return (
                     <button
                       key={p.id}
                       onClick={() => handleSelect(grade, p.id)}
-                      disabled={(hasVoted && !isEditing) || phaseInfo.phase === 'voting_closed'}
+                      disabled={disabled}
                       style={{
-                        padding: '8px 12px',
-                        borderRadius: '20px',
-                        border: isSelected ? '2px solid var(--primary-green)' : '1px solid #ddd',
-                        background: isSelected ? 'var(--bg-green)' : 'white',
-                        color: isSelected ? 'var(--primary-green)' : '#333',
-                        fontWeight: isSelected || isMyVote ? '600' : '400',
-                        cursor: (hasVoted && !isEditing) || phaseInfo.phase === 'voting_closed' ? 'default' : 'pointer',
+                        padding: '8px 16px',
+                        borderRadius: '999px',
+                        border: isSelected ? '2px solid #0047AB' : '1px solid #E2E8F0',
+                        background: isSelected ? '#EFF4FB' : '#F8FAFC',
+                        color: isSelected ? '#0047AB' : '#334155',
+                        fontWeight: isSelected || isMyVote ? '700' : '500',
+                        cursor: disabled ? 'default' : 'pointer',
                         fontSize: '14px',
                         display: 'flex',
                         alignItems: 'center',
                         gap: '6px'
                       }}
                     >
-                      {isMyVote && <span style={{ color: 'var(--primary-green)' }}>✓</span>}
+                      {isMyVote && <span style={{ color: '#0047AB' }}>✓</span>}
                       {p.nickname || p.name}
                       {(hasVoted || phaseInfo.phase === 'voting_closed') && voteCount > 0 && (
                         <span style={{
-                          background: '#f0f0f0',
+                          background: 'rgba(0,71,171,0.1)',
                           padding: '2px 6px',
                           borderRadius: '10px',
                           fontSize: '11px',
-                          color: '#666'
+                          color: '#0047AB',
+                          fontWeight: '600'
                         }}>
                           {voteCount}
                         </span>
