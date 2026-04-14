@@ -419,67 +419,6 @@ function RoundingListV2() {
 
       <div style={{ padding: '12px 16px 100px' }}>
 
-        {/* ── 정기 라운딩 히어로 (최상단) ───────────────────────────────── */}
-        {upcomingRegular.length > 0 && (() => {
-          const b = upcomingRegular[0];
-          const d = new Date(b.date);
-          const month = d.getMonth() + 1;
-          const day = d.getDate();
-          const days = ['일', '월', '화', '수', '목', '금', '토'];
-          const dow = days[d.getDay()];
-          const timeStr = b.time && b.time !== '23:59' ? b.time.slice(0, 5) : '-';
-          const parts = parseParticipants(b.participants);
-          const maxCap = b.maxMembers || 24;
-          const isJoined = parts.some(p => p.phone === user.phone);
-          return (
-            <div style={{ marginBottom: '20px' }}>
-              <div style={{ borderRadius: '20px', overflow: 'hidden', background: '#fff', boxShadow: '0 4px 20px rgba(0,71,171,0.12)', border: '1px solid #E8ECF0' }}>
-                {/* 이미지 */}
-                <div style={{ position: 'relative', height: '180px', overflow: 'hidden', cursor: 'pointer' }} onClick={() => setSelectedBooking(b)}>
-                  <img src={golfMembersPhoto} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 90%' }} />
-                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.65) 100%)' }} />
-                  <div style={{ position: 'absolute', top: 14, left: 14, background: '#C0392B', color: '#fff', fontSize: '11px', fontWeight: '800', padding: '4px 12px', borderRadius: '20px', letterSpacing: '0.02em' }}>정기모임</div>
-                  {upcomingRegular.length > 1 && (
-                    <div style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(255,255,255,0.18)', color: '#fff', fontSize: '11px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', backdropFilter: 'blur(4px)' }}>전체 {upcomingRegular.length}개</div>
-                  )}
-                  <div style={{ position: 'absolute', bottom: 16, left: 16 }}>
-                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.72)', fontWeight: '600', marginBottom: '2px', letterSpacing: '0.04em' }}>라운딩 날짜</div>
-                    <div style={{ fontSize: '26px', fontWeight: '800', color: '#fff', lineHeight: 1, letterSpacing: '-0.02em' }}>{month}월 {day}일 ({dow})</div>
-                  </div>
-                </div>
-                {/* 정보 + 버튼 */}
-                <div style={{ padding: '14px 16px 14px', cursor: 'pointer' }} onClick={() => setSelectedBooking(b)}>
-                  <div style={{ fontSize: '18px', fontWeight: '800', color: '#111827', marginBottom: '3px', letterSpacing: '-0.02em' }}>{b.title || b.courseName}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#64748B', marginBottom: '12px' }}>
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
-                    </svg>
-                    {b.courseName}
-                  </div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', gap: '20px' }}>
-                      <div>
-                        <div style={{ fontSize: '10px', color: '#94A3B8', fontWeight: '700', letterSpacing: '0.02em', marginBottom: '2px' }}>참여 현황</div>
-                        <div style={{ fontSize: '15px', fontWeight: '800', color: '#111827' }}>{parts.length} <span style={{ fontSize: '12px', fontWeight: '500', color: '#94A3B8' }}>/ {maxCap}명</span></div>
-                      </div>
-                      <div>
-                        <div style={{ fontSize: '10px', color: '#94A3B8', fontWeight: '700', letterSpacing: '0.02em', marginBottom: '2px' }}>티타임</div>
-                        <div style={{ fontSize: '15px', fontWeight: '800', color: '#111827' }}>{timeStr}</div>
-                      </div>
-                    </div>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setSelectedBooking(b); }}
-                      style={{ background: isJoined ? '#F1F5F9' : '#0047AB', color: isJoined ? '#64748B' : '#fff', border: 'none', borderRadius: '14px', padding: '11px 20px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', letterSpacing: '-0.01em' }}
-                    >
-                      {isJoined ? '참가 중' : '참가하기'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })()}
-
         {/* ── 나의 라운딩 (컴팩트 컬러 카드) ──────────────────────────────── */}
         <div style={{ marginBottom: '20px' }}>
           <div style={{ borderRadius: '14px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1px solid #dbe6f7' }}>
@@ -541,6 +480,67 @@ function RoundingListV2() {
             )}
           </div>
         </div>
+
+        {/* ── 정기 라운딩 히어로 ───────────────────────────────── */}
+        {upcomingRegular.length > 0 && (() => {
+          const b = upcomingRegular[0];
+          const d = new Date(b.date);
+          const month = d.getMonth() + 1;
+          const day = d.getDate();
+          const days = ['일', '월', '화', '수', '목', '금', '토'];
+          const dow = days[d.getDay()];
+          const timeStr = b.time && b.time !== '23:59' ? b.time.slice(0, 5) : '-';
+          const parts = parseParticipants(b.participants);
+          const maxCap = b.maxMembers || 24;
+          const isJoined = parts.some(p => p.phone === user.phone);
+          return (
+            <div style={{ marginBottom: '20px' }}>
+              <div style={{ borderRadius: '20px', overflow: 'hidden', background: '#fff', boxShadow: '0 4px 20px rgba(0,71,171,0.12)', border: '1px solid #E8ECF0' }}>
+                {/* 이미지 */}
+                <div style={{ position: 'relative', height: '180px', overflow: 'hidden', cursor: 'pointer' }} onClick={() => setSelectedBooking(b)}>
+                  <img src={golfMembersPhoto} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 90%' }} />
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.65) 100%)' }} />
+                  <div style={{ position: 'absolute', top: 14, left: 14, background: '#C0392B', color: '#fff', fontSize: '11px', fontWeight: '800', padding: '4px 12px', borderRadius: '20px', letterSpacing: '0.02em' }}>정기모임</div>
+                  {upcomingRegular.length > 1 && (
+                    <div style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(255,255,255,0.18)', color: '#fff', fontSize: '11px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', backdropFilter: 'blur(4px)' }}>전체 {upcomingRegular.length}개</div>
+                  )}
+                  <div style={{ position: 'absolute', bottom: 16, left: 16 }}>
+                    <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.72)', fontWeight: '600', marginBottom: '2px', letterSpacing: '0.04em' }}>라운딩 날짜</div>
+                    <div style={{ fontSize: '26px', fontWeight: '800', color: '#fff', lineHeight: 1, letterSpacing: '-0.02em' }}>{month}월 {day}일 ({dow})</div>
+                  </div>
+                </div>
+                {/* 정보 + 버튼 */}
+                <div style={{ padding: '14px 16px 14px', cursor: 'pointer' }} onClick={() => setSelectedBooking(b)}>
+                  <div style={{ fontSize: '18px', fontWeight: '800', color: '#111827', marginBottom: '3px', letterSpacing: '-0.02em' }}>{b.title || b.courseName}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#64748B', marginBottom: '12px' }}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+                    </svg>
+                    {b.courseName}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', gap: '20px' }}>
+                      <div>
+                        <div style={{ fontSize: '10px', color: '#94A3B8', fontWeight: '700', letterSpacing: '0.02em', marginBottom: '2px' }}>참여 현황</div>
+                        <div style={{ fontSize: '15px', fontWeight: '800', color: '#111827' }}>{parts.length} <span style={{ fontSize: '12px', fontWeight: '500', color: '#94A3B8' }}>/ {maxCap}명</span></div>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: '10px', color: '#94A3B8', fontWeight: '700', letterSpacing: '0.02em', marginBottom: '2px' }}>티타임</div>
+                        <div style={{ fontSize: '15px', fontWeight: '800', color: '#111827' }}>{timeStr}</div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setSelectedBooking(b); }}
+                      style={{ background: isJoined ? '#F1F5F9' : '#0047AB', color: isJoined ? '#64748B' : '#fff', border: 'none', borderRadius: '14px', padding: '11px 20px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', letterSpacing: '-0.01em' }}
+                    >
+                      {isJoined ? '참가 중' : '참가하기'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* All bookings header */}
         <div style={{ marginBottom: '16px' }}>
