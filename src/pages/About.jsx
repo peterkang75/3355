@@ -113,7 +113,7 @@ function About() {
             3355 골프모임
           </h1>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 12, fontSize: 11, color: '#94A3B8', fontWeight: 600, letterSpacing: '0.05em' }}>
-            <span>VERSION 1.0.0</span>
+            <span>VERSION 2.0.0</span>
             <span>·</span>
             <span>BUILD {typeof __BUILD_NUMBER__ !== 'undefined' ? __BUILD_NUMBER__ : '---'}</span>
           </div>
@@ -365,7 +365,7 @@ function About() {
             PROJECT IDENTITY
           </div>
           <div style={{ fontSize: 17, fontWeight: 800, color: '#0047AB', marginBottom: 12, letterSpacing: '-0.02em' }}>
-            3355 골프모임 V1.0
+            3355 골프모임 V2.0
           </div>
           <div style={{ fontSize: 11, color: '#94A3B8', lineHeight: 1.7, marginBottom: 20 }}>
             © 2024 The Azure Standard Group.<br />
@@ -382,6 +382,9 @@ function About() {
                 {item.icon}
               </button>
             ))}
+          </div>
+          <div style={{ marginTop: 20, fontSize: 10, color: '#CBD5E1', fontWeight: 600, letterSpacing: '0.08em' }}>
+            BUILD {typeof __BUILD_NUMBER__ !== 'undefined' ? __BUILD_NUMBER__ : '---'}
           </div>
         </div>
 
