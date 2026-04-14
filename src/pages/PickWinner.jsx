@@ -269,8 +269,10 @@ function PickWinner() {
 
   const handleSubmit = async () => {
     const grades = ['A', 'B', 'C', 'D'];
-    const missingGrades = grades.filter(g => !predictions[g]);
-    
+    const gradedParticipants = getGradedParticipants(selectedBooking);
+    const activeGrades = grades.filter(g => (gradedParticipants[g] || []).length > 0);
+    const missingGrades = activeGrades.filter(g => !predictions[g]);
+
     if (missingGrades.length > 0) {
       alert(`모든 그레이드에서 우승자를 선택해주세요. (누락: ${missingGrades.join(', ')})`);
       return;
@@ -338,7 +340,9 @@ function PickWinner() {
 
   const handleAdminUpdate = async () => {
     const grades = ['A', 'B', 'C', 'D'];
-    const missingGrades = grades.filter(g => !adminPredictions[g]);
+    const gradedParticipants = getGradedParticipants(selectedBooking);
+    const activeGrades = grades.filter(g => (gradedParticipants[g] || []).length > 0);
+    const missingGrades = activeGrades.filter(g => !adminPredictions[g]);
     
     if (missingGrades.length > 0) {
       alert(`모든 그레이드에서 우승자를 선택해주세요. (누락: ${missingGrades.join(', ')})`);
