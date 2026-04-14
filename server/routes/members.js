@@ -1,6 +1,6 @@
 const express = require("express");
 const prisma = require("../db");
-const { requireAuth, requireOperator, requireAdmin } = require('../middleware/auth');
+const { requireAuth, requireOperator, requireAdmin, requireSelfOrOperator } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -94,7 +94,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", requireAuth, requireOperator, async (req, res) => {
+router.put("/:id", requireAuth, requireSelfOrOperator, async (req, res) => {
   try {
     const member = await prisma.member.update({
       where: { id: req.params.id },
