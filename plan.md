@@ -1,7 +1,7 @@
 # 3355 골프 클럽 앱 - 리팩토링 계획서 (Plan.md)
 
 > 최초 작성일: 2026-04-07
-> 최종 수정일: 2026-04-14 (Day 9 UI 파인튜닝 완료 + Phase 6 대기)
+> 최종 수정일: 2026-04-14 (Phase 6 Railway 이전 — 포트 설정 문제 해결 완료, 배포 성공)
 > 상태: Phase 1 완료, Phase 2 일부 완료, Phase 2C → Phase 3 → Phase 4 → Phase 5 → Phase 2B(모바일 파인튜닝) 순서로 진행
 > 참조 문서: PRD.md
 
@@ -358,35 +358,36 @@ golf-club-app/
 
 | # | 작업 | 상세 | 상태 |
 |---|------|------|------|
-| 6A-1 | GitHub 저장소 생성 | github.com → New Repository → "golf-club-app" (Private) | ⬜ 대기 |
-| 6A-2 | Railway 가입 | railway.app → GitHub 계정으로 가입 → 결제수단 등록 ($5 Trial Plan) | ⬜ 대기 |
-| 6A-3 | 현재 환경변수 백업 | Replit의 Secrets에서 DATABASE_URL, SESSION_SECRET 등 모든 환경변수 메모 | ⬜ 대기 |
+| 6A-1 | GitHub 저장소 생성 | github.com → New Repository → "golf-club-app" (Private) | ✅ 완료 |
+| 6A-2 | Railway 가입 | railway.app → GitHub 계정으로 가입 → 결제수단 등록 ($5 Trial Plan) | ✅ 완료 |
+| 6A-3 | 현재 환경변수 백업 | Replit의 Secrets에서 DATABASE_URL, SESSION_SECRET 등 모든 환경변수 메모 | ✅ 완료 |
 
 #### 6-B: 코드 → GitHub 업로드
 
 | # | 작업 | 상세 | 상태 |
 |---|------|------|------|
-| 6B-1 | .gitignore 작성 | node_modules, .env, prisma/migrations 등 제외 목록 | ⬜ 대기 |
-| 6B-2 | 배포용 설정 파일 추가 | Procfile 또는 railway.toml, 빌드/시작 스크립트 정리 | ⬜ 대기 |
-| 6B-3 | 로컬 Git 초기화 + push | Claude Code 터미널에서 git init → add → commit → push | ⬜ 대기 |
+| 6B-1 | .gitignore 작성 | node_modules, .env, dist 등 제외 목록 | ✅ 완료 |
+| 6B-2 | 배포용 설정 파일 추가 | package.json start/server 스크립트 정리 | ✅ 완료 |
+| 6B-3 | 로컬 Git 초기화 + push | GitHub 연결 및 push 완료 | ✅ 완료 |
 
-#### 6-C: Railway 프로젝트 설정 (사장님 직접, 프롬프트 제공)
+#### 6-C: Railway 프로젝트 설정
 
 | # | 작업 | 상세 | 상태 |
 |---|------|------|------|
-| 6C-1 | Railway 프로젝트 생성 | New Project → Deploy from GitHub Repo → golf-club-app 선택 | ⬜ 대기 |
-| 6C-2 | PostgreSQL 서비스 추가 | Add New Service → Database → PostgreSQL | ⬜ 대기 |
-| 6C-3 | 환경변수 설정 | DATABASE_URL (Railway DB 자동생성), SESSION_SECRET, NODE_ENV=production 등 | ⬜ 대기 |
-| 6C-4 | 빌드/시작 명령어 확인 | Build: npm run build, Start: npm start (또는 node server/server.js) | ⬜ 대기 |
+| 6C-1 | Railway 프로젝트 생성 | New Project → Deploy from GitHub Repo → golf-club-app 선택 | ✅ 완료 |
+| 6C-2 | PostgreSQL 서비스 추가 | Add New Service → Database → PostgreSQL | ✅ 완료 |
+| 6C-3 | 환경변수 설정 | DATABASE_URL, NODE_ENV=production, ANTHROPIC_API_KEY 설정 완료 | ✅ 완료 |
+| 6C-4 | 빌드/시작 명령어 설정 | Build: `npm run build`, Pre-deploy: `npx prisma db push`, Start: `npm start` | ✅ 완료 |
+| 6C-5 | Networking 포트 설정 | Settings → Networking → Port 8080으로 수정 (기존 5000 → 불일치 문제였음) | 🔄 진행중 (재배포 필요) |
 
 #### 6-D: 데이터 마이그레이션
 
 | # | 작업 | 상세 | 상태 |
 |---|------|------|------|
-| 6D-1 | Prisma 스키마 마이그레이션 | Railway DB에 npx prisma db push (테이블 구조 생성) | ⬜ 대기 |
-| 6D-2 | 기존 데이터 내보내기 | Replit DB에서 pg_dump로 데이터 추출 (스크립트 제공) | ⬜ 대기 |
-| 6D-3 | Railway DB에 데이터 가져오기 | pg_restore 또는 SQL 파일 실행 (스크립트 제공) | ⬜ 대기 |
-| 6D-4 | 데이터 정합성 검증 | 회원 수, 라운딩 수, 거래 건수 원본과 비교 확인 | ⬜ 대기 |
+| 6D-1 | Prisma 스키마 마이그레이션 | Pre-deploy `npx prisma db push`로 자동 처리 | ✅ 완료 |
+| 6D-2 | 기존 데이터 내보내기 | Replit Shell에서 `pg_dump $DATABASE_URL > /tmp/backup.sql` 실행 | ✅ 완료 |
+| 6D-3 | Railway DB에 데이터 가져오기 | `psql "[Railway Public URL]" < /tmp/backup.sql` 실행 성공 | ✅ 완료 |
+| 6D-4 | 데이터 정합성 검증 | 로그인 후 데이터 확인 필요 (6C-5 해결 후) | ⬜ 대기 |
 
 #### 6-E: 검증 및 전환
 
@@ -537,6 +538,70 @@ Railway 도메인에서 확인
   - **시도 3 (성공, BUILD 7):** standalone 모드 감지 → `document.documentElement.style.zoom = '0.85'` ✅
     - `index.html` `<head>` 인라인 스크립트에서 `window.navigator.standalone` 또는 `display-mode: standalone` 체크
     - React 로드 전 즉시 적용되어 레이아웃 깜빡임 없음
+
+### 2026-04-14 (Phase 6) — Railway 인프라 이전 진행
+
+#### ✅ 완료
+- [x] **GitHub → Railway 연동 및 최초 배포 완료**
+  - GitHub Private Repo 생성 및 코드 push
+  - Railway 프로젝트 생성, GitHub 자동 배포 연동
+  - Railway PostgreSQL 서비스 추가
+
+- [x] **Replit DB → Railway DB 데이터 이전**
+  - Replit Shell에서 `pg_dump $DATABASE_URL > /tmp/backup.sql` 실행
+  - Railway Public URL로 `psql "[url]" < /tmp/backup.sql` 복원 성공
+  - COPY 8, 132, 382, 52... 등 모든 테이블 데이터 이전 확인
+
+- [x] **Railway 환경변수 설정**
+  - `DATABASE_URL`: `postgresql://postgres:...@postgres.railway.internal:5432/railway`
+  - `NODE_ENV`: production
+  - `ANTHROPIC_API_KEY`: 설정 완료
+
+- [x] **빌드/배포 명령어 설정**
+  - Custom Build Command: `npm run build` (Vite 빌드 — 빌드 단계에서 실행)
+  - Pre-deploy Command: `npx prisma db push` (DB 스키마 자동 동기화)
+  - Custom Start Command: `npm start` (`npm run build && npm run server`)
+
+#### 🔄 진행 중 — "Application failed to respond" 문제 해결 중
+
+**문제 원인 분석 과정:**
+
+1. **1차 시도:** `DATABASE_URL` 누락 → 서버 DB 연결 실패
+   - 해결: Railway Variables에 `DATABASE_URL` 추가
+
+2. **2차 시도:** 컨테이너가 3초 만에 종료 (Start Command: `npm run server`)
+   - 원인: 런타임 컨테이너에 `dist/` 폴더 없음 → 모든 요청 500 에러
+   - `.gitignore`에 `dist` 포함 → Railway 런타임 이미지에 미포함
+   - Metrics에서 확인: 5xx 에러율 90%+, CPU 0, Memory ~50MB
+
+3. **3차 시도:** Start Command를 `npm start`로 변경 (빌드 + 서버 일체형)
+   - 빌드 성공 (Vite 3.06s), 서버 정상 시작 (Port 8080)
+   - 하지만 여전히 "Application failed to respond"
+
+4. **4차 시도:** Networking 포트 불일치 발견
+   - Railway Networking 설정: **Port 5000** (옛날 하드코딩 값)
+   - 서버 실제 실행 포트: **Port 8080** (`process.env.PORT`)
+   - → Railway 프록시가 5000번으로 트래픽 보내지만 서버는 8080번에서 대기
+   - **해결:** Settings → Networking → Port 5000 → **8000으로 수정**
+
+5. **5차 시도 (최종 해결):** Bad Gateway 지속 → `PORT` 환경변수 누락이 근본 원인
+   - Networking Port는 8000으로 변경했지만 Railway Variables에 `PORT` 자체가 없었음
+   - `server.js:18`: `const PORT = process.env.PORT || (NODE_ENV === 'production' ? 5000 : 3001)`
+   - → `PORT` env var 부재 시 서버는 **5000**에서 리슨, 프록시는 **8000**으로 전달 → 502 Bad Gateway
+   - **Railway는 PORT 환경변수를 자동 주입하지 않음** — Variables에 수동으로 추가해야 함
+   - **해결:** Variables 탭 → `PORT=8000` 추가 → 자동 재배포 → **정상 작동 확인 ✅**
+
+#### ✅ 해결 완료 (2026-04-14)
+- [x] Railway Variables에 `PORT=8000` 추가 → 서버 포트와 프록시 포트 일치
+- [x] `3355-production.up.railway.app` 정상 접속 확인
+
+#### ⬜ 남은 작업
+- [ ] 로그인 및 데이터 정상 표시 확인
+- [ ] 전체 기능 테스트 (6E 항목)
+- [ ] Socket.IO 실시간 동작 확인 (6E-3)
+- [ ] Replit 버전 중단 (6E-4)
+
+---
 
 ### 2026-04-14 (Day 7) — 캐주얼 라운딩 고도화 + 드롭다운 버그 수정
 

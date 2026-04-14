@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
+import { useSocket } from '../contexts/SocketContext';
 import PageHeader from '../components/common/PageHeader';
 
 function Play() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user, bookings, courses, members, refreshBookings } = useApp();
+  const socket = useSocket();
   const bookingId = searchParams.get('id');
   
   const [booking, setBooking] = useState(null);
@@ -874,18 +876,26 @@ function Play() {
     }
 
     checkTeammateScores();
-    
+
     const interval = setInterval(() => {
       checkTeammateScores();
     }, 3000);
-    
+
     setCheckingInterval(interval);
-    
+
     return () => {
       clearInterval(interval);
       setCheckingInterval(null);
     };
   }, [step, checkTeammateScores]);
+
+  // Socket.IO 실시간: 스코어 업데이트 수신 시 즉시 재검증 (3초 polling 대기 없이)
+  useEffect(() => {
+    if (!socket || step !== 'scoreCheck') return;
+    const onScoresUpdated = () => { checkTeammateScores(); };
+    socket.on('scores:updated', onScoresUpdated);
+    return () => { socket.off('scores:updated', onScoresUpdated); };
+  }, [socket, step, checkTeammateScores]);
 
   // 모달 상태 ref 동기화 (스와이프 핸들러에서 사용)
   useEffect(() => {
@@ -1523,26 +1533,6 @@ function Play() {
             <div style={{ opacity: 0.6, marginBottom: '20px' }}>
               팀메이트가 점수 입력을 완료하면<br/>자동으로 비교가 시작됩니다
             </div>
-            {/* 버그 수정 3: 팀메이트 미입력 시 단독 완료 우회 */}
-            <button
-              onClick={() => {
-                const ok = window.confirm('팀메이트의 점수 확인 없이 라운드를 완료합니다.\n점수는 검증되지 않은 상태로 기록됩니다.\n계속하시겠습니까?');
-                if (ok) handleRoundComplete();
-              }}
-              style={{
-                background: 'rgba(255,255,255,0.12)',
-                border: '1px solid rgba(255,255,255,0.25)',
-                color: 'rgba(255,255,255,0.75)',
-                fontSize: '13px',
-                fontWeight: '600',
-                padding: '10px 20px',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                WebkitTapHighlightColor: 'transparent',
-              }}
-            >
-              팀메이트 없이 완료
-            </button>
           </div>
         )}
         

@@ -179,6 +179,7 @@ model Score {
   totalScore   Int
   coursePar    Int      @default(72)
   holes        String?
+  markerHoles  String?
   completed    Boolean  @default(false)
   verified     Boolean  @default(false)
   verifiedBy   String?

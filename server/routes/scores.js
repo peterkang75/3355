@@ -102,20 +102,23 @@ router.get("/round-comparison", async (req, res) => {
 
 router.post("/verify-round", requireAuth, async (req, res) => {
   try {
-    const { roundingName, date, myId, teammateId, myHoles, teammateHolesRecordedByMe } = req.body;
+    const { roundingName, date, myId, teammateId } = req.body;
 
     if (!roundingName || !date || !myId || !teammateId) {
       return res.status(400).json({ error: "Missing required parameters" });
     }
 
-    const teammateScore = await prisma.score.findUnique({
-      where: {
-        userId_date_roundingName: { userId: teammateId, date, roundingName },
-      },
-    });
+    // 양쪽 Score 레코드 모두 조회
+    const [myScore, teammateScore] = await Promise.all([
+      prisma.score.findUnique({
+        where: { userId_date_roundingName: { userId: myId, date, roundingName } },
+      }),
+      prisma.score.findUnique({
+        where: { userId_date_roundingName: { userId: teammateId, date, roundingName } },
+      }),
+    ]);
 
-    // 본인 self-entry가 없으면 미준비로 판단
-    // (마커가 auto-save로 심어놓은 레코드만 있는 경우도 TEAMMATE_NOT_READY)
+    // 팀메이트 본인 self-entry 없으면 미준비
     const isTeammateSelfEntry = teammateScore && teammateScore.markerId === teammateScore.userId;
     if (!isTeammateSelfEntry) {
       return res.json({
@@ -125,22 +128,39 @@ router.post("/verify-round", requireAuth, async (req, res) => {
       });
     }
 
-    const teammateHoles = JSON.parse(teammateScore.holes || "[]");
-    const mismatches = [];
+    // 4개 세트 파싱
+    // teammateSelf: 팀메이트가 기록한 자기 self
+    // teammateByMe: 내가 기록한 팀메이트 (teammateScore.markerHoles에 저장되어 있음)
+    // mySelf: 내가 기록한 나 self
+    // myByTeammate: 팀메이트가 기록한 나 (myScore.markerHoles에 저장되어 있음)
+    const teammateSelf = JSON.parse(teammateScore.holes || "[]");
+    const teammateByMe = JSON.parse(teammateScore.markerHoles || "[]");
+    const mySelf = JSON.parse(myScore?.holes || "[]");
+    const myByTeammate = JSON.parse(myScore?.markerHoles || "[]");
 
+    // 양방향 비교: 한 홀이라도 어긋나면 mismatches에 포함
+    const mismatchSet = new Set();
     for (let i = 0; i < 18; i++) {
-      if (teammateHoles[i] !== teammateHolesRecordedByMe[i]) {
-        mismatches.push(i + 1);
-      }
+      // 방향 1: 내가 기록한 팀메이트 점수 vs 팀메이트 self
+      if (teammateByMe[i] !== teammateSelf[i]) mismatchSet.add(i + 1);
+      // 방향 2: 팀메이트가 기록한 내 점수 vs 내 self
+      if (myByTeammate[i] !== mySelf[i]) mismatchSet.add(i + 1);
     }
+    const mismatches = Array.from(mismatchSet).sort((a, b) => a - b);
 
     if (mismatches.length === 0) {
       await prisma.score.update({
         where: { id: teammateScore.id },
         data: { verified: true, verifiedBy: myId },
       });
-
-      return res.json({ success: true, verified: true, message: "팀메이트 스코어가 검증되었습니다." });
+      if (myScore) {
+        await prisma.score.update({
+          where: { id: myScore.id },
+          data: { verified: true, verifiedBy: teammateId },
+        });
+      }
+      if (req.io) req.io.emit('scores:updated');
+      return res.json({ success: true, verified: true, mismatches: [], message: "모든 점수가 일치합니다." });
     } else {
       return res.json({
         success: true,
@@ -255,18 +275,35 @@ router.post("/", requireAuth, async (req, res) => {
       });
     }
 
-    // 마커 입력인 경우, 본인 self-entry가 이미 존재하면 덮어쓰기 금지
-    // (3인 순환마킹 race condition 방지: 마커 auto-save가 본인 입력을 덮어쓰는 문제)
+    // 기존 레코드 조회 (마커/self 분기 판단 + markerHoles 보존용)
+    const existing = await prisma.score.findUnique({
+      where: { userId_date_roundingName: { userId: memberId, date, roundingName: roundingName || "" } },
+      select: { id: true, markerId: true, userId: true, holes: true, markerHoles: true },
+    });
+
+    // 마커 입력인 경우, 본인 self-entry가 이미 존재하면 holes 덮어쓰지 않고 markerHoles에 저장
+    // (양방향 검증을 위해 "마커가 기록한 점수"도 DB에 보존)
     if (!isSelfEntry) {
-      const existing = await prisma.score.findUnique({
-        where: { userId_date_roundingName: { userId: memberId, date, roundingName: roundingName || "" } },
-        select: { markerId: true, userId: true },
-      });
       if (existing && existing.markerId === existing.userId) {
-        // 본인 self-entry 존재 → 마커 입력으로 덮어쓰기 차단
-        return res.json({ success: true, selfEntryPreserved: true });
+        // 본인 self-entry 존재 → markerHoles에만 저장
+        const updated = await prisma.score.update({
+          where: { id: existing.id },
+          data: {
+            markerHoles: JSON.stringify(holes),
+            verified: false,
+            verifiedBy: null,
+          },
+        });
+        if (req.io) req.io.emit('scores:updated');
+        return res.json({ ...updated, success: true, selfEntryPreserved: true, markerHolesStored: true });
       }
     }
+
+    // self-entry가 기존 marker-entry를 덮어쓰는 경우: 기존 holes(마커가 기록한 값)를 markerHoles로 보존
+    const preserveMarkerHoles =
+      isSelfEntry && existing && existing.markerId && existing.markerId !== existing.userId && !existing.markerHoles
+        ? existing.holes
+        : undefined;
 
     const score = await prisma.score.upsert({
       where: {
@@ -280,6 +317,7 @@ router.post("/", requireAuth, async (req, res) => {
         markerId: isSelfEntry ? memberId : markerId,
         verified: false,
         verifiedBy: null,
+        ...(preserveMarkerHoles !== undefined ? { markerHoles: preserveMarkerHoles } : {}),
         gameMode: gameMode || null,
         gameMetadata: gameMetadata ? JSON.stringify(gameMetadata) : null,
       },
@@ -379,6 +417,7 @@ router.post("/", requireAuth, async (req, res) => {
       console.error('포썸 파트너 스코어 동기화 오류:', syncError);
     }
 
+    if (req.io) req.io.emit('scores:updated');
     res.json(score);
   } catch (error) {
     console.error("Error creating score:", error);
