@@ -86,10 +86,13 @@ export function AuthProvider({ children }) {
             }
 
             if (currentUser) {
-              setUser(currentUser);
-              try { localStorage.setItem('golfUser', JSON.stringify(currentUser)); } catch (e) {}
+              // localStorage에 저장된 사진이 있으면 목록 데이터보다 우선 사용
+              const savedPhoto = (() => { try { return JSON.parse(savedUser)?.photo; } catch (e) { return null; } })();
+              const userWithSavedPhoto = savedPhoto ? { ...currentUser, photo: savedPhoto } : currentUser;
+              setUser(userWithSavedPhoto);
+              try { localStorage.setItem('golfUser', JSON.stringify(userWithSavedPhoto)); } catch (e) {}
 
-              // 사진 포함 프로필 백그라운드 로드
+              // 사진 포함 프로필 백그라운드 로드 (API가 최신 사진 소스)
               apiService.fetchMember(currentUser.id)
                 .then(fullUser => {
                   if (fullUser) {
@@ -125,17 +128,17 @@ export function AuthProvider({ children }) {
           const membersData = await apiService.fetchMembers();
           if (membersData) {
             setMembers(membersData);
-            const savedUser = localStorage.getItem('golfUser');
-            if (savedUser) {
-              try {
-                const userData = JSON.parse(savedUser);
-                const updatedUser = membersData.find(m => m.id === userData.id);
-                if (updatedUser) {
-                  setUser(updatedUser);
-                  localStorage.setItem('golfUser', JSON.stringify(updatedUser));
-                }
-              } catch (e) {}
-            }
+            setUser(prev => {
+              if (!prev) return prev;
+              const updatedUser = membersData.find(m => m.id === prev.id);
+              if (updatedUser) {
+                // 목록 API는 사진을 포함하지 않으므로 기존 사진 보존
+                const withPhoto = { ...updatedUser, photo: updatedUser.photo || prev.photo };
+                try { localStorage.setItem('golfUser', JSON.stringify(withPhoto)); } catch (e) {}
+                return withPhoto;
+              }
+              return prev;
+            });
           }
         } catch (e) {}
       }, 300);
@@ -157,17 +160,17 @@ export function AuthProvider({ children }) {
             const changed = membersData.some((m, i) => m.id !== prev[i]?.id || m.updatedAt !== prev[i]?.updatedAt);
             return changed ? membersData : prev;
           });
-          const savedUser = localStorage.getItem('golfUser');
-          if (savedUser) {
-            try {
-              const userData = JSON.parse(savedUser);
-              const updatedUser = membersData.find(m => m.id === userData.id);
-              if (updatedUser && updatedUser.updatedAt !== userData.updatedAt) {
-                setUser(updatedUser);
-                localStorage.setItem('golfUser', JSON.stringify(updatedUser));
-              }
-            } catch (e) {}
-          }
+          setUser(prev => {
+            if (!prev) return prev;
+            const updatedUser = membersData.find(m => m.id === prev.id);
+            if (updatedUser && updatedUser.updatedAt !== prev.updatedAt) {
+              // 목록 API는 사진을 포함하지 않으므로 기존 사진 보존
+              const withPhoto = { ...updatedUser, photo: updatedUser.photo || prev.photo };
+              try { localStorage.setItem('golfUser', JSON.stringify(withPhoto)); } catch (e) {}
+              return withPhoto;
+            }
+            return prev;
+          });
         }
       } catch (e) {}
     };
@@ -190,7 +193,7 @@ export function AuthProvider({ children }) {
   const updateUser = useCallback((updates) => {
     setUser(prev => {
       const updated = { ...prev, ...updates };
-      localStorage.setItem('golfUser', JSON.stringify(updated));
+      try { localStorage.setItem('golfUser', JSON.stringify(updated)); } catch (e) {}
       return updated;
     });
   }, []);
@@ -208,8 +211,10 @@ export function AuthProvider({ children }) {
           if (!prev) return prev;
           const updated = membersData.find(m => m.id === prev.id);
           if (updated) {
-            try { localStorage.setItem('golfUser', JSON.stringify(updated)); } catch (e) {}
-            return updated;
+            // 목록 API는 사진을 포함하지 않으므로 기존 사진 보존
+            const withPhoto = { ...updated, photo: updated.photo || prev.photo };
+            try { localStorage.setItem('golfUser', JSON.stringify(withPhoto)); } catch (e) {}
+            return withPhoto;
           }
           return prev;
         });
