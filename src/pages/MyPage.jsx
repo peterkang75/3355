@@ -12,7 +12,7 @@ import { getEffectiveHandicap, calculateHandicap } from '../utils/handicap';
 import { Button, PageHeader } from '../components/common';
 
 function MyPage() {
-  const { user, logout, updateUser, courses, bookings } = useApp();
+  const { user, logout, updateUser, courses, bookings, refreshCourses } = useApp();
   const navigate = useNavigate();
   const location = useLocation();
   const [isEditing, setIsEditing] = useState(false);
@@ -22,6 +22,8 @@ function MyPage() {
   const [showHandicapInfo, setShowHandicapInfo] = useState(false);
   const [applyingHcp, setApplyingHcp] = useState(false);
   const [photoStatus, setPhotoStatus] = useState(null); // 사진 업로드 상태 메시지
+  const [clubSearchInput, setClubSearchInput] = useState('');
+  const [clubSearchState, setClubSearchState] = useState('idle'); // idle | searching | done | error
 
   useEffect(() => {
     if (location.state?.reset) {
@@ -48,6 +50,39 @@ function MyPage() {
       setScores(validScores);
     } catch {
       setScores([]);
+    }
+  };
+
+  const handleClubSearch = async () => {
+    const query = clubSearchInput.trim();
+    if (!query) return;
+    // 1) 기존 목록에서 먼저
+    const found = courses.find(c => c.name.toLowerCase().includes(query.toLowerCase()));
+    if (found) {
+      setEditData(prev => ({ ...prev, club: found.name }));
+      setClubSearchInput('');
+      setClubSearchState('done');
+      return;
+    }
+    // 2) AI 검색
+    setClubSearchState('searching');
+    try {
+      const result = await apiService.searchCourse(query);
+      const malePars = (result.holePars?.male || []).map(p => parseInt(p) || 4);
+      const femalePars = (result.holePars?.female || []).map(p => parseInt(p) || 4);
+      await apiService.createCourse({
+        name: result.name || query,
+        address: result.address || '',
+        holePars: { male: malePars, female: femalePars },
+        nearHoles: Array(18).fill(false),
+        isCompetition: false,
+      });
+      if (refreshCourses) await refreshCourses();
+      setEditData(prev => ({ ...prev, club: result.name || query }));
+      setClubSearchInput('');
+      setClubSearchState('done');
+    } catch {
+      setClubSearchState('error');
     }
   };
 
@@ -360,7 +395,7 @@ function MyPage() {
                     <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 6 }}>클럽 멤버십</div>
                     <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: 14, padding: 4, gap: 4 }}>
                       {[['예', 'yes'], ['아니오', 'no']].map(([label, val]) => (
-                        <button key={val} onClick={() => setEditData({ ...editData, isMember: val, ...(val === 'no' ? { club: '', golflinkNumber: '', clubMemberNumber: '' } : {}) })}
+                        <button key={val} onClick={() => { setEditData(prev => ({ ...prev, isMember: val, ...(val === 'no' ? { club: '', golflinkNumber: '', clubMemberNumber: '' } : {}) })); setClubSearchInput(''); setClubSearchState('idle'); }}
                           style={{ flex: 1, padding: '10px 0', borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 700,
                             background: editData.isMember === val ? '#0047AB' : 'transparent',
                             color: editData.isMember === val ? '#fff' : '#94A3B8',
@@ -374,11 +409,40 @@ function MyPage() {
                     <>
                       <div style={{ marginBottom: 14 }}>
                         <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 6 }}>소속 클럽</div>
-                        <select value={editData.club || ''} onChange={(e) => setEditData({ ...editData, club: e.target.value })}
-                          style={{ width: '100%', padding: '13px 16px', borderRadius: 14, border: '1.5px solid #E5E7EB', fontSize: 15, outline: 'none', background: '#fff', appearance: 'none', WebkitAppearance: 'none' }}>
-                          <option value="">선택하세요</option>
-                          {courses.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
-                        </select>
+                        {/* 선택된 클럽 표시 */}
+                        {editData.club ? (
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#F0FDF4', borderRadius: 12, border: '1.5px solid #BBF7D0', marginBottom: 8 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                              <span style={{ fontSize: 14, color: '#059669', fontWeight: 700 }}>✓</span>
+                              <span style={{ fontSize: 14, color: '#059669', fontWeight: 700 }}>{editData.club}</span>
+                            </div>
+                            <button type="button"
+                              onClick={() => { setEditData(prev => ({ ...prev, club: '' })); setClubSearchState('idle'); }}
+                              style={{ background: 'none', border: 'none', color: '#6B7280', fontSize: 18, cursor: 'pointer', padding: '0 4px', lineHeight: 1 }}>×</button>
+                          </div>
+                        ) : (
+                          <>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                              <input
+                                type="text"
+                                placeholder="골프장 이름으로 검색..."
+                                value={clubSearchInput}
+                                onChange={e => { setClubSearchInput(e.target.value); setClubSearchState('idle'); }}
+                                onKeyDown={e => e.key === 'Enter' && handleClubSearch()}
+                                style={{ flex: 1, padding: '13px 14px', borderRadius: 12, border: '1.5px solid #E5E7EB', fontSize: 15, color: '#1e293b', background: '#f8fafc', outline: 'none', boxSizing: 'border-box' }}
+                              />
+                              <button type="button"
+                                onClick={handleClubSearch}
+                                disabled={clubSearchState === 'searching' || !clubSearchInput.trim()}
+                                style={{ padding: '13px 16px', background: (clubSearchState === 'searching' || !clubSearchInput.trim()) ? '#93C5FD' : '#0047AB', color: 'white', border: 'none', borderRadius: 12, fontSize: 13, fontWeight: 700, cursor: (clubSearchState === 'searching' || !clubSearchInput.trim()) ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                                {clubSearchState === 'searching' ? '검색중...' : 'AI 검색'}
+                              </button>
+                            </div>
+                            {clubSearchState === 'error' && (
+                              <div style={{ fontSize: 12, color: '#EF4444', marginTop: 6 }}>검색에 실패했습니다. 다시 시도하거나 정확한 이름을 입력하세요.</div>
+                            )}
+                          </>
+                        )}
                       </div>
                       {[['GA Handy', 'gaHandy', 'number'], ['Golflink 번호', 'golflinkNumber', 'text'], ['클럽 회원번호', 'clubMemberNumber', 'text']].map(([label, key, type]) => (
                         <div key={key} style={{ marginBottom: 14 }}>
