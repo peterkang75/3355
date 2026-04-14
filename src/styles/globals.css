@@ -9,6 +9,7 @@ html {
   -webkit-text-size-adjust: none;
   text-size-adjust: none;
   overflow-x: hidden;
+  overflow-y: auto;
   width: 100%;
 }
 
@@ -1421,7 +1422,7 @@ input:focus, textarea:focus, select:focus {
 /* ===== ORIENTATION ===== */
 
 @media screen and (orientation: landscape) {
-  html { -webkit-text-size-adjust: 100%; }
+  /* text-size-adjust: none 유지 — 가로 모드에서도 Dynamic Type 확대 차단 */
 }
 
 /* ===== ACCESSIBILITY ===== */
