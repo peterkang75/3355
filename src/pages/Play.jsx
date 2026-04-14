@@ -1864,15 +1864,6 @@ function Play() {
             }}>
               HC {handicap}
             </div>
-            {/* 임시 디버그: gender 값 확인 후 제거 예정 */}
-            <div style={{
-              background: '#FEF3C7', color: '#92400E',
-              fontSize: s(10,9), fontWeight: 700,
-              padding: `${s(2,1)}px ${s(6,5)}px`, borderRadius: 6,
-              flexShrink: 0,
-            }}>
-              g:{JSON.stringify(rawGender)} {isFemale ? '♀' : '♂'}
-            </div>
           </div>
         </div>
 
@@ -1893,11 +1884,11 @@ function Play() {
                 width: btnSize, height: btnSize, border: 'none',
                 borderRadius: s(18, 15),
                 background: '#fff',
-                outline: `2.5px solid ${accent}`,
-                color: accent,
+                outline: `2.5px solid #0047AB`,
+                color: '#0047AB',
                 fontSize: s(28, 24), fontWeight: 700,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: `0 2px 8px ${accentShadowSm}`,
+                boxShadow: '0 2px 8px rgba(0,71,171,0.10)',
               }}
             >
               −
@@ -1920,11 +1911,11 @@ function Play() {
                 ...btnBase,
                 width: btnSize, height: btnSize, border: 'none',
                 borderRadius: s(18, 15),
-                background: accent,
+                background: '#0047AB',
                 color: '#fff',
                 fontSize: s(28, 24), fontWeight: 700,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: `0 4px 14px ${accentShadowLg}`,
+                boxShadow: '0 4px 14px rgba(0,71,171,0.35)',
               }}
             >
               +
@@ -1965,7 +1956,7 @@ function Play() {
             }}
           >
             <div style={{
-              background: '#0047AB', borderRadius: s(10,8),
+              background: accent, borderRadius: s(10,8),
               width: '100%', height: s(58,50), flexShrink: 0,
               display: 'flex', flexDirection: 'column',
               alignItems: 'center', justifyContent: 'center',
