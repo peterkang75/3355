@@ -137,6 +137,10 @@ app.use(express.static(path.join(__dirname, '../dist'), {
 }));
 
 app.get('*', (req, res) => {
+  // SPA 라우팅: index.html은 절대 캐시되면 안 됨 (iOS PWA가 옛 JS 해시를 계속 로드하는 원인)
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
   res.sendFile(path.join(__dirname, '../dist', 'index.html'));
 });
 
