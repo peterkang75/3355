@@ -5693,7 +5693,8 @@ function Admin() {
                               setIsSavingMemberScore(true);
                               try {
                                 const res = await fetch(`/api/scores/${existingMemberScore.id}`, {
-                                  method: 'DELETE'
+                                  method: 'DELETE',
+                                  headers: { 'X-Member-Id': user?.id }
                                 });
                                 
                                 if (res.ok) {
@@ -5980,13 +5981,13 @@ function Admin() {
                       if (existingMemberScore && existingMemberScore.id) {
                         res = await fetch(`/api/scores/${existingMemberScore.id}`, {
                           method: 'PUT',
-                          headers: { 'Content-Type': 'application/json' },
+                          headers: { 'Content-Type': 'application/json', 'X-Member-Id': user?.id },
                           body: JSON.stringify(scoreData)
                         });
                       } else {
                         res = await fetch('/api/scores', {
                           method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
+                          headers: { 'Content-Type': 'application/json', 'X-Member-Id': user?.id },
                           body: JSON.stringify(scoreData)
                         });
                       }
@@ -6561,7 +6562,7 @@ function Admin() {
                           if (!selectedPlayerForScore?.id) return;
                           if (!confirm('이 스코어를 삭제하시겠습니까?\n삭제 후에는 되돌릴 수 없습니다.')) return;
                           try {
-                            const res = await fetch(`/api/scores/${selectedPlayerForScore.id}`, { method: 'DELETE' });
+                            const res = await fetch(`/api/scores/${selectedPlayerForScore.id}`, { method: 'DELETE', headers: { 'X-Member-Id': user?.id } });
                             if (!res.ok) {
                               alert('삭제에 실패했습니다.');
                               return;
@@ -7132,7 +7133,7 @@ function Admin() {
                             
                             const res = await fetch('/api/scores', {
                               method: 'POST',
-                              headers: { 'Content-Type': 'application/json' },
+                              headers: { 'Content-Type': 'application/json', 'X-Member-Id': user?.id },
                               body: JSON.stringify({
                                 memberId: memberId,
                                 markerId: memberId,
@@ -7156,7 +7157,7 @@ function Admin() {
                           } else {
                             const res = await fetch(`/api/scores/${editingScore.id}`, {
                               method: 'PUT',
-                              headers: { 'Content-Type': 'application/json' },
+                              headers: { 'Content-Type': 'application/json', 'X-Member-Id': user?.id },
                               body: JSON.stringify({
                                 totalScore: editScoreData.totalScore,
                                 holes: editScoreData.holes
