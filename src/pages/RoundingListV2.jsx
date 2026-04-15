@@ -500,7 +500,7 @@ function RoundingListV2() {
                 <div style={{ position: 'relative', height: '180px', overflow: 'hidden', cursor: 'pointer' }} onClick={() => setSelectedBooking(b)}>
                   <img src={golfMembersPhoto} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 90%' }} />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.65) 100%)' }} />
-                  <div style={{ position: 'absolute', top: 14, left: 14, background: '#C0392B', color: '#fff', fontSize: '11px', fontWeight: '800', padding: '4px 12px', borderRadius: '20px', letterSpacing: '0.02em' }}>정기모임</div>
+                  <div style={{ position: 'absolute', top: 14, left: 14, background: '#C0392B', color: '#fff', fontSize: '11px', fontWeight: '800', padding: '4px 12px', borderRadius: '20px', letterSpacing: '0.02em' }}>정기라운딩</div>
                   {upcomingRegular.length > 1 && (
                     <div style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(255,255,255,0.18)', color: '#fff', fontSize: '11px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', backdropFilter: 'blur(4px)' }}>전체 {upcomingRegular.length}개</div>
                   )}

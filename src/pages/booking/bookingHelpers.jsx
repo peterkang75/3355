@@ -64,6 +64,9 @@ export const getBookingStatusFlags = (booking) => {
   today.setHours(0, 0, 0, 0);
   const isPastRoundingDate = bookingDate < today;
   const isRoundingDay = bookingDate.toDateString() === new Date().toDateString();
+  // 수동 마감/오픈 오버라이드
+  if (booking.status === 'closed') return { isPastRoundingDate, isRoundingDay, isRegistrationClosed: true };
+  if (booking.status === 'open') return { isPastRoundingDate, isRoundingDay, isRegistrationClosed: false };
   const deadline = getEffectiveDeadline(booking);
   const isRegistrationClosed = new Date() > deadline;
   return { isPastRoundingDate, isRoundingDay, isRegistrationClosed };
@@ -93,7 +96,7 @@ export const azure = {
 
 export const getTileTypeBadge = (booking) => {
   const type = (booking.type || '').trim();
-  if (type === '정기모임') return { label: '정기모임', bg: '#C0392B', color: '#FFFFFF' };
+  if (type === '정기모임') return { label: '정기라운딩', bg: '#C0392B', color: '#FFFFFF' };
   if (type === '컴페티션') return { label: '컴페티션', bg: azure.primary, color: '#FFFFFF' };
   if (type === '그린피') return { label: '그린피', bg: '#F0FDF4', color: '#166534' };
   if (type === '캐주얼') return { label: '캐주얼', bg: '#D1FAE5', color: '#065F46' };
@@ -105,7 +108,7 @@ export const getTypeBadge = (booking) => {
   let label = type || booking.title || '';
   let bg = '#FFEDD5';
   let color = '#9A3412';
-  if (type === '정기모임') { label = '정기모임'; bg = '#EA580C'; color = '#FFFFFF'; }
+  if (type === '정기모임') { label = '정기라운딩'; bg = '#EA580C'; color = '#FFFFFF'; }
   else if (type === '컴페티션') { label = '컴페티션'; bg = '#0F766E'; color = '#FFFFFF'; }
   else if (type === '그린피') { label = '그린피'; bg = '#D1FAE5'; color = '#065F46'; }
   else if (type === '캐주얼') { label = '캐주얼'; bg = '#D1FAE5'; color = '#065F46'; }

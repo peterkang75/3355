@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../services/api';
-import { formatDate } from './bookingHelpers';
+import { formatDate, getBookingStatusFlags } from './bookingHelpers';
 
 const PRIMARY = '#0047AB';
 
@@ -302,12 +302,17 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
         <div style={{ marginBottom: '16px' }}>
           <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', marginBottom: '8px' }}>라운딩 유형</div>
           <div style={{ display: 'flex', gap: '6px' }}>
-            {['소셜', '컴페티션', '그린피'].map(t => {
-              const isActive = hmType === t;
+            {[
+              { label: '정기라운딩', value: '정기모임' },
+              { label: '소셜', value: '소셜' },
+              { label: '컴페티션', value: '컴페티션' },
+              { label: '그린피', value: '그린피' },
+            ].map(({ label, value }) => {
+              const isActive = hmType === value;
               return (
-                <button key={t} onClick={() => handleHmTypeChange(t)} disabled={hmSaving}
-                  style={{ flex: 1, padding: '10px 4px', borderRadius: '10px', border: isActive ? 'none' : '1px solid #E8ECF0', background: isActive ? PRIMARY : '#FFFFFF', color: isActive ? '#FFFFFF' : '#64748B', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>
-                  {t}
+                <button key={value} onClick={() => handleHmTypeChange(value)} disabled={hmSaving}
+                  style={{ flex: 1, padding: '8px 2px', borderRadius: '10px', border: isActive ? 'none' : '1px solid #E8ECF0', background: isActive ? PRIMARY : '#FFFFFF', color: isActive ? '#FFFFFF' : '#64748B', fontWeight: '700', fontSize: '12px', cursor: 'pointer' }}>
+                  {label}
                 </button>
               );
             })}
@@ -358,6 +363,32 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
         {sLabel('게임 설정')}
         <Toggle field="playEnabled" label="Play 기능 활성화" description="스코어 입력 활성화" />
         <Toggle field="is2BB" label="2BB 방식" description="2인 1조 베스트볼 방식" />
+        {(() => {
+          const { isRegistrationClosed: isEffectivelyClosed } = getBookingStatusFlags(booking);
+          const descText = booking.status === 'closed'
+            ? '수동 마감 중'
+            : booking.status === 'open'
+            ? '수동 오픈 중 (자동마감 무시)'
+            : isEffectivelyClosed ? '자동 마감됨' : '접수 중 (자동)';
+          return (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid #F1F5F9' }}>
+              <div>
+                <div style={{ fontSize: '14px', fontWeight: '600', color: '#1E293B' }}>접수 마감</div>
+                <div style={{ fontSize: '12px', color: isEffectivelyClosed ? '#DC2626' : '#94A3B8', marginTop: '2px' }}>{descText}</div>
+              </div>
+              <button
+                onClick={async () => {
+                  const newStatus = isEffectivelyClosed ? 'open' : 'closed';
+                  await hmSaveField({ status: newStatus });
+                }}
+                disabled={hmSaving}
+                style={{ width: '46px', height: '26px', borderRadius: '13px', border: 'none', background: isEffectivelyClosed ? '#DC2626' : '#E2E8F0', cursor: 'pointer', position: 'relative', transition: 'background 0.2s', flexShrink: 0, padding: 0 }}
+              >
+                <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#FFFFFF', position: 'absolute', top: '3px', left: isEffectivelyClosed ? '23px' : '3px', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.15)' }} />
+              </button>
+            </div>
+          );
+        })()}
         <button onClick={() => { onClose(); navigate('/admin', { state: { openScoreBookingId: booking.id } }); }}
           style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', background: '#F8FAFC', border: '1px solid #F1F5F9', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '8px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

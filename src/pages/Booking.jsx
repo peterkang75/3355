@@ -370,12 +370,15 @@ function Booking() {
   };
 
   const isRegistrationClosed = (booking) => {
+    // 수동 오버라이드 우선 적용
+    if (booking.status === 'closed') return true;
+    if (booking.status === 'open') return false;
     // For competition rounds, use automatic deadline: Saturday 6 PM, one week before
     if (booking.type === '컴페티션') {
       const deadline = getCompetitionDeadline(booking.date);
       return new Date() > deadline;
     }
-    
+
     // For regular rounds, use manual registrationDeadline if set
     if (!booking.registrationDeadline) return false;
     const today = new Date();
