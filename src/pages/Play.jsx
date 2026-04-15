@@ -7,7 +7,7 @@ import PageHeader from '../components/common/PageHeader';
 function Play() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user, bookings, courses, members, refreshBookings } = useApp();
+  const { user, bookings, courses, members, refreshBookings, featureSettings } = useApp();
   const socket = useSocket();
   const bookingId = searchParams.get('id');
   
@@ -1045,6 +1045,46 @@ function Play() {
   }
 
   if (step === 'selectMember') {
+    // ── 4인 조편성 규칙 게이트 ──────────────────────────────────────────────
+    const squadRules = featureSettings?.squadFormationRules || {};
+    const ruleEnabled = squadRules[booking.type] ?? false;
+    const participantCount = (booking?.participants || []).length;
+    const hasTeamFormation = !!(booking?.teams);
+
+    if (ruleEnabled && participantCount > 4 && !hasTeamFormation) {
+      return (
+        <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'center', padding: '16px', paddingTop: 'calc(env(safe-area-inset-top) + 16px)', background: '#fff', borderBottom: '1px solid #F1F5F9' }}>
+            <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px 4px 0', fontSize: '20px', color: '#1E293B' }}>←</button>
+            <span style={{ fontSize: '17px', fontWeight: '700', color: '#1E293B' }}>플레이하기</span>
+          </div>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px', gap: '16px' }}>
+            <div style={{ fontSize: '48px' }}>⛳</div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontSize: '17px', fontWeight: '700', color: '#1E293B', marginBottom: '8px' }}>조편을 해야합니다</div>
+              <div style={{ fontSize: '14px', color: '#64748B', lineHeight: 1.6 }}>
+                참가 인원이 5명 이상입니다.{'\n'}조편성을 완료한 후 플레이를 시작해주세요.
+              </div>
+              <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '6px' }}>{participantCount}명 참가 중</div>
+            </div>
+            <button
+              onClick={() => navigate(`/team-formation?id=${bookingId}`)}
+              style={{ marginTop: '8px', padding: '14px 32px', borderRadius: '14px', background: '#0047AB', color: '#fff', border: 'none', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}
+            >
+              📋 조편성 하러 가기
+            </button>
+            <button
+              onClick={() => navigate(-1)}
+              style={{ padding: '10px 24px', borderRadius: '12px', background: '#F1F5F9', color: '#64748B', border: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+            >
+              돌아가기
+            </button>
+          </div>
+        </div>
+      );
+    }
+    // ── 기존 teammates 체크 ───────────────────────────────────────────────────
+
     if (teammates.length === 0) {
       // 디버그: 실제 participants 파싱해서 원인 확인
       const _dbgRaw = (booking?.participants || []).map(p => { try { return typeof p === 'string' ? JSON.parse(p) : p; } catch { return null; } }).filter(Boolean);

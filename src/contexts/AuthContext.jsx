@@ -19,7 +19,7 @@ export function AuthProvider({ children }) {
   const [requiresProfileComplete, setRequiresProfileComplete] = useState(false);
   const [clubLogo, setClubLogo] = useState(null);
   const [featurePermissions, setFeaturePermissions] = useState({});
-  const [featureSettings, setFeatureSettings] = useState({ pickWinnerEnabled: true });
+  const [featureSettings, setFeatureSettings] = useState({ pickWinnerEnabled: true, squadFormationRules: { 정기모임: true, 컴페티션: true, 캐주얼: false } });
 
   const socket = useSocket();
   const debounceRef = useRef(null);
@@ -66,6 +66,14 @@ export function AuthProvider({ children }) {
           const pickWinnerSetting = settingsData.find(s => s.feature === 'pickWinnerEnabled');
           if (pickWinnerSetting) {
             setFeatureSettings(prev => ({ ...prev, pickWinnerEnabled: pickWinnerSetting.enabled !== false }));
+          }
+
+          const squadRulesSetting = settingsData.find(s => s.feature === 'squadFormationRules');
+          if (squadRulesSetting?.value) {
+            try {
+              const rules = JSON.parse(squadRulesSetting.value);
+              setFeatureSettings(prev => ({ ...prev, squadFormationRules: rules }));
+            } catch {}
           }
         }
 

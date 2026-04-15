@@ -68,6 +68,7 @@ function Admin() {
   const [hasChanges, setHasChanges] = useState(false);
   const [approvalRequired, setApprovalRequired] = useState(false);
   const [pickWinnerEnabled, setPickWinnerEnabled] = useState(true);
+  const [squadFormationRules, setSquadFormationRules] = useState({ 정기모임: true, 컴페티션: true, 캐주얼: false });
   const [approvalPermission, setApprovalPermission] = useState('관리자');
   
   const [clubBalance, setClubBalance] = useState(0);
@@ -301,6 +302,9 @@ function Admin() {
         }
         if (setting.feature === 'pickWinnerEnabled') {
           setPickWinnerEnabled(setting.enabled !== false);
+        }
+        if (setting.feature === 'squadFormationRules' && setting.value) {
+          try { setSquadFormationRules(JSON.parse(setting.value)); } catch {}
         }
         if (setting.feature === 'member_approval') {
           setApprovalPermission(setting.minRole || '관리자');
@@ -1217,6 +1221,17 @@ function Admin() {
       console.error('우승자 맞추기 설정 저장 실패:', error);
       alert('우승자 맞추기 설정 저장에 실패했습니다.');
       setPickWinnerEnabled(!newValue);
+    }
+  };
+
+  const handleSquadRuleToggle = async (type) => {
+    const newRules = { ...squadFormationRules, [type]: !squadFormationRules[type] };
+    setSquadFormationRules(newRules);
+    try {
+      await apiService.updateSetting('squadFormationRules', { value: JSON.stringify(newRules) });
+    } catch (error) {
+      console.error('조편성 규칙 설정 저장 실패:', error);
+      setSquadFormationRules(squadFormationRules);
     }
   };
 
@@ -7287,6 +7302,35 @@ function Admin() {
                   }} />
                 </div>
               </div>
+            </div>
+
+            <div className="card" style={{ marginBottom: '16px' }}>
+              <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>
+                4인 조편성 규칙 적용
+              </h3>
+              <div style={{ fontSize: '13px', color: 'var(--text-muted, #64748B)', marginBottom: '16px', lineHeight: 1.5 }}>
+                활성화된 라운딩 유형에서 5명 이상일 경우 조편성을 완료해야 플레이를 시작할 수 있습니다
+              </div>
+              {[
+                { type: '정기모임', label: '정기라운딩' },
+                { type: '컴페티션', label: '컴페티션' },
+                { type: '캐주얼', label: '캐주얼' },
+              ].map(({ type, label }) => (
+                <div key={type} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '14px 16px', background: 'var(--bg-green)', borderRadius: '8px', marginBottom: '8px' }}>
+                  <div>
+                    <div style={{ fontSize: '15px', fontWeight: '600', marginBottom: '2px' }}>{label}</div>
+                    <div style={{ fontSize: '12px', opacity: 0.65 }}>
+                      {squadFormationRules[type] ? '5명 이상 시 조편성 필수' : '조편성 없이 바로 플레이'}
+                    </div>
+                  </div>
+                  <div
+                    onClick={() => handleSquadRuleToggle(type)}
+                    style={{ width: '60px', height: '32px', background: squadFormationRules[type] ? 'var(--primary-green)' : '#ccc', borderRadius: '16px', position: 'relative', cursor: 'pointer', transition: 'background 0.3s', flexShrink: 0 }}
+                  >
+                    <div style={{ width: '28px', height: '28px', background: 'white', borderRadius: '50%', position: 'absolute', top: '2px', left: squadFormationRules[type] ? '30px' : '2px', transition: 'left 0.3s' }} />
+                  </div>
+                </div>
+              ))}
             </div>
 
             <div className="card" style={{ marginBottom: '16px' }}>
