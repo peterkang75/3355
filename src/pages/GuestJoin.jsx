@@ -56,6 +56,7 @@ function GuestJoin() {
         bookingId: result.bookingId,
         guestName: result.guestName,
         phone: result.phone,
+        handicap: result.handicap,
       }));
       navigate(`/play?id=${result.bookingId}`, { replace: true });
     } catch (err) {
@@ -82,6 +83,7 @@ function GuestJoin() {
         bookingId: result.bookingId,
         guestName: result.guestName,
         phone: result.phone,
+        handicap: result.handicap,
       }));
       navigate(`/play?id=${result.bookingId}`, { replace: true });
     } catch (err) {

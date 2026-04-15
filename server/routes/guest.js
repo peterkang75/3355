@@ -173,6 +173,8 @@ router.post('/invite/:token/register', async (req, res) => {
       nickname: guest.name,
       phone: guest.phone,
       isGuest: true,
+      handicap: String(parsedHandicap),
+      gaHandy: String(parsedHandicap),
     });
 
     await prisma.booking.update({
@@ -185,6 +187,7 @@ router.post('/invite/:token/register', async (req, res) => {
       bookingId: booking.id,
       guestName: guest.name,
       phone: guest.phone,
+      handicap: parsedHandicap,
     });
   } catch (error) {
     console.error('Error registering guest:', error);

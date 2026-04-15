@@ -473,11 +473,18 @@ function Play() {
             const opponent1 = userTeam.members[opponentSlots[0]];
             const opponent2 = userTeam.members[opponentSlots[1]];
             
-            // 멤버 정보 보강
+            // 멤버 정보 보강 (게스트는 members 배열에 없으므로 participants에서 핸디 보완)
             const enrichMember = (tm) => {
               if (!tm) return null;
               const fullMember = members?.find(m => m.phone === tm.phone);
-              return fullMember ? { ...tm, ...fullMember } : tm;
+              if (fullMember) return { ...tm, ...fullMember };
+              if (tm.phone?.startsWith('guest_')) {
+                const parsed = (foundBooking.participants || []).map(p => {
+                  try { return typeof p === 'string' ? JSON.parse(p) : p; } catch { return null; }
+                }).filter(Boolean).find(p => p.phone === tm.phone);
+                if (parsed) return { ...tm, ...parsed };
+              }
+              return tm;
             };
             
             const enrichedPartner = enrichMember(partner);
@@ -1639,7 +1646,7 @@ function Play() {
             <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--primary-green)' }}>
               {selectedTeammate?.nickname || selectedTeammate?.name}
             </div>
-            <div style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>HC: {selectedTeammate?.handicap || '-'}</div>
+            <div style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>HC: {selectedTeammate?.gaHandy || selectedTeammate?.handicap || '-'}</div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '24px' }}>
             <div style={{ textAlign: 'center' }}>
@@ -1658,9 +1665,9 @@ function Play() {
         <div className="card" style={{ marginBottom: '24px' }}>
           <div style={{ textAlign: 'center', marginBottom: '16px' }}>
             <div style={{ fontSize: '16px', fontWeight: '700', color: 'var(--primary-green)' }}>
-              {user?.nickname || user?.name}
+              {user?.nickname || user?.name || guestSession?.guestName}
             </div>
-            <div style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>HC: {user?.handicap || '-'}</div>
+            <div style={{ fontSize: '14px', color: '#666', marginTop: '4px' }}>HC: {user?.handicap || guestSession?.handicap || '-'}</div>
           </div>
           <div style={{ display: 'flex', justifyContent: 'center', gap: '24px' }}>
             <div style={{ textAlign: 'center' }}>
@@ -1796,11 +1803,11 @@ function Play() {
     } else {
       playerName = isTeammate
         ? (selectedTeammate?.nickname || selectedTeammate?.name || '-')
-        : (user?.nickname || user?.name || '-');
+        : (user?.nickname || user?.name || guestSession?.guestName || '-');
       const m = isTeammate ? null : members?.find(me => me.phone === effectiveUserPhone);
       handicap = isTeammate
         ? (selectedTeammate?.gaHandy || selectedTeammate?.houseHandy || selectedTeammate?.handicap || '-')
-        : (m?.gaHandy || m?.houseHandy || m?.handicap || user?.handicap || '-');
+        : (m?.gaHandy || m?.houseHandy || m?.handicap || user?.handicap || guestSession?.handicap || '-');
     }
 
     const handleParClick = () => {
