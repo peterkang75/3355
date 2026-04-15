@@ -1049,7 +1049,13 @@ function Play() {
     const squadRules = featureSettings?.squadFormationRules || {};
     const ruleEnabled = squadRules[booking.type] ?? false;
     const participantCount = (booking?.participants || []).length;
-    const hasTeamFormation = !!(booking?.teams);
+    const hasTeamFormation = (() => {
+      if (!booking?.teams) return false;
+      try {
+        const t = typeof booking.teams === 'string' ? JSON.parse(booking.teams) : booking.teams;
+        return Array.isArray(t) && t.length > 0;
+      } catch { return false; }
+    })();
 
     if (ruleEnabled && participantCount > 4 && !hasTeamFormation) {
       return (
