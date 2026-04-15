@@ -295,10 +295,11 @@ function ReceiptViewer({ images, onClose }) {
 }
 
 // ─── 카테고리 상세 바텀시트 ──────────────────────────────────────────────────
-function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClose }) {
+function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClose, isOperator, isClosed, onRefresh }) {
   const [txList, setTxList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewerImages, setViewerImages] = useState(null); // null이면 닫힘
+  const [deletingId, setDeletingId] = useState(null);
 
   useEffect(() => {
     if (!categoryKey) return;
@@ -308,6 +309,25 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
       .then(data => { setTxList(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, [categoryKey, side, yearMonth]);
+
+  const handleReverse = async (tx) => {
+    const memberName = tx.member?.nickname || tx.member?.name || '회원';
+    if (!confirm(`${memberName}님의 납부(${formatCurrency(tx.amount)})를 취소하고 미납 상태로 되돌리겠습니까?`)) return;
+    setDeletingId(tx.id);
+    try {
+      const r = await fetch(`/api/transactions/${tx.id}`, {
+        method: 'DELETE',
+        headers: authHeaders,
+      });
+      if (!r.ok) throw new Error('Failed');
+      setTxList(prev => prev.filter(t => t.id !== tx.id));
+      onRefresh?.();
+    } catch {
+      alert('납부 취소 처리에 실패했습니다.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   if (!categoryKey) return null;
 
@@ -384,6 +404,23 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
                             <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                           </svg>
                           영수증 {images.length > 1 ? `${images.length}장` : ''}
+                        </button>
+                      )}
+                      {isOperator && !isClosed && isIncome && (
+                        <button
+                          onClick={() => handleReverse(t)}
+                          disabled={deletingId === t.id}
+                          style={{
+                            padding: '3px 10px', borderRadius: 8,
+                            border: '1px solid #fecaca',
+                            background: deletingId === t.id ? '#f8fafc' : '#fff5f5',
+                            color: deletingId === t.id ? '#9ca3af' : '#dc2626',
+                            fontSize: 11, fontWeight: 600,
+                            cursor: deletingId === t.id ? 'not-allowed' : 'pointer',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {deletingId === t.id ? '처리중...' : '납부취소'}
                         </button>
                       )}
                     </div>
@@ -920,6 +957,9 @@ function Settlement() {
         yearMonth={yearMonth}
         authHeaders={authHeaders}
         onClose={() => setCatSheet(null)}
+        isOperator={isOperator}
+        isClosed={data?.isClosed}
+        onRefresh={() => { load(); loadOutstanding(); }}
       />
     </div>
   );
