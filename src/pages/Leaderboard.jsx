@@ -26,13 +26,28 @@ function Leaderboard() {
   const [ntpRecords, setNtpRecords] = useState([]);
 
   useEffect(() => {
-    if (bookingId && bookings.length > 0) {
+    if (!bookingId) return;
+    if (bookings.length > 0) {
       const foundBooking = bookings.find(b => b.id === bookingId);
-      setBooking(foundBooking);
       if (foundBooking) {
+        setBooking(foundBooking);
         fetchScores(foundBooking);
+        return;
       }
     }
+    // 게스트 모드: 컨텍스트에 booking이 없으면 API로 직접 조회
+    fetch(`/api/bookings`)
+      .then(r => r.ok ? r.json() : [])
+      .then(all => {
+        const found = all.find(b => b.id === bookingId);
+        if (found) {
+          setBooking(found);
+          fetchScores(found);
+        } else {
+          setLoading(false);
+        }
+      })
+      .catch(() => setLoading(false));
   }, [bookingId, bookings]);
 
   useEffect(() => {

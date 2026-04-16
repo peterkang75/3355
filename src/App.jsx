@@ -91,8 +91,9 @@ function App() {
         {/* 로그인 없이 접근 가능한 공개 라우트 */}
         <Route path="/invite/:token" element={<GuestJoin />} />
         <Route path="/join" element={<JoinPage />} />
-        {/* 게스트 or 일반 회원 모두 /play 접근 가능 (Play 내부에서 세션 확인) */}
+        {/* 게스트 or 일반 회원 모두 /play, /leaderboard 접근 가능 */}
         <Route path="/play" element={<Play />} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
         {/* 인증 필요 라우트 */}
         <Route
           path="*"
