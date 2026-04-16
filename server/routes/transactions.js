@@ -178,8 +178,13 @@ router.get("/outstanding", requireAuth, requireOperator, async (req, res) => {
 
     const [members, transactions] = await Promise.all([
       prisma.member.findMany({
-        where: { isActive: true },
-        select: { id: true, name: true, nickname: true },
+        where: {
+          OR: [
+            { isActive: true },
+            { isGuest: true, approvalStatus: 'guest' },
+          ],
+        },
+        select: { id: true, name: true, nickname: true, isGuest: true },
       }),
       prisma.transaction.findMany({
         where: {
@@ -219,9 +224,14 @@ router.get("/outstanding", requireAuth, requireOperator, async (req, res) => {
         memberId: member.id,
         memberName: member.name,
         memberNickname: member.nickname,
+        isGuest: member.isGuest || false,
         balance: balanceByMember[member.id] || 0,
       }))
-      .filter((ob) => ob.balance < 0);
+      .filter((ob) => ob.balance < 0)
+      .sort((a, b) => {
+        if (a.isGuest !== b.isGuest) return a.isGuest ? 1 : -1; // 게스트는 뒤로
+        return a.balance - b.balance;
+      });
 
     res.json(outstandingBalances);
   } catch (error) {

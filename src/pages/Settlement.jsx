@@ -449,7 +449,12 @@ function PaySheet({ member, amount, setAmount, memo, setMemo, date, setDate, onC
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
           <div style={{ width: 40, height: 4, background: '#D1D5DB', borderRadius: 2, margin: '0 auto 16px' }} />
           <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--on-background)' }}>납부 처리</div>
-          <div style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 4 }}>{member.memberNickname || member.memberName}</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 4 }}>
+            {member.isGuest && (
+              <span style={{ fontSize: 10, fontWeight: 800, color: '#7c3aed', background: '#EDE9FE', borderRadius: 6, padding: '2px 6px' }}>게스트</span>
+            )}
+            <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>{member.memberNickname || member.memberName}</span>
+          </div>
         </div>
         <div style={{ marginBottom: 14 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6 }}>납부 금액</div>
@@ -562,14 +567,15 @@ function Settlement() {
     if (!parsed || parsed <= 0) { alert('올바른 금액을 입력하세요.'); return; }
     setPaying(true);
     try {
+      const isGuestPayment = payingMember.isGuest;
       const r = await fetch('/api/transactions', {
         method: 'POST',
         headers: authHeaders,
         body: JSON.stringify({
           type: 'payment',
-          category: '회비납부',
+          category: isGuestPayment ? '게스트 참가비납부' : '회비납부',
           amount: parsed,
-          description: payMemo || '회비납부',
+          description: payMemo || (isGuestPayment ? '게스트 참가비납부' : '회비납부'),
           date: payDate,
           memberId: payingMember.memberId,
         }),
@@ -778,32 +784,80 @@ function Settlement() {
                 </div>
               </div>
 
-              {/* 미수금 회원 목록 */}
-              {outstandingMembers.length > 0 && (
-                <div style={{ background: '#fff', borderRadius: 20, padding: '18px 20px', marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1.5px solid #fed7aa' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#ea580c', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#ea580c"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
-                      미수금 회원
-                    </div>
-                    <div style={{ fontSize: 13, fontWeight: 700, color: '#ea580c' }}>{outstandingMembers.length}명 · {formatCurrency(outstandingMembers.reduce((s, m) => s + Math.abs(m.balance), 0))}</div>
-                  </div>
-                  {outstandingMembers.map((m, i) => (
-                    <div key={m.memberId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 0', borderTop: '1px solid #FEF3C7' }}>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{m.memberNickname || m.memberName}</div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <span style={{ fontSize: 14, fontWeight: 700, color: '#ea580c' }}>{formatCurrency(Math.abs(m.balance))}</span>
-                        {isOperator && !data?.isClosed && (
-                          <button
-                            onClick={() => { setPayingMember(m); setPayAmount(String(Math.abs(m.balance))); setPayMemo(''); }}
-                            style={{ padding: '5px 14px', borderRadius: 10, border: 'none', background: '#D1FAE5', color: '#065F46', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
-                          >납부 처리</button>
+              {/* 미수금 목록 */}
+              {outstandingMembers.length > 0 && (() => {
+                const regularMembers = outstandingMembers.filter(m => !m.isGuest);
+                const guestMembers = outstandingMembers.filter(m => m.isGuest);
+                const regularTotal = regularMembers.reduce((s, m) => s + Math.abs(m.balance), 0);
+                const guestTotal = guestMembers.reduce((s, m) => s + Math.abs(m.balance), 0);
+                return (
+                  <div style={{ background: '#fff', borderRadius: 20, padding: '18px 20px', marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1.5px solid #fed7aa' }}>
+                    {/* 헤더 */}
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                      <div style={{ fontSize: 14, fontWeight: 800, color: '#ea580c', display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#ea580c"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                        미수금
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                        {regularTotal > 0 && (
+                          <span style={{ fontSize: 11, fontWeight: 700, color: '#ea580c', background: '#FEF3C7', borderRadius: 8, padding: '2px 8px' }}>
+                            회원 {formatCurrency(regularTotal)}
+                          </span>
+                        )}
+                        {guestTotal > 0 && (
+                          <span style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', background: '#EDE9FE', borderRadius: 8, padding: '2px 8px' }}>
+                            게스트 {formatCurrency(guestTotal)}
+                          </span>
                         )}
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
+
+                    {/* 일반 회원 */}
+                    {regularMembers.map((m, i) => (
+                      <div key={m.memberId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 0', borderTop: '1px solid #FEF3C7' }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{m.memberNickname || m.memberName}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <span style={{ fontSize: 14, fontWeight: 700, color: '#ea580c' }}>{formatCurrency(Math.abs(m.balance))}</span>
+                          {isOperator && !data?.isClosed && (
+                            <button
+                              onClick={() => { setPayingMember(m); setPayAmount(String(Math.abs(m.balance))); setPayMemo(''); }}
+                              style={{ padding: '5px 14px', borderRadius: 10, border: 'none', background: '#D1FAE5', color: '#065F46', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                            >납부 처리</button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* 구분선 */}
+                    {regularMembers.length > 0 && guestMembers.length > 0 && (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, margin: '6px 0' }}>
+                        <div style={{ flex: 1, height: 1, background: '#EDE9FE' }} />
+                        <span style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed' }}>게스트</span>
+                        <div style={{ flex: 1, height: 1, background: '#EDE9FE' }} />
+                      </div>
+                    )}
+
+                    {/* 게스트 */}
+                    {guestMembers.map((m, i) => (
+                      <div key={m.memberId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 0', borderTop: i === 0 && regularMembers.length === 0 ? '1px solid #EDE9FE' : 'none' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                          <span style={{ fontSize: 10, fontWeight: 800, color: '#7c3aed', background: '#EDE9FE', borderRadius: 6, padding: '2px 6px', letterSpacing: '0.02em' }}>G</span>
+                          <span style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{m.memberNickname || m.memberName}</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                          <span style={{ fontSize: 14, fontWeight: 700, color: '#7c3aed' }}>{formatCurrency(Math.abs(m.balance))}</span>
+                          {isOperator && !data?.isClosed && (
+                            <button
+                              onClick={() => { setPayingMember(m); setPayAmount(String(Math.abs(m.balance))); setPayMemo(''); }}
+                              style={{ padding: '5px 14px', borderRadius: 10, border: 'none', background: '#EDE9FE', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                            >납부 처리</button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                );
+              })()}
 
               {/* 수입 내역 */}
               {incomeEntries.length > 0 && (
