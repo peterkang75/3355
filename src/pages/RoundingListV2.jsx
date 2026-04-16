@@ -512,11 +512,32 @@ function RoundingListV2() {
                 {/* 정보 + 버튼 */}
                 <div style={{ padding: '14px 16px 14px', cursor: 'pointer' }} onClick={() => setSelectedBooking(b)}>
                   <div style={{ fontSize: '18px', fontWeight: '800', color: '#111827', marginBottom: '3px', letterSpacing: '-0.02em' }}>{b.title || b.courseName}</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#64748B', marginBottom: '12px' }}>
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
-                    </svg>
-                    {b.courseName}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#64748B' }}>
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+                      </svg>
+                      {b.courseName}
+                    </div>
+                    {(() => {
+                      const course = (courses || []).find(c => c.name === b.courseName);
+                      const mapsUrl = course?.latitude && course?.longitude
+                        ? `https://www.google.com/maps/search/?api=1&query=${course.latitude},${course.longitude}`
+                        : course?.address
+                          ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(course.address)}`
+                          : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(b.courseName)}`;
+                      return (
+                        <button
+                          onClick={(e) => { e.stopPropagation(); window.open(mapsUrl, '_blank'); }}
+                          style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '5px 10px', borderRadius: '8px', background: '#EBF2FF', color: '#0047AB', border: 'none', fontSize: '11px', fontWeight: '700', cursor: 'pointer' }}
+                        >
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+                          </svg>
+                          지도보기
+                        </button>
+                      );
+                    })()}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', gap: '20px' }}>
