@@ -311,8 +311,11 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
   }, [categoryKey, side, yearMonth]);
 
   const handleReverse = async (tx) => {
-    const memberName = tx.member?.nickname || tx.member?.name || '회원';
-    if (!confirm(`${memberName}님의 납부(${formatCurrency(tx.amount)})를 취소하고 미납 상태로 되돌리겠습니까?`)) return;
+    const memberName = tx.member?.nickname || tx.member?.name || '내역';
+    const confirmMsg = isIncome
+      ? `${memberName}님의 납부(${formatCurrency(tx.amount)})를 취소하고 미납 상태로 되돌리겠습니까?`
+      : `이 지출 내역(${formatCurrency(tx.amount)})을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`;
+    if (!confirm(confirmMsg)) return;
     setDeletingId(tx.id);
     try {
       const r = await fetch(`/api/transactions/${tx.id}`, {
@@ -323,7 +326,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
       setTxList(prev => prev.filter(t => t.id !== tx.id));
       onRefresh?.();
     } catch {
-      alert('납부 취소 처리에 실패했습니다.');
+      alert(isIncome ? '납부 취소 처리에 실패했습니다.' : '삭제 처리에 실패했습니다.');
     } finally {
       setDeletingId(null);
     }
@@ -406,7 +409,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
                           영수증 {images.length > 1 ? `${images.length}장` : ''}
                         </button>
                       )}
-                      {isOperator && !isClosed && isIncome && (
+                      {isOperator && !isClosed && (
                         <button
                           onClick={() => handleReverse(t)}
                           disabled={deletingId === t.id}
@@ -420,7 +423,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
                             whiteSpace: 'nowrap',
                           }}
                         >
-                          {deletingId === t.id ? '처리중...' : '납부취소'}
+                          {deletingId === t.id ? '처리중...' : (isIncome ? '납부취소' : '삭제')}
                         </button>
                       )}
                     </div>
@@ -510,6 +513,128 @@ function PaySheet({ member, amount, setAmount, memo, setMemo, date, setDate, onC
   );
 }
 
+// ─── 청구 내역 바텀시트 (미수금 회원별 charge 목록) ──────────────────────────
+function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }) {
+  const [charges, setCharges] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState(null);
+
+  useEffect(() => {
+    if (!member) return;
+    setLoading(true);
+    fetch(`/api/transactions/member/${member.memberId}`, { headers: authHeaders })
+      .then(r => r.ok ? r.json() : [])
+      .then(data => {
+        setCharges(data.filter(t => t.type === 'charge'));
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [member?.memberId]);
+
+  const handleCancel = async (charge) => {
+    const label = charge.booking?.courseName || charge.booking?.title || charge.description || '청구';
+    if (!confirm(`"${label}" 청구(${formatCurrency(charge.amount)})를 취소하시겠습니까?\n취소 후 미수금 목록에서 제거됩니다.`)) return;
+    setDeletingId(charge.id);
+    try {
+      const r = await fetch(`/api/transactions/${charge.id}`, {
+        method: 'DELETE',
+        headers: authHeaders,
+      });
+      if (!r.ok) throw new Error('Failed');
+      setCharges(prev => prev.filter(c => c.id !== charge.id));
+      onRefresh?.();
+    } catch {
+      alert('청구 취소에 실패했습니다.');
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  if (!member) return null;
+
+  const memberName = member.memberNickname || member.memberName;
+
+  return (
+    <>
+      <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 300, backdropFilter: 'blur(2px)' }} />
+      <div style={{
+        position: 'fixed', bottom: 0, left: 0, right: 0,
+        background: '#fff', borderRadius: '22px 22px 0 0', zIndex: 301,
+        display: 'flex', flexDirection: 'column', maxHeight: '70vh',
+      }}>
+        {/* 헤더 */}
+        <div style={{ padding: '16px 20px 0', flexShrink: 0 }}>
+          <div style={{ width: 40, height: 4, background: '#D1D5DB', borderRadius: 2, margin: '0 auto 16px' }} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--on-background)' }}>
+              {member.isGuest && (
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#7c3aed', background: '#EDE9FE', borderRadius: 6, padding: '2px 6px', marginRight: 6 }}>G</span>
+              )}
+              {memberName} 청구 내역
+            </div>
+            <button onClick={onClose} style={{ background: '#f1f5f9', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 18 }}>×</button>
+          </div>
+          <div style={{ fontSize: 12, color: '#ea580c', fontWeight: 600, marginBottom: 14 }}>
+            청구취소 시 해당 미수금이 제거됩니다
+          </div>
+          <div style={{ height: 1, background: '#f1f5f9' }} />
+        </div>
+
+        {/* 청구 목록 */}
+        <div style={{ overflowY: 'auto', flex: 1, padding: '0 20px', paddingBottom: 'calc(80px + env(safe-area-inset-bottom))' }}>
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 14 }}>불러오는 중…</div>
+          ) : charges.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 14 }}>청구 내역이 없습니다</div>
+          ) : (
+            charges.map((c, i) => {
+              const label = c.booking?.courseName || c.booking?.title || c.description || '—';
+              const [, mm, dd] = (c.date || '').split('-');
+              return (
+                <div key={c.id} style={{
+                  padding: '13px 0',
+                  borderBottom: i < charges.length - 1 ? '1px solid #f1f5f9' : 'none',
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                }}>
+                  <div style={{ display: 'flex', gap: 12, alignItems: 'center', minWidth: 0 }}>
+                    <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, flexShrink: 0 }}>
+                      {mm && dd ? `${parseInt(mm)}. ${parseInt(dd)}.` : '—'}
+                    </div>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--on-background)', marginBottom: 2 }}>{label}</div>
+                      <div style={{ fontSize: 11, color: '#ea580c', fontWeight: 600 }}>미납</div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5, flexShrink: 0, marginLeft: 12 }}>
+                    <span style={{ fontSize: 15, fontWeight: 800, color: '#ea580c' }}>-{formatCurrency(c.amount)}</span>
+                    {!isClosed && (
+                      <button
+                        onClick={() => handleCancel(c)}
+                        disabled={deletingId === c.id}
+                        style={{
+                          padding: '3px 10px', borderRadius: 8,
+                          border: '1px solid #fecaca',
+                          background: deletingId === c.id ? '#f8fafc' : '#fff5f5',
+                          color: deletingId === c.id ? '#9ca3af' : '#dc2626',
+                          fontSize: 11, fontWeight: 600,
+                          cursor: deletingId === c.id ? 'not-allowed' : 'pointer',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {deletingId === c.id ? '처리중...' : '청구취소'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
 // ─── 메인 Settlement 페이지 ──────────────────────────────────────────────────
 function Settlement() {
   const navigate = useNavigate();
@@ -531,6 +656,7 @@ function Settlement() {
   const [payDate, setPayDate] = useState(new Date().toISOString().split('T')[0]);
   const [paying, setPaying] = useState(false);
   const [catSheet, setCatSheet] = useState(null); // { key, side }
+  const [chargeSheet, setChargeSheet] = useState(null); // { memberId, memberName, isGuest }
 
   const authHeaders = {
     'X-Member-Id': user?.id || '',
@@ -816,13 +942,19 @@ function Settlement() {
                     {regularMembers.map((m, i) => (
                       <div key={m.memberId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 0', borderTop: '1px solid #FEF3C7' }}>
                         <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{m.memberNickname || m.memberName}</div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <span style={{ fontSize: 14, fontWeight: 700, color: '#ea580c' }}>{formatCurrency(Math.abs(m.balance))}</span>
                           {isOperator && !data?.isClosed && (
-                            <button
-                              onClick={() => { setPayingMember(m); setPayAmount(String(Math.abs(m.balance))); setPayMemo(''); }}
-                              style={{ padding: '5px 14px', borderRadius: 10, border: 'none', background: '#D1FAE5', color: '#065F46', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
-                            >납부 처리</button>
+                            <>
+                              <button
+                                onClick={() => setChargeSheet(m)}
+                                style={{ padding: '5px 10px', borderRadius: 10, border: '1px solid #fecaca', background: '#fff5f5', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                              >청구 내역</button>
+                              <button
+                                onClick={() => { setPayingMember(m); setPayAmount(String(Math.abs(m.balance))); setPayMemo(''); }}
+                                style={{ padding: '5px 14px', borderRadius: 10, border: 'none', background: '#D1FAE5', color: '#065F46', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                              >납부 처리</button>
+                            </>
                           )}
                         </div>
                       </div>
@@ -844,13 +976,19 @@ function Settlement() {
                           <span style={{ fontSize: 10, fontWeight: 800, color: '#7c3aed', background: '#EDE9FE', borderRadius: 6, padding: '2px 6px', letterSpacing: '0.02em' }}>G</span>
                           <span style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{m.memberNickname || m.memberName}</span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           <span style={{ fontSize: 14, fontWeight: 700, color: '#7c3aed' }}>{formatCurrency(Math.abs(m.balance))}</span>
                           {isOperator && !data?.isClosed && (
-                            <button
-                              onClick={() => { setPayingMember(m); setPayAmount(String(Math.abs(m.balance))); setPayMemo(''); }}
-                              style={{ padding: '5px 14px', borderRadius: 10, border: 'none', background: '#EDE9FE', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
-                            >납부 처리</button>
+                            <>
+                              <button
+                                onClick={() => setChargeSheet(m)}
+                                style={{ padding: '5px 10px', borderRadius: 10, border: '1px solid #c4b5fd', background: '#faf5ff', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                              >청구 내역</button>
+                              <button
+                                onClick={() => { setPayingMember(m); setPayAmount(String(Math.abs(m.balance))); setPayMemo(''); }}
+                                style={{ padding: '5px 14px', borderRadius: 10, border: 'none', background: '#EDE9FE', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                              >납부 처리</button>
+                            </>
                           )}
                         </div>
                       </div>
@@ -1014,6 +1152,14 @@ function Settlement() {
         isOperator={isOperator}
         isClosed={data?.isClosed}
         onRefresh={() => { load(); loadOutstanding(); }}
+      />
+
+      <ChargeDetailSheet
+        member={chargeSheet}
+        authHeaders={authHeaders}
+        onClose={() => setChargeSheet(null)}
+        onRefresh={() => { load(); loadOutstanding(); setChargeSheet(null); }}
+        isClosed={data?.isClosed}
       />
     </div>
   );
