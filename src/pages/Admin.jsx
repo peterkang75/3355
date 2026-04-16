@@ -4838,11 +4838,20 @@ function Admin() {
                         {courseSheetMode === 'edit' && !editCourseData.holeIndexes && !siInputMode && (
                           <div style={{ display: 'flex', gap: '8px' }}>
                             <button onClick={async () => {
-                              const siData = await apiService.fetchStrokeIndex(editCourseData.name).catch(() => null);
-                              if (siData?.holeIndexes) {
-                                setEditCourseData(prev => ({ ...prev, holeIndexes: siData.holeIndexes }));
-                              } else {
-                                alert('bluegolf에 데이터 없음. 직접 입력을 사용해주세요.');
+                              try {
+                                const resp = await fetch(`${window.location.origin}/api/courses/stroke-index`, {
+                                  method: 'POST',
+                                  headers: { 'Content-Type': 'application/json', 'X-Member-Id': JSON.parse(localStorage.getItem('user') || '{}')?.id || '' },
+                                  body: JSON.stringify({ courseName: editCourseData.name })
+                                });
+                                const data = await resp.json();
+                                if (data?.holeIndexes) {
+                                  setEditCourseData(prev => ({ ...prev, holeIndexes: data.holeIndexes }));
+                                } else {
+                                  alert(`SI 조회 실패\n${data?.error || '알 수 없는 오류'}\n시도한 슬러그: ${(data?.slugsTried || []).join(', ')}`);
+                                }
+                              } catch(e) {
+                                alert('네트워크 오류: ' + e.message);
                               }
                             }}
                             style={{ flex: 1, padding: '12px', borderRadius: '10px', background: '#F8FAFC', color: '#64748B', border: '1px dashed #CBD5E1', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>

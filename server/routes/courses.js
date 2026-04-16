@@ -129,6 +129,7 @@ router.post("/stroke-index", requireAuth, async (req, res) => {
     for (const slug of slugs) {
       const url = `https://course.bluegolf.com/bluegolf/course/course/${slug}/detailedscorecard.htm`;
       const resp = await fetch(url, { headers });
+      console.log(`[bluegolf] ${slug} → ${resp.status}`);
       if (resp.status === 200) {
         html = await resp.text();
         usedSlug = slug;
@@ -136,7 +137,7 @@ router.post("/stroke-index", requireAuth, async (req, res) => {
       }
     }
 
-    if (!html) return res.status(404).json({ error: "Course not found on BlueGolf" });
+    if (!html) return res.status(404).json({ error: "Course not found on BlueGolf", slugsTried: slugs });
 
     const holeIndexes = parseBlueGolfScorecard(html);
     if (!holeIndexes) return res.status(404).json({ error: "Could not parse stroke index data" });
