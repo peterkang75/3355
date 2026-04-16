@@ -779,23 +779,23 @@ Railway 도메인에서 확인
 - **검색 API:** `POST /api/courses/search` → Anthropic Haiku로 이름+주소+파 정보 반환 (정확도 낮음)
 - **Stableford:** Leaderboard/Play에 일부 참조 있으나 홀별 Index 없어 정확한 계산 불가
 
-#### 8-A: 골프장 API 조사 및 교체
+#### 8-A: 골프장 API 조사 및 교체 ✅ 완료
 
 | # | 작업 | 상세 | 상태 |
 |---|------|------|------|
-| 8A-1 | 무료 골프장 API 조사 | 호주 골프장 데이터 제공 무료 API 탐색 (홀별 파, SI, 주소, 연락처, 로고 등) | ⬜ 대기 |
-| 8A-2 | API 선정 및 연동 테스트 | 후보 API 중 데이터 품질/커버리지 최적인 것 선정, 테스트 호출 | ⬜ 대기 |
-| 8A-3 | `POST /api/courses/search` 교체 | Anthropic AI → 선정 API로 변경, 응답 파싱/매핑 | ⬜ 대기 |
-| 8A-4 | AI 검색 fallback 유지 | 외부 API에 없는 골프장은 기존 AI 검색으로 fallback | ⬜ 대기 |
+| 8A-1 | 무료 골프장 API 조사 | GolfCourseAPI (무료 300req/day) 선정 | ✅ |
+| 8A-2 | API 선정 및 연동 테스트 | 호주 골프장 검색 확인, 데이터 품질 검증 | ✅ |
+| 8A-3 | `POST /api/courses/search` 교체 | Anthropic AI → GolfCourseAPI, bluegolf SI 스크래핑 추가 | ✅ |
+| 8A-4 | SI 자동 조회 전략 | ① GolfCourseAPI `handicap` 필드 → ② bluegolf 스크래핑 → ③ 수동 입력 | ✅ |
 
-#### 8-B: Course 모델 확장 + 골프장 관리 UI
+#### 8-B: Course 모델 확장 + 골프장 관리 UI ✅ 완료
 
 | # | 작업 | 상세 | 상태 |
 |---|------|------|------|
-| 8B-1 | Course 스키마 확장 | `holeIndexes`(JSON: male/female SI 배열), `phone`, `website`, `logo`(URL), `latitude`, `longitude` 추가 | ⬜ 대기 |
-| 8B-2 | 골프장 관리 UI에 홀별 Index 입력 | Admin 골프장 편집 화면에 SI 입력 테이블 추가 (18홀 × male/female) | ⬜ 대기 |
-| 8B-3 | 골프장 상세정보 표시 | 관리 화면에서 연락처, 웹사이트, 로고 표시/편집 | ⬜ 대기 |
-| 8B-4 | API 검색 시 자동 채움 | 외부 API에서 가져온 SI/연락처/좌표를 자동으로 Course에 저장 | ⬜ 대기 |
+| 8B-1 | Course 스키마 확장 | `holeIndexes`, `tees`, `city`, `state`, `country`, `latitude`, `longitude`, `externalId` 추가 | ✅ |
+| 8B-2 | Admin 편집 UI 개선 | ScorecardGrid에 SI·티별거리 행 통합, 티박스 요약 섹션 추가 | ✅ |
+| 8B-3 | SI 직접 입력 | bluegolf 없는 골프장 대비 18홀 수동 입력 UI (중복 검증) | ✅ |
+| 8B-4 | API 검색 시 자동 채움 | GolfCourseAPI → tees/SI/좌표 자동 저장, 등록 후 bluegolf SI 백그라운드 조회 | ✅ |
 
 #### 8-C: Stableford 점수 표시
 
@@ -869,7 +869,19 @@ Railway 도메인에서 확인
 
 ---
 
-> **현재 상태:** Phase 1 ✅ / Phase 2 ✅ / Phase 3 ✅ / Phase 4 ✅ / Phase 5 ⏸️ (서비스 이전 시) / Phase 6 ✅ 완료 / Phase 7 ⬜ 대기 / Phase 8 ⬜ 대기
-> **현재 우선순위:** Phase 8 (골프장 API + Stableford) → Phase 7 (사진 갤러리)
-> **미결 이슈:** 4인 조편성 게이트 4명 기준으로 수정 완료 (2026-04-16 배포됨)
+---
+
+### 2026-04-16 (Day 10 오후) — Phase 8-A/8-B 완료
+
+- [x] GolfCourseAPI로 골프장 검색 교체 (Anthropic AI 제거)
+- [x] Course 모델 확장 (tees, holeIndexes, 위치 정보)
+- [x] Admin 편집 UI: ScorecardGrid에 SI·티별거리 통합 표시
+- [x] SI 자동 조회: GolfCourseAPI handicap → bluegolf 스크래핑 → 수동 입력 순서
+- [x] bluegolf 헤더 강화 (클라우드 서버 IP 차단 우회 시도)
+- [ ] **미완:** 기존 저장된 골프장들 SI 재조회 필요
+
+---
+
+> **현재 상태:** Phase 1 ✅ / Phase 2 ✅ / Phase 3 ✅ / Phase 4 ✅ / Phase 5 ⏸️ / Phase 6 ✅ / Phase 7 ⬜ / Phase 8 진행 중 (8A✅ 8B✅ 8C~8E ⬜)
+> **현재 우선순위:** Phase 8-C (Stableford) → 8-D (Google Maps) → 8-E (2BBB/포썸 점검) → Phase 7
 > **참조:** 모든 작업 시작 전/후 이 문서 확인 및 업데이트 필수
