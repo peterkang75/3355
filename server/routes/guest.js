@@ -150,7 +150,10 @@ router.post('/invite/:token/register', async (req, res) => {
     const filteredParticipants = parsedParticipants.filter(
       p => !(p.isGuest === true && p.name === guestName.trim())
     );
+    const oldGuestPhone = preAdded?.phone || null; // 직접추가 시 guest_timestamp phone
+
     const newParticipant = JSON.stringify({
+      id: guest.id,         // Member ID (스코어 저장용)
       name: guest.name,
       nickname: guest.name,
       phone: guest.phone,
@@ -159,9 +162,34 @@ router.post('/invite/:token/register', async (req, res) => {
       gaHandy: String(parsedHandicap),
     });
 
+    // 조편성에 구 phone이 있으면 새 phone + id로 교체
+    let updatedTeams = booking.teams;
+    if (oldGuestPhone && booking.teams) {
+      try {
+        const teamsArr = typeof booking.teams === 'string' ? JSON.parse(booking.teams) : booking.teams;
+        let changed = false;
+        const replaced = teamsArr.map(team => ({
+          ...team,
+          members: (team.members || []).map(m => {
+            if (m && m.phone === oldGuestPhone) {
+              changed = true;
+              return { ...m, phone: guest.phone, id: guest.id };
+            }
+            return m;
+          }),
+        }));
+        if (changed) updatedTeams = JSON.stringify(replaced);
+      } catch (e) {
+        console.error('teams phone 업데이트 실패:', e);
+      }
+    }
+
     await prisma.booking.update({
       where: { id: booking.id },
-      data: { participants: [...filteredParticipants.map(p => JSON.stringify(p)), newParticipant] },
+      data: {
+        participants: [...filteredParticipants.map(p => JSON.stringify(p)), newParticipant],
+        ...(updatedTeams !== booking.teams ? { teams: updatedTeams } : {}),
+      },
     });
 
     // 참가비 자동청구 (greenFee + cartFee, 멤버십피 제외)

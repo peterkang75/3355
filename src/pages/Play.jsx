@@ -544,10 +544,37 @@ function Play() {
             const teamMembers = userTeam.members.filter(m => m && m.phone !== effectiveUserPhone);
             const enrichedTeammates = teamMembers.map(tm => {
               const fullMember = members?.find(m => m.phone === tm.phone);
-              return fullMember ? { ...tm, ...fullMember } : tm;
+              if (fullMember) return { ...tm, ...fullMember };
+              // 게스트: participants에서 핸디 보완
+              if (tm.phone?.startsWith('guest_')) {
+                const parsed = (foundBooking.participants || []).map(p => {
+                  try { return typeof p === 'string' ? JSON.parse(p) : p; } catch { return null; }
+                }).filter(Boolean).find(p => p.phone === tm.phone);
+                if (parsed) return { ...tm, ...parsed };
+              }
+              return tm;
             });
-            console.log('🤝 팀원:', enrichedTeammates);
-            setTeammates(enrichedTeammates);
+
+            // 팀에 없는 게스트 보완 (팀편성 전에 추가된 게스트 등)
+            const parsedParticipants = (foundBooking.participants || []).map(p => {
+              try { return typeof p === 'string' ? JSON.parse(p) : p; } catch { return null; }
+            }).filter(Boolean);
+            const assignedPhones = new Set([
+              effectiveUserPhone,
+              ...userTeam.members.filter(Boolean).map(m => m.phone),
+            ]);
+            // 이름 중복 방지: 조편성에 이미 같은 이름 게스트가 있으면 제외
+            const assignedGuestNames = new Set(
+              userTeam.members.filter(m => m?.isGuest).map(m => (m.name || '').trim().toLowerCase())
+            );
+            const extraGuests = parsedParticipants.filter(
+              p => p.isGuest && p.phone && !assignedPhones.has(p.phone)
+                && !assignedGuestNames.has((p.name || '').trim().toLowerCase())
+            );
+
+            const allTeammates = [...enrichedTeammates, ...extraGuests];
+            console.log('🤝 팀원:', allTeammates);
+            setTeammates(allTeammates);
           }
         } else {
           // 팀 있지만 내 phone이 없음 (뒤늦게 추가된 게스트 등) → 4명 이하이면 자동 구성
@@ -1366,9 +1393,9 @@ function Play() {
 
     // 스트로크 모드: 기존 UI
     return (
-      <div style={{ minHeight: '100vh', background: '#F8FAFC' }}>
+      <div style={{ minHeight: '100vh', background: '#F8FAFC', overflowY: 'auto' }}>
         <PageHeader title="마커 선택" onBack={() => navigate(-1)} />
-        <div style={{ padding: '20px 16px 100px' }}>
+        <div style={{ padding: '20px 16px 120px' }}>
 
           {/* 라운딩 정보 */}
           <div style={{ background: 'linear-gradient(145deg, #08183A 0%, #003780 100%)', borderRadius: '16px', boxShadow: '0 4px 16px rgba(0,55,128,0.3)', padding: '18px 20px', marginBottom: '16px' }}>
