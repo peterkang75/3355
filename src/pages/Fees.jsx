@@ -413,39 +413,39 @@ function Fees() {
                       {/* 1행: 월 제목 + 정산완료 뱃지 + 정산서 보기 버튼 */}
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          <span style={{ fontSize: 22, fontWeight: 800, color: "#111827", letterSpacing: "-0.03em" }}>
+                          <span style={{ fontSize: 18, fontWeight: 700, color: "#111827", letterSpacing: "-0.02em" }}>
                             {y}년 {parseInt(m)}월
                           </span>
                           <div style={{ background: "#d1fae5", borderRadius: 20, padding: "4px 10px" }}>
-                            <span style={{ fontSize: 12, fontWeight: 700, color: "#059669" }}>정산 완료</span>
+                            <span style={{ fontSize: 11, fontWeight: 600, color: "#059669" }}>정산 완료</span>
                           </div>
                         </div>
                         <button
                           onClick={() => setReportYearMonth(s.yearMonth)}
-                          style={{ padding: "9px 16px", borderRadius: 12, border: "none", background: "#0047AB", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
+                          style={{ padding: "6px 14px", borderRadius: 10, border: "none", background: "#0047AB", color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}
                         >
                           정산서 보기
                         </button>
                       </div>
                       {/* 2행: 누적 잔액 */}
-                      <div style={{ fontSize: 13, color: "#64748b", marginBottom: 16 }}>
-                        누적 잔액: <span style={{ fontWeight: 600 }}>${s.netBalance.toLocaleString()}</span>
+                      <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 14 }}>
+                        누적 잔액: <span style={{ fontWeight: 500, color: "#64748b" }}>${s.netBalance.toLocaleString()}</span>
                       </div>
                       {/* 구분선 */}
-                      <div style={{ height: 1, background: "#f1f5f9", marginBottom: 14 }} />
+                      <div style={{ height: 1, background: "#f1f5f9", marginBottom: 12 }} />
                       {/* 3행: 수입 / 지출 / 이달 손익 */}
                       <div style={{ display: "flex", alignItems: "flex-end", gap: 0 }}>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500, marginBottom: 4 }}>수입</div>
-                          <div style={{ fontSize: 17, fontWeight: 800, color: "#0047AB" }}>+${s.totalIncome.toLocaleString()}</div>
+                          <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 400, marginBottom: 3 }}>수입</div>
+                          <div style={{ fontSize: 15, fontWeight: 400, color: "#0047AB" }}>+${s.totalIncome.toLocaleString()}</div>
                         </div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500, marginBottom: 4 }}>지출</div>
-                          <div style={{ fontSize: 17, fontWeight: 800, color: "#ef4444" }}>-${s.totalExpense.toLocaleString()}</div>
+                          <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 400, marginBottom: 3 }}>지출</div>
+                          <div style={{ fontSize: 15, fontWeight: 400, color: "#ef4444" }}>-${s.totalExpense.toLocaleString()}</div>
                         </div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 12, color: "#94a3b8", fontWeight: 700, marginBottom: 4 }}>이달 손익</div>
-                          <div style={{ fontSize: 17, fontWeight: 800, color: monthPos ? "#111827" : "#dc2626" }}>
+                          <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 400, marginBottom: 3 }}>이달 손익</div>
+                          <div style={{ fontSize: 15, fontWeight: 500, color: monthPos ? "#374151" : "#dc2626" }}>
                             {monthPos ? "" : "-"}${Math.abs(monthNet).toLocaleString()}
                           </div>
                         </div>
