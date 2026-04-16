@@ -289,29 +289,36 @@ function ReceiptViewer({ images, onClose }) {
   const [idx, setIdx] = useState(0);
   if (!images || images.length === 0) return null;
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)', zIndex: 500, display: 'flex', flexDirection: 'column' }}>
-      {/* 헤더 */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', flexShrink: 0 }}>
-        <span style={{ color: '#fff', fontSize: 14, fontWeight: 600 }}>{idx + 1} / {images.length}</span>
-        <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: 10, width: 36, height: 36, color: '#fff', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
-      </div>
-      {/* 이미지 */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px', minHeight: 0 }}>
-        <img src={images[idx]} alt="영수증" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', borderRadius: 12 }} />
-      </div>
-      {/* 여러 장일 때 이전/다음 */}
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.92)', zIndex: 1200, display: 'flex', flexDirection: 'column', paddingTop: 'env(safe-area-inset-top)' }}>
+      {/* 상단 페이지 표시 */}
       {images.length > 1 && (
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 16, padding: '16px 20px', paddingBottom: 'max(24px, env(safe-area-inset-bottom))', flexShrink: 0 }}>
-          <button onClick={() => setIdx(i => Math.max(0, i - 1))} disabled={idx === 0}
-            style={{ padding: '10px 24px', borderRadius: 12, border: 'none', background: idx === 0 ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.2)', color: '#fff', fontWeight: 700, fontSize: 14, cursor: idx === 0 ? 'not-allowed' : 'pointer' }}>
-            ← 이전
-          </button>
-          <button onClick={() => setIdx(i => Math.min(images.length - 1, i + 1))} disabled={idx === images.length - 1}
-            style={{ padding: '10px 24px', borderRadius: 12, border: 'none', background: idx === images.length - 1 ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.2)', color: '#fff', fontWeight: 700, fontSize: 14, cursor: idx === images.length - 1 ? 'not-allowed' : 'pointer' }}>
-            다음 →
-          </button>
+        <div style={{ textAlign: 'center', padding: '12px 20px 0', flexShrink: 0 }}>
+          <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600 }}>{idx + 1} / {images.length}</span>
         </div>
       )}
+      {/* 이미지 */}
+      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', minHeight: 0 }}>
+        <img src={images[idx]} alt="영수증" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', borderRadius: 12 }} />
+      </div>
+      {/* 하단 버튼 영역 */}
+      <div style={{ flexShrink: 0, padding: '12px 20px', paddingBottom: 'calc(16px + env(safe-area-inset-bottom))', display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 16 }}>
+        {images.length > 1 && (
+          <button onClick={() => setIdx(i => Math.max(0, i - 1))} disabled={idx === 0}
+            style={{ padding: '12px 28px', borderRadius: 14, border: 'none', background: idx === 0 ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.2)', color: '#fff', fontWeight: 700, fontSize: 15, cursor: idx === 0 ? 'not-allowed' : 'pointer' }}>
+            ← 이전
+          </button>
+        )}
+        <button onClick={onClose}
+          style={{ padding: '14px 36px', borderRadius: 14, border: 'none', background: 'rgba(255,255,255,0.18)', color: '#fff', fontWeight: 800, fontSize: 16, cursor: 'pointer', minWidth: 100 }}>
+          닫기
+        </button>
+        {images.length > 1 && (
+          <button onClick={() => setIdx(i => Math.min(images.length - 1, i + 1))} disabled={idx === images.length - 1}
+            style={{ padding: '12px 28px', borderRadius: 14, border: 'none', background: idx === images.length - 1 ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.2)', color: '#fff', fontWeight: 700, fontSize: 15, cursor: idx === images.length - 1 ? 'not-allowed' : 'pointer' }}>
+            다음 →
+          </button>
+        )}
+      </div>
     </div>
   );
 }
@@ -503,8 +510,8 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
       {/* 수정 모달 */}
       {editingTx && (
         <>
-          <div onClick={() => setEditingTx(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 400 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '22px 22px 0 0', zIndex: 401, padding: '20px 20px 0' }}>
+          <div onClick={() => setEditingTx(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1100 }} />
+          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '22px 22px 0 0', zIndex: 1101, padding: '20px 20px 0' }}>
             <div style={{ width: 40, height: 4, background: '#D1D5DB', borderRadius: 2, margin: '0 auto 16px' }} />
             <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 16 }}>내역 수정</div>
 
@@ -538,7 +545,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
             </div>
 
             {/* 버튼 */}
-            <div style={{ display: 'flex', gap: 8, paddingBottom: 'calc(16px + env(safe-area-inset-bottom))' }}>
+            <div style={{ display: 'flex', gap: 8, paddingBottom: 'calc(70px + env(safe-area-inset-bottom))' }}>
               <button onClick={() => setEditingTx(null)} style={{ flex: 1, padding: '14px', borderRadius: 14, border: '1.5px solid #e2e8f0', background: '#f8fafc', fontSize: 15, fontWeight: 700, cursor: 'pointer', color: 'var(--text-muted)' }}>취소</button>
               <button onClick={handleEditSave} disabled={editSaving} style={{ flex: 2, padding: '14px', borderRadius: 14, border: 'none', background: editSaving ? '#94a3b8' : (side === 'income' ? '#0047AB' : '#ef4444'), color: '#fff', fontSize: 15, fontWeight: 800, cursor: editSaving ? 'not-allowed' : 'pointer' }}>
                 {editSaving ? '저장 중…' : '저장'}
