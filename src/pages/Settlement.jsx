@@ -190,30 +190,58 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
             </div>
           </div>
 
-          {/* 영수증 첨부 (지출만) */}
-          {mode === 'expense' && (
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>영수증 첨부 (선택)</div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                {receiptImages.map((img, i) => (
-                  <div key={i} style={{ position: 'relative', width: 80, height: 80 }}>
-                    <img src={img} alt="영수증" style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 10, border: '1.5px solid #e2e8f0' }} />
-                    <button onClick={() => setReceiptImages(prev => prev.filter((_, idx) => idx !== i))}
-                      style={{ position: 'absolute', top: -6, right: -6, width: 22, height: 22, borderRadius: '50%', border: 'none', background: '#ef4444', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
-                  </div>
-                ))}
-                {receiptImages.length < 5 && (
-                  <label style={{ width: 80, height: 80, borderRadius: 10, border: '1.5px dashed #cbd5e1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', gap: 4, background: '#f8fafc' }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                    </svg>
-                    <span style={{ fontSize: 10, fontWeight: 600 }}>사진 추가</span>
-                    <input type="file" accept="image/*" onChange={handleImageAdd} style={{ display: 'none' }} />
-                  </label>
-                )}
+          {/* 영수증 + 메모 (나란히 배치) */}
+          <div style={{ marginBottom: 16, display: 'flex', gap: 10, alignItems: 'stretch' }}>
+            {/* 영수증 첨부 (지출만) */}
+            {mode === 'expense' && (
+              <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>영수증 (선택)</div>
+                <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 6, alignContent: 'flex-start' }}>
+                  {receiptImages.map((img, i) => (
+                    <div key={i} style={{ position: 'relative', width: 72, height: 72 }}>
+                      <img src={img} alt="영수증" style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 10, border: '1.5px solid #e2e8f0' }} />
+                      <button onClick={() => setReceiptImages(prev => prev.filter((_, idx) => idx !== i))}
+                        style={{ position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%', border: 'none', background: '#ef4444', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                    </div>
+                  ))}
+                  {receiptImages.length < 5 && (
+                    <label style={{ width: 72, height: 72, borderRadius: 10, border: '1.5px dashed #cbd5e1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', gap: 4, background: '#f8fafc' }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                      </svg>
+                      <span style={{ fontSize: 10, fontWeight: 600 }}>사진 추가</span>
+                      <input type="file" accept="image/*" onChange={handleImageAdd} style={{ display: 'none' }} />
+                    </label>
+                  )}
+                </div>
               </div>
+            )}
+
+            {/* 메모 */}
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>메모 (선택)</div>
+              <textarea
+                placeholder="메모 입력"
+                value={memo}
+                onChange={e => setMemo(e.target.value)}
+                style={{
+                  flex: 1,
+                  minHeight: mode === 'expense' ? 88 : 72,
+                  padding: '10px 12px',
+                  borderRadius: 12,
+                  border: '1.5px solid #e2e8f0',
+                  fontSize: 14,
+                  color: 'var(--on-background)',
+                  background: '#f8fafc',
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                  resize: 'none',
+                  fontFamily: 'inherit',
+                  lineHeight: 1.5,
+                }}
+              />
             </div>
-          )}
+          </div>
 
           {/* 날짜 */}
           <div style={{ marginBottom: 16 }}>
@@ -240,13 +268,6 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                 <option key={m.id} value={m.id}>{m.nickname || m.name}</option>
               ))}
             </select>
-          </div>
-
-          {/* 메모 */}
-          <div>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>메모 (선택)</div>
-            <input type="text" placeholder="메모 입력" value={memo} onChange={e => setMemo(e.target.value)}
-              style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, color: 'var(--on-background)', background: '#f8fafc', outline: 'none', boxSizing: 'border-box' }} />
           </div>
         </div>
 
