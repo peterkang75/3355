@@ -152,44 +152,38 @@ io.on('connection', (socket) => {
   });
 });
 
-// ── 시작 시 1회성 데이터 수정 (아프로후테 3월 charge 복원) ───────────────────
-async function fixMissingMarchCharge() {
+// ── 아프로후테 3월 charge 중복 제거 (Railway race condition 대응) ──────────────
+async function deduplicateMarchCharge() {
   try {
     const { recalculateAndUpdateBalance } = require('./utils/balance');
-    // 닉네임으로 회원 찾기
     const member = await prisma.member.findFirst({
       where: { nickname: '아프로후테' },
-      select: { id: true, name: true },
+      select: { id: true },
     });
     if (!member) return;
 
-    // 3월 정기라운딩 (Stonecutters Ridge) 북킹 찾기
     const booking = await prisma.booking.findFirst({
       where: { title: { contains: '3월 정기라운딩' }, courseName: { contains: 'Stonecutters' } },
-      select: { id: true, title: true },
+      select: { id: true },
     });
     if (!booking) return;
 
-    // 이미 charge 있는지 확인
-    const existing = await prisma.transaction.findFirst({
+    const charges = await prisma.transaction.findMany({
       where: { memberId: member.id, bookingId: booking.id, type: 'charge' },
+      orderBy: { createdAt: 'asc' },
     });
-    if (existing) return; // 이미 복원됨
 
-    await prisma.transaction.create({
-      data: {
-        type: 'charge',
-        amount: 125,
-        description: '3월 정기라운딩 라운딩',
-        date: '2026-03-29',
-        memberId: member.id,
-        bookingId: booking.id,
-      },
-    });
+    if (charges.length <= 1) return; // 정상 상태
+
+    // 가장 오래된 것 하나만 남기고 나머지 삭제
+    for (const c of charges.slice(1)) {
+      await prisma.transaction.delete({ where: { id: c.id } });
+      console.log(`🧹 중복 March charge 삭제: id=${c.id}`);
+    }
     await recalculateAndUpdateBalance(member.id);
-    console.log('✅ 아프로후테 3월 charge 복원 완료');
+    console.log('✅ 아프로후테 March charge 중복 제거 완료');
   } catch (e) {
-    console.error('March charge fix error:', e.message);
+    console.error('March charge dedup error:', e.message);
   }
 }
 
@@ -198,5 +192,5 @@ server.listen(PORT, '0.0.0.0', async () => {
   console.log(`📊 Database connected`);
   console.log(`🔌 Socket.IO ready`);
   await initializeDefaultCategories();
-  await fixMissingMarchCharge();
+  await deduplicateMarchCharge();
 });
