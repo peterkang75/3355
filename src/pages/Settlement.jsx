@@ -4,6 +4,7 @@ import { useApp } from '../contexts/AppContext';
 import { formatCurrency, checkIsOperator } from '../utils';
 import apiService from '../services/api';
 import { ProfileBadge } from '../components/common';
+import SettlementReportModal from '../components/SettlementReportModal';
 
 // ─── 아이콘 ───────────────────────────────────────────────────────────────────
 const BackIcon = () => (
@@ -789,6 +790,7 @@ function Settlement() {
   const [closingMonth, setClosingMonth] = useState(false);
   const [editingCarryover, setEditingCarryover] = useState(false);
   const [carryoverInput, setCarryoverInput] = useState('');
+  const [showReport, setShowReport] = useState(false);
 
   const [outstandingMembers, setOutstandingMembers] = useState([]);
   const [payingMember, setPayingMember] = useState(null);
@@ -1222,16 +1224,24 @@ function Settlement() {
                       {closingMonth ? '마감 처리 중…' : `${fmtMonth(yearMonth)} 마감 및 이월`}
                     </button>
                   ) : (
-                    <button
-                      onClick={async () => {
-                        if (!confirm('마감을 취소하시겠습니까?')) return;
-                        await fetch(`/api/settlement/${yearMonth}/reopen`, { method: 'POST', headers: authHeaders });
-                        load();
-                      }}
-                      style={{ width: '100%', padding: '14px', borderRadius: 16, border: '1.5px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}
-                    >
-                      마감 취소
-                    </button>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <button
+                        onClick={() => setShowReport(true)}
+                        style={{ width: '100%', padding: '14px', borderRadius: 16, border: 'none', background: '#0047AB', color: '#fff', fontSize: 15, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 14px rgba(0,71,171,0.25)' }}
+                      >
+                        📋 정산서 보기
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (!confirm('마감을 취소하시겠습니까?')) return;
+                          await fetch(`/api/settlement/${yearMonth}/reopen`, { method: 'POST', headers: authHeaders });
+                          load();
+                        }}
+                        style={{ width: '100%', padding: '12px', borderRadius: 16, border: '1.5px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+                      >
+                        마감 취소
+                      </button>
+                    </div>
                   )}
                 </div>
               )}
@@ -1303,6 +1313,14 @@ function Settlement() {
         onRefresh={() => { load(); loadOutstanding(); setChargeSheet(null); }}
         isClosed={data?.isClosed}
       />
+
+      {showReport && (
+        <SettlementReportModal
+          yearMonth={yearMonth}
+          authHeaders={authHeaders}
+          onClose={() => setShowReport(false)}
+        />
+      )}
     </div>
   );
 }

@@ -251,4 +251,107 @@ router.post('/:yearMonth/reopen', requireAuth, requireOperator, async (req, res)
   }
 });
 
+// ── GET /api/settlement/:yearMonth/report — 상세 정산서 ─────────────────────
+router.get('/:yearMonth/report', requireAuth, async (req, res) => {
+  try {
+    const { yearMonth } = req.params;
+
+    const settlement = await prisma.monthlySettlement.findUnique({ where: { yearMonth } });
+    const carryover = settlement?.carryover || 0;
+
+    // 이달 거래 전체 (메모·회원·북킹 포함)
+    const transactions = await prisma.transaction.findMany({
+      where: { date: { startsWith: yearMonth } },
+      select: {
+        id: true, type: true, category: true, description: true,
+        amount: true, date: true,
+        member: { select: { name: true, nickname: true } },
+        booking: { select: { title: true, courseName: true } },
+      },
+      orderBy: { date: 'asc' },
+    });
+
+    // 수입 카테고리별 그룹
+    const incomeMap = {};
+    const expenseMap = {};
+    let totalIncome = 0, totalExpense = 0;
+
+    for (const t of transactions) {
+      const isIncome = t.type === 'payment' &&
+        !['크레딧 자동 납부', '크레딧 납부', '크레딧 자동 차감'].includes(t.category);
+      const isDonation = t.type === 'donation';
+      const isExpense = t.type === 'expense' &&
+        !['크레딧 자동 차감', '크레딧 납부'].includes(t.category);
+      const isCredit = t.type === 'credit';
+
+      const item = {
+        id: t.id,
+        date: t.date,
+        memberName: t.member?.nickname || t.member?.name || '',
+        memo: t.description || '',
+        amount: t.amount,
+      };
+
+      if (isIncome) {
+        totalIncome += t.amount;
+        const key = t.category || t.description || '기타 수입';
+        if (!incomeMap[key]) incomeMap[key] = { category: key, total: 0, items: [] };
+        incomeMap[key].total += t.amount;
+        incomeMap[key].items.push(item);
+      } else if (isDonation) {
+        totalIncome += t.amount;
+        if (!incomeMap['도네이션']) incomeMap['도네이션'] = { category: '도네이션', total: 0, items: [] };
+        incomeMap['도네이션'].total += t.amount;
+        incomeMap['도네이션'].items.push(item);
+      } else if (isExpense) {
+        totalExpense += t.amount;
+        const key = t.category || t.description || '기타 지출';
+        if (!expenseMap[key]) expenseMap[key] = { category: key, total: 0, items: [] };
+        expenseMap[key].total += t.amount;
+        expenseMap[key].items.push(item);
+      } else if (isCredit) {
+        totalExpense += t.amount;
+        const key = t.category || t.description || '크레딧 지급';
+        if (!expenseMap[key]) expenseMap[key] = { category: key, total: 0, items: [] };
+        expenseMap[key].total += t.amount;
+        expenseMap[key].items.push(item);
+      }
+    }
+
+    const netBalance = carryover + totalIncome - totalExpense;
+
+    // 이달 라운딩 목록
+    const [y, m] = yearMonth.split('-');
+    const startDate = `${y}-${m}-01`;
+    const endDate = `${y}-${m}-31`;
+    const bookings = await prisma.booking.findMany({
+      where: { date: { gte: startDate, lte: endDate }, type: { in: ['정기모임', '컴페티션', '캐주얼'] } },
+      select: { title: true, courseName: true, date: true, time: true, participants: true },
+      orderBy: { date: 'asc' },
+    });
+
+    res.json({
+      yearMonth,
+      carryover,
+      totalIncome,
+      totalExpense,
+      netBalance,
+      isClosed: settlement?.isClosed || false,
+      closedAt: settlement?.closedAt || null,
+      incomeByCategory: Object.values(incomeMap).sort((a, b) => b.total - a.total),
+      expenseByCategory: Object.values(expenseMap).sort((a, b) => b.total - a.total),
+      bookings: bookings.map(b => ({
+        title: b.title || b.courseName,
+        courseName: b.courseName,
+        date: b.date,
+        time: b.time,
+        participantCount: Array.isArray(b.participants) ? b.participants.length : 0,
+      })),
+    });
+  } catch (error) {
+    console.error('Error fetching settlement report:', error);
+    res.status(500).json({ error: 'Failed to fetch settlement report' });
+  }
+});
+
 module.exports = router;

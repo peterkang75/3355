@@ -4,6 +4,7 @@ import { useApp } from "../contexts/AppContext";
 import apiService from "../services/api";
 import { checkIsOperator } from "../utils";
 import { PageHeader } from "../components/common";
+import SettlementReportModal from "../components/SettlementReportModal";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -99,6 +100,7 @@ function Fees() {
   const [activeTab, setActiveTab] = useState("personal");
   const [settlements, setSettlements] = useState([]);
   const [settlementsLoading, setSettlementsLoading] = useState(false);
+  const [reportYearMonth, setReportYearMonth] = useState(null);
   const [paymentGuideText, setPaymentGuideText] = useState("");
 
   const [showCreditModal, setShowCreditModal] = useState(null);
@@ -345,10 +347,12 @@ function Fees() {
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                {settlements.map((s) => {
+                {[...settlements].sort((a, b) => b.yearMonth.localeCompare(a.yearMonth)).map((s) => {
                   const [y, m] = s.yearMonth.split("-");
                   const closedDate = s.closedAt ? new Date(s.closedAt).toLocaleDateString("ko-KR", { year: "numeric", month: "long", day: "numeric" }) : "";
                   const isPositive = s.netBalance >= 0;
+                  const monthNet = s.totalIncome - s.totalExpense;
+                  const monthPos = monthNet >= 0;
                   return (
                     <div key={s.yearMonth} style={{ background: "#fff", borderRadius: 20, padding: "20px 20px 16px", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>
                       {/* 헤더 */}
@@ -373,28 +377,30 @@ function Fees() {
                         </div>
                       </div>
                       {/* 이달 손익 / 전체 잔액 */}
-                      {(() => {
-                        const monthNet = s.totalIncome - s.totalExpense;
-                        const monthPos = monthNet >= 0;
-                        return (
-                          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
-                            <div style={{ background: monthPos ? "#f0fdf4" : "#fef2f2", borderRadius: 12, padding: "12px 14px" }}>
-                              <div style={{ fontSize: 11, fontWeight: 600, color: "#64748B", marginBottom: 4 }}>이달 손익</div>
-                              <div style={{ fontSize: 15, fontWeight: 800, color: monthPos ? "#16a34a" : "#DC2626" }}>
-                                {monthPos ? "+" : ""}{monthNet < 0 ? "-" : ""}${Math.abs(monthNet).toLocaleString()}
-                              </div>
-                            </div>
-                            <div style={{ background: isPositive ? "#eff6ff" : "#fef2f2", borderRadius: 12, padding: "12px 14px" }}>
-                              <div style={{ fontSize: 11, fontWeight: 600, color: "#64748B", marginBottom: 4 }}>전체 잔액</div>
-                              <div style={{ fontSize: 15, fontWeight: 800, color: isPositive ? "#0047AB" : "#DC2626" }}>${s.netBalance.toLocaleString()}</div>
-                            </div>
+                      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 14 }}>
+                        <div style={{ background: monthPos ? "#f0fdf4" : "#fef2f2", borderRadius: 12, padding: "12px 14px" }}>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: "#64748B", marginBottom: 4 }}>이달 손익</div>
+                          <div style={{ fontSize: 15, fontWeight: 800, color: monthPos ? "#16a34a" : "#DC2626" }}>
+                            {monthPos ? "+" : "-"}${Math.abs(monthNet).toLocaleString()}
                           </div>
-                        );
-                      })()}
-                      {/* 마감일 */}
-                      {closedDate && (
-                        <div style={{ fontSize: 11, color: "#9CA3AF", textAlign: "right" }}>{closedDate} 마감</div>
-                      )}
+                        </div>
+                        <div style={{ background: isPositive ? "#eff6ff" : "#fef2f2", borderRadius: 12, padding: "12px 14px" }}>
+                          <div style={{ fontSize: 11, fontWeight: 600, color: "#64748B", marginBottom: 4 }}>전체 잔액</div>
+                          <div style={{ fontSize: 15, fontWeight: 800, color: isPositive ? "#0047AB" : "#DC2626" }}>${s.netBalance.toLocaleString()}</div>
+                        </div>
+                      </div>
+                      {/* 마감일 + 정산서 보기 버튼 */}
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                        {closedDate ? (
+                          <div style={{ fontSize: 11, color: "#9CA3AF" }}>{closedDate} 마감</div>
+                        ) : <div />}
+                        <button
+                          onClick={() => setReportYearMonth(s.yearMonth)}
+                          style={{ padding: "7px 14px", borderRadius: 10, border: "none", background: "#0047AB", color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer" }}
+                        >
+                          📋 정산서 보기
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
@@ -416,6 +422,14 @@ function Fees() {
           onConfirm={showCreditModal === "donation" ? handleCreditToDonation : handleCreditToPayment}
           onClose={() => { setShowCreditModal(null); setCreditActionAmount(""); setCreditActionMemo(""); }}
           loading={creditActionLoading}
+        />
+      )}
+
+      {reportYearMonth && (
+        <SettlementReportModal
+          yearMonth={reportYearMonth}
+          authHeaders={{ 'X-Member-Id': user?.id }}
+          onClose={() => setReportYearMonth(null)}
         />
       )}
 
