@@ -882,6 +882,70 @@ Railway 도메인에서 확인
 
 ---
 
+---
+
+### 2026-04-16 (Day 10 저녁) — 게스트 초대링크 고도화 + 정산 분리
+
+#### ✅ 완료
+
+- [x] **게스트 초대링크 날짜 제한 제거**
+  - `server/routes/guest.js`: `isInviteValidToday()` 함수 완전 제거
+  - 초대링크는 당일 여부 무관하게 항상 유효 (인원 모집 단계부터 사용 가능)
+  - `src/pages/RoundingManagement.jsx`: "초대링크 (당일만 유효)" → "게스트 초대링크"로 레이블 수정
+
+- [x] **게스트 자동 참가비 청구 (auto-billing)**
+  - `server/routes/guest.js` 등록(`/invite/:token/register`) 시 `greenFee + cartFee` charge 트랜잭션 자동 생성
+  - `recalculateAndUpdateBalance(guest.id)` 호출로 잔액 즉시 반영
+  - 게스트 Member 생성 시 `id` 필드를 participant JSON에 포함 (스코어 저장 연결)
+
+- [x] **정산 페이지 게스트/회원 분리 표시**
+  - `server/routes/transactions.js` outstanding 엔드포인트: `isActive: true` 에서 게스트(`isGuest: true, approvalStatus: 'guest'`)도 포함하도록 OR 조건 추가
+  - 응답에 `isGuest` 필드 포함, 일반회원 먼저 → 게스트 나중 정렬
+  - `src/pages/Settlement.jsx`:
+    - 게스트 납부 처리 시 category `'게스트 참가비납부'` 사용
+    - 미납 목록에서 일반회원(주황)과 게스트(보라 'G' 배지) 분리 섹션 표시
+    - 헤더에 "회원 $X / 게스트 $X" 별도 합계 배지 표시
+    - PaySheet에 게스트 보라 배지 표시
+
+- [x] **GuestJoin.jsx 등록 후 UX 개선 (날짜 분기)**
+  - `isRoundToday()` 함수 추가: Australia/Sydney 기준 당일 여부 확인
+  - 당일 라운딩: 등록 완료 → `/play?id=...` 즉시 이동 (기존 동작)
+  - 미래 라운딩: 등록 완료 → `'registered'` 확인 화면 표시
+    - 예약된 라운딩 정보 (날짜, 골프장, 이름, 핸디캡) 요약
+    - 주황 안내 박스: "당일에 이 링크를 다시 열면 플레이 화면으로 이동합니다"
+    - "이 링크 저장하기" 버튼 (Web Share API → 클립보드 fallback)
+  - `src/services/api.js`: `fetchInviteInfo` 에러 시 서버 JSON 에러 메시지 그대로 throw
+
+- [x] **마커 선택 화면 게스트 표시 버그 수정**
+  - `src/pages/Play.jsx` stroke 모드 extraGuests 패턴 추가:
+    - 팀에 배정된 phone 및 이름 Set 구성
+    - participants 중 `isGuest: true`이면서 팀에 없는 게스트를 `extraGuests`로 fallback 추가
+  - stroke 모드 게스트 phone 보강: `tm.phone.startsWith('guest_')` 시 participants JSON에서 id/name 병합
+  - teams phone 교체 로직 추가 (`server/routes/guest.js`): 게스트 등록 시 팀 JSON에서 구 `guest_timestamp` phone을 새 `guest_crypto` phone + id로 교체
+  - 마커 선택 영역 스크롤 수정: 외부 div에 `overflowY: 'auto'`, paddingBottom `120px`
+
+- [x] **조편성 전 게스트 접속 안내 메시지 개선**
+  - `src/pages/Play.jsx` teammates 없을 때 `isGuestMode` 분기:
+    - 게스트: "조편성이 아직 안됐습니다. 운영진이 조편성을 완료한 후 다시 이 링크를 열어주세요." (조편성 버튼 없음)
+    - 운영진/회원: 기존 안내 + "조편성 하러 가기" 버튼
+  - 디버그 문자열 노출 제거
+
+- [x] **Phase 8-D 지도보기 버튼 부분 완료**
+  - `src/pages/RoundingListV2.jsx`: 라운딩 카드에 "지도보기" 버튼 추가 (Google Maps 좌표/주소 연동)
+
+#### 🗂 영향 파일
+
+- `server/routes/guest.js` (날짜 제한 제거, 자동청구, teams phone 교체, id 포함)
+- `server/routes/transactions.js` (게스트 outstanding 포함)
+- `src/services/api.js` (fetchInviteInfo 에러 메시지 개선)
+- `src/pages/GuestJoin.jsx` (날짜 분기, 확인 화면)
+- `src/pages/Settlement.jsx` (게스트 분리 표시, PaySheet 배지)
+- `src/pages/Play.jsx` (extraGuests, 게스트 phone 보강, 조편성 전 안내, 스크롤)
+- `src/pages/RoundingManagement.jsx` (레이블 변경)
+- `src/pages/RoundingListV2.jsx` (지도보기 버튼)
+
+---
+
 > **현재 상태:** Phase 1 ✅ / Phase 2 ✅ / Phase 3 ✅ / Phase 4 ✅ / Phase 5 ⏸️ / Phase 6 ✅ / Phase 7 ⬜ / Phase 8 진행 중 (8A✅ 8B✅ 8C~8E ⬜)
-> **현재 우선순위:** Phase 8-C (Stableford) → 8-D (Google Maps) → 8-E (2BBB/포썸 점검) → Phase 7
+> **현재 우선순위:** Phase 8-C (Stableford) → 8-D (Google Maps 나머지) → 8-E (2BBB/포썸 점검) → Phase 7
 > **참조:** 모든 작업 시작 전/후 이 문서 확인 및 업데이트 필수
