@@ -27,13 +27,13 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
   if (!show || !booking) return null;
 
   const {
-    hmType, hmTitle, hmTime, hmParticipants, hmGuestName, hmMemberSearch,
+    hmType, hmTitle, hmTime, hmParticipants, hmGuestName, hmGuestHandicap, hmMemberSearch,
     hmMemberDropdownOpen, hmSaving, hmSaveStatus, hmDeleteConfirm,
     hmInviteUrl, hmInviteLoading, hmViewMode, hmClubMemberOnly, hmAdvanced,
   } = state;
 
   const {
-    setHmType, setHmTitle, setHmTime, setHmGuestName, setHmMemberSearch,
+    setHmType, setHmTitle, setHmTime, setHmGuestName, setHmGuestHandicap, setHmMemberSearch,
     setHmMemberDropdownOpen, setHmDeleteConfirm,
     setHmInviteUrl, setHmInviteLoading, setHmViewMode, setHmAdvanced,
   } = setters;
@@ -193,12 +193,17 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
           </div>
 
           {/* 게스트 추가 */}
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
             <input type="text" value={hmGuestName}
               onChange={(e) => { e.stopPropagation(); setHmGuestName(e.target.value); }}
               onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); handleHmAddGuest(); } }}
-              placeholder="게스트 이름 입력"
-              style={inputStyle} />
+              placeholder="이름"
+              style={{ ...inputStyle, flex: 2 }} />
+            <input type="number" inputMode="decimal" value={hmGuestHandicap}
+              onChange={(e) => { e.stopPropagation(); setHmGuestHandicap(e.target.value); }}
+              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); handleHmAddGuest(); } }}
+              placeholder="핸디"
+              style={{ ...inputStyle, flex: 1, minWidth: 0 }} />
             <button type="button" onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleHmAddGuest(); }}
               disabled={hmSaving || !hmGuestName.trim()}
               style={{ padding: '12px 16px', borderRadius: '10px', background: PRIMARY, color: '#FFFFFF', border: 'none', fontWeight: '700', fontSize: '14px', cursor: 'pointer', whiteSpace: 'nowrap', opacity: (!hmGuestName.trim() || hmSaving) ? 0.4 : 1 }}>

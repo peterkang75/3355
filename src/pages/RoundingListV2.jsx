@@ -38,6 +38,7 @@ function RoundingListV2() {
   const [hmTime, setHmTime] = useState('');
   const [hmParticipants, setHmParticipants] = useState([]);
   const [hmGuestName, setHmGuestName] = useState('');
+  const [hmGuestHandicap, setHmGuestHandicap] = useState('');
   const [hmMemberSearch, setHmMemberSearch] = useState('');
   const [hmMemberDropdownOpen, setHmMemberDropdownOpen] = useState(false);
   const [hmSaving, setHmSaving] = useState(false);
@@ -258,9 +259,18 @@ function RoundingListV2() {
   const handleHmAddGuest = async () => {
     const name = hmGuestName.trim();
     if (!name) return;
-    const updated = [...hmParticipants, { name, nickname: name, phone: `guest_${Date.now()}` }];
+    const hc = hmGuestHandicap !== '' ? parseFloat(hmGuestHandicap) : 36;
+    const handicap = isNaN(hc) ? 36 : hc;
+    const updated = [...hmParticipants, {
+      name, nickname: name,
+      phone: `guest_${Date.now()}`,
+      isGuest: true,
+      handicap: String(handicap),
+      gaHandy: String(handicap),
+    }];
     setHmParticipants(updated);
     setHmGuestName('');
+    setHmGuestHandicap('');
     await hmSaveField({ participants: updated.map(p => JSON.stringify(p)) });
   };
 
@@ -596,8 +606,8 @@ function RoundingListV2() {
         show={showHostManage}
         onClose={() => setShowHostManage(false)}
         booking={hmBooking}
-        state={{ hmType, hmTitle, hmTime, hmParticipants, hmGuestName, hmMemberSearch, hmMemberDropdownOpen, hmSaving, hmSaveStatus, hmDeleteConfirm, hmInviteUrl, hmInviteLoading, hmViewMode, hmClubMemberOnly, hmAdvanced }}
-        setters={{ setHmType, setHmTitle, setHmTime, setHmGuestName, setHmMemberSearch, setHmMemberDropdownOpen, setHmDeleteConfirm, setHmInviteUrl, setHmInviteLoading, setHmViewMode, setHmAdvanced }}
+        state={{ hmType, hmTitle, hmTime, hmParticipants, hmGuestName, hmGuestHandicap, hmMemberSearch, hmMemberDropdownOpen, hmSaving, hmSaveStatus, hmDeleteConfirm, hmInviteUrl, hmInviteLoading, hmViewMode, hmClubMemberOnly, hmAdvanced }}
+        setters={{ setHmType, setHmTitle, setHmTime, setHmGuestName, setHmGuestHandicap, setHmMemberSearch, setHmMemberDropdownOpen, setHmDeleteConfirm, setHmInviteUrl, setHmInviteLoading, setHmViewMode, setHmAdvanced }}
         handlers={{ handleHmTypeChange, handleHmTitleSave, handleHmTimeSave, handleHmRemoveParticipant, handleHmAddMember, handleHmAddGuest, handleHmAdvancedToggle, handleHmAdvancedSave, handleHmDelete, handleHmGameModeChange, hmSaveField }}
         user={user}
         members={members}
