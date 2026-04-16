@@ -354,48 +354,46 @@ function Fees() {
                   const monthNet = s.totalIncome - s.totalExpense;
                   const monthPos = monthNet >= 0;
                   return (
-                    <div key={s.yearMonth} style={{ background: "#fff", borderRadius: 16, padding: "14px 16px", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>
-                      {/* 헤더: 월 + 마감 뱃지 + 정산서 버튼 */}
-                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
-                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                          <span style={{ fontSize: 15, fontWeight: 800, color: "#111827", letterSpacing: "-0.02em" }}>
+                    <div key={s.yearMonth} style={{ background: "#fff", borderRadius: 20, padding: "20px 20px 18px", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>
+                      {/* 1행: 월 제목 + 정산완료 뱃지 + 정산서 보기 버튼 */}
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                          <span style={{ fontSize: 22, fontWeight: 800, color: "#111827", letterSpacing: "-0.03em" }}>
                             {y}년 {parseInt(m)}월
                           </span>
-                          <div style={{ display: "flex", alignItems: "center", gap: 3, background: "#f0fdf4", borderRadius: 20, padding: "3px 8px" }}>
-                            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#16a34a" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            <span style={{ fontSize: 10, fontWeight: 700, color: "#16a34a" }}>마감</span>
+                          <div style={{ background: "#d1fae5", borderRadius: 20, padding: "4px 10px" }}>
+                            <span style={{ fontSize: 12, fontWeight: 700, color: "#059669" }}>정산 완료</span>
                           </div>
                         </div>
                         <button
                           onClick={() => setReportYearMonth(s.yearMonth)}
-                          style={{ padding: "5px 11px", borderRadius: 8, border: "none", background: "#0047AB", color: "#fff", fontSize: 11, fontWeight: 700, cursor: "pointer" }}
+                          style={{ padding: "9px 16px", borderRadius: 12, border: "none", background: "#0047AB", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}
                         >
                           정산서 보기
                         </button>
                       </div>
-                      {/* 수입 / 지출 / 월잔액 한 줄 */}
-                      <div style={{ display: "flex", alignItems: "center", gap: 0, background: "#f8fafc", borderRadius: 10, overflow: "hidden" }}>
-                        <div style={{ flex: 1, padding: "9px 10px", borderRight: "1px solid #e2e8f0" }}>
-                          <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, marginBottom: 2 }}>수입</div>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: "#16a34a" }}>+${s.totalIncome.toLocaleString()}</div>
+                      {/* 2행: 누적 잔액 */}
+                      <div style={{ fontSize: 13, color: "#64748b", marginBottom: 16 }}>
+                        누적 잔액: <span style={{ fontWeight: 600 }}>${s.netBalance.toLocaleString()}</span>
+                      </div>
+                      {/* 구분선 */}
+                      <div style={{ height: 1, background: "#f1f5f9", marginBottom: 14 }} />
+                      {/* 3행: 수입 / 지출 / 당월 잔액 */}
+                      <div style={{ display: "flex", alignItems: "flex-end", gap: 0 }}>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500, marginBottom: 4 }}>수입</div>
+                          <div style={{ fontSize: 17, fontWeight: 800, color: "#0047AB" }}>+${s.totalIncome.toLocaleString()}</div>
                         </div>
-                        <div style={{ flex: 1, padding: "9px 10px", borderRight: "1px solid #e2e8f0" }}>
-                          <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, marginBottom: 2 }}>지출</div>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: "#dc2626" }}>-${s.totalExpense.toLocaleString()}</div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500, marginBottom: 4 }}>지출</div>
+                          <div style={{ fontSize: 17, fontWeight: 800, color: "#ef4444" }}>-${s.totalExpense.toLocaleString()}</div>
                         </div>
-                        <div style={{ flex: 1, padding: "9px 10px" }}>
-                          <div style={{ fontSize: 10, color: "#94a3b8", fontWeight: 600, marginBottom: 2 }}>월잔액</div>
-                          <div style={{ fontSize: 13, fontWeight: 800, color: monthPos ? "#16a34a" : "#dc2626" }}>
-                            {monthPos ? "+" : "-"}${Math.abs(monthNet).toLocaleString()}
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 12, color: "#94a3b8", fontWeight: 700, marginBottom: 4 }}>당월 잔액</div>
+                          <div style={{ fontSize: 17, fontWeight: 800, color: "#111827" }}>
+                            ${Math.abs(monthNet).toLocaleString()}
                           </div>
                         </div>
-                      </div>
-                      {/* 전체 잔액 */}
-                      <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginTop: 8, gap: 6 }}>
-                        <span style={{ fontSize: 11, color: "#94a3b8" }}>누계 잔액</span>
-                        <span style={{ fontSize: 14, fontWeight: 800, color: isPositive ? "#0047AB" : "#dc2626" }}>
-                          {isPositive ? "" : "-"}${Math.abs(s.netBalance).toLocaleString()}
-                        </span>
                       </div>
                     </div>
                   );
