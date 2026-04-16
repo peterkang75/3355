@@ -100,35 +100,116 @@ router.post('/invite/:token/register', async (req, res) => {
       return res.status(404).json({ error: '유효하지 않거나 만료된 초대링크입니다.' });
     }
 
-    // 이미 같은 이름의 게스트가 이 라운딩에 Member로 등록되어 있는지 확인
-    const existingGuest = await prisma.member.findFirst({
-      where: {
-        isGuest: true,
-        name: guestName.trim(),
-        bookings: { some: { id: booking.id } },
-      },
-    });
-
-    if (existingGuest) {
-      // 이미 등록된 게스트 → 기존 정보 반환 (재접속 허용)
-      return res.json({
-        guestMemberId: existingGuest.id,
-        bookingId: booking.id,
-        guestName: existingGuest.name,
-        alreadyRegistered: true,
-      });
-    }
-
-    // participants 에서 사전 등록된 게스트 핸디캡 가져오기 (조직자가 미리 입력한 값 우선)
+    // participants 파싱 (중복 체크 + 사전 등록 핸디캡용)
     const currentParticipants = booking.participants || [];
     const parsedParticipants = currentParticipants.map(p => {
       try { return typeof p === 'string' ? JSON.parse(p) : p; } catch { return null; }
     }).filter(Boolean);
 
-    const preAdded = parsedParticipants.find(
+    // ── 중복 등록 방지: participants에서 같은 이름의 게스트 확인 ──────────────
+    // (Member.bookings 는 주최자 관계라 사용 불가 — participants 배열로 직접 체크)
+    const existingParticipant = parsedParticipants.find(
       p => p.isGuest === true && p.name === guestName.trim()
     );
+
+    if (existingParticipant) {
+      // participants에 이미 있음 → 기존 Member 찾아서 재접속 허용
+      const existingMember = existingParticipant.id
+        ? await prisma.member.findUnique({ where: { id: existingParticipant.id } })
+        : existingParticipant.phone
+          ? await prisma.member.findUnique({ where: { phone: existingParticipant.phone } })
+          : null;
+
+      if (existingMember) {
+        return res.json({
+          guestMemberId: existingMember.id,
+          bookingId: booking.id,
+          guestName: existingMember.name,
+          phone: existingMember.phone,
+          handicap: parseFloat(existingMember.gaHandy || existingMember.handicap) || 36,
+          alreadyRegistered: true,
+        });
+      }
+    }
+
+    const preAdded = existingParticipant; // 사전 직접추가 or 위에서 못 찾은 케이스
     const parsedHandicap = parseFloat(handicap) || (preAdded ? parseFloat(preAdded.handicap) : 36) || 36;
+
+    // 이중 안전장치: 동일 이름의 기존 게스트 Member가 DB에 있으면 재사용
+    const existingGuestMember = await prisma.member.findFirst({
+      where: { isGuest: true, name: guestName.trim() },
+      orderBy: { createdAt: 'desc' }, // 가장 최근 것 사용
+    });
+
+    // 기존 게스트 Member가 있지만 participants에 없는 경우 (다른 라운딩에서 등록된 케이스)
+    // → 이 라운딩 참가비 중복 청구 여부만 확인 후 처리
+    if (existingGuestMember) {
+      const dupTransaction = await prisma.transaction.findFirst({
+        where: { memberId: existingGuestMember.id, bookingId: booking.id, type: 'charge' },
+      });
+      // participants 업데이트 후 필요하면 청구
+      const filteredP = parsedParticipants.filter(p => !(p.isGuest === true && p.name === guestName.trim()));
+      const oldPhone = preAdded?.phone || null;
+      const newP = JSON.stringify({
+        id: existingGuestMember.id,
+        name: existingGuestMember.name,
+        nickname: existingGuestMember.name,
+        phone: existingGuestMember.phone,
+        isGuest: true,
+        handicap: String(parsedHandicap),
+        gaHandy: String(parsedHandicap),
+      });
+
+      let updatedTeams2 = booking.teams;
+      if (oldPhone && booking.teams) {
+        try {
+          const arr = typeof booking.teams === 'string' ? JSON.parse(booking.teams) : booking.teams;
+          let changed = false;
+          const replaced = arr.map(t => ({
+            ...t,
+            members: (t.members || []).map(m => {
+              if (m && m.phone === oldPhone) { changed = true; return { ...m, phone: existingGuestMember.phone, id: existingGuestMember.id }; }
+              return m;
+            }),
+          }));
+          if (changed) updatedTeams2 = JSON.stringify(replaced);
+        } catch {}
+      }
+
+      await prisma.booking.update({
+        where: { id: booking.id },
+        data: {
+          participants: [...filteredP.map(p => JSON.stringify(p)), newP],
+          ...(updatedTeams2 !== booking.teams ? { teams: updatedTeams2 } : {}),
+        },
+      });
+
+      const feeAmount2 = (booking.greenFee || 0) + (booking.cartFee || 0);
+      if (feeAmount2 > 0 && !dupTransaction) {
+        const today = new Date().toISOString().split('T')[0];
+        await prisma.transaction.create({
+          data: {
+            type: 'charge',
+            amount: feeAmount2,
+            description: `${booking.title || booking.courseName} 라운딩 (게스트)`,
+            category: '게스트 참가비',
+            date: today,
+            memberId: existingGuestMember.id,
+            bookingId: booking.id,
+          },
+        });
+        await recalculateAndUpdateBalance(existingGuestMember.id);
+      }
+
+      return res.json({
+        guestMemberId: existingGuestMember.id,
+        bookingId: booking.id,
+        guestName: existingGuestMember.name,
+        phone: existingGuestMember.phone,
+        handicap: parsedHandicap,
+        feeCharged: dupTransaction ? 0 : feeAmount2,
+      });
+    }
 
     const phone = `guest_${crypto.randomBytes(8).toString('hex')}`;
 
