@@ -114,6 +114,7 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
           latitude: aiResult.latitude || null,
           longitude: aiResult.longitude || null,
           holePars: { male: malePars, female: femalePars },
+          holeIndexes: aiResult.holeIndexes || null,
           tees: aiResult.tees || null,
           nearHoles: Array(18).fill(false),
           isCompetition: false,
@@ -125,7 +126,8 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
       setAiState('idle');
       setAiResult(null);
 
-      if (savedCourse?.id) {
+      // GolfCourseAPI에서 SI 없을 때만 bluegolf 시도
+      if (savedCourse?.id && !aiResult.holeIndexes) {
         apiService.fetchStrokeIndex(name).then(async (siData) => {
           if (siData?.holeIndexes) {
             await apiService.updateCourse(savedCourse.id, { holeIndexes: siData.holeIndexes });

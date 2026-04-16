@@ -4553,6 +4553,7 @@ function Admin() {
                 male: editCourseData.maleHolePars.map(p => parseInt(p) || 4),
                 female: editCourseData.femaleHolePars.map(p => parseInt(p) || 4),
               },
+              holeIndexes: editCourseData.holeIndexes || null,
               tees: editCourseData.tees || null,
               externalId: editCourseData.externalId || null,
               nearHoles: editCourseData.nearHoles,
@@ -4560,8 +4561,8 @@ function Admin() {
             });
             if (refreshCourses) await refreshCourses();
             closeSheet();
-            // 백그라운드로 Stroke Index 자동 조회
-            if (savedCourse?.id) {
+            // GolfCourseAPI에서 SI 없을 때만 bluegolf 시도
+            if (savedCourse?.id && !editCourseData.holeIndexes) {
               apiService.fetchStrokeIndex(editCourseData.name).then(async (siData) => {
                 if (siData?.holeIndexes) {
                   await apiService.updateCourse(savedCourse.id, { holeIndexes: siData.holeIndexes });

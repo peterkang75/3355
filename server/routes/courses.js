@@ -52,6 +52,13 @@ router.post("/search", requireAuth, async (req, res) => {
       holePars.female = femaleTees[0].holes.map(h => h.par);
     }
 
+    // GolfCourseAPI의 handicap 필드 = Stroke Index (있으면 바로 사용)
+    const holeIndexes = {};
+    const maleHcp = maleTees[0]?.holes?.map(h => h.handicap).filter(Boolean);
+    const femaleHcp = femaleTees[0]?.holes?.map(h => h.handicap).filter(Boolean);
+    if (maleHcp?.length === 18) holeIndexes.male = maleHcp;
+    if (femaleHcp?.length === 18) holeIndexes.female = femaleHcp;
+
     const tees = [
       ...maleTees.map(t => ({
         tee_name: t.tee_name,
@@ -82,6 +89,7 @@ router.post("/search", requireAuth, async (req, res) => {
       latitude: course.location?.latitude || null,
       longitude: course.location?.longitude || null,
       holePars,
+      holeIndexes: Object.keys(holeIndexes).length > 0 ? holeIndexes : null,
       tees,
       externalId: course.id,
       totalPar: primaryTee?.par_total || 72,
@@ -100,7 +108,18 @@ router.post("/stroke-index", requireAuth, async (req, res) => {
   const { courseName } = req.body;
   if (!courseName) return res.status(400).json({ error: "Course name required" });
 
-  const UA = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36';
+  const headers = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+    'Accept-Language': 'en-AU,en;q=0.9',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Connection': 'keep-alive',
+    'Upgrade-Insecure-Requests': '1',
+    'Sec-Fetch-Dest': 'document',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Site': 'none',
+    'Cache-Control': 'max-age=0',
+  };
 
   try {
     const slugs = generateBlueGolfSlugs(courseName);
@@ -109,7 +128,7 @@ router.post("/stroke-index", requireAuth, async (req, res) => {
 
     for (const slug of slugs) {
       const url = `https://course.bluegolf.com/bluegolf/course/course/${slug}/detailedscorecard.htm`;
-      const resp = await fetch(url, { headers: { 'User-Agent': UA } });
+      const resp = await fetch(url, { headers });
       if (resp.status === 200) {
         html = await resp.text();
         usedSlug = slug;
