@@ -1121,12 +1121,6 @@ function Play() {
     // ── 기존 teammates 체크 ───────────────────────────────────────────────────
 
     if (teammates.length === 0) {
-      // 디버그: 실제 participants 파싱해서 원인 확인
-      const _dbgRaw = (booking?.participants || []).map(p => { try { return typeof p === 'string' ? JSON.parse(p) : p; } catch { return null; } }).filter(Boolean);
-      const _dbgNames = new Map();
-      for (const p of _dbgRaw) { const k = (p.name||'').trim().toLowerCase(); if (k && (!_dbgNames.has(k) || p.phone)) _dbgNames.set(k, p); }
-      const _dbgUnique = Array.from(_dbgNames.values());
-      console.warn('⚠️ teammates=0 디버그:', { bookingId, hasTeams: !!booking?.teams, rawCount: _dbgRaw.length, uniqueCount: _dbgUnique.length, myPhone: effectiveUserPhone, participants: _dbgUnique });
       return (
         <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', padding: '16px', paddingTop: 'calc(env(safe-area-inset-top) + 16px)', background: '#fff', borderBottom: '1px solid #F1F5F9' }}>
@@ -1134,17 +1128,28 @@ function Play() {
             <span style={{ fontSize: '17px', fontWeight: '700', color: '#1E293B' }}>플레이하기</span>
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px', gap: '16px' }}>
-            <div style={{ fontSize: '48px' }}>⛳</div>
+            <div style={{ fontSize: '56px', marginBottom: 4 }}>⏳</div>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '17px', fontWeight: '700', color: '#1E293B', marginBottom: '8px' }}>조편성을 먼저 해주세요</div>
-              <div style={{ fontSize: '14px', color: '#94A3B8', lineHeight: 1.6 }}>플레이를 시작하려면{'\n'}조편성이 완료되어야 합니다</div>
-              <div style={{ fontSize: '11px', color: '#CBD5E1', marginTop: '12px', fontFamily: 'monospace' }}>
-                dbg: raw={_dbgRaw.length} unique={_dbgUnique.length} teams={booking?.teams ? 'Y' : 'N'} phone={effectiveUserPhone ? effectiveUserPhone.slice(0,10) : 'null'}
+              <div style={{ fontSize: '18px', fontWeight: '800', color: '#1E293B', marginBottom: '10px', letterSpacing: '-0.02em' }}>
+                조편성이 아직 안됐습니다
+              </div>
+              <div style={{ fontSize: '14px', color: '#64748B', lineHeight: 1.7 }}>
+                {isGuestMode
+                  ? '운영진이 조편성을 완료한 후\n다시 이 링크를 열어주세요.'
+                  : '조편성이 완료된 후\n플레이를 시작할 수 있습니다.'}
               </div>
             </div>
+            {!isGuestMode && (
+              <button
+                onClick={() => navigate(`/team-formation?id=${bookingId}`)}
+                style={{ marginTop: '8px', padding: '14px 28px', borderRadius: '14px', background: '#0047AB', color: '#fff', border: 'none', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}
+              >
+                조편성 하러 가기
+              </button>
+            )}
             <button
               onClick={() => navigate(-1)}
-              style={{ marginTop: '8px', padding: '14px 32px', borderRadius: '14px', background: '#0047AB', color: '#fff', border: 'none', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}
+              style={{ padding: '12px 24px', borderRadius: '12px', background: '#F1F5F9', color: '#64748B', border: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
             >
               돌아가기
             </button>
