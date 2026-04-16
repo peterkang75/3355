@@ -1533,10 +1533,18 @@ function Admin() {
     setEditCourseData({
       name: course.name || '',
       address: course.address || '',
+      city: course.city || null,
+      state: course.state || null,
+      country: course.country || null,
+      latitude: course.latitude || null,
+      longitude: course.longitude || null,
       maleHolePars: Array.isArray(holePars) ? holePars : holePars.male || Array(18).fill(4),
       femaleHolePars: Array.isArray(holePars) ? holePars : holePars.female || Array(18).fill(4),
       nearHoles: Array.isArray(nearHoles) ? nearHoles : Array(18).fill(false),
-      isCompetition: course.isCompetition || false
+      isCompetition: course.isCompetition || false,
+      tees: course.tees || null,
+      holeIndexes: course.holeIndexes || null,
+      externalId: course.externalId || null,
     });
     setShowCourseMenu(null);
   };
@@ -1551,12 +1559,20 @@ function Admin() {
       const updateData = {
         name: editCourseData.name,
         address: editCourseData.address,
+        city: editCourseData.city || null,
+        state: editCourseData.state || null,
+        country: editCourseData.country || null,
+        latitude: editCourseData.latitude || null,
+        longitude: editCourseData.longitude || null,
         holePars: {
           male: editCourseData.maleHolePars.map(p => parseInt(p) || 4),
           female: editCourseData.femaleHolePars.map(p => parseInt(p) || 4)
         },
         nearHoles: editCourseData.nearHoles,
-        isCompetition: editCourseData.isCompetition
+        isCompetition: editCourseData.isCompetition,
+        tees: editCourseData.tees || null,
+        holeIndexes: editCourseData.holeIndexes || null,
+        externalId: editCourseData.externalId || null,
       };
       
       await apiService.updateCourse(editingCourse, updateData);
@@ -4740,6 +4756,119 @@ function Admin() {
                             }}
                           />
                         </div>
+
+                        {/* ─── 티박스 정보 ─── */}
+                        {editCourseData.tees && Array.isArray(editCourseData.tees) && editCourseData.tees.length > 0 && (
+                          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', padding: '16px' }}>
+                            <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', marginBottom: '10px' }}>티박스 정보</div>
+                            {editCourseData.tees.map((tee, ti) => (
+                              <div key={ti} style={{ marginBottom: ti < editCourseData.tees.length - 1 ? '10px' : 0 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <span style={{ fontSize: '13px', fontWeight: '700', color: '#1E293B' }}>{tee.tee_name}</span>
+                                    <span style={{ fontSize: '11px', color: '#94A3B8', background: '#F1F5F9', borderRadius: '4px', padding: '2px 6px' }}>{tee.gender === 'male' ? '남' : '여'}</span>
+                                  </div>
+                                  <div style={{ fontSize: '12px', color: '#64748B' }}>
+                                    {tee.total_meters ? `${tee.total_meters}m` : ''}{tee.par_total ? ` · Par ${tee.par_total}` : ''}
+                                    {tee.course_rating ? ` · CR ${tee.course_rating}` : ''}{tee.slope_rating ? ` / SL ${tee.slope_rating}` : ''}
+                                  </div>
+                                </div>
+                                {tee.holes && tee.holes.length > 0 && (
+                                  <div style={{ overflowX: 'auto' }}>
+                                    <table style={{ borderCollapse: 'collapse', fontSize: '11px', width: '100%', minWidth: '400px' }}>
+                                      <thead>
+                                        <tr>
+                                          <td style={{ padding: '3px 4px', color: '#94A3B8', fontWeight: '600' }}>홀</td>
+                                          {tee.holes.slice(0, 9).map((_, i) => (
+                                            <td key={i} style={{ padding: '3px 4px', textAlign: 'center', color: '#94A3B8', fontWeight: '600' }}>{i + 1}</td>
+                                          ))}
+                                          <td style={{ padding: '3px 4px', textAlign: 'center', color: '#64748B', fontWeight: '700' }}>OUT</td>
+                                          {tee.holes.length > 9 && tee.holes.slice(9).map((_, i) => (
+                                            <td key={i + 9} style={{ padding: '3px 4px', textAlign: 'center', color: '#94A3B8', fontWeight: '600' }}>{i + 10}</td>
+                                          ))}
+                                          {tee.holes.length > 9 && <td style={{ padding: '3px 4px', textAlign: 'center', color: '#64748B', fontWeight: '700' }}>IN</td>}
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <tr>
+                                          <td style={{ padding: '3px 4px', color: '#64748B', fontWeight: '600', fontSize: '10px' }}>m</td>
+                                          {tee.holes.slice(0, 9).map((h, i) => (
+                                            <td key={i} style={{ padding: '3px 4px', textAlign: 'center', color: '#1E293B' }}>{h.meters || '-'}</td>
+                                          ))}
+                                          <td style={{ padding: '3px 4px', textAlign: 'center', color: '#1E293B', fontWeight: '700' }}>
+                                            {tee.holes.slice(0, 9).reduce((s, h) => s + (h.meters || 0), 0) || '-'}
+                                          </td>
+                                          {tee.holes.length > 9 && tee.holes.slice(9).map((h, i) => (
+                                            <td key={i + 9} style={{ padding: '3px 4px', textAlign: 'center', color: '#1E293B' }}>{h.meters || '-'}</td>
+                                          ))}
+                                          {tee.holes.length > 9 && (
+                                            <td style={{ padding: '3px 4px', textAlign: 'center', color: '#1E293B', fontWeight: '700' }}>
+                                              {tee.holes.slice(9).reduce((s, h) => s + (h.meters || 0), 0) || '-'}
+                                            </td>
+                                          )}
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* ─── Stroke Index ─── */}
+                        {editCourseData.holeIndexes && (
+                          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', padding: '16px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
+                              <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748B' }}>Stroke Index (SI)</div>
+                              <div style={{ fontSize: '11px', color: '#10B981', background: '#D1FAE5', borderRadius: '4px', padding: '2px 6px' }}>bluegolf 자동</div>
+                            </div>
+                            {['male', 'female'].map(gender => {
+                              const si = editCourseData.holeIndexes?.[gender];
+                              if (!si || si.length === 0) return null;
+                              return (
+                                <div key={gender} style={{ marginBottom: gender === 'male' ? '8px' : 0 }}>
+                                  <div style={{ fontSize: '11px', color: '#94A3B8', marginBottom: '4px' }}>{gender === 'male' ? '남성' : '여성'}</div>
+                                  <div style={{ overflowX: 'auto' }}>
+                                    <table style={{ borderCollapse: 'collapse', fontSize: '11px', width: '100%', minWidth: '400px' }}>
+                                      <tbody>
+                                        <tr>
+                                          <td style={{ padding: '3px 4px', color: '#94A3B8', fontWeight: '600' }}>홀</td>
+                                          {si.slice(0, 9).map((_, i) => <td key={i} style={{ padding: '3px 4px', textAlign: 'center', color: '#94A3B8' }}>{i + 1}</td>)}
+                                          <td style={{ padding: '3px 4px', textAlign: 'center', color: '#64748B', fontWeight: '700' }}>OUT</td>
+                                          {si.slice(9).map((_, i) => <td key={i + 9} style={{ padding: '3px 4px', textAlign: 'center', color: '#94A3B8' }}>{i + 10}</td>)}
+                                          <td style={{ padding: '3px 4px', textAlign: 'center', color: '#64748B', fontWeight: '700' }}>IN</td>
+                                        </tr>
+                                        <tr>
+                                          <td style={{ padding: '3px 4px', color: '#64748B', fontWeight: '600', fontSize: '10px' }}>SI</td>
+                                          {si.slice(0, 9).map((v, i) => <td key={i} style={{ padding: '3px 4px', textAlign: 'center', color: '#0047AB', fontWeight: '600' }}>{v}</td>)}
+                                          <td style={{ padding: '3px 4px' }} />
+                                          {si.slice(9).map((v, i) => <td key={i + 9} style={{ padding: '3px 4px', textAlign: 'center', color: '#0047AB', fontWeight: '600' }}>{v}</td>)}
+                                          <td style={{ padding: '3px 4px' }} />
+                                        </tr>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+
+                        {/* ─── SI 없을 때: 수동 조회 버튼 ─── */}
+                        {courseSheetMode === 'edit' && !editCourseData.holeIndexes && (
+                          <button onClick={async () => {
+                            const siData = await apiService.fetchStrokeIndex(editCourseData.name).catch(() => null);
+                            if (siData?.holeIndexes) {
+                              setEditCourseData(prev => ({ ...prev, holeIndexes: siData.holeIndexes }));
+                            } else {
+                              alert('SI 데이터를 찾지 못했습니다 (bluegolf에 없는 골프장)');
+                            }
+                          }}
+                          style={{ width: '100%', padding: '12px', borderRadius: '10px', background: '#F8FAFC', color: '#64748B', border: '1px dashed #CBD5E1', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
+                            SI (Stroke Index) 자동 조회
+                          </button>
+                        )}
 
                         <div style={{ display: 'flex', gap: '8px', paddingBottom: '8px' }}>
                           {courseSheetMode === 'edit' && (
