@@ -39,8 +39,8 @@ function GuestJoin() {
           setStep('form');
         }
       })
-      .catch(() => {
-        setLoadError('유효하지 않거나 만료된 초대링크입니다.');
+      .catch((err) => {
+        setLoadError(err.message || '유효하지 않거나 만료된 초대링크입니다.');
         setStep('error');
       });
   }, [token]);

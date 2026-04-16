@@ -1,20 +1,10 @@
 const express = require('express');
 const prisma = require('../db');
 const { requireAuth, requireOperator } = require('../middleware/auth');
+const { recalculateAndUpdateBalance } = require('../utils/balance');
 const crypto = require('crypto');
 
 const router = express.Router();
-
-// 정기모임 초대링크는 당일(라운딩 날짜)만 유효
-function isInviteValidToday(booking) {
-  if (booking?.type !== '정기모임') return true;
-  if (!booking.date) return true;
-  const tz = 'Australia/Sydney';
-  const fmt = (d) => new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
-  const bookingDay = fmt(new Date(booking.date));
-  const today = fmt(new Date());
-  return bookingDay === today;
-}
 
 // ── 초대링크 생성 (운영진) ────────────────────────────────────────────────────
 router.post('/bookings/:bookingId/invite', requireAuth, requireOperator, async (req, res) => {
@@ -70,11 +60,7 @@ router.get('/invite/:token', async (req, res) => {
     });
 
     if (!booking) {
-      return res.status(404).json({ error: 'Invalid or expired invite link' });
-    }
-
-    if (!isInviteValidToday(booking)) {
-      return res.status(403).json({ error: '초대링크는 라운딩 당일에만 사용할 수 있습니다.' });
+      return res.status(404).json({ error: '유효하지 않거나 만료된 초대링크입니다.' });
     }
 
     // participants 에서 사전 등록된 게스트 추출 (isGuest:true + phone이 guest_ 로 시작)
@@ -111,11 +97,7 @@ router.post('/invite/:token/register', async (req, res) => {
     });
 
     if (!booking) {
-      return res.status(404).json({ error: 'Invalid or expired invite link' });
-    }
-
-    if (!isInviteValidToday(booking)) {
-      return res.status(403).json({ error: '초대링크는 라운딩 당일에만 사용할 수 있습니다.' });
+      return res.status(404).json({ error: '유효하지 않거나 만료된 초대링크입니다.' });
     }
 
     // 이미 같은 이름의 게스트가 이 라운딩에 Member로 등록되어 있는지 확인
@@ -182,12 +164,31 @@ router.post('/invite/:token/register', async (req, res) => {
       data: { participants: [...filteredParticipants.map(p => JSON.stringify(p)), newParticipant] },
     });
 
+    // 참가비 자동청구 (greenFee + cartFee, 멤버십피 제외)
+    const feeAmount = (booking.greenFee || 0) + (booking.cartFee || 0);
+    if (feeAmount > 0) {
+      const today = new Date().toISOString().split('T')[0];
+      await prisma.transaction.create({
+        data: {
+          type: 'charge',
+          amount: feeAmount,
+          description: `${booking.title || booking.courseName} 라운딩 (게스트)`,
+          category: '게스트 참가비',
+          date: today,
+          memberId: guest.id,
+          bookingId: booking.id,
+        },
+      });
+      await recalculateAndUpdateBalance(guest.id);
+    }
+
     res.json({
       guestMemberId: guest.id,
       bookingId: booking.id,
       guestName: guest.name,
       phone: guest.phone,
       handicap: parsedHandicap,
+      feeCharged: feeAmount,
     });
   } catch (error) {
     console.error('Error registering guest:', error);

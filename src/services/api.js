@@ -313,7 +313,10 @@ class ApiService {
 
   async fetchInviteInfo(token) {
     const response = await fetch(`${API_BASE}/invite/${token}`);
-    if (!response.ok) throw new Error('Invalid or expired invite link');
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || '유효하지 않거나 만료된 초대링크입니다.');
+    }
     return response.json();
   }
 
