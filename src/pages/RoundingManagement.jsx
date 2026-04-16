@@ -803,7 +803,7 @@ function RoundingManagement() {
 
             {/* 게스트 초대링크 */}
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #f0f0f0' }}>
-              <div style={{ fontSize: '13px', fontWeight: '600', color: '#666', marginBottom: '10px' }}>초대링크 (당일만 유효)</div>
+              <div style={{ fontSize: '13px', fontWeight: '600', color: '#666', marginBottom: '10px' }}>게스트 초대링크</div>
               {inviteUrl ? (
                 <>
                   <div style={{ fontSize: '12px', color: '#64748B', wordBreak: 'break-all', marginBottom: '10px', background: '#F8FAFC', borderRadius: '8px', padding: '10px 12px', border: '1px solid #E8ECF0' }}>
