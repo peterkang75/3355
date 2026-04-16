@@ -4362,61 +4362,112 @@ function Admin() {
           const cyclePar = (val) => { const v = parseInt(val) || 4; return v >= 5 ? 3 : v + 1; };
           const parColor = (p) => p === 3 ? '#16A34A' : p === 5 ? '#C0392B' : '#0047AB';
 
-          const ScorecardGrid = ({ pars, nearHoles, onParClick, onNearClick, readOnly = false }) => {
+          const getTeeLabel = (name) => {
+            if (!name) return '';
+            const parts = name.split(',').map(p => p.trim());
+            const colors = ['Black','Blue','White','Yellow','Red','Gold','Silver','Green','Orange','Purple','Platinum','Championship','Forward','Back','Club'];
+            for (const part of parts) {
+              if (colors.some(c => part.includes(c))) return part.replace(/Men|Women/gi, '').trim().substring(0, 5);
+            }
+            return parts[parts.length - 1].trim().substring(0, 5);
+          };
+
+          const ScorecardGrid = ({ pars, nearHoles, onParClick, onNearClick, readOnly = false, holeIndexes, tees }) => {
             const front = pars.slice(0, 9);
             const back = pars.slice(9, 18);
             const frontTotal = front.reduce((s, p) => s + (parseInt(p) || 0), 0);
             const backTotal = back.reduce((s, p) => s + (parseInt(p) || 0), 0);
+            const activeTees = (tees || []).filter(t => t.holes?.length >= 18);
+            const siMale = holeIndexes?.male;
+            const cols = '28px repeat(9, 1fr) 32px';
             return (
               <div style={{ overflowX: 'auto' }}>
-                {[front, back].map((half, hi) => (
-                  <div key={hi} style={{ marginBottom: hi === 0 ? '10px' : '0' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(10, 1fr)', gap: '3px', minWidth: '300px' }}>
-                      {/* 홀 번호 행 */}
-                      {half.map((_, i) => (
-                        <div key={i} style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#94A3B8', padding: '4px 2px' }}>
-                          {hi * 9 + i + 1}
+                {[front, back].map((half, hi) => {
+                  const siHalf = siMale ? siMale.slice(hi * 9, hi * 9 + 9) : null;
+                  return (
+                    <div key={hi} style={{ marginBottom: hi === 0 ? '10px' : '0' }}>
+                      <div style={{ display: 'grid', gridTemplateColumns: cols, gap: '3px', minWidth: '320px' }}>
+                        {/* 홀 번호 행 */}
+                        <div />
+                        {half.map((_, i) => (
+                          <div key={i} style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#94A3B8', padding: '4px 2px' }}>
+                            {hi * 9 + i + 1}
+                          </div>
+                        ))}
+                        <div style={{ textAlign: 'center', fontSize: '10px', fontWeight: '700', color: '#94A3B8', padding: '4px 2px' }}>
+                          {hi === 0 ? 'OUT' : 'IN'}
                         </div>
-                      ))}
-                      <div style={{ textAlign: 'center', fontSize: '10px', fontWeight: '700', color: '#94A3B8', padding: '4px 2px' }}>
-                        {hi === 0 ? 'OUT' : 'IN'}
+                        {/* 파 행 */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', fontWeight: '700', color: '#94A3B8' }}>PAR</div>
+                        {half.map((p, i) => {
+                          const idx = hi * 9 + i;
+                          return (
+                            <button key={i} onClick={() => !readOnly && onParClick && onParClick(idx)}
+                              style={{ textAlign: 'center', fontSize: '15px', fontWeight: '800', color: parColor(parseInt(p) || 4),
+                                background: '#F8FAFC', border: '1.5px solid #E8ECF0', borderRadius: '8px', padding: '8px 2px',
+                                cursor: readOnly ? 'default' : 'pointer' }}>
+                              {p || '—'}
+                            </button>
+                          );
+                        })}
+                        <div style={{ textAlign: 'center', fontSize: '13px', fontWeight: '800', color: '#1E293B',
+                          background: '#F1F5F9', border: '1.5px solid #E2E8F0', borderRadius: '8px', padding: '8px 2px',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          {hi === 0 ? frontTotal : backTotal}
+                        </div>
+                        {/* SI 행 */}
+                        {siHalf && (
+                          <>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', fontWeight: '700', color: '#0047AB' }}>SI</div>
+                            {siHalf.map((v, i) => (
+                              <div key={i} style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#0047AB', padding: '3px 1px', background: '#EBF2FF', borderRadius: '4px' }}>
+                                {v}
+                              </div>
+                            ))}
+                            <div />
+                          </>
+                        )}
+                        {/* 티별 거리 행 */}
+                        {activeTees.map((tee, ti) => {
+                          const holeHalf = tee.holes.slice(hi * 9, hi * 9 + 9);
+                          const halfTotal = holeHalf.reduce((s, h) => s + (h.meters || 0), 0);
+                          return (
+                            <React.Fragment key={ti}>
+                              <div style={{ display: 'flex', alignItems: 'center', fontSize: '8px', fontWeight: '700', color: '#64748B', overflow: 'hidden', whiteSpace: 'nowrap', lineHeight: 1 }}>
+                                {getTeeLabel(tee.tee_name)}
+                              </div>
+                              {holeHalf.map((h, i) => (
+                                <div key={i} style={{ textAlign: 'center', fontSize: '10px', color: '#475569', padding: '2px 1px', background: ti % 2 === 0 ? '#FAFBFC' : '#F1F5F9', borderRadius: '3px' }}>
+                                  {h.meters || '-'}
+                                </div>
+                              ))}
+                              <div style={{ textAlign: 'center', fontSize: '10px', fontWeight: '700', color: '#1E293B', padding: '2px 1px', background: '#F1F5F9', borderRadius: '3px' }}>
+                                {halfTotal || '-'}
+                              </div>
+                            </React.Fragment>
+                          );
+                        })}
+                        {/* 니어 행 */}
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8px', color: '#94A3B8' }}>Near</div>
+                        {half.map((_, i) => {
+                          const idx = hi * 9 + i;
+                          const isNear = nearHoles?.[idx];
+                          return (
+                            <button key={i} onClick={() => !readOnly && onNearClick && onNearClick(idx)}
+                              style={{ textAlign: 'center', fontSize: '10px', fontWeight: '700',
+                                color: isNear ? '#FFFFFF' : '#94A3B8',
+                                background: isNear ? PRIMARY : '#F8FAFC',
+                                border: `1.5px solid ${isNear ? PRIMARY : '#E8ECF0'}`,
+                                borderRadius: '6px', padding: '4px 2px', cursor: readOnly ? 'default' : 'pointer' }}>
+                              N
+                            </button>
+                          );
+                        })}
+                        <div style={{ textAlign: 'center', fontSize: '10px', color: '#CBD5E1', padding: '4px 2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>—</div>
                       </div>
-                      {/* 파 행 */}
-                      {half.map((p, i) => {
-                        const idx = hi * 9 + i;
-                        return (
-                          <button key={i} onClick={() => !readOnly && onParClick && onParClick(idx)}
-                            style={{ textAlign: 'center', fontSize: '15px', fontWeight: '800', color: parColor(parseInt(p) || 4),
-                              background: '#F8FAFC', border: '1.5px solid #E8ECF0', borderRadius: '8px', padding: '8px 2px',
-                              cursor: readOnly ? 'default' : 'pointer', transition: 'all 0.1s' }}>
-                            {p || '—'}
-                          </button>
-                        );
-                      })}
-                      <div style={{ textAlign: 'center', fontSize: '13px', fontWeight: '800', color: '#1E293B',
-                        background: '#F1F5F9', border: '1.5px solid #E2E8F0', borderRadius: '8px', padding: '8px 2px',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {hi === 0 ? frontTotal : backTotal}
-                      </div>
-                      {/* 니어 행 */}
-                      {half.map((_, i) => {
-                        const idx = hi * 9 + i;
-                        const isNear = nearHoles?.[idx];
-                        return (
-                          <button key={i} onClick={() => !readOnly && onNearClick && onNearClick(idx)}
-                            style={{ textAlign: 'center', fontSize: '10px', fontWeight: '700',
-                              color: isNear ? '#FFFFFF' : '#94A3B8',
-                              background: isNear ? PRIMARY : '#F8FAFC',
-                              border: `1.5px solid ${isNear ? PRIMARY : '#E8ECF0'}`,
-                              borderRadius: '6px', padding: '4px 2px', cursor: readOnly ? 'default' : 'pointer' }}>
-                            N
-                          </button>
-                        );
-                      })}
-                      <div style={{ textAlign: 'center', fontSize: '10px', color: '#CBD5E1', padding: '4px 2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>—</div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#94A3B8' }}>
                   <span style={{ color: '#16A34A', fontWeight: '700' }}>3</span>
                   <span style={{ color: '#0047AB', fontWeight: '700' }}>4</span>
@@ -4742,6 +4793,8 @@ function Admin() {
                           <ScorecardGrid
                             pars={editCourseData.maleHolePars}
                             nearHoles={editCourseData.nearHoles}
+                            holeIndexes={editCourseData.holeIndexes}
+                            tees={editCourseData.tees}
                             onParClick={(idx) => {
                               const next = [...editCourseData.maleHolePars];
                               next[idx] = cyclePar(next[idx]);
@@ -4757,101 +4810,22 @@ function Admin() {
                           />
                         </div>
 
-                        {/* ─── 티박스 정보 ─── */}
-                        {editCourseData.tees && Array.isArray(editCourseData.tees) && editCourseData.tees.length > 0 && (
-                          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', padding: '16px' }}>
-                            <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', marginBottom: '10px' }}>티박스 정보</div>
+                        {/* ─── 티박스 요약 ─── */}
+                        {editCourseData.tees && editCourseData.tees.length > 0 && (
+                          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', padding: '14px 16px' }}>
+                            <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', marginBottom: '8px' }}>티박스 요약</div>
                             {editCourseData.tees.map((tee, ti) => (
-                              <div key={ti} style={{ marginBottom: ti < editCourseData.tees.length - 1 ? '10px' : 0 }}>
-                                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                    <span style={{ fontSize: '13px', fontWeight: '700', color: '#1E293B' }}>{tee.tee_name}</span>
-                                    <span style={{ fontSize: '11px', color: '#94A3B8', background: '#F1F5F9', borderRadius: '4px', padding: '2px 6px' }}>{tee.gender === 'male' ? '남' : '여'}</span>
-                                  </div>
-                                  <div style={{ fontSize: '12px', color: '#64748B' }}>
-                                    {tee.total_meters ? `${tee.total_meters}m` : ''}{tee.par_total ? ` · Par ${tee.par_total}` : ''}
-                                    {tee.course_rating ? ` · CR ${tee.course_rating}` : ''}{tee.slope_rating ? ` / SL ${tee.slope_rating}` : ''}
-                                  </div>
+                              <div key={ti} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '6px 0', borderBottom: ti < editCourseData.tees.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flex: 1, minWidth: 0 }}>
+                                  <span style={{ fontSize: '12px', fontWeight: '700', color: '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tee.tee_name}</span>
+                                  <span style={{ fontSize: '10px', color: tee.gender === 'male' ? '#0047AB' : '#DB2777', background: tee.gender === 'male' ? '#EBF2FF' : '#FCE7F3', borderRadius: '3px', padding: '1px 4px', flexShrink: 0 }}>{tee.gender === 'male' ? '남' : '여'}</span>
                                 </div>
-                                {tee.holes && tee.holes.length > 0 && (
-                                  <div style={{ overflowX: 'auto' }}>
-                                    <table style={{ borderCollapse: 'collapse', fontSize: '11px', width: '100%', minWidth: '400px' }}>
-                                      <thead>
-                                        <tr>
-                                          <td style={{ padding: '3px 4px', color: '#94A3B8', fontWeight: '600' }}>홀</td>
-                                          {tee.holes.slice(0, 9).map((_, i) => (
-                                            <td key={i} style={{ padding: '3px 4px', textAlign: 'center', color: '#94A3B8', fontWeight: '600' }}>{i + 1}</td>
-                                          ))}
-                                          <td style={{ padding: '3px 4px', textAlign: 'center', color: '#64748B', fontWeight: '700' }}>OUT</td>
-                                          {tee.holes.length > 9 && tee.holes.slice(9).map((_, i) => (
-                                            <td key={i + 9} style={{ padding: '3px 4px', textAlign: 'center', color: '#94A3B8', fontWeight: '600' }}>{i + 10}</td>
-                                          ))}
-                                          {tee.holes.length > 9 && <td style={{ padding: '3px 4px', textAlign: 'center', color: '#64748B', fontWeight: '700' }}>IN</td>}
-                                        </tr>
-                                      </thead>
-                                      <tbody>
-                                        <tr>
-                                          <td style={{ padding: '3px 4px', color: '#64748B', fontWeight: '600', fontSize: '10px' }}>m</td>
-                                          {tee.holes.slice(0, 9).map((h, i) => (
-                                            <td key={i} style={{ padding: '3px 4px', textAlign: 'center', color: '#1E293B' }}>{h.meters || '-'}</td>
-                                          ))}
-                                          <td style={{ padding: '3px 4px', textAlign: 'center', color: '#1E293B', fontWeight: '700' }}>
-                                            {tee.holes.slice(0, 9).reduce((s, h) => s + (h.meters || 0), 0) || '-'}
-                                          </td>
-                                          {tee.holes.length > 9 && tee.holes.slice(9).map((h, i) => (
-                                            <td key={i + 9} style={{ padding: '3px 4px', textAlign: 'center', color: '#1E293B' }}>{h.meters || '-'}</td>
-                                          ))}
-                                          {tee.holes.length > 9 && (
-                                            <td style={{ padding: '3px 4px', textAlign: 'center', color: '#1E293B', fontWeight: '700' }}>
-                                              {tee.holes.slice(9).reduce((s, h) => s + (h.meters || 0), 0) || '-'}
-                                            </td>
-                                          )}
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                )}
+                                <div style={{ fontSize: '11px', color: '#64748B', textAlign: 'right', flexShrink: 0, marginLeft: '8px' }}>
+                                  {tee.total_meters ? `${tee.total_meters}m` : ''}{tee.par_total ? ` · Par ${tee.par_total}` : ''}
+                                  {(tee.course_rating || tee.slope_rating) && <span style={{ display: 'block', fontSize: '10px', color: '#94A3B8' }}>CR {tee.course_rating} / SL {tee.slope_rating}</span>}
+                                </div>
                               </div>
                             ))}
-                          </div>
-                        )}
-
-                        {/* ─── Stroke Index ─── */}
-                        {editCourseData.holeIndexes && (
-                          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', padding: '16px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                              <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748B' }}>Stroke Index (SI)</div>
-                              <div style={{ fontSize: '11px', color: '#10B981', background: '#D1FAE5', borderRadius: '4px', padding: '2px 6px' }}>bluegolf 자동</div>
-                            </div>
-                            {['male', 'female'].map(gender => {
-                              const si = editCourseData.holeIndexes?.[gender];
-                              if (!si || si.length === 0) return null;
-                              return (
-                                <div key={gender} style={{ marginBottom: gender === 'male' ? '8px' : 0 }}>
-                                  <div style={{ fontSize: '11px', color: '#94A3B8', marginBottom: '4px' }}>{gender === 'male' ? '남성' : '여성'}</div>
-                                  <div style={{ overflowX: 'auto' }}>
-                                    <table style={{ borderCollapse: 'collapse', fontSize: '11px', width: '100%', minWidth: '400px' }}>
-                                      <tbody>
-                                        <tr>
-                                          <td style={{ padding: '3px 4px', color: '#94A3B8', fontWeight: '600' }}>홀</td>
-                                          {si.slice(0, 9).map((_, i) => <td key={i} style={{ padding: '3px 4px', textAlign: 'center', color: '#94A3B8' }}>{i + 1}</td>)}
-                                          <td style={{ padding: '3px 4px', textAlign: 'center', color: '#64748B', fontWeight: '700' }}>OUT</td>
-                                          {si.slice(9).map((_, i) => <td key={i + 9} style={{ padding: '3px 4px', textAlign: 'center', color: '#94A3B8' }}>{i + 10}</td>)}
-                                          <td style={{ padding: '3px 4px', textAlign: 'center', color: '#64748B', fontWeight: '700' }}>IN</td>
-                                        </tr>
-                                        <tr>
-                                          <td style={{ padding: '3px 4px', color: '#64748B', fontWeight: '600', fontSize: '10px' }}>SI</td>
-                                          {si.slice(0, 9).map((v, i) => <td key={i} style={{ padding: '3px 4px', textAlign: 'center', color: '#0047AB', fontWeight: '600' }}>{v}</td>)}
-                                          <td style={{ padding: '3px 4px' }} />
-                                          {si.slice(9).map((v, i) => <td key={i + 9} style={{ padding: '3px 4px', textAlign: 'center', color: '#0047AB', fontWeight: '600' }}>{v}</td>)}
-                                          <td style={{ padding: '3px 4px' }} />
-                                        </tr>
-                                      </tbody>
-                                    </table>
-                                  </div>
-                                </div>
-                              );
-                            })}
                           </div>
                         )}
 
