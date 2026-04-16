@@ -1053,7 +1053,9 @@ function Play() {
       if (!booking?.teams) return false;
       try {
         const t = typeof booking.teams === 'string' ? JSON.parse(booking.teams) : booking.teams;
-        return Array.isArray(t) && t.length > 0;
+        if (!Array.isArray(t) || t.length === 0) return false;
+        const assignedCount = t.reduce((sum, team) => sum + (Array.isArray(team.members) ? team.members.length : 0), 0);
+        return assignedCount >= participantCount;
       } catch { return false; }
     })();
 
