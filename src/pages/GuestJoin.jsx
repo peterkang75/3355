@@ -39,9 +39,7 @@ function GuestJoin() {
       .then(({ booking }) => {
         setBooking(booking);
         const guests = booking.preAddedGuests || [];
-        if (guests.length === 1) {
-          autoRegister(guests[0], booking);
-        } else if (guests.length > 1) {
+        if (guests.length >= 1) {
           setStep('select');
         } else {
           setStep('form');
