@@ -477,7 +477,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
                             영수증{images.length > 1 ? ` ${images.length}장` : ''}
                           </button>
                         )}
-                        {isOperator && !isClosed && (
+                        {isOperator && (
                           <button onClick={() => openEdit(t)} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #dbeafe', background: '#eff6ff', color: '#2563eb', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                             수정
                           </button>
