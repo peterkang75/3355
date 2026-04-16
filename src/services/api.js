@@ -665,6 +665,16 @@ class ApiService {
     return response.json();
   }
 
+  async addGuestToBooking(bookingId, name, handicap) {
+    const response = await fetch(`${API_BASE}/bookings/${bookingId}/add-guest`, {
+      method: 'POST',
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ name, handicap }),
+    });
+    if (!response.ok) throw new Error('Failed to add guest');
+    return response.json();
+  }
+
   async creditToDonation(memberId, amount, memo) {
     const response = await fetch(`${API_BASE}/transactions/credit-to-donation`, {
       method: 'POST',

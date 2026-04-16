@@ -201,6 +201,10 @@ router.post('/invite/:token/register', async (req, res) => {
         await recalculateAndUpdateBalance(existingGuestMember.id);
       }
 
+      req.io.emit('bookings:updated');
+      req.io.emit('members:updated');
+      req.io.emit('transactions:updated');
+
       return res.json({
         guestMemberId: existingGuestMember.id,
         bookingId: booking.id,
@@ -290,6 +294,10 @@ router.post('/invite/:token/register', async (req, res) => {
       });
       await recalculateAndUpdateBalance(guest.id);
     }
+
+    req.io.emit('bookings:updated');
+    req.io.emit('members:updated');
+    req.io.emit('transactions:updated');
 
     res.json({
       guestMemberId: guest.id,

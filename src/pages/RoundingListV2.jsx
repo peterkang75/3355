@@ -267,20 +267,18 @@ function RoundingListV2() {
 
   const handleHmAddGuest = async () => {
     const name = hmGuestName.trim();
-    if (!name) return;
+    if (!name || !hmBooking?.id) return;
     const hc = hmGuestHandicap !== '' ? parseFloat(hmGuestHandicap) : 36;
     const handicap = isNaN(hc) ? 36 : hc;
-    const updated = [...hmParticipants, {
-      name, nickname: name,
-      phone: `guest_${Date.now()}`,
-      isGuest: true,
-      handicap: String(handicap),
-      gaHandy: String(handicap),
-    }];
-    setHmParticipants(updated);
-    setHmGuestName('');
-    setHmGuestHandicap('');
-    await hmSaveField({ participants: updated.map(p => JSON.stringify(p)) });
+    try {
+      const result = await apiService.addGuestToBooking(hmBooking.id, name, handicap);
+      // 서버가 반환한 participant(id 포함)를 state에 반영
+      setHmParticipants(prev => [...prev, result.participant]);
+      setHmGuestName('');
+      setHmGuestHandicap('');
+    } catch (e) {
+      alert('게스트 추가 중 오류가 발생했습니다.');
+    }
   };
 
   const handleHmAdvancedToggle = async (field) => {

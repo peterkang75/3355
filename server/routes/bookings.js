@@ -1,5 +1,6 @@
 const express = require("express");
 const prisma = require("../db");
+const crypto = require('crypto');
 const { calculateBalance, recalculateAndUpdateBalance } = require('../utils/balance');
 const { requireAuth, requireOperator } = require('../middleware/auth');
 
@@ -281,6 +282,86 @@ router.put("/:id", requireAuth, requireOperator, async (req, res) => {
   } catch (error) {
     console.error("Error updating booking:", error);
     res.status(500).json({ error: "Failed to update booking" });
+  }
+});
+
+// ── 운영진 직접 게스트 추가: Member + charge 생성 ────────────────────────────
+router.post("/:id/add-guest", requireAuth, requireOperator, async (req, res) => {
+  try {
+    const { id: bookingId } = req.params;
+    const { name, handicap } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ error: '이름을 입력해주세요.' });
+    }
+
+    const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
+    if (!booking) return res.status(404).json({ error: '라운딩을 찾을 수 없습니다.' });
+
+    const parsedHandicap = parseFloat(handicap) || 36;
+    const phone = `guest_${crypto.randomBytes(8).toString('hex')}`;
+
+    // Member 레코드 생성
+    const guest = await prisma.member.create({
+      data: {
+        name: name.trim(),
+        nickname: name.trim(),
+        phone,
+        isGuest: true,
+        isActive: false,
+        approvalStatus: 'guest',
+        role: '게스트',
+        handicap: String(parsedHandicap),
+        gaHandy: String(parsedHandicap),
+      },
+    });
+
+    // participants 업데이트
+    const currentParticipants = (booking.participants || []).map(p => {
+      try { return typeof p === 'string' ? JSON.parse(p) : p; } catch { return null; }
+    }).filter(Boolean);
+
+    const newParticipant = {
+      id: guest.id,
+      name: guest.name,
+      nickname: guest.name,
+      phone: guest.phone,
+      isGuest: true,
+      handicap: String(parsedHandicap),
+      gaHandy: String(parsedHandicap),
+    };
+
+    await prisma.booking.update({
+      where: { id: bookingId },
+      data: { participants: [...currentParticipants.map(p => JSON.stringify(p)), JSON.stringify(newParticipant)] },
+    });
+
+    // 참가비 청구 (greenFee + cartFee)
+    const feeAmount = (booking.greenFee || 0) + (booking.cartFee || 0);
+    if (feeAmount > 0) {
+      const today = new Date().toISOString().split('T')[0];
+      await prisma.transaction.create({
+        data: {
+          type: 'charge',
+          amount: feeAmount,
+          description: `${booking.title || booking.courseName} 라운딩 (게스트)`,
+          category: '게스트 참가비',
+          date: today,
+          memberId: guest.id,
+          bookingId: booking.id,
+        },
+      });
+      await recalculateAndUpdateBalance(guest.id);
+    }
+
+    req.io.emit('bookings:updated');
+    req.io.emit('members:updated');
+    req.io.emit('transactions:updated');
+
+    res.json({ success: true, participant: newParticipant, feeCharged: feeAmount });
+  } catch (error) {
+    console.error('Error adding guest:', error);
+    res.status(500).json({ error: 'Failed to add guest' });
   }
 });
 
