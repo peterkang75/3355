@@ -1,6 +1,6 @@
 const express = require("express");
 const prisma = require("../db");
-const { requireAuth, requireOperator } = require('../middleware/auth');
+const { requireAuth, requireAuthOrGuest, requireOperator } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -102,7 +102,7 @@ router.get("/round-comparison", async (req, res) => {
   }
 });
 
-router.post("/verify-round", requireAuth, async (req, res) => {
+router.post("/verify-round", requireAuthOrGuest, async (req, res) => {
   try {
     const { roundingName, date, myId, teammateId } = req.body;
 
@@ -208,7 +208,7 @@ router.get("/check", async (req, res) => {
   }
 });
 
-router.post("/complete", requireAuth, async (req, res) => {
+router.post("/complete", requireAuthOrGuest, async (req, res) => {
   try {
     const { memberId, markerId, date, roundingName } = req.body;
 
@@ -248,7 +248,7 @@ router.delete("/member/:memberId/:date/:roundingName", requireAuth, requireOpera
   }
 });
 
-router.post("/", requireAuth, async (req, res) => {
+router.post("/", requireAuthOrGuest, async (req, res) => {
   try {
     const {
       memberId, markerId, roundingName, date, courseName,
