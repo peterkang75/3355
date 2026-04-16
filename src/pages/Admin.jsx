@@ -56,6 +56,8 @@ function Admin() {
   const [courseListSearch, setCourseListSearch] = useState('');
   const [courseSearchState, setCourseSearchState] = useState('idle'); // 'idle'|'searching'|'found'|'error'
   const [courseSearchResult, setCourseSearchResult] = useState(null);
+  const [siInputMode, setSiInputMode] = useState(false);
+  const [siInputValues, setSiInputValues] = useState(Array(18).fill(''));
   const [showScoreModal, setShowScoreModal] = useState(null);
   const [scoreFormData, setScoreFormData] = useState({
     roundingName: '',
@@ -4501,6 +4503,8 @@ function Admin() {
             setEditCourseData(null);
             setCourseSearchState('idle');
             setCourseSearchResult(null);
+            setSiInputMode(false);
+            setSiInputValues(Array(18).fill(''));
           };
 
           const handleCourseSearch = async () => {
@@ -4829,18 +4833,88 @@ function Admin() {
                           </div>
                         )}
 
-                        {/* ─── SI 없을 때: 수동 조회 버튼 ─── */}
-                        {courseSheetMode === 'edit' && !editCourseData.holeIndexes && (
-                          <button onClick={async () => {
-                            const siData = await apiService.fetchStrokeIndex(editCourseData.name).catch(() => null);
-                            if (siData?.holeIndexes) {
-                              setEditCourseData(prev => ({ ...prev, holeIndexes: siData.holeIndexes }));
-                            } else {
-                              alert('SI 데이터를 찾지 못했습니다 (bluegolf에 없는 골프장)');
-                            }
+                        {/* ─── SI 없을 때: 조회/입력 버튼 ─── */}
+                        {courseSheetMode === 'edit' && !editCourseData.holeIndexes && !siInputMode && (
+                          <div style={{ display: 'flex', gap: '8px' }}>
+                            <button onClick={async () => {
+                              const siData = await apiService.fetchStrokeIndex(editCourseData.name).catch(() => null);
+                              if (siData?.holeIndexes) {
+                                setEditCourseData(prev => ({ ...prev, holeIndexes: siData.holeIndexes }));
+                              } else {
+                                alert('bluegolf에 데이터 없음. 직접 입력을 사용해주세요.');
+                              }
+                            }}
+                            style={{ flex: 1, padding: '12px', borderRadius: '10px', background: '#F8FAFC', color: '#64748B', border: '1px dashed #CBD5E1', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
+                              SI 자동 조회
+                            </button>
+                            <button onClick={() => {
+                              setSiInputValues(Array(18).fill(''));
+                              setSiInputMode(true);
+                            }}
+                            style={{ flex: 1, padding: '12px', borderRadius: '10px', background: '#EBF2FF', color: '#0047AB', border: '1px solid #BFDBFE', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
+                              SI 직접 입력
+                            </button>
+                          </div>
+                        )}
+
+                        {/* ─── SI 직접 입력 UI ─── */}
+                        {siInputMode && (
+                          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #BFDBFE', padding: '16px' }}>
+                            <div style={{ fontSize: '12px', fontWeight: '700', color: '#0047AB', marginBottom: '12px' }}>SI 직접 입력 (1~18, 중복 없이)</div>
+                            {[0, 9].map(offset => (
+                              <div key={offset} style={{ marginBottom: offset === 0 ? '10px' : 0 }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '28px repeat(9, 1fr)', gap: '3px', minWidth: '280px' }}>
+                                  <div style={{ display: 'flex', alignItems: 'center', fontSize: '9px', color: '#94A3B8', fontWeight: '700' }}>홀</div>
+                                  {Array.from({ length: 9 }, (_, i) => (
+                                    <div key={i} style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#94A3B8', padding: '3px 1px' }}>{offset + i + 1}</div>
+                                  ))}
+                                  <div style={{ display: 'flex', alignItems: 'center', fontSize: '9px', color: '#0047AB', fontWeight: '700' }}>SI</div>
+                                  {Array.from({ length: 9 }, (_, i) => {
+                                    const idx = offset + i;
+                                    return (
+                                      <input key={i} type="number" min="1" max="18"
+                                        value={siInputValues[idx]}
+                                        onChange={e => {
+                                          const next = [...siInputValues];
+                                          next[idx] = e.target.value;
+                                          setSiInputValues(next);
+                                        }}
+                                        style={{ textAlign: 'center', fontSize: '13px', fontWeight: '700', color: '#0047AB', padding: '6px 2px', borderRadius: '6px', border: '1.5px solid #BFDBFE', background: '#EBF2FF', outline: 'none', width: '100%', boxSizing: 'border-box' }} />
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            ))}
+                            <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
+                              <button onClick={() => setSiInputMode(false)}
+                                style={{ flex: 1, padding: '10px', borderRadius: '8px', background: '#F1F5F9', color: '#64748B', border: 'none', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
+                                취소
+                              </button>
+                              <button onClick={() => {
+                                const vals = siInputValues.map(v => parseInt(v) || 0);
+                                const filled = vals.filter(v => v >= 1 && v <= 18);
+                                if (filled.length !== 18 || new Set(filled).size !== 18) {
+                                  alert('1~18 숫자를 중복 없이 18개 모두 입력해주세요.');
+                                  return;
+                                }
+                                setEditCourseData(prev => ({ ...prev, holeIndexes: { male: vals } }));
+                                setSiInputMode(false);
+                              }}
+                              style={{ flex: 2, padding: '10px', borderRadius: '8px', background: '#0047AB', color: '#fff', border: 'none', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>
+                                적용
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* ─── SI 있을 때: 수정 버튼 ─── */}
+                        {courseSheetMode === 'edit' && editCourseData.holeIndexes && !siInputMode && (
+                          <button onClick={() => {
+                            setSiInputValues((editCourseData.holeIndexes?.male || Array(18).fill('')).map(String));
+                            setSiInputMode(true);
                           }}
-                          style={{ width: '100%', padding: '12px', borderRadius: '10px', background: '#F8FAFC', color: '#64748B', border: '1px dashed #CBD5E1', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
-                            SI (Stroke Index) 자동 조회
+                          style={{ width: '100%', padding: '10px', borderRadius: '10px', background: '#F8FAFC', color: '#94A3B8', border: '1px dashed #E2E8F0', fontWeight: '600', fontSize: '12px', cursor: 'pointer' }}>
+                            SI 수정
                           </button>
                         )}
 
