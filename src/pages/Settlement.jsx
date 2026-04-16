@@ -807,6 +807,9 @@ function Settlement() {
   const [paying, setPaying] = useState(false);
   const [catSheet, setCatSheet] = useState(null); // { key, side }
   const [chargeSheet, setChargeSheet] = useState(null); // { memberId, memberName, isGuest }
+  const [pendingReceipts, setPendingReceipts] = useState([]);
+  const [completingId, setCompletingId] = useState(null);
+  const [receiptViewer, setReceiptViewer] = useState(null);
 
   const authHeaders = {
     'X-Member-Id': user?.id || '',
@@ -835,7 +838,36 @@ function Settlement() {
     }
   }, [yearMonth, user?.id]);
 
-  useEffect(() => { load(); loadOutstanding(); }, [load, loadOutstanding]);
+  const loadPendingReceipts = useCallback(async () => {
+    if (!isOperator) return;
+    try {
+      const r = await fetch('/api/transactions/pending-receipts', { headers: authHeaders });
+      if (r.ok) setPendingReceipts(await r.json());
+    } catch {}
+  }, [isOperator, user?.id]);
+
+  const handleCompletePayment = async (chargeId) => {
+    if (!confirm('이 영수증으로 납부완료 처리하시겠습니까?')) return;
+    setCompletingId(chargeId);
+    try {
+      const r = await fetch(`/api/transactions/${chargeId}/complete-payment`, {
+        method: 'POST',
+        headers: authHeaders,
+      });
+      if (r.ok) {
+        setPendingReceipts(prev => prev.filter(p => p.id !== chargeId));
+        load();
+        loadOutstanding();
+        alert('납부완료 처리되었습니다.');
+      } else {
+        const err = await r.json();
+        alert(err.error || '처리 실패');
+      }
+    } catch { alert('오류가 발생했습니다.'); }
+    finally { setCompletingId(null); }
+  };
+
+  useEffect(() => { load(); loadOutstanding(); loadPendingReceipts(); }, [load, loadOutstanding, loadPendingReceipts]);
 
   const handlePayMember = async () => {
     if (!payingMember || paying) return;
@@ -990,6 +1022,46 @@ function Settlement() {
       </div>
 
       <div style={{ padding: '8px 16px 120px' }}>
+
+        {/* 납부 영수증 대기 섹션 */}
+        {isOperator && pendingReceipts.length > 0 && (
+          <div style={{ background: '#fff', borderRadius: 16, padding: '14px 16px', marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1.5px solid #fbbf24' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
+              <span style={{ fontSize: 14 }}>🧾</span>
+              <span style={{ fontSize: 14, fontWeight: 800, color: '#92400e' }}>납부 영수증 확인 대기</span>
+              <span style={{ background: '#fbbf24', color: '#fff', borderRadius: 20, fontSize: 11, fontWeight: 800, padding: '2px 8px', marginLeft: 4 }}>{pendingReceipts.length}건</span>
+            </div>
+            {pendingReceipts.map(p => {
+              const memberName = p.member?.nickname || p.member?.name || '';
+              const bookingName = p.booking?.title || p.booking?.courseName || '';
+              const images = p.receiptImages?.length ? p.receiptImages : p.receiptImage ? [p.receiptImage] : [];
+              return (
+                <div key={p.id} style={{ padding: '10px 0', borderTop: '1px solid #f1f5f9' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{memberName}</div>
+                      <div style={{ fontSize: 11, color: '#64748b' }}>{bookingName} · ${p.amount.toLocaleString()}</div>
+                    </div>
+                    <div style={{ fontSize: 13, fontWeight: 800, color: '#dc2626' }}>-${p.amount.toLocaleString()}</div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    {images.length > 0 && (
+                      <button onClick={() => setReceiptViewer(images)}
+                        style={{ flex: 1, padding: '8px 0', borderRadius: 10, border: '1.5px solid #0047AB', background: '#eff6ff', color: '#0047AB', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                        영수증 보기
+                      </button>
+                    )}
+                    <button onClick={() => handleCompletePayment(p.id)} disabled={completingId === p.id}
+                      style={{ flex: 1, padding: '8px 0', borderRadius: 10, border: 'none', background: completingId === p.id ? '#94a3b8' : '#16a34a', color: '#fff', fontSize: 12, fontWeight: 800, cursor: completingId === p.id ? 'not-allowed' : 'pointer' }}>
+                      {completingId === p.id ? '처리 중…' : '✓ 납부완료'}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
         {loading ? (
           <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>불러오는 중…</div>
         ) : !data ? (
@@ -1330,6 +1402,11 @@ function Settlement() {
           authHeaders={authHeaders}
           onClose={() => setShowReport(false)}
         />
+      )}
+
+      {/* 영수증 뷰어 */}
+      {receiptViewer && (
+        <ReceiptViewer images={receiptViewer} onClose={() => setReceiptViewer(null)} />
       )}
     </div>
   );

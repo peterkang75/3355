@@ -108,6 +108,9 @@ function Fees() {
   const [creditActionMemo, setCreditActionMemo] = useState("");
   const [creditActionLoading, setCreditActionLoading] = useState(false);
   const [selectedChargeId, setSelectedChargeId] = useState(null);
+  const [uploadingReceiptId, setUploadingReceiptId] = useState(null);
+  const [receiptUploaded, setReceiptUploaded] = useState({}); // txId → true
+  const [viewerImage, setViewerImage] = useState(null);
 
   useEffect(() => {
     if (location.state?.reset) { setActiveTab("personal"); window.history.replaceState({}, document.title); }
@@ -150,6 +153,33 @@ function Fees() {
       setCreditActionMemo("");
     } catch { alert("실패"); }
     finally { setCreditActionLoading(false); }
+  };
+
+  const handleReceiptUpload = async (txId, file) => {
+    if (!file) return;
+    setUploadingReceiptId(txId);
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        const base64 = e.target.result;
+        const r = await fetch(`/api/transactions/${txId}/receipt`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'X-Member-Id': user?.id || '' },
+          body: JSON.stringify({ receiptImage: base64 }),
+        });
+        if (r.ok) {
+          setReceiptUploaded(prev => ({ ...prev, [txId]: base64 }));
+          alert('영수증이 첨부되었습니다. 관리자가 확인 후 납부 처리합니다.');
+        } else {
+          alert('업로드 실패. 다시 시도해주세요.');
+        }
+        setUploadingReceiptId(null);
+      };
+      reader.readAsDataURL(file);
+    } catch {
+      alert('오류가 발생했습니다.');
+      setUploadingReceiptId(null);
+    }
   };
 
   const handleCreditToPayment = async () => {
@@ -302,20 +332,45 @@ function Fees() {
                           <svg viewBox="0 0 24 24" style={s}><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                         );
                       };
+                      const hasReceipt = receiptUploaded[t.id] || t.receiptImage;
                       return (
-                        <div key={t.id} style={{ background: "#fff", borderRadius: 16, padding: "16px 18px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                            <div style={{ width: 44, height: 44, borderRadius: "50%", background: iconBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                              <TxIcon />
+                        <div key={t.id} style={{ background: "#fff", borderRadius: 16, padding: "14px 18px", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>
+                          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+                              <div style={{ width: 44, height: 44, borderRadius: "50%", background: iconBg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                                <TxIcon />
+                              </div>
+                              <div>
+                                <div style={{ fontSize: 14, fontWeight: 600, color: "#111827" }}>{getTransactionLabel(t)}</div>
+                                <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>{fmtDate(t.date || t.createdAt)}</div>
+                              </div>
                             </div>
-                            <div>
-                              <div style={{ fontSize: 14, fontWeight: 600, color: "#111827" }}>{getTransactionLabel(t)}</div>
-                              <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>{fmtDate(t.date || t.createdAt)}</div>
+                            <div style={{ textAlign: "right" }}>
+                              <div style={{ fontSize: 15, fontWeight: 700, color: iconColor }}>{getTransactionSign(t)}${t.amount.toLocaleString()}</div>
                             </div>
                           </div>
-                          <div style={{ textAlign: "right" }}>
-                            <div style={{ fontSize: 15, fontWeight: 700, color: iconColor }}>{getTransactionSign(t)}${t.amount.toLocaleString()}</div>
-                          </div>
+                          {/* charge 타입 — 영수증 첨부 */}
+                          {t.type === "charge" && (
+                            <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #f1f5f9", display: "flex", alignItems: "center", gap: 8 }}>
+                              {hasReceipt ? (
+                                <>
+                                  <button onClick={() => setViewerImage(receiptUploaded[t.id] || t.receiptImage)}
+                                    style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1.5px solid #0047AB", background: "#eff6ff", color: "#0047AB", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                                    📎 영수증 확인
+                                  </button>
+                                  <label style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1.5px solid #e2e8f0", background: "#f8fafc", color: "#64748b", fontSize: 12, fontWeight: 600, cursor: "pointer", textAlign: "center", display: "block" }}>
+                                    다시 첨부
+                                    <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => handleReceiptUpload(t.id, e.target.files[0])} />
+                                  </label>
+                                </>
+                              ) : (
+                                <label style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1.5px dashed #0047AB", background: "#eff6ff", color: "#0047AB", fontSize: 12, fontWeight: 700, cursor: "pointer", textAlign: "center", display: "block" }}>
+                                  {uploadingReceiptId === t.id ? "업로드 중…" : "📎 계좌이체 영수증 첨부"}
+                                  <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => handleReceiptUpload(t.id, e.target.files[0])} disabled={uploadingReceiptId === t.id} />
+                                </label>
+                              )}
+                            </div>
+                          )}
                         </div>
                       );
                     })
@@ -390,8 +445,8 @@ function Fees() {
                         </div>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 12, color: "#94a3b8", fontWeight: 700, marginBottom: 4 }}>당월 잔액</div>
-                          <div style={{ fontSize: 17, fontWeight: 800, color: "#111827" }}>
-                            ${Math.abs(monthNet).toLocaleString()}
+                          <div style={{ fontSize: 17, fontWeight: 800, color: monthPos ? "#111827" : "#dc2626" }}>
+                            {monthPos ? "" : "-"}${Math.abs(monthNet).toLocaleString()}
                           </div>
                         </div>
                       </div>
@@ -425,6 +480,18 @@ function Fees() {
           authHeaders={{ 'X-Member-Id': user?.id }}
           onClose={() => setReportYearMonth(null)}
         />
+      )}
+
+      {/* 영수증 이미지 뷰어 */}
+      {viewerImage && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", zIndex: 1200, display: "flex", flexDirection: "column", paddingTop: "env(safe-area-inset-top)" }}>
+          <div style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", padding: 16, minHeight: 0 }}>
+            <img src={viewerImage} alt="영수증" style={{ maxWidth: "100%", maxHeight: "100%", objectFit: "contain", borderRadius: 12 }} />
+          </div>
+          <div style={{ flexShrink: 0, padding: "12px 20px", paddingBottom: "calc(16px + env(safe-area-inset-bottom))", display: "flex", justifyContent: "center" }}>
+            <button onClick={() => setViewerImage(null)} style={{ padding: "14px 48px", borderRadius: 14, border: "none", background: "rgba(255,255,255,0.18)", color: "#fff", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>닫기</button>
+          </div>
+        </div>
       )}
 
       <style>{`

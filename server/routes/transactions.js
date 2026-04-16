@@ -468,6 +468,102 @@ router.post("/credit-to-payment", requireAuth, async (req, res) => {
   }
 });
 
+// ── GET /api/transactions/pending-receipts — 영수증 첨부된 미납 charge 목록 ─
+router.get("/pending-receipts", requireAuth, requireOperator, async (req, res) => {
+  try {
+    const charges = await prisma.transaction.findMany({
+      where: {
+        type: "charge",
+        OR: [
+          { receiptImage: { not: null } },
+          { receiptImages: { isEmpty: false } },
+        ],
+      },
+      select: {
+        id: true, amount: true, description: true, category: true,
+        date: true, createdAt: true, receiptImage: true, receiptImages: true,
+        member: { select: { id: true, name: true, nickname: true } },
+        booking: { select: { id: true, title: true, courseName: true, date: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    res.json(charges);
+  } catch (error) {
+    console.error("Error fetching pending receipts:", error);
+    res.status(500).json({ error: "Failed to fetch pending receipts" });
+  }
+});
+
+// ── POST /api/transactions/:id/complete-payment — 납부완료 처리 ──────────────
+router.post("/:id/complete-payment", requireAuth, requireOperator, async (req, res) => {
+  try {
+    const charge = await prisma.transaction.findUnique({
+      where: { id: req.params.id },
+      include: { member: true, booking: true },
+    });
+    if (!charge || charge.type !== "charge") {
+      return res.status(404).json({ error: "Charge transaction not found" });
+    }
+
+    // 이미 같은 booking에 payment가 있는지 확인
+    if (charge.bookingId) {
+      const existing = await prisma.transaction.findFirst({
+        where: { memberId: charge.memberId, bookingId: charge.bookingId, type: "payment" },
+      });
+      if (existing) return res.status(409).json({ error: "이미 납부 처리된 내역입니다" });
+    }
+
+    const bookingName = charge.booking?.title || charge.booking?.courseName || '';
+    const payment = await prisma.transaction.create({
+      data: {
+        type: "payment",
+        amount: charge.amount,
+        description: bookingName ? `${bookingName} 참가비 납부` : "참가비 납부",
+        category: "회비납부",
+        date: new Date().toISOString().split("T")[0],
+        memberId: charge.memberId,
+        bookingId: charge.bookingId,
+        createdBy: req.member.id,
+        receiptImage: charge.receiptImage,
+        receiptImages: charge.receiptImages,
+      },
+    });
+
+    await recalculateAndUpdateBalance(charge.memberId);
+    req.io.emit("transactions:updated");
+    req.io.emit("members:updated");
+    res.json({ success: true, payment });
+  } catch (error) {
+    console.error("Error completing payment:", error);
+    res.status(500).json({ error: "Failed to complete payment" });
+  }
+});
+
+// ── PUT /api/transactions/:id/receipt — 회원이 영수증 이미지 첨부 ─────────────
+router.put("/:id/receipt", requireAuth, async (req, res) => {
+  try {
+    const { receiptImage } = req.body;
+    if (!receiptImage) return res.status(400).json({ error: "receiptImage required" });
+
+    const tx = await prisma.transaction.findUnique({ where: { id: req.params.id } });
+    if (!tx) return res.status(404).json({ error: "Transaction not found" });
+    // 본인 거래 또는 운영자만
+    if (tx.memberId !== req.member.id && !["admin", "operator"].includes(req.member.role)) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    const updated = await prisma.transaction.update({
+      where: { id: req.params.id },
+      data: { receiptImage },
+    });
+    req.io.emit("transactions:updated");
+    res.json({ success: true, id: updated.id });
+  } catch (error) {
+    console.error("Error uploading receipt:", error);
+    res.status(500).json({ error: "Failed to upload receipt" });
+  }
+});
+
 // 거래 수정
 router.put("/:id", requireAuth, requireOperator, async (req, res) => {
   try {
