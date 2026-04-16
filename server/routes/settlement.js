@@ -263,7 +263,7 @@ router.get('/:yearMonth/report', requireAuth, async (req, res) => {
     const transactions = await prisma.transaction.findMany({
       where: { date: { startsWith: yearMonth } },
       select: {
-        id: true, type: true, category: true, description: true,
+        id: true, type: true, category: true, description: true, memo: true,
         amount: true, date: true,
         member: { select: { name: true, nickname: true } },
         booking: { select: { title: true, courseName: true } },
@@ -288,7 +288,7 @@ router.get('/:yearMonth/report', requireAuth, async (req, res) => {
         id: t.id,
         date: t.date,
         memberName: t.member?.nickname || t.member?.name || '',
-        memo: t.description || '',
+        memo: t.memo || (t.description && t.description !== (t.category || '') ? t.description : '') || '',
         amount: t.amount,
       };
 
@@ -325,7 +325,7 @@ router.get('/:yearMonth/report', requireAuth, async (req, res) => {
     const startDate = `${y}-${m}-01`;
     const endDate = `${y}-${m}-31`;
     const bookings = await prisma.booking.findMany({
-      where: { date: { gte: startDate, lte: endDate }, type: { in: ['정기모임', '컴페티션', '캐주얼'] } },
+      where: { date: { gte: startDate, lte: endDate }, type: '정기모임' },
       select: { title: true, courseName: true, date: true, time: true, participants: true },
       orderBy: { date: 'asc' },
     });

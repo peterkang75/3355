@@ -946,6 +946,76 @@ Railway 도메인에서 확인
 
 ---
 
+### 2026-04-16 (Day 10 심야) — 클럽회계 트랜잭션 전면 삭제/복원 지원
+
+#### 작업 내용
+
+- [x] **Settlement.jsx 카테고리 상세 시트 — 지출 삭제 버튼 추가**
+  - `CategoryDetailSheet`: 기존 수입 "납부취소" 버튼을 수입+지출 모두로 확장
+  - 지출은 "삭제" 레이블 + "이 작업은 되돌릴 수 없습니다" 경고 문구
+  - 수입은 기존 "납부취소" 레이블 유지
+  - `handleReverse` 확인 메시지를 income/expense 분기로 변경
+
+- [x] **ChargeDetailSheet 신규 컴포넌트 추가**
+  - 미수금 회원별 청구(charge) 트랜잭션 목록 표시
+  - `GET /api/transactions/member/:memberId` 응답에서 `type === 'charge'` 필터링
+  - 각 청구 항목에 "청구취소" 버튼 (DELETE /api/transactions/:id 호출)
+  - 청구 취소 후 미수금 목록 자동 갱신 + 시트 닫기
+
+- [x] **미수금 섹션 — "청구 내역" 버튼 추가**
+  - 일반회원: 주황 테두리 "청구 내역" 버튼 (납부처리 버튼 옆)
+  - 게스트: 보라 테두리 "청구 내역" 버튼 (납부처리 버튼 옆)
+  - 클릭 시 ChargeDetailSheet 열기
+  - `chargeSheet` state 관리
+
+#### 삭제 가능/불가 정책
+- 삭제 가능: `charge` (청구취소), `payment` (납부취소), `expense` (삭제), `income`/`donation` (납부취소)
+- 삭제 불가: MonthlySettlement (이월 체인 무결성), Score (게임 데이터)
+- 마감된 달(`isClosed`)은 모든 버튼 숨김
+
+#### 🗂 영향 파일
+- `src/pages/Settlement.jsx` (ChargeDetailSheet 추가, 버튼 확장, chargeSheet state)
+
+---
+
+---
+
+### 2026-04-16 (Day 11) — 버그 수정: 아프로후테 잔액 + 게스트 청구 동기화
+
+#### ✅ 완료
+
+- [x] **아프로후테 $257 잔액 버그 수정**
+  - 원인: `server.js` 시작 시 `fixMissingMarchCharge()` 함수가 Railway 배포 race condition(두 인스턴스 동시 기동)으로 두 번 실행 → $125 March charge 중복 생성
+  - 해결: `fixMissingMarchCharge()` → `deduplicateMarchCharge()`로 교체
+    - "없으면 생성" → "중복이면 오래된 것 1개만 남기고 나머지 삭제" 방식으로 변경
+    - 멱등성 보장: 몇 번 실행해도 결과 동일
+  - 배포 후 Railway 재시작 시 자동 정정 (charge 2개 → 1개, 잔액 $257 → $132)
+
+- [x] **게스트 추가 시 청구 미생성 버그 수정**
+  - 원인: `handleHmAddGuest`가 participants 배열만 업데이트하고 Member 레코드 없이 저장 → charge 트랜잭션 없음
+  - 해결: `POST /api/bookings/:id/add-guest` 엔드포인트 신규 추가
+    - Member 레코드 생성 (isGuest:true, approvalStatus:guest)
+    - greenFee + cartFee 기준 charge 트랜잭션 즉시 생성
+    - participant에 Member `id` 포함하여 반환
+  - `handleHmAddGuest`: 기존 직접 participant 구성 → 새 API 호출로 교체
+
+- [x] **게스트 삭제 시 청구 미삭제 버그 수정**
+  - 원인: 기존 방식에서 participant에 `id` 없음 → `handleHmRemoveParticipant`의 `target?.id` 체크 실패 → `deleteChargeTransaction` 스킵
+  - 해결: 게스트 추가 시 이제 항상 Member 레코드 생성 + participant에 `id` 포함 → 삭제 시 정상 동작
+
+- [x] **게스트 초대링크 등록 후 bookings/members/transactions 소켓 이벤트 emit 누락 추가**
+  - `server/routes/guest.js`: 두 등록 경로(신규 / 기존 Member 재사용) 모두 `req.io.emit` 추가
+  - 운영진 화면이 게스트 등록 즉시 실시간 갱신됨
+
+#### 🗂 영향 파일
+- `server/server.js` (deduplicateMarchCharge 교체)
+- `server/routes/bookings.js` (add-guest 엔드포인트 추가, crypto require)
+- `server/routes/guest.js` (등록 완료 후 소켓 emit 추가)
+- `src/services/api.js` (addGuestToBooking 메서드 추가)
+- `src/pages/RoundingListV2.jsx` (handleHmAddGuest API 호출로 교체)
+
+---
+
 > **현재 상태:** Phase 1 ✅ / Phase 2 ✅ / Phase 3 ✅ / Phase 4 ✅ / Phase 5 ⏸️ / Phase 6 ✅ / Phase 7 ⬜ / Phase 8 진행 중 (8A✅ 8B✅ 8C~8E ⬜)
 > **현재 우선순위:** Phase 8-C (Stableford) → 8-D (Google Maps 나머지) → 8-E (2BBB/포썸 점검) → Phase 7
 > **참조:** 모든 작업 시작 전/후 이 문서 확인 및 업데이트 필수

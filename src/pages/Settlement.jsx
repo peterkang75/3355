@@ -349,7 +349,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
   const openEdit = (tx) => {
     setEditingTx(tx);
     setEditCategory(tx.category || categoryKey);
-    setEditMemo(tx.description || '');
+    setEditMemo(tx.memo || tx.description || '');
     setEditAmount(String(tx.amount));
   };
 
@@ -362,11 +362,11 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
       const r = await fetch(`/api/transactions/${editingTx.id}`, {
         method: 'PUT',
         headers: { ...authHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: amt, description: editMemo, category: editCategory }),
+        body: JSON.stringify({ amount: amt, memo: editMemo, description: editMemo, category: editCategory }),
       });
       if (!r.ok) throw new Error();
       const updated = await r.json();
-      setTxList(prev => prev.map(t => t.id === updated.id ? { ...t, amount: updated.amount, description: updated.description, category: updated.category } : t));
+      setTxList(prev => prev.map(t => t.id === updated.id ? { ...t, amount: updated.amount, memo: updated.memo, description: updated.description, category: updated.category } : t));
       setEditingTx(null);
       onRefresh?.();
     } catch {
@@ -440,7 +440,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
           ) : (
             txList.map((t, i) => {
               const memberName = t.member?.nickname || t.member?.name || '';
-              const memo = t.description || '';
+              const memoText = t.memo || (t.description && t.description !== (t.category || categoryKey) ? t.description : '');
               const [, mm, dd] = t.date.split('-');
               const images = getImages(t);
               return (
@@ -458,8 +458,8 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
                         {memberName && (
                           <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--on-background)', marginBottom: 1 }}>{memberName}</div>
                         )}
-                        {memo ? (
-                          <div style={{ fontSize: 12, color: '#64748b' }}>{memo}</div>
+                        {memoText ? (
+                          <div style={{ fontSize: 12, color: '#64748b' }}>{memoText}</div>
                         ) : (
                           <div style={{ fontSize: 12, color: '#cbd5e1' }}>메모 없음</div>
                         )}
