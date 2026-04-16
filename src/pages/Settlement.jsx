@@ -933,31 +933,31 @@ function Settlement() {
 
   return (
     <div style={{ background: '#EEF1F6', minHeight: '100dvh', paddingTop: 'env(safe-area-inset-top)' }}>
-      {/* 헤더 */}
-      <div style={{
-        background: 'rgba(238,241,246,0.97)', backdropFilter: 'blur(8px)',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 16px', height: 56, position: 'sticky', top: 'env(safe-area-inset-top)', zIndex: 100,
-      }}>
-        <button onClick={() => navigate(-1)} style={{ background: 'rgba(255,255,255,0.8)', border: 'none', borderRadius: 12, width: 38, height: 38, cursor: 'pointer', color: '#0047AB', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)' }}>
-          <BackIcon />
-        </button>
-        <span style={{ fontSize: 17, fontWeight: 800, color: '#1e293b', letterSpacing: '-0.02em' }}>Monthly Settlement</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-          {user && (
-            <>
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#1e293b', letterSpacing: '-0.02em' }}>
-                {user.nickname || user.name}
-              </span>
-              <ProfileBadge user={user} size={32} />
-            </>
-          )}
+      {/* 헤더 + 월 선택 고정 */}
+      <div style={{ position: 'sticky', top: 'env(safe-area-inset-top)', zIndex: 100 }}>
+        {/* 헤더 */}
+        <div style={{
+          background: 'rgba(238,241,246,0.97)', backdropFilter: 'blur(8px)',
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '0 16px', height: 56,
+        }}>
+          <div style={{ width: 38 }} />
+          <span style={{ fontSize: 17, fontWeight: 800, color: '#1e293b', letterSpacing: '-0.02em' }}>클럽회계</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+            {user && (
+              <>
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#1e293b', letterSpacing: '-0.02em' }}>
+                  {user.nickname || user.name}
+                </span>
+                <ProfileBadge user={user} size={32} />
+              </>
+            )}
+          </div>
         </div>
-      </div>
 
-      <div style={{ padding: '8px 16px 120px' }}>
-        {/* 월 선택 */}
-        <div style={{ background: '#fff', borderRadius: 20, padding: '10px 16px', marginBottom: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        {/* 월 선택 — 헤더 바로 아래 고정 */}
+        <div style={{ background: 'rgba(238,241,246,0.97)', backdropFilter: 'blur(8px)', padding: '6px 16px 10px' }}>
+        <div style={{ background: '#fff', borderRadius: 20, padding: '10px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <button
             onClick={() => setYearMonth(prevMonth(yearMonth))}
             style={{ background: '#f1f5f9', border: 'none', borderRadius: 10, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b' }}
@@ -979,7 +979,10 @@ function Settlement() {
             <ChevronRight />
           </button>
         </div>
+        </div>
+      </div>
 
+      <div style={{ padding: '8px 16px 120px' }}>
         {loading ? (
           <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>불러오는 중…</div>
         ) : !data ? (
