@@ -240,6 +240,15 @@ function RoundingListV2() {
   const handleHmTimeSave = async () => await hmSaveField({ time: hmTime });
 
   const handleHmRemoveParticipant = async (phone) => {
+    // 게스트이고 Member 레코드가 있는 경우 → 이 라운딩 청구 삭제
+    const target = hmParticipants.find(p => p.phone === phone);
+    if (target?.isGuest && target?.id && hmBooking?.id) {
+      try {
+        await apiService.deleteChargeTransaction(target.id, hmBooking.id);
+      } catch (e) {
+        // 청구가 없거나 이미 삭제된 경우 무시
+      }
+    }
     const updated = hmParticipants.filter(p => p.phone !== phone);
     setHmParticipants(updated);
     await hmSaveField({ participants: updated.map(p => JSON.stringify(p)) });
