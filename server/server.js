@@ -152,9 +152,51 @@ io.on('connection', (socket) => {
   });
 });
 
+// ── 시작 시 1회성 데이터 수정 (아프로후테 3월 charge 복원) ───────────────────
+async function fixMissingMarchCharge() {
+  try {
+    const { recalculateAndUpdateBalance } = require('./utils/balance');
+    // 닉네임으로 회원 찾기
+    const member = await prisma.member.findFirst({
+      where: { nickname: '아프로후테' },
+      select: { id: true, name: true },
+    });
+    if (!member) return;
+
+    // 3월 정기라운딩 (Stonecutters Ridge) 북킹 찾기
+    const booking = await prisma.booking.findFirst({
+      where: { title: { contains: '3월 정기라운딩' }, courseName: { contains: 'Stonecutters' } },
+      select: { id: true, title: true },
+    });
+    if (!booking) return;
+
+    // 이미 charge 있는지 확인
+    const existing = await prisma.transaction.findFirst({
+      where: { memberId: member.id, bookingId: booking.id, type: 'charge' },
+    });
+    if (existing) return; // 이미 복원됨
+
+    await prisma.transaction.create({
+      data: {
+        type: 'charge',
+        amount: 125,
+        description: '3월 정기라운딩 라운딩',
+        date: '2026-03-29',
+        memberId: member.id,
+        bookingId: booking.id,
+      },
+    });
+    await recalculateAndUpdateBalance(member.id);
+    console.log('✅ 아프로후테 3월 charge 복원 완료');
+  } catch (e) {
+    console.error('March charge fix error:', e.message);
+  }
+}
+
 server.listen(PORT, '0.0.0.0', async () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`📊 Database connected`);
   console.log(`🔌 Socket.IO ready`);
   await initializeDefaultCategories();
+  await fixMissingMarchCharge();
 });

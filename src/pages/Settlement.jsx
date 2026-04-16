@@ -518,6 +518,7 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
   const [charges, setCharges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
+  const [deletingMember, setDeletingMember] = useState(false);
 
   useEffect(() => {
     if (!member) return;
@@ -550,6 +551,26 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
     }
   };
 
+  const handleDeleteGuestMember = async () => {
+    if (!member.isGuest) return;
+    const name = member.memberNickname || member.memberName;
+    if (!confirm(`게스트 "${name}"의 모든 청구 내역과 회원 정보를 완전 삭제하시겠습니까?`)) return;
+    setDeletingMember(true);
+    try {
+      const r = await fetch(`/api/members/${member.memberId}/guest`, {
+        method: 'DELETE',
+        headers: authHeaders,
+      });
+      if (!r.ok) throw new Error('Failed');
+      onRefresh?.();
+      onClose();
+    } catch {
+      alert('삭제에 실패했습니다.');
+    } finally {
+      setDeletingMember(false);
+    }
+  };
+
   if (!member) return null;
 
   const memberName = member.memberNickname || member.memberName;
@@ -572,7 +593,18 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
               )}
               {memberName} 청구 내역
             </div>
-            <button onClick={onClose} style={{ background: '#f1f5f9', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 18 }}>×</button>
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              {member.isGuest && !isClosed && (
+                <button
+                  onClick={handleDeleteGuestMember}
+                  disabled={deletingMember}
+                  style={{ padding: '5px 10px', borderRadius: 8, border: '1px solid #fca5a5', background: '#fef2f2', color: '#dc2626', fontSize: 11, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                >
+                  {deletingMember ? '삭제중...' : '게스트 삭제'}
+                </button>
+              )}
+              <button onClick={onClose} style={{ background: '#f1f5f9', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 18 }}>×</button>
+            </div>
           </div>
           <div style={{ fontSize: 12, color: '#ea580c', fontWeight: 600, marginBottom: 14 }}>
             청구취소 시 해당 미수금이 제거됩니다
@@ -792,7 +824,8 @@ function Settlement() {
     <div style={{ background: '#EEF1F6', minHeight: '100dvh', paddingTop: 'env(safe-area-inset-top)' }}>
       {/* 헤더 */}
       <div style={{
-        background: 'transparent', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        background: 'rgba(238,241,246,0.97)', backdropFilter: 'blur(8px)',
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         padding: '0 16px', height: 56, position: 'sticky', top: 'env(safe-area-inset-top)', zIndex: 100,
       }}>
         <button onClick={() => navigate(-1)} style={{ background: 'rgba(255,255,255,0.8)', border: 'none', borderRadius: 12, width: 38, height: 38, cursor: 'pointer', color: '#0047AB', display: 'flex', alignItems: 'center', justifyContent: 'center', backdropFilter: 'blur(8px)' }}>

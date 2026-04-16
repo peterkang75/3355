@@ -169,54 +169,18 @@ router.get("/bookings", requireAuth, requireOperator, async (req, res) => {
   }
 });
 
-// 회원별 미수금 조회 (yearMonth 쿼리 파라미터로 월 필터 가능)
+// 회원별 미수금 조회 — member.balance 기준 (전체 누적 미납액)
 router.get("/outstanding", requireAuth, requireOperator, async (req, res) => {
   try {
-    const { yearMonth } = req.query; // e.g. "2026-04" — 없으면 전체 기간
-
-    const dateFilter = yearMonth ? { date: { startsWith: yearMonth } } : {};
-
-    const [members, transactions] = await Promise.all([
-      prisma.member.findMany({
-        where: {
-          OR: [
-            { isActive: true },
-            { isGuest: true, approvalStatus: 'guest' },
-          ],
-        },
-        select: { id: true, name: true, nickname: true, isGuest: true },
-      }),
-      prisma.transaction.findMany({
-        where: {
-          ...dateFilter,
-          OR: [
-            { type: "charge" }, { type: "payment" }, { type: "credit" },
-            { type: "creditDonation" },
-          ],
-        },
-        select: { memberId: true, type: true, amount: true, category: true },
-      }),
-    ]);
-
-    const balanceByMember = {};
-    transactions.forEach((t) => {
-      if (!t.memberId) return;
-      if (!balanceByMember[t.memberId]) balanceByMember[t.memberId] = 0;
-
-      if (t.type === "charge") {
-        balanceByMember[t.memberId] -= t.amount;
-      } else if (
-        t.type === "payment" &&
-        t.category !== "크레딧 자동 납부" &&
-        t.category !== "크레딧 납부" &&
-        t.category !== "크레딧 자동 차감"
-      ) {
-        balanceByMember[t.memberId] += t.amount;
-      } else if (t.type === "credit") {
-        balanceByMember[t.memberId] += t.amount;
-      } else if (t.type === "creditDonation") {
-        balanceByMember[t.memberId] -= t.amount;
-      }
+    const members = await prisma.member.findMany({
+      where: {
+        balance: { lt: 0 },
+        OR: [
+          { isActive: true },
+          { isGuest: true, approvalStatus: 'guest' },
+        ],
+      },
+      select: { id: true, name: true, nickname: true, isGuest: true, balance: true },
     });
 
     const outstandingBalances = members
@@ -225,9 +189,8 @@ router.get("/outstanding", requireAuth, requireOperator, async (req, res) => {
         memberName: member.name,
         memberNickname: member.nickname,
         isGuest: member.isGuest || false,
-        balance: balanceByMember[member.id] || 0,
+        balance: member.balance,
       }))
-      .filter((ob) => ob.balance < 0)
       .sort((a, b) => {
         if (a.isGuest !== b.isGuest) return a.isGuest ? 1 : -1; // 게스트는 뒤로
         return a.balance - b.balance;

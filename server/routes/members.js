@@ -263,4 +263,28 @@ router.patch("/:id/reject", requireAuth, requireOperator, async (req, res) => {
   }
 });
 
+// 게스트 멤버 완전 삭제 (트랜잭션 포함)
+router.delete("/:id/guest", requireAuth, requireOperator, async (req, res) => {
+  try {
+    const member = await prisma.member.findUnique({
+      where: { id: req.params.id },
+      select: { id: true, isGuest: true, approvalStatus: true },
+    });
+
+    if (!member) return res.status(404).json({ error: '회원을 찾을 수 없습니다.' });
+    if (!member.isGuest) return res.status(400).json({ error: '게스트 회원만 삭제할 수 있습니다.' });
+
+    // 트랜잭션 먼저 삭제, 그 다음 멤버 삭제
+    await prisma.transaction.deleteMany({ where: { memberId: req.params.id } });
+    await prisma.member.delete({ where: { id: req.params.id } });
+
+    req.io.emit('members:updated');
+    req.io.emit('transactions:updated');
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error deleting guest member:', error);
+    res.status(500).json({ error: 'Failed to delete guest member' });
+  }
+});
+
 module.exports = router;
