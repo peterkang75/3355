@@ -102,20 +102,36 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
     try {
       const malePars = (aiResult.holePars?.male || []).map(p => parseInt(p) || 4);
       const femalePars = (aiResult.holePars?.female || []).map(p => parseInt(p) || 4);
+      const name = aiResult.name || courseQuery;
+      let savedCourse = null;
       if (onAddCourse) {
-        await onAddCourse({
-          name: aiResult.name || courseQuery,
+        savedCourse = await onAddCourse({
+          name,
           address: aiResult.address || '',
+          city: aiResult.city || null,
+          state: aiResult.state || null,
+          country: aiResult.country || null,
+          latitude: aiResult.latitude || null,
+          longitude: aiResult.longitude || null,
           holePars: { male: malePars, female: femalePars },
+          tees: aiResult.tees || null,
           nearHoles: Array(18).fill(false),
           isCompetition: false,
+          externalId: aiResult.externalId || null,
         });
       }
-      const name = aiResult.name || courseQuery;
       onChange({ ...casualForm, courseName: name, courseNameCustom: '' });
       setCourseQuery(name);
       setAiState('idle');
       setAiResult(null);
+
+      if (savedCourse?.id) {
+        apiService.fetchStrokeIndex(name).then(async (siData) => {
+          if (siData?.holeIndexes) {
+            await apiService.updateCourse(savedCourse.id, { holeIndexes: siData.holeIndexes });
+          }
+        }).catch(() => {});
+      }
     } catch {
       alert('골프장 등록에 실패했습니다.');
     } finally {
@@ -241,8 +257,9 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
                   <div style={{ fontSize: '12px', color: '#64748B', marginBottom: '6px' }}>{aiResult.address}</div>
                 )}
                 <div style={{ fontSize: '12px', color: '#6B7280', marginBottom: '12px' }}>
-                  파 {aiResult.totalMale ?? (aiResult.holePars?.male || []).reduce((a, b) => a + b, 0)} (남) ·{' '}
-                  파 {aiResult.totalFemale ?? (aiResult.holePars?.female || []).reduce((a, b) => a + b, 0)} (여)
+                  파 {aiResult.totalPar ?? (aiResult.holePars?.male || []).reduce((a, b) => a + b, 0)}
+                  {aiResult.totalMeters ? ` · ${aiResult.totalMeters.toLocaleString()}m` : ''}
+                  {aiResult.country ? ` · ${aiResult.country}` : ''}
                 </div>
                 <button
                   onClick={handleConfirmAiCourse}

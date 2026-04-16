@@ -441,6 +441,16 @@ class ApiService {
     return response.json();
   }
 
+  async fetchStrokeIndex(courseName) {
+    const response = await fetch(`${API_BASE}/courses/stroke-index`, {
+      method: 'POST',
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ courseName })
+    });
+    if (!response.ok) return null;
+    return response.json();
+  }
+
   async createCourse(courseData) {
     const response = await fetch(`${API_BASE}/courses`, {
       method: 'POST',

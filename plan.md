@@ -763,7 +763,113 @@ Railway 도메인에서 확인
 
 ---
 
-> **현재 상태:** Phase 1 ✅ / Phase 2 ✅ / Phase 3 ✅ / Phase 4 ✅ / Phase 5 ⏸️ (서비스 이전 시) / Phase 6 ⬜ 진행 예정 / Phase 7 ⬜ 대기 (Phase 6 후)
-> **현재 우선순위:** Phase 6 (인프라 이전: Replit → Railway + GitHub) → Phase 7 (사진 갤러리)
-> **미결 이슈:** 없음 ✅
+### Phase 8: 골프장 API 교체 + Stableford 스코어 + 골프장 상세정보 ⭐ 신규
+> 목표: 골프장 검색 정확도 향상, Stableford 점수 표시, 골프장 상세정보 강화
+> 예상 기간: 1~2주
+> 전제조건: Phase 6 완료 ✅
+
+#### 배경 및 목적
+- 현재 골프장 검색은 Anthropic AI(Haiku)를 사용 중이나, 정확한 정보를 못 가져오는 경우 다수
+- 스코어카드에 Stroke만 표시 중 → **Stableford** 점수 병행 표시 필요
+- Stableford 계산에는 홀별 **Stroke Index(SI)** 값이 필수 — 현재 Course 모델에 없음
+- 골프장 연락처, 로고, 상세 주소 등 추가 정보 활용도 높음
+
+#### 현재 상태
+- **Course 모델:** `name`, `address`, `holePars`(JSON: male/female 파별), `nearHoles`, `isCompetition`
+- **검색 API:** `POST /api/courses/search` → Anthropic Haiku로 이름+주소+파 정보 반환 (정확도 낮음)
+- **Stableford:** Leaderboard/Play에 일부 참조 있으나 홀별 Index 없어 정확한 계산 불가
+
+#### 8-A: 골프장 API 조사 및 교체
+
+| # | 작업 | 상세 | 상태 |
+|---|------|------|------|
+| 8A-1 | 무료 골프장 API 조사 | 호주 골프장 데이터 제공 무료 API 탐색 (홀별 파, SI, 주소, 연락처, 로고 등) | ⬜ 대기 |
+| 8A-2 | API 선정 및 연동 테스트 | 후보 API 중 데이터 품질/커버리지 최적인 것 선정, 테스트 호출 | ⬜ 대기 |
+| 8A-3 | `POST /api/courses/search` 교체 | Anthropic AI → 선정 API로 변경, 응답 파싱/매핑 | ⬜ 대기 |
+| 8A-4 | AI 검색 fallback 유지 | 외부 API에 없는 골프장은 기존 AI 검색으로 fallback | ⬜ 대기 |
+
+#### 8-B: Course 모델 확장 + 골프장 관리 UI
+
+| # | 작업 | 상세 | 상태 |
+|---|------|------|------|
+| 8B-1 | Course 스키마 확장 | `holeIndexes`(JSON: male/female SI 배열), `phone`, `website`, `logo`(URL), `latitude`, `longitude` 추가 | ⬜ 대기 |
+| 8B-2 | 골프장 관리 UI에 홀별 Index 입력 | Admin 골프장 편집 화면에 SI 입력 테이블 추가 (18홀 × male/female) | ⬜ 대기 |
+| 8B-3 | 골프장 상세정보 표시 | 관리 화면에서 연락처, 웹사이트, 로고 표시/편집 | ⬜ 대기 |
+| 8B-4 | API 검색 시 자동 채움 | 외부 API에서 가져온 SI/연락처/좌표를 자동으로 Course에 저장 | ⬜ 대기 |
+
+#### 8-C: Stableford 점수 표시
+
+| # | 작업 | 상세 | 상태 |
+|---|------|------|------|
+| 8C-1 | Stableford 계산 유틸 | `utils/stableford.js` — 홀별 SI + 핸디캡 + 실타수 → Stableford 포인트 계산 | ⬜ 대기 |
+| 8C-2 | Play.jsx 스코어카드에 Stableford 표시 | 각 홀 점수 옆에 Stableford 포인트 병행 표시 (SI 데이터 있을 때만) | ⬜ 대기 |
+| 8C-3 | Leaderboard Stableford 순위 | 리더보드에서 Stroke/Stableford 탭 전환 또는 동시 표시 | ⬜ 대기 |
+| 8C-4 | 스코어 히스토리에 Stableford 반영 | 개인 스코어 기록에 Stableford 총점 추가 표시 | ⬜ 대기 |
+
+#### 8-D: 라운딩 정보에 골프장 위치 연동
+
+| # | 작업 | 상세 | 상태 |
+|---|------|------|------|
+| 8D-1 | 라운딩 카드에 주소 표시 | 골프장 이름 옆/아래에 주소 표시 (라운딩 목록, 상세) | ⬜ 대기 |
+| 8D-2 | Google Maps 연결 버튼 | "위치 보기" 버튼 → Google Maps 앱/웹으로 이동 (좌표 또는 주소 기반) | ⬜ 대기 |
+| 8D-3 | 길찾기 바로가기 | "길찾기" 버튼 → Google Maps 네비게이션 모드로 바로 연결 | ⬜ 대기 |
+
+#### 8-E: 기존 게임 모드 점검
+
+| # | 작업 | 상세 | 상태 |
+|---|------|------|------|
+| 8E-1 | 2BBB(투볼베스트볼) 기능 점검 | 2BB 모드 전체 플로우 테스트 — 팀 구성, 스코어 입력, 결과 계산 | ⬜ 대기 |
+| 8E-2 | 포썸(Foursome) 기능 점검 | 포썸 모드 전체 플로우 테스트 — 교대 입력, 팀 핸디캡, 결과 | ⬜ 대기 |
+
+**완료 기준:**
+- [ ] 골프장 검색 시 정확한 정보 반환 (파, SI, 주소, 연락처)
+- [ ] 스코어카드에 Stroke + Stableford 동시 표시
+- [ ] 골프장 관리에서 홀별 SI 입력/편집 가능
+- [ ] 라운딩 정보에서 Google Maps로 바로 이동 가능
+- [ ] 2BBB, 포썸 모드 정상 동작 확인
+
+---
+
+### 2026-04-16 (Day 10) — 4인 조편성 규칙 앱설정 도입 + 이전 오판 정정
+
+#### ✅ 완료 (클로드 코드 모바일 앱에서 구현 → main 머지 → 배포)
+
+- [x] **"4인 이하 조편성 skip 구현" (Day 8, 2026-04-14) 오판 정정**
+  - 당시 증상: 멤버 추가 화면에서 주최자 본인이 안 보이고 빈칸 4개가 노출 → 총 5명 등록 → "조편성 없음" 에러 발생
+  - 실제 원인: 폼 UI 버그 (주최자 미표시). 에러 자체는 정상 동작이었음
+  - 잘못된 대응: `Play.jsx`에서 teams 없을 때 **인원수 무관하게 전원 자동 구성**으로 수정 → 골프 4인 1조 원칙 무시
+  - 본질은 "규칙은 4명, 예외적으로만 우회"이므로 아래 앱설정 토글로 재설계
+
+- [x] **4인 조편성 규칙 앱설정 기능 추가** (commit `08bd8c3`)
+  - 관리 > 앱설정에 **"4인 조편성 규칙 적용"** 카드 추가 (라운딩 유형별 토글)
+  - 토글 3종: 정기라운딩(`정기모임`), 컴페티션, 캐주얼 — 각각 ON/OFF
+  - 기본값: `{ 정기모임: true, 컴페티션: true, 캐주얼: false }`
+  - DB: `AppSettings(feature='squadFormationRules', value=JSON)` 단일 레코드에 저장
+  - `AuthContext.jsx`: 앱 시작 시 규칙 로드 → `featureSettings.squadFormationRules`로 노출
+  - `Play.jsx` step='selectMember' 진입 시 게이트 로직 추가:
+    - `ruleEnabled && participantCount > 4 && !hasTeamFormation` → "⛳ 조편을 해야합니다" 안내 + "조편성 하러 가기" 버튼
+    - 그 외 경우는 기존처럼 전원 자동 구성 후 마커 선택 진행
+
+- [x] **게이트 우회 버그 핫픽스** (commit `73e1c66`)
+  - 증상: `booking.teams`가 빈 JSON 문자열 `"[]"`인 경우 `!!booking.teams === true`로 평가되어 게이트 통과 실패
+  - 해결: `hasTeamFormation` 계산 시 `JSON.parse` 후 배열 길이 체크로 수정
+
+#### ✅ 조편성 게이트 수정 완료 (2026-04-16 오후)
+
+- **원인 1:** Railway 프로젝트 2개 존재 (`3355_DB` + `tranquil-enchantment`) — GitHub 배포가 `tranquil-enchantment`로 가고 있었으나 실제 프로덕션 트래픽은 `3355_DB`에서 서빙 → 새 코드가 사용자에게 도달하지 않았음
+- **해결:** `3355_DB`에서 Redeploy 실행, `tranquil-enchantment` GitHub 연결 해제 예정
+- **원인 2:** 게이트 조건이 `participantCount > 4` (5명 이상)이었으나 실제 요구사항은 **4명 이상**
+- **수정:** `participantCount >= 4`로 변경 + UI 문구 "5명 이상" → "4명 이상" (Play.jsx, Admin.jsx)
+
+#### 🗂 영향 파일
+
+- `src/contexts/AuthContext.jsx` (규칙 로드 + 기본값)
+- `src/pages/Admin.jsx` (앱설정 UI + 토글 저장)
+- `src/pages/Play.jsx` (게이트 로직, `hasTeamFormation` 계산 포함)
+
+---
+
+> **현재 상태:** Phase 1 ✅ / Phase 2 ✅ / Phase 3 ✅ / Phase 4 ✅ / Phase 5 ⏸️ (서비스 이전 시) / Phase 6 ✅ 완료 / Phase 7 ⬜ 대기 / Phase 8 ⬜ 대기
+> **현재 우선순위:** Phase 8 (골프장 API + Stableford) → Phase 7 (사진 갤러리)
+> **미결 이슈:** 4인 조편성 게이트 4명 기준으로 수정 완료 (2026-04-16 배포됨)
 > **참조:** 모든 작업 시작 전/후 이 문서 확인 및 업데이트 필수
