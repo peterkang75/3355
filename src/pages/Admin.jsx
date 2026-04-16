@@ -7309,7 +7309,7 @@ function Admin() {
                 4인 조편성 규칙 적용
               </h3>
               <div style={{ fontSize: '13px', color: 'var(--text-muted, #64748B)', marginBottom: '16px', lineHeight: 1.5 }}>
-                활성화된 라운딩 유형에서 5명 이상일 경우 조편성을 완료해야 플레이를 시작할 수 있습니다
+                활성화된 라운딩 유형에서 4명 이상일 경우 조편성을 완료해야 플레이를 시작할 수 있습니다
               </div>
               {[
                 { type: '정기모임', label: '정기라운딩' },
@@ -7320,7 +7320,7 @@ function Admin() {
                   <div>
                     <div style={{ fontSize: '15px', fontWeight: '600', marginBottom: '2px' }}>{label}</div>
                     <div style={{ fontSize: '12px', opacity: 0.65 }}>
-                      {squadFormationRules[type] ? '5명 이상 시 조편성 필수' : '조편성 없이 바로 플레이'}
+                      {squadFormationRules[type] ? '4명 이상 시 조편성 필수' : '조편성 없이 바로 플레이'}
                     </div>
                   </div>
                   <div

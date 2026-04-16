@@ -1057,7 +1057,7 @@ function Play() {
       } catch { return false; }
     })();
 
-    if (ruleEnabled && participantCount > 4 && !hasTeamFormation) {
+    if (ruleEnabled && participantCount >= 4 && !hasTeamFormation) {
       return (
         <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', padding: '16px', paddingTop: 'calc(env(safe-area-inset-top) + 16px)', background: '#fff', borderBottom: '1px solid #F1F5F9' }}>
@@ -1069,7 +1069,7 @@ function Play() {
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '17px', fontWeight: '700', color: '#1E293B', marginBottom: '8px' }}>조편을 해야합니다</div>
               <div style={{ fontSize: '14px', color: '#64748B', lineHeight: 1.6 }}>
-                참가 인원이 5명 이상입니다.{'\n'}조편성을 완료한 후 플레이를 시작해주세요.
+                참가 인원이 4명 이상입니다.{'\n'}조편성을 완료한 후 플레이를 시작해주세요.
               </div>
               <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '6px' }}>{participantCount}명 참가 중</div>
             </div>
