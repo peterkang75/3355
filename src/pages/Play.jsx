@@ -292,7 +292,7 @@ function Play() {
 
   // 스코어 변경 시 서버에 실시간 자동 저장 (debounced)
   useEffect(() => {
-    if (!bookingId || !booking || !user || !selectedTeammate || step === 'selectMember' || skipAutoSaveRef.current) return;
+    if (!bookingId || !booking || !effectiveUserId || !selectedTeammate || step === 'selectMember' || skipAutoSaveRef.current) return;
     
     // 스코어가 모두 0이면 저장하지 않음
     const hasAnyScore = holeScores.me.some(s => s > 0) || holeScores.teammate.some(s => s > 0);
@@ -862,7 +862,7 @@ function Play() {
   }, [selectedTeammate, members]);
 
   const checkTeammateScores = useCallback(async () => {
-    if (!booking || !user) return false;
+    if (!booking || !effectiveUserId) return false;
     try {
       const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
       const teammateMemberId = getTeammateMemberId();

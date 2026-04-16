@@ -105,8 +105,8 @@ function Leaderboard() {
 
       const processedScores = bookingScores.map(score => {
         const member = score.user || members.find(m => m.id === score.userId || m.phone === score.userId);
-        // 게스트인 경우 participants에서 핸디캡 가져오기
-        const participant = participants.find(p => p.phone === score.userId);
+        // 게스트인 경우 participants에서 핸디캡 가져오기 (phone 또는 id로 매칭)
+        const participant = participants.find(p => p.phone === score.userId || p.id === score.userId);
         const guestHandicap = participant?.gaHandy || participant?.houseHandy || participant?.handicap;
         const nickname = member?.nickname || member?.name || participant?.nickname || participant?.name || score.userId;
         const isGuestPlayer = member?.isGuest || participant?.isGuest || false;
