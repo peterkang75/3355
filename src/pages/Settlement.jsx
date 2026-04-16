@@ -319,8 +319,14 @@ function ReceiptViewer({ images, onClose }) {
 function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClose, isOperator, isClosed, onRefresh }) {
   const [txList, setTxList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [viewerImages, setViewerImages] = useState(null); // null이면 닫힘
+  const [viewerImages, setViewerImages] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
+  const [editingTx, setEditingTx] = useState(null); // 수정 중인 트랜잭션
+  const [editCategory, setEditCategory] = useState('');
+  const [editMemo, setEditMemo] = useState('');
+  const [editAmount, setEditAmount] = useState('');
+  const [editSaving, setEditSaving] = useState(false);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     if (!categoryKey) return;
@@ -330,6 +336,44 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
       .then(data => { setTxList(data); setLoading(false); })
       .catch(() => setLoading(false));
   }, [categoryKey, side, yearMonth]);
+
+  useEffect(() => {
+    const endpoint = side === 'income' ? '/api/transactions/income-categories' : '/api/transactions/expense-categories';
+    fetch(endpoint, { headers: authHeaders })
+      .then(r => r.ok ? r.json() : [])
+      .then(data => setCategories(data.map(c => c.name)))
+      .catch(() => {});
+  }, [side]);
+
+  const openEdit = (tx) => {
+    setEditingTx(tx);
+    setEditCategory(tx.category || categoryKey);
+    setEditMemo(tx.description || '');
+    setEditAmount(String(tx.amount));
+  };
+
+  const handleEditSave = async () => {
+    if (!editingTx) return;
+    const amt = parseFloat(editAmount);
+    if (!amt || isNaN(amt)) { alert('금액을 입력해주세요.'); return; }
+    setEditSaving(true);
+    try {
+      const r = await fetch(`/api/transactions/${editingTx.id}`, {
+        method: 'PUT',
+        headers: { ...authHeaders, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: amt, description: editMemo, category: editCategory }),
+      });
+      if (!r.ok) throw new Error();
+      const updated = await r.json();
+      setTxList(prev => prev.map(t => t.id === updated.id ? { ...t, amount: updated.amount, description: updated.description, category: updated.category } : t));
+      setEditingTx(null);
+      onRefresh?.();
+    } catch {
+      alert('수정에 실패했습니다.');
+    } finally {
+      setEditSaving(false);
+    }
+  };
 
   const handleReverse = async (tx) => {
     const memberName = tx.member?.nickname || tx.member?.name || '내역';
@@ -394,8 +438,8 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
             <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 14 }}>거래 내역이 없습니다</div>
           ) : (
             txList.map((t, i) => {
-              const memberName = t.member?.nickname || t.member?.name || '—';
-              const label = t.booking?.courseName || t.booking?.title || t.description || '—';
+              const memberName = t.member?.nickname || t.member?.name || '';
+              const memo = t.description || '';
               const [, mm, dd] = t.date.split('-');
               const images = getImages(t);
               return (
@@ -403,50 +447,46 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
                   padding: '13px 0',
                   borderBottom: i < txList.length - 1 ? '1px solid #f1f5f9' : 'none',
                 }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', gap: 12, alignItems: 'center', minWidth: 0 }}>
-                      <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, flexShrink: 0 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                    {/* 왼쪽: 날짜 + 이름/메모 */}
+                    <div style={{ display: 'flex', gap: 10, alignItems: 'flex-start', minWidth: 0, flex: 1 }}>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, flexShrink: 0, paddingTop: 1 }}>
                         {parseInt(mm)}. {parseInt(dd)}.
                       </div>
                       <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--on-background)', marginBottom: 2 }}>{memberName}</div>
-                        <div style={{ fontSize: 12, color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
+                        {memberName && (
+                          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--on-background)', marginBottom: 1 }}>{memberName}</div>
+                        )}
+                        {memo ? (
+                          <div style={{ fontSize: 12, color: '#64748b' }}>{memo}</div>
+                        ) : (
+                          <div style={{ fontSize: 12, color: '#cbd5e1' }}>메모 없음</div>
+                        )}
                       </div>
                     </div>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5, flexShrink: 0, marginLeft: 12 }}>
+                    {/* 오른쪽: 금액 + 버튼들 */}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4, flexShrink: 0 }}>
                       <span style={{ fontSize: 15, fontWeight: 800, color }}>{isIncome ? '+' : '-'}{formatCurrency(t.amount)}</span>
-                      {images.length > 0 && (
-                        <button
-                          onClick={() => setViewerImages(images)}
-                          style={{
-                            display: 'flex', alignItems: 'center', gap: 4,
-                            padding: '3px 8px', borderRadius: 6, border: '1px solid #e2e8f0',
-                            background: '#f8fafc', color: 'var(--text-muted)', fontSize: 11, fontWeight: 600, cursor: 'pointer',
-                          }}
-                        >
-                          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                          </svg>
-                          영수증 {images.length > 1 ? `${images.length}장` : ''}
-                        </button>
-                      )}
-                      {isOperator && !isClosed && (
-                        <button
-                          onClick={() => handleReverse(t)}
-                          disabled={deletingId === t.id}
-                          style={{
-                            padding: '3px 10px', borderRadius: 8,
-                            border: '1px solid #fecaca',
-                            background: deletingId === t.id ? '#f8fafc' : '#fff5f5',
-                            color: deletingId === t.id ? '#9ca3af' : '#dc2626',
-                            fontSize: 11, fontWeight: 600,
-                            cursor: deletingId === t.id ? 'not-allowed' : 'pointer',
-                            whiteSpace: 'nowrap',
-                          }}
-                        >
-                          {deletingId === t.id ? '처리중...' : (isIncome ? '납부취소' : '삭제')}
-                        </button>
-                      )}
+                      <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                        {images.length > 0 && (
+                          <button onClick={() => setViewerImages(images)} style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 7px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#f8fafc', color: 'var(--text-muted)', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                            </svg>
+                            영수증{images.length > 1 ? ` ${images.length}장` : ''}
+                          </button>
+                        )}
+                        {isOperator && !isClosed && (
+                          <button onClick={() => openEdit(t)} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #dbeafe', background: '#eff6ff', color: '#2563eb', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                            수정
+                          </button>
+                        )}
+                        {isOperator && !isClosed && (
+                          <button onClick={() => handleReverse(t)} disabled={deletingId === t.id} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #fecaca', background: deletingId === t.id ? '#f8fafc' : '#fff5f5', color: deletingId === t.id ? '#9ca3af' : '#dc2626', fontSize: 11, fontWeight: 600, cursor: deletingId === t.id ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}>
+                            {deletingId === t.id ? '...' : (isIncome ? '취소' : '삭제')}
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -458,6 +498,54 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
 
       {/* 영수증 뷰어 */}
       {viewerImages && <ReceiptViewer images={viewerImages} onClose={() => setViewerImages(null)} />}
+
+      {/* 수정 모달 */}
+      {editingTx && (
+        <>
+          <div onClick={() => setEditingTx(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 400 }} />
+          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '22px 22px 0 0', zIndex: 401, padding: '20px 20px 0' }}>
+            <div style={{ width: 40, height: 4, background: '#D1D5DB', borderRadius: 2, margin: '0 auto 16px' }} />
+            <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 16 }}>내역 수정</div>
+
+            {/* 항목 선택 */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>항목</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {categories.map(cat => (
+                  <button key={cat} onClick={() => setEditCategory(cat)} style={{ padding: '7px 14px', borderRadius: 20, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', background: editCategory === cat ? (side === 'income' ? '#0047AB' : '#ef4444') : '#f1f5f9', color: editCategory === cat ? '#fff' : 'var(--on-background)' }}>
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* 메모 */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>메모</div>
+              <textarea value={editMemo} onChange={e => setEditMemo(e.target.value)} placeholder="메모 입력" rows={2}
+                style={{ width: '100%', padding: '10px 12px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, background: '#f8fafc', outline: 'none', boxSizing: 'border-box', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5 }} />
+            </div>
+
+            {/* 금액 */}
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>금액</div>
+              <div style={{ position: 'relative' }}>
+                <input type="number" inputMode="numeric" value={editAmount} onChange={e => setEditAmount(e.target.value)}
+                  style={{ width: '100%', padding: '12px 14px 12px 34px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 18, fontWeight: 700, background: '#f8fafc', outline: 'none', boxSizing: 'border-box' }} />
+                <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 15, color: 'var(--text-muted)', fontWeight: 600 }}>$</span>
+              </div>
+            </div>
+
+            {/* 버튼 */}
+            <div style={{ display: 'flex', gap: 8, paddingBottom: 'calc(16px + env(safe-area-inset-bottom))' }}>
+              <button onClick={() => setEditingTx(null)} style={{ flex: 1, padding: '14px', borderRadius: 14, border: '1.5px solid #e2e8f0', background: '#f8fafc', fontSize: 15, fontWeight: 700, cursor: 'pointer', color: 'var(--text-muted)' }}>취소</button>
+              <button onClick={handleEditSave} disabled={editSaving} style={{ flex: 2, padding: '14px', borderRadius: 14, border: 'none', background: editSaving ? '#94a3b8' : (side === 'income' ? '#0047AB' : '#ef4444'), color: '#fff', fontSize: 15, fontWeight: 800, cursor: editSaving ? 'not-allowed' : 'pointer' }}>
+                {editSaving ? '저장 중…' : '저장'}
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </>
   );
 }
