@@ -152,8 +152,8 @@ io.on('connection', (socket) => {
   });
 });
 
-// ── 아프로후테 3월 charge 중복 제거 (Railway race condition 대응) ──────────────
-async function deduplicateMarchCharge() {
+// ── 아프로후테 3월 charge 중복 제거 + payment 복원 ────────────────────────────
+async function fixAprohuteBalance() {
   try {
     const { recalculateAndUpdateBalance } = require('./utils/balance');
     const member = await prisma.member.findFirst({
@@ -168,22 +168,43 @@ async function deduplicateMarchCharge() {
     });
     if (!booking) return;
 
+    let changed = false;
+
+    // 1) charge 중복 제거
     const charges = await prisma.transaction.findMany({
       where: { memberId: member.id, bookingId: booking.id, type: 'charge' },
       orderBy: { createdAt: 'asc' },
     });
-
-    if (charges.length <= 1) return; // 정상 상태
-
-    // 가장 오래된 것 하나만 남기고 나머지 삭제
-    for (const c of charges.slice(1)) {
-      await prisma.transaction.delete({ where: { id: c.id } });
-      console.log(`🧹 중복 March charge 삭제: id=${c.id}`);
+    if (charges.length > 1) {
+      for (const c of charges.slice(1)) {
+        await prisma.transaction.delete({ where: { id: c.id } });
+        console.log(`🧹 중복 March charge 삭제: id=${c.id}`);
+      }
+      changed = true;
     }
-    await recalculateAndUpdateBalance(member.id);
-    console.log('✅ 아프로후테 March charge 중복 제거 완료');
+
+    // 2) 삭제된 payment 복원 (없을 때만)
+    const existingPayment = await prisma.transaction.findFirst({
+      where: { memberId: member.id, bookingId: booking.id, type: 'payment' },
+    });
+    if (!existingPayment) {
+      await prisma.transaction.create({
+        data: {
+          type: 'payment',
+          amount: 125,
+          description: '3월 정기라운딩 참가비 납부 (복원)',
+          date: '2026-03-29',
+          memberId: member.id,
+          bookingId: booking.id,
+        },
+      });
+      console.log('✅ 아프로후테 3월 payment 복원 완료');
+      changed = true;
+    }
+
+    if (changed) await recalculateAndUpdateBalance(member.id);
   } catch (e) {
-    console.error('March charge dedup error:', e.message);
+    console.error('fixAprohuteBalance error:', e.message);
   }
 }
 
@@ -192,5 +213,5 @@ server.listen(PORT, '0.0.0.0', async () => {
   console.log(`📊 Database connected`);
   console.log(`🔌 Socket.IO ready`);
   await initializeDefaultCategories();
-  await deduplicateMarchCharge();
+  await fixAprohuteBalance();
 });
