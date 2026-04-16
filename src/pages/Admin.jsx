@@ -4845,8 +4845,9 @@ function Admin() {
                                 const clean = editCourseData.name.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
                                 const words = clean.split(' ');
                                 const gcIdx = words.indexOf('golf');
+                                // "gc" 없이 골프 앞 단어만 사용 (strathfield → strathfield, penrith → penrith)
                                 const slug = gcIdx !== -1
-                                  ? words.slice(0, gcIdx).join('') + 'gc'
+                                  ? words.slice(0, gcIdx).join('')
                                   : words.filter(w => !['golf','club','course','resort','country','the'].includes(w)).join('') || words[0];
                                 window.open(`https://course.bluegolf.com/bluegolf/course/course/${slug}/detailedscorecard.htm`, '_blank');
                               }}
