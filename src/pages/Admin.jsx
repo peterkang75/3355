@@ -4834,27 +4834,34 @@ function Admin() {
                           </div>
                         )}
 
-                        {/* ─── SI 없을 때: 조회/입력 버튼 ─── */}
+                        {/* ─── SI 없을 때: bluegolf 열기 + 직접 입력 ─── */}
                         {courseSheetMode === 'edit' && !editCourseData.holeIndexes && !siInputMode && (
-                          <div style={{ display: 'flex', gap: '8px' }}>
-                            <button onClick={async () => {
-                              const siData = await apiService.fetchStrokeIndex(editCourseData.name).catch(() => null);
-                              if (siData?.holeIndexes) {
-                                setEditCourseData(prev => ({ ...prev, holeIndexes: siData.holeIndexes }));
-                              } else {
-                                alert(`bluegolf에서 SI를 찾지 못했습니다.\n(Railway 서버 IP 차단 가능성)\n\n"SI 직접 입력"을 사용해주세요.`);
-                              }
-                            }}
-                            style={{ flex: 1, padding: '12px', borderRadius: '10px', background: '#F8FAFC', color: '#64748B', border: '1px dashed #CBD5E1', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
-                              SI 자동 조회
-                            </button>
-                            <button onClick={() => {
-                              setSiInputValues(Array(18).fill(''));
-                              setSiInputMode(true);
-                            }}
-                            style={{ flex: 1, padding: '12px', borderRadius: '10px', background: '#EBF2FF', color: '#0047AB', border: '1px solid #BFDBFE', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
-                              SI 직접 입력
-                            </button>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                            <div style={{ fontSize: '11px', color: '#94A3B8', textAlign: 'center' }}>
+                              bluegolf에서 SI 확인 후 직접 입력하세요
+                            </div>
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button onClick={() => {
+                                const clean = editCourseData.name.toLowerCase().replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
+                                const words = clean.split(' ');
+                                const gcIdx = words.indexOf('golf');
+                                const slug = gcIdx !== -1
+                                  ? words.slice(0, gcIdx).join('') + 'gc'
+                                  : words.filter(w => !['golf','club','course','resort','country','the'].includes(w)).join('') || words[0];
+                                window.open(`https://course.bluegolf.com/bluegolf/course/course/${slug}/detailedscorecard.htm`, '_blank');
+                              }}
+                              style={{ flex: 1, padding: '12px', borderRadius: '10px', background: '#F0FDF4', color: '#16A34A', border: '1px solid #BBF7D0', fontWeight: '600', fontSize: '13px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px' }}>
+                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                bluegolf 열기
+                              </button>
+                              <button onClick={() => {
+                                setSiInputValues(Array(18).fill(''));
+                                setSiInputMode(true);
+                              }}
+                              style={{ flex: 1, padding: '12px', borderRadius: '10px', background: '#EBF2FF', color: '#0047AB', border: '1px solid #BFDBFE', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
+                                SI 직접 입력
+                              </button>
+                            </div>
                           </div>
                         )}
 
