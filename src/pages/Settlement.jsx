@@ -1089,7 +1089,7 @@ function Settlement() {
                   </div>
                 </div>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 600, marginBottom: 6, letterSpacing: '0.04em' }}>이달 잔액</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 600, marginBottom: 6, letterSpacing: '0.04em' }}>이달 손익</div>
                   <div style={{ fontSize: 30, fontWeight: 900, color: monthNet >= 0 ? '#fff' : '#FF7B7B', letterSpacing: '-0.02em' }}>
                     {monthNet >= 0 ? '+' : '-'}{formatCurrency(Math.abs(monthNet))}
                   </div>

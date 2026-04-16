@@ -72,7 +72,7 @@ export default function SettlementReportModal({ yearMonth, authHeaders, onClose 
                     <SummaryRow label="이달 총 수입" value={report.totalIncome} color="#16a34a" sign />
                     <SummaryRow label="이달 총 지출" value={report.totalExpense} color="#dc2626" negative />
                     <div style={{ height: 1, background: '#e2e8f0', margin: '8px 0' }} />
-                    <SummaryRow label="이달 잔액" value={monthlyNet} bold />
+                    <SummaryRow label="이달 손익" value={monthlyNet} bold />
                     <SummaryRow label="총잔액 (누계)" value={totalNet} bold color={totalNet >= 0 ? '#0047AB' : '#dc2626'} />
                   </Section>
                 );
@@ -94,7 +94,7 @@ export default function SettlementReportModal({ yearMonth, authHeaders, onClose 
                 const totalNet = report.carryover + monthlyNet;
                 return (
                   <div style={{ background: '#0047AB', borderRadius: 16, padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    <BottomRow label="이달 잔액" value={monthlyNet} />
+                    <BottomRow label="이달 손익" value={monthlyNet} />
                     <div style={{ height: 1, background: 'rgba(255,255,255,0.2)' }} />
                     <BottomRow label="총잔액 (누계)" value={totalNet} large />
                   </div>

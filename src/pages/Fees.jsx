@@ -433,7 +433,7 @@ function Fees() {
                       </div>
                       {/* 구분선 */}
                       <div style={{ height: 1, background: "#f1f5f9", marginBottom: 14 }} />
-                      {/* 3행: 수입 / 지출 / 당월 잔액 */}
+                      {/* 3행: 수입 / 지출 / 이달 손익 */}
                       <div style={{ display: "flex", alignItems: "flex-end", gap: 0 }}>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 12, color: "#94a3b8", fontWeight: 500, marginBottom: 4 }}>수입</div>
@@ -444,7 +444,7 @@ function Fees() {
                           <div style={{ fontSize: 17, fontWeight: 800, color: "#ef4444" }}>-${s.totalExpense.toLocaleString()}</div>
                         </div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 12, color: "#94a3b8", fontWeight: 700, marginBottom: 4 }}>당월 잔액</div>
+                          <div style={{ fontSize: 12, color: "#94a3b8", fontWeight: 700, marginBottom: 4 }}>이달 손익</div>
                           <div style={{ fontSize: 17, fontWeight: 800, color: monthPos ? "#111827" : "#dc2626" }}>
                             {monthPos ? "" : "-"}${Math.abs(monthNet).toLocaleString()}
                           </div>
