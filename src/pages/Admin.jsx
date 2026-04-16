@@ -4448,8 +4448,15 @@ function Admin() {
               const courseData = {
                 name: result.name || courseSearchQuery,
                 address: result.address || '',
+                city: result.city || null,
+                state: result.state || null,
+                country: result.country || null,
+                latitude: result.latitude || null,
+                longitude: result.longitude || null,
                 maleHolePars: malePars,
                 femaleHolePars: femalePars,
+                tees: result.tees || null,
+                externalId: result.externalId || null,
                 nearHoles: Array(18).fill(false),
                 isCompetition: false,
               };
@@ -4463,27 +4470,34 @@ function Admin() {
 
           const handleConfirmAdd = async () => {
             if (!editCourseData) return;
-            // editCourseData로 newCourse 동기화 후 저장
-            setNewCourse({
+            const savedCourse = await apiService.createCourse({
               name: editCourseData.name,
               address: editCourseData.address || '',
-              maleHolePars: editCourseData.maleHolePars,
-              femaleHolePars: editCourseData.femaleHolePars,
-              nearHoles: editCourseData.nearHoles,
-              isCompetition: editCourseData.isCompetition,
-            });
-            await apiService.createCourse({
-              name: editCourseData.name,
-              address: editCourseData.address || '',
+              city: editCourseData.city || null,
+              state: editCourseData.state || null,
+              country: editCourseData.country || null,
+              latitude: editCourseData.latitude || null,
+              longitude: editCourseData.longitude || null,
               holePars: {
                 male: editCourseData.maleHolePars.map(p => parseInt(p) || 4),
                 female: editCourseData.femaleHolePars.map(p => parseInt(p) || 4),
               },
+              tees: editCourseData.tees || null,
+              externalId: editCourseData.externalId || null,
               nearHoles: editCourseData.nearHoles,
               isCompetition: editCourseData.isCompetition,
             });
             if (refreshCourses) await refreshCourses();
             closeSheet();
+            // 백그라운드로 Stroke Index 자동 조회
+            if (savedCourse?.id) {
+              apiService.fetchStrokeIndex(editCourseData.name).then(async (siData) => {
+                if (siData?.holeIndexes) {
+                  await apiService.updateCourse(savedCourse.id, { holeIndexes: siData.holeIndexes });
+                  if (refreshCourses) refreshCourses();
+                }
+              }).catch(() => {});
+            }
           };
 
           const handleConfirmEdit = async () => {
@@ -4660,7 +4674,7 @@ function Admin() {
 
                         {courseSearchState === 'error' && (
                           <div style={{ marginTop: '10px', fontSize: '13px', color: '#DC2626', background: '#FEF2F2', padding: '10px 12px', borderRadius: '8px' }}>
-                            검색 실패. 서버의 .env에 ANTHROPIC_API_KEY를 확인하세요.
+                            검색 실패. 골프장 이름을 영문으로 입력하거나 다시 시도해주세요.
                           </div>
                         )}
 
