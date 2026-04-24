@@ -173,6 +173,7 @@ function MemberDetail() {
         club: editData.isClubMember === 'yes' ? editData.club : null,
         handicap: editData.handicap,
         golflinkNumber: editData.isClubMember === 'yes' ? editData.golflinkNumber : null,
+        gaRegisteredName: editData.isClubMember === 'yes' ? editData.gaRegisteredName : null,
         clubMemberNumber: editData.isClubMember === 'yes' ? editData.clubMemberNumber : null,
         gaHandy: editData.isClubMember === 'yes' ? editData.gaHandy : null,
         houseHandy: editData.isClubMember === 'no' ? editData.houseHandy : null,
@@ -468,6 +469,9 @@ function MemberDetail() {
                 </EF>
                 <EF label="Golflink 번호" required error={!editData.golflinkNumber?.trim() && !!validationError}>
                   <input type="text" value={editData.golflinkNumber || ''} onChange={(e) => setEditData({ ...editData, golflinkNumber: e.target.value })} style={{ borderColor: !editData.golflinkNumber?.trim() && !!validationError ? '#e74c3c' : undefined }} />
+                </EF>
+                <EF label="GA 등록이름">
+                  <input type="text" value={editData.gaRegisteredName || ''} onChange={(e) => setEditData({ ...editData, gaRegisteredName: e.target.value })} placeholder="예: Kim, Chang" />
                 </EF>
                 <EF label="클럽 회원번호" required error={!editData.clubMemberNumber?.trim() && !!validationError}>
                   <input type="text" value={editData.clubMemberNumber || ''} onChange={(e) => setEditData({ ...editData, clubMemberNumber: e.target.value })} style={{ borderColor: !editData.clubMemberNumber?.trim() && !!validationError ? '#e74c3c' : undefined }} />
@@ -800,6 +804,7 @@ function MemberDetail() {
                 <div style={{ fontSize: '12px', fontWeight: '700', color: '#2563EB', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '12px' }}>클럽 / GA</div>
                 {member.club && <InfoRow label="소속 클럽" value={member.club} />}
                 {member.golflinkNumber && <InfoRow label="Golflink 번호" value={member.golflinkNumber} />}
+                {member.gaRegisteredName && <InfoRow label="GA 등록이름" value={member.gaRegisteredName} />}
                 {member.clubMemberNumber && <InfoRow label="클럽 회원번호" value={member.clubMemberNumber} />}
                 {member.gaHandy != null && <InfoRow label="GA 핸디캡" value={`GA ${member.gaHandy}`} last />}
               </div>

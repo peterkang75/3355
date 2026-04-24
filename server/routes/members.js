@@ -107,10 +107,10 @@ router.put("/:id", requireAuth, async (req, res) => {
     let data = req.body;
     if (isSelf && !isOperator(req.member)) {
       const { name, nickname, phone, club, gaHandy, houseHandy, handicap,
-              golflinkNumber, clubMemberNumber, photo, gender, birthYear,
+              golflinkNumber, gaRegisteredName, clubMemberNumber, photo, gender, birthYear,
               region, isClubMember } = req.body;
       data = { name, nickname, phone, club, gaHandy, houseHandy, handicap,
-               golflinkNumber, clubMemberNumber, photo, gender, birthYear,
+               golflinkNumber, gaRegisteredName, clubMemberNumber, photo, gender, birthYear,
                region, isClubMember };
       // undefined 필드 제거
       Object.keys(data).forEach(k => data[k] === undefined && delete data[k]);

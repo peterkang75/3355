@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
+import { calculateStableford } from '../utils/stableford';
 
 function Leaderboard() {
   const navigate = useNavigate();
@@ -24,6 +25,9 @@ function Leaderboard() {
   const [is2BB, setIs2BB] = useState(false);
   const [viewMode, setViewMode] = useState('individual'); // 'individual' or '2bb'
   const [ntpRecords, setNtpRecords] = useState([]);
+  const [hasStableford, setHasStableford] = useState(false);
+  const [courseHoleIndexes, setCourseHoleIndexes] = useState(null);
+  const [stablefordMode, setStablefordMode] = useState(false);
 
   useEffect(() => {
     if (!bookingId) return;
@@ -94,6 +98,13 @@ function Leaderboard() {
       const holePars = course?.holePars?.male || Array(18).fill(4);
       setCoursePars(holePars);
       const calculatedCoursePar = holePars.reduce((a, b) => a + b, 0) || 72;
+
+      const siAvailable = !!(
+        (course?.holeIndexes?.male && course.holeIndexes.male.length === 18) ||
+        (course?.holeIndexes?.female && course.holeIndexes.female.length === 18)
+      );
+      setHasStableford(siAvailable);
+      setCourseHoleIndexes(course?.holeIndexes?.male || null);
 
       // 참가자 정보 파싱 (게스트 핸디캡용)
       const participants = booking.participants?.map(p => {
@@ -179,6 +190,13 @@ function Leaderboard() {
         const netScore = totalScore - hcp;
         const netOverUnder = netScore - playedPar;
 
+        const playerGender = member?.gender === 'female' ? 'female' : 'male';
+        const playerSI = course?.holeIndexes?.[playerGender] || course?.holeIndexes?.male || null;
+        const playerPars = course?.holePars?.[playerGender] || holePars;
+        const stableford = siAvailable && playerSI?.length === 18 && holesArray?.some(h => h > 0)
+          ? calculateStableford(holesArray, playerPars, playerSI, hcp)
+          : null;
+
         return {
           odId: score.userId,
           phone: member?.phone || score.userId,
@@ -195,7 +213,9 @@ function Leaderboard() {
           holes: holesArray || [],
           outScore,
           inScore,
-          playedPar
+          playedPar,
+          stablefordTotal: stableford?.total ?? null,
+          stablefordPerHole: stableford?.perHole ?? null
         };
       });
 
@@ -456,9 +476,18 @@ function Leaderboard() {
     }
   };
 
-  const filteredScores = filter === 'ALL' 
-    ? scores 
-    : scores.filter(s => s.grade === filter.replace('Grade ', ''));
+  const filteredScores = (() => {
+    const filtered = filter === 'ALL'
+      ? scores
+      : scores.filter(s => s.grade === filter.replace('Grade ', ''));
+    if (!stablefordMode) return filtered;
+    return [...filtered].sort((a, b) => {
+      if (a.totalScore === 0 && b.totalScore === 0) return 0;
+      if (a.totalScore === 0) return 1;
+      if (b.totalScore === 0) return -1;
+      return (b.stablefordTotal ?? -1) - (a.stablefordTotal ?? -1);
+    });
+  })();
 
   const getAvailableGradeFilters = () => {
     const filters = ['ALL'];
@@ -897,11 +926,12 @@ function Leaderboard() {
         </div>
       ) : (
         <>
-          {/* 스트로크 모드: 기존 그레이드 탭 표시 */}
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'center', 
-            gap: '4px', 
+          {/* 그레이드 탭 + 스테이블포드 토글 */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '4px',
             padding: '12px 8px'
           }}>
             {gradeFilters.map(g => (
@@ -925,6 +955,27 @@ function Leaderboard() {
                 {g}
               </button>
             ))}
+            {hasStableford && (
+              <button
+                onClick={() => setStablefordMode(!stablefordMode)}
+                style={{
+                  marginLeft: '8px',
+                  padding: '8px 10px',
+                  borderRadius: '16px',
+                  border: stablefordMode ? 'none' : '1px solid rgba(81,207,102,0.5)',
+                  background: stablefordMode
+                    ? 'linear-gradient(135deg, #51cf66 0%, #40c057 100%)'
+                    : 'rgba(81,207,102,0.15)',
+                  color: stablefordMode ? 'white' : '#51cf66',
+                  fontSize: '11px',
+                  fontWeight: '700',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                STBL
+              </button>
+            )}
           </div>
 
           <div style={{ padding: '0 16px' }}>
@@ -944,7 +995,7 @@ function Leaderboard() {
               <div style={{ textAlign: 'center' }}>OUT</div>
               <div style={{ textAlign: 'center' }}>IN</div>
               <div style={{ textAlign: 'center' }}>총타수</div>
-              <div style={{ textAlign: 'center' }}>+-</div>
+              <div style={{ textAlign: 'center' }}>{stablefordMode ? 'STBL' : '+-'}</div>
             </div>
 
             {filteredScores.length === 0 ? (
@@ -1030,13 +1081,18 @@ function Leaderboard() {
                   }}>
                     {score.netScore || '-'}
                   </div>
-                  <div style={{ 
-                    textAlign: 'center', 
-                    color: score.netOverUnder > 0 ? '#ff6b6b' : score.netOverUnder < 0 ? '#51cf66' : 'white',
+                  <div style={{
+                    textAlign: 'center',
+                    color: stablefordMode
+                      ? (score.stablefordTotal != null ? (score.stablefordTotal >= score.completedHoles * 2 ? '#51cf66' : score.stablefordTotal < score.completedHoles ? '#ff6b6b' : 'white') : 'rgba(255,255,255,0.5)')
+                      : (score.netOverUnder > 0 ? '#ff6b6b' : score.netOverUnder < 0 ? '#51cf66' : 'white'),
                     fontSize: '13px',
                     fontWeight: '600'
                   }}>
-                    {score.netScore ? (score.netOverUnder > 0 ? `+${score.netOverUnder}` : score.netOverUnder === 0 ? 'E' : score.netOverUnder) : '-'}
+                    {stablefordMode
+                      ? (score.stablefordTotal != null ? score.stablefordTotal : '-')
+                      : (score.netScore ? (score.netOverUnder > 0 ? `+${score.netOverUnder}` : score.netOverUnder === 0 ? 'E' : score.netOverUnder) : '-')
+                    }
                   </div>
                 </div>
               );})
@@ -1284,15 +1340,52 @@ function Leaderboard() {
                     {hasHoleData && scoreArr[idx] > 0 ? (d > 0 ? `+${d}` : d) : ''}
                   </div>
                 ))}
-                <div style={{ 
-                  textAlign: 'center', 
-                  padding: '6px 4px', 
+                <div style={{
+                  textAlign: 'center',
+                  padding: '6px 4px',
                   color: totalDiff < 0 ? '#e74c3c' : totalDiff > 0 ? '#3498db' : '#999',
                   fontSize: '11px',
                   fontWeight: '600'
                 }}>
                   {hasHoleData && totalScore > 0 ? (totalDiff > 0 ? `+${totalDiff}` : totalDiff) : ''}
                 </div>
+
+                {hasStableford && selectedScore.stablefordPerHole && (() => {
+                  const stblSlice = selectedScore.stablefordPerHole.slice(startHole - 1, endHole);
+                  const stblTotal = stblSlice.reduce((a, b) => a + b, 0);
+                  const getStblColor = (pts) => {
+                    if (pts >= 3) return '#51cf66';
+                    if (pts === 2) return '#999';
+                    if (pts === 1) return '#F19E38';
+                    return '#ff6b6b';
+                  };
+                  return (
+                    <>
+                      {stblSlice.map((pts, idx) => (
+                        <div key={`stbl-${idx}`} style={{
+                          textAlign: 'center',
+                          padding: '6px 4px',
+                          color: hasHoleData && scoreArr[idx] > 0 ? getStblColor(pts) : '#666',
+                          fontSize: '11px',
+                          fontWeight: '600',
+                          background: 'rgba(255,255,255,0.03)'
+                        }}>
+                          {hasHoleData && scoreArr[idx] > 0 ? pts : ''}
+                        </div>
+                      ))}
+                      <div style={{
+                        textAlign: 'center',
+                        padding: '6px 4px',
+                        color: '#51cf66',
+                        fontSize: '11px',
+                        fontWeight: '700',
+                        background: 'rgba(255,255,255,0.03)'
+                      }}>
+                        {hasHoleData && totalScore > 0 ? stblTotal : ''}
+                      </div>
+                    </>
+                  );
+                })()}
               </div>
             </div>
           );

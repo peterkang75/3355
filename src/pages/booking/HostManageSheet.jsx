@@ -68,19 +68,26 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
     </div>
   );
 
-  const InputRow = ({ label, field, placeholder, type = 'text' }) => (
-    <div style={{ marginBottom: '10px' }}>
-      <label style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', display: 'block', marginBottom: '6px' }}>{label}</label>
-      <input
-        type={type}
-        value={hmAdvanced[field]}
-        onChange={(e) => setHmAdvanced(prev => ({ ...prev, [field]: e.target.value }))}
-        onBlur={(e) => handleHmAdvancedSave(field, type === 'number' ? (e.target.value ? parseInt(e.target.value) : null) : e.target.value)}
-        placeholder={placeholder}
-        style={(type === 'date' || type === 'time' || type === 'datetime-local') ? dateInputStyle : inputStyle}
-      />
-    </div>
-  );
+  const InputRow = ({ label, field, placeholder, type = 'text' }) => {
+    const isPickerType = type === 'date' || type === 'time' || type === 'datetime-local';
+    const parseValue = (val) => type === 'number' ? (val ? parseInt(val) : null) : val;
+    return (
+      <div style={{ marginBottom: '10px' }}>
+        <label style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', display: 'block', marginBottom: '6px' }}>{label}</label>
+        <input
+          type={type}
+          value={hmAdvanced[field]}
+          onChange={(e) => {
+            setHmAdvanced(prev => ({ ...prev, [field]: e.target.value }));
+            if (isPickerType) handleHmAdvancedSave(field, parseValue(e.target.value));
+          }}
+          onBlur={(e) => handleHmAdvancedSave(field, parseValue(e.target.value))}
+          placeholder={placeholder}
+          style={isPickerType ? dateInputStyle : inputStyle}
+        />
+      </div>
+    );
+  };
 
   const renderBasicView = () => {
     const participantPhones = hmParticipants.map(p => p.phone);

@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketContext';
 import PageHeader from '../components/common/PageHeader';
+import { stablefordPoints, allocateStrokes, calculateStableford } from '../utils/stableford';
 
 function Play() {
   const navigate = useNavigate();
@@ -1890,6 +1891,21 @@ function Play() {
         : (m?.gaHandy || m?.houseHandy || m?.handicap || user?.handicap || guestSession?.handicap || '-');
     }
 
+    const siArr = courseData?.holeIndexes?.[isTeammate ? (selectedTeammate?.gender === 'F' ? 'female' : 'male') : (user?.gender === 'F' ? 'female' : 'male')]
+      || courseData?.holeIndexes?.male || null;
+    const hasSI = siArr && siArr.length === 18;
+    let holeStblPts = null;
+    let cumulativeStbl = null;
+    if (hasSI) {
+      const hcp = Math.round(Number(handicap) || 0);
+      const strokes = allocateStrokes(hcp, siArr);
+      if (score > 0 && par) {
+        holeStblPts = stablefordPoints(score, par, strokes[currentHole - 1]);
+      }
+      const stblResult = calculateStableford(scoreArr, parArrForCalc, siArr, hcp);
+      cumulativeStbl = stblResult?.total ?? null;
+    }
+
     const handleParClick = () => {
       if (!par) return;
       setScoreValue(isTeammate, score === par ? 0 : par);
@@ -2009,14 +2025,30 @@ function Play() {
             </button>
           </div>
 
-          {/* 스코어 라벨 */}
+          {/* 스코어 라벨 + 스테이블포드 배지 */}
           <div style={{
-            fontSize: s(11, 10), fontWeight: 800,
-            color: scoreLabel ? scoreLabel.color : '#D1D5DB',
-            letterSpacing: '0.10em',
+            display: 'flex', alignItems: 'center', gap: s(8, 6),
             minHeight: s(16, 14),
           }}>
-            {scoreLabel ? scoreLabel.text : (par ? 'PAR' : '—')}
+            <div style={{
+              fontSize: s(11, 10), fontWeight: 800,
+              color: scoreLabel ? scoreLabel.color : '#D1D5DB',
+              letterSpacing: '0.10em',
+            }}>
+              {scoreLabel ? scoreLabel.text : (par ? 'PAR' : '—')}
+            </div>
+            {hasSI && holeStblPts != null && (
+              <div style={{
+                background: holeStblPts >= 3 ? '#16a34a' : holeStblPts === 2 ? '#6B7280' : holeStblPts === 1 ? '#F19E38' : '#dc2626',
+                color: '#fff',
+                fontSize: s(9, 8), fontWeight: 800,
+                padding: `${s(2,1)}px ${s(6,5)}px`,
+                borderRadius: 10,
+                letterSpacing: '0.02em',
+              }}>
+                {holeStblPts}pts
+              </div>
+            )}
           </div>
         </div>
 
@@ -2097,6 +2129,16 @@ function Play() {
               {totalScore > 0 ? ouText : '—'}
             </div>
           </div>
+
+          {/* STBL 흰색 박스 (SI 데이터 있을 때만) */}
+          {hasSI && (
+            <div style={{ ...whiteBox, flex: 1, height: s(82,70), gap: s(3,2) }}>
+              <div style={{ fontSize: s(11,9), fontWeight: 700, color: '#94A3B8', letterSpacing: '0.08em' }}>STBL</div>
+              <div style={{ fontSize: s(23,19), fontWeight: 900, color: cumulativeStbl != null ? '#16a34a' : '#94A3B8', lineHeight: 1 }}>
+                {cumulativeStbl != null ? cumulativeStbl : '—'}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     );

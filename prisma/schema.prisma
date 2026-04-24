@@ -21,6 +21,7 @@ model Member {
   gaHandy          String?
   houseHandy       String?
   golflinkNumber   String?
+  gaRegisteredName String?
   clubMemberNumber String?
   isAdmin          Boolean   @default(false)
   isGuest          Boolean   @default(false)
