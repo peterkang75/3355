@@ -79,8 +79,9 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
           type={type}
           value={hmAdvanced[field]}
           onChange={(e) => {
-            setHmAdvanced(prev => ({ ...prev, [field]: e.target.value }));
-            if (isPickerType) handleHmAdvancedSave(field, parseValue(e.target.value));
+            const val = e.target.value;
+            setHmAdvanced(prev => ({ ...prev, [field]: val }));
+            if (isPickerType) hmSaveField({ [field]: val || null });
           }}
           onBlur={(e) => handleHmAdvancedSave(field, parseValue(e.target.value))}
           placeholder={placeholder}
@@ -205,19 +206,20 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
             <button
               onClick={() => {
                 const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-                const title = hmTitle || booking.title || 'Round';
                 const date = booking.date || '';
                 const rows = hmParticipants.map(p => {
                   const m = members.find(mm => mm.phone === p.phone || mm.id === p.memberId);
                   return {
-                    name: m?.gaRegisteredName || p.nickname || p.name || '-',
+                    name: m?.gaRegisteredName || '-',
                     golflink: m?.golflinkNumber || '-',
                   };
                 }).sort((a, b) => a.name.localeCompare(b.name));
 
-                doc.setFontSize(14);
-                doc.text(`${title}`, 14, 18);
+                doc.setFontSize(16);
+                doc.setFont(undefined, 'bold');
+                doc.text('3355 GOLF CLUB', 14, 18);
                 doc.setFontSize(10);
+                doc.setFont(undefined, 'normal');
                 doc.text(date, 14, 25);
 
                 const startY = 35;
@@ -240,7 +242,7 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
                 doc.setFontSize(8);
                 doc.text(`Total: ${rows.length} players`, 14, startY + rowH * (rows.length + 1) + 4);
 
-                doc.save(`${title}_GA_List.pdf`);
+                doc.save(`3355_GA_List_${date}.pdf`);
               }}
               style={{
                 width: '100%', padding: '10px', borderRadius: '10px',
