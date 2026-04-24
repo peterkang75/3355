@@ -26,6 +26,7 @@ router.get("/", async (req, res) => {
         gaHandy: true,
         houseHandy: true,
         golflinkNumber: true,
+        gaRegisteredName: true,
         clubMemberNumber: true,
         isAdmin: true,
         role: true,

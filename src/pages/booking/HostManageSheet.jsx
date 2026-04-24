@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jsPDF } from 'jspdf';
 import apiService from '../../services/api';
 import { formatDate, getBookingStatusFlags } from './bookingHelpers';
 
@@ -198,6 +199,61 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
               })
             )}
           </div>
+
+          {/* GA 명단 PDF */}
+          {hmParticipants.length > 0 && (
+            <button
+              onClick={() => {
+                const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+                const title = hmTitle || booking.title || 'Round';
+                const date = booking.date || '';
+                const rows = hmParticipants.map(p => {
+                  const m = members.find(mm => mm.phone === p.phone || mm.id === p.memberId);
+                  return {
+                    name: m?.gaRegisteredName || p.nickname || p.name || '-',
+                    golflink: m?.golflinkNumber || '-',
+                  };
+                }).sort((a, b) => a.name.localeCompare(b.name));
+
+                doc.setFontSize(14);
+                doc.text(`${title}`, 14, 18);
+                doc.setFontSize(10);
+                doc.text(date, 14, 25);
+
+                const startY = 35;
+                const colX = [14, 110];
+                const rowH = 8;
+
+                doc.setFontSize(10);
+                doc.setFont(undefined, 'bold');
+                doc.text('GA Registered Name', colX[0], startY);
+                doc.text('Golflink Number', colX[1], startY);
+                doc.line(14, startY + 2, 196, startY + 2);
+
+                doc.setFont(undefined, 'normal');
+                rows.forEach((r, i) => {
+                  const y = startY + rowH * (i + 1);
+                  doc.text(r.name, colX[0], y);
+                  doc.text(r.golflink, colX[1], y);
+                });
+
+                doc.setFontSize(8);
+                doc.text(`Total: ${rows.length} players`, 14, startY + rowH * (rows.length + 1) + 4);
+
+                doc.save(`${title}_GA_List.pdf`);
+              }}
+              style={{
+                width: '100%', padding: '10px', borderRadius: '10px',
+                background: '#F0F9FF', border: '1px solid #BAE6FD',
+                color: '#0369A1', fontWeight: '600', fontSize: '13px',
+                cursor: 'pointer', marginBottom: '12px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px'
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              GA 명단 PDF 다운로드
+            </button>
+          )}
 
           {/* 게스트 추가 */}
           <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
