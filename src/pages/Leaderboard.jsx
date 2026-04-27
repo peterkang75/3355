@@ -75,7 +75,7 @@ function Leaderboard() {
       if (!silent) setLoading(true);
       let bookingScores = [];
       const timestamp = Date.now();
-      const res = await fetch(`/api/scores/by-rounding/${encodeURIComponent(booking.title)}?t=${timestamp}`);
+      const res = await fetch(`/api/scores/by-rounding/${encodeURIComponent(booking.title)}?t=${timestamp}&date=${booking.date}`);
       if (res.ok) {
         bookingScores = await res.json();
       }

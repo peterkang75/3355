@@ -37,10 +37,13 @@ router.get("/booking/:date/:courseName", async (req, res) => {
 router.get("/by-rounding/:roundingName", async (req, res) => {
   try {
     const { roundingName } = req.params;
+    const { date } = req.query;
+    const where = {
+      roundingName: decodeURIComponent(roundingName),
+    };
+    if (date) where.date = date;
     const scores = await prisma.score.findMany({
-      where: {
-        roundingName: decodeURIComponent(roundingName),
-      },
+      where,
       select: {
         id: true,
         userId: true,

@@ -63,7 +63,7 @@ function MemberScoreEntry() {
       let bookingScores = await apiService.fetchBookingScores(booking.date, booking.courseName);
       
       if ((!bookingScores || bookingScores.length === 0) && booking.title) {
-        const res = await fetch(`/api/scores/by-rounding/${encodeURIComponent(booking.title)}`);
+        const res = await fetch(`/api/scores/by-rounding/${encodeURIComponent(booking.title)}?date=${booking.date}`);
         if (res.ok) {
           bookingScores = await res.json();
         }

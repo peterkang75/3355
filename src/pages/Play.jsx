@@ -182,7 +182,7 @@ function Play() {
       
       try {
         // 같은 라운딩의 모든 스코어 불러오기
-        const allScoresRes = await fetch(`/api/scores/by-rounding/${encodeURIComponent(foundBooking.title)}`);
+        const allScoresRes = await fetch(`/api/scores/by-rounding/${encodeURIComponent(foundBooking.title)}?date=${foundBooking.date}`);
         if (!allScoresRes.ok) throw new Error('Failed to fetch scores');
         const allScores = await allScoresRes.json();
         
@@ -725,7 +725,7 @@ function Play() {
       }
 
       try {
-        const res = await fetch(`/api/scores/by-rounding/${encodeURIComponent(booking?.title || '')}`, {
+        const res = await fetch(`/api/scores/by-rounding/${encodeURIComponent(booking?.title || '')}?date=${booking?.date || ''}`, {
           headers: getAuthHeaders(),
         });
         if (!res.ok) return;
@@ -941,7 +941,7 @@ function Play() {
     const teammateMemberId = getTeammateMemberId();
     if (!teammateMemberId || !effectiveUserId) return;
     try {
-      const res = await fetch(`/api/scores/by-rounding/${encodeURIComponent(booking.title)}`, {
+      const res = await fetch(`/api/scores/by-rounding/${encodeURIComponent(booking.title)}?date=${booking?.date || ''}`, {
         headers: getAuthHeaders(),
       });
       if (!res.ok) return;
