@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { checkIsOperator } from '../utils';
+import { checkIsOperator, canManagePost, canManageComment } from '../utils';
 import apiService from '../services/api';
 import PageHeader from '../components/common/PageHeader';
 
@@ -26,17 +26,32 @@ const ChevronDown = ({ open }) => (
     <polyline points="6 9 12 15 18 9"/>
   </svg>
 );
+const KebabIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>
+  </svg>
+);
 
 function Board() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, posts, addPost, updatePost, refreshPosts } = useApp();
+  const { user, posts, addPost, refreshPosts } = useApp();
   const canCreatePost = user && checkIsOperator(user);
   const [featuringId, setFeaturingId] = useState(null);
   const [showNewPost, setShowNewPost] = useState(false);
   const [newPost, setNewPost] = useState({ title: '', content: '' });
   const [expandedPost, setExpandedPost] = useState(location.state?.openPostId || null);
   const [newComment, setNewComment] = useState('');
+  const [openMenuId, setOpenMenuId] = useState(null); // 'post:<id>' | 'comment:<postId>:<cid>'
+  const [editingPost, setEditingPost] = useState(null); // {id, title, content} | null
+  const [editingComment, setEditingComment] = useState(null); // {postId, commentId, content} | null
+
+  useEffect(() => {
+    if (!openMenuId) return;
+    const close = () => setOpenMenuId(null);
+    document.addEventListener('click', close);
+    return () => document.removeEventListener('click', close);
+  }, [openMenuId]);
 
   const handleCreatePost = () => {
     if (!newPost.title || !newPost.content) {
@@ -48,17 +63,15 @@ function Board() {
     setShowNewPost(false);
   };
 
-  const handleAddComment = (postId) => {
+  const handleAddComment = async (postId) => {
     if (!newComment.trim()) return;
-    const post = posts.find(p => p.id === postId);
-    const updatedComments = [...(post.comments || []), {
-      id: Date.now(),
-      content: newComment,
-      author: user.name,
-      date: new Date().toLocaleDateString('ko-KR')
-    }];
-    updatePost(postId, { comments: updatedComments });
-    setNewComment('');
+    try {
+      await apiService.addComment(postId, newComment);
+      await refreshPosts();
+      setNewComment('');
+    } catch {
+      alert('댓글 추가에 실패했습니다.');
+    }
   };
 
   const handleToggleFeatured = async (postId) => {
@@ -70,6 +83,74 @@ function Board() {
       alert('처리 중 오류가 발생했습니다.');
     } finally {
       setFeaturingId(null);
+    }
+  };
+
+  const handleStartEditPost = (post) => {
+    setEditingPost({ id: post.id, title: post.title, content: post.content });
+    setOpenMenuId(null);
+  };
+
+  const handleSaveEditPost = async () => {
+    if (!editingPost.title.trim() || !editingPost.content.trim()) {
+      alert('제목과 내용을 입력해주세요.');
+      return;
+    }
+    try {
+      await apiService.updatePost(editingPost.id, {
+        title: editingPost.title,
+        content: editingPost.content,
+      });
+      await refreshPosts();
+      setEditingPost(null);
+    } catch {
+      alert('수정에 실패했습니다.');
+    }
+  };
+
+  const handleCancelEditPost = () => setEditingPost(null);
+
+  const handleDeletePost = async (postId) => {
+    if (!window.confirm('이 게시글을 삭제하시겠습니까?')) return;
+    try {
+      await apiService.softDeletePost(postId);
+      await refreshPosts();
+      setOpenMenuId(null);
+      setExpandedPost(null);
+    } catch {
+      alert('삭제에 실패했습니다.');
+    }
+  };
+
+  const handleStartEditComment = (postId, comment) => {
+    setEditingComment({ postId, commentId: comment.id, content: comment.content });
+    setOpenMenuId(null);
+  };
+
+  const handleSaveEditComment = async () => {
+    if (!editingComment.content.trim()) {
+      alert('댓글 내용을 입력해주세요.');
+      return;
+    }
+    try {
+      await apiService.updateComment(editingComment.postId, editingComment.commentId, editingComment.content);
+      await refreshPosts();
+      setEditingComment(null);
+    } catch {
+      alert('댓글 수정에 실패했습니다.');
+    }
+  };
+
+  const handleCancelEditComment = () => setEditingComment(null);
+
+  const handleDeleteComment = async (postId, commentId) => {
+    if (!window.confirm('이 댓글을 삭제하시겠습니까?')) return;
+    try {
+      await apiService.deleteComment(postId, commentId);
+      await refreshPosts();
+      setOpenMenuId(null);
+    } catch {
+      alert('댓글 삭제에 실패했습니다.');
     }
   };
 
@@ -140,6 +221,49 @@ function Board() {
             const dateStr = `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`;
             const commentCount = (post.comments || []).length;
 
+            // 편집 모드면 폼 노출
+            if (editingPost && editingPost.id === post.id) {
+              return (
+                <div key={post.id} style={{ background: '#fff', borderRadius: 20, padding: 20, marginBottom: 10, boxShadow: 'var(--shadow-card)' }}>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--on-background)', marginBottom: 16 }}>게시글 수정</div>
+                  <input
+                    type="text"
+                    value={editingPost.title}
+                    onChange={(e) => setEditingPost({ ...editingPost, title: e.target.value })}
+                    style={{
+                      width: '100%', padding: '12px 14px', borderRadius: 10, border: '1.5px solid #e2e8f0',
+                      fontSize: 15, marginBottom: 10, background: '#f8fafc', color: 'var(--on-background)',
+                      outline: 'none', boxSizing: 'border-box',
+                    }}
+                  />
+                  <textarea
+                    value={editingPost.content}
+                    onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
+                    rows={6}
+                    style={{
+                      width: '100%', padding: '12px 14px', borderRadius: 10, border: '1.5px solid #e2e8f0',
+                      fontSize: 14, lineHeight: 1.6, resize: 'vertical', background: '#f8fafc',
+                      color: 'var(--on-background)', outline: 'none', boxSizing: 'border-box', marginBottom: 14,
+                    }}
+                  />
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button
+                      onClick={handleSaveEditPost}
+                      style={{ flex: 1, background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 12, padding: '12px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+                    >
+                      저장
+                    </button>
+                    <button
+                      onClick={handleCancelEditPost}
+                      style={{ flex: 1, background: '#f1f5f9', color: 'var(--text-muted)', border: 'none', borderRadius: 12, padding: '12px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+                    >
+                      취소
+                    </button>
+                  </div>
+                </div>
+              );
+            }
+
             return (
               <div key={post.id} style={{ background: '#fff', borderRadius: 20, marginBottom: 10, boxShadow: 'var(--shadow-card)', overflow: 'hidden' }}>
                 {/* 게시글 헤더 */}
@@ -164,7 +288,47 @@ function Board() {
                         {commentCount > 0 && <><span>·</span><span>댓글 {commentCount}</span></>}
                       </div>
                     </div>
-                    <div style={{ color: 'var(--text-muted)', flexShrink: 0, marginTop: 2 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0, marginTop: 2, position: 'relative', color: 'var(--text-muted)' }}>
+                      {canManagePost(user, post) && (
+                        <>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setOpenMenuId(openMenuId === `post:${post.id}` ? null : `post:${post.id}`);
+                            }}
+                            style={{
+                              background: 'transparent', border: 'none', padding: 6, borderRadius: 6,
+                              cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center',
+                            }}
+                            aria-label="게시글 메뉴"
+                          >
+                            <KebabIcon />
+                          </button>
+                          {openMenuId === `post:${post.id}` && (
+                            <div
+                              onClick={(e) => e.stopPropagation()}
+                              style={{
+                                position: 'absolute', top: 32, right: 0, background: '#fff',
+                                borderRadius: 10, boxShadow: '0 4px 12px rgba(0,0,0,0.12)', overflow: 'hidden',
+                                minWidth: 100, zIndex: 10,
+                              }}
+                            >
+                              <div
+                                onClick={(e) => { e.stopPropagation(); handleStartEditPost(post); }}
+                                style={{ padding: '10px 14px', fontSize: 14, cursor: 'pointer', color: 'var(--on-background)' }}
+                              >
+                                수정
+                              </div>
+                              <div
+                                onClick={(e) => { e.stopPropagation(); handleDeletePost(post.id); }}
+                                style={{ padding: '10px 14px', fontSize: 14, cursor: 'pointer', color: '#dc2626', borderTop: '1px solid #f1f5f9' }}
+                              >
+                                삭제
+                              </div>
+                            </div>
+                          )}
+                        </>
+                      )}
                       <ChevronDown open={isExpanded} />
                     </div>
                   </div>
@@ -206,20 +370,106 @@ function Board() {
                     {/* 댓글 목록 */}
                     {(post.comments || []).length > 0 && (
                       <div style={{ marginBottom: 14 }}>
-                        {(post.comments || []).map((comment, idx) => (
-                          <div key={comment.id || idx} style={{
-                            background: '#f8fafc', borderRadius: 12, padding: '12px 14px',
-                            marginBottom: 8, borderLeft: '3px solid var(--primary)',
-                          }}>
-                            <div style={{ fontSize: 14, color: 'var(--on-background)', lineHeight: 1.6, marginBottom: 5 }}>
-                              {comment.content}
+                        {(post.comments || []).map((comment, idx) => {
+                          const cKey = `comment:${post.id}:${comment.id}`;
+                          const isEditingThis = editingComment && editingComment.postId === post.id && editingComment.commentId === comment.id;
+                          const dateLabel = comment.date
+                            ? (comment.date.includes('T') ? new Date(comment.date).toLocaleDateString('ko-KR') : comment.date)
+                            : (comment.createdAt ? new Date(comment.createdAt).toLocaleDateString('ko-KR') : '');
+
+                          if (isEditingThis) {
+                            return (
+                              <div key={comment.id || idx} style={{
+                                background: '#f8fafc', borderRadius: 12, padding: '12px 14px',
+                                marginBottom: 8, borderLeft: '3px solid var(--primary)',
+                              }}>
+                                <textarea
+                                  value={editingComment.content}
+                                  onChange={(e) => setEditingComment({ ...editingComment, content: e.target.value })}
+                                  rows={2}
+                                  style={{
+                                    width: '100%', padding: '8px 10px', borderRadius: 8, border: '1.5px solid #e2e8f0',
+                                    fontSize: 14, background: '#fff', color: 'var(--on-background)', outline: 'none',
+                                    boxSizing: 'border-box', resize: 'vertical', marginBottom: 8,
+                                  }}
+                                />
+                                <div style={{ display: 'flex', gap: 6 }}>
+                                  <button
+                                    onClick={handleSaveEditComment}
+                                    style={{ flex: 1, background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: 8, padding: '8px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                                  >
+                                    저장
+                                  </button>
+                                  <button
+                                    onClick={handleCancelEditComment}
+                                    style={{ flex: 1, background: '#e2e8f0', color: 'var(--text-muted)', border: 'none', borderRadius: 8, padding: '8px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                                  >
+                                    취소
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          }
+
+                          return (
+                            <div key={comment.id || idx} style={{
+                              background: '#f8fafc', borderRadius: 12, padding: '12px 14px',
+                              marginBottom: 8, borderLeft: '3px solid var(--primary)',
+                            }}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ fontSize: 14, color: 'var(--on-background)', lineHeight: 1.6, marginBottom: 5, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+                                    {comment.content}
+                                  </div>
+                                  <div style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between' }}>
+                                    <span style={{ fontWeight: 600 }}>{typeof comment.author === 'string' ? comment.author : comment.author?.name || '알 수 없음'}</span>
+                                    <span>{dateLabel}</span>
+                                  </div>
+                                </div>
+                                {canManageComment(user, comment) && (
+                                  <div style={{ position: 'relative', flexShrink: 0 }}>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setOpenMenuId(openMenuId === cKey ? null : cKey);
+                                      }}
+                                      style={{
+                                        background: 'transparent', border: 'none', padding: 4, borderRadius: 6,
+                                        cursor: 'pointer', color: 'var(--text-muted)', display: 'flex', alignItems: 'center',
+                                      }}
+                                      aria-label="댓글 메뉴"
+                                    >
+                                      <KebabIcon />
+                                    </button>
+                                    {openMenuId === cKey && (
+                                      <div
+                                        onClick={(e) => e.stopPropagation()}
+                                        style={{
+                                          position: 'absolute', top: 28, right: 0, background: '#fff',
+                                          borderRadius: 10, boxShadow: '0 4px 12px rgba(0,0,0,0.12)', overflow: 'hidden',
+                                          minWidth: 90, zIndex: 10,
+                                        }}
+                                      >
+                                        <div
+                                          onClick={(e) => { e.stopPropagation(); handleStartEditComment(post.id, comment); }}
+                                          style={{ padding: '8px 12px', fontSize: 13, cursor: 'pointer', color: 'var(--on-background)' }}
+                                        >
+                                          수정
+                                        </div>
+                                        <div
+                                          onClick={(e) => { e.stopPropagation(); handleDeleteComment(post.id, comment.id); }}
+                                          style={{ padding: '8px 12px', fontSize: 13, cursor: 'pointer', color: '#dc2626', borderTop: '1px solid #f1f5f9' }}
+                                        >
+                                          삭제
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+                              </div>
                             </div>
-                            <div style={{ fontSize: 11, color: 'var(--text-muted)', display: 'flex', justifyContent: 'space-between' }}>
-                              <span style={{ fontWeight: 600 }}>{typeof comment.author === 'string' ? comment.author : comment.author?.name || '알 수 없음'}</span>
-                              <span>{comment.date || new Date(comment.createdAt).toLocaleDateString('ko-KR')}</span>
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     )}
 
