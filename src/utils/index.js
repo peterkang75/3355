@@ -62,3 +62,18 @@ export const checkIsOperator = (user) =>
 
 /** 일반 회원 여부 */
 export const checkIsMember = (user) => user?.role === '회원';
+
+/** 게시글 관리 권한: 작성자 본인 + 관리자 */
+export const canManagePost = (user, post) => {
+  if (!user || !post) return false;
+  if (post.authorId && user.id === post.authorId) return true;
+  return checkIsAdmin(user);
+};
+
+/** 댓글 관리 권한: 댓글 작성자 본인 + 관리자
+ *  authorId 없는 기존 댓글은 관리자만 관리 가능 */
+export const canManageComment = (user, comment) => {
+  if (!user || !comment) return false;
+  if (comment.authorId && user.id === comment.authorId) return true;
+  return checkIsAdmin(user);
+};
