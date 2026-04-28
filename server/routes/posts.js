@@ -141,4 +141,99 @@ router.patch("/:id/toggle-active", requireAuth, async (req, res) => {
   }
 });
 
+// 댓글 수정: 댓글 작성자 본인 + 관리자
+router.patch("/:id/comments/:commentId", requireAuth, async (req, res) => {
+  try {
+    const { content } = req.body;
+    if (typeof content !== 'string' || !content.trim()) {
+      return res.status(400).json({ error: "content가 비어있습니다." });
+    }
+
+    const post = await prisma.post.findUnique({ where: { id: req.params.id } });
+    if (!post) return res.status(404).json({ error: "Post not found" });
+
+    const comments = Array.isArray(post.comments) ? post.comments : [];
+    const idx = comments.findIndex(c => String(c.id) === String(req.params.commentId));
+    if (idx === -1) return res.status(404).json({ error: "Comment not found" });
+
+    if (!canManageComment(req.member, comments[idx])) {
+      return res.status(403).json({ error: "권한이 없습니다." });
+    }
+
+    const updatedComments = [...comments];
+    updatedComments[idx] = { ...comments[idx], content };
+
+    await prisma.post.update({
+      where: { id: req.params.id },
+      data: { comments: updatedComments },
+    });
+
+    req.io.emit("posts:updated");
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error updating comment:", error);
+    res.status(500).json({ error: "Failed to update comment" });
+  }
+});
+
+// 댓글 삭제 (hard): 댓글 작성자 본인 + 관리자
+router.delete("/:id/comments/:commentId", requireAuth, async (req, res) => {
+  try {
+    const post = await prisma.post.findUnique({ where: { id: req.params.id } });
+    if (!post) return res.status(404).json({ error: "Post not found" });
+
+    const comments = Array.isArray(post.comments) ? post.comments : [];
+    const target = comments.find(c => String(c.id) === String(req.params.commentId));
+    if (!target) return res.status(404).json({ error: "Comment not found" });
+
+    if (!canManageComment(req.member, target)) {
+      return res.status(403).json({ error: "권한이 없습니다." });
+    }
+
+    const updatedComments = comments.filter(c => String(c.id) !== String(req.params.commentId));
+
+    await prisma.post.update({
+      where: { id: req.params.id },
+      data: { comments: updatedComments },
+    });
+
+    req.io.emit("posts:updated");
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error deleting comment:", error);
+    res.status(500).json({ error: "Failed to delete comment" });
+  }
+});
+
+// 댓글 좋아요 토글: 로그인한 회원이면 누구나
+router.patch("/:id/comments/:commentId/like", requireAuth, async (req, res) => {
+  try {
+    const post = await prisma.post.findUnique({ where: { id: req.params.id } });
+    if (!post) return res.status(404).json({ error: "Post not found" });
+
+    const comments = Array.isArray(post.comments) ? post.comments : [];
+    const idx = comments.findIndex(c => String(c.id) === String(req.params.commentId));
+    if (idx === -1) return res.status(404).json({ error: "Comment not found" });
+
+    const memberId = req.member.id;
+    const likes = Array.isArray(comments[idx].likes) ? comments[idx].likes : [];
+    const hasLiked = likes.includes(memberId);
+    const updatedLikes = hasLiked ? likes.filter(id => id !== memberId) : [...likes, memberId];
+
+    const updatedComments = [...comments];
+    updatedComments[idx] = { ...comments[idx], likes: updatedLikes };
+
+    await prisma.post.update({
+      where: { id: req.params.id },
+      data: { comments: updatedComments },
+    });
+
+    req.io.emit("posts:updated");
+    res.json({ success: true, liked: !hasLiked });
+  } catch (error) {
+    console.error("Error toggling comment like:", error);
+    res.status(500).json({ error: "Failed to toggle comment like" });
+  }
+});
+
 module.exports = router;
