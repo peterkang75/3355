@@ -1016,6 +1016,50 @@ Railway 도메인에서 확인
 
 ---
 
-> **현재 상태:** Phase 1 ✅ / Phase 2 ✅ / Phase 3 ✅ / Phase 4 ✅ / Phase 5 ⏸️ / Phase 6 ✅ / Phase 7 ⬜ / Phase 8 진행 중 (8A✅ 8B✅ 8C~8E ⬜)
-> **현재 우선순위:** Phase 8-C (Stableford) → 8-D (Google Maps 나머지) → 8-E (2BBB/포썸 점검) → Phase 7
+### 2026-04-28 (Day 12) — 스코어카드 ScoreSection 리디자인 + Pickup(P) 기능
+
+#### ✅ 완료
+
+- [x] **ScoreSection 하단 영역 리디자인** — 4개 독립 흰색 박스 → 단일 흰색 카드 통합
+  - 좌측 액션 영역: PAR 컬러박스 + P(Pickup) 버튼
+  - 1px 구분선
+  - 우측 정보 영역: TOTAL / O/U / STBL — 박스 없는 가벼운 라벨+숫자 텍스트
+  - 카드 전체 높이 `s(82,70)` 유지 → 헤더 크기 변동 없음 (스코어 입력 공간 우선 원칙)
+
+- [x] **NTP 버튼 위치 이동** — 하단 박스 → 본인 카드 이름 줄 오른쪽 (HC 배지 옆)
+  - 파란 알약형 배지 + 깜빡임 애니메이션, 거리 입력 모달 트리거 유지
+  - NTP 홀이 아니면 자리 차지 안 함 (헤더 크기 변동 0)
+  - 본인 카드만 표시 (`!isTeammate && nearHoles[h]`)
+
+- [x] **Pickup (P) 버튼 — 스테이블포드 픽업 자동 기록**
+  - 누르면 `score = par + extraStrokes + 2` (넷 더블보기 = 0pts) 자동 입력
+  - `pickedUpHoles: { me: bool[18], teammate: bool[18] }` 상태 신설
+  - +/− 또는 PAR 버튼으로 직접 수정 시 해당 홀 P 마크 자동 OFF (auto-clear)
+  - SI 데이터 있을 때만 노출
+  - 긴 이름 ellipsis 처리 (포썸 모드 NTP 배지 잘림 방지)
+
+- [x] **Pickup 영속화 — localStorage + 서버 저장**
+  - localStorage `play_state_${bookingId}`에 `pickedUpHoles` 추가
+  - 서버 저장: 기존 `gameMetadata` JSON 필드에 `pickedUpHoles` 키 추가 (스키마 변경 ✗)
+  - 서버 복원: `GET /api/scores/by-rounding/:roundingName` SELECT에 `gameMode`, `gameMetadata` 추가
+  - 호환성: 기존 데이터(메타 없음/foursome만) 모두 false로 fallback
+
+- [x] **Leaderboard 스코어카드 모달에 "P" 표시**
+  - 서버 응답의 `gameMetadata.pickedUpHoles` 파싱 → `selectedScore.pickedUpHoles`
+  - 18홀 그리드 셀에서 picked-up 홀은 숫자 대신 **"P"** 렌더 (셀 배경/색상 동일)
+  - 점수 합계는 그대로 net double bogey 값으로 합산
+
+#### 🗂 영향 파일
+- `src/pages/Play.jsx` (ScoreSection 리디자인, P 버튼 + Pickup 상태 관리, 저장/복원 통합)
+- `src/pages/Leaderboard.jsx` (gameMetadata 파싱, 스코어카드 모달 P 셀 렌더)
+- `server/routes/scores.js` (`/by-rounding` SELECT에 gameMetadata/gameMode 추가)
+
+#### 📌 메모
+- "점수확인 모달"(`step === 'scoreCheck'`)에는 홀별 그리드가 없어 P 표시 대상 없음 (총타수 비교/매치 안내만 표시)
+- Pickup 시각 표식 추가 결정 — 사장님 (B) 선택: 별도 boolean 배열로 추적, "P"만 표시, 직접 수정 시 자동 해제
+
+---
+
+> **현재 상태:** Phase 1 ✅ / Phase 2 ✅ / Phase 3 ✅ / Phase 4 ✅ / Phase 5 ⏸️ / Phase 6 ✅ / Phase 7 ⬜ / Phase 8 진행 중 (8A✅ 8B✅ 8C✅(스테이블포드 + Pickup) 8D~8E ⬜)
+> **현재 우선순위:** Phase 8-D (Google Maps 나머지) → 8-E (2BBB/포썸 점검) → Phase 7
 > **참조:** 모든 작업 시작 전/후 이 문서 확인 및 업데이트 필수

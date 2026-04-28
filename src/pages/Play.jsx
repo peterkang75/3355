@@ -21,6 +21,7 @@ function Play() {
   const [foursomeData, setFoursomeData] = useState(null);
   const [currentHole, setCurrentHole] = useState(1);
   const [holeScores, setHoleScores] = useState({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
+  const [pickedUpHoles, setPickedUpHoles] = useState({ teammate: Array(18).fill(false), me: Array(18).fill(false) });
   const [courseData, setCourseData] = useState(null);
   const [showMismatches, setShowMismatches] = useState(false);
   const [showNtpModal, setShowNtpModal] = useState(false);
@@ -155,6 +156,7 @@ function Play() {
         const parsed = JSON.parse(savedState);
         console.log('🔄 localStorage에서 스코어 복원:', parsed);
         if (parsed.holeScores) setHoleScores(parsed.holeScores);
+        if (parsed.pickedUpHoles) setPickedUpHoles(parsed.pickedUpHoles);
         if (parsed.currentHole) setCurrentHole(parsed.currentHole);
         if (parsed.selectedTeammate) setSelectedTeammate(parsed.selectedTeammate);
         if (parsed.step) setStep(parsed.step);
@@ -192,24 +194,36 @@ function Play() {
         if (myScore && myScore.holes) {
           const holesData = typeof myScore.holes === 'string' ? JSON.parse(myScore.holes) : myScore.holes;
           const hasAnyScore = holesData.some(s => s > 0);
-          
+
           if (hasAnyScore) {
             console.log('🌐 서버에서 내 스코어 복원:', holesData);
-            
+
+            // gameMetadata에서 pickedUpHoles 파싱 (호환성: 18개 boolean 배열일 때만 적용)
+            const parseGameMeta = (raw) => {
+              if (!raw) return null;
+              try { return typeof raw === 'string' ? JSON.parse(raw) : raw; } catch { return null; }
+            };
+            const validPickedArr = (arr) => Array.isArray(arr) && arr.length === 18 ? arr.map(Boolean) : Array(18).fill(false);
+            const myMeta = parseGameMeta(myScore.gameMetadata);
+            const myPickedUp = validPickedArr(myMeta?.pickedUpHoles);
+
             // 팀원 스코어 복원 시도 (여러 경우 처리)
             let teammateHoles = Array(18).fill(0);
+            let teammatePickedUp = Array(18).fill(false);
             let restoredTeammate = null;
-            
+
             // 경우 1: 내가 마커인 스코어 찾기 (내가 다른 사람을 마크한 경우)
             const markedByMe = allScores.find(s => s.markerId === effectiveUserId && s.userId !== user.id);
             if (markedByMe) {
               if (markedByMe.holes) {
                 teammateHoles = typeof markedByMe.holes === 'string' ? JSON.parse(markedByMe.holes) : markedByMe.holes;
               }
+              const tmMeta = parseGameMeta(markedByMe.gameMetadata);
+              teammatePickedUp = validPickedArr(tmMeta?.pickedUpHoles);
               const teammateMember = members?.find(m => m.id === markedByMe.userId);
               if (teammateMember) restoredTeammate = teammateMember;
             }
-            
+
             // 경우 2: 내가 마커인 스코어가 없으면, 조편성에서 팀원 찾기
             if (!restoredTeammate && foundBooking.teams) {
               try {
@@ -223,6 +237,8 @@ function Play() {
                       const tmScore = allScores.find(s => s.userId === tmMember.id);
                       if (tmScore && tmScore.holes) {
                         teammateHoles = typeof tmScore.holes === 'string' ? JSON.parse(tmScore.holes) : tmScore.holes;
+                        const tmMeta2 = parseGameMeta(tmScore.gameMetadata);
+                        teammatePickedUp = validPickedArr(tmMeta2?.pickedUpHoles);
                         restoredTeammate = tmMember;
                         break;
                       }
@@ -238,8 +254,9 @@ function Play() {
                 console.error('조편성 파싱 오류:', e);
               }
             }
-            
+
             setHoleScores({ me: holesData, teammate: teammateHoles });
+            setPickedUpHoles({ me: myPickedUp, teammate: teammatePickedUp });
             const lastPlayedHole = holesData.reduce((last, score, idx) => score > 0 ? idx + 1 : last, 1);
             setCurrentHole(Math.min(lastPlayedHole + 1, 18));
             
@@ -266,6 +283,7 @@ function Play() {
         setStep('selectMember');
         setCurrentHole(1);
         setHoleScores({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
+        setPickedUpHoles({ teammate: Array(18).fill(false), me: Array(18).fill(false) });
         setRoundStartTime(null);
         lastRestoredBookingRef.current = bookingId;
         console.log('🔄 Play 페이지 초기화:', bookingId);
@@ -281,6 +299,7 @@ function Play() {
     
     const stateToSave = {
       holeScores,
+      pickedUpHoles,
       currentHole,
       selectedTeammate,
       step,
@@ -289,7 +308,7 @@ function Play() {
     };
     localStorage.setItem(`play_state_${bookingId}`, JSON.stringify(stateToSave));
     console.log('💾 스코어 localStorage 저장:', currentHole, holeScores);
-  }, [bookingId, holeScores, currentHole, selectedTeammate, step, roundStartTime, foursomeData]);
+  }, [bookingId, holeScores, pickedUpHoles, currentHole, selectedTeammate, step, roundStartTime, foursomeData]);
 
   // 스코어 변경 시 서버에 실시간 자동 저장 (debounced)
   useEffect(() => {
@@ -300,7 +319,7 @@ function Play() {
     if (!hasAnyScore) return;
 
     // 이전 저장과 동일하면 저장하지 않음
-    const currentScoresKey = JSON.stringify({ me: holeScores.me, teammate: holeScores.teammate });
+    const currentScoresKey = JSON.stringify({ me: holeScores.me, teammate: holeScores.teammate, pme: pickedUpHoles.me, ptm: pickedUpHoles.teammate });
     if (lastSavedScoresRef.current === currentScoresKey) return;
 
     // 디바운스: 500ms 후에 서버에 저장
@@ -319,13 +338,21 @@ function Play() {
         const totalTeammate = holeScores.teammate.reduce((a, b) => a + b, 0);
         const coursePar = userParArr.reduce((a, b) => a + b, 0);
 
-        const myGameMetadata = gameMode === 'foursome' && foursomeData ? {
+        const foursomeMeta = gameMode === 'foursome' && foursomeData ? {
           partner: { name: foursomeData.partner?.nickname || foursomeData.partner?.name, phone: foursomeData.partner?.phone },
           opponents: foursomeData.opponents?.map(o => ({ name: o?.nickname || o?.name, phone: o?.phone })) || [],
           recordedBy: user?.nickname || user?.name,
         } : null;
-
-        const teammateGameMetadata = myGameMetadata;
+        const myHasPickup = pickedUpHoles.me.some(Boolean);
+        const tmHasPickup = pickedUpHoles.teammate.some(Boolean);
+        const myGameMetadata = (foursomeMeta || myHasPickup) ? {
+          ...(foursomeMeta || {}),
+          ...(myHasPickup ? { pickedUpHoles: pickedUpHoles.me } : {}),
+        } : null;
+        const teammateGameMetadata = (foursomeMeta || tmHasPickup) ? {
+          ...(foursomeMeta || {}),
+          ...(tmHasPickup ? { pickedUpHoles: pickedUpHoles.teammate } : {}),
+        } : null;
 
         const myPayload = {
           memberId: effectiveUserId,
@@ -421,7 +448,7 @@ function Play() {
         clearTimeout(serverSaveTimerRef.current);
       }
     };
-  }, [bookingId, booking, user, selectedTeammate, holeScores, step, courseData, gameMode, foursomeData, members]);
+  }, [bookingId, booking, user, selectedTeammate, holeScores, pickedUpHoles, step, courseData, gameMode, foursomeData, members]);
 
   useEffect(() => {
     if (!bookingId || bookings.length === 0) return;
@@ -708,7 +735,7 @@ function Play() {
     // iOS: 앱 전환 시 pagehide 발생 → localStorage 즉시 동기화 확인
     const handlePageHide = () => {
       if (!bookingId || step === 'selectMember') return;
-      const stateToSave = { holeScores, currentHole, selectedTeammate, step, roundStartTime, foursomeData };
+      const stateToSave = { holeScores, pickedUpHoles, currentHole, selectedTeammate, step, roundStartTime, foursomeData };
       localStorage.setItem(`play_state_${bookingId}`, JSON.stringify(stateToSave));
       console.log('📲 pagehide: localStorage 긴급 저장');
     };
@@ -1192,6 +1219,7 @@ function Play() {
         setRoundStartTime(Date.now());
         setCurrentHole(1);
         setHoleScores({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
+        setPickedUpHoles({ teammate: Array(18).fill(false), me: Array(18).fill(false) });
         setShowMismatches(false);
         setStep('scorecard');
         setIsStartingRound(false);
@@ -1543,6 +1571,7 @@ function Play() {
               setRoundStartTime(Date.now());
               setCurrentHole(1);
               setHoleScores({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
+              setPickedUpHoles({ teammate: Array(18).fill(false), me: Array(18).fill(false) });
               setShowMismatches(false);
               setStep('scorecard');
               setIsStartingRound(false);
@@ -1820,12 +1849,24 @@ function Play() {
     if (holeScores.me[i] > 0) { myUnder += holeScores.me[i]; myPar += (userParArr[i] || 0); }
   }
 
+  // 사용자가 직접 스코어를 수정하면 해당 홀의 Pickup 마크 자동 해제
+  const clearPickupFlag = (isTeammate) => {
+    setPickedUpHoles(prev => {
+      const key = isTeammate ? 'teammate' : 'me';
+      if (!prev[key][currentHole - 1]) return prev;
+      const arr = [...prev[key]];
+      arr[currentHole - 1] = false;
+      return { ...prev, [key]: arr };
+    });
+  };
+
   const updateScore = (isTeammate, delta) => {
     const newScores = { ...holeScores };
     const scoreArray = isTeammate ? [...newScores.teammate] : [...newScores.me];
     scoreArray[currentHole - 1] = Math.max(0, scoreArray[currentHole - 1] + delta);
     newScores[isTeammate ? 'teammate' : 'me'] = scoreArray;
     setHoleScores(newScores);
+    clearPickupFlag(isTeammate);
   };
 
   const setScoreValue = (isTeammate, value) => {
@@ -1834,6 +1875,7 @@ function Play() {
     scoreArray[currentHole - 1] = value;
     newScores[isTeammate ? 'teammate' : 'me'] = scoreArray;
     setHoleScores(newScores);
+    clearPickupFlag(isTeammate);
   };
 
   // 스코어 라벨 (PAR/BIRDIE/BOGEY 등)
@@ -1894,21 +1936,40 @@ function Play() {
     const siArr = courseData?.holeIndexes?.[isTeammate ? (selectedTeammate?.gender === 'F' ? 'female' : 'male') : (user?.gender === 'F' ? 'female' : 'male')]
       || courseData?.holeIndexes?.male || null;
     const hasSI = siArr && siArr.length === 18;
+    const hcpNum = Math.round(Number(handicap) || 0);
+    const strokesArr = hasSI ? allocateStrokes(hcpNum, siArr) : null;
     let holeStblPts = null;
     let cumulativeStbl = null;
     if (hasSI) {
-      const hcp = Math.round(Number(handicap) || 0);
-      const strokes = allocateStrokes(hcp, siArr);
       if (score > 0 && par) {
-        holeStblPts = stablefordPoints(score, par, strokes[currentHole - 1]);
+        holeStblPts = stablefordPoints(score, par, strokesArr[currentHole - 1]);
       }
-      const stblResult = calculateStableford(scoreArr, parArrForCalc, siArr, hcp);
+      const stblResult = calculateStableford(scoreArr, parArrForCalc, siArr, hcpNum);
       cumulativeStbl = stblResult?.total ?? null;
     }
 
     const handleParClick = () => {
       if (!par) return;
       setScoreValue(isTeammate, score === par ? 0 : par);
+    };
+
+    // Pickup: 넷 더블보기 = par + 추가스트로크 + 2 (스테이블포드 0점)
+    // 스코어와 Pickup 마크를 함께 set (clearPickupFlag 우회)
+    const handlePickupClick = () => {
+      if (!hasSI || !par) return;
+      const extra = strokesArr ? strokesArr[currentHole - 1] : 0;
+      const netDoubleBogey = par + extra + 2;
+      const key = isTeammate ? 'teammate' : 'me';
+      setHoleScores(prev => {
+        const arr = [...prev[key]];
+        arr[currentHole - 1] = netDoubleBogey;
+        return { ...prev, [key]: arr };
+      });
+      setPickedUpHoles(prev => {
+        const arr = [...prev[key]];
+        arr[currentHole - 1] = true;
+        return { ...prev, [key]: arr };
+      });
     };
 
     const btnBase = {
@@ -1932,16 +1993,6 @@ function Play() {
     const accentShadowSm = isFemale ? 'rgba(185,28,28,0.10)' : 'rgba(0,71,171,0.10)';
     const accentShadowLg = isFemale ? 'rgba(185,28,28,0.35)' : 'rgba(0,71,171,0.35)';
 
-    // 흰색 박스 공통 스타일
-    const whiteBox = {
-      background: '#fff',
-      borderRadius: s(12,10),
-      border: '1px solid #E8ECF0',
-      boxShadow: '0 1px 3px rgba(0,0,0,0.07)',
-      display: 'flex', flexDirection: 'column',
-      alignItems: 'center', justifyContent: 'center',
-    };
-
     return (
       <div style={{
         flex: 1, minHeight: 0,
@@ -1953,10 +2004,14 @@ function Play() {
         overflow: 'hidden',
         position: 'relative',
       }}>
-        {/* 상단: 이름 + HC 배지 */}
+        {/* 상단: 이름 + HC 배지 + NTP 버튼 (NTP 홀일 때 본인 카드만) */}
         <div style={{ padding: `${s(35,28)}px ${s(45,36)}px ${s(6,5)}px`, flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: s(8,6) }}>
-            <div style={{ fontSize: s(20,17), fontWeight: 800, color: '#111827', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+            <div style={{
+              fontSize: s(20,17), fontWeight: 800, color: '#111827',
+              letterSpacing: '-0.02em', lineHeight: 1.2,
+              minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}>
               {playerName}
             </div>
             <div style={{
@@ -1967,6 +2022,34 @@ function Play() {
             }}>
               HC {handicap}
             </div>
+            {isNtp && (
+              <button
+                onClick={() => { setNtpDistance(''); setShowNtpModal(true); }}
+                style={{
+                  ...btnBase,
+                  marginLeft: 'auto',
+                  background: '#38bdf8',
+                  color: '#fff',
+                  border: 'none',
+                  fontSize: s(11, 10),
+                  fontWeight: 800,
+                  letterSpacing: '0.05em',
+                  padding: `${s(5,4)}px ${s(11,9)}px`,
+                  borderRadius: 999,
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: s(5,4),
+                  flexShrink: 0,
+                  boxShadow: '0 2px 8px rgba(56,189,248,0.30)',
+                  animation: 'ntpBlink 1.2s ease-in-out infinite',
+                }}
+              >
+                <svg width={s(12,10)} height={s(12,10)} viewBox="0 0 24 24" fill="white" style={{ flexShrink: 0 }}>
+                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
+                </svg>
+                NTP
+              </button>
+            )}
           </div>
         </div>
 
@@ -2052,93 +2135,97 @@ function Play() {
           </div>
         </div>
 
-        {/* 하단: 회색 배경 + 흰색 독립 박스들 */}
+        {/* 하단: 회색 배경 + 단일 흰색 카드 (액션 + 정보 통합) */}
         <div style={{
           flexShrink: 0,
           background: '#F3F6F9',
           padding: `${s(14,11)}px ${s(12,10)}px`,
-          display: 'flex', alignItems: 'center',
-          gap: s(7,5),
         }}>
-          {/* PAR 흰색 박스 */}
-          <button
-            onClick={handleParClick}
-            style={{
-              ...btnBase,
-              ...whiteBox,
-              flex: 1.4,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: `${s(8,6)}px ${s(10,8)}px`,
-              height: s(82,70),
-            }}
-          >
+          <div style={{
+            background: '#fff',
+            borderRadius: s(12, 10),
+            border: '1px solid #E8ECF0',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.07)',
+            height: s(82, 70),
+            display: 'flex',
+            alignItems: 'center',
+            padding: `${s(8,6)}px ${s(10,8)}px`,
+            gap: s(10, 8),
+          }}>
+            {/* 좌측 액션: PAR 컬러박스 + P 버튼 */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: s(6, 5), flexShrink: 0 }}>
+              <button
+                onClick={handleParClick}
+                style={{
+                  ...btnBase,
+                  border: 'none',
+                  background: accent,
+                  borderRadius: s(10, 8),
+                  width: s(64, 54), height: s(62, 54),
+                  display: 'flex', flexDirection: 'column',
+                  alignItems: 'center', justifyContent: 'center',
+                  boxShadow: `0 2px 8px ${accentShadowSm}`,
+                }}
+              >
+                <div style={{ fontSize: s(10, 8), fontWeight: 700, color: 'rgba(255,255,255,0.78)', letterSpacing: '0.06em', lineHeight: 1 }}>PAR</div>
+                <div style={{ fontSize: s(22, 18), fontWeight: 900, color: '#fff', lineHeight: 1.1 }}>{par || '—'}</div>
+              </button>
+
+              {hasSI && (
+                <button
+                  onClick={handlePickupClick}
+                  title="Pickup (넷 더블보기로 기록)"
+                  style={{
+                    ...btnBase,
+                    width: s(38, 32), height: s(62, 54),
+                    border: '1.5px solid #CBD5E1',
+                    background: '#F1F5F9',
+                    color: '#334155',
+                    fontSize: s(17, 14),
+                    fontWeight: 800,
+                    borderRadius: s(10, 8),
+                    letterSpacing: '0.04em',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}
+                >
+                  P
+                </button>
+              )}
+            </div>
+
+            {/* 구분선 */}
+            <div style={{ width: 1, height: s(40, 34), background: '#E8ECF0', flexShrink: 0 }} />
+
+            {/* 우측 정보: TOTAL / O/U / STBL — 가벼운 라벨+숫자 텍스트 */}
             <div style={{
-              background: accent, borderRadius: s(10,8),
-              width: '100%', height: s(58,50), flexShrink: 0,
-              display: 'flex', flexDirection: 'column',
-              alignItems: 'center', justifyContent: 'center',
+              flex: 1,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-around',
+              gap: s(8, 6),
             }}>
-              <div style={{ fontSize: s(10,8), fontWeight: 700, color: 'rgba(255,255,255,0.75)', letterSpacing: '0.04em', lineHeight: 1 }}>PAR</div>
-              <div style={{ fontSize: s(22,18), fontWeight: 900, color: '#fff', lineHeight: 1.1 }}>{par || '—'}</div>
-            </div>
-          </button>
-
-          {/* NTP 흰색 박스 */}
-          {isNtp ? (
-            <button
-              onClick={() => { setNtpDistance(''); setShowNtpModal(true); }}
-              style={{
-                ...btnBase,
-                ...whiteBox,
-                width: s(72,60), height: s(82,70),
-                gap: s(4,3),
-                flexShrink: 0,
-              }}
-            >
-              <div style={{
-                width: s(30,26), height: s(30,26), borderRadius: 7,
-                background: '#38bdf8',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                animation: 'ntpBlink 1.2s ease-in-out infinite',
-              }}>
-                <svg width={s(16,13)} height={s(16,13)} viewBox="0 0 24 24" fill="white">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/>
-                </svg>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: s(3, 2) }}>
+                <div style={{ fontSize: s(10, 9), fontWeight: 700, color: '#94A3B8', letterSpacing: '0.10em' }}>TOTAL</div>
+                <div style={{ fontSize: s(20, 17), fontWeight: 800, color: totalScore > 0 ? '#111827' : '#CBD5E1', lineHeight: 1, letterSpacing: '-0.01em' }}>
+                  {totalScore > 0 ? totalScore : '—'}
+                </div>
               </div>
-              <div style={{ fontSize: s(10,9), fontWeight: 700, color: '#0369a1', letterSpacing: '0.05em' }}>NTP</div>
-            </button>
-          ) : (
-            // NTP 홀 아닐때: 빈 자리 유지 (레이아웃 일관성)
-            <div style={{ ...whiteBox, width: s(72,60), height: s(82,70), flexShrink: 0, opacity: 0 }} />
-          )}
-
-          {/* TOTAL 흰색 박스 */}
-          <div style={{ ...whiteBox, flex: 1, height: s(82,70), gap: s(3,2) }}>
-            <div style={{ fontSize: s(11,9), fontWeight: 700, color: '#94A3B8', letterSpacing: '0.08em' }}>TOTAL</div>
-            <div style={{ fontSize: s(23,19), fontWeight: 900, color: '#111827', lineHeight: 1 }}>
-              {totalScore > 0 ? totalScore : '—'}
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: s(3, 2) }}>
+                <div style={{ fontSize: s(10, 9), fontWeight: 700, color: '#94A3B8', letterSpacing: '0.10em' }}>O/U</div>
+                <div style={{ fontSize: s(20, 17), fontWeight: 800, color: totalScore > 0 ? ouColor : '#CBD5E1', lineHeight: 1, letterSpacing: '-0.01em' }}>
+                  {totalScore > 0 ? ouText : '—'}
+                </div>
+              </div>
+              {hasSI && (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: s(3, 2) }}>
+                  <div style={{ fontSize: s(10, 9), fontWeight: 700, color: '#94A3B8', letterSpacing: '0.10em' }}>STBL</div>
+                  <div style={{ fontSize: s(20, 17), fontWeight: 800, color: cumulativeStbl != null ? '#16a34a' : '#CBD5E1', lineHeight: 1, letterSpacing: '-0.01em' }}>
+                    {cumulativeStbl != null ? cumulativeStbl : '—'}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
-
-          {/* O/U 흰색 박스 */}
-          <div style={{ ...whiteBox, flex: 1, height: s(82,70), gap: s(3,2) }}>
-            <div style={{ fontSize: s(11,9), fontWeight: 700, color: '#94A3B8', letterSpacing: '0.08em' }}>O/U</div>
-            <div style={{ fontSize: s(23,19), fontWeight: 900, color: totalScore > 0 ? ouColor : '#94A3B8', lineHeight: 1 }}>
-              {totalScore > 0 ? ouText : '—'}
-            </div>
-          </div>
-
-          {/* STBL 흰색 박스 (SI 데이터 있을 때만) */}
-          {hasSI && (
-            <div style={{ ...whiteBox, flex: 1, height: s(82,70), gap: s(3,2) }}>
-              <div style={{ fontSize: s(11,9), fontWeight: 700, color: '#94A3B8', letterSpacing: '0.08em' }}>STBL</div>
-              <div style={{ fontSize: s(23,19), fontWeight: 900, color: cumulativeStbl != null ? '#16a34a' : '#94A3B8', lineHeight: 1 }}>
-                {cumulativeStbl != null ? cumulativeStbl : '—'}
-              </div>
-            </div>
-          )}
         </div>
       </div>
     );
@@ -2183,10 +2270,15 @@ function Play() {
       const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
       const coursePar = userParArr.reduce((a, b) => a + b, 0);
 
-      const myGameMetadata = gameMode === 'foursome' && foursomeData ? {
+      const foursomeMeta = gameMode === 'foursome' && foursomeData ? {
         partner: { name: foursomeData.partner?.nickname || foursomeData.partner?.name, phone: foursomeData.partner?.phone },
         opponents: foursomeData.opponents?.map(o => ({ name: o?.nickname || o?.name, phone: o?.phone })) || [],
         recordedBy: user?.nickname || user?.name,
+      } : null;
+      const myHasPickup = pickedUpHoles.me.some(Boolean);
+      const myGameMetadata = (foursomeMeta || myHasPickup) ? {
+        ...(foursomeMeta || {}),
+        ...(myHasPickup ? { pickedUpHoles: pickedUpHoles.me } : {}),
       } : null;
 
       const scoreData = {
@@ -2544,11 +2636,16 @@ function Play() {
                     const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
                     const coursePar = userParArr.reduce((a, b) => a + b, 0);
                     
-                    // 포썸 메타데이터 생성
-                    const myGameMetadata = gameMode === 'foursome' && foursomeData ? {
+                    // 포썸 메타데이터 + Pickup 마크 생성
+                    const foursomeMeta = gameMode === 'foursome' && foursomeData ? {
                       partner: { name: foursomeData.partner?.nickname || foursomeData.partner?.name, phone: foursomeData.partner?.phone },
                       opponents: foursomeData.opponents?.map(o => ({ name: o?.nickname || o?.name, phone: o?.phone })) || [],
                       recordedBy: user?.nickname || user?.name,
+                    } : null;
+                    const myHasPickup = pickedUpHoles.me.some(Boolean);
+                    const myGameMetadata = (foursomeMeta || myHasPickup) ? {
+                      ...(foursomeMeta || {}),
+                      ...(myHasPickup ? { pickedUpHoles: pickedUpHoles.me } : {}),
                     } : null;
                     
                     // 내 스코어 저장

@@ -54,6 +54,8 @@ router.get("/by-rounding/:roundingName", async (req, res) => {
         markerHoles: true,
         courseName: true,
         date: true,
+        gameMode: true,
+        gameMetadata: true,
         user: {
           select: {
             id: true,

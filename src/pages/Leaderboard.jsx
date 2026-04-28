@@ -155,6 +155,16 @@ function Leaderboard() {
         }
 
         const holesArray = typeof score.holes === 'string' ? JSON.parse(score.holes) : score.holes;
+        // gameMetadata에서 pickedUpHoles 파싱 (없으면 모두 false)
+        let pickedUpHoles = Array(18).fill(false);
+        try {
+          const meta = score.gameMetadata
+            ? (typeof score.gameMetadata === 'string' ? JSON.parse(score.gameMetadata) : score.gameMetadata)
+            : null;
+          if (meta && Array.isArray(meta.pickedUpHoles) && meta.pickedUpHoles.length === 18) {
+            pickedUpHoles = meta.pickedUpHoles.map(Boolean);
+          }
+        } catch { /* ignore */ }
         let completedHoles = holesArray?.filter(h => h > 0).length || 0;
         // 수동 입력된 총타수가 있으면 18홀 완료로 간주
         if (completedHoles === 0 && score.totalScore > 0) {
@@ -211,6 +221,7 @@ function Leaderboard() {
           netOverUnder,
           completedHoles,
           holes: holesArray || [],
+          pickedUpHoles,
           outScore,
           inScore,
           playedPar,
@@ -1186,6 +1197,9 @@ function Leaderboard() {
       {/* 스코어카드 모달 - Admin 페이지와 동일한 UI */}
       {selectedScore && (() => {
         const holes = selectedScore.holes || [];
+        const pickedUp = Array.isArray(selectedScore.pickedUpHoles) && selectedScore.pickedUpHoles.length === 18
+          ? selectedScore.pickedUpHoles
+          : Array(18).fill(false);
         const hasHoleData = Array.isArray(holes) && holes.some(h => h > 0);
         const parArr = coursePars.length > 0 ? coursePars : Array(18).fill(4);
         const rank = filteredScores.findIndex(s => s.odId === selectedScore.odId) + 1;
@@ -1205,12 +1219,14 @@ function Leaderboard() {
           const holeNumbers = [];
           const pars = [];
           const scoreArr = [];
+          const pickArr = [];
           const diffs = [];
 
           for (let i = startHole; i <= endHole; i++) {
             holeNumbers.push(i);
             pars.push(parArr[i - 1] || 4);
             scoreArr.push(holes[i - 1] || 0);
+            pickArr.push(!!pickedUp[i - 1]);
             diffs.push((holes[i - 1] || 0) - (parArr[i - 1] || 4));
           }
 
@@ -1281,9 +1297,10 @@ function Leaderboard() {
                 {scoreArr.map((s, idx) => {
                   const bgColor = s > 0 ? getScoreColor(s, pars[idx]) : 'transparent';
                   const hasColor = bgColor !== 'transparent';
+                  const isPicked = pickArr[idx];
                   return (
-                    <div key={`score-${idx}`} style={{ 
-                      textAlign: 'center', 
+                    <div key={`score-${idx}`} style={{
+                      textAlign: 'center',
                       padding: '8px 2px',
                       display: 'flex',
                       alignItems: 'center',
@@ -1301,7 +1318,7 @@ function Leaderboard() {
                         fontWeight: '700',
                         fontSize: '14px'
                       }}>
-                        {hasHoleData ? (s > 0 ? s : '-') : '-'}
+                        {hasHoleData ? (isPicked ? 'P' : (s > 0 ? s : '-')) : '-'}
                       </span>
                     </div>
                   );
