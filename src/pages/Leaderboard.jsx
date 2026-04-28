@@ -961,9 +961,9 @@ function Leaderboard() {
                 minWidth: '80px',
                 padding: '9px 16px',
                 borderRadius: '8px',
-                border: !stablefordMode ? 'none' : '1px solid rgba(14,165,233,0.5)',
-                background: !stablefordMode ? '#0ea5e9' : 'transparent',
-                color: !stablefordMode ? 'white' : '#0ea5e9',
+                border: !stablefordMode ? 'none' : '1px solid rgba(251,146,60,0.5)',
+                background: !stablefordMode ? '#fb923c' : 'transparent',
+                color: !stablefordMode ? 'white' : '#fb923c',
                 fontSize: '12px',
                 fontWeight: '700',
                 letterSpacing: '0.04em',
@@ -980,9 +980,9 @@ function Leaderboard() {
                   minWidth: '80px',
                   padding: '9px 16px',
                   borderRadius: '8px',
-                  border: stablefordMode ? 'none' : '1px solid rgba(81,207,102,0.5)',
-                  background: stablefordMode ? '#51cf66' : 'transparent',
-                  color: stablefordMode ? 'white' : '#51cf66',
+                  border: stablefordMode ? 'none' : '1px solid rgba(14,165,233,0.5)',
+                  background: stablefordMode ? '#0ea5e9' : 'transparent',
+                  color: stablefordMode ? 'white' : '#0ea5e9',
                   fontSize: '12px',
                   fontWeight: '700',
                   letterSpacing: '0.04em',
@@ -1030,7 +1030,7 @@ function Leaderboard() {
 
           <div style={{ padding: '0 16px' }}>
             {(() => {
-              const modeColor = stablefordMode ? '#51cf66' : '#0ea5e9';
+              const modeColor = stablefordMode ? '#0ea5e9' : '#fb923c';
               const gridCols = stablefordMode
                 ? '32px 1fr 38px 36px 36px 50px 50px'
                 : '32px 1fr 38px 36px 36px 50px 40px 44px';
@@ -1075,7 +1075,7 @@ function Leaderboard() {
               filteredScores.map((score, index) => {
                 const rankIcon = index === 0 ? '🥇 ' : index === 1 ? '🥈 ' : index === 2 ? '🥉 ' : '';
                 const isTopRank = index < 3;
-                const modeColor = stablefordMode ? '#51cf66' : '#0ea5e9';
+                const modeColor = stablefordMode ? '#0ea5e9' : '#fb923c';
                 const gridCols = stablefordMode
                   ? '32px 1fr 38px 36px 36px 50px 50px'
                   : '32px 1fr 38px 36px 36px 50px 40px 44px';
