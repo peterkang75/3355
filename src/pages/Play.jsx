@@ -1910,6 +1910,7 @@ function Play() {
 
     const scoreLabel = getScoreLabel(score, par);
     const isNtp = !isTeammate && courseData?.nearHoles?.[currentHole - 1];
+    const isPicked = isTeammate ? !!pickedUpHoles.teammate[currentHole - 1] : !!pickedUpHoles.me[currentHole - 1];
 
     // 선수명 및 핸디 (포썸 모드 포함)
     let playerName, handicap;
@@ -2080,14 +2081,14 @@ function Play() {
               −
             </button>
 
-            {/* 스코어 숫자 */}
+            {/* 스코어 숫자 (Pickup 시 'P' 표시 — 내부 점수는 그대로) */}
             <div style={{
               fontSize: s(56, 46), fontWeight: 800,
-              color: score > 0 ? '#111827' : '#D1D5DB',
+              color: isPicked ? '#475569' : (score > 0 ? '#111827' : '#D1D5DB'),
               lineHeight: 1, minWidth: s(68, 56), textAlign: 'center',
               letterSpacing: '-0.03em',
             }}>
-              {score}
+              {isPicked ? 'P' : score}
             </div>
 
             {/* 플러스 버튼 - 솔리드 블루 */}
@@ -2115,10 +2116,10 @@ function Play() {
           }}>
             <div style={{
               fontSize: s(11, 10), fontWeight: 800,
-              color: scoreLabel ? scoreLabel.color : '#D1D5DB',
+              color: isPicked ? '#64748B' : (scoreLabel ? scoreLabel.color : '#D1D5DB'),
               letterSpacing: '0.10em',
             }}>
-              {scoreLabel ? scoreLabel.text : (par ? 'PAR' : '—')}
+              {isPicked ? 'PICKUP' : (scoreLabel ? scoreLabel.text : (par ? 'PAR' : '—'))}
             </div>
             {hasSI && holeStblPts != null && (
               <div style={{
@@ -2177,14 +2178,14 @@ function Play() {
                   title="Pickup (넷 더블보기로 기록)"
                   style={{
                     ...btnBase,
-                    width: s(38, 32), height: s(62, 54),
+                    width: s(64, 54), height: s(62, 54),
                     border: '1.5px solid #CBD5E1',
                     background: '#F1F5F9',
                     color: '#334155',
-                    fontSize: s(17, 14),
-                    fontWeight: 800,
+                    fontSize: s(22, 18),
+                    fontWeight: 900,
                     borderRadius: s(10, 8),
-                    letterSpacing: '0.04em',
+                    letterSpacing: '0.02em',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}
                 >
