@@ -1060,6 +1060,59 @@ Railway 도메인에서 확인
 
 ---
 
+### 2026-04-28 (Day 12 — 추가) — 공지사항 게시글/댓글 수정·삭제 기능
+
+#### ✅ 완료
+
+- [x] **공지사항 페이지(Board.jsx) ⋮ 메뉴 + 수정·삭제 UI 추가**
+  - 게시글 헤더 우측에 점 세 개(⋮) 버튼 — 본인 글이거나 관리자(사장님)인 경우만 노출
+  - 수정: 인라인 폼(제목/내용 textarea + 저장/취소)
+  - 삭제: confirm 후 soft delete (`isActive=false`로 숨김, DB 보존)
+  - 댓글 영역도 동일 패턴 (본인 댓글 또는 관리자만 ⋮ 노출)
+  - 외부 클릭 시 메뉴 자동 닫힘
+
+- [x] **백엔드 권한 검사 보강 — 보안 구멍 패치**
+  - `canManagePost(member, post)`, `canManageComment(member, comment)` 헬퍼 추가 (server/middleware/auth.js)
+  - 게시글 작성자 본인 + 관리자(`관리자`/`방장` 역할 또는 `isAdmin=true`)만 수정/삭제 통과
+  - PUT /api/posts/:id — 화이트리스트 필드(`title`/`content`/`isFeatured`/`isActive`)만 업데이트, 나머지 무시
+  - DELETE/toggle-active/toggle-featured 모두 권한 검사 추가 (이전에 누구나 호출 가능했음)
+
+- [x] **댓글/좋아요 전용 엔드포인트 신설**
+  - `POST /api/posts/:id/comments` — 댓글 추가, 백엔드가 `authorId` 자동 부여
+  - `PATCH /api/posts/:id/comments/:commentId` — 댓글 수정 (작성자 본인 or 관리자)
+  - `DELETE /api/posts/:id/comments/:commentId` — 댓글 삭제 (hard)
+  - `PATCH /api/posts/:id/comments/:commentId/like` — 댓글 좋아요 토글
+  - `PATCH /api/posts/:id/like` — 게시글 좋아요 토글
+
+- [x] **DashboardBoard.jsx 회귀 방지 마이그레이션**
+  - 기존 `updatePost`로 comments/likes 통째 보내기 패턴 → 신규 전용 엔드포인트 사용
+  - 댓글 추가/수정/삭제, 게시글/댓글 좋아요 모두 정상 작동
+
+- [x] **클라이언트 API 메서드 추가** (src/services/api.js)
+  - `softDeletePost`, `addComment`, `updateComment`, `deleteComment`, `toggleCommentLike`, `togglePostLike`
+  - 기존 `deletePost`에 누락된 auth 헤더 추가
+
+- [x] **권한 유틸 추가** (src/utils/index.js)
+  - `canManagePost(user, post)`, `canManageComment(user, comment)` — 프론트엔드 ⋮ 노출 조건 일원화
+
+#### 🗂 영향 파일
+- `server/middleware/auth.js` (권한 헬퍼 + select 필드 확장)
+- `server/routes/posts.js` (라우트 권한 검사 + 댓글/좋아요 전용 엔드포인트 추가)
+- `src/services/api.js` (신규 메서드)
+- `src/utils/index.js` (권한 유틸)
+- `src/pages/Board.jsx` (⋮ 메뉴 UI + 인라인 편집 폼)
+- `src/components/dashboard/DashboardBoard.jsx` (댓글/좋아요 핸들러 마이그레이션)
+
+#### 📌 메모
+- 삭제는 soft delete 채택 — 잘못 지운 글은 DB에서 `isActive=true`로 복구 가능
+- 기존 댓글(authorId 없음)은 본인 식별 불가 → 관리자만 수정/삭제 가능
+- 수정됨 표시는 사장님 결정으로 미적용
+- 향후 작업: 삭제된 글 복구 UI(관리자 페이지), 대시보드 위젯 "삭제" hard delete 일관성 정리
+- 설계서: `docs/superpowers/specs/2026-04-28-post-edit-delete-design.md`
+- 구현 계획서: `docs/superpowers/plans/2026-04-28-post-edit-delete.md`
+
+---
+
 > **현재 상태:** Phase 1 ✅ / Phase 2 ✅ / Phase 3 ✅ / Phase 4 ✅ / Phase 5 ⏸️ / Phase 6 ✅ / Phase 7 ⬜ / Phase 8 진행 중 (8A✅ 8B✅ 8C✅(스테이블포드 + Pickup) 8D~8E ⬜)
 > **현재 우선순위:** Phase 8-D (Google Maps 나머지) → 8-E (2BBB/포썸 점검) → Phase 7
 > **참조:** 모든 작업 시작 전/후 이 문서 확인 및 업데이트 필수
