@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketContext';
 import PageHeader from '../components/common/PageHeader';
-import { stablefordPoints, allocateStrokes, calculateStableford } from '../utils/stableford';
+import { stablefordPoints, allocateStrokes } from '../utils/stableford';
 
 function Play() {
   const navigate = useNavigate();
@@ -1945,8 +1945,16 @@ function Play() {
       if (score > 0 && par) {
         holeStblPts = stablefordPoints(score, par, strokesArr[currentHole - 1]);
       }
-      const stblResult = calculateStableford(scoreArr, parArrForCalc, siArr, hcpNum);
-      cumulativeStbl = stblResult?.total ?? null;
+      // 현재 홀까지의 누적 STBL만 계산 (TOTAL/O/U와 동일 범위)
+      let stblSum = 0;
+      let anyScored = false;
+      for (let i = 0; i < currentHole; i++) {
+        if (scoreArr[i] > 0) {
+          stblSum += stablefordPoints(scoreArr[i], parArrForCalc[i] || 4, strokesArr[i]);
+          anyScored = true;
+        }
+      }
+      cumulativeStbl = anyScored ? stblSum : null;
     }
 
     const handleParClick = () => {
