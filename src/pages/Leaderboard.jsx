@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
+import { useSocket } from '../contexts/SocketContext';
 import { calculateStableford } from '../utils/stableford';
 
 function Leaderboard() {
@@ -10,6 +11,7 @@ function Leaderboard() {
   const autoSelectUserId = searchParams.get('userId');
   const openScorecard = searchParams.get('openScorecard') === 'true';
   const { bookings, members, courses } = useApp();
+  const socket = useSocket();
   
   const [booking, setBooking] = useState(null);
   const [scores, setScores] = useState([]);
@@ -54,21 +56,16 @@ function Leaderboard() {
       .catch(() => setLoading(false));
   }, [bookingId, bookings]);
 
+  // 점수 변경 시 실시간 자동 갱신 (Socket.IO)
+  // 기존 30초 polling + 3분 페이지 reload 제거 — 깜빡임 / 모드 토글 리셋 문제 해결
   useEffect(() => {
-    if (!booking) return;
-    const interval = setInterval(() => {
-      fetchScores(booking, true);
-    }, 30000);
-    
-    const pageRefreshInterval = setInterval(() => {
-      window.location.reload();
-    }, 180000);
-    
+    if (!booking || !socket) return;
+    const handleScoresUpdated = () => fetchScores(booking, true);
+    socket.on('scores:updated', handleScoresUpdated);
     return () => {
-      clearInterval(interval);
-      clearInterval(pageRefreshInterval);
+      socket.off('scores:updated', handleScoresUpdated);
     };
-  }, [booking]);
+  }, [booking, socket]);
 
   const fetchScores = async (booking, silent = false) => {
     try {
