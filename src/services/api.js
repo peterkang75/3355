@@ -214,6 +214,16 @@ class ApiService {
     return response.json();
   }
 
+  async togglePostLike(postId) {
+    const response = await fetch(`${API_BASE}/posts/${postId}/like`, {
+      method: 'PATCH',
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error('Failed to toggle post like');
+    this.invalidateCache('posts');
+    return response.json();
+  }
+
   async addComment(postId, content) {
     const response = await fetch(`${API_BASE}/posts/${postId}/comments`, {
       method: 'POST',
