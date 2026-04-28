@@ -141,6 +141,65 @@ router.patch("/:id/toggle-active", requireAuth, async (req, res) => {
   }
 });
 
+// 게시글 좋아요 토글: 로그인한 회원이면 누구나
+router.patch("/:id/like", requireAuth, async (req, res) => {
+  try {
+    const post = await prisma.post.findUnique({ where: { id: req.params.id } });
+    if (!post) return res.status(404).json({ error: "Post not found" });
+
+    const memberId = req.member.id;
+    const likes = Array.isArray(post.likes) ? post.likes : [];
+    const hasLiked = likes.includes(memberId);
+    const updatedLikes = hasLiked ? likes.filter(id => id !== memberId) : [...likes, memberId];
+
+    await prisma.post.update({
+      where: { id: req.params.id },
+      data: { likes: updatedLikes },
+    });
+
+    req.io.emit("posts:updated");
+    res.json({ success: true, liked: !hasLiked });
+  } catch (error) {
+    console.error("Error toggling post like:", error);
+    res.status(500).json({ error: "Failed to toggle post like" });
+  }
+});
+
+// 댓글 추가: 로그인한 회원이면 누구나
+router.post("/:id/comments", requireAuth, async (req, res) => {
+  try {
+    const { content } = req.body;
+    if (typeof content !== 'string' || !content.trim()) {
+      return res.status(400).json({ error: "content가 비어있습니다." });
+    }
+
+    const post = await prisma.post.findUnique({ where: { id: req.params.id } });
+    if (!post) return res.status(404).json({ error: "Post not found" });
+
+    const comments = Array.isArray(post.comments) ? post.comments : [];
+    const newComment = {
+      id: Date.now(),
+      content: content.trim(),
+      authorId: req.member.id,
+      author: req.member.nickname || req.member.name || '회원',
+      authorPhoto: req.member.photo || null,
+      date: new Date().toISOString(),
+      likes: [],
+    };
+
+    await prisma.post.update({
+      where: { id: req.params.id },
+      data: { comments: [...comments, newComment] },
+    });
+
+    req.io.emit("posts:updated");
+    res.json({ success: true, comment: newComment });
+  } catch (error) {
+    console.error("Error adding comment:", error);
+    res.status(500).json({ error: "Failed to add comment" });
+  }
+});
+
 // 댓글 수정: 댓글 작성자 본인 + 관리자
 router.patch("/:id/comments/:commentId", requireAuth, async (req, res) => {
   try {

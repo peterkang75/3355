@@ -12,7 +12,7 @@ async function requireAuth(req, res, next) {
 
     const member = await prisma.member.findUnique({
       where: { id: memberId },
-      select: { id: true, isAdmin: true, role: true, isActive: true, approvalStatus: true },
+      select: { id: true, name: true, nickname: true, photo: true, isAdmin: true, role: true, isActive: true, approvalStatus: true },
     });
 
     if (!member || !member.isActive || member.approvalStatus !== 'approved') {
@@ -38,7 +38,7 @@ async function requireAuthOrGuest(req, res, next) {
 
     const member = await prisma.member.findUnique({
       where: { id: memberId },
-      select: { id: true, isAdmin: true, role: true, isActive: true, approvalStatus: true, isGuest: true },
+      select: { id: true, name: true, nickname: true, photo: true, isAdmin: true, role: true, isActive: true, approvalStatus: true, isGuest: true },
     });
 
     if (!member) {
