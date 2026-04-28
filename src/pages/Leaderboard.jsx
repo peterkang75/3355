@@ -523,7 +523,7 @@ function Leaderboard() {
   })();
 
   const getAvailableGradeFilters = () => {
-    const filters = ['ALL'];
+    const filters = [];
     if (!bookingGradeSettings) return filters;
     
     const gradeA = bookingGradeSettings.gradeA || { type: 'below', value: '' };
@@ -659,7 +659,7 @@ function Leaderboard() {
           </h1>
         </div>
         <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', marginTop: '8px' }}>
-          {booking?.type || 'Stableford'}
+          {booking?.courseName || '-'}
         </div>
       </div>
 
@@ -995,36 +995,38 @@ function Leaderboard() {
             )}
           </div>
 
-          {/* 그레이드 탭 — 2번 줄 */}
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '4px',
-            padding: '0 8px 12px'
-          }}>
-            {gradeFilters.map(g => (
-              <button
-                key={g}
-                onClick={() => setFilter(g)}
-                style={{
-                  flex: '1',
-                  maxWidth: '70px',
-                  padding: '8px 4px',
-                  borderRadius: '4px',
-                  border: filter === g ? '2px solid white' : '1px solid rgba(255,255,255,0.3)',
-                  background: filter === g ? 'rgba(255,255,255,0.2)' : 'transparent',
-                  color: 'white',
-                  fontSize: '11px',
-                  fontWeight: filter === g ? '600' : '400',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                {g}
-              </button>
-            ))}
-          </div>
+          {/* 그레이드 탭 — 2번 줄 (그레이드 설정된 라운딩만 노출, 같은 버튼 재선택 시 해제) */}
+          {gradeFilters.length > 0 && (
+            <div style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              gap: '4px',
+              padding: '0 8px 12px'
+            }}>
+              {gradeFilters.map(g => (
+                <button
+                  key={g}
+                  onClick={() => setFilter(filter === g ? 'ALL' : g)}
+                  style={{
+                    flex: '1',
+                    maxWidth: '70px',
+                    padding: '8px 4px',
+                    borderRadius: '4px',
+                    border: filter === g ? '2px solid white' : '1px solid rgba(255,255,255,0.3)',
+                    background: filter === g ? 'rgba(255,255,255,0.2)' : 'transparent',
+                    color: 'white',
+                    fontSize: '11px',
+                    fontWeight: filter === g ? '600' : '400',
+                    cursor: 'pointer',
+                    whiteSpace: 'nowrap'
+                  }}
+                >
+                  {g}
+                </button>
+              ))}
+            </div>
+          )}
 
           <div style={{ padding: '0 16px' }}>
             {(() => {
