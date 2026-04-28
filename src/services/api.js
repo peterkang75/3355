@@ -186,7 +186,8 @@ class ApiService {
 
   async deletePost(id) {
     const response = await fetch(`${API_BASE}/posts/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to delete post');
     this.invalidateCache('posts');
@@ -199,6 +200,58 @@ class ApiService {
       headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to toggle featured post');
+    this.invalidateCache('posts');
+    return response.json();
+  }
+
+  async softDeletePost(id) {
+    const response = await fetch(`${API_BASE}/posts/${id}/toggle-active`, {
+      method: 'PATCH',
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error('Failed to soft-delete post');
+    this.invalidateCache('posts');
+    return response.json();
+  }
+
+  async addComment(postId, content) {
+    const response = await fetch(`${API_BASE}/posts/${postId}/comments`, {
+      method: 'POST',
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ content }),
+    });
+    if (!response.ok) throw new Error('Failed to add comment');
+    this.invalidateCache('posts');
+    return response.json();
+  }
+
+  async updateComment(postId, commentId, content) {
+    const response = await fetch(`${API_BASE}/posts/${postId}/comments/${commentId}`, {
+      method: 'PATCH',
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ content }),
+    });
+    if (!response.ok) throw new Error('Failed to update comment');
+    this.invalidateCache('posts');
+    return response.json();
+  }
+
+  async deleteComment(postId, commentId) {
+    const response = await fetch(`${API_BASE}/posts/${postId}/comments/${commentId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error('Failed to delete comment');
+    this.invalidateCache('posts');
+    return response.json();
+  }
+
+  async toggleCommentLike(postId, commentId) {
+    const response = await fetch(`${API_BASE}/posts/${postId}/comments/${commentId}/like`, {
+      method: 'PATCH',
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error('Failed to toggle comment like');
     this.invalidateCache('posts');
     return response.json();
   }
