@@ -96,15 +96,18 @@ function Leaderboard() {
 
       const course = courses.find(c => c.name === booking.courseName);
       const holePars = course?.holePars?.male || Array(18).fill(4);
-      setCoursePars(holePars);
       const calculatedCoursePar = holePars.reduce((a, b) => a + b, 0) || 72;
 
       const siAvailable = !!(
         (course?.holeIndexes?.male && course.holeIndexes.male.length === 18) ||
         (course?.holeIndexes?.female && course.holeIndexes.female.length === 18)
       );
-      setHasStableford(siAvailable);
-      setCourseHoleIndexes(course?.holeIndexes?.male || null);
+      // course가 매칭됐을 때만 코스 의존 state 업데이트 — 새로고침 시 courses 일시 비어 있어도 STBL 사라지는 버그 방지
+      if (course) {
+        setCoursePars(holePars);
+        setHasStableford(siAvailable);
+        setCourseHoleIndexes(course?.holeIndexes?.male || null);
+      }
 
       // 참가자 정보 파싱 (게스트 핸디캡용)
       const participants = booking.participants?.map(p => {
