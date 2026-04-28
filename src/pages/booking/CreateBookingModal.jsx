@@ -681,6 +681,7 @@ export default function CreateBookingModal({
 
                 {newRounding.courseName && (
                   <div style={sectionStyle}>
+                    {newRounding.roundingType !== 'competition' && (
                     <div style={{ marginBottom: '14px' }}>
                       <label style={labelStyle}>최대 인원</label>
                       <div style={{ display: 'flex', gap: '8px' }}>
@@ -692,6 +693,7 @@ export default function CreateBookingModal({
                         ))}
                       </div>
                     </div>
+                    )}
                     <div>
                       <label style={labelStyle}>메모 (선택)</label>
                       <textarea value={newRounding.notes} onChange={(e) => onChangeNewRounding({ ...newRounding, notes: e.target.value })} placeholder="추가 정보를 입력하세요" rows={2} style={{ ...inputStyle, resize: 'none' }} />

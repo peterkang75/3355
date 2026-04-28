@@ -361,7 +361,7 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
         <InputRow label="날짜" field="date" placeholder="" type="date" />
         <InputRow label="집합 시간" field="gatheringTime" placeholder="예: 07:30" type="time" />
         <InputRow label="등록 마감일" field="registrationDeadline" placeholder="" type="datetime-local" />
-        <InputRow label="최대 인원" field="maxMembers" placeholder="28" type="number" />
+        {hmType !== '컴페티션' && <InputRow label="최대 인원" field="maxMembers" placeholder="28" type="number" />}
       </div>
 
       {/* ── 라운딩 설정 통합 카드 ── */}
