@@ -1398,11 +1398,12 @@ function Leaderboard() {
                   </span>
                 </div>
 
+                {/* STROKE 섹션: par 대비 +- — STROKE 대표색(orange #fb923c)으로 통일 */}
                 {diffs.map((d, idx) => (
-                  <div key={`diff-${idx}`} style={{ 
-                    textAlign: 'center', 
+                  <div key={`diff-${idx}`} style={{
+                    textAlign: 'center',
                     padding: '6px 4px',
-                    color: d < 0 ? '#e74c3c' : d > 0 ? '#3498db' : '#999',
+                    color: hasHoleData && scoreArr[idx] > 0 ? '#fb923c' : '#666',
                     fontSize: '11px',
                     fontWeight: '500'
                   }}>
@@ -1412,29 +1413,24 @@ function Leaderboard() {
                 <div style={{
                   textAlign: 'center',
                   padding: '6px 4px',
-                  color: totalDiff < 0 ? '#e74c3c' : totalDiff > 0 ? '#3498db' : '#999',
+                  color: hasHoleData && totalScore > 0 ? '#fb923c' : '#666',
                   fontSize: '11px',
-                  fontWeight: '600'
+                  fontWeight: '700'
                 }}>
                   {hasHoleData && totalScore > 0 ? (totalDiff > 0 ? `+${totalDiff}` : totalDiff) : ''}
                 </div>
 
+                {/* STBL 섹션: 홀별 stableford 점수 — STBL 대표색(sky blue #0ea5e9)으로 통일 */}
                 {hasStableford && selectedScore.stablefordPerHole && (() => {
                   const stblSlice = selectedScore.stablefordPerHole.slice(startHole - 1, endHole);
                   const stblTotal = stblSlice.reduce((a, b) => a + b, 0);
-                  const getStblColor = (pts) => {
-                    if (pts >= 3) return '#51cf66';
-                    if (pts === 2) return '#999';
-                    if (pts === 1) return '#F19E38';
-                    return '#ff6b6b';
-                  };
                   return (
                     <>
                       {stblSlice.map((pts, idx) => (
                         <div key={`stbl-${idx}`} style={{
                           textAlign: 'center',
                           padding: '6px 4px',
-                          color: hasHoleData && scoreArr[idx] > 0 ? getStblColor(pts) : '#666',
+                          color: hasHoleData && scoreArr[idx] > 0 ? '#0ea5e9' : '#666',
                           fontSize: '11px',
                           fontWeight: '600',
                           background: 'rgba(255,255,255,0.03)'
@@ -1445,7 +1441,7 @@ function Leaderboard() {
                       <div style={{
                         textAlign: 'center',
                         padding: '6px 4px',
-                        color: '#51cf66',
+                        color: '#0ea5e9',
                         fontSize: '11px',
                         fontWeight: '700',
                         background: 'rgba(255,255,255,0.03)'
