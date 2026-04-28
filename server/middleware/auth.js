@@ -82,4 +82,21 @@ function requireAdmin(req, res, next) {
   next();
 }
 
-module.exports = { requireAuth, requireAuthOrGuest, requireOperator, requireAdmin };
+// 게시글 관리 권한: 작성자 본인 + 관리자(관리자/방장 역할) + isAdmin=true
+function canManagePost(member, post) {
+  if (!member || !post) return false;
+  if (member.id === post.authorId) return true;
+  if (member.isAdmin) return true;
+  return isAdmin(member);
+}
+
+// 댓글 관리 권한: 댓글 작성자 본인 + 관리자
+// 기존 댓글(authorId 없음)은 관리자만 관리 가능
+function canManageComment(member, comment) {
+  if (!member || !comment) return false;
+  if (comment.authorId && member.id === comment.authorId) return true;
+  if (member.isAdmin) return true;
+  return isAdmin(member);
+}
+
+module.exports = { requireAuth, requireAuthOrGuest, requireOperator, requireAdmin, canManagePost, canManageComment };
