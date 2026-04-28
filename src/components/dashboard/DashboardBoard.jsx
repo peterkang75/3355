@@ -3,6 +3,7 @@ import { useApp } from '../../contexts/AppContext';
 import LoadingButton from '../LoadingButton';
 import { Card, Button } from '../common';
 import { checkIsOperator } from '../../utils';
+import apiService from '../../services/api';
 
 const ChevronIcon = ({ open }) => (
   <svg className={`chevron${open ? ' open' : ''}`} width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -77,34 +78,25 @@ export default function DashboardBoard() {
     }
     setIsAddingComment(postId);
     try {
-      const post = posts.find(p => p.id === postId);
-      const updatedComments = [...(post.comments || []), {
-        id: Date.now(), content: newComment,
-        author: user.nickname || user.name, authorId: user.id,
-        authorPhoto: user.photo, date: new Date().toISOString(), likes: []
-      }];
-      await updatePost(postId, { comments: updatedComments });
+      await apiService.addComment(postId, newComment);
+      await refreshAllData();
       setNewComment('');
     } catch { alert('댓글 작성에 실패했습니다.'); }
     finally { setIsAddingComment(null); }
   };
 
-  const handleLikePost = (postId) => {
-    const post = posts.find(p => p.id === postId);
-    const likes = post.likes || [];
-    const hasLiked = likes.includes(user.id);
-    updatePost(postId, { likes: hasLiked ? likes.filter(id => id !== user.id) : [...likes, user.id] });
+  const handleLikePost = async (postId) => {
+    try {
+      await apiService.togglePostLike(postId);
+      await refreshAllData();
+    } catch { alert('좋아요 처리에 실패했습니다.'); }
   };
 
-  const handleLikeComment = (postId, commentId) => {
-    const post = posts.find(p => p.id === postId);
-    const updatedComments = post.comments.map(c => {
-      if (c.id !== commentId) return c;
-      const likes = c.likes || [];
-      const hasLiked = likes.includes(user.id);
-      return { ...c, likes: hasLiked ? likes.filter(id => id !== user.id) : [...likes, user.id] };
-    });
-    updatePost(postId, { comments: updatedComments });
+  const handleLikeComment = async (postId, commentId) => {
+    try {
+      await apiService.toggleCommentLike(postId, commentId);
+      await refreshAllData();
+    } catch { alert('좋아요 처리에 실패했습니다.'); }
   };
 
   const handleDeletePost = async (postId) => {
@@ -136,11 +128,8 @@ export default function DashboardBoard() {
   const handleUpdateComment = async () => {
     if (!editingComment.content.trim()) { alert('댓글 내용을 입력해주세요.'); return; }
     try {
-      const post = posts.find(p => p.id === editingComment.postId);
-      const updatedComments = post.comments.map(c =>
-        c.id === editingComment.commentId ? { ...c, content: editingComment.content } : c
-      );
-      await updatePost(editingComment.postId, { comments: updatedComments });
+      await apiService.updateComment(editingComment.postId, editingComment.commentId, editingComment.content);
+      await refreshAllData();
       setEditingComment(null);
     } catch { alert('댓글 수정에 실패했습니다.'); }
   };
@@ -148,8 +137,8 @@ export default function DashboardBoard() {
   const handleDeleteComment = async (postId, commentId) => {
     if (!window.confirm('이 댓글을 삭제하시겠습니까?')) return;
     try {
-      const post = posts.find(p => p.id === postId);
-      await updatePost(postId, { comments: post.comments.filter(c => c.id !== commentId) });
+      await apiService.deleteComment(postId, commentId);
+      await refreshAllData();
       setOpenMenuCommentId(null);
     } catch { alert('댓글 삭제에 실패했습니다.'); }
   };
