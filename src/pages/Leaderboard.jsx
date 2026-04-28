@@ -195,7 +195,7 @@ function Leaderboard() {
         
         const outScore = holesArray?.slice(0, 9).reduce((a, b) => a + b, 0) || 0;
         const inScore = holesArray?.slice(9, 18).reduce((a, b) => a + b, 0) || 0;
-        
+
         const hcp = Math.round(Number(handicap) || 0);
         const netScore = totalScore - hcp;
         const netOverUnder = netScore - playedPar;
@@ -206,6 +206,24 @@ function Leaderboard() {
         const stableford = siAvailable && playerSI?.length === 18 && holesArray?.some(h => h > 0)
           ? calculateStableford(holesArray, playerPars, playerSI, hcp)
           : null;
+
+        // OUT/IN 진행 친 홀 기준의 par/diff/stbl 계산 — 9홀 미진행 홀은 합산 제외
+        let outAny = false, inAny = false;
+        let outPar = 0, inPar = 0;
+        if (Array.isArray(holesArray) && holesArray.length === 18) {
+          for (let i = 0; i < 9; i++) {
+            if (holesArray[i] > 0) { outPar += playerPars[i] || 4; outAny = true; }
+          }
+          for (let i = 9; i < 18; i++) {
+            if (holesArray[i] > 0) { inPar += playerPars[i] || 4; inAny = true; }
+          }
+        }
+        const outDiff = outAny ? outScore - outPar : null;
+        const inDiff = inAny ? inScore - inPar : null;
+        const outStbl = (outAny && stableford?.perHole)
+          ? stableford.perHole.slice(0, 9).reduce((a, b) => a + b, 0) : null;
+        const inStbl = (inAny && stableford?.perHole)
+          ? stableford.perHole.slice(9, 18).reduce((a, b) => a + b, 0) : null;
 
         return {
           odId: score.userId,
@@ -224,6 +242,10 @@ function Leaderboard() {
           pickedUpHoles,
           outScore,
           inScore,
+          outDiff,
+          inDiff,
+          outStbl,
+          inStbl,
           playedPar,
           stablefordTotal: stableford?.total ?? null,
           stablefordPerHole: stableford?.perHole ?? null
@@ -627,26 +649,14 @@ function Leaderboard() {
           alignItems: 'center',
           gap: '10px'
         }}>
-          <h1 style={{ 
-            color: 'white', 
-            fontSize: '18px', 
+          <h1 style={{
+            color: 'white',
+            fontSize: '18px',
             fontWeight: '700',
             margin: 0
           }}>
             {booking?.title || 'LEADERBOARD'}
           </h1>
-          <button style={{
-            background: 'rgba(255,255,255,0.1)',
-            border: '1px solid rgba(255,255,255,0.3)',
-            borderRadius: '50%',
-            width: '28px',
-            height: '28px',
-            color: 'white',
-            cursor: 'pointer',
-            fontSize: '14px'
-          }}>
-            ⋯
-          </button>
         </div>
         <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', marginTop: '8px' }}>
           {booking?.type || 'Stableford'}
@@ -937,13 +947,61 @@ function Leaderboard() {
         </div>
       ) : (
         <>
-          {/* 그레이드 탭 + 스테이블포드 토글 */}
+          {/* 모드 토글 (STROKE / STBL) — 1번 줄 */}
+          <div style={{
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '10px',
+            padding: '12px 8px 6px'
+          }}>
+            <button
+              onClick={() => setStablefordMode(false)}
+              style={{
+                minWidth: '80px',
+                padding: '9px 16px',
+                borderRadius: '8px',
+                border: !stablefordMode ? 'none' : '1px solid rgba(14,165,233,0.5)',
+                background: !stablefordMode ? '#0ea5e9' : 'transparent',
+                color: !stablefordMode ? 'white' : '#0ea5e9',
+                fontSize: '12px',
+                fontWeight: '700',
+                letterSpacing: '0.04em',
+                cursor: 'pointer',
+                whiteSpace: 'nowrap'
+              }}
+            >
+              STROKE
+            </button>
+            {hasStableford && (
+              <button
+                onClick={() => setStablefordMode(true)}
+                style={{
+                  minWidth: '80px',
+                  padding: '9px 16px',
+                  borderRadius: '8px',
+                  border: stablefordMode ? 'none' : '1px solid rgba(81,207,102,0.5)',
+                  background: stablefordMode ? '#51cf66' : 'transparent',
+                  color: stablefordMode ? 'white' : '#51cf66',
+                  fontSize: '12px',
+                  fontWeight: '700',
+                  letterSpacing: '0.04em',
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap'
+                }}
+              >
+                STBL
+              </button>
+            )}
+          </div>
+
+          {/* 그레이드 탭 — 2번 줄 */}
           <div style={{
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
             gap: '4px',
-            padding: '12px 8px'
+            padding: '0 8px 12px'
           }}>
             {gradeFilters.map(g => (
               <button
@@ -966,54 +1024,48 @@ function Leaderboard() {
                 {g}
               </button>
             ))}
-            {hasStableford && (
-              <button
-                onClick={() => setStablefordMode(!stablefordMode)}
-                style={{
-                  marginLeft: '8px',
-                  padding: '8px 10px',
-                  borderRadius: '16px',
-                  border: stablefordMode ? 'none' : '1px solid rgba(81,207,102,0.5)',
-                  background: stablefordMode
-                    ? 'linear-gradient(135deg, #51cf66 0%, #40c057 100%)'
-                    : 'rgba(81,207,102,0.15)',
-                  color: stablefordMode ? 'white' : '#51cf66',
-                  fontSize: '11px',
-                  fontWeight: '700',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap'
-                }}
-              >
-                STBL
-              </button>
-            )}
           </div>
 
           <div style={{ padding: '0 16px' }}>
+            {(() => {
+              const modeColor = stablefordMode ? '#51cf66' : '#0ea5e9';
+              const gridCols = stablefordMode
+                ? '32px 1fr 38px 36px 36px 50px 50px'
+                : '32px 1fr 38px 36px 36px 50px 40px 44px';
+              return (
             <div style={{
               display: 'grid',
-              gridTemplateColumns: '36px 1fr 40px 36px 36px 60px 44px',
+              gridTemplateColumns: gridCols,
               gap: '4px',
               padding: '12px 4px',
               borderBottom: '2px solid rgba(255,255,255,0.3)',
               color: 'rgba(255,255,255,0.9)',
-              fontSize: '14px',
+              fontSize: '13px',
               fontWeight: '700'
             }}>
               <div>순위</div>
               <div>대화명</div>
               <div style={{ textAlign: 'center' }}>핸디</div>
-              <div style={{ textAlign: 'center' }}>OUT</div>
-              <div style={{ textAlign: 'center' }}>IN</div>
+              <div style={{ textAlign: 'center', color: modeColor }}>OUT</div>
+              <div style={{ textAlign: 'center', color: modeColor }}>IN</div>
               <div style={{ textAlign: 'center' }}>총타수</div>
-              <div style={{ textAlign: 'center' }}>{stablefordMode ? 'STBL' : '+-'}</div>
+              {stablefordMode ? (
+                <div style={{ textAlign: 'center', color: modeColor }}>Score</div>
+              ) : (
+                <>
+                  <div style={{ textAlign: 'center', color: modeColor }}>+-</div>
+                  <div style={{ textAlign: 'center', color: modeColor }}>NET</div>
+                </>
+              )}
             </div>
+              );
+            })()}
 
             {filteredScores.length === 0 ? (
-              <div style={{ 
-                textAlign: 'center', 
-                color: 'rgba(255,255,255,0.5)', 
-                padding: '40px 0' 
+              <div style={{
+                textAlign: 'center',
+                color: 'rgba(255,255,255,0.5)',
+                padding: '40px 0'
               }}>
                 아직 스코어가 없습니다
               </div>
@@ -1021,17 +1073,22 @@ function Leaderboard() {
               filteredScores.map((score, index) => {
                 const rankIcon = index === 0 ? '🥇 ' : index === 1 ? '🥈 ' : index === 2 ? '🥉 ' : '';
                 const isTopRank = index < 3;
-                
+                const modeColor = stablefordMode ? '#51cf66' : '#0ea5e9';
+                const gridCols = stablefordMode
+                  ? '32px 1fr 38px 36px 36px 50px 50px'
+                  : '32px 1fr 38px 36px 36px 50px 40px 44px';
+                const fmtDiff = (n) => (n == null ? '-' : (n === 0 ? 'E' : (n > 0 ? `+${n}` : String(n))));
+
                 return (
                 <div
                   key={`${score.odId}-${index}`}
                   onClick={() => setSelectedScore(score)}
                   style={{
                     display: 'grid',
-                    gridTemplateColumns: '36px 1fr 40px 36px 36px 60px 44px',
+                    gridTemplateColumns: gridCols,
                     gap: '4px',
                     padding: '12px 4px',
-                    background: index === 0 
+                    background: index === 0
                       ? 'linear-gradient(90deg, rgba(255,215,0,0.25) 0%, rgba(255,215,0,0.05) 100%)'
                       : index % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
                     borderBottom: '1px solid rgba(255,255,255,0.1)',
@@ -1040,20 +1097,15 @@ function Leaderboard() {
                     borderLeft: index === 0 ? '3px solid #FFD700' : 'none'
                   }}
                 >
-                  <div style={{ 
-                    color: 'white', 
-                    fontSize: '14px',
-                    fontWeight: isTopRank ? '700' : '600'
-                  }}>
+                  {/* 순위 */}
+                  <div style={{ color: 'white', fontSize: '13px', fontWeight: isTopRank ? '700' : '600' }}>
                     {rankIcon}{index + 1}
                   </div>
+
+                  {/* 대화명 */}
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                      <span style={{
-                        color: 'white',
-                        fontSize: '13px',
-                        fontWeight: isTopRank ? '600' : '500'
-                      }}>
+                      <span style={{ color: 'white', fontSize: '13px', fontWeight: isTopRank ? '600' : '500' }}>
                         {score.nickname}
                       </span>
                       {score.isGuest && (
@@ -1063,48 +1115,46 @@ function Leaderboard() {
                       )}
                     </div>
                   </div>
-                  <div style={{ 
-                    textAlign: 'center', 
-                    color: 'rgba(255,255,255,0.8)',
-                    fontSize: '12px'
-                  }}>
+
+                  {/* 핸디 */}
+                  <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.85)', fontSize: '12px' }}>
                     {score.handicap || '-'}
                   </div>
-                  <div style={{ 
-                    textAlign: 'center', 
-                    color: 'rgba(255,255,255,0.9)',
-                    fontSize: '12px'
-                  }}>
-                    {score.outScore || '-'}
-                  </div>
-                  <div style={{ 
-                    textAlign: 'center', 
-                    color: 'rgba(255,255,255,0.9)',
-                    fontSize: '12px'
-                  }}>
-                    {score.inScore || '-'}
-                  </div>
-                  <div style={{ 
-                    textAlign: 'center', 
-                    color: 'white',
-                    fontSize: '12px',
-                    fontWeight: '600'
-                  }}>
-                    {score.netScore || '-'}
-                  </div>
-                  <div style={{
-                    textAlign: 'center',
-                    color: stablefordMode
-                      ? (score.stablefordTotal != null ? (score.stablefordTotal >= score.completedHoles * 2 ? '#51cf66' : score.stablefordTotal < score.completedHoles ? '#ff6b6b' : 'white') : 'rgba(255,255,255,0.5)')
-                      : (score.netOverUnder > 0 ? '#ff6b6b' : score.netOverUnder < 0 ? '#51cf66' : 'white'),
-                    fontSize: '13px',
-                    fontWeight: '600'
-                  }}>
+
+                  {/* OUT — 모드별 */}
+                  <div style={{ textAlign: 'center', color: modeColor, fontSize: '12px', fontWeight: '600' }}>
                     {stablefordMode
-                      ? (score.stablefordTotal != null ? score.stablefordTotal : '-')
-                      : (score.netScore ? (score.netOverUnder > 0 ? `+${score.netOverUnder}` : score.netOverUnder === 0 ? 'E' : score.netOverUnder) : '-')
-                    }
+                      ? (score.outStbl != null ? score.outStbl : '-')
+                      : fmtDiff(score.outDiff)}
                   </div>
+
+                  {/* IN — 모드별 */}
+                  <div style={{ textAlign: 'center', color: modeColor, fontSize: '12px', fontWeight: '600' }}>
+                    {stablefordMode
+                      ? (score.inStbl != null ? score.inStbl : '-')
+                      : fmtDiff(score.inDiff)}
+                  </div>
+
+                  {/* 총타수 — 둘 다 누적 gross */}
+                  <div style={{ textAlign: 'center', color: 'white', fontSize: '13px', fontWeight: '700' }}>
+                    {score.totalScore || '-'}
+                  </div>
+
+                  {/* 마지막 컬럼 — 모드별 */}
+                  {stablefordMode ? (
+                    <div style={{ textAlign: 'center', color: modeColor, fontSize: '13px', fontWeight: '700' }}>
+                      {score.stablefordTotal != null ? score.stablefordTotal : '-'}
+                    </div>
+                  ) : (
+                    <>
+                      <div style={{ textAlign: 'center', color: modeColor, fontSize: '12px', fontWeight: '600' }}>
+                        {score.totalScore > 0 ? fmtDiff(score.overUnder) : '-'}
+                      </div>
+                      <div style={{ textAlign: 'center', color: modeColor, fontSize: '13px', fontWeight: '700' }}>
+                        {score.totalScore > 0 ? fmtDiff(score.netOverUnder) : '-'}
+                      </div>
+                    </>
+                  )}
                 </div>
               );})
             )}
