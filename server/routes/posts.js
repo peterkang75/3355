@@ -1,6 +1,6 @@
 const express = require("express");
 const prisma = require("../db");
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, canManagePost, canManageComment } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -35,14 +35,28 @@ router.post("/", requireAuth, async (req, res) => {
 
 router.put("/:id", requireAuth, async (req, res) => {
   try {
-    const post = await prisma.post.update({
+    const post = await prisma.post.findUnique({ where: { id: req.params.id } });
+    if (!post) return res.status(404).json({ error: "Post not found" });
+
+    if (!canManagePost(req.member, post)) {
+      return res.status(403).json({ error: "권한이 없습니다." });
+    }
+
+    // 변경 가능 필드만 추출 (comments, authorId, id, createdAt 등은 제거)
+    const allowed = ['title', 'content', 'isFeatured', 'isActive'];
+    const data = {};
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) data[key] = req.body[key];
+    }
+
+    const updated = await prisma.post.update({
       where: { id: req.params.id },
-      data: req.body,
+      data,
       include: { author: true },
     });
 
     req.io.emit("posts:updated");
-    res.json(post);
+    res.json(updated);
   } catch (error) {
     console.error("Error updating post:", error);
     res.status(500).json({ error: "Failed to update post" });
@@ -51,9 +65,14 @@ router.put("/:id", requireAuth, async (req, res) => {
 
 router.delete("/:id", requireAuth, async (req, res) => {
   try {
-    await prisma.post.delete({
-      where: { id: req.params.id },
-    });
+    const post = await prisma.post.findUnique({ where: { id: req.params.id } });
+    if (!post) return res.status(404).json({ error: "Post not found" });
+
+    if (!canManagePost(req.member, post)) {
+      return res.status(403).json({ error: "권한이 없습니다." });
+    }
+
+    await prisma.post.delete({ where: { id: req.params.id } });
     req.io.emit("posts:updated");
     res.json({ success: true });
   } catch (error) {
@@ -67,6 +86,10 @@ router.patch("/:id/toggle-featured", requireAuth, async (req, res) => {
   try {
     const post = await prisma.post.findUnique({ where: { id: req.params.id } });
     if (!post) return res.status(404).json({ error: "Post not found" });
+
+    if (!canManagePost(req.member, post)) {
+      return res.status(403).json({ error: "권한이 없습니다." });
+    }
 
     if (post.isFeatured) {
       // 해제
@@ -101,6 +124,9 @@ router.patch("/:id/toggle-active", requireAuth, async (req, res) => {
     });
     if (!post) {
       return res.status(404).json({ error: "Post not found" });
+    }
+    if (!canManagePost(req.member, post)) {
+      return res.status(403).json({ error: "권한이 없습니다." });
     }
     const updatedPost = await prisma.post.update({
       where: { id: req.params.id },
