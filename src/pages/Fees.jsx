@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useApp } from "../contexts/AppContext";
 import apiService from "../services/api";
-import { checkIsOperator } from "../utils";
+import { checkIsOperator, calculateBalance } from "../utils";
 import { PageHeader } from "../components/common";
 import SettlementReportModal from "../components/SettlementReportModal";
 
@@ -197,12 +197,9 @@ function Fees() {
   };
 
   // ── Balance calculations ───────────────────────────────────────────────────
+  // 백엔드 balance.js와 동일한 calculateBalance 사용 (환불 카테고리는 잔액에 영향 없음)
   const totalCharges = userTransactions.filter((t) => t.type === "charge").reduce((s, t) => s + t.amount, 0);
-  const totalPayments = userTransactions.filter((t) => t.type === "payment" && t.category !== "크레딧 자동 납부" && t.category !== "크레딧 자동 차감").reduce((s, t) => s + t.amount, 0);
-  const totalCredits = userTransactions.filter((t) => t.type === "credit").reduce((s, t) => s + t.amount, 0);
-  const totalExpenses = userTransactions.filter((t) => t.type === "expense").reduce((s, t) => s + t.amount, 0);
-  const totalCreditDonations = userTransactions.filter((t) => t.type === "creditDonation").reduce((s, t) => s + t.amount, 0);
-  const balance = totalPayments + totalCredits - totalCharges - totalExpenses - totalCreditDonations;
+  const balance = calculateBalance(userTransactions);
   const actualUnpaid = Math.max(0, -balance);
   const creditBalance = balance > 0 ? balance : 0;
 

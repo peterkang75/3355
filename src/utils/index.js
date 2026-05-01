@@ -63,6 +63,37 @@ export const checkIsOperator = (user) =>
 /** 일반 회원 여부 */
 export const checkIsMember = (user) => user?.role === '회원';
 
+// ─── Balance ─────────────────────────────────────────────────────────────────
+// 백엔드 server/utils/balance.js의 calculateBalance와 동일한 로직 (single source of truth)
+// 잔액 영향에서 제외되는 카테고리:
+//   payment: 크레딧 자동 납부 / 크레딧 납부 / 크레딧 자동 차감
+//   expense: 환불 (클럽이 회원에게 돌려준 돈 — 회원 빚 발생 X)
+const EXCLUDED_PAYMENT_CATEGORIES = ['크레딧 자동 납부', '크레딧 납부', '크레딧 자동 차감'];
+const EXCLUDED_EXPENSE_CATEGORIES = ['환불'];
+
+/** 트랜잭션 배열로부터 회원 잔액 계산 (백엔드와 동일 공식) */
+export function calculateBalance(transactions) {
+  if (!Array.isArray(transactions)) return 0;
+  return transactions.reduce((sum, t) => {
+    switch (t.type) {
+      case 'charge':
+        return sum - t.amount;
+      case 'payment':
+        if (EXCLUDED_PAYMENT_CATEGORIES.includes(t.category)) return sum;
+        return sum + t.amount;
+      case 'credit':
+        return sum + t.amount;
+      case 'expense':
+        if (EXCLUDED_EXPENSE_CATEGORIES.includes(t.category)) return sum;
+        return sum - t.amount;
+      case 'creditDonation':
+        return sum - t.amount;
+      default:
+        return sum;
+    }
+  }, 0);
+}
+
 /** 게시글 관리 권한: 작성자 본인 + 관리자 */
 export const canManagePost = (user, post) => {
   if (!user || !post) return false;
