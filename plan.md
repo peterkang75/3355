@@ -1060,6 +1060,24 @@ Railway 도메인에서 확인
 
 ---
 
+### 2026-05-02 (Day 14 — 추가) — '회원 크레딧' 트랜잭션 type 보정
+
+#### 🐛 버그
+- 빠른 입력 UI는 mode='expense'면 `type='expense'`를 강제 → 카테고리 '회원 크레딧'으로 들어가도 type=expense
+- balance.js는 expense를 잔액에서 차감 → 회원 크레딧 받은 회원이 미수금으로 표시됨
+- (예: 브라이언 4월 라운딩 환불을 크레딧으로 받았는데 잔액 -$132로 보임)
+
+#### ✅ 수정
+- [x] **백엔드 POST /api/transactions** — category='회원 크레딧' + memberId 있으면 type을 자동으로 'credit'으로 보정 (앞으로 모든 신규 처리에 적용)
+- [x] **서버 시작 시 마이그레이션** — 기존에 잘못 저장된 type=expense, category=회원 크레딧 트랜잭션을 type=credit으로 일괄 변경 (idempotent, 한 번 실행되면 매칭 0건이라 재시작마다 안전)
+- [x] settlement.js는 type=credit도 totalExpense로 합산하므로 클럽 장부 표시는 변동 없음 — 회원 잔액만 +로 정정됨
+
+#### 🗂 영향 파일
+- `server/routes/transactions.js` (POST 핸들러에 type 보정 추가)
+- `server/server.js` (시작 시 1회 마이그레이션)
+
+---
+
 ### 2026-05-02 (Day 14) — 환불 시 미수금 오작동 + 월별 필터 누락 버그 수정
 
 #### 🐛 발견된 버그

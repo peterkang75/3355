@@ -91,15 +91,31 @@ async function checkAndUpdatePlayStatus() {
 
 setInterval(checkAndUpdatePlayStatus, 60 * 1000);
 
-// 서버 시작 시 1회: 환불 카테고리 잔액 영향 변경 반영을 위해 모든 회원 잔액 재계산.
-// idempotent — 트랜잭션 변경 없이 잔액만 재산출하므로 매 재시작마다 돌아도 안전.
+// 서버 시작 시 1회 마이그레이션 + 잔액 재계산
+// idempotent — 한 번 실행 후엔 매칭 대상이 없어 재시작마다 안전
 setTimeout(async () => {
   try {
+    // (1) '회원 크레딧' 카테고리는 type=credit이어야 회원 잔액에 +로 반영됨.
+    //     과거 빠른 입력 UI에서 expense로 잘못 저장된 트랜잭션 정정.
+    const wrongCredits = await prisma.transaction.findMany({
+      where: { type: 'expense', category: '회원 크레딧', memberId: { not: null } },
+      select: { id: true, memberId: true, amount: true },
+    });
+    if (wrongCredits.length > 0) {
+      const ids = wrongCredits.map((t) => t.id);
+      await prisma.transaction.updateMany({
+        where: { id: { in: ids } },
+        data: { type: 'credit' },
+      });
+      console.log(`🔧 '회원 크레딧' 트랜잭션 type 보정: ${wrongCredits.length}건 (expense → credit)`);
+    }
+
+    // (2) 모든 회원 잔액 재계산 (환불 카테고리 처리 변경 + 위 type 보정 반영)
     const { recalculateAllBalances } = require('./utils/balance');
     const result = await recalculateAllBalances();
     console.log(`💰 회원 잔액 재계산 완료 — updated=${result.updated}, unchanged=${result.unchanged}, errors=${result.errors}`);
   } catch (err) {
-    console.error('회원 잔액 재계산 오류:', err);
+    console.error('서버 시작 시 마이그레이션 오류:', err);
   }
 }, 5000);
 

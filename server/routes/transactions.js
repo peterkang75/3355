@@ -302,8 +302,15 @@ router.post("/", requireAuth, requireOperator, async (req, res) => {
       }
     }
 
+    // 카테고리 자동 보정: '회원 크레딧'은 회원 잔액 +되는 type=credit이어야 함
+    // 빠른 입력에서 expense 모드로 들어와도 메모리상 보정 (DB엔 credit으로 저장)
+    const data = { ...req.body };
+    if (data.category === '회원 크레딧' && data.memberId && data.type === 'expense') {
+      data.type = 'credit';
+    }
+
     const transaction = await prisma.transaction.create({
-      data: req.body,
+      data,
       include: { member: true, booking: true },
     });
 
