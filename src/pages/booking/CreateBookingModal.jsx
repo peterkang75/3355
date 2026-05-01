@@ -685,7 +685,7 @@ export default function CreateBookingModal({
                     <div style={{ marginBottom: '14px' }}>
                       <label style={labelStyle}>최대 인원</label>
                       <div style={{ display: 'flex', gap: '8px' }}>
-                        {[2, 3, 4, 5, 6, 8].map(n => (
+                        {[4, 8, 12, 16, 20, 24].map(n => (
                           <button key={n} onClick={() => onChangeNewRounding({ ...newRounding, maxMembers: n })}
                             style={{ flex: 1, padding: '10px 0', borderRadius: '10px', border: newRounding.maxMembers === n ? '2px solid #0047AB' : '1px solid #E8ECF0', background: newRounding.maxMembers === n ? '#EBF2FF' : 'white', color: newRounding.maxMembers === n ? '#0047AB' : '#6B7280', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>
                             {n}명
