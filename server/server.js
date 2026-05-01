@@ -17,28 +17,54 @@ const io = new Server(server, {
 
 const PORT = process.env.PORT || (process.env.NODE_ENV === 'production' ? 5000 : 3001);
 
+// 시드니 로컬 날짜 문자열 (YYYY-MM-DD)
+function sydneyDateStr(date = new Date()) {
+  return date.toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
+}
+
+// 시드니 로컬 (날짜+시간) → UTC Date (DST 자동 반영)
+function sydneyLocalToUtc(dateStr, timeStr) {
+  const fmt = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Australia/Sydney',
+    year: 'numeric', month: '2-digit', day: '2-digit',
+    hour: '2-digit', minute: '2-digit', second: '2-digit',
+    hour12: false
+  });
+  const fakeUtc = new Date(`${dateStr}T${timeStr}:00Z`);
+  const parts = fmt.formatToParts(fakeUtc);
+  const get = (type) => parts.find(p => p.type === type).value;
+  const sydneyAsUtc = Date.UTC(
+    +get('year'), +get('month') - 1, +get('day'),
+    +get('hour'), +get('minute'), +get('second')
+  );
+  const offsetMin = Math.round((sydneyAsUtc - fakeUtc.getTime()) / 60000);
+  return new Date(fakeUtc.getTime() - offsetMin * 60000);
+}
+
 async function checkAndUpdatePlayStatus() {
   try {
     const now = new Date();
-    const todayStr = now.toISOString().split('T')[0];
-    
+    const todayStr = sydneyDateStr(now);
+    // 어제도 함께 조회 — 늦은 라운딩(저녁)의 +7h 윈도우가 다음날 새벽까지 이어지는 경우 처리
+    const yesterdayBase = new Date(`${todayStr}T00:00:00Z`);
+    yesterdayBase.setUTCDate(yesterdayBase.getUTCDate() - 1);
+    const yesterdayStr = yesterdayBase.toISOString().split('T')[0];
+
     const bookings = await prisma.booking.findMany({
       where: {
-        date: todayStr
+        date: { in: [yesterdayStr, todayStr] }
       }
     });
-    
+
     for (const booking of bookings) {
-      const [hours, minutes] = booking.time.split(':').map(Number);
-      const roundingTime = new Date(booking.date);
-      roundingTime.setHours(hours, minutes, 0, 0);
-      
-      const thirtyMinBefore = new Date(roundingTime.getTime() - 30 * 60 * 1000);
+      // 활성 윈도우: 시드니 기준 라운딩 당일 00:00 ~ 라운딩 시간 + 7시간
+      const sydneyMidnight = sydneyLocalToUtc(booking.date, '00:00');
+      const roundingTime = sydneyLocalToUtc(booking.date, booking.time);
       const sevenHoursAfter = new Date(roundingTime.getTime() + 7 * 60 * 60 * 1000);
-      
-      const isInActiveWindow = now >= thirtyMinBefore && now < sevenHoursAfter;
+
+      const isInActiveWindow = now >= sydneyMidnight && now < sevenHoursAfter;
       const isPastWindow = now >= sevenHoursAfter;
-      
+
       if (isInActiveWindow && !booking.playEnabled && !booking.playManuallyDisabled) {
         await prisma.booking.update({
           where: { id: booking.id },
@@ -49,7 +75,7 @@ async function checkAndUpdatePlayStatus() {
       } else if (isPastWindow && booking.playEnabled) {
         await prisma.booking.update({
           where: { id: booking.id },
-          data: { 
+          data: {
             playEnabled: false,
             playManuallyDisabled: false
           }

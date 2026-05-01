@@ -644,7 +644,7 @@ function RoundingManagement() {
               <div>
                 <div style={{ fontSize: '15px', fontWeight: '600', color: '#1a1a1a' }}>플레이 활성화</div>
                 <div style={{ fontSize: '13px', color: '#888', marginTop: '2px' }}>
-                  {booking.playEnabled ? '플레이 버튼 표시 중' : '30분 전 자동 활성화'}
+                  {booking.playEnabled ? '플레이 버튼 표시 중' : '라운딩 당일 자동 활성화'}
                 </div>
               </div>
             </div>
