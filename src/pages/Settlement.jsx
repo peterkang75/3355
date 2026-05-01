@@ -631,11 +631,30 @@ function PaySheet({ member, amount, setAmount, memo, setMemo, date, setDate, onC
 }
 
 // ─── 청구 내역 바텀시트 (미수금 회원별 charge 목록) ──────────────────────────
-function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }) {
+function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed, onViewReceipt }) {
   const [charges, setCharges] = useState([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
   const [deletingMember, setDeletingMember] = useState(false);
+  const [completingId, setCompletingId] = useState(null);
+
+  const handleCompletePayment = async (chargeId) => {
+    if (!confirm('이 청구를 납부완료 처리하시겠습니까?')) return;
+    setCompletingId(chargeId);
+    try {
+      const r = await fetch(`/api/transactions/${chargeId}/complete-payment`, {
+        method: 'POST',
+        headers: authHeaders,
+      });
+      if (!r.ok) throw new Error('Failed');
+      setCharges(prev => prev.filter(c => c.id !== chargeId));
+      onRefresh?.();
+    } catch {
+      alert('납부 처리에 실패했습니다.');
+    } finally {
+      setCompletingId(null);
+    }
+  };
 
   useEffect(() => {
     if (!member) return;
@@ -739,41 +758,73 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
             charges.map((c, i) => {
               const label = c.booking?.courseName || c.booking?.title || c.description || '—';
               const [, mm, dd] = (c.date || '').split('-');
+              const receiptImages = c.receiptImages?.length ? c.receiptImages : (c.receiptImage ? [c.receiptImage] : []);
+              const hasReceipt = receiptImages.length > 0;
               return (
                 <div key={c.id} style={{
                   padding: '13px 0',
                   borderBottom: i < charges.length - 1 ? '1px solid #f1f5f9' : 'none',
-                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 }}>
-                  <div style={{ display: 'flex', gap: 12, alignItems: 'center', minWidth: 0 }}>
-                    <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, flexShrink: 0 }}>
-                      {mm && dd ? `${parseInt(mm)}. ${parseInt(dd)}.` : '—'}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', gap: 12, alignItems: 'center', minWidth: 0 }}>
+                      <div style={{ fontSize: 12, color: 'var(--text-muted)', fontWeight: 600, flexShrink: 0 }}>
+                        {mm && dd ? `${parseInt(mm)}. ${parseInt(dd)}.` : '—'}
+                      </div>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--on-background)', marginBottom: 2 }}>{label}</div>
+                        <div style={{ fontSize: 11, color: hasReceipt ? '#0047AB' : '#ea580c', fontWeight: 600 }}>
+                          {hasReceipt ? '🧾 영수증 첨부됨' : '미납'}
+                        </div>
+                      </div>
                     </div>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--on-background)', marginBottom: 2 }}>{label}</div>
-                      <div style={{ fontSize: 11, color: '#ea580c', fontWeight: 600 }}>미납</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5, flexShrink: 0, marginLeft: 12 }}>
+                      <span style={{ fontSize: 15, fontWeight: 800, color: '#ea580c' }}>-{formatCurrency(c.amount)}</span>
+                      {!isClosed && (
+                        <button
+                          onClick={() => handleCancel(c)}
+                          disabled={deletingId === c.id}
+                          style={{
+                            padding: '3px 10px', borderRadius: 8,
+                            border: '1px solid #fecaca',
+                            background: deletingId === c.id ? '#f8fafc' : '#fff5f5',
+                            color: deletingId === c.id ? '#9ca3af' : '#dc2626',
+                            fontSize: 11, fontWeight: 600,
+                            cursor: deletingId === c.id ? 'not-allowed' : 'pointer',
+                            whiteSpace: 'nowrap',
+                          }}
+                        >
+                          {deletingId === c.id ? '처리중...' : '청구취소'}
+                        </button>
+                      )}
                     </div>
                   </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5, flexShrink: 0, marginLeft: 12 }}>
-                    <span style={{ fontSize: 15, fontWeight: 800, color: '#ea580c' }}>-{formatCurrency(c.amount)}</span>
-                    {!isClosed && (
+                  {hasReceipt && !isClosed && (
+                    <div style={{ display: 'flex', gap: 6, marginTop: 8 }}>
                       <button
-                        onClick={() => handleCancel(c)}
-                        disabled={deletingId === c.id}
+                        onClick={() => onViewReceipt?.(receiptImages)}
                         style={{
-                          padding: '3px 10px', borderRadius: 8,
-                          border: '1px solid #fecaca',
-                          background: deletingId === c.id ? '#f8fafc' : '#fff5f5',
-                          color: deletingId === c.id ? '#9ca3af' : '#dc2626',
-                          fontSize: 11, fontWeight: 600,
-                          cursor: deletingId === c.id ? 'not-allowed' : 'pointer',
-                          whiteSpace: 'nowrap',
+                          flex: 1, padding: '7px 0', borderRadius: 8,
+                          border: '1.5px solid #0047AB', background: '#eff6ff',
+                          color: '#0047AB', fontSize: 12, fontWeight: 700,
+                          cursor: 'pointer',
                         }}
                       >
-                        {deletingId === c.id ? '처리중...' : '청구취소'}
+                        🧾 영수증 보기
                       </button>
-                    )}
-                  </div>
+                      <button
+                        onClick={() => handleCompletePayment(c.id)}
+                        disabled={completingId === c.id}
+                        style={{
+                          flex: 1, padding: '7px 0', borderRadius: 8,
+                          border: 'none', background: completingId === c.id ? '#94a3b8' : '#16a34a',
+                          color: '#fff', fontSize: 12, fontWeight: 800,
+                          cursor: completingId === c.id ? 'not-allowed' : 'pointer',
+                        }}
+                      >
+                        {completingId === c.id ? '처리 중…' : '✓ 납부완료'}
+                      </button>
+                    </div>
+                  )}
                 </div>
               );
             })
@@ -1392,8 +1443,9 @@ function Settlement() {
         member={chargeSheet}
         authHeaders={authHeaders}
         onClose={() => setChargeSheet(null)}
-        onRefresh={() => { load(); loadOutstanding(); setChargeSheet(null); }}
+        onRefresh={() => { load(); loadOutstanding(); loadPendingReceipts?.(); setChargeSheet(null); }}
         isClosed={data?.isClosed}
+        onViewReceipt={(images) => setReceiptViewer(images)}
       />
 
       {showReport && (

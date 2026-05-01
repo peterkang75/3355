@@ -1060,6 +1060,27 @@ Railway 도메인에서 확인
 
 ---
 
+### 2026-05-02 (Day 14 — 추가 #3) — 영수증 첨부 표시 + 청구 내역 영수증 보기/납부완료 UI
+
+#### 🐛 버그
+1. 회원이 회비관리에서 "📎 계좌이체 영수증 첨부"로 영수증 업로드 후 다른 페이지 갔다 돌아오면 첨부한 영수증이 화면에서 사라짐
+2. 관리자가 미수금 회원의 청구 내역에서 첨부된 영수증을 볼 UI가 없음 (납부 영수증 확인 대기 섹션 외)
+
+#### 진단
+- 원인 1: `/api/transactions/member/:memberId` 엔드포인트의 select에 `receiptImage`/`receiptImages` 필드 누락 → 화면 렌더링 시 영수증 없는 것처럼 표시 (DB엔 정상 저장됨)
+- 원인 2: ChargeDetailSheet (관리자 청구 내역 바텀시트)에 영수증 표시 UI 자체가 없음
+
+#### ✅ 수정
+- [x] `GET /api/transactions/member/:memberId` select에 `receiptImage`, `receiptImages`, `bookingId` 추가
+- [x] Settlement.jsx의 ChargeDetailSheet에 영수증 표시 + "🧾 영수증 보기" + "✓ 납부완료" 버튼 추가
+- [x] `pending-receipts` 엔드포인트에 이미 납부된 charge 필터링 (memberId+bookingId 매칭 payment 존재 시 제외) — 납부 처리 후 목록에서 자동 제거
+
+#### 🗂 영향 파일
+- `server/routes/transactions.js` (member endpoint select + pending-receipts 필터)
+- `src/pages/Settlement.jsx` (ChargeDetailSheet UI)
+
+---
+
 ### 2026-05-02 (Day 14 — 추가 #2) — 부킹 fee 변경 시 charge 자동 동기화 + 5월 정기 데이터 정정
 
 #### 🐛 버그

@@ -86,6 +86,9 @@ router.get("/member/:memberId", requireAuth, async (req, res) => {
         memo: true,
         date: true,
         createdAt: true,
+        bookingId: true,
+        receiptImage: true,
+        receiptImages: true,
         booking: { select: { id: true, title: true, courseName: true } },
       },
       orderBy: [{ date: "desc" }, { createdAt: "desc" }],
@@ -558,6 +561,8 @@ router.get("/pending-receipts", requireAuth, requireOperator, async (req, res) =
     const charges = await prisma.transaction.findMany({
       where: {
         type: "charge",
+        memberId: { not: null },
+        bookingId: { not: null },
         OR: [
           { receiptImage: { not: null } },
           { receiptImages: { isEmpty: false } },
@@ -566,12 +571,29 @@ router.get("/pending-receipts", requireAuth, requireOperator, async (req, res) =
       select: {
         id: true, amount: true, description: true, category: true,
         date: true, createdAt: true, receiptImage: true, receiptImages: true,
+        memberId: true, bookingId: true,
         member: { select: { id: true, name: true, nickname: true } },
         booking: { select: { id: true, title: true, courseName: true, date: true } },
       },
       orderBy: { createdAt: "desc" },
     });
-    res.json(charges);
+
+    // 이미 납부 처리된 charge는 제외 (같은 memberId+bookingId에 일반 payment가 존재하는 경우)
+    const filtered = [];
+    for (const c of charges) {
+      const existingPayment = await prisma.transaction.findFirst({
+        where: {
+          memberId: c.memberId,
+          bookingId: c.bookingId,
+          type: 'payment',
+          category: { notIn: ['크레딧 자동 납부', '크레딧 납부', '크레딧 자동 차감'] },
+        },
+        select: { id: true },
+      });
+      if (!existingPayment) filtered.push(c);
+    }
+
+    res.json(filtered);
   } catch (error) {
     console.error("Error fetching pending receipts:", error);
     res.status(500).json({ error: "Failed to fetch pending receipts" });
