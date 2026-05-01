@@ -110,7 +110,53 @@ setTimeout(async () => {
       console.log(`🔧 '회원 크레딧' 트랜잭션 type 보정: ${wrongCredits.length}건 (expense → credit)`);
     }
 
-    // (2) 모든 회원 잔액 재계산 (환불 카테고리 처리 변경 + 위 type 보정 반영)
+    // (2) 5월 정기라운딩 charge 정정 + Jacob/동백 5월 부적절 트랜잭션 삭제 (1회성, idempotent)
+    //     - 부킹 fee 변경 시 charge 자동 동기화 로직이 추가되기 전에 생성된 stale charge 정정
+    //     - Jacob/동백의 5월 환불 + 회비납부 트랜잭션 (4월 정정 과정에서 잘못 5월로 들어간 것) 삭제
+    const mayBooking = await prisma.booking.findFirst({
+      where: { date: { startsWith: '2026-05' }, type: '정기모임', title: { contains: '5월' } },
+    });
+    if (mayBooking) {
+      const newRegular = (mayBooking.greenFee || 0) + (mayBooking.cartFee || 0) + (mayBooking.membershipFee || 0);
+      const newExempt = (mayBooking.greenFee || 0) + (mayBooking.cartFee || 0);
+      let chargeFixed = 0;
+      const charges = await prisma.transaction.findMany({ where: { bookingId: mayBooking.id, type: 'charge' } });
+      for (const c of charges) {
+        const m = await prisma.member.findUnique({ where: { id: c.memberId }, select: { isFeeExempt: true } });
+        const target = (m?.isFeeExempt || (c.description || '').includes('(참가비 면제)')) ? newExempt : newRegular;
+        if (target > 0 && c.amount !== target) {
+          await prisma.transaction.update({ where: { id: c.id }, data: { amount: target } });
+          chargeFixed++;
+        }
+      }
+      if (chargeFixed > 0) console.log(`🔧 5월 정기라운딩 charge 정정: ${chargeFixed}건 → $${newRegular}`);
+    }
+
+    // Jacob과 동백의 5월 expense(환불) + payment(회비납부) 트랜잭션 삭제
+    // (4월 정정 과정에서 잘못 5월로 들어간 것 — 사용자 확인됨)
+    const targets = await prisma.member.findMany({
+      where: { OR: [{ name: 'Jacob' }, { nickname: 'Jacob' }, { name: '동백' }, { nickname: '동백' }] },
+      select: { id: true, name: true, nickname: true },
+    });
+    if (targets.length > 0) {
+      const wrongMayTxs = await prisma.transaction.findMany({
+        where: {
+          memberId: { in: targets.map(t => t.id) },
+          date: { startsWith: '2026-05' },
+          OR: [
+            { type: 'expense', category: '환불' },
+            { type: 'payment', category: '회비납부' },
+          ],
+        },
+      });
+      if (wrongMayTxs.length > 0) {
+        const ids = wrongMayTxs.map(t => t.id);
+        await prisma.transaction.deleteMany({ where: { id: { in: ids } } });
+        console.log(`🗑️  Jacob/동백의 5월 환불·회비납부 부적절 트랜잭션 삭제: ${wrongMayTxs.length}건`);
+      }
+    }
+
+    // (3) 모든 회원 잔액 재계산 (환불 카테고리 처리 변경 + 위 모든 정정 반영)
     const { recalculateAllBalances } = require('./utils/balance');
     const result = await recalculateAllBalances();
     console.log(`💰 회원 잔액 재계산 완료 — updated=${result.updated}, unchanged=${result.unchanged}, errors=${result.errors}`);

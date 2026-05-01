@@ -97,6 +97,55 @@ router.put("/:id", requireAuth, requireOperator, async (req, res) => {
       include: { organizer: true },
     });
 
+    // Fee 변경 시 기존 charge 트랜잭션 자동 동기화
+    // (이미 납부된 charge는 건드리지 않음 — 부분 납부 또는 완납은 사용자가 별도 정정해야 안전)
+    const feeChanged =
+      (req.body.greenFee !== undefined && (parseInt(req.body.greenFee) || 0) !== (oldBooking.greenFee || 0)) ||
+      (req.body.cartFee !== undefined && (parseInt(req.body.cartFee) || 0) !== (oldBooking.cartFee || 0)) ||
+      (req.body.membershipFee !== undefined && (parseInt(req.body.membershipFee) || 0) !== (oldBooking.membershipFee || 0));
+
+    if (feeChanged) {
+      const newTotalRegular = (booking.greenFee || 0) + (booking.cartFee || 0) + (booking.membershipFee || 0);
+      const newTotalExempt = (booking.greenFee || 0) + (booking.cartFee || 0);
+
+      const charges = await prisma.transaction.findMany({
+        where: { bookingId: booking.id, type: 'charge' },
+      });
+
+      for (const c of charges) {
+        // 이 회원 납부 여부 확인 — 동일 booking의 일반 payment 트랜잭션 존재 시 스킵 (안전)
+        const existingPayment = await prisma.transaction.findFirst({
+          where: {
+            bookingId: booking.id,
+            memberId: c.memberId,
+            type: 'payment',
+            category: { notIn: ['크레딧 자동 납부', '크레딧 납부', '크레딧 자동 차감'] },
+          },
+        });
+        if (existingPayment) {
+          console.log(`Fee 동기화 스킵: 이미 납부된 charge (memberId=${c.memberId.slice(0,8)})`);
+          continue;
+        }
+
+        // 면제 회원 판단 — description 기반 ("(참가비 면제)" 포함 시) + DB의 isFeeExempt
+        const member = await prisma.member.findUnique({ where: { id: c.memberId }, select: { isFeeExempt: true } });
+        const isExempt = member?.isFeeExempt || (c.description || '').includes('(참가비 면제)');
+        const newAmount = isExempt ? newTotalExempt : newTotalRegular;
+
+        if (c.amount !== newAmount) {
+          await prisma.transaction.update({
+            where: { id: c.id },
+            data: { amount: newAmount },
+          });
+          await recalculateAndUpdateBalance(c.memberId);
+          console.log(`Fee 동기화: memberId=${c.memberId.slice(0,8)} $${c.amount} → $${newAmount}`);
+        }
+      }
+
+      req.io.emit('transactions:updated');
+      req.io.emit('members:updated');
+    }
+
     if (req.body.participants !== undefined) {
       const oldParticipants = oldBooking.participants || [];
       const newParticipants = req.body.participants || [];
