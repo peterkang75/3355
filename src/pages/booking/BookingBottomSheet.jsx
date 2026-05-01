@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useApp } from '../../contexts/AppContext';
 import { parseParticipants, checkIsOperator } from '../../utils';
 import { formatDate, getStatusBadge, getBookingStatusFlags } from './bookingHelpers';
 
@@ -17,10 +18,20 @@ export default function BookingBottomSheet({
   getMemberName,
 }) {
   const navigate = useNavigate();
+  const { members } = useApp();
 
   if (!selectedBooking) return null;
   const booking = bookings.find(b => b.id === selectedBooking.id) || selectedBooking;
   const participants = parseParticipants(booking.participants);
+  // 번호대여 회원 (참가자 목록에 없는 phone들만 별도 칩으로 추가 표시)
+  const participantPhonesSet = new Set(participants.map(p => p.phone).filter(Boolean));
+  const rentalMembers = (booking.numberRentals || [])
+    .filter(ph => !participantPhonesSet.has(ph))
+    .map(ph => {
+      const m = (members || []).find(mm => mm.phone === ph);
+      return m ? { name: m.name, nickname: m.nickname, phone: m.phone, isRental: true } : { phone: ph, isRental: true, name: '번호대여' };
+    });
+  const allChips = [...participants, ...rentalMembers];
   const isJoined = participants.some(p => p.phone === user.phone);
   const isOrganizer = user.id === booking.organizerId;
   const isOperator = checkIsOperator(user);
@@ -237,21 +248,25 @@ export default function BookingBottomSheet({
                 );
               })()}
             </div>
-            {participants.length === 0 ? (
+            {allChips.length === 0 ? (
               <div style={{ fontSize: '13px', color: '#94A3B8', fontStyle: 'italic' }}>아직 참가자가 없습니다</div>
             ) : (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                {participants.map((p, i) => {
+                {allChips.map((p, i) => {
                   const isHost = p.memberId === booking.organizerId;
                   const isMe = p.phone === user.phone;
                   const isGuest = p.isGuest;
+                  const isRental = p.isRental;
                   let bg = '#F1F5F9', color = '#475569', border = 'transparent', weight = '500';
                   if (isMe) { bg = '#EBF2FF'; color = '#0047AB'; border = '#BFDBFE'; weight = '700'; }
                   else if (isHost) { bg = '#F8FAFC'; color = '#1E293B'; border = '#E2E8F0'; weight = '600'; }
                   if (isGuest) { bg = '#FFFFFF'; color = '#94A3B8'; border = '#E2E8F0'; }
+                  if (isRental) { bg = '#FFF7ED'; color = '#C2410C'; border = '#FED7AA'; weight = '600'; }
                   return (
-                    <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', padding: '5px 12px', borderRadius: '9999px', background: bg, color, fontWeight: weight, fontSize: '13px', border: `1px solid ${border}`, whiteSpace: 'nowrap' }}>
-                      {isHost && <span style={{ fontSize: '10px' }}>👑</span>}{p.nickname || p.name}
+                    <span key={`${p.phone || 'r'}-${i}`} style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', padding: '5px 12px', borderRadius: '9999px', background: bg, color, fontWeight: weight, fontSize: '13px', border: `1px solid ${border}`, whiteSpace: 'nowrap' }}>
+                      {isHost && <span style={{ fontSize: '10px' }}>👑</span>}
+                      {isRental && <span style={{ fontSize: '10px' }}>🔁</span>}
+                      {p.nickname || p.name}
                     </span>
                   );
                 })}
