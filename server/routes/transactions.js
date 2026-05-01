@@ -180,13 +180,13 @@ router.get("/outstanding", requireAuth, requireOperator, async (req, res) => {
     const { yearMonth } = req.query; // "YYYY-MM" 형식
 
     if (yearMonth && /^\d{4}-\d{2}$/.test(yearMonth)) {
-      // 해당 월의 트랜잭션만 조회하여 회원별 net delta 계산
+      // 해당 월의 트랜잭션만 조회하여 회원별 net delta 계산 + 영수증 첨부 charge 추적
       const monthlyTxs = await prisma.transaction.findMany({
         where: {
           date: { startsWith: yearMonth },
           memberId: { not: null },
         },
-        select: { memberId: true, type: true, amount: true, category: true },
+        select: { id: true, memberId: true, bookingId: true, type: true, amount: true, category: true, receiptImage: true, receiptImages: true },
       });
 
       const EXCLUDED_PAYMENT_CATEGORIES = ['크레딧 자동 납부', '크레딧 납부', '크레딧 자동 차감'];
@@ -224,6 +224,36 @@ router.get("/outstanding", requireAuth, requireOperator, async (req, res) => {
 
       if (negativeIds.length === 0) return res.json([]);
 
+      // 미납 회원이 첨부한 영수증 모음 (해당 월에 영수증 첨부된 charge)
+      // 같은 booking에 일반 payment 트랜잭션 있으면 이미 납부 처리된 것이므로 제외
+      const paidBookingPairs = new Set();
+      for (const tx of monthlyTxs) {
+        if (tx.type === 'payment' && tx.bookingId &&
+            !['크레딧 자동 납부', '크레딧 납부', '크레딧 자동 차감'].includes(tx.category)) {
+          paidBookingPairs.add(`${tx.memberId}:${tx.bookingId}`);
+        }
+      }
+
+      const receiptByMember = {}; // memberId → { images[], chargeIds[] }
+      const pendingChargesByMember = {}; // memberId → chargeIds[] (영수증 없는 것 포함, 모든 미납 charge)
+      for (const tx of monthlyTxs) {
+        if (tx.type !== 'charge' || !negativeIds.includes(tx.memberId)) continue;
+        const isPaid = tx.bookingId && paidBookingPairs.has(`${tx.memberId}:${tx.bookingId}`);
+        if (isPaid) continue;
+
+        if (!pendingChargesByMember[tx.memberId]) pendingChargesByMember[tx.memberId] = [];
+        pendingChargesByMember[tx.memberId].push(tx.id);
+
+        const imgs = (Array.isArray(tx.receiptImages) && tx.receiptImages.length)
+          ? tx.receiptImages
+          : (tx.receiptImage ? [tx.receiptImage] : []);
+        if (imgs.length) {
+          if (!receiptByMember[tx.memberId]) receiptByMember[tx.memberId] = { images: [], chargeIds: [] };
+          receiptByMember[tx.memberId].images.push(...imgs);
+          receiptByMember[tx.memberId].chargeIds.push(tx.id);
+        }
+      }
+
       const members = await prisma.member.findMany({
         where: {
           id: { in: negativeIds },
@@ -242,6 +272,9 @@ router.get("/outstanding", requireAuth, requireOperator, async (req, res) => {
           memberNickname: m.nickname,
           isGuest: m.isGuest || false,
           balance: memberDeltas[m.id], // 월 단위 delta (음수)
+          receiptImages: receiptByMember[m.id]?.images || [],
+          receiptChargeIds: receiptByMember[m.id]?.chargeIds || [],
+          pendingChargeIds: pendingChargesByMember[m.id] || [],
         }))
         .sort((a, b) => {
           if (a.isGuest !== b.isGuest) return a.isGuest ? 1 : -1;
