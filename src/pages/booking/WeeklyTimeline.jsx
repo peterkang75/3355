@@ -1,11 +1,12 @@
 import React from 'react';
 import { parseParticipants } from '../../utils';
-import { azure, getTileTypeBadge, formatTileTime, getBookingStatusFlags, getEffectiveDeadline } from './bookingHelpers';
+import { azure, getTileTypeBadge, formatTileTime, getBookingStatusFlags, getEffectiveDeadline, getTotalParticipantCount } from './bookingHelpers';
 
 function WeekTile({ booking, user, onSelect }) {
   const participants = parseParticipants(booking.participants);
   const isJoined = participants.some(p => p.phone === user.phone);
   const max = booking.maxMembers || 4;
+  const totalCount = getTotalParticipantCount(booking);
   const { isRegistrationClosed } = getBookingStatusFlags(booking);
   const isCompetition = booking.type === '컴페티션';
   const isRegular = booking.type === '정기모임';
@@ -19,7 +20,7 @@ function WeekTile({ booking, user, onSelect }) {
   const hasExplicitDeadline = !!booking.registrationDeadline;
   const isClosed = isCompetition
     ? isRegistrationClosed
-    : (participants.length >= max || (hasExplicitDeadline && isRegistrationClosed));
+    : (totalCount >= max || (hasExplicitDeadline && isRegistrationClosed));
 
   let statusText, statusColor;
   if (isClosed) {
@@ -32,7 +33,7 @@ function WeekTile({ booking, user, onSelect }) {
     statusText = `D-${daysLeft}`;
     statusColor = azure.primary;
   } else {
-    statusText = `${participants.length}/${max}`;
+    statusText = `${totalCount}/${max}`;
     statusColor = azure.sub;
   }
 

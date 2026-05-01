@@ -36,7 +36,11 @@ export default function BookingBottomSheet({
   const canManage = isOrganizer || isOperator || canManageAsClubMember;
   const isClubMemberOnly = canManage && !isOrganizer && !isOperator;
   const max = booking.maxMembers || 4;
-  const isFull = participants.length >= max;
+  const rentalPhonesAll = booking.numberRentals || [];
+  const participantPhonesAll = new Set(participants.map(p => p.phone).filter(Boolean));
+  const extraRentalsAll = rentalPhonesAll.filter(ph => !participantPhonesAll.has(ph)).length;
+  const totalCountAll = participants.length + extraRentalsAll;
+  const isFull = totalCountAll >= max;
 
   const handleShare = async () => {
     const shareUrl = `${window.location.origin}/booking?id=${booking.id}`;
@@ -69,7 +73,7 @@ export default function BookingBottomSheet({
   const effectiveClosed = isCompetition
     ? isRegistrationClosed
     : (isPastRoundingDate || (hasExplicitDeadline && isRegistrationClosed));
-  const showTeamFormation = participants.length > 4;
+  const showTeamFormation = totalCountAll > 4;
 
   // ── 버튼 스타일 헬퍼 ──────────────────────────────────────────────────────
   const btn = (bg, color, border) => ({
@@ -219,7 +223,19 @@ export default function BookingBottomSheet({
           <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E8ECF0', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', padding: '16px', marginBottom: '10px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
               <span style={{ fontSize: '13px', fontWeight: '700', color: '#1E293B' }}>참가자</span>
-              <span style={{ fontSize: '13px', fontWeight: '700', color: '#0047AB' }}>{participants.length}<span style={{ color: '#94A3B8', fontWeight: '500' }}>/{max}</span></span>
+              {(() => {
+                const rentalPhones = booking.numberRentals || [];
+                const participantPhones = new Set(participants.map(p => p.phone).filter(Boolean));
+                const extraRentals = rentalPhones.filter(ph => !participantPhones.has(ph)).length;
+                const totalCount = participants.length + extraRentals;
+                return (
+                  <span style={{ fontSize: '13px', fontWeight: '700', color: '#0047AB' }}>
+                    {totalCount}
+                    {extraRentals > 0 && <span style={{ color: '#94A3B8', fontWeight: '500', fontSize: '11px' }}> ({participants.length}+번호대여{extraRentals})</span>}
+                    <span style={{ color: '#94A3B8', fontWeight: '500' }}>/{max}</span>
+                  </span>
+                );
+              })()}
             </div>
             {participants.length === 0 ? (
               <div style={{ fontSize: '13px', color: '#94A3B8', fontStyle: 'italic' }}>아직 참가자가 없습니다</div>

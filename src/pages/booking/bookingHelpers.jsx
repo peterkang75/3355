@@ -121,10 +121,19 @@ export const getTypeBadge = (booking) => {
   );
 };
 
-export const getStatusBadge = (booking) => {
+// 번호대여 포함 총 참가 인원 (중복 제거)
+export const getTotalParticipantCount = (booking) => {
   const participants = parseParticipants(booking.participants);
+  const rentalPhones = booking.numberRentals || [];
+  const participantPhones = new Set(participants.map(p => p.phone).filter(Boolean));
+  const extraRentals = rentalPhones.filter(ph => !participantPhones.has(ph));
+  return participants.length + extraRentals.length;
+};
+
+export const getStatusBadge = (booking) => {
+  const totalCount = getTotalParticipantCount(booking);
   const max = booking.maxMembers || 4;
-  const isFull = participants.length >= max;
+  const isFull = totalCount >= max;
   const isCompetition = booking.type === '컴페티션';
   const { isRegistrationClosed } = getBookingStatusFlags(booking);
   const hasExplicitDeadline = !!booking.registrationDeadline;
@@ -133,7 +142,7 @@ export const getStatusBadge = (booking) => {
     : (isFull || (hasExplicitDeadline && isRegistrationClosed));
   return (
     <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: '600', background: isClosed ? '#FEE2E2' : 'rgba(26,61,71,0.08)', color: isClosed ? '#DC2626' : '#1a3d47' }}>
-      {isClosed ? '마감' : `모집중 ${participants.length}/${max}`}
+      {isClosed ? '마감' : `모집중 ${totalCount}/${max}`}
     </span>
   );
 };
