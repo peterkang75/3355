@@ -23,6 +23,30 @@ const dateInputStyle = {
   ...inputStyle, WebkitAppearance: 'none', display: 'block', minHeight: '48px', lineHeight: '1.5',
 };
 
+// 모듈 레벨로 정의: 부모 리렌더 시에도 컴포넌트 reference가 안정적이라 input이 재마운트되지 않음
+// (이전엔 부모 함수 안에 정의되어 매 리렌더마다 새 컴포넌트로 인식 → input DOM 파괴/재생성 → iOS 키보드 닫힘)
+const InputRow = ({ label, field, placeholder, type = 'text', hmAdvanced, setHmAdvanced, onSave, hmSaveField }) => {
+  const isPickerType = type === 'date' || type === 'time' || type === 'datetime-local';
+  const parseValue = (val) => type === 'number' ? (val ? parseInt(val) : null) : val;
+  return (
+    <div style={{ marginBottom: '10px' }}>
+      <label style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', display: 'block', marginBottom: '6px' }}>{label}</label>
+      <input
+        type={type}
+        value={hmAdvanced[field] ?? ''}
+        onChange={(e) => {
+          const val = e.target.value;
+          setHmAdvanced(prev => ({ ...prev, [field]: val }));
+          if (isPickerType) hmSaveField({ [field]: val || null });
+        }}
+        onBlur={(e) => onSave(field, parseValue(e.target.value))}
+        placeholder={placeholder}
+        style={isPickerType ? dateInputStyle : inputStyle}
+      />
+    </div>
+  );
+};
+
 export default function HostManageSheet({ show, onClose, booking, state, setters, handlers, user, members }) {
   const navigate = useNavigate();
   if (!show || !booking) return null;
@@ -69,27 +93,8 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
     </div>
   );
 
-  const InputRow = ({ label, field, placeholder, type = 'text' }) => {
-    const isPickerType = type === 'date' || type === 'time' || type === 'datetime-local';
-    const parseValue = (val) => type === 'number' ? (val ? parseInt(val) : null) : val;
-    return (
-      <div style={{ marginBottom: '10px' }}>
-        <label style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', display: 'block', marginBottom: '6px' }}>{label}</label>
-        <input
-          type={type}
-          value={hmAdvanced[field]}
-          onChange={(e) => {
-            const val = e.target.value;
-            setHmAdvanced(prev => ({ ...prev, [field]: val }));
-            if (isPickerType) hmSaveField({ [field]: val || null });
-          }}
-          onBlur={(e) => handleHmAdvancedSave(field, parseValue(e.target.value))}
-          placeholder={placeholder}
-          style={isPickerType ? dateInputStyle : inputStyle}
-        />
-      </div>
-    );
-  };
+  // InputRow 호출 시 매번 반복되는 의존성을 한 번에 묶어서 전달
+  const inputRowProps = { hmAdvanced, setHmAdvanced, onSave: handleHmAdvancedSave, hmSaveField };
 
   const renderBasicView = () => {
     const participantPhones = hmParticipants.map(p => p.phone);
@@ -357,11 +362,11 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
     <>
       <div style={card}>
         {sLabel('라운딩 정보')}
-        <InputRow label="골프장" field="courseName" placeholder="골프장 이름" />
-        <InputRow label="날짜" field="date" placeholder="" type="date" />
-        <InputRow label="집합 시간" field="gatheringTime" placeholder="예: 07:30" type="time" />
-        <InputRow label="등록 마감일" field="registrationDeadline" placeholder="" type="datetime-local" />
-        {hmType !== '컴페티션' && <InputRow label="최대 인원" field="maxMembers" placeholder="28" type="number" />}
+        <InputRow {...inputRowProps} label="골프장" field="courseName" placeholder="골프장 이름" />
+        <InputRow {...inputRowProps} label="날짜" field="date" placeholder="" type="date" />
+        <InputRow {...inputRowProps} label="집합 시간" field="gatheringTime" placeholder="예: 07:30" type="time" />
+        <InputRow {...inputRowProps} label="등록 마감일" field="registrationDeadline" placeholder="" type="datetime-local" />
+        {hmType !== '컴페티션' && <InputRow {...inputRowProps} label="최대 인원" field="maxMembers" placeholder="28" type="number" />}
       </div>
 
       {/* ── 라운딩 설정 통합 카드 ── */}
@@ -489,15 +494,15 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
 
       <div style={card}>
         {sLabel('비용 정보')}
-        <InputRow label="그린피" field="greenFee" placeholder="$0" type="number" />
-        <InputRow label="카트비" field="cartFee" placeholder="$0" type="number" />
-        <InputRow label="참가비" field="membershipFee" placeholder="$0" type="number" />
+        <InputRow {...inputRowProps} label="그린피" field="greenFee" placeholder="$0" type="number" />
+        <InputRow {...inputRowProps} label="카트비" field="cartFee" placeholder="$0" type="number" />
+        <InputRow {...inputRowProps} label="참가비" field="membershipFee" placeholder="$0" type="number" />
       </div>
 
       <div style={card}>
         {sLabel('회식 정보')}
-        <InputRow label="회식 장소" field="restaurantName" placeholder="장소 이름" />
-        <InputRow label="회식 주소" field="restaurantAddress" placeholder="주소 입력" />
+        <InputRow {...inputRowProps} label="회식 장소" field="restaurantName" placeholder="장소 이름" />
+        <InputRow {...inputRowProps} label="회식 주소" field="restaurantAddress" placeholder="주소 입력" />
       </div>
 
       <div style={card}>
