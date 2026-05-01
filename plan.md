@@ -1060,6 +1060,52 @@ Railway 도메인에서 확인
 
 ---
 
+### 2026-05-02 (Day 14) — 환불 시 미수금 오작동 + 월별 필터 누락 버그 수정
+
+#### 🐛 발견된 버그
+
+1. **환불 처리 시 회원 잔액에서 또 깎임 → 미수금처럼 표시**
+   - `server/utils/balance.js`의 `expense` 타입은 모든 카테고리를 "회원 빚"으로 처리
+   - 환불은 클럽이 회원에게 돌려준 돈이라 회원 빚이 아닌데도 `sum - amount` 적용
+   - 결과: 청구(-X) + 납부(+X) + 환불(expense -X) = -X → 미수금으로 표시
+   - 사용자 의도와 정반대
+
+2. **`/api/transactions/outstanding` 엔드포인트가 yearMonth 쿼리 파라미터 무시**
+   - 프론트엔드는 `?yearMonth=2026-04` 등 월별 필터로 호출
+   - 백엔드는 그냥 `member.balance < 0`인 회원 전체 반환
+   - 결과: 4월·5월 어느 탭을 봐도 같은 미수금 명단 노출
+
+#### ✅ 수정
+
+- [x] **balance.js — `EXCLUDED_EXPENSE_CATEGORIES = ['환불']` 추가**
+  - 환불 카테고리 expense는 잔액 계산에서 스킵
+  - 청구 + 납부 + 환불 = 0 (트랜잭션 흔적은 모두 보존, 잔액만 0)
+  - 클럽 장부의 수입/지출 표시는 변경 없음
+
+- [x] **outstanding 엔드포인트 — 월별 필터 적용**
+  - yearMonth 지정 시 그 달의 net delta(charges − payments − non-환불 expenses 등)가 음수인 회원만 반환
+  - 환불 카테고리 expense는 delta 계산에서 제외 (위 로직과 일관)
+  - 미지정 시 기존 동작(전체 누적 잔액 음수) 유지 — 호환용
+
+- [x] **서버 시작 시 회원 잔액 일괄 재계산 (1회)**
+  - `recalculateAllBalances()` 함수 추가 — idempotent (트랜잭션 변경 없이 잔액만 재산출)
+  - 시작 5초 후 실행 → 환불 카테고리 변경 사항이 기존 데이터에 자동 반영
+  - 실행 결과 로그: `updated/unchanged/errors` 카운트
+
+#### 📌 영향 범위
+
+- 4월 환불 받은 회원들: 미수금에서 자동 제거 (잔액 0으로 정정)
+- 4월 회비 미납 회원들: 그대로 미수금에 표시 (영향 없음)
+- 5월 정기모임 자동청구 미수금: **건드리지 않음** — 5월 charge 트랜잭션은 그대로이며 잔액에 정상 반영
+- 모든 트랜잭션 데이터(납부, 환불 기록)는 보존 — 사장님 요청대로 흔적 유지
+
+#### 🗂 영향 파일
+- `server/utils/balance.js` (`EXCLUDED_EXPENSE_CATEGORIES` + `recalculateAllBalances`)
+- `server/routes/transactions.js` (`/outstanding` 엔드포인트 월별 필터)
+- `server/server.js` (시작 시 잔액 재계산 1회 호출)
+
+---
+
 ### 2026-05-01 (Day 13) — 플레이 자동 활성화 시점 변경 + 시드니 타임존 정확화
 
 #### ✅ 완료

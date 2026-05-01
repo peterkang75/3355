@@ -169,9 +169,86 @@ router.get("/bookings", requireAuth, requireOperator, async (req, res) => {
   }
 });
 
-// 회원별 미수금 조회 — member.balance 기준 (전체 누적 미납액)
+// 회원별 미수금 조회
+// - yearMonth 지정: 그 달의 net delta(charges-payments-refunds 등)가 음수인 회원만 반환 (월별 미수금)
+// - yearMonth 미지정: 전체 누적 잔액 음수 회원 반환 (호환용)
 router.get("/outstanding", requireAuth, requireOperator, async (req, res) => {
   try {
+    const { yearMonth } = req.query; // "YYYY-MM" 형식
+
+    if (yearMonth && /^\d{4}-\d{2}$/.test(yearMonth)) {
+      // 해당 월의 트랜잭션만 조회하여 회원별 net delta 계산
+      const monthlyTxs = await prisma.transaction.findMany({
+        where: {
+          date: { startsWith: yearMonth },
+          memberId: { not: null },
+        },
+        select: { memberId: true, type: true, amount: true, category: true },
+      });
+
+      const EXCLUDED_PAYMENT_CATEGORIES = ['크레딧 자동 납부', '크레딧 납부', '크레딧 자동 차감'];
+      const EXCLUDED_EXPENSE_CATEGORIES = ['환불']; // 잔액에 영향 없음
+
+      const memberDeltas = {};
+      for (const tx of monthlyTxs) {
+        if (memberDeltas[tx.memberId] === undefined) memberDeltas[tx.memberId] = 0;
+        switch (tx.type) {
+          case 'charge':
+            memberDeltas[tx.memberId] -= tx.amount;
+            break;
+          case 'payment':
+            if (!EXCLUDED_PAYMENT_CATEGORIES.includes(tx.category)) {
+              memberDeltas[tx.memberId] += tx.amount;
+            }
+            break;
+          case 'credit':
+            memberDeltas[tx.memberId] += tx.amount;
+            break;
+          case 'expense':
+            if (!EXCLUDED_EXPENSE_CATEGORIES.includes(tx.category)) {
+              memberDeltas[tx.memberId] -= tx.amount;
+            }
+            break;
+          case 'creditDonation':
+            memberDeltas[tx.memberId] -= tx.amount;
+            break;
+        }
+      }
+
+      const negativeIds = Object.entries(memberDeltas)
+        .filter(([, delta]) => delta < 0)
+        .map(([id]) => id);
+
+      if (negativeIds.length === 0) return res.json([]);
+
+      const members = await prisma.member.findMany({
+        where: {
+          id: { in: negativeIds },
+          OR: [
+            { isActive: true },
+            { isGuest: true, approvalStatus: 'guest' },
+          ],
+        },
+        select: { id: true, name: true, nickname: true, isGuest: true },
+      });
+
+      const outstandingBalances = members
+        .map((m) => ({
+          memberId: m.id,
+          memberName: m.name,
+          memberNickname: m.nickname,
+          isGuest: m.isGuest || false,
+          balance: memberDeltas[m.id], // 월 단위 delta (음수)
+        }))
+        .sort((a, b) => {
+          if (a.isGuest !== b.isGuest) return a.isGuest ? 1 : -1;
+          return a.balance - b.balance;
+        });
+
+      return res.json(outstandingBalances);
+    }
+
+    // yearMonth 미지정: 전체 누적 잔액 음수 회원 (기존 동작)
     const members = await prisma.member.findMany({
       where: {
         balance: { lt: 0 },
@@ -192,7 +269,7 @@ router.get("/outstanding", requireAuth, requireOperator, async (req, res) => {
         balance: member.balance,
       }))
       .sort((a, b) => {
-        if (a.isGuest !== b.isGuest) return a.isGuest ? 1 : -1; // 게스트는 뒤로
+        if (a.isGuest !== b.isGuest) return a.isGuest ? 1 : -1;
         return a.balance - b.balance;
       });
 

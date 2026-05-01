@@ -26,6 +26,10 @@ function calculateBalance(transactions) {
     '크레딧 자동 차감',
   ];
 
+  // 회원 잔액에 영향을 미치지 않는 expense 카테고리
+  // 환불: 클럽이 회원에게 돈을 돌려준 것 → 회원 빚 발생 X (납부와 상쇄되어 0)
+  const EXCLUDED_EXPENSE_CATEGORIES = ['환불'];
+
   return transactions.reduce((sum, t) => {
     switch (t.type) {
       case 'charge':
@@ -36,6 +40,7 @@ function calculateBalance(transactions) {
       case 'credit':
         return sum + t.amount;
       case 'expense':
+        if (EXCLUDED_EXPENSE_CATEGORIES.includes(t.category)) return sum;
         return sum - t.amount;
       case 'creditDonation':
         return sum - t.amount;
@@ -69,4 +74,36 @@ async function recalculateAndUpdateBalance(memberId) {
   return balance;
 }
 
-module.exports = { calculateBalance, recalculateAndUpdateBalance };
+/**
+ * 전체 회원의 잔액을 일괄 재계산. 트랜잭션 변경 없이 잔액만 재산출.
+ * (환불 카테고리 제외 로직 변경 후 기존 데이터 정정용 — idempotent)
+ *
+ * @returns {{updated: number, unchanged: number, errors: number}}
+ */
+async function recalculateAllBalances() {
+  const members = await prisma.member.findMany({ select: { id: true, balance: true } });
+  let updated = 0, unchanged = 0, errors = 0;
+
+  for (const m of members) {
+    try {
+      const transactions = await prisma.transaction.findMany({
+        where: { memberId: m.id },
+        select: { type: true, amount: true, category: true },
+      });
+      const newBalance = calculateBalance(transactions);
+      if (newBalance !== m.balance) {
+        await prisma.member.update({ where: { id: m.id }, data: { balance: newBalance } });
+        updated++;
+      } else {
+        unchanged++;
+      }
+    } catch (err) {
+      console.error(`잔액 재계산 실패: memberId=${m.id}`, err);
+      errors++;
+    }
+  }
+
+  return { updated, unchanged, errors };
+}
+
+module.exports = { calculateBalance, recalculateAndUpdateBalance, recalculateAllBalances };

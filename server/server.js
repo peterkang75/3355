@@ -91,6 +91,18 @@ async function checkAndUpdatePlayStatus() {
 
 setInterval(checkAndUpdatePlayStatus, 60 * 1000);
 
+// 서버 시작 시 1회: 환불 카테고리 잔액 영향 변경 반영을 위해 모든 회원 잔액 재계산.
+// idempotent — 트랜잭션 변경 없이 잔액만 재산출하므로 매 재시작마다 돌아도 안전.
+setTimeout(async () => {
+  try {
+    const { recalculateAllBalances } = require('./utils/balance');
+    const result = await recalculateAllBalances();
+    console.log(`💰 회원 잔액 재계산 완료 — updated=${result.updated}, unchanged=${result.unchanged}, errors=${result.errors}`);
+  } catch (err) {
+    console.error('회원 잔액 재계산 오류:', err);
+  }
+}, 5000);
+
 async function initializeDefaultCategories() {
   try {
     const incomeCount = await prisma.incomeCategory.count();
