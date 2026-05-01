@@ -186,30 +186,48 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
             )}
           </div>
 
-          {/* 참가자 목록 */}
+          {/* 참가자 목록 (번호대여 회원도 함께 표시) */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
-            {hmParticipants.length === 0 ? (
-              <div style={{ color: '#94A3B8', fontSize: '14px', padding: '8px 0' }}>참가자가 없습니다.</div>
-            ) : (
-              hmParticipants.map((p, idx) => {
+            {(() => {
+              const participantPhonesSet = new Set(hmParticipants.map(p => p.phone).filter(Boolean));
+              const rentalRows = (booking?.numberRentals || [])
+                .filter(ph => !participantPhonesSet.has(ph))
+                .map(ph => {
+                  const m = (members || []).find(mm => mm.phone === ph);
+                  return m ? { phone: m.phone, name: m.name, nickname: m.nickname, isRental: true } : { phone: ph, name: '번호대여', isRental: true };
+                });
+              const allRows = [...hmParticipants, ...rentalRows];
+
+              if (allRows.length === 0) {
+                return <div style={{ color: '#94A3B8', fontSize: '14px', padding: '8px 0' }}>참가자가 없습니다.</div>;
+              }
+              return allRows.map((p, idx) => {
                 const isGuest = p.phone && p.phone.startsWith('guest_');
+                const isRental = p.isRental;
+                const bg = isRental ? '#FFF7ED' : '#F8FAFC';
+                const borderColor = isRental ? '#FED7AA' : '#F1F5F9';
+                const avatarBg = isRental ? '#FFF7ED' : (isGuest ? '#F1F5F9' : '#EBF2FF');
+                const avatarColor = isRental ? '#C2410C' : (isGuest ? '#94A3B8' : PRIMARY);
                 return (
-                  <div key={p.phone || idx} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', borderRadius: '10px', background: '#F8FAFC', border: '1px solid #F1F5F9' }}>
-                    <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: isGuest ? '#F1F5F9' : '#EBF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '700', flexShrink: 0, marginRight: '10px', color: isGuest ? '#94A3B8' : PRIMARY }}>
-                      {isGuest ? 'G' : (p.nickname || p.name || '').charAt(0)}
+                  <div key={p.phone || idx} style={{ display: 'flex', alignItems: 'center', padding: '10px 12px', borderRadius: '10px', background: bg, border: `1px solid ${borderColor}` }}>
+                    <div style={{ width: '30px', height: '30px', borderRadius: '50%', background: avatarBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: '700', flexShrink: 0, marginRight: '10px', color: avatarColor }}>
+                      {isRental ? '🔁' : (isGuest ? 'G' : (p.nickname || p.name || '').charAt(0))}
                     </div>
                     <span style={{ flex: 1, fontSize: '14px', fontWeight: '600', color: '#1E293B' }}>
                       {p.nickname || p.name}
                       {isGuest && <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: '400', marginLeft: '6px' }}>게스트</span>}
+                      {isRental && <span style={{ fontSize: '12px', color: '#C2410C', fontWeight: '600', marginLeft: '6px' }}>번호대여</span>}
                     </span>
-                    <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleHmRemoveParticipant(p.phone); }} disabled={hmSaving}
-                      style={{ width: '26px', height: '26px', borderRadius: '50%', background: '#F1F5F9', border: 'none', color: '#94A3B8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>
-                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    </button>
+                    {!isRental && (
+                      <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleHmRemoveParticipant(p.phone); }} disabled={hmSaving}
+                        style={{ width: '26px', height: '26px', borderRadius: '50%', background: '#F1F5F9', border: 'none', color: '#94A3B8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                      </button>
+                    )}
                   </div>
                 );
-              })
-            )}
+              });
+            })()}
           </div>
 
           {/* GA 명단 PDF */}
