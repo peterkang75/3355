@@ -148,7 +148,13 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
 
         {/* 참가자 */}
         <div style={card}>
-          {sLabel(`참가자 (${hmParticipants.length}명)`)}
+          {(() => {
+            const rentalCount = (booking?.numberRentals || []).length;
+            const label = rentalCount > 0
+              ? `참가자 ${hmParticipants.length}명 + 번호대여 ${rentalCount}명 (총 ${hmParticipants.length + rentalCount}명)`
+              : `참가자 (${hmParticipants.length}명)`;
+            return sLabel(label);
+          })()}
 
           {/* 검색 */}
           <div style={{ position: 'relative', marginBottom: '10px' }}>

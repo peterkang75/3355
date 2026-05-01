@@ -541,7 +541,13 @@ function TeamFormation() {
                 <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', display: 'flex', gap: '8px' }}>
                   <span>{new Date(booking.date).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric', weekday: 'short' })}</span>
                   <span>·</span>
-                  <span>총 {participants.length}명</span>
+                  {(() => {
+                    const rentalCount = (booking.numberRentals || []).length;
+                    const baseCount = participants.length - rentalCount;
+                    return rentalCount > 0
+                      ? <span>총 {participants.length}명 (참가자 {baseCount} + 번호대여 {rentalCount})</span>
+                      : <span>총 {participants.length}명</span>;
+                  })()}
                 </div>
               </div>
               {/* 미배정 뱃지 */}
