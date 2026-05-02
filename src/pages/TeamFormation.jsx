@@ -508,7 +508,7 @@ function TeamFormation() {
         user={user}
       />
 
-      <div className="page-content">
+      <div className="page-content" style={{ paddingBottom: 'calc(110px + env(safe-area-inset-bottom))' }}>
 
         {/* ── 상단 통합 카드 ── */}
         <div style={{
