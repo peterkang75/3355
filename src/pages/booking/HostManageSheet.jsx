@@ -218,12 +218,26 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
                       {isGuest && <span style={{ fontSize: '12px', color: '#94A3B8', fontWeight: '400', marginLeft: '6px' }}>게스트</span>}
                       {isRental && <span style={{ fontSize: '12px', color: '#C2410C', fontWeight: '600', marginLeft: '6px' }}>번호대여</span>}
                     </span>
-                    {!isRental && (
-                      <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleHmRemoveParticipant(p.phone); }} disabled={hmSaving}
-                        style={{ width: '26px', height: '26px', borderRadius: '50%', background: '#F1F5F9', border: 'none', color: '#94A3B8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}>
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                      </button>
-                    )}
+                    <button
+                      onClick={async (e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        if (isRental) {
+                          if (!window.confirm(`${p.nickname || p.name}님의 번호대여를 취소하시겠습니까?`)) return;
+                          try {
+                            await apiService.toggleNumberRental(booking.id, p.phone);
+                          } catch {
+                            alert('번호대여 취소에 실패했습니다.');
+                          }
+                        } else {
+                          handleHmRemoveParticipant(p.phone);
+                        }
+                      }}
+                      disabled={hmSaving}
+                      style={{ width: '26px', height: '26px', borderRadius: '50%', background: isRental ? '#FED7AA' : '#F1F5F9', border: 'none', color: isRental ? '#C2410C' : '#94A3B8', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, padding: 0 }}
+                    >
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
                   </div>
                 );
               });
