@@ -324,6 +324,47 @@ class ApiService {
     return response.json();
   }
 
+  // ── 라운딩 미디어 (사진·동영상) ──────────────────────────────────────
+  async fetchBookingMedia(bookingId) {
+    const response = await fetch(`${API_BASE}/bookings/${bookingId}/media`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const e = await response.json().catch(() => ({}));
+      throw new Error(e.error || '사진·영상을 불러오지 못했습니다.');
+    }
+    return response.json();
+  }
+
+  async uploadBookingMedia(bookingId, files) {
+    const fd = new FormData();
+    files.forEach((f) => fd.append('files', f));
+    const response = await fetch(`${API_BASE}/bookings/${bookingId}/media`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(), // FormData는 Content-Type 자동 설정(boundary)
+      body: fd,
+    });
+    if (!response.ok) {
+      const e = await response.json().catch(() => ({}));
+      throw new Error(e.error || '업로드에 실패했습니다.');
+    }
+    this.invalidateCache('bookings');
+    return response.json();
+  }
+
+  async deleteMedia(mediaId) {
+    const response = await fetch(`${API_BASE}/media/${mediaId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) {
+      const e = await response.json().catch(() => ({}));
+      throw new Error(e.error || '삭제에 실패했습니다.');
+    }
+    this.invalidateCache('bookings');
+    return response.json();
+  }
+
   async toggleBookingAnnounce(id) {
     const response = await fetch(`${API_BASE}/bookings/${id}/toggle-announce`, {
       method: 'PATCH',

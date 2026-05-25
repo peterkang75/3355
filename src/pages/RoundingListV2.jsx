@@ -9,6 +9,7 @@ import {
 } from './booking/bookingHelpers';
 import WeeklyTimeline from './booking/WeeklyTimeline';
 import BookingBottomSheet from './booking/BookingBottomSheet';
+import MediaGallery from './booking/MediaGallery';
 import HostManageSheet from './booking/HostManageSheet';
 import CreateBookingModal from './booking/CreateBookingModal';
 import golfMembersPhoto from '../assets/golf-members.jpeg';
@@ -29,6 +30,7 @@ function RoundingListV2() {
   const [isCreating, setIsCreating] = useState(false);
   const [myBookingsExpanded, setMyBookingsExpanded] = useState(false);
   const [viewMode, setViewMode] = useState('upcoming'); // 'upcoming' | 'past'
+  const [galleryBooking, setGalleryBooking] = useState(null);
   const sheetRef = useRef(null);
 
   // ── Host Manage state ──────────────────────────────────────────────────────
@@ -707,10 +709,19 @@ function RoundingListV2() {
         onJoinLeave={handleJoinLeave}
         onToggleRental={handleToggleRental}
         onOpenHostManage={openHostManage}
+        onOpenGallery={(b) => { setSelectedBooking(null); setGalleryBooking(b); }}
         onClose={() => setSelectedBooking(null)}
         sheetRef={sheetRef}
         getMemberName={getMemberName}
       />
+
+      {galleryBooking && (
+        <MediaGallery
+          booking={galleryBooking}
+          user={user}
+          onClose={() => { setGalleryBooking(null); refreshBookings(); }}
+        />
+      )}
 
       <HostManageSheet
         show={showHostManage}

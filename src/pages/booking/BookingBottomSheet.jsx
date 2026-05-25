@@ -13,6 +13,7 @@ export default function BookingBottomSheet({
   onJoinLeave,
   onToggleRental,
   onOpenHostManage,
+  onOpenGallery,
   onClose,
   sheetRef,
   getMemberName,
@@ -303,6 +304,17 @@ export default function BookingBottomSheet({
         {/* ── 액션 버튼 ── */}
         <div style={{ padding: '12px 20px', paddingBottom: 'max(100px, calc(90px + env(safe-area-inset-bottom)))', borderTop: '1px solid #F1F5F9', background: '#F8FAFC', flexShrink: 0 }}>
           {renderActionButtons()}
+          {onOpenGallery && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onOpenGallery(booking); }}
+              style={{ width: '100%', marginTop: '10px', padding: '14px', borderRadius: '12px', border: '1px solid #BFDBFE', background: '#EBF2FF', color: '#0047AB', fontSize: '15px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+              </svg>
+              사진·영상{booking._count?.media ? ` ${booking._count.media}` : ''}
+            </button>
+          )}
         </div>
       </div>
     </>
