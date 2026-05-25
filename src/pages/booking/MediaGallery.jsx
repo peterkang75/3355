@@ -43,6 +43,15 @@ export default function MediaGallery({ booking, user, onClose }) {
 
   useEffect(() => { load(); }, [load]);
 
+  // 처리 중인 항목이 있으면 자동 갱신(폴링) — 최대 3분
+  const pollCount = useRef(0);
+  useEffect(() => {
+    if (!items.some((m) => m.status === 'processing')) { pollCount.current = 0; return undefined; }
+    if (pollCount.current >= 60) return undefined;
+    const t = setTimeout(() => { pollCount.current += 1; load(); }, 3000);
+    return () => clearTimeout(t);
+  }, [items, load]);
+
   // 배경 스크롤 잠금
   useEffect(() => {
     const prev = document.body.style.overflow;
@@ -134,11 +143,13 @@ export default function MediaGallery({ booking, user, onClose }) {
     }
   };
 
+  const readyItems = items.filter((m) => m.status === 'ready');
+  const processingCount = items.filter((m) => m.status === 'processing').length;
   const overlay = { position: 'fixed', inset: 0, zIndex: 2000, background: '#fff', display: 'flex', flexDirection: 'column' };
 
   return (
     <div style={overlay}>
-      <style>{`@keyframes mgIndeterminate { 0% { transform: translateX(-120%); } 100% { transform: translateX(320%); } }`}</style>
+      <style>{`@keyframes mgIndeterminate { 0% { transform: translateX(-120%); } 100% { transform: translateX(320%); } } @keyframes mgSpin { to { transform: rotate(360deg); } }`}</style>
       {/* 헤더 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: 'max(14px, env(safe-area-inset-top)) 16px 12px', borderBottom: '1px solid #EEF2F7', flexShrink: 0 }}>
         <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#1E293B', display: 'flex' }}>
@@ -148,7 +159,10 @@ export default function MediaGallery({ booking, user, onClose }) {
           <div style={{ fontSize: '16px', fontWeight: '800', color: '#1E293B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {booking.title || booking.courseName}
           </div>
-          <div style={{ fontSize: '12px', color: '#94A3B8' }}>{fmtDate(booking.date)} · 사진·영상 {items.length}</div>
+          <div style={{ fontSize: '12px', color: '#94A3B8' }}>
+            {fmtDate(booking.date)} · 사진·영상 {readyItems.length}
+            {processingCount > 0 && <span style={{ color: '#0047AB' }}> · 처리 중 {processingCount}</span>}
+          </div>
         </div>
         {!archivedAt && (
           <button onClick={handlePick} disabled={uploading} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#0047AB', color: '#fff', border: 'none', borderRadius: '10px', padding: '9px 14px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', opacity: uploading ? 0.6 : 1, flexShrink: 0 }}>
@@ -194,37 +208,59 @@ export default function MediaGallery({ booking, user, onClose }) {
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px' }}>
-            {items.map((m, idx) => (
-              <div key={m.id} onClick={() => setViewerIdx(idx)} style={{ position: 'relative', aspectRatio: '1', background: '#F1F5F9', borderRadius: '6px', overflow: 'hidden', cursor: 'pointer' }}>
-                <img src={m.thumbnailUrl || m.url} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                {m.type === 'video' && (
-                  <>
-                    <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.15)' }}>
-                      <svg width="30" height="30" viewBox="0 0 24 24" fill="#fff" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))' }}><polygon points="6 4 20 12 6 20 6 4"/></svg>
-                    </div>
-                    {m.durationSec != null && (
-                      <div style={{ position: 'absolute', bottom: '4px', right: '4px', background: 'rgba(0,0,0,0.65)', color: '#fff', fontSize: '10px', fontWeight: '700', padding: '1px 5px', borderRadius: '4px' }}>{fmtDur(m.durationSec)}</div>
-                    )}
-                  </>
-                )}
-              </div>
-            ))}
+            {items.map((m) => {
+              const tile = { position: 'relative', aspectRatio: '1', background: '#F1F5F9', borderRadius: '6px', overflow: 'hidden' };
+
+              if (m.status === 'processing') {
+                return (
+                  <div key={m.id} style={{ ...tile, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px', background: '#F1F5F9' }}>
+                    <div style={{ width: '22px', height: '22px', border: '3px solid #C7DBFF', borderTopColor: '#0047AB', borderRadius: '9999px', animation: 'mgSpin 0.8s linear infinite' }} />
+                    <div style={{ fontSize: '10px', color: '#64748B', fontWeight: '600' }}>{m.type === 'video' ? '영상 처리 중' : '처리 중'}</div>
+                  </div>
+                );
+              }
+              if (m.status === 'failed') {
+                return (
+                  <div key={m.id} onClick={() => deleteItem(m)} style={{ ...tile, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', background: '#FEF2F2', cursor: 'pointer' }}>
+                    <div style={{ fontSize: '18px' }}>⚠️</div>
+                    <div style={{ fontSize: '10px', color: '#B91C1C', fontWeight: '600' }}>처리 실패<br />(눌러서 삭제)</div>
+                  </div>
+                );
+              }
+
+              const ri = readyItems.findIndex((x) => x.id === m.id);
+              return (
+                <div key={m.id} onClick={() => setViewerIdx(ri)} style={{ ...tile, cursor: 'pointer' }}>
+                  <img src={m.thumbnailUrl || m.url} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  {m.type === 'video' && (
+                    <>
+                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.15)' }}>
+                        <svg width="30" height="30" viewBox="0 0 24 24" fill="#fff" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))' }}><polygon points="6 4 20 12 6 20 6 4"/></svg>
+                      </div>
+                      {m.durationSec != null && (
+                        <div style={{ position: 'absolute', bottom: '4px', right: '4px', background: 'rgba(0,0,0,0.65)', color: '#fff', fontSize: '10px', fontWeight: '700', padding: '1px 5px', borderRadius: '4px' }}>{fmtDur(m.durationSec)}</div>
+                      )}
+                    </>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
 
       {/* 확대 보기 */}
-      {viewerIdx != null && items[viewerIdx] && (
+      {viewerIdx != null && readyItems[viewerIdx] && (
         <Viewer
-          item={items[viewerIdx]}
+          item={readyItems[viewerIdx]}
           index={viewerIdx}
-          total={items.length}
-          canDelete={items[viewerIdx].uploaderPhone === user.phone}
+          total={readyItems.length}
+          canDelete={readyItems[viewerIdx].uploaderPhone === user.phone}
           onPrev={() => setViewerIdx((i) => (i > 0 ? i - 1 : i))}
-          onNext={() => setViewerIdx((i) => (i < items.length - 1 ? i + 1 : i))}
+          onNext={() => setViewerIdx((i) => (i < readyItems.length - 1 ? i + 1 : i))}
           onClose={() => setViewerIdx(null)}
-          onDownload={() => downloadItem(items[viewerIdx])}
-          onDelete={() => deleteItem(items[viewerIdx])}
+          onDownload={() => downloadItem(readyItems[viewerIdx])}
+          onDelete={() => deleteItem(readyItems[viewerIdx])}
         />
       )}
     </div>

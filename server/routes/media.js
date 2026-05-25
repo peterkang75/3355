@@ -30,68 +30,97 @@ async function getMemberPhone(memberId) {
   return m;
 }
 
-// ── 업로드 (참가 회원만) ─────────────────────────────────────────────────
-router.post('/bookings/:bookingId/media', requireAuth, upload.array('files', 10), async (req, res) => {
-  const tmpFiles = (req.files || []).map((f) => f.path);
-  try {
-    if (!req.files || req.files.length === 0) {
-      return res.status(400).json({ error: '업로드할 파일이 없습니다.' });
-    }
-    const member = await getMemberPhone(req.member.id);
-    const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
-    if (!booking) return res.status(404).json({ error: '라운딩을 찾을 수 없습니다.' });
+const cleanupTemp = (files) => {
+  (files || []).forEach((f) => { try { if (f.path && fs.existsSync(f.path)) fs.unlinkSync(f.path); } catch { /* noop */ } });
+};
 
-    const parts = parseParticipants(booking.participants);
-    if (!parts.some((p) => p.phone === member.phone)) {
-      return res.status(403).json({ error: '이 라운딩 참가자만 사진·영상을 올릴 수 있습니다.' });
-    }
-
-    const existing = await prisma.roundingMedia.count({ where: { bookingId: booking.id } });
-    if (existing + req.files.length > MAX_ITEMS_PER_ROUND) {
-      return res.status(400).json({ error: `라운딩당 최대 ${MAX_ITEMS_PER_ROUND}개까지 올릴 수 있습니다. (현재 ${existing}개)` });
-    }
-
-    const created = [];
-    for (const file of req.files) {
-      const isVideo = (file.mimetype || '').startsWith('video/');
-      const processed = isVideo ? await processVideo(file.path) : await processImage(file.path);
-
-      const baseKey = `bookings/${booking.id}/${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
-      const objectKey = `${baseKey}.${processed.ext}`;
-      const thumbnailKey = processed.thumbBuf ? `${baseKey}-thumb.jpg` : null;
-
-      await r2.uploadBuffer(objectKey, processed.fullBuf, processed.contentType);
+// 백그라운드 처리: 압축(영상 transcode) → R2 업로드 → 행 상태 ready. 응답을 막지 않음.
+async function processJobsInBackground(jobs) {
+  for (const job of jobs) {
+    try {
+      const processed = job.isVideo ? await processVideo(job.path) : await processImage(job.path);
+      await r2.uploadBuffer(job.objectKey, processed.fullBuf, processed.contentType);
+      const thumbnailKey = processed.thumbBuf ? `${job.baseKey}-thumb.jpg` : null;
       if (thumbnailKey) await r2.uploadBuffer(thumbnailKey, processed.thumbBuf, 'image/jpeg');
-
-      const row = await prisma.roundingMedia.create({
+      await prisma.roundingMedia.update({
+        where: { id: job.rowId },
         data: {
-          bookingId: booking.id,
-          type: isVideo ? 'video' : 'photo',
-          objectKey,
           thumbnailKey,
           fileSize: processed.fullBuf.length + (processed.thumbBuf ? processed.thumbBuf.length : 0),
           durationSec: processed.durationSec || null,
           width: processed.width || null,
           height: processed.height || null,
-          uploaderPhone: member.phone,
-          uploaderName: member.nickname || member.name,
           status: 'ready',
         },
       });
-      created.push(row.id);
+    } catch (e) {
+      console.error('media bg process error', job.rowId, e);
+      await prisma.roundingMedia.update({ where: { id: job.rowId }, data: { status: 'failed' } }).catch(() => {});
+    } finally {
+      try { if (fs.existsSync(job.path)) fs.unlinkSync(job.path); } catch { /* noop */ }
+    }
+  }
+}
+
+// ── 업로드 (참가 회원만) — 바이트 수신 직후 응답, 압축은 백그라운드 ──────────
+router.post('/bookings/:bookingId/media', requireAuth, upload.array('files', 10), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      cleanupTemp(req.files);
+      return res.status(400).json({ error: '업로드할 파일이 없습니다.' });
+    }
+    const member = await getMemberPhone(req.member.id);
+    const booking = await prisma.booking.findUnique({ where: { id: req.params.bookingId } });
+    if (!booking) { cleanupTemp(req.files); return res.status(404).json({ error: '라운딩을 찾을 수 없습니다.' }); }
+
+    const parts = parseParticipants(booking.participants);
+    if (!parts.some((p) => p.phone === member.phone)) {
+      cleanupTemp(req.files);
+      return res.status(403).json({ error: '이 라운딩 참가자만 사진·영상을 올릴 수 있습니다.' });
     }
 
-    // 백업 후 정리됐던 라운딩에 다시 올리면 안내 플래그 해제
+    const existing = await prisma.roundingMedia.count({ where: { bookingId: booking.id } });
+    if (existing + req.files.length > MAX_ITEMS_PER_ROUND) {
+      cleanupTemp(req.files);
+      return res.status(400).json({ error: `라운딩당 최대 ${MAX_ITEMS_PER_ROUND}개까지 올릴 수 있습니다. (현재 ${existing}개)` });
+    }
+
+    // 1) 각 파일마다 'processing' 행 생성 (objectKey는 미리 확정)
+    const jobs = [];
+    for (const file of req.files) {
+      const name = (file.originalname || '').toLowerCase();
+      const isVideo = (file.mimetype || '').startsWith('video/')
+        || /\.(mp4|mov|m4v|webm|avi|3gp|mkv)$/.test(name);
+      const baseKey = `bookings/${booking.id}/${Date.now()}-${crypto.randomBytes(4).toString('hex')}`;
+      const objectKey = `${baseKey}.${isVideo ? 'mp4' : 'jpg'}`;
+      const row = await prisma.roundingMedia.create({
+        data: {
+          bookingId: booking.id,
+          type: isVideo ? 'video' : 'photo',
+          objectKey,
+          thumbnailKey: null,
+          fileSize: 0,
+          uploaderPhone: member.phone,
+          uploaderName: member.nickname || member.name,
+          status: 'processing',
+        },
+      });
+      jobs.push({ rowId: row.id, baseKey, objectKey, isVideo, path: file.path });
+    }
+
     if (booking.photosArchivedAt) {
       await prisma.booking.update({ where: { id: booking.id }, data: { photosArchivedAt: null } });
     }
 
-    res.json({ created: created.length });
+    // 2) 업로드 바이트는 다 받았으므로 즉시 응답
+    res.json({ created: jobs.length, processing: jobs.map((j) => j.rowId) });
+
+    // 3) 압축·R2업로드는 응답 후 백그라운드에서
+    processJobsInBackground(jobs).catch((e) => console.error('bg jobs error', e));
   } catch (e) {
     console.error('media upload error:', e);
-    res.status(500).json({ error: '업로드 처리 중 오류가 발생했습니다.' });
-  } finally {
-    tmpFiles.forEach((p) => { try { if (fs.existsSync(p)) fs.unlinkSync(p); } catch { /* noop */ } });
+    cleanupTemp(req.files);
+    if (!res.headersSent) res.status(500).json({ error: '업로드 처리 중 오류가 발생했습니다.' });
   }
 });
 
@@ -111,14 +140,15 @@ router.get('/bookings/:bookingId/media', requireAuth, async (req, res) => {
     const items = await Promise.all(media.map(async (m) => ({
       id: m.id,
       type: m.type,
+      status: m.status,
       durationSec: m.durationSec,
       width: m.width,
       height: m.height,
       uploaderName: m.uploaderName,
       uploaderPhone: m.uploaderPhone,
       createdAt: m.createdAt,
-      url: await r2.signedUrl(m.objectKey),
-      thumbnailUrl: await r2.signedUrl(m.thumbnailKey),
+      url: m.status === 'ready' ? await r2.signedUrl(m.objectKey) : null,
+      thumbnailUrl: m.status === 'ready' ? await r2.signedUrl(m.thumbnailKey) : null,
     })));
 
     res.json({ archivedAt: booking.photosArchivedAt, items });
