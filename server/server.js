@@ -91,77 +91,19 @@ async function checkAndUpdatePlayStatus() {
 
 setInterval(checkAndUpdatePlayStatus, 60 * 1000);
 
-// 서버 시작 시 1회 마이그레이션 + 잔액 재계산
-// idempotent — 한 번 실행 후엔 매칭 대상이 없어 재시작마다 안전
+// 서버 시작 시 회원 잔액 안전 재계산
+// 주의: 과거 여기에 있던 1회성 데이터 정정/삭제 스크립트(회원 크레딧 type 보정,
+//       5월 charge 정정, Jacob/동백 5월 거래 삭제)는 제거함 (2026-05-25).
+//       역할을 다한 뒤에도 재시작마다 재실행되어, 정산 마감 후 정상 납부 기록을
+//       삭제해 미수금을 잘못 발생시키는 사고를 유발했음. 일회성 보정은 다시 넣지 말 것.
+//       아래 재계산은 기존 거래로부터 잔액만 다시 더하는 것이라 데이터를 변경/삭제하지 않음.
 setTimeout(async () => {
   try {
-    // (1) '회원 크레딧' 카테고리는 type=credit이어야 회원 잔액에 +로 반영됨.
-    //     과거 빠른 입력 UI에서 expense로 잘못 저장된 트랜잭션 정정.
-    const wrongCredits = await prisma.transaction.findMany({
-      where: { type: 'expense', category: '회원 크레딧', memberId: { not: null } },
-      select: { id: true, memberId: true, amount: true },
-    });
-    if (wrongCredits.length > 0) {
-      const ids = wrongCredits.map((t) => t.id);
-      await prisma.transaction.updateMany({
-        where: { id: { in: ids } },
-        data: { type: 'credit' },
-      });
-      console.log(`🔧 '회원 크레딧' 트랜잭션 type 보정: ${wrongCredits.length}건 (expense → credit)`);
-    }
-
-    // (2) 5월 정기라운딩 charge 정정 + Jacob/동백 5월 부적절 트랜잭션 삭제 (1회성, idempotent)
-    //     - 부킹 fee 변경 시 charge 자동 동기화 로직이 추가되기 전에 생성된 stale charge 정정
-    //     - Jacob/동백의 5월 환불 + 회비납부 트랜잭션 (4월 정정 과정에서 잘못 5월로 들어간 것) 삭제
-    const mayBooking = await prisma.booking.findFirst({
-      where: { date: { startsWith: '2026-05' }, type: '정기모임', title: { contains: '5월' } },
-    });
-    if (mayBooking) {
-      const newRegular = (mayBooking.greenFee || 0) + (mayBooking.cartFee || 0) + (mayBooking.membershipFee || 0);
-      const newExempt = (mayBooking.greenFee || 0) + (mayBooking.cartFee || 0);
-      let chargeFixed = 0;
-      const charges = await prisma.transaction.findMany({ where: { bookingId: mayBooking.id, type: 'charge' } });
-      for (const c of charges) {
-        const m = await prisma.member.findUnique({ where: { id: c.memberId }, select: { isFeeExempt: true } });
-        const target = (m?.isFeeExempt || (c.description || '').includes('(참가비 면제)')) ? newExempt : newRegular;
-        if (target > 0 && c.amount !== target) {
-          await prisma.transaction.update({ where: { id: c.id }, data: { amount: target } });
-          chargeFixed++;
-        }
-      }
-      if (chargeFixed > 0) console.log(`🔧 5월 정기라운딩 charge 정정: ${chargeFixed}건 → $${newRegular}`);
-    }
-
-    // Jacob과 동백의 5월 expense(환불) + payment(회비납부) 트랜잭션 삭제
-    // (4월 정정 과정에서 잘못 5월로 들어간 것 — 사용자 확인됨)
-    const targets = await prisma.member.findMany({
-      where: { OR: [{ name: 'Jacob' }, { nickname: 'Jacob' }, { name: '동백' }, { nickname: '동백' }] },
-      select: { id: true, name: true, nickname: true },
-    });
-    if (targets.length > 0) {
-      const wrongMayTxs = await prisma.transaction.findMany({
-        where: {
-          memberId: { in: targets.map(t => t.id) },
-          date: { startsWith: '2026-05' },
-          OR: [
-            { type: 'expense', category: '환불' },
-            { type: 'payment', category: '회비납부' },
-          ],
-        },
-      });
-      if (wrongMayTxs.length > 0) {
-        const ids = wrongMayTxs.map(t => t.id);
-        await prisma.transaction.deleteMany({ where: { id: { in: ids } } });
-        console.log(`🗑️  Jacob/동백의 5월 환불·회비납부 부적절 트랜잭션 삭제: ${wrongMayTxs.length}건`);
-      }
-    }
-
-    // (3) 모든 회원 잔액 재계산 (환불 카테고리 처리 변경 + 위 모든 정정 반영)
     const { recalculateAllBalances } = require('./utils/balance');
     const result = await recalculateAllBalances();
     console.log(`💰 회원 잔액 재계산 완료 — updated=${result.updated}, unchanged=${result.unchanged}, errors=${result.errors}`);
   } catch (err) {
-    console.error('서버 시작 시 마이그레이션 오류:', err);
+    console.error('서버 시작 시 잔액 재계산 오류:', err);
   }
 }, 5000);
 
@@ -252,66 +194,12 @@ io.on('connection', (socket) => {
   });
 });
 
-// ── 아프로후테 3월 charge 중복 제거 + payment 복원 ────────────────────────────
-async function fixAprohuteBalance() {
-  try {
-    const { recalculateAndUpdateBalance } = require('./utils/balance');
-    const member = await prisma.member.findFirst({
-      where: { nickname: '아프로후테' },
-      select: { id: true },
-    });
-    if (!member) return;
-
-    const booking = await prisma.booking.findFirst({
-      where: { title: { contains: '3월 정기라운딩' }, courseName: { contains: 'Stonecutters' } },
-      select: { id: true },
-    });
-    if (!booking) return;
-
-    let changed = false;
-
-    // 1) charge 중복 제거
-    const charges = await prisma.transaction.findMany({
-      where: { memberId: member.id, bookingId: booking.id, type: 'charge' },
-      orderBy: { createdAt: 'asc' },
-    });
-    if (charges.length > 1) {
-      for (const c of charges.slice(1)) {
-        await prisma.transaction.delete({ where: { id: c.id } });
-        console.log(`🧹 중복 March charge 삭제: id=${c.id}`);
-      }
-      changed = true;
-    }
-
-    // 2) 삭제된 payment 복원 (없을 때만)
-    const existingPayment = await prisma.transaction.findFirst({
-      where: { memberId: member.id, bookingId: booking.id, type: 'payment' },
-    });
-    if (!existingPayment) {
-      await prisma.transaction.create({
-        data: {
-          type: 'payment',
-          amount: 125,
-          description: '3월 정기라운딩 참가비 납부 (복원)',
-          date: '2026-03-29',
-          memberId: member.id,
-          bookingId: booking.id,
-        },
-      });
-      console.log('✅ 아프로후테 3월 payment 복원 완료');
-      changed = true;
-    }
-
-    if (changed) await recalculateAndUpdateBalance(member.id);
-  } catch (e) {
-    console.error('fixAprohuteBalance error:', e.message);
-  }
-}
+// (제거됨 2026-05-25) 아프로후테 3월 charge 중복 제거 + payment 복원 함수.
+// 위 Jacob/동백 사고와 동일한 패턴(재시작마다 도는 1회성 정정)이라 함께 제거함.
 
 server.listen(PORT, '0.0.0.0', async () => {
   console.log(`✅ Server running on port ${PORT}`);
   console.log(`📊 Database connected`);
   console.log(`🔌 Socket.IO ready`);
   await initializeDefaultCategories();
-  await fixAprohuteBalance();
 });
