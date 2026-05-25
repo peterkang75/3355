@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import apiService from '../../services/api';
+import { compressImageFile } from '../../utils/compressImage';
 
 const fmtDur = (sec) => {
   if (!sec && sec !== 0) return '';
@@ -56,11 +57,23 @@ export default function MediaGallery({ booking, user, onClose }) {
     setUploading(true);
     setError('');
     try {
+      // 사진은 브라우저에서 미리 압축(1600px) → 업로드·서버처리 대폭 단축. 영상은 서버에서 압축.
+      setUploadMsg('사진 준비 중...');
+      const prepared = [];
+      for (const f of files) {
+        if ((f.type || '').startsWith('image/')) {
+          try { prepared.push(await compressImageFile(f)); }
+          catch { prepared.push(f); } // 압축 실패 시 원본 업로드
+        } else {
+          prepared.push(f);
+        }
+      }
+
       const batches = [];
-      for (let i = 0; i < files.length; i += 8) batches.push(files.slice(i, i + 8));
+      for (let i = 0; i < prepared.length; i += 8) batches.push(prepared.slice(i, i + 8));
       let done = 0;
       for (const batch of batches) {
-        setUploadMsg(`올리는 중... (${done}/${files.length}) 영상은 압축에 시간이 걸려요`);
+        setUploadMsg(`올리는 중... (${done}/${prepared.length}) 영상은 압축에 시간이 걸려요`);
         await apiService.uploadBookingMedia(booking.id, batch);
         done += batch.length;
       }
