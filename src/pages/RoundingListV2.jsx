@@ -28,6 +28,7 @@ function RoundingListV2() {
   const [isRentalLoading, setIsRentalLoading] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [myBookingsExpanded, setMyBookingsExpanded] = useState(false);
+  const [viewMode, setViewMode] = useState('upcoming'); // 'upcoming' | 'past'
   const sheetRef = useRef(null);
 
   // ── Host Manage state ──────────────────────────────────────────────────────
@@ -112,6 +113,21 @@ function RoundingListV2() {
     return Object.entries(weekMap)
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([, week]) => ({ ...week, bookings: week.bookings.sort((a, b) => new Date(a.date) - new Date(b.date)) }));
+  }, [bookings]);
+
+  // 지난 라운딩 (날짜 지난 것) — 월별 역순
+  const pastByMonth = useMemo(() => {
+    const past = bookings
+      .filter(b => !isBookingActive(b))
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+    const map = {};
+    past.forEach(b => {
+      const d = new Date(b.date);
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      if (!map[key]) map[key] = { key, label: `${d.getFullYear()}년 ${d.getMonth() + 1}월`, bookings: [] };
+      map[key].bookings.push(b);
+    });
+    return Object.values(map).sort((a, b) => b.key.localeCompare(a.key));
   }, [bookings]);
 
   const getMemberName = useCallback((id) => {
@@ -436,6 +452,28 @@ function RoundingListV2() {
 
       <div style={{ padding: '12px 16px 100px' }}>
 
+        {/* ── 예정 / 지난 토글 ─────────────────────────────────────────── */}
+        <div style={{ display: 'flex', background: '#EEF2F7', borderRadius: '12px', padding: '4px', marginBottom: '20px' }}>
+          {[{ k: 'upcoming', label: '예정' }, { k: 'past', label: '지난' }].map(({ k, label }) => (
+            <button
+              key={k}
+              onClick={() => setViewMode(k)}
+              style={{
+                flex: 1, padding: '9px', borderRadius: '9px', border: 'none', cursor: 'pointer',
+                fontSize: '14px', fontWeight: '700',
+                background: viewMode === k ? '#fff' : 'transparent',
+                color: viewMode === k ? '#0047AB' : '#94A3B8',
+                boxShadow: viewMode === k ? '0 1px 4px rgba(0,0,0,0.1)' : 'none',
+                WebkitTapHighlightColor: 'transparent', transition: 'all 0.15s',
+              }}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {viewMode === 'upcoming' && (<>
+
         {/* ── 나의 라운딩 (컴팩트 컬러 카드) ──────────────────────────────── */}
         <div style={{ marginBottom: '20px' }}>
           <div style={{ borderRadius: '14px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1px solid #dbe6f7' }}>
@@ -586,10 +624,75 @@ function RoundingListV2() {
         </div>
 
         <WeeklyTimeline groupedByWeek={groupedByWeek} user={user} onSelectBooking={setSelectedBooking} />
+
+        </>)}
+
+        {viewMode === 'past' && (
+          <div>
+            {pastByMonth.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#9CA3AF', fontSize: '14px' }}>
+                지난 라운딩이 없습니다
+              </div>
+            ) : (
+              pastByMonth.map(month => (
+                <div key={month.key} style={{ marginBottom: '22px' }}>
+                  <div style={{ fontSize: '14px', fontWeight: '800', color: '#64748B', marginBottom: '10px', paddingLeft: '2px' }}>
+                    {month.label}
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    {month.bookings.map(b => {
+                      const parts = parseParticipants(b.participants);
+                      const names = parts.map(p => p.nickname || p.name);
+                      const summary = names.length <= 3 ? names.join(', ') : `${names.slice(0, 3).join(', ')} 외 ${names.length - 3}명`;
+                      const d = new Date(b.date);
+                      const days2 = ['일', '월', '화', '수', '목', '금', '토'];
+                      const mediaCount = b._count?.media || 0;
+                      return (
+                        <div
+                          key={b.id}
+                          onClick={() => setSelectedBooking(b)}
+                          style={{
+                            display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px',
+                            background: '#fff', borderRadius: '14px', cursor: 'pointer',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1px solid #EEF2F7',
+                          }}
+                        >
+                          <div style={{ minWidth: '38px', textAlign: 'center', flexShrink: 0 }}>
+                            <div style={{ fontSize: '18px', fontWeight: '800', color: '#0047AB', lineHeight: 1 }}>{d.getDate()}</div>
+                            <div style={{ fontSize: '10px', color: '#9CA3AF', marginTop: '2px' }}>{days2[d.getDay()]}</div>
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div style={{ fontSize: '14px', fontWeight: '700', color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {b.title || b.courseName}
+                            </div>
+                            <div style={{ fontSize: '11.5px', color: '#9CA3AF', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {b.courseName}{summary ? ` · ${summary}` : ''}
+                            </div>
+                          </div>
+                          {mediaCount > 0 && (
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '3px', flexShrink: 0, background: '#EBF2FF', color: '#0047AB', padding: '3px 8px', borderRadius: '9999px', fontSize: '11px', fontWeight: '700' }}>
+                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                              </svg>
+                              {mediaCount}
+                            </div>
+                          )}
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+                            <polyline points="9 18 15 12 9 6"/>
+                          </svg>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
       </div>
 
       {/* FAB */}
-      {canCreateBooking && (
+      {canCreateBooking && viewMode === 'upcoming' && (
         <button onClick={openCreate} style={{ position: 'fixed', bottom: '100px', right: '20px', display: 'flex', alignItems: 'center', gap: '6px', border: 'none', background: '#0047AB', color: 'white', padding: '12px 20px', borderRadius: '30px', fontWeight: 'bold', fontSize: '15px', boxShadow: '0 4px 16px rgba(0,71,171,0.3), 0 0 0 4px rgba(0,71,171,0.08)', cursor: 'pointer', zIndex: 1000, animation: 'fabPulse 2.8s ease-in-out infinite' }}>
           <span style={{ fontSize: '20px', lineHeight: 1 }}>+</span> 라운딩 만들기
         </button>

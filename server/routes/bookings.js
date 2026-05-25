@@ -9,7 +9,7 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     const bookings = await prisma.booking.findMany({
-      include: { organizer: true },
+      include: { organizer: true, _count: { select: { media: true } } },
       orderBy: { date: "desc" },
     });
     res.json(bookings);
