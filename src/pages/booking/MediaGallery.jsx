@@ -21,7 +21,9 @@ export default function MediaGallery({ booking, user, onClose }) {
   const [archivedAt, setArchivedAt] = useState(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [uploadMsg, setUploadMsg] = useState('');
+  const [upLabel, setUpLabel] = useState('');
+  const [upPct, setUpPct] = useState(0);
+  const [upBusy, setUpBusy] = useState(false); // 서버 처리 중(진행률 알 수 없음) = 움직이는 막대
   const [error, setError] = useState('');
   const [viewerIdx, setViewerIdx] = useState(null);
   const fileRef = useRef(null);
@@ -56,12 +58,16 @@ export default function MediaGallery({ booking, user, onClose }) {
     if (files.length === 0) return;
     setUploading(true);
     setError('');
+    setUpPct(0);
+    setUpBusy(false);
     try {
-      // 사진은 브라우저에서 미리 압축(1600px) → 업로드·서버처리 대폭 단축. 영상은 서버에서 압축.
-      setUploadMsg('사진 준비 중...');
+      // 1) 사진은 브라우저에서 미리 압축(1600px). 영상은 서버에서 압축.
       const prepared = [];
-      for (const f of files) {
+      for (let i = 0; i < files.length; i++) {
+        const f = files[i];
         if ((f.type || '').startsWith('image/')) {
+          setUpBusy(true);
+          setUpLabel(`사진 압축 중... (${i + 1}/${files.length})`);
           try { prepared.push(await compressImageFile(f)); }
           catch { prepared.push(f); } // 압축 실패 시 원본 업로드
         } else {
@@ -69,12 +75,24 @@ export default function MediaGallery({ booking, user, onClose }) {
         }
       }
 
+      // 2) 업로드 (8개씩 배치, 실제 진행률 표시)
       const batches = [];
       for (let i = 0; i < prepared.length; i += 8) batches.push(prepared.slice(i, i + 8));
       let done = 0;
       for (const batch of batches) {
-        setUploadMsg(`올리는 중... (${done}/${prepared.length}) 영상은 압축에 시간이 걸려요`);
-        await apiService.uploadBookingMedia(booking.id, batch);
+        const prefix = batches.length > 1 ? `(${done + 1}~${done + batch.length}/${prepared.length}) ` : '';
+        // eslint-disable-next-line no-loop-func
+        await apiService.uploadBookingMedia(booking.id, batch, (frac) => {
+          if (frac < 1) {
+            setUpBusy(false);
+            setUpPct(Math.round(frac * 100));
+            setUpLabel(`${prefix}올리는 중... ${Math.round(frac * 100)}%`);
+          } else {
+            setUpBusy(true);
+            setUpPct(100);
+            setUpLabel(`${prefix}처리 중... (서버에서 정리 중)`);
+          }
+        });
         done += batch.length;
       }
       await load();
@@ -82,7 +100,9 @@ export default function MediaGallery({ booking, user, onClose }) {
       setError(err.message);
     } finally {
       setUploading(false);
-      setUploadMsg('');
+      setUpLabel('');
+      setUpPct(0);
+      setUpBusy(false);
     }
   };
 
@@ -118,6 +138,7 @@ export default function MediaGallery({ booking, user, onClose }) {
 
   return (
     <div style={overlay}>
+      <style>{`@keyframes mgIndeterminate { 0% { transform: translateX(-120%); } 100% { transform: translateX(320%); } }`}</style>
       {/* 헤더 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: 'max(14px, env(safe-area-inset-top)) 16px 12px', borderBottom: '1px solid #EEF2F7', flexShrink: 0 }}>
         <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#1E293B', display: 'flex' }}>
@@ -140,8 +161,17 @@ export default function MediaGallery({ booking, user, onClose }) {
       {/* 본문 */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '14px 14px 40px' }}>
         {uploading && (
-          <div style={{ background: '#EBF2FF', color: '#0047AB', borderRadius: '12px', padding: '14px', fontSize: '13px', fontWeight: '600', textAlign: 'center', marginBottom: '14px' }}>
-            {uploadMsg || '올리는 중...'}
+          <div style={{ background: '#EBF2FF', borderRadius: '12px', padding: '14px', marginBottom: '14px' }}>
+            <div style={{ fontSize: '13px', fontWeight: '700', color: '#0047AB', marginBottom: '9px', textAlign: 'center' }}>
+              {upLabel || '올리는 중...'}
+            </div>
+            <div style={{ height: '8px', background: '#C7DBFF', borderRadius: '9999px', overflow: 'hidden' }}>
+              {upBusy ? (
+                <div style={{ height: '100%', width: '40%', background: '#0047AB', borderRadius: '9999px', animation: 'mgIndeterminate 1.1s ease-in-out infinite' }} />
+              ) : (
+                <div style={{ height: '100%', width: `${upPct}%`, background: '#0047AB', borderRadius: '9999px', transition: 'width 0.2s ease' }} />
+              )}
+            </div>
           </div>
         )}
         {error && (

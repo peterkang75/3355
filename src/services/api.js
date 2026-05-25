@@ -336,20 +336,32 @@ class ApiService {
     return response.json();
   }
 
-  async uploadBookingMedia(bookingId, files) {
-    const fd = new FormData();
-    files.forEach((f) => fd.append('files', f));
-    const response = await fetch(`${API_BASE}/bookings/${bookingId}/media`, {
-      method: 'POST',
-      headers: this.getAuthHeaders(), // FormData는 Content-Type 자동 설정(boundary)
-      body: fd,
+  // onProgress(frac): 업로드 바이트 진행률 0~1 (frac===1이면 업로드 완료→서버 처리 단계)
+  uploadBookingMedia(bookingId, files, onProgress) {
+    return new Promise((resolve, reject) => {
+      const fd = new FormData();
+      files.forEach((f) => fd.append('files', f));
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', `${API_BASE}/bookings/${bookingId}/media`);
+      // FormData는 Content-Type을 자동 설정하므로 인증 헤더만 추가
+      Object.entries(this.getAuthHeaders()).forEach(([k, v]) => xhr.setRequestHeader(k, v));
+      xhr.upload.onprogress = (ev) => {
+        if (onProgress && ev.lengthComputable) onProgress(ev.loaded / ev.total);
+      };
+      xhr.upload.onload = () => { if (onProgress) onProgress(1); };
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          this.invalidateCache('bookings');
+          try { resolve(JSON.parse(xhr.responseText || '{}')); } catch { resolve({}); }
+        } else {
+          let msg = '업로드에 실패했습니다.';
+          try { msg = JSON.parse(xhr.responseText).error || msg; } catch { /* noop */ }
+          reject(new Error(msg));
+        }
+      };
+      xhr.onerror = () => reject(new Error('네트워크 오류로 업로드에 실패했습니다.'));
+      xhr.send(fd);
     });
-    if (!response.ok) {
-      const e = await response.json().catch(() => ({}));
-      throw new Error(e.error || '업로드에 실패했습니다.');
-    }
-    this.invalidateCache('bookings');
-    return response.json();
   }
 
   async deleteMedia(mediaId) {
