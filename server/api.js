@@ -13,6 +13,7 @@ const transactions = require("./routes/transactions");
 const misc = require("./routes/misc");
 const settlement = require("./routes/settlement");
 const guest = require("./routes/guest");
+const media = require("./routes/media");
 
 router.use("/members", members);
 router.use("/posts", posts);
@@ -24,6 +25,7 @@ router.use("/ntp", ntp);
 router.use("/settings", settings);
 router.use("/transactions", transactions);
 router.use("/settlement", settlement);
+router.use("/", media);
 router.use("/", guest);
 router.use("/", misc);
 

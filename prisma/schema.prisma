@@ -99,14 +99,35 @@ model Booking {
   gradeSettings        Json?
   dailyHandicaps       Json?
   twoBallTeams         Json?
+  photosArchivedAt     DateTime?
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 
   transactions      Transaction[]
   winnerPredictions WinnerPrediction[]
+  media             RoundingMedia[]
 
   @@index([organizerId])
   @@index([date])
+}
+
+model RoundingMedia {
+  id            String   @id @default(cuid())
+  bookingId     String
+  booking       Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  type          String   // "photo" | "video"
+  objectKey     String   // R2 원본(압축본) 객체 key
+  thumbnailKey  String?  // R2 썸네일/포스터 객체 key
+  fileSize      Int      // 저장된 바이트 수 (사용량 계산용)
+  durationSec   Int?     // 동영상 길이(초)
+  width         Int?
+  height        Int?
+  uploaderPhone String   // 삭제 권한 판단 (올린 사람만)
+  uploaderName  String?
+  status        String   @default("ready") // "processing" | "ready" | "failed"
+  createdAt     DateTime @default(now())
+
+  @@index([bookingId])
 }
 
 model Fee {
