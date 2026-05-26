@@ -375,6 +375,16 @@ function Viewer({ item, index, total, slideDir, canDelete, onPrev, onNext, onClo
       if (dx < 0) onNext(); else onPrev();
     }
   };
+
+  // 확대 보기 열릴 때 스와이프 힌트 잠깐 표시 후 사라짐
+  const [hint, setHint] = useState(total > 1);
+  useEffect(() => {
+    if (total <= 1) return undefined;
+    setHint(true);
+    const t = setTimeout(() => setHint(false), 2200);
+    return () => clearTimeout(t);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 2100, background: '#000', display: 'flex', flexDirection: 'column' }}>
       {/* 상단 바 */}
@@ -412,6 +422,13 @@ function Viewer({ item, index, total, slideDir, canDelete, onPrev, onNext, onClo
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
         )}
+
+        {/* 스와이프 힌트 — 잠깐 떴다 사라짐 */}
+        <div style={{ position: 'absolute', left: 0, right: 0, bottom: '24px', display: 'flex', justifyContent: 'center', pointerEvents: 'none', opacity: hint ? 1 : 0, transition: 'opacity 0.6s ease' }}>
+          <div style={{ background: 'rgba(0,0,0,0.62)', color: '#fff', fontSize: '13px', fontWeight: '600', padding: '8px 16px', borderRadius: '9999px', letterSpacing: '0.01em' }}>
+            ←  스와이프하여 보기  →
+          </div>
+        </div>
       </div>
 
       {/* 하단 정보 */}
