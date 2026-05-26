@@ -338,6 +338,22 @@ export default function MediaGallery({ booking, user, onClose }) {
 }
 
 function Viewer({ item, index, total, canDelete, onPrev, onNext, onClose, onDownload, onDelete }) {
+  const touchStart = useRef(null);
+  const onTouchStart = (e) => {
+    const t = e.touches[0];
+    touchStart.current = { x: t.clientX, y: t.clientY };
+  };
+  const onTouchEnd = (e) => {
+    if (!touchStart.current) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - touchStart.current.x;
+    const dy = t.clientY - touchStart.current.y;
+    touchStart.current = null;
+    // 확실히 가로로 민 경우에만 (영상 컨트롤과 충돌 방지)
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+      if (dx < 0) onNext(); else onPrev();
+    }
+  };
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 2100, background: '#000', display: 'flex', flexDirection: 'column' }}>
       {/* 상단 바 */}
@@ -358,7 +374,7 @@ function Viewer({ item, index, total, canDelete, onPrev, onNext, onClose, onDown
       </div>
 
       {/* 미디어 */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
+      <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
         {item.type === 'video' ? (
           <video key={item.id} src={item.url} controls autoPlay playsInline style={{ maxWidth: '100%', maxHeight: '100%' }} />
         ) : (
