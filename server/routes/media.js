@@ -12,6 +12,7 @@ const { processImage, processVideo } = require('../utils/media');
 const router = express.Router();
 
 const STORAGE_LIMIT_BYTES = 10 * 1024 * 1024 * 1024; // R2 무료 10GB (안내용)
+// 업로드 개수 제한 없음 — 용량은 관리자 80% 알림 + 월별 정리로 관리
 
 function monthKeyOf(dateStr) {
   const d = new Date(dateStr);
@@ -27,10 +28,9 @@ function streamToBuffer(stream) {
   });
 }
 
-const MAX_ITEMS_PER_ROUND = 30;
 const upload = multer({
   dest: os.tmpdir(),
-  limits: { fileSize: 200 * 1024 * 1024 }, // 원본 업로드 1개당 최대 200MB
+  limits: { fileSize: 200 * 1024 * 1024 }, // 파일당 200MB (서버 보호용 안전장치, 개수 제한 아님)
 });
 
 function parseParticipants(arr) {
@@ -94,12 +94,6 @@ router.post('/bookings/:bookingId/media', requireAuth, upload.array('files', 10)
     if (!parts.some((p) => p.phone === member.phone)) {
       cleanupTemp(req.files);
       return res.status(403).json({ error: '이 라운딩 참가자만 사진·영상을 올릴 수 있습니다.' });
-    }
-
-    const existing = await prisma.roundingMedia.count({ where: { bookingId: booking.id } });
-    if (existing + req.files.length > MAX_ITEMS_PER_ROUND) {
-      cleanupTemp(req.files);
-      return res.status(400).json({ error: `라운딩당 최대 ${MAX_ITEMS_PER_ROUND}개까지 올릴 수 있습니다. (현재 ${existing}개)` });
     }
 
     // 1) 각 파일마다 'processing' 행 생성 (objectKey는 미리 확정)

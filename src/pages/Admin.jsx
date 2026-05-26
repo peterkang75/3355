@@ -17,6 +17,7 @@ function Admin() {
   const [memberSearchTerm, setMemberSearchTerm] = useState('');
   const [showPermissionMenu, setShowPermissionMenu] = useState(null);
   const [showInactive, setShowInactive] = useState(false);
+  const [storagePct, setStoragePct] = useState(null);
   const menuRefs = useRef({});
   const [newCourse, setNewCourse] = useState({
     name: '',
@@ -195,6 +196,15 @@ function Admin() {
     { id: 'fee_exemption', name: '참가비 면제선택' },
     { id: 'pick_winner', name: '우승자 맞추기' }
   ];
+
+  // 저장소 사용량 — 80% 이상이면 상단 알림 (관리자 권한 없으면 조용히 무시)
+  useEffect(() => {
+    let cancelled = false;
+    apiService.fetchStorageInfo()
+      .then((d) => { if (!cancelled && d.limitBytes) setStoragePct(Math.round((d.totalBytes / d.limitBytes) * 100)); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     if (location.state?.reset) {
@@ -1830,6 +1840,17 @@ function Admin() {
 
           return (
             <div style={{ background: '#EEF1F6', minHeight: '100vh', paddingBottom: 100 }}>
+              {/* 저장소 80% 알림 */}
+              {storagePct >= 80 && (
+                <div onClick={() => navigate('/media-storage')} style={{ margin: '16px 16px 0', background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: 14, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+                  <span style={{ fontSize: 20, lineHeight: 1 }}>⚠️</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#9A3412' }}>저장소 용량 {storagePct}% 도달</div>
+                    <div style={{ fontSize: 12.5, color: '#C2410C', marginTop: 2 }}>오래된 사진·영상을 백업·정리하세요. 눌러서 저장소 관리 ›</div>
+                  </div>
+                </div>
+              )}
+
               {/* 히어로 배너 */}
               <div style={{ margin: '16px 16px 20px', background: 'linear-gradient(135deg, #0047AB 0%, #1E56C5 100%)', borderRadius: 20, padding: '22px 22px 24px', boxShadow: '0 8px 24px rgba(0,71,171,0.25)' }}>
                 <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(177,197,255,0.8)', letterSpacing: '0.18em', marginBottom: 12 }}>AZURE STANDARD DASHBOARD</div>
