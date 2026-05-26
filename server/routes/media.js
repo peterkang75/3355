@@ -158,6 +158,37 @@ router.get('/bookings/:bookingId/media', requireAuth, async (req, res) => {
   }
 });
 
+// ── 목록 카드용 썸네일 미리보기 (라운딩별 최대 4장 + ready 개수) ──────────
+router.get('/media/previews', requireAuth, async (req, res) => {
+  try {
+    const ids = String(req.query.ids || '').split(',').map((s) => s.trim()).filter(Boolean);
+    if (ids.length === 0) return res.json({ previews: {} });
+
+    const media = await prisma.roundingMedia.findMany({
+      where: { bookingId: { in: ids }, status: 'ready' },
+      orderBy: { createdAt: 'asc' },
+      select: { bookingId: true, thumbnailKey: true, objectKey: true },
+    });
+
+    const grouped = {};
+    for (const m of media) {
+      if (!grouped[m.bookingId]) grouped[m.bookingId] = { count: 0, keys: [] };
+      grouped[m.bookingId].count += 1;
+      if (grouped[m.bookingId].keys.length < 4) grouped[m.bookingId].keys.push(m.thumbnailKey || m.objectKey);
+    }
+
+    const previews = {};
+    await Promise.all(Object.entries(grouped).map(async ([bid, g]) => {
+      previews[bid] = { count: g.count, thumbs: await Promise.all(g.keys.map((k) => r2.signedUrl(k))) };
+    }));
+
+    res.json({ previews });
+  } catch (e) {
+    console.error('media previews error:', e);
+    res.status(500).json({ error: '미리보기 조회 중 오류가 발생했습니다.' });
+  }
+});
+
 // ── 단일 삭제 (올린 사람만) ──────────────────────────────────────────────
 router.delete('/media/:id', requireAuth, async (req, res) => {
   try {

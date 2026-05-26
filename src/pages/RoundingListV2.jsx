@@ -31,6 +31,7 @@ function RoundingListV2() {
   const [myBookingsExpanded, setMyBookingsExpanded] = useState(false);
   const [viewMode, setViewMode] = useState('upcoming'); // 'upcoming' | 'past'
   const [galleryBooking, setGalleryBooking] = useState(null);
+  const [mediaPreviews, setMediaPreviews] = useState({});
   const sheetRef = useRef(null);
 
   // ── Host Manage state ──────────────────────────────────────────────────────
@@ -117,20 +118,22 @@ function RoundingListV2() {
       .map(([, week]) => ({ ...week, bookings: week.bookings.sort((a, b) => new Date(a.date) - new Date(b.date)) }));
   }, [bookings]);
 
-  // 지난 라운딩 (날짜 지난 것) — 월별 역순
-  const pastByMonth = useMemo(() => {
-    const past = bookings
-      .filter(b => !isBookingActive(b))
-      .sort((a, b) => new Date(b.date) - new Date(a.date));
-    const map = {};
-    past.forEach(b => {
-      const d = new Date(b.date);
-      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-      if (!map[key]) map[key] = { key, label: `${d.getFullYear()}년 ${d.getMonth() + 1}월`, bookings: [] };
-      map[key].bookings.push(b);
-    });
-    return Object.values(map).sort((a, b) => b.key.localeCompare(a.key));
-  }, [bookings]);
+  // 지난 정기라운딩 (날짜 지난 정기모임만) — 최신순 평면 목록
+  const pastRegular = useMemo(() => (
+    bookings
+      .filter(b => b.type === '정기모임' && !isBookingActive(b))
+      .sort((a, b) => new Date(b.date) - new Date(a.date))
+  ), [bookings]);
+
+  // 지난 탭 진입 시 정기라운딩들의 사진 썸네일 미리보기 로드
+  useEffect(() => {
+    if (viewMode !== 'past' || pastRegular.length === 0) return undefined;
+    let cancelled = false;
+    apiService.fetchMediaPreviews(pastRegular.map(b => b.id))
+      .then(({ previews }) => { if (!cancelled) setMediaPreviews(previews || {}); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [viewMode, pastRegular]);
 
   const getMemberName = useCallback((id) => {
     const member = members.find(m => m.id === id);
@@ -630,64 +633,73 @@ function RoundingListV2() {
         </>)}
 
         {viewMode === 'past' && (
-          <div>
-            {pastByMonth.length === 0 ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            {pastRegular.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '60px 20px', color: '#9CA3AF', fontSize: '14px' }}>
-                지난 라운딩이 없습니다
+                지난 정기라운딩이 없습니다
               </div>
             ) : (
-              pastByMonth.map(month => (
-                <div key={month.key} style={{ marginBottom: '22px' }}>
-                  <div style={{ fontSize: '14px', fontWeight: '800', color: '#64748B', marginBottom: '10px', paddingLeft: '2px' }}>
-                    {month.label}
-                  </div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {month.bookings.map(b => {
-                      const parts = parseParticipants(b.participants);
-                      const names = parts.map(p => p.nickname || p.name);
-                      const summary = names.length <= 3 ? names.join(', ') : `${names.slice(0, 3).join(', ')} 외 ${names.length - 3}명`;
-                      const d = new Date(b.date);
-                      const days2 = ['일', '월', '화', '수', '목', '금', '토'];
-                      const mediaCount = b._count?.media || 0;
-                      return (
-                        <div
-                          key={b.id}
-                          onClick={() => setSelectedBooking(b)}
-                          style={{
-                            display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 14px',
-                            background: '#fff', borderRadius: '14px', cursor: 'pointer',
-                            boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1px solid #EEF2F7',
-                          }}
-                        >
-                          <div style={{ minWidth: '38px', textAlign: 'center', flexShrink: 0 }}>
-                            <div style={{ fontSize: '18px', fontWeight: '800', color: '#0047AB', lineHeight: 1 }}>{d.getDate()}</div>
-                            <div style={{ fontSize: '10px', color: '#9CA3AF', marginTop: '2px' }}>{days2[d.getDay()]}</div>
+              pastRegular.map(b => {
+                const parts = parseParticipants(b.participants);
+                const names = parts.map(p => p.nickname || p.name);
+                const summary = names.length <= 3 ? names.join(', ') : `${names.slice(0, 3).join(', ')} 외 ${names.length - 3}명`;
+                const d = new Date(b.date);
+                const days2 = ['일', '월', '화', '수', '목', '금', '토'];
+                const preview = mediaPreviews[b.id];
+                const count = preview?.count ?? (b._count?.media || 0);
+                const thumbs = preview?.thumbs || [];
+                return (
+                  <div
+                    key={b.id}
+                    onClick={() => setSelectedBooking(b)}
+                    style={{ background: '#fff', borderRadius: '16px', padding: '16px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1px solid #EEF2F7' }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
+                      <div style={{ fontSize: '17px', fontWeight: '800', color: '#1E293B', letterSpacing: '-0.01em' }}>
+                        {b.title || '정기라운딩'}
+                      </div>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}>
+                        <polyline points="9 18 15 12 9 6"/>
+                      </svg>
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#0047AB', fontWeight: '600', marginTop: '3px' }}>
+                      {d.getFullYear()}. {d.getMonth() + 1}. {d.getDate()} ({days2[d.getDay()]})
+                    </div>
+                    <div style={{ fontSize: '13px', color: '#64748B', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+                      </svg>
+                      {b.courseName}
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      👥 {parts.length}명 · {summary}
+                    </div>
+
+                    {count > 0 ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '12px' }}>
+                        {thumbs.slice(0, 4).map((t, i) => (
+                          <div key={i} style={{ position: 'relative', width: '60px', height: '60px', borderRadius: '8px', overflow: 'hidden', background: '#F1F5F9', flexShrink: 0 }}>
+                            <img src={t} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                            {i === 3 && count > 4 && (
+                              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', fontWeight: '700' }}>
+                                +{count - 4}
+                              </div>
+                            )}
                           </div>
-                          <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: '14px', fontWeight: '700', color: '#111827', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {b.title || b.courseName}
-                            </div>
-                            <div style={{ fontSize: '11.5px', color: '#9CA3AF', marginTop: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {b.courseName}{summary ? ` · ${summary}` : ''}
-                            </div>
-                          </div>
-                          {mediaCount > 0 && (
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '3px', flexShrink: 0, background: '#EBF2FF', color: '#0047AB', padding: '3px 8px', borderRadius: '9999px', fontSize: '11px', fontWeight: '700' }}>
-                              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                              </svg>
-                              {mediaCount}
-                            </div>
-                          )}
-                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-                            <polyline points="9 18 15 12 9 6"/>
+                        ))}
+                        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0, color: '#0047AB', fontSize: '13px', fontWeight: '700' }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                           </svg>
+                          {count}
                         </div>
-                      );
-                    })}
+                      </div>
+                    ) : (
+                      <div style={{ fontSize: '12px', color: '#C0C7D0', marginTop: '10px' }}>아직 사진·영상이 없습니다 · 눌러서 추가</div>
+                    )}
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         )}

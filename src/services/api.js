@@ -364,6 +364,15 @@ class ApiService {
     });
   }
 
+  async fetchMediaPreviews(ids) {
+    if (!ids || ids.length === 0) return { previews: {} };
+    const response = await fetch(`${API_BASE}/media/previews?ids=${ids.join(',')}`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) return { previews: {} };
+    return response.json();
+  }
+
   async deleteMedia(mediaId) {
     const response = await fetch(`${API_BASE}/media/${mediaId}`, {
       method: 'DELETE',
