@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../../services/api';
+import { useApp } from '../../contexts/AppContext';
 import { compressImageFile } from '../../utils/compressImage';
 import { parseParticipants } from '../../utils';
+import { computeRoundingRanking, deriveWinners } from '../../utils/roundingRanking';
 
 const fmtDur = (sec) => {
   if (!sec && sec !== 0) return '';
@@ -30,6 +32,8 @@ export default function MediaGallery({ booking, user, onClose }) {
   const [viewerIdx, setViewerIdx] = useState(null);
   const fileRef = useRef(null);
   const navigate = useNavigate();
+  const { members, courses } = useApp();
+  const [winners, setWinners] = useState(null);
   const participants = parseParticipants(booking.participants);
   const timeStr = booking.time && booking.time !== '23:59' ? String(booking.time).slice(0, 5) : '';
   const fees = [
@@ -68,6 +72,20 @@ export default function MediaGallery({ booking, user, onClose }) {
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = prev; };
   }, []);
+
+  // 우승자 — 리더보드와 동일한 순위 계산으로 맨 위 이름 추출
+  useEffect(() => {
+    if (!booking.title) return undefined;
+    let cancelled = false;
+    apiService.fetchRoundingScores(booking.title, booking.date)
+      .then((scores) => {
+        if (cancelled) return;
+        const { processedScores } = computeRoundingRanking(scores, { booking, members, courses });
+        setWinners(deriveWinners(processedScores));
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [booking, members, courses]);
 
   const handlePick = () => fileRef.current && fileRef.current.click();
 
@@ -222,6 +240,22 @@ export default function MediaGallery({ booking, user, onClose }) {
           </svg>
           스코어 / 결과 보기
         </button>
+
+        {/* 우승자 (리더보드 맨 위 이름) */}
+        {winners?.overall && (
+          <div style={{ background: '#fff', border: '1px solid #EEF2F7', borderRadius: '14px', padding: '6px 14px', marginBottom: '18px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: winners.gradeWinners.length ? '1px solid #F1F5F9' : 'none' }}>
+              <span style={{ fontSize: '13px', color: '#64748B', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '5px' }}>🏆 전체 우승</span>
+              <span style={{ fontSize: '15px', color: '#0047AB', fontWeight: '800' }}>{winners.overall.nickname}</span>
+            </div>
+            {winners.gradeWinners.map((g, i) => (
+              <div key={g.grade} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: i < winners.gradeWinners.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
+                <span style={{ fontSize: '13px', color: '#64748B' }}>{g.grade} 그레이드</span>
+                <span style={{ fontSize: '14px', color: '#1E293B', fontWeight: '700' }}>{g.winner.nickname}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* 사진·영상 섹션 */}
         <div style={{ fontSize: '14px', fontWeight: '800', color: '#1E293B', marginBottom: '10px' }}>

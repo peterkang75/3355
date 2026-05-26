@@ -364,6 +364,14 @@ class ApiService {
     });
   }
 
+  async fetchRoundingScores(title, date) {
+    const res = await fetch(`${API_BASE}/scores/by-rounding/${encodeURIComponent(title)}?date=${encodeURIComponent(date)}&t=${Date.now()}`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!res.ok) return [];
+    return res.json();
+  }
+
   async fetchMediaPreviews(ids) {
     if (!ids || ids.length === 0) return { previews: {} };
     const response = await fetch(`${API_BASE}/media/previews?ids=${ids.join(',')}`, {
