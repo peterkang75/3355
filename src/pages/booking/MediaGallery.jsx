@@ -36,11 +36,12 @@ export default function MediaGallery({ booking, user, onClose }) {
   const [winners, setWinners] = useState(null);
   const participants = parseParticipants(booking.participants);
   const timeStr = booking.time && booking.time !== '23:59' ? String(booking.time).slice(0, 5) : '';
-  const fees = [
+  const feeChips = [
     booking.greenFee ? `그린피 $${booking.greenFee}` : null,
     booking.cartFee ? `카트비 $${booking.cartFee}` : null,
     booking.membershipFee ? `회비 $${booking.membershipFee}` : null,
-  ].filter(Boolean).join('  ·  ');
+  ].filter(Boolean);
+  const labelStyle = { fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.06em' };
 
   const load = useCallback(async () => {
     try {
@@ -201,31 +202,43 @@ export default function MediaGallery({ booking, user, onClose }) {
 
       {/* 본문 */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px 40px' }}>
-        {/* 라운딩 정보 · 참가자 · 우승자 — 텍스트 한 묶음 */}
-        <div style={{ marginBottom: '12px' }}>
-          <div style={{ fontSize: '16px', fontWeight: '700', color: '#1E293B' }}>
+        {/* 라운딩 정보 · 참가자 · 시상 — 정돈된 카드 */}
+        <div style={{ background: '#fff', border: '1px solid #EEF2F7', borderRadius: '14px', padding: '14px 16px', marginBottom: '14px' }}>
+          <div style={{ fontSize: '17px', fontWeight: '700', color: '#0F172A', letterSpacing: '-0.01em' }}>
             {fmtDate(booking.date)}{timeStr ? ` · ${timeStr}` : ''}
           </div>
-          <div style={{ fontSize: '13px', color: '#475569', marginTop: '3px' }}>{booking.courseName}</div>
+          <div style={{ fontSize: '13px', fontWeight: '500', color: '#64748B', marginTop: '2px' }}>{booking.courseName}</div>
           {booking.restaurantName && (
-            <div style={{ fontSize: '12.5px', color: '#94A3B8', marginTop: '2px' }}>회식 · {booking.restaurantName}</div>
+            <div style={{ fontSize: '13px', fontWeight: '500', color: '#94A3B8', marginTop: '2px' }}>회식 · {booking.restaurantName}</div>
           )}
-          {fees && (
-            <div style={{ fontSize: '12.5px', color: '#94A3B8', marginTop: '2px' }}>{fees}</div>
-          )}
-          {participants.length > 0 && (
-            <div style={{ fontSize: '12.5px', color: '#94A3B8', marginTop: '8px', lineHeight: 1.65 }}>
-              <span style={{ color: '#64748B', fontWeight: '600' }}>참가 {participants.length}명 · </span>
-              {participants.map((p) => p.nickname || p.name).join(', ')}
+          {feeChips.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px' }}>
+              {feeChips.map((f) => (
+                <span key={f} style={{ fontSize: '12px', fontWeight: '600', color: '#475569', background: '#F1F5F9', borderRadius: '9999px', padding: '4px 10px' }}>{f}</span>
+              ))}
             </div>
           )}
+
+          {participants.length > 0 && (
+            <div style={{ borderTop: '1px solid #EEF2F7', marginTop: '12px', paddingTop: '10px' }}>
+              <div style={labelStyle}>참가자 {participants.length}</div>
+              <div style={{ fontSize: '13.5px', fontWeight: '500', color: '#475569', lineHeight: 1.55, marginTop: '5px' }}>
+                {participants.map((p) => p.nickname || p.name).join(', ')}
+              </div>
+            </div>
+          )}
+
           {winners?.overall && (
-            <div style={{ fontSize: '13px', color: '#64748B', marginTop: '10px', lineHeight: 1.7 }}>
-              <span style={{ fontWeight: '700', color: '#334155' }}>우승</span>
-              {'   전체 '}<span style={{ color: '#0F172A', fontWeight: '600' }}>{winners.overall.nickname}</span>
-              {winners.gradeWinners.map((g) => (
-                <span key={g.grade}>{`   ·   ${g.grade} `}<span style={{ color: '#0F172A', fontWeight: '600' }}>{g.winner.nickname}</span></span>
-              ))}
+            <div style={{ borderTop: '1px solid #EEF2F7', marginTop: '12px', paddingTop: '10px' }}>
+              <div style={{ ...labelStyle, color: '#B45309' }}>시상</div>
+              <div style={{ marginTop: '7px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
+                {[{ label: '전체', name: winners.overall.nickname }, ...winners.gradeWinners.map((g) => ({ label: g.grade, name: g.winner.nickname }))].map((row) => (
+                  <div key={row.label} style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
+                    <span style={{ width: '30px', flexShrink: 0, fontSize: '12px', fontWeight: '600', color: '#94A3B8' }}>{row.label}</span>
+                    <span style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A' }}>{row.name}</span>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>
