@@ -184,7 +184,7 @@ export default function MediaGallery({ booking, user, onClose }) {
 
   return (
     <div style={overlay}>
-      <style>{`@keyframes mgIndeterminate { 0% { transform: translateX(-120%); } 100% { transform: translateX(320%); } } @keyframes mgSpin { to { transform: rotate(360deg); } } @keyframes mgSlideInRight { from { transform: translateX(160px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes mgSlideInLeft { from { transform: translateX(-160px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`}</style>
+      <style>{`@keyframes mgIndeterminate { 0% { transform: translateX(-120%); } 100% { transform: translateX(320%); } } @keyframes mgSpin { to { transform: rotate(360deg); } } @keyframes mgSlideInRight { from { transform: translateX(160px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes mgSlideInLeft { from { transform: translateX(-160px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } .mg-strip::-webkit-scrollbar { display: none; }`}</style>
       {/* 헤더 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: 'max(14px, env(safe-area-inset-top)) 16px 12px', borderBottom: '1px solid #EEF2F7', flexShrink: 0 }}>
         <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#1E293B', display: 'flex' }}>
@@ -345,12 +345,14 @@ export default function MediaGallery({ booking, user, onClose }) {
       {viewerIdx != null && readyItems[viewerIdx] && (
         <Viewer
           item={readyItems[viewerIdx]}
+          items={readyItems}
           index={viewerIdx}
           total={readyItems.length}
           slideDir={slideDir}
           canDelete={readyItems[viewerIdx].uploaderPhone === user.phone}
           onPrev={() => { if (viewerIdx > 0) { setSlideDir('prev'); setViewerIdx(viewerIdx - 1); } }}
           onNext={() => { if (viewerIdx < readyItems.length - 1) { setSlideDir('next'); setViewerIdx(viewerIdx + 1); } }}
+          onSelect={(i) => { if (i !== viewerIdx) { setSlideDir(i > viewerIdx ? 'next' : 'prev'); setViewerIdx(i); } }}
           onClose={() => setViewerIdx(null)}
           onDownload={() => downloadItem(readyItems[viewerIdx])}
           onDelete={() => deleteItem(readyItems[viewerIdx])}
@@ -360,9 +362,10 @@ export default function MediaGallery({ booking, user, onClose }) {
   );
 }
 
-function Viewer({ item, index, total, slideDir, canDelete, onPrev, onNext, onClose, onDownload, onDelete }) {
+function Viewer({ item, items, index, total, slideDir, canDelete, onPrev, onNext, onSelect, onClose, onDownload, onDelete }) {
   const anim = `${slideDir === 'prev' ? 'mgSlideInLeft' : 'mgSlideInRight'} 0.45s cubic-bezier(0.22, 0.61, 0.36, 1)`;
   const touchStart = useRef(null);
+  const stripRef = useRef(null);
   const onTouchStart = (e) => {
     const t = e.touches[0];
     touchStart.current = { x: t.clientX, y: t.clientY };
@@ -387,6 +390,14 @@ function Viewer({ item, index, total, slideDir, canDelete, onPrev, onNext, onClo
     const t = setTimeout(() => setHint(false), 2200);
     return () => clearTimeout(t);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // 현재 썸네일을 필름스트립 가운데로 스크롤
+  useEffect(() => {
+    const el = stripRef.current;
+    if (!el) return;
+    const TW = 56; // 썸네일 50 + gap 6
+    el.scrollTo({ left: Math.max(0, 12 + index * TW + 25 - el.clientWidth / 2), behavior: 'smooth' });
+  }, [index]);
 
   return (
     <div style={{ position: 'fixed', inset: 0, zIndex: 2100, background: '#000', display: 'flex', flexDirection: 'column' }}>
@@ -434,8 +445,28 @@ function Viewer({ item, index, total, slideDir, canDelete, onPrev, onNext, onClo
         </div>
       </div>
 
+      {/* 썸네일 필름스트립 */}
+      {total > 1 && (
+        <div ref={stripRef} className="mg-strip" style={{ display: 'flex', gap: '6px', overflowX: 'auto', padding: '8px 12px', flexShrink: 0, scrollbarWidth: 'none' }}>
+          {items.map((m, i) => (
+            <div
+              key={m.id}
+              onClick={() => onSelect(i)}
+              style={{ width: '50px', height: '50px', flexShrink: 0, borderRadius: '6px', overflow: 'hidden', cursor: 'pointer', position: 'relative', border: i === index ? '2px solid #EF4444' : '2px solid transparent', opacity: i === index ? 1 : 0.5 }}
+            >
+              <img src={m.thumbnailUrl || m.url} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              {m.type === 'video' && (
+                <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="#fff" style={{ filter: 'drop-shadow(0 1px 1px rgba(0,0,0,0.6))' }}><polygon points="6 4 20 12 6 20 6 4"/></svg>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* 하단 정보 */}
-      <div style={{ textAlign: 'center', color: '#cbd5e1', fontSize: '12px', padding: '12px 16px max(16px, env(safe-area-inset-bottom))', flexShrink: 0 }}>
+      <div style={{ textAlign: 'center', color: '#cbd5e1', fontSize: '12px', padding: '10px 16px max(16px, env(safe-area-inset-bottom))', flexShrink: 0 }}>
         {index + 1} / {total}{item.uploaderName ? ` · 올린이: ${item.uploaderName}` : ''}
       </div>
     </div>
