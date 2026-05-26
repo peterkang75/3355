@@ -32,6 +32,11 @@ export default function MediaGallery({ booking, user, onClose }) {
   const navigate = useNavigate();
   const participants = parseParticipants(booking.participants);
   const timeStr = booking.time && booking.time !== '23:59' ? String(booking.time).slice(0, 5) : '';
+  const fees = [
+    booking.greenFee ? `그린피 $${booking.greenFee}` : null,
+    booking.cartFee ? `카트비 $${booking.cartFee}` : null,
+    booking.membershipFee ? `회비 $${booking.membershipFee}` : null,
+  ].filter(Boolean).join('  ·  ');
 
   const load = useCallback(async () => {
     try {
@@ -180,14 +185,24 @@ export default function MediaGallery({ booking, user, onClose }) {
       <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px 40px' }}>
         {/* 기본 정보 */}
         <div style={{ background: '#F8FAFC', border: '1px solid #EEF2F7', borderRadius: '14px', padding: '14px', marginBottom: '12px' }}>
-          <div style={{ fontSize: '14px', fontWeight: '700', color: '#1E293B', marginBottom: '6px' }}>
-            📅 {fmtDate(booking.date)}{timeStr ? ` · ${timeStr}` : ''}
+          <div style={{ fontSize: '15px', fontWeight: '700', color: '#1E293B', marginBottom: '4px' }}>
+            {fmtDate(booking.date)}{timeStr ? ` · ${timeStr}` : ''}
           </div>
-          <div style={{ fontSize: '13px', color: '#64748B', marginBottom: participants.length ? '10px' : '0' }}>
-            📍 {booking.courseName}
+          <div style={{ fontSize: '13px', color: '#475569', marginBottom: '2px' }}>
+            {booking.courseName}
           </div>
+          {booking.restaurantName && (
+            <div style={{ fontSize: '13px', color: '#64748B', marginBottom: '2px' }}>
+              회식 · {booking.restaurantName}
+            </div>
+          )}
+          {fees && (
+            <div style={{ fontSize: '13px', color: '#64748B', marginBottom: '2px' }}>
+              {fees}
+            </div>
+          )}
           {participants.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '10px' }}>
               {participants.map((p, i) => (
                 <span key={`${p.phone || 'p'}-${i}`} style={{ fontSize: '12px', padding: '4px 10px', borderRadius: '9999px', background: p.phone === user.phone ? '#EBF2FF' : '#fff', color: p.phone === user.phone ? '#0047AB' : '#475569', border: '1px solid #E2E8F0', fontWeight: p.phone === user.phone ? '700' : '500' }}>
                   {p.nickname || p.name}
