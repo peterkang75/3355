@@ -651,7 +651,7 @@ function RoundingListV2() {
                 return (
                   <div
                     key={b.id}
-                    onClick={() => setSelectedBooking(b)}
+                    onClick={() => setGalleryBooking(b)}
                     style={{ background: '#fff', borderRadius: '16px', padding: '16px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1px solid #EEF2F7' }}
                   >
                     <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>

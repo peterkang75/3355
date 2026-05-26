@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import apiService from '../../services/api';
 import { compressImageFile } from '../../utils/compressImage';
+import { parseParticipants } from '../../utils';
 
 const fmtDur = (sec) => {
   if (!sec && sec !== 0) return '';
@@ -27,6 +29,9 @@ export default function MediaGallery({ booking, user, onClose }) {
   const [error, setError] = useState('');
   const [viewerIdx, setViewerIdx] = useState(null);
   const fileRef = useRef(null);
+  const navigate = useNavigate();
+  const participants = parseParticipants(booking.participants);
+  const timeStr = booking.time && booking.time !== '23:59' ? String(booking.time).slice(0, 5) : '';
 
   const load = useCallback(async () => {
     try {
@@ -160,8 +165,7 @@ export default function MediaGallery({ booking, user, onClose }) {
             {booking.title || booking.courseName}
           </div>
           <div style={{ fontSize: '12px', color: '#94A3B8' }}>
-            {fmtDate(booking.date)} · 사진·영상 {readyItems.length}
-            {processingCount > 0 && <span style={{ color: '#0047AB' }}> · 처리 중 {processingCount}</span>}
+            라운딩 상세
           </div>
         </div>
         {!archivedAt && (
@@ -173,7 +177,43 @@ export default function MediaGallery({ booking, user, onClose }) {
       </div>
 
       {/* 본문 */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '14px 14px 40px' }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px 40px' }}>
+        {/* 기본 정보 */}
+        <div style={{ background: '#F8FAFC', border: '1px solid #EEF2F7', borderRadius: '14px', padding: '14px', marginBottom: '12px' }}>
+          <div style={{ fontSize: '14px', fontWeight: '700', color: '#1E293B', marginBottom: '6px' }}>
+            📅 {fmtDate(booking.date)}{timeStr ? ` · ${timeStr}` : ''}
+          </div>
+          <div style={{ fontSize: '13px', color: '#64748B', marginBottom: participants.length ? '10px' : '0' }}>
+            📍 {booking.courseName}
+          </div>
+          {participants.length > 0 && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+              {participants.map((p, i) => (
+                <span key={`${p.phone || 'p'}-${i}`} style={{ fontSize: '12px', padding: '4px 10px', borderRadius: '9999px', background: p.phone === user.phone ? '#EBF2FF' : '#fff', color: p.phone === user.phone ? '#0047AB' : '#475569', border: '1px solid #E2E8F0', fontWeight: p.phone === user.phone ? '700' : '500' }}>
+                  {p.nickname || p.name}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 스코어 / 결과 보기 */}
+        <button
+          onClick={() => navigate(`/leaderboard?id=${booking.id}`)}
+          style={{ width: '100%', padding: '13px', borderRadius: '12px', border: '1px solid #BFDBFE', background: '#fff', color: '#0047AB', fontSize: '14px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '18px' }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+          </svg>
+          스코어 / 결과 보기
+        </button>
+
+        {/* 사진·영상 섹션 */}
+        <div style={{ fontSize: '14px', fontWeight: '800', color: '#1E293B', marginBottom: '10px' }}>
+          사진·영상 {readyItems.length > 0 ? readyItems.length : ''}
+          {processingCount > 0 && <span style={{ color: '#0047AB', fontWeight: '600' }}> · 처리 중 {processingCount}</span>}
+        </div>
+
         {uploading && (
           <div style={{ background: '#EBF2FF', borderRadius: '12px', padding: '14px', marginBottom: '14px' }}>
             <div style={{ fontSize: '13px', fontWeight: '700', color: '#0047AB', marginBottom: '9px', textAlign: 'center' }}>
