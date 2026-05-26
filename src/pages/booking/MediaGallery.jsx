@@ -179,7 +179,7 @@ export default function MediaGallery({ booking, user, onClose }) {
 
   return (
     <div style={overlay}>
-      <style>{`@keyframes mgIndeterminate { 0% { transform: translateX(-120%); } 100% { transform: translateX(320%); } } @keyframes mgSpin { to { transform: rotate(360deg); } } @keyframes mgSlideInRight { from { transform: translateX(70px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes mgSlideInLeft { from { transform: translateX(-70px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`}</style>
+      <style>{`@keyframes mgIndeterminate { 0% { transform: translateX(-120%); } 100% { transform: translateX(320%); } } @keyframes mgSpin { to { transform: rotate(360deg); } } @keyframes mgSlideInRight { from { transform: translateX(160px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes mgSlideInLeft { from { transform: translateX(-160px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`}</style>
       {/* 헤더 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: 'max(14px, env(safe-area-inset-top)) 16px 12px', borderBottom: '1px solid #EEF2F7', flexShrink: 0 }}>
         <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#1E293B', display: 'flex' }}>
@@ -353,7 +353,7 @@ export default function MediaGallery({ booking, user, onClose }) {
 }
 
 function Viewer({ item, index, total, slideDir, canDelete, onPrev, onNext, onClose, onDownload, onDelete }) {
-  const anim = `${slideDir === 'prev' ? 'mgSlideInLeft' : 'mgSlideInRight'} 0.28s cubic-bezier(0.22, 0.61, 0.36, 1)`;
+  const anim = `${slideDir === 'prev' ? 'mgSlideInLeft' : 'mgSlideInRight'} 0.45s cubic-bezier(0.22, 0.61, 0.36, 1)`;
   const touchStart = useRef(null);
   const onTouchStart = (e) => {
     const t = e.touches[0];
