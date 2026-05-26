@@ -364,6 +364,24 @@ class ApiService {
     });
   }
 
+  async fetchStorageInfo() {
+    const res = await fetch(`${API_BASE}/media/storage`, { headers: this.getAuthHeaders() });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error(e.error || '저장소 정보를 불러오지 못했습니다.');
+    }
+    return res.json();
+  }
+
+  async downloadMonthArchive(yearMonth) {
+    const res = await fetch(`${API_BASE}/media/storage/${yearMonth}/download`, { headers: this.getAuthHeaders() });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error(e.error || '백업 다운로드에 실패했습니다.');
+    }
+    return res.blob();
+  }
+
   async fetchRoundingScores(title, date) {
     const res = await fetch(`${API_BASE}/scores/by-rounding/${encodeURIComponent(title)}?date=${encodeURIComponent(date)}&t=${Date.now()}`, {
       headers: this.getAuthHeaders(),

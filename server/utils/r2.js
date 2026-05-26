@@ -28,4 +28,10 @@ async function signedUrl(key, expiresIn = 3600) {
   return getSignedUrl(s3, new GetObjectCommand({ Bucket: R2_BUCKET, Key: key }), { expiresIn });
 }
 
-module.exports = { uploadBuffer, deleteKeys, signedUrl, BUCKET: R2_BUCKET };
+// 객체 본문 스트림 (zip 백업용)
+async function getObjectStream(key) {
+  const out = await s3.send(new GetObjectCommand({ Bucket: R2_BUCKET, Key: key }));
+  return out.Body;
+}
+
+module.exports = { uploadBuffer, deleteKeys, signedUrl, getObjectStream, BUCKET: R2_BUCKET };

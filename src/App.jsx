@@ -8,6 +8,7 @@ import Board from './pages/Board';
 import Fees from './pages/Fees';
 import MyPage from './pages/MyPage';
 import Admin from './pages/Admin';
+import MediaStorage from './pages/MediaStorage';
 import About from './pages/About';
 import RoundingManagement from './pages/RoundingManagement';
 import TeamFormation from './pages/TeamFormation';
@@ -51,6 +52,7 @@ function AuthenticatedRoutes({ user, logout, requiresProfileComplete }) {
         <Route path="/fees" element={<Fees />} />
         <Route path="/mypage" element={<MyPage />} />
         <Route path="/admin" element={<Admin />} />
+        <Route path="/media-storage" element={<MediaStorage />} />
         <Route path="/about" element={<About />} />
         <Route path="/member/:id" element={<MemberDetail />} />
         <Route path="/rounding-management" element={<RoundingManagement />} />

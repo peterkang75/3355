@@ -1805,6 +1805,15 @@ function Admin() {
               roles: ['관리자', '방장', '운영진'],
             },
             {
+              tab: 'mediaStorage',
+              path: '/media-storage',
+              label: '저장소 관리',
+              desc: '사진·영상 저장 용량을 확인하고 월별로 백업·정리합니다.',
+              action: '저장소 열기',
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#0047AB"><path d="M19 5v3H5V5h14m0-2H5c-1.1 0-2 .9-2 2v3c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 13v3H5v-3h14m0-2H5c-1.1 0-2 .9-2 2v3c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-3c0-1.1-.9-2-2-2zM7 7.5h2v-1H7v1zm0 11h2v-1H7v1z"/></svg>,
+              roles: ['관리자'],
+            },
+            {
               tab: 'developer',
               label: '개발자 설정',
               desc: '권한 설정 및 앱 소개문구를 관리합니다.',

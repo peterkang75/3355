@@ -3,12 +3,29 @@ const multer = require('multer');
 const os = require('os');
 const fs = require('fs');
 const crypto = require('crypto');
+const archiver = require('archiver');
 const prisma = require('../db');
-const { requireAuth } = require('../middleware/auth');
+const { requireAuth, requireAdmin } = require('../middleware/auth');
 const r2 = require('../utils/r2');
 const { processImage, processVideo } = require('../utils/media');
 
 const router = express.Router();
+
+const STORAGE_LIMIT_BYTES = 10 * 1024 * 1024 * 1024; // R2 무료 10GB (안내용)
+
+function monthKeyOf(dateStr) {
+  const d = new Date(dateStr);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function streamToBuffer(stream) {
+  return new Promise((resolve, reject) => {
+    const chunks = [];
+    stream.on('data', (c) => chunks.push(c));
+    stream.on('end', () => resolve(Buffer.concat(chunks)));
+    stream.on('error', reject);
+  });
+}
 
 const MAX_ITEMS_PER_ROUND = 30;
 const upload = multer({
@@ -186,6 +203,70 @@ router.get('/media/previews', requireAuth, async (req, res) => {
   } catch (e) {
     console.error('media previews error:', e);
     res.status(500).json({ error: '미리보기 조회 중 오류가 발생했습니다.' });
+  }
+});
+
+// ── 저장소 사용량 + 월별 집계 (관리자) ───────────────────────────────────
+router.get('/media/storage', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const media = await prisma.roundingMedia.findMany({
+      where: { status: 'ready' },
+      select: { fileSize: true, booking: { select: { date: true } } },
+    });
+    let totalBytes = 0;
+    const map = {};
+    for (const m of media) {
+      totalBytes += m.fileSize || 0;
+      const ym = monthKeyOf(m.booking.date);
+      const d = new Date(m.booking.date);
+      if (!map[ym]) map[ym] = { yearMonth: ym, label: `${d.getFullYear()}년 ${d.getMonth() + 1}월`, bytes: 0, count: 0 };
+      map[ym].bytes += m.fileSize || 0;
+      map[ym].count += 1;
+    }
+    const months = Object.values(map).sort((a, b) => b.yearMonth.localeCompare(a.yearMonth));
+    res.json({ totalBytes, limitBytes: STORAGE_LIMIT_BYTES, months });
+  } catch (e) {
+    console.error('storage info error:', e);
+    res.status(500).json({ error: '저장소 정보를 불러오지 못했습니다.' });
+  }
+});
+
+// ── 월별 백업 zip 다운로드 (관리자) — 삭제하지 않음 ───────────────────────
+router.get('/media/storage/:yearMonth/download', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const ym = req.params.yearMonth;
+    const all = await prisma.roundingMedia.findMany({
+      where: { status: 'ready' },
+      select: { objectKey: true, type: true, booking: { select: { date: true, title: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+    const monthMedia = all.filter((m) => monthKeyOf(m.booking.date) === ym);
+    if (monthMedia.length === 0) return res.status(404).json({ error: '해당 월의 자료가 없습니다.' });
+
+    const archive = archiver('zip', { zlib: { level: 0 } }); // 이미 압축된 미디어 → 무압축(store)
+    archive.on('error', (e) => { console.error('zip error', e); try { res.destroy(e); } catch { /* noop */ } });
+    res.setHeader('Content-Type', 'application/zip');
+    res.setHeader('Content-Disposition', `attachment; filename="rounding-${ym}.zip"`);
+    archive.pipe(res);
+
+    let idx = 0;
+    for (const m of monthMedia) {
+      idx += 1;
+      const d = new Date(m.booking.date);
+      const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      const safeTitle = (m.booking.title || '라운딩').replace(/[\\/:*?"<>|]/g, '_');
+      const ext = m.type === 'video' ? 'mp4' : 'jpg';
+      const name = `${dateStr}_${safeTitle}/${String(idx).padStart(3, '0')}.${ext}`;
+      // 메모리 안전: 한 개씩 버퍼로 받아 추가
+      const stream = await r2.getObjectStream(m.objectKey);
+      const buf = await streamToBuffer(stream);
+      archive.append(buf, { name });
+    }
+    await archive.finalize();
+  } catch (e) {
+    console.error('archive download error:', e);
+    if (!res.headersSent) res.status(500).json({ error: '백업 생성 중 오류가 발생했습니다.' });
+    else { try { res.destroy(e); } catch { /* noop */ } }
   }
 });
 
