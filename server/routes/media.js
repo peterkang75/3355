@@ -270,6 +270,35 @@ router.get('/media/storage/:yearMonth/download', requireAuth, requireAdmin, asyn
   }
 });
 
+// ── 월별 정리(삭제) (관리자) — R2 먼저 삭제 후 DB, photosArchivedAt 기록 ──
+router.delete('/media/storage/:yearMonth', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const ym = req.params.yearMonth;
+    const all = await prisma.roundingMedia.findMany({
+      select: { id: true, objectKey: true, thumbnailKey: true, bookingId: true, booking: { select: { date: true } } },
+    });
+    const monthMedia = all.filter((m) => monthKeyOf(m.booking.date) === ym);
+    if (monthMedia.length === 0) return res.status(404).json({ error: '해당 월의 자료가 없습니다.' });
+
+    // 1) R2 먼저 (오펀 객체 방지)
+    const keys = [];
+    monthMedia.forEach((m) => { keys.push(m.objectKey); if (m.thumbnailKey) keys.push(m.thumbnailKey); });
+    await r2.deleteKeysBatch(keys);
+
+    // 2) DB 행 삭제
+    await prisma.roundingMedia.deleteMany({ where: { id: { in: monthMedia.map((m) => m.id) } } });
+
+    // 3) 영향받은 라운딩에 백업 정리 시각 기록 → 갤러리/카드에 "백업 후 정리됨" 표시
+    const bookingIds = [...new Set(monthMedia.map((m) => m.bookingId))];
+    await prisma.booking.updateMany({ where: { id: { in: bookingIds } }, data: { photosArchivedAt: new Date() } });
+
+    res.json({ deleted: monthMedia.length, bookings: bookingIds.length });
+  } catch (e) {
+    console.error('archive delete error:', e);
+    res.status(500).json({ error: '정리(삭제) 중 오류가 발생했습니다.' });
+  }
+});
+
 // ── 단일 삭제 (올린 사람만) ──────────────────────────────────────────────
 router.delete('/media/:id', requireAuth, async (req, res) => {
   try {

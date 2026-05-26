@@ -382,6 +382,19 @@ class ApiService {
     return res.blob();
   }
 
+  async deleteMonthArchive(yearMonth) {
+    const res = await fetch(`${API_BASE}/media/storage/${yearMonth}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
+    });
+    if (!res.ok) {
+      const e = await res.json().catch(() => ({}));
+      throw new Error(e.error || '정리(삭제)에 실패했습니다.');
+    }
+    this.invalidateCache('bookings');
+    return res.json();
+  }
+
   async fetchRoundingScores(title, date) {
     const res = await fetch(`${API_BASE}/scores/by-rounding/${encodeURIComponent(title)}?date=${encodeURIComponent(date)}&t=${Date.now()}`, {
       headers: this.getAuthHeaders(),

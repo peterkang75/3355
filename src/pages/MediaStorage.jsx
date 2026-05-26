@@ -16,15 +16,15 @@ export default function MediaStorage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [downloading, setDownloading] = useState(null);
+  const [confirmMonth, setConfirmMonth] = useState(null);
+  const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
-    apiService.fetchStorageInfo()
-      .then((d) => { if (!cancelled) setInfo(d); })
-      .catch((e) => { if (!cancelled) setError(e.message); })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
-  }, []);
+  const load = () => apiService.fetchStorageInfo()
+    .then((d) => setInfo(d))
+    .catch((e) => setError(e.message))
+    .finally(() => setLoading(false));
+
+  useEffect(() => { load(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleDownload = async (m) => {
     if (downloading) return;
@@ -43,6 +43,20 @@ export default function MediaStorage() {
       alert(e.message);
     } finally {
       setDownloading(null);
+    }
+  };
+
+  const handleDelete = async (m) => {
+    if (deleting) return;
+    setDeleting(true);
+    try {
+      await apiService.deleteMonthArchive(m.yearMonth);
+      setConfirmMonth(null);
+      await load();
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -83,18 +97,53 @@ export default function MediaStorage() {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {info.months.map((m) => (
-                  <div key={m.yearMonth} style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF2F7', padding: '14px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                    <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: '#1E293B' }}>{m.label}</div>
-                      <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 2 }}>{m.count}개 · {fmtBytes(m.bytes)}</div>
+                  <div key={m.yearMonth} style={{ background: '#fff', borderRadius: 14, border: '1px solid #EEF2F7', padding: '14px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 15, fontWeight: 700, color: '#1E293B' }}>{m.label}</div>
+                        <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 2 }}>{m.count}개 · {fmtBytes(m.bytes)}</div>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, flexShrink: 0 }}>
+                        <button
+                          onClick={() => handleDownload(m)}
+                          disabled={!!downloading || deleting}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 5, padding: '9px 13px', borderRadius: 10, border: '1px solid #BFDBFE', background: '#EBF2FF', color: '#0047AB', fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: (downloading && downloading !== m.yearMonth) ? 0.5 : 1 }}
+                        >
+                          {downloading === m.yearMonth ? '준비 중...' : '⬇ 다운로드'}
+                        </button>
+                        <button
+                          onClick={() => setConfirmMonth(confirmMonth === m.yearMonth ? null : m.yearMonth)}
+                          disabled={!!downloading || deleting}
+                          aria-label="삭제"
+                          style={{ display: 'inline-flex', alignItems: 'center', padding: '9px 11px', borderRadius: 10, border: '1px solid #FECACA', background: '#FEF2F2', color: '#DC2626', fontSize: 14, cursor: 'pointer' }}
+                        >
+                          🗑
+                        </button>
+                      </div>
                     </div>
-                    <button
-                      onClick={() => handleDownload(m)}
-                      disabled={!!downloading}
-                      style={{ flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 5, padding: '9px 14px', borderRadius: 10, border: '1px solid #BFDBFE', background: '#EBF2FF', color: '#0047AB', fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: (downloading && downloading !== m.yearMonth) ? 0.5 : 1 }}
-                    >
-                      {downloading === m.yearMonth ? '준비 중...' : '⬇ 다운로드'}
-                    </button>
+                    {confirmMonth === m.yearMonth && (
+                      <div style={{ marginTop: 12, borderTop: '1px solid #F1F5F9', paddingTop: 12 }}>
+                        <div style={{ fontSize: 12.5, color: '#B91C1C', lineHeight: 1.5 }}>
+                          백업(다운로드)을 받으셨나요? <b>{m.label}</b> 자료를 삭제하면 <b>되돌릴 수 없습니다.</b>
+                        </div>
+                        <div style={{ display: 'flex', gap: 8, marginTop: 10, justifyContent: 'flex-end' }}>
+                          <button
+                            onClick={() => setConfirmMonth(null)}
+                            disabled={deleting}
+                            style={{ padding: '8px 14px', borderRadius: 9, border: '1px solid #E2E8F0', background: '#fff', color: '#64748B', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+                          >
+                            취소
+                          </button>
+                          <button
+                            onClick={() => handleDelete(m)}
+                            disabled={deleting}
+                            style={{ padding: '8px 14px', borderRadius: 9, border: 'none', background: '#DC2626', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: deleting ? 0.6 : 1 }}
+                          >
+                            {deleting ? '삭제 중...' : '정말 삭제'}
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>

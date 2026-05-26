@@ -1,5 +1,5 @@
 const {
-  S3Client, PutObjectCommand, DeleteObjectCommand, GetObjectCommand,
+  S3Client, PutObjectCommand, DeleteObjectCommand, DeleteObjectsCommand, GetObjectCommand,
 } = require('@aws-sdk/client-s3');
 const { getSignedUrl } = require('@aws-sdk/s3-request-presigner');
 
@@ -22,6 +22,16 @@ async function deleteKeys(keys) {
   await Promise.all(list.map((k) => s3.send(new DeleteObjectCommand({ Bucket: R2_BUCKET, Key: k }))));
 }
 
+// 대량 삭제 (한 번에 최대 1000개) — 월별 정리용
+async function deleteKeysBatch(keys) {
+  const list = [...new Set((keys || []).filter(Boolean))];
+  for (let i = 0; i < list.length; i += 1000) {
+    const chunk = list.slice(i, i + 1000);
+    // eslint-disable-next-line no-await-in-loop
+    await s3.send(new DeleteObjectsCommand({ Bucket: R2_BUCKET, Delete: { Objects: chunk.map((Key) => ({ Key })), Quiet: true } }));
+  }
+}
+
 // 갤러리 렌더 시 단기 서명 URL 발급 (도메인 불필요, 트래픽 무료 유지)
 async function signedUrl(key, expiresIn = 3600) {
   if (!key) return null;
@@ -34,4 +44,4 @@ async function getObjectStream(key) {
   return out.Body;
 }
 
-module.exports = { uploadBuffer, deleteKeys, signedUrl, getObjectStream, BUCKET: R2_BUCKET };
+module.exports = { uploadBuffer, deleteKeys, deleteKeysBatch, signedUrl, getObjectStream, BUCKET: R2_BUCKET };

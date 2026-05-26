@@ -685,7 +685,11 @@ function RoundingListV2() {
                       👥 {parts.length}명 · {summary}
                     </div>
 
-                    {count > 0 ? (
+                    {b.photosArchivedAt ? (
+                      <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '10px' }}>
+                        🗄 백업 후 정리됨 ({(() => { const ad = new Date(b.photosArchivedAt); return `${ad.getFullYear()}.${ad.getMonth() + 1}.${ad.getDate()}`; })()})
+                      </div>
+                    ) : count > 0 ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '12px' }}>
                         {thumbs.slice(0, 4).map((t, i) => (
                           <div key={i} style={{ position: 'relative', width: '60px', height: '60px', borderRadius: '8px', overflow: 'hidden', background: '#F1F5F9', flexShrink: 0 }}>
