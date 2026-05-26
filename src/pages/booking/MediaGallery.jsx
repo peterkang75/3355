@@ -234,27 +234,30 @@ export default function MediaGallery({ booking, user, onClose }) {
             </div>
           )}
 
-          {winners?.overall && (
-            <div style={{ borderTop: '1px solid #EEF2F7', marginTop: '12px', paddingTop: '10px' }}>
-              <div style={{ ...labelStyle, color: '#B45309' }}>시상</div>
-              <div style={{ marginTop: '7px', display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                {[{ label: '전체', name: winners.overall.nickname }, ...winners.gradeWinners.map((g) => ({ label: g.grade, name: g.winner.nickname }))].map((row) => (
-                  <div key={row.label} style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
-                    <span style={{ width: '30px', flexShrink: 0, fontSize: '12px', fontWeight: '600', color: '#94A3B8' }}>{row.label}</span>
-                    <span style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A' }}>{row.name}</span>
-                  </div>
-                ))}
+          {winners?.overall && (() => {
+            const rows = [
+              { label: '전체', name: winners.overall.nickname },
+              ...winners.gradeWinners.map((g) => ({ label: `${g.grade}그레이드`, name: g.winner.nickname })),
+            ];
+            return (
+              <div style={{ borderTop: '1px solid #EEF2F7', marginTop: '12px', paddingTop: '10px' }}>
+                <div style={{ ...labelStyle, color: '#B45309' }}>시상</div>
+                <div style={{ marginTop: '7px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  {rows.map((row, i) => (
+                    <div key={row.label} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <span style={{ width: '62px', flexShrink: 0, fontSize: '12px', fontWeight: '600', color: '#94A3B8' }}>{row.label}</span>
+                      <span style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A' }}>{row.name}</span>
+                      {i === rows.length - 1 && (
+                        <span onClick={openLeaderboard} style={{ marginLeft: 'auto', fontSize: '12.5px', fontWeight: '600', color: '#64748B', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                          스코어 / 결과 보기 ›
+                        </span>
+                      )}
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
-                <button
-                  onClick={openLeaderboard}
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '7px 13px', borderRadius: '9px', border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#64748B', fontSize: '12.5px', fontWeight: '600', cursor: 'pointer' }}
-                >
-                  스코어 / 결과 보기 ›
-                </button>
-              </div>
-            </div>
-          )}
+            );
+          })()}
         </div>
 
         {/* 사진·영상 섹션 */}
