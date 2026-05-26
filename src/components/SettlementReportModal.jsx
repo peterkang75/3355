@@ -101,6 +101,13 @@ export default function SettlementReportModal({ yearMonth, authHeaders, onClose 
                 );
               })()}
 
+              {/* 정정/메모 */}
+              {report.notes && report.notes.trim() && (
+                <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 12, padding: '12px 14px' }}>
+                  <div style={{ fontSize: 12, color: '#92400e', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>{report.notes}</div>
+                </div>
+              )}
+
               {/* 마감일 */}
               {report.closedAt && (
                 <div style={{ textAlign: 'center', fontSize: 11, color: '#94a3b8' }}>

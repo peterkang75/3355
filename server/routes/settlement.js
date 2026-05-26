@@ -338,6 +338,7 @@ router.get('/:yearMonth/report', requireAuth, async (req, res) => {
       netBalance,
       isClosed: settlement?.isClosed || false,
       closedAt: settlement?.closedAt || null,
+      notes: settlement?.notes || '',
       incomeByCategory: Object.values(incomeMap).sort((a, b) => b.total - a.total),
       expenseByCategory: Object.values(expenseMap).sort((a, b) => b.total - a.total),
       bookings: bookings.map(b => ({
