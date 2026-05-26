@@ -201,61 +201,42 @@ export default function MediaGallery({ booking, user, onClose }) {
 
       {/* 본문 */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px 40px' }}>
-        {/* 기본 정보 */}
-        <div style={{ background: '#F8FAFC', border: '1px solid #EEF2F7', borderRadius: '14px', padding: '14px', marginBottom: '12px' }}>
-          <div style={{ fontSize: '15px', fontWeight: '700', color: '#1E293B', marginBottom: '4px' }}>
+        {/* 라운딩 정보 · 참가자 · 우승자 — 텍스트 한 묶음 */}
+        <div style={{ marginBottom: '12px' }}>
+          <div style={{ fontSize: '16px', fontWeight: '700', color: '#1E293B' }}>
             {fmtDate(booking.date)}{timeStr ? ` · ${timeStr}` : ''}
           </div>
-          <div style={{ fontSize: '13px', color: '#475569', marginBottom: '2px' }}>
-            {booking.courseName}
-          </div>
+          <div style={{ fontSize: '13px', color: '#475569', marginTop: '3px' }}>{booking.courseName}</div>
           {booking.restaurantName && (
-            <div style={{ fontSize: '13px', color: '#64748B', marginBottom: '2px' }}>
-              회식 · {booking.restaurantName}
-            </div>
+            <div style={{ fontSize: '12.5px', color: '#94A3B8', marginTop: '2px' }}>회식 · {booking.restaurantName}</div>
           )}
           {fees && (
-            <div style={{ fontSize: '13px', color: '#64748B', marginBottom: '2px' }}>
-              {fees}
-            </div>
+            <div style={{ fontSize: '12.5px', color: '#94A3B8', marginTop: '2px' }}>{fees}</div>
           )}
           {participants.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px', marginTop: '10px' }}>
-              {participants.map((p, i) => (
-                <span key={`${p.phone || 'p'}-${i}`} style={{ fontSize: '12px', padding: '4px 10px', borderRadius: '9999px', background: p.phone === user.phone ? '#EBF2FF' : '#fff', color: p.phone === user.phone ? '#0047AB' : '#475569', border: '1px solid #E2E8F0', fontWeight: p.phone === user.phone ? '700' : '500' }}>
-                  {p.nickname || p.name}
-                </span>
+            <div style={{ fontSize: '12.5px', color: '#94A3B8', marginTop: '8px', lineHeight: 1.65 }}>
+              <span style={{ color: '#64748B', fontWeight: '600' }}>참가 {participants.length}명 · </span>
+              {participants.map((p) => p.nickname || p.name).join(', ')}
+            </div>
+          )}
+          {winners?.overall && (
+            <div style={{ fontSize: '13px', color: '#64748B', marginTop: '10px', lineHeight: 1.7 }}>
+              <span style={{ fontWeight: '700', color: '#334155' }}>우승</span>
+              {'   전체 '}<span style={{ color: '#0F172A', fontWeight: '600' }}>{winners.overall.nickname}</span>
+              {winners.gradeWinners.map((g) => (
+                <span key={g.grade}>{`   ·   ${g.grade} `}<span style={{ color: '#0F172A', fontWeight: '600' }}>{g.winner.nickname}</span></span>
               ))}
             </div>
           )}
         </div>
 
-        {/* 스코어 / 결과 보기 */}
+        {/* 스코어 / 결과 보기 — 작고 덜 도드라지게 */}
         <button
           onClick={() => navigate(`/leaderboard?id=${booking.id}`)}
-          style={{ width: '100%', padding: '13px', borderRadius: '12px', border: '1px solid #BFDBFE', background: '#fff', color: '#0047AB', fontSize: '14px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', marginBottom: '18px' }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '7px 13px', borderRadius: '9px', border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#64748B', fontSize: '12.5px', fontWeight: '600', cursor: 'pointer', marginBottom: '20px' }}
         >
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
-          </svg>
-          스코어 / 결과 보기
+          스코어 / 결과 보기 ›
         </button>
-
-        {/* 우승자 (리더보드 맨 위 이름) */}
-        {winners?.overall && (
-          <div style={{ background: '#fff', border: '1px solid #EEF2F7', borderRadius: '14px', padding: '6px 14px', marginBottom: '18px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: winners.gradeWinners.length ? '1px solid #F1F5F9' : 'none' }}>
-              <span style={{ fontSize: '13px', color: '#64748B', fontWeight: '700', display: 'flex', alignItems: 'center', gap: '5px' }}>🏆 전체 우승</span>
-              <span style={{ fontSize: '15px', color: '#0047AB', fontWeight: '800' }}>{winners.overall.nickname}</span>
-            </div>
-            {winners.gradeWinners.map((g, i) => (
-              <div key={g.grade} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0', borderBottom: i < winners.gradeWinners.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
-                <span style={{ fontSize: '13px', color: '#64748B' }}>{g.grade} 그레이드</span>
-                <span style={{ fontSize: '14px', color: '#1E293B', fontWeight: '700' }}>{g.winner.nickname}</span>
-              </div>
-            ))}
-          </div>
-        )}
 
         {/* 사진·영상 섹션 */}
         <div style={{ fontSize: '14px', fontWeight: '800', color: '#1E293B', marginBottom: '10px' }}>
