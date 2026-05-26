@@ -43,6 +43,11 @@ export default function MediaGallery({ booking, user, onClose }) {
     booking.membershipFee ? `회비 $${booking.membershipFee}` : null,
   ].filter(Boolean);
   const labelStyle = { fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.06em' };
+  const openLeaderboard = () => {
+    // 스코어 화면에서 뒤로가기 시 이 갤러리로 복귀하도록 표시
+    try { sessionStorage.setItem('reopenGalleryBooking', booking.id); } catch { /* noop */ }
+    navigate(`/leaderboard?id=${booking.id}`);
+  };
 
   const load = useCallback(async () => {
     try {
@@ -240,17 +245,17 @@ export default function MediaGallery({ booking, user, onClose }) {
                   </div>
                 ))}
               </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '12px' }}>
+                <button
+                  onClick={openLeaderboard}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '7px 13px', borderRadius: '9px', border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#64748B', fontSize: '12.5px', fontWeight: '600', cursor: 'pointer' }}
+                >
+                  스코어 / 결과 보기 ›
+                </button>
+              </div>
             </div>
           )}
         </div>
-
-        {/* 스코어 / 결과 보기 — 작고 덜 도드라지게 */}
-        <button
-          onClick={() => navigate(`/leaderboard?id=${booking.id}`)}
-          style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '7px 13px', borderRadius: '9px', border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#64748B', fontSize: '12.5px', fontWeight: '600', cursor: 'pointer', marginBottom: '20px' }}
-        >
-          스코어 / 결과 보기 ›
-        </button>
 
         {/* 사진·영상 섹션 */}
         <div style={{ fontSize: '14px', fontWeight: '800', color: '#1E293B', marginBottom: '10px' }}>

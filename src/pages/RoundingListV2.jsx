@@ -87,6 +87,16 @@ function RoundingListV2() {
     }
   }, [searchParams, bookings]);
 
+  // 스코어 화면에서 뒤로가기로 돌아왔을 때 직전 갤러리(라운딩 페이지) 복원
+  useEffect(() => {
+    if (bookings.length === 0) return;
+    const id = sessionStorage.getItem('reopenGalleryBooking');
+    if (!id) return;
+    sessionStorage.removeItem('reopenGalleryBooking');
+    const found = bookings.find(b => b.id === id);
+    if (found) { setViewMode('past'); setGalleryBooking(found); }
+  }, [bookings]);
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (selectedBooking && sheetRef.current && !sheetRef.current.contains(e.target)) {
