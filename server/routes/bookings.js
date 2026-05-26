@@ -524,10 +524,12 @@ router.patch("/:id/toggle-join", requireAuth, async (req, res) => {
       });
       await recalculateAndUpdateBalance(member.id);
     } else {
-      // 참가: 정원 확인
-      const max = booking.maxMembers || 4;
-      if (participants.length >= max) {
-        return res.status(400).json({ error: "정원이 마감되었습니다." });
+      // 참가: 정원 확인 (컴페티션은 인원 무제한 — 정원 체크 생략)
+      if (booking.type !== '컴페티션') {
+        const max = booking.maxMembers || 4;
+        if (participants.length >= max) {
+          return res.status(400).json({ error: "정원이 마감되었습니다." });
+        }
       }
       if (booking.registrationDeadline && new Date() > new Date(booking.registrationDeadline)) {
         return res.status(400).json({ error: "참가 신청 마감일이 지났습니다." });

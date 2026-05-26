@@ -613,7 +613,7 @@ function RoundingListV2() {
                     <div style={{ display: 'flex', gap: '20px' }}>
                       <div>
                         <div style={{ fontSize: '10px', color: '#94A3B8', fontWeight: '700', letterSpacing: '0.02em', marginBottom: '2px' }}>참여 현황</div>
-                        <div style={{ fontSize: '15px', fontWeight: '800', color: '#111827' }}>{parts.length} <span style={{ fontSize: '12px', fontWeight: '500', color: '#94A3B8' }}>/ {maxCap}명</span></div>
+                        <div style={{ fontSize: '15px', fontWeight: '800', color: '#111827' }}>{parts.length}{b.type === '컴페티션' ? '명' : <>{' '}<span style={{ fontSize: '12px', fontWeight: '500', color: '#94A3B8' }}>/ {maxCap}명</span></>}</div>
                       </div>
                       <div>
                         <div style={{ fontSize: '10px', color: '#94A3B8', fontWeight: '700', letterSpacing: '0.02em', marginBottom: '2px' }}>티타임</div>

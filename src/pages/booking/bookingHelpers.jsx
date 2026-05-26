@@ -142,7 +142,7 @@ export const getStatusBadge = (booking) => {
     : (isFull || (hasExplicitDeadline && isRegistrationClosed));
   return (
     <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: '600', background: isClosed ? '#FEE2E2' : 'rgba(26,61,71,0.08)', color: isClosed ? '#DC2626' : '#1a3d47' }}>
-      {isClosed ? '마감' : `모집중 ${totalCount}/${max}`}
+      {isClosed ? '마감' : isCompetition ? `모집중 ${totalCount}명` : `모집중 ${totalCount}/${max}`}
     </span>
   );
 };

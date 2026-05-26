@@ -242,9 +242,9 @@ export default function BookingBottomSheet({
                 const totalCount = participants.length + extraRentals;
                 return (
                   <span style={{ fontSize: '13px', fontWeight: '700', color: '#0047AB' }}>
-                    {totalCount}
+                    {totalCount}{isCompetition && '명'}
                     {extraRentals > 0 && <span style={{ color: '#94A3B8', fontWeight: '500', fontSize: '11px' }}> ({participants.length}+번호대여{extraRentals})</span>}
-                    <span style={{ color: '#94A3B8', fontWeight: '500' }}>/{max}</span>
+                    {!isCompetition && <span style={{ color: '#94A3B8', fontWeight: '500' }}>/{max}</span>}
                   </span>
                 );
               })()}
