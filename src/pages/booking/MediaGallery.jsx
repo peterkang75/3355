@@ -30,6 +30,7 @@ export default function MediaGallery({ booking, user, onClose }) {
   const [upBusy, setUpBusy] = useState(false); // 서버 처리 중(진행률 알 수 없음) = 움직이는 막대
   const [error, setError] = useState('');
   const [viewerIdx, setViewerIdx] = useState(null);
+  const [slideDir, setSlideDir] = useState('next'); // 'next' | 'prev' — 확대보기 슬라이드 방향
   const fileRef = useRef(null);
   const navigate = useNavigate();
   const { members, courses } = useApp();
@@ -178,7 +179,7 @@ export default function MediaGallery({ booking, user, onClose }) {
 
   return (
     <div style={overlay}>
-      <style>{`@keyframes mgIndeterminate { 0% { transform: translateX(-120%); } 100% { transform: translateX(320%); } } @keyframes mgSpin { to { transform: rotate(360deg); } }`}</style>
+      <style>{`@keyframes mgIndeterminate { 0% { transform: translateX(-120%); } 100% { transform: translateX(320%); } } @keyframes mgSpin { to { transform: rotate(360deg); } } @keyframes mgSlideInRight { from { transform: translateX(70px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes mgSlideInLeft { from { transform: translateX(-70px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }`}</style>
       {/* 헤더 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: 'max(14px, env(safe-area-inset-top)) 16px 12px', borderBottom: '1px solid #EEF2F7', flexShrink: 0 }}>
         <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#1E293B', display: 'flex' }}>
@@ -338,9 +339,10 @@ export default function MediaGallery({ booking, user, onClose }) {
           item={readyItems[viewerIdx]}
           index={viewerIdx}
           total={readyItems.length}
+          slideDir={slideDir}
           canDelete={readyItems[viewerIdx].uploaderPhone === user.phone}
-          onPrev={() => setViewerIdx((i) => (i > 0 ? i - 1 : i))}
-          onNext={() => setViewerIdx((i) => (i < readyItems.length - 1 ? i + 1 : i))}
+          onPrev={() => { if (viewerIdx > 0) { setSlideDir('prev'); setViewerIdx(viewerIdx - 1); } }}
+          onNext={() => { if (viewerIdx < readyItems.length - 1) { setSlideDir('next'); setViewerIdx(viewerIdx + 1); } }}
           onClose={() => setViewerIdx(null)}
           onDownload={() => downloadItem(readyItems[viewerIdx])}
           onDelete={() => deleteItem(readyItems[viewerIdx])}
@@ -350,7 +352,8 @@ export default function MediaGallery({ booking, user, onClose }) {
   );
 }
 
-function Viewer({ item, index, total, canDelete, onPrev, onNext, onClose, onDownload, onDelete }) {
+function Viewer({ item, index, total, slideDir, canDelete, onPrev, onNext, onClose, onDownload, onDelete }) {
+  const anim = `${slideDir === 'prev' ? 'mgSlideInLeft' : 'mgSlideInRight'} 0.28s cubic-bezier(0.22, 0.61, 0.36, 1)`;
   const touchStart = useRef(null);
   const onTouchStart = (e) => {
     const t = e.touches[0];
@@ -389,9 +392,9 @@ function Viewer({ item, index, total, canDelete, onPrev, onNext, onClose, onDown
       {/* 미디어 */}
       <div onTouchStart={onTouchStart} onTouchEnd={onTouchEnd} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', overflow: 'hidden' }}>
         {item.type === 'video' ? (
-          <video key={item.id} src={item.url} controls autoPlay playsInline style={{ maxWidth: '100%', maxHeight: '100%' }} />
+          <video key={item.id} src={item.url} controls autoPlay playsInline style={{ maxWidth: '100%', maxHeight: '100%', animation: anim }} />
         ) : (
-          <img key={item.id} src={item.url} alt="" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+          <img key={item.id} src={item.url} alt="" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain', animation: anim }} />
         )}
 
         {index > 0 && (
