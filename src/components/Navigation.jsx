@@ -1,6 +1,5 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { checkIsOperator } from '../utils';
 
 /* ─── 아이콘 SVG (dual-tone: inactive=outline / active=filled) ─── */
 
@@ -63,24 +62,19 @@ const FeesIcon = ({ active }) => {
   );
 };
 
-const GearIcon = ({ active }) => {
+const FeedIcon = ({ active }) => {
   const c = active ? 'var(--primary)' : '#94A3B8';
   return (
     <svg width="25" height="25" viewBox="0 0 24 24" fill="none">
-      <path
-        d="M10.33 4.32c.43-1.77 2.91-1.77 3.34 0a1.72 1.72 0 0 0 2.57 1.07c1.54-.94 3.31.83 2.37 2.37a1.72 1.72 0 0 0 1.07 2.57c1.77.43 1.77 2.91 0 3.34a1.72 1.72 0 0 0-1.07 2.57c.94 1.54-.83 3.31-2.37 2.37a1.72 1.72 0 0 0-2.57 1.07c-.43 1.77-2.91 1.77-3.34 0a1.72 1.72 0 0 0-2.57-1.07c-1.54.94-3.31-.83-2.37-2.37a1.72 1.72 0 0 0-1.07-2.57c-1.77-.43-1.77-2.91 0-3.34a1.72 1.72 0 0 0 1.07-2.57c-.94-1.54.83-3.31 2.37-2.37a1.72 1.72 0 0 0 2.57-1.07z"
+      <rect x="3" y="4" width="18" height="14" rx="3"
         fill={active ? 'var(--primary)' : 'none'}
-        stroke={c}
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle
-        cx="12" cy="12" r="3"
+        stroke={c} strokeWidth="2.2" />
+      <circle cx="9" cy="10" r="2"
         fill={active ? 'white' : 'none'}
-        stroke={active ? 'transparent' : c}
-        strokeWidth="2.2"
-      />
+        stroke={active ? 'white' : c} strokeWidth="2" />
+      <path d="M6 16l4-3 3 2 3-3 2 2"
+        stroke={active ? 'white' : c} strokeWidth="2"
+        strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 };
@@ -178,15 +172,13 @@ function Navigation({ user }) {
         <GolfIcon active={isActive('/booking')} />
       </NavItem>
 
+      <NavItem href="/feed" label="소식" active={isActive('/feed')} onClick={(e) => handleNavClick(e, '/feed')}>
+        <FeedIcon active={isActive('/feed')} />
+      </NavItem>
+
       <NavItem href="/fees" label="참가비" active={isActive('/fees')} onClick={(e) => handleNavClick(e, '/fees')}>
         <FeesIcon active={isActive('/fees')} />
       </NavItem>
-
-      {checkIsOperator(user) && (
-        <NavItem href="/admin" label="관리" active={isActive('/admin')} onClick={(e) => handleNavClick(e, '/admin')}>
-          <GearIcon active={isActive('/admin')} />
-        </NavItem>
-      )}
 
       <NavItem href="/menu" label="더보기" active={isMenuActive} onClick={(e) => handleNavClick(e, '/menu')}>
         <GridIcon active={isMenuActive} />

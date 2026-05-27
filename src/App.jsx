@@ -26,6 +26,7 @@ import RoundingListV2 from './pages/RoundingListV2';
 import Settlement from './pages/Settlement';
 import GuestJoin from './pages/GuestJoin';
 import JoinPage from './pages/JoinPage';
+import Feed from './pages/Feed';
 import Navigation from './components/Navigation';
 import InstallPrompt from './components/InstallPrompt';
 import KakaoTalkBanner from './components/KakaoTalkBanner';
@@ -47,6 +48,7 @@ function AuthenticatedRoutes({ user, logout, requiresProfileComplete }) {
       <Routes>
         <Route path="/" element={<Dashboard />} />
         <Route path="/board" element={<Board />} />
+        <Route path="/feed" element={<Feed />} />
         <Route path="/booking" element={<RoundingListV2 />} />
         <Route path="/v2/roundings" element={<Navigate to="/booking" replace />} />
         <Route path="/fees" element={<Fees />} />

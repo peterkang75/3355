@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
+import { checkIsOperator } from '../utils';
 import { PageHeader } from '../components/common';
 import defaultLogoImage from '../assets/logo-new.png';
 
@@ -29,6 +30,12 @@ const InfoIcon = () => (
 const ChevronRight = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="9 18 15 12 9 6"/>
+  </svg>
+);
+const GearIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10.33 4.32c.43-1.77 2.91-1.77 3.34 0a1.72 1.72 0 0 0 2.57 1.07c1.54-.94 3.31.83 2.37 2.37a1.72 1.72 0 0 0 1.07 2.57c1.77.43 1.77 2.91 0 3.34a1.72 1.72 0 0 0-1.07 2.57c.94 1.54-.83 3.31-2.37 2.37a1.72 1.72 0 0 0-2.57 1.07c-.43 1.77-2.91 1.77-3.34 0a1.72 1.72 0 0 0-2.57-1.07c-1.54.94-3.31-.83-2.37-2.37a1.72 1.72 0 0 0-1.07-2.57c-1.77-.43-1.77-2.91 0-3.34a1.72 1.72 0 0 0 1.07-2.57c-.94-1.54.83-3.31 2.37-2.37a1.72 1.72 0 0 0 2.57-1.07z"/>
+    <circle cx="12" cy="12" r="3"/>
   </svg>
 );
 
@@ -91,6 +98,11 @@ function Menu() {
     if (item.featureKey && featureSettings?.[item.featureKey] === false) return false;
     return true;
   });
+
+  // 운영진에게만 '관리' 항목을 상단에 노출 (하단 네비에서 더보기로 이동)
+  const finalMenuItems = checkIsOperator(user)
+    ? [{ icon: <GearIcon />, iconBg: '#EFF6FF', iconColor: '#0047AB', title: '관리', description: '회원·회비·라운딩 운영 관리', path: '/admin' }, ...menuItems]
+    : menuItems;
 
   return (
     <div style={{ minHeight: '100dvh', display: 'flex', flexDirection: 'column', background: 'var(--surface)' }}>
@@ -161,7 +173,7 @@ function Menu() {
 
       {/* ─── 메뉴 항목 ─── */}
       <div style={{ padding: '16px 16px 0', display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {menuItems.map((item, index) => (
+        {finalMenuItems.map((item, index) => (
           <div
             key={index}
             onClick={() => navigate(item.path)}
