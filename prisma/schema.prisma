@@ -46,6 +46,9 @@ model Member {
   activityLogs          ActivityLog[]
   voterPredictions      WinnerPrediction[] @relation("VoterPredictions")
   predictedWinnerOf     WinnerPrediction[] @relation("PredictedWinner")
+  feedPosts             FeedPost[]         @relation("MemberFeedPosts")
+  comments              Comment[]          @relation("MemberComments")
+  reactions             Reaction[]         @relation("MemberReactions")
 }
 
 model Post {
@@ -314,4 +317,61 @@ model WinnerPrediction {
   @@unique([roundingId, voterId, grade])
   @@index([roundingId])
   @@index([voterId])
+}
+
+model FeedPost {
+  id        String          @id @default(cuid())
+  authorId  String
+  author    Member          @relation("MemberFeedPosts", fields: [authorId], references: [id], onDelete: Cascade)
+  content   String?
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  media     FeedPostMedia[]
+
+  @@index([authorId])
+  @@index([createdAt])
+}
+
+model FeedPostMedia {
+  id           String   @id @default(cuid())
+  feedPostId   String
+  feedPost     FeedPost @relation(fields: [feedPostId], references: [id], onDelete: Cascade)
+  type         String   // "photo" | "video"
+  objectKey    String
+  thumbnailKey String?
+  fileSize     Int      @default(0)
+  durationSec  Int?
+  width        Int?
+  height       Int?
+  status       String   @default("processing") // "processing" | "ready" | "failed"
+  createdAt    DateTime @default(now())
+
+  @@index([feedPostId])
+}
+
+model Reaction {
+  id         String   @id @default(cuid())
+  targetType String   // "booking" | "feedpost"
+  targetId   String
+  memberId   String
+  member     Member   @relation("MemberReactions", fields: [memberId], references: [id], onDelete: Cascade)
+  type       String   @default("like")
+  createdAt  DateTime @default(now())
+
+  @@unique([targetType, targetId, memberId, type])
+  @@index([targetType, targetId])
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  targetType String   // "booking" | "feedpost"
+  targetId   String
+  authorId   String
+  author     Member   @relation("MemberComments", fields: [authorId], references: [id], onDelete: Cascade)
+  content    String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([targetType, targetId])
+  @@index([authorId])
 }

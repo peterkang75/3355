@@ -8,7 +8,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "server": "NODE_ENV=production node server/server.js",
-    "db:push": "prisma migrate dev",
+    "db:push": "prisma db push",
     "db:studio": "prisma studio",
     "start": "npm run build && npm run server",
     "compress:photos": "node server/scripts/compress-photos.js"
