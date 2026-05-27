@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import ReactionBar from './ReactionBar';
 import CommentSection from './CommentSection';
+import { PhotoIcon } from './icons';
 
 export default function RoundPostCard({ item, currentUser, isOperator, onOpenGallery }) {
   const [showComments, setShowComments] = useState(false);
@@ -16,7 +17,7 @@ export default function RoundPostCard({ item, currentUser, isOperator, onOpenGal
         {item.coverThumbUrl
           ? <img src={item.coverThumbUrl} alt="" style={{ width: '100%', aspectRatio: '4/3', objectFit: 'cover', display: 'block' }} />
           : <div style={{ width: '100%', aspectRatio: '4/3' }} />}
-        <span style={{ position: 'absolute', right: 10, bottom: 10, background: 'rgba(0,0,0,0.55)', color: '#fff', fontSize: 12, padding: '3px 8px', borderRadius: 20 }}>📷 {item.mediaCount}</span>
+        <span style={{ position: 'absolute', right: 10, bottom: 10, background: 'rgba(0,0,0,0.55)', color: '#fff', fontSize: 12, fontWeight: 600, padding: '4px 9px', borderRadius: 20, display: 'inline-flex', alignItems: 'center', gap: 4 }}><PhotoIcon size={13} color="#fff" /> {item.mediaCount}</span>
       </button>
       <div style={{ padding: '4px 14px 12px' }}>
         <ReactionBar targetType="booking" targetId={item.id} likeCount={item.likeCount} likedByViewer={item.likedByViewer} commentCount={commentCount} onToggleComments={() => setShowComments((s) => !s)} />

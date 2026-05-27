@@ -72,7 +72,7 @@ export default function RoundPhotoUploader({ currentUser, onClose, onUploaded })
               </div>
               {busyId === b.id
                 ? <span style={{ fontSize: 12.5, color: '#0047AB', fontWeight: 600 }}>업로드중…</span>
-                : <span style={{ fontSize: 12.5, color: '#64748B' }}>📷 {count}장</span>}
+                : <span style={{ fontSize: 12.5, color: '#94A3B8' }}>사진 {count}</span>}
             </button>
           );
         })}

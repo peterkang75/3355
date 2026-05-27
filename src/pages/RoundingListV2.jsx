@@ -644,7 +644,7 @@ function RoundingListV2() {
                 <div key={b.id} style={{ background: '#fff', borderRadius: 12, padding: '14px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
                   <div style={{ fontWeight: 700, fontSize: 15, color: '#0F172A' }}>{b.title || '정기라운딩'}</div>
                   <div style={{ fontSize: 13, color: '#94A3B8', marginTop: 3 }}>{d.getFullYear()}. {d.getMonth() + 1}. {d.getDate()} · {b.courseName}</div>
-                  <div style={{ fontSize: 13.5, color: '#475569', marginTop: 8 }}>👥 {parts.length}명 · {summary}</div>
+                  <div style={{ fontSize: 13.5, color: '#475569', marginTop: 8 }}>참가 {parts.length}명 · {summary}</div>
                   <button onClick={() => navigate(`/leaderboard?id=${b.id}`)} style={{ marginTop: 10, padding: '8px 14px', border: '1px solid #E2E8F0', borderRadius: 8, background: '#F8FAFC', color: '#0047AB', fontWeight: 600, fontSize: 13.5, minHeight: 40 }}>스코어·시상 보기</button>
                 </div>
               );

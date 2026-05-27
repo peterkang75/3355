@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import apiService from '../../services/api';
+import { HeartIcon, CommentIcon } from './icons';
 
 export default function ReactionBar({ targetType, targetId, likeCount, likedByViewer, commentCount, onToggleComments }) {
   const [liked, setLiked] = useState(!!likedByViewer);
@@ -24,12 +25,12 @@ export default function ReactionBar({ targetType, targetId, likeCount, likedByVi
       <button onClick={toggle} style={{ display: 'flex', alignItems: 'center', gap: 6,
         background: 'none', border: 'none', cursor: 'pointer', minHeight: 44, padding: 0,
         color: liked ? '#E0245E' : '#64748B', fontSize: 15, fontWeight: 600 }}>
-        <span style={{ fontSize: 20 }}>{liked ? '♥' : '♡'}</span>{count > 0 ? count : ''}
+        <HeartIcon size={21} filled={liked} />{count > 0 ? count : ''}
       </button>
       <button onClick={onToggleComments} style={{ display: 'flex', alignItems: 'center', gap: 6,
         background: 'none', border: 'none', cursor: 'pointer', minHeight: 44, padding: 0,
         color: '#64748B', fontSize: 15, fontWeight: 600 }}>
-        <span style={{ fontSize: 18 }}>💬</span>{commentCount > 0 ? commentCount : ''}
+        <CommentIcon size={20} />{commentCount > 0 ? commentCount : ''}
       </button>
     </div>
   );

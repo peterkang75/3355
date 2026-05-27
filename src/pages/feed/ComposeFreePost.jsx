@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import apiService from '../../services/api';
 import { compressImageFile } from '../../utils/compressImage';
+import { PhotoIcon } from './icons';
 
 export default function ComposeFreePost({ onClose, onCreated }) {
   const [text, setText] = useState('');
@@ -33,7 +34,7 @@ export default function ComposeFreePost({ onClose, onCreated }) {
         </div>
         <textarea value={text} onChange={(e) => setText(e.target.value)} rows={4} placeholder="무슨 일이 있었나요? (유튜브/인스타 링크도 붙여보세요)" style={{ width: '100%', border: '1px solid #E2E8F0', borderRadius: 10, padding: 12, fontSize: 15, resize: 'none', boxSizing: 'border-box' }} />
         <label style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 10, color: '#0047AB', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>
-          📷 사진 추가
+          <PhotoIcon size={18} /> 사진 추가
           <input type="file" accept="image/*,video/*" multiple onChange={pick} style={{ display: 'none' }} />
         </label>
         {files.length > 0 && <span style={{ marginLeft: 8, color: '#64748B', fontSize: 13 }}>{files.length}개 선택됨</span>}

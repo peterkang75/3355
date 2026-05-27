@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { LinkIcon, PlayIcon } from './icons';
 
 const URL_RE = /(https?:\/\/[^\s]+)/i;
 
@@ -34,7 +35,7 @@ export default function LinkEmbed({ url }) {
               style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             <span style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
               width: 56, height: 56, borderRadius: '50%', background: 'rgba(0,0,0,0.6)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 22 }}>▶</span>
+              display: 'flex', alignItems: 'center', justifyContent: 'center', paddingLeft: 4 }}><PlayIcon size={24} /></span>
           </button>
         )}
       </div>
@@ -48,7 +49,7 @@ export default function LinkEmbed({ url }) {
       style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8, padding: 12,
         border: '1px solid #E2E8F0', borderRadius: 10, textDecoration: 'none',
         boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
-      <span style={{ fontSize: 20 }}>{isInsta ? '📷' : '🔗'}</span>
+      <LinkIcon size={20} />
       <span style={{ flex: 1, minWidth: 0 }}>
         <span style={{ display: 'block', fontWeight: 600, color: '#0F172A', fontSize: 14 }}>
           {isInsta ? 'Instagram' : host}</span>
