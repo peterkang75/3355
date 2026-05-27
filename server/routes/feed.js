@@ -13,6 +13,22 @@ const router = express.Router();
 
 const VALID_TARGETS = ['booking', 'feedpost'];
 
+// 시드니 기준 오늘 날짜 (YYYY-MM-DD) — 라운딩 과거 판정용
+function sydneyToday() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
+}
+
+// 반응/댓글 대상이 실제로 존재하는지 (다형성이라 FK 없음 → 앱에서 검증)
+async function targetExists(targetType, targetId) {
+  if (targetType === 'booking') {
+    return !!(await prisma.booking.findUnique({ where: { id: targetId }, select: { id: true } }));
+  }
+  if (targetType === 'feedpost') {
+    return !!(await prisma.feedPost.findUnique({ where: { id: targetId }, select: { id: true } }));
+  }
+  return false;
+}
+
 // targetKey 배열에 대한 반응/댓글 일괄 집계 (N+1 방지)
 async function aggregateEngagement(targets, viewerId) {
   if (targets.length === 0) return { reactions: {}, comments: {} };
@@ -58,14 +74,14 @@ async function aggregateEngagement(targets, viewerId) {
 router.get('/', requireAuthOrGuest, async (req, res) => {
   try {
     const viewerId = req.member.id;
-    const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+    const todayStr = sydneyToday(); // 'YYYY-MM-DD' 시드니 기준
 
     const bookings = await prisma.booking.findMany({
       where: { photosArchivedAt: null },
       include: { media: { where: { status: 'ready' }, orderBy: { createdAt: 'desc' } } },
     });
     const roundItems = bookings
-      .filter((b) => new Date(b.date) < todayStart && b.media.length > 0)
+      .filter((b) => b.date < todayStr && b.media.length > 0) // 문자열 비교(YYYY-MM-DD) = 시드니 과거
       .map((b) => {
         const cover = b.media.find((m) => m.type === 'photo' && m.thumbnailKey)
           || b.media.find((m) => m.thumbnailKey) || b.media[0];
@@ -134,11 +150,21 @@ router.post('/reactions/toggle', requireAuthOrGuest, async (req, res) => {
     if (!VALID_TARGETS.includes(targetType) || !targetId) {
       return res.status(400).json({ error: '잘못된 대상입니다.' });
     }
+    if (!(await targetExists(targetType, targetId))) {
+      return res.status(404).json({ error: '대상을 찾을 수 없습니다.' });
+    }
     const existing = await prisma.reaction.findUnique({
       where: { targetType_targetId_memberId_type: { targetType, targetId, memberId: req.member.id, type: 'like' } },
     });
-    if (existing) await prisma.reaction.delete({ where: { id: existing.id } });
-    else await prisma.reaction.create({ data: { targetType, targetId, memberId: req.member.id, type: 'like' } });
+    if (existing) {
+      await prisma.reaction.delete({ where: { id: existing.id } }).catch(() => {}); // 동시 해제 경합 무시
+    } else {
+      try {
+        await prisma.reaction.create({ data: { targetType, targetId, memberId: req.member.id, type: 'like' } });
+      } catch (err) {
+        if (err.code !== 'P2002') throw err; // 더블탭 경합으로 이미 생성됨 → 무시
+      }
+    }
     const count = await prisma.reaction.count({ where: { targetType, targetId } });
     req.io.emit('feed:updated');
     res.json({ liked: !existing, count });
@@ -169,8 +195,9 @@ router.post('/comments', requireAuth, async (req, res) => {
   const { targetType, targetId, content } = req.body;
   if (!VALID_TARGETS.includes(targetType) || !targetId) return res.status(400).json({ error: '잘못된 대상입니다.' });
   if (typeof content !== 'string' || !content.trim()) return res.status(400).json({ error: '내용을 입력하세요.' });
+  if (!(await targetExists(targetType, targetId))) return res.status(404).json({ error: '대상을 찾을 수 없습니다.' });
   const comment = await prisma.comment.create({
-    data: { targetType, targetId, authorId: req.member.id, content: content.trim() },
+    data: { targetType, targetId, authorId: req.member.id, content: content.trim().slice(0, 2000) },
     select: { id: true, content: true, createdAt: true, author: { select: { id: true, name: true, nickname: true, photo: true } } },
   });
   req.io.emit('feed:updated');
@@ -193,7 +220,7 @@ router.delete('/comments/:id', requireAuth, async (req, res) => {
 // POST /api/feed/posts  { content }  — requireAuth = 정회원만
 router.post('/posts', requireAuth, async (req, res) => {
   const { content } = req.body;
-  const text = (content || '').trim();
+  const text = (content || '').trim().slice(0, 5000);
   const post = await prisma.feedPost.create({ data: { authorId: req.member.id, content: text || null } });
   req.io.emit('feed:updated');
   res.json({ id: post.id });

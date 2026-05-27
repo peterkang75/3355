@@ -416,6 +416,9 @@ router.post("/:id/add-guest", requireAuth, requireOperator, async (req, res) => 
 
 router.delete("/:id", requireAuth, requireOperator, async (req, res) => {
   try {
+    // 소식 피드 다형성 반응/댓글 정리 (FK 없음 → 고아 레코드 방지)
+    await prisma.reaction.deleteMany({ where: { targetType: "booking", targetId: req.params.id } });
+    await prisma.comment.deleteMany({ where: { targetType: "booking", targetId: req.params.id } });
     await prisma.booking.delete({
       where: { id: req.params.id },
     });
