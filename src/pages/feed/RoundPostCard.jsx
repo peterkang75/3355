@@ -4,6 +4,7 @@ import CommentSection from './CommentSection';
 
 export default function RoundPostCard({ item, currentUser, isOperator, onOpenGallery }) {
   const [showComments, setShowComments] = useState(false);
+  const [commentCount, setCommentCount] = useState(item.commentCount || 0);
   const d = new Date(item.date);
   return (
     <div style={{ background: '#fff', borderRadius: 14, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
@@ -18,11 +19,11 @@ export default function RoundPostCard({ item, currentUser, isOperator, onOpenGal
         <span style={{ position: 'absolute', right: 10, bottom: 10, background: 'rgba(0,0,0,0.55)', color: '#fff', fontSize: 12, padding: '3px 8px', borderRadius: 20 }}>📷 {item.mediaCount}</span>
       </button>
       <div style={{ padding: '4px 14px 12px' }}>
-        <ReactionBar targetType="booking" targetId={item.id} likeCount={item.likeCount} likedByViewer={item.likedByViewer} commentCount={item.commentCount} onToggleComments={() => setShowComments((s) => !s)} />
-        {item.recentComments?.slice(-2).map((c) => (
+        <ReactionBar targetType="booking" targetId={item.id} likeCount={item.likeCount} likedByViewer={item.likedByViewer} commentCount={commentCount} onToggleComments={() => setShowComments((s) => !s)} />
+        {!showComments && item.recentComments?.slice(-2).map((c) => (
           <div key={c.id} style={{ fontSize: 13.5, color: '#334155', padding: '2px 0' }}><b style={{ color: '#0F172A' }}>{c.authorName}</b> {c.content}</div>
         ))}
-        {showComments && (<CommentSection targetType="booking" targetId={item.id} currentUser={currentUser} isOperator={isOperator} />)}
+        {showComments && (<CommentSection targetType="booking" targetId={item.id} currentUser={currentUser} isOperator={isOperator} onCountChange={setCommentCount} />)}
       </div>
     </div>
   );

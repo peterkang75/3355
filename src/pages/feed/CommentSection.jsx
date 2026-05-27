@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import apiService from '../../services/api';
 
-export default function CommentSection({ targetType, targetId, currentUser, isOperator }) {
+export default function CommentSection({ targetType, targetId, currentUser, isOperator, onCountChange }) {
   const [comments, setComments] = useState(null);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
@@ -11,6 +11,11 @@ export default function CommentSection({ targetType, targetId, currentUser, isOp
     apiService.fetchFeedComments(targetType, targetId)
       .then((r) => setComments(r.comments || [])).catch(() => setComments([]));
   }, [targetType, targetId]);
+
+  // 댓글 개수 변화를 카드(뱃지)에 반영
+  useEffect(() => {
+    if (comments !== null) onCountChange?.(comments.length);
+  }, [comments]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const submit = async () => {
     const t = text.trim();

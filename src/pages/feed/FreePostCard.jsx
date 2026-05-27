@@ -6,6 +6,7 @@ import apiService from '../../services/api';
 
 export default function FreePostCard({ item, currentUser, isOperator, onDeleted }) {
   const [showComments, setShowComments] = useState(false);
+  const [commentCount, setCommentCount] = useState(item.commentCount || 0);
   const url = extractFirstUrl(item.content);
   const photos = (item.media || []).filter((m) => m.status === 'ready');
   const canDelete = item.authorId === currentUser?.id || isOperator;
@@ -31,9 +32,9 @@ export default function FreePostCard({ item, currentUser, isOperator, onDeleted 
         </div>
       )}
       <LinkEmbed url={url} />
-      <ReactionBar targetType="feedpost" targetId={item.id} likeCount={item.likeCount} likedByViewer={item.likedByViewer} commentCount={item.commentCount} onToggleComments={() => setShowComments((s) => !s)} />
-      {item.recentComments?.slice(-2).map((c) => (<div key={c.id} style={{ fontSize: 13.5, color: '#334155', padding: '2px 0' }}><b style={{ color: '#0F172A' }}>{c.authorName}</b> {c.content}</div>))}
-      {showComments && (<CommentSection targetType="feedpost" targetId={item.id} currentUser={currentUser} isOperator={isOperator} />)}
+      <ReactionBar targetType="feedpost" targetId={item.id} likeCount={item.likeCount} likedByViewer={item.likedByViewer} commentCount={commentCount} onToggleComments={() => setShowComments((s) => !s)} />
+      {!showComments && item.recentComments?.slice(-2).map((c) => (<div key={c.id} style={{ fontSize: 13.5, color: '#334155', padding: '2px 0' }}><b style={{ color: '#0F172A' }}>{c.authorName}</b> {c.content}</div>))}
+      {showComments && (<CommentSection targetType="feedpost" targetId={item.id} currentUser={currentUser} isOperator={isOperator} onCountChange={setCommentCount} />)}
     </div>
   );
 }
