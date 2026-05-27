@@ -1,8 +1,13 @@
 const express = require('express');
+const os = require('os');
+const multer = require('multer');
 const prisma = require('../db');
 const { requireAuth, requireAuthOrGuest } = require('../middleware/auth');
 const { isOperator } = require('../utils/roles');
 const { signedUrl } = require('../utils/r2');
+const { buildBaseKey, cleanupTemp, processFeedMediaJobs } = require('../utils/feedMedia');
+const { deleteKeys } = require('../utils/r2');
+const upload = multer({ dest: os.tmpdir(), limits: { fileSize: 200 * 1024 * 1024 } });
 
 const router = express.Router();
 
@@ -181,6 +186,52 @@ router.delete('/comments/:id', requireAuth, async (req, res) => {
   if (!c) return res.status(404).json({ error: '댓글이 없습니다.' });
   if (c.authorId !== req.member.id && !isOperator(req.member)) return res.status(403).json({ error: '삭제 권한이 없습니다.' });
   await prisma.comment.delete({ where: { id: req.params.id } });
+  req.io.emit('feed:updated');
+  res.json({ success: true });
+});
+
+// POST /api/feed/posts  { content }  — requireAuth = 정회원만
+router.post('/posts', requireAuth, async (req, res) => {
+  const { content } = req.body;
+  const text = (content || '').trim();
+  const post = await prisma.feedPost.create({ data: { authorId: req.member.id, content: text || null } });
+  req.io.emit('feed:updated');
+  res.json({ id: post.id });
+});
+
+// POST /api/feed/posts/:id/media  (multipart files) — 작성자만
+router.post('/posts/:id/media', requireAuth, upload.array('files', 10), async (req, res) => {
+  const post = await prisma.feedPost.findUnique({ where: { id: req.params.id } });
+  if (!post) { cleanupTemp(req.files); return res.status(404).json({ error: '게시물이 없습니다.' }); }
+  if (post.authorId !== req.member.id) {
+    cleanupTemp(req.files);
+    return res.status(403).json({ error: '작성자만 사진을 올릴 수 있습니다.' });
+  }
+  const jobs = [];
+  for (const file of req.files || []) {
+    const name = (file.originalname || '').toLowerCase();
+    const isVideo = (file.mimetype || '').startsWith('video/') || /\.(mp4|mov|m4v|webm|avi|3gp|mkv)$/.test(name);
+    const baseKey = buildBaseKey(post.id);
+    const objectKey = `${baseKey}.${isVideo ? 'mp4' : 'jpg'}`;
+    const row = await prisma.feedPostMedia.create({
+      data: { feedPostId: post.id, type: isVideo ? 'video' : 'photo', objectKey, thumbnailKey: null, fileSize: 0, status: 'processing' } });
+    jobs.push({ rowId: row.id, baseKey, objectKey, isVideo, path: file.path });
+  }
+  res.json({ created: jobs.length, processing: jobs.map((j) => j.rowId) });
+  processFeedMediaJobs(jobs, (id, data) => prisma.feedPostMedia.update({ where: { id }, data }))
+    .catch((e) => console.error('feed media process error', e));
+});
+
+// DELETE /api/feed/posts/:id — 작성자 또는 운영자
+router.delete('/posts/:id', requireAuth, async (req, res) => {
+  const post = await prisma.feedPost.findUnique({ where: { id: req.params.id }, include: { media: true } });
+  if (!post) return res.status(404).json({ error: '게시물이 없습니다.' });
+  if (post.authorId !== req.member.id && !isOperator(req.member)) return res.status(403).json({ error: '삭제 권한이 없습니다.' });
+  const keys = post.media.flatMap((m) => [m.objectKey, m.thumbnailKey].filter(Boolean));
+  if (keys.length) await deleteKeys(keys).catch(() => {});
+  await prisma.reaction.deleteMany({ where: { targetType: 'feedpost', targetId: post.id } });
+  await prisma.comment.deleteMany({ where: { targetType: 'feedpost', targetId: post.id } });
+  await prisma.feedPost.delete({ where: { id: post.id } });
   req.io.emit('feed:updated');
   res.json({ success: true });
 });
