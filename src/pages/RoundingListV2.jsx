@@ -31,7 +31,6 @@ function RoundingListV2() {
   const [myBookingsExpanded, setMyBookingsExpanded] = useState(false);
   const [viewMode, setViewMode] = useState('upcoming'); // 'upcoming' | 'past'
   const [galleryBooking, setGalleryBooking] = useState(null);
-  const [mediaPreviews, setMediaPreviews] = useState({});
   const sheetRef = useRef(null);
 
   // ── Host Manage state ──────────────────────────────────────────────────────
@@ -134,16 +133,6 @@ function RoundingListV2() {
       .filter(b => b.type === '정기모임' && !isBookingActive(b))
       .sort((a, b) => new Date(b.date) - new Date(a.date))
   ), [bookings]);
-
-  // 지난 탭 진입 시 정기라운딩들의 사진 썸네일 미리보기 로드
-  useEffect(() => {
-    if (viewMode !== 'past' || pastRegular.length === 0) return undefined;
-    let cancelled = false;
-    apiService.fetchMediaPreviews(pastRegular.map(b => b.id))
-      .then(({ previews }) => { if (!cancelled) setMediaPreviews(previews || {}); })
-      .catch(() => {});
-    return () => { cancelled = true; };
-  }, [viewMode, pastRegular]);
 
   const getMemberName = useCallback((id) => {
     const member = members.find(m => m.id === id);
@@ -643,78 +632,23 @@ function RoundingListV2() {
         </>)}
 
         {viewMode === 'past' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {pastRegular.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#9CA3AF', fontSize: '14px' }}>
-                지난 정기라운딩이 없습니다
-              </div>
-            ) : (
-              pastRegular.map(b => {
-                const parts = parseParticipants(b.participants);
-                const names = parts.map(p => p.nickname || p.name);
-                const summary = names.length <= 3 ? names.join(', ') : `${names.slice(0, 3).join(', ')} 외 ${names.length - 3}명`;
-                const d = new Date(b.date);
-                const days2 = ['일', '월', '화', '수', '목', '금', '토'];
-                const preview = mediaPreviews[b.id];
-                const count = preview?.count ?? (b._count?.media || 0);
-                const thumbs = preview?.thumbs || [];
-                return (
-                  <div
-                    key={b.id}
-                    onClick={() => setGalleryBooking(b)}
-                    style={{ background: '#fff', borderRadius: '16px', padding: '16px', cursor: 'pointer', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1px solid #EEF2F7' }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
-                      <div style={{ fontSize: '17px', fontWeight: '800', color: '#1E293B', letterSpacing: '-0.01em' }}>
-                        {b.title || '정기라운딩'}
-                      </div>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: '3px' }}>
-                        <polyline points="9 18 15 12 9 6"/>
-                      </svg>
-                    </div>
-                    <div style={{ fontSize: '13px', color: '#0047AB', fontWeight: '600', marginTop: '3px' }}>
-                      {d.getFullYear()}. {d.getMonth() + 1}. {d.getDate()} ({days2[d.getDay()]})
-                    </div>
-                    <div style={{ fontSize: '13px', color: '#64748B', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
-                      </svg>
-                      {b.courseName}
-                    </div>
-                    <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      👥 {parts.length}명 · {summary}
-                    </div>
-
-                    {b.photosArchivedAt ? (
-                      <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '10px' }}>
-                        🗄 백업 후 정리됨 ({(() => { const ad = new Date(b.photosArchivedAt); return `${ad.getFullYear()}.${ad.getMonth() + 1}.${ad.getDate()}`; })()})
-                      </div>
-                    ) : count > 0 ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '12px' }}>
-                        {thumbs.slice(0, 4).map((t, i) => (
-                          <div key={i} style={{ position: 'relative', width: '60px', height: '60px', borderRadius: '8px', overflow: 'hidden', background: '#F1F5F9', flexShrink: 0 }}>
-                            <img src={t} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                            {i === 3 && count > 4 && (
-                              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.5)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '15px', fontWeight: '700' }}>
-                                +{count - 4}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0, color: '#0047AB', fontSize: '13px', fontWeight: '700' }}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                          </svg>
-                          {count}
-                        </div>
-                      </div>
-                    ) : (
-                      <div style={{ fontSize: '12px', color: '#C0C7D0', marginTop: '10px' }}>아직 사진·영상이 없습니다 · 눌러서 추가</div>
-                    )}
-                  </div>
-                );
-              })
-            )}
+              <div style={{ textAlign: 'center', padding: '60px 20px', color: '#9CA3AF', fontSize: 14 }}>지난 정기라운딩이 없습니다</div>
+            ) : pastRegular.map((b) => {
+              const parts = parseParticipants(b.participants);
+              const names = parts.map((p) => p.nickname || p.name);
+              const summary = names.length <= 4 ? names.join(', ') : `${names.slice(0, 4).join(', ')} 외 ${names.length - 4}명`;
+              const d = new Date(b.date);
+              return (
+                <div key={b.id} style={{ background: '#fff', borderRadius: 12, padding: '14px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: '#0F172A' }}>{b.title || '정기라운딩'}</div>
+                  <div style={{ fontSize: 13, color: '#94A3B8', marginTop: 3 }}>{d.getFullYear()}. {d.getMonth() + 1}. {d.getDate()} · {b.courseName}</div>
+                  <div style={{ fontSize: 13.5, color: '#475569', marginTop: 8 }}>👥 {parts.length}명 · {summary}</div>
+                  <button onClick={() => navigate(`/leaderboard?id=${b.id}`)} style={{ marginTop: 10, padding: '8px 14px', border: '1px solid #E2E8F0', borderRadius: 8, background: '#F8FAFC', color: '#0047AB', fontWeight: 600, fontSize: 13.5, minHeight: 40 }}>스코어·시상 보기</button>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>

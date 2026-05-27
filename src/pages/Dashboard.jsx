@@ -329,10 +329,7 @@ function Dashboard() {
           post={{ title: `${new Date(lastRegular.date).getMonth() + 1}월 정기모임 사진·결과`, content: '사진과 우승 결과를 확인하세요' }}
           badge="지난 정기모임"
           ctaText="사진·결과 보기"
-          onClick={() => {
-            try { sessionStorage.setItem('reopenGalleryBooking', lastRegular.id); } catch { /* noop */ }
-            navigate('/booking');
-          }}
+          onClick={() => navigate('/feed')}
         />
       ) : null}
 
