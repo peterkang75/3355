@@ -266,6 +266,78 @@ class ApiService {
     return response.json();
   }
 
+  // ── 소식 피드 (커뮤니티) ──────────────────────────────────────────────
+  async fetchFeed() {
+    const res = await fetch(`${API_BASE}/feed`, { headers: this.getAuthHeaders() });
+    if (!res.ok) throw new Error('피드를 불러오지 못했습니다.');
+    return res.json();
+  }
+
+  async toggleFeedReaction(targetType, targetId) {
+    const res = await fetch(`${API_BASE}/feed/reactions/toggle`, {
+      method: 'POST',
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ targetType, targetId }),
+    });
+    if (!res.ok) throw new Error('반응 처리 실패');
+    return res.json();
+  }
+
+  async fetchFeedComments(targetType, targetId) {
+    const res = await fetch(`${API_BASE}/feed/comments?targetType=${targetType}&targetId=${targetId}`, { headers: this.getAuthHeaders() });
+    if (!res.ok) throw new Error('댓글을 불러오지 못했습니다.');
+    return res.json();
+  }
+
+  async addFeedComment(targetType, targetId, content) {
+    const res = await fetch(`${API_BASE}/feed/comments`, {
+      method: 'POST',
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ targetType, targetId, content }),
+    });
+    if (!res.ok) throw new Error('댓글 작성 실패');
+    return res.json();
+  }
+
+  async deleteFeedComment(commentId) {
+    const res = await fetch(`${API_BASE}/feed/comments/${commentId}`, { method: 'DELETE', headers: this.getAuthHeaders() });
+    if (!res.ok) throw new Error('댓글 삭제 실패');
+    return res.json();
+  }
+
+  async createFeedPost(content) {
+    const res = await fetch(`${API_BASE}/feed/posts`, {
+      method: 'POST',
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ content }),
+    });
+    if (!res.ok) throw new Error('게시물 작성 실패');
+    return res.json();
+  }
+
+  uploadFeedPostMedia(postId, files, onProgress) {
+    return new Promise((resolve, reject) => {
+      const fd = new FormData();
+      files.forEach((f) => fd.append('files', f));
+      const xhr = new XMLHttpRequest();
+      xhr.open('POST', `${API_BASE}/feed/posts/${postId}/media`);
+      Object.entries(this.getAuthHeaders()).forEach(([k, v]) => xhr.setRequestHeader(k, v));
+      xhr.upload.onprogress = (ev) => { if (onProgress && ev.lengthComputable) onProgress(ev.loaded / ev.total); };
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) resolve(JSON.parse(xhr.responseText || '{}'));
+        else reject(new Error('업로드에 실패했습니다.'));
+      };
+      xhr.onerror = () => reject(new Error('업로드에 실패했습니다.'));
+      xhr.send(fd);
+    });
+  }
+
+  async deleteFeedPost(postId) {
+    const res = await fetch(`${API_BASE}/feed/posts/${postId}`, { method: 'DELETE', headers: this.getAuthHeaders() });
+    if (!res.ok) throw new Error('게시물 삭제 실패');
+    return res.json();
+  }
+
   async fetchBookings() {
     return this.cachedFetch('bookings', async () => {
       const response = await fetch(`${API_BASE}/bookings`, {
