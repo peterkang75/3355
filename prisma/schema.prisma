@@ -56,8 +56,9 @@ model Post {
   author    Member   @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments  Json     @default("[]")
   likes     Json     @default("[]")
-  isActive    Boolean  @default(true)
-  isFeatured  Boolean  @default(false)
+  isActive      Boolean   @default(true)
+  isFeatured    Boolean   @default(false)
+  featuredUntil DateTime?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 

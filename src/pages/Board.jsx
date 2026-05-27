@@ -86,6 +86,15 @@ function Board() {
     }
   };
 
+  const handleSetFeaturedUntil = async (postId, value) => {
+    try {
+      await apiService.updatePost(postId, { featuredUntil: value || null });
+      await refreshPosts();
+    } catch (e) {
+      alert('종료일 저장 중 오류가 발생했습니다.');
+    }
+  };
+
   const handleStartEditPost = (post) => {
     setEditingPost({ id: post.id, title: post.title, content: post.content });
     setOpenMenuId(null);
@@ -365,6 +374,21 @@ function Board() {
                         <StarIcon filled={post.isFeatured} />
                         {post.isFeatured ? '대시보드 공지 해제' : '대시보드 공지로 등록'}
                       </button>
+                    )}
+
+                    {/* 운영진: 상단 노출 종료일 (featured일 때만) */}
+                    {canCreatePost && post.isFeatured && (
+                      <div onClick={(e) => e.stopPropagation()} style={{ marginTop: -6, marginBottom: 16 }}>
+                        <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 5 }}>
+                          상단 노출 종료일 <span style={{ color: '#94A3B8' }}>(비우면 직접 해제할 때까지 유지)</span>
+                        </label>
+                        <input
+                          type="date"
+                          value={post.featuredUntil ? new Date(post.featuredUntil).toISOString().slice(0, 10) : ''}
+                          onChange={(e) => handleSetFeaturedUntil(post.id, e.target.value)}
+                          style={{ padding: '8px 10px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 13, color: 'var(--on-background)', background: '#fff' }}
+                        />
+                      </div>
                     )}
 
                     {/* 댓글 목록 */}

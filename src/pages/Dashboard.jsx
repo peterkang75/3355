@@ -21,7 +21,7 @@ const ArrowRightIcon = () => (
   </svg>
 );
 
-function FeaturedBanner({ post, onClick }) {
+function FeaturedBanner({ post, onClick, badge = '공지사항', ctaText = '자세히 보기' }) {
   const subtitle = post.content?.length > 60
     ? post.content.slice(0, 60) + '…'
     : post.content;
@@ -73,7 +73,7 @@ function FeaturedBanner({ post, onClick }) {
           letterSpacing: '0.02em',
           marginBottom: 12,
         }}>
-          공지사항
+          {badge}
         </div>
 
         {/* 제목 */}
@@ -113,7 +113,7 @@ function FeaturedBanner({ post, onClick }) {
           fontWeight: 700,
           color: '#fff',
         }}>
-          자세히 보기 <ArrowRightIcon />
+          {ctaText} <ArrowRightIcon />
         </div>
       </div>
     </div>
@@ -231,12 +231,30 @@ function Dashboard() {
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .slice(0, 3);
 
-  // 메인 배너 공지
-  const featuredPost = (posts || []).find(p => p.isFeatured && p.isActive !== false) || null;
+  // 상단 노출 종료일(featuredUntil)이 지났는지 — 날짜 단위 비교(종료일 당일까지 노출)
+  const isFeaturedExpired = (until) => {
+    if (!until) return false;
+    const u = new Date(until);
+    const t = new Date();
+    const uDate = new Date(u.getFullYear(), u.getMonth(), u.getDate());
+    const tDate = new Date(t.getFullYear(), t.getMonth(), t.getDate());
+    return uDate < tDate;
+  };
 
-  // 공지사항 (배너에 뜬 글 제외)
+  // 1) 활성 특별공지 (상단지정 + 활성 + 미만료, 여럿이면 최신)
+  const activeFeatured = (posts || [])
+    .filter(p => p.isFeatured && p.isActive !== false && !isFeaturedExpired(p.featuredUntil))
+    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0] || null;
+
+  // 2) 없으면 자동 "지난 정기모임" 배너 (가장 최근 지난 정기모임)
+  const startOfToday = new Date(); startOfToday.setHours(0, 0, 0, 0);
+  const lastRegular = activeFeatured ? null : ((bookings || [])
+    .filter(b => b.type === '정기모임' && new Date(b.date) < startOfToday)
+    .sort((a, b) => new Date(b.date) - new Date(a.date))[0] || null);
+
+  // 공지사항 목록 (배너에 뜬 글만 제외 — 만료된 featured는 목록에 노출)
   const activeNotices = (posts || [])
-    .filter(p => p.isActive !== false && !p.isFeatured)
+    .filter(p => p.isActive !== false && p.id !== activeFeatured?.id)
     .slice(0, 3);
 
   const displayName = user?.nickname || user?.name || '골퍼';
@@ -300,13 +318,23 @@ function Dashboard() {
         </h1>
       </div>
 
-      {/* ── 메인 배너 공지 ── */}
-      {featuredPost && (
+      {/* ── 메인 배너: 활성 특별공지 > 자동 지난 정기모임 ── */}
+      {activeFeatured ? (
         <FeaturedBanner
-          post={featuredPost}
+          post={activeFeatured}
           onClick={() => navigate('/board')}
         />
-      )}
+      ) : lastRegular ? (
+        <FeaturedBanner
+          post={{ title: `${new Date(lastRegular.date).getMonth() + 1}월 정기모임 사진·결과`, content: '사진과 우승 결과를 확인하세요' }}
+          badge="지난 정기모임"
+          ctaText="사진·결과 보기"
+          onClick={() => {
+            try { sessionStorage.setItem('reopenGalleryBooking', lastRegular.id); } catch { /* noop */ }
+            navigate('/booking');
+          }}
+        />
+      ) : null}
 
       {/* ── 나의 라운딩 ── */}
       <div style={{ padding: '0 20px 28px' }}>

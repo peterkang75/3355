@@ -20,6 +20,9 @@ router.get("/", async (req, res) => {
 router.post("/", requireAuth, async (req, res) => {
   try {
     const { id, ...postData } = req.body;
+    if (postData.featuredUntil !== undefined) {
+      postData.featuredUntil = postData.featuredUntil ? new Date(postData.featuredUntil) : null;
+    }
     const post = await prisma.post.create({
       data: postData,
       include: { author: true },
@@ -43,10 +46,13 @@ router.put("/:id", requireAuth, async (req, res) => {
     }
 
     // 변경 가능 필드만 추출 (comments, authorId, id, createdAt 등은 제거)
-    const allowed = ['title', 'content', 'isFeatured', 'isActive'];
+    const allowed = ['title', 'content', 'isFeatured', 'isActive', 'featuredUntil'];
     const data = {};
     for (const key of allowed) {
       if (req.body[key] !== undefined) data[key] = req.body[key];
+    }
+    if (data.featuredUntil !== undefined) {
+      data.featuredUntil = data.featuredUntil ? new Date(data.featuredUntil) : null;
     }
 
     const updated = await prisma.post.update({
