@@ -168,12 +168,12 @@ function Navigation({ user }) {
         <HomeIcon active={isActive('/')} />
       </NavItem>
 
-      <NavItem href="/booking" label="라운딩" active={isActive('/booking')} onClick={(e) => handleNavClick(e, '/booking')}>
-        <GolfIcon active={isActive('/booking')} />
-      </NavItem>
-
       <NavItem href="/feed" label="소식" active={isActive('/feed')} onClick={(e) => handleNavClick(e, '/feed')}>
         <FeedIcon active={isActive('/feed')} />
+      </NavItem>
+
+      <NavItem href="/booking" label="라운딩" active={isActive('/booking')} onClick={(e) => handleNavClick(e, '/booking')}>
+        <GolfIcon active={isActive('/booking')} />
       </NavItem>
 
       <NavItem href="/fees" label="참가비" active={isActive('/fees')} onClick={(e) => handleNavClick(e, '/fees')}>
