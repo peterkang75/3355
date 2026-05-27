@@ -38,7 +38,8 @@ async function aggregateEngagement(targets, viewerId) {
   const [reactions, comments] = await Promise.all([
     prisma.reaction.findMany({
       where: { targetType: { in: types }, targetId: { in: ids } },
-      select: { targetType: true, targetId: true, memberId: true },
+      orderBy: { createdAt: 'desc' },
+      select: { targetType: true, targetId: true, memberId: true, member: { select: { name: true, nickname: true } } },
     }),
     prisma.comment.findMany({
       where: { targetType: { in: types }, targetId: { in: ids } },
@@ -53,9 +54,10 @@ async function aggregateEngagement(targets, viewerId) {
   const rMap = {};
   for (const r of reactions) {
     const key = `${r.targetType}:${r.targetId}`;
-    if (!rMap[key]) rMap[key] = { count: 0, likedByViewer: false };
+    if (!rMap[key]) rMap[key] = { count: 0, likedByViewer: false, names: [] };
     rMap[key].count += 1;
     if (r.memberId === viewerId) rMap[key].likedByViewer = true;
+    if (rMap[key].names.length < 3) rMap[key].names.push(r.member.nickname || r.member.name);
   }
   const cMap = {};
   for (const c of comments) {
@@ -83,14 +85,15 @@ router.get('/', requireAuthOrGuest, async (req, res) => {
     const roundItems = bookings
       .filter((b) => b.date < todayStr && b.media.length > 0) // 문자열 비교(YYYY-MM-DD) = 시드니 과거
       .map((b) => {
-        const cover = b.media.find((m) => m.type === 'photo' && m.thumbnailKey)
-          || b.media.find((m) => m.thumbnailKey) || b.media[0];
+        const ordered = [...b.media].reverse(); // 오래된→최신 순 (b.media는 최신순)
         const feedTs = b.media.reduce(
           (max, m) => (m.createdAt > max ? m.createdAt : max), b.media[0].createdAt);
         return {
           kind: 'round', id: b.id, targetType: 'booking', targetId: b.id,
           title: b.title || `${b.type}`, courseName: b.courseName, date: b.date,
-          mediaCount: b.media.length, coverThumbKey: cover ? cover.thumbnailKey : null, feedTs,
+          mediaCount: b.media.length,
+          photosRaw: ordered.slice(0, 10).map((m) => ({ type: m.type, objectKey: m.objectKey, thumbnailKey: m.thumbnailKey })),
+          feedTs,
         };
       });
 
@@ -116,16 +119,19 @@ router.get('/', requireAuthOrGuest, async (req, res) => {
     // 서명 URL 변환 (원시 key는 응답에서 제거)
     const items = await Promise.all(all.map(async (i) => {
       const key = `${i.targetType}:${i.targetId}`;
-      const r = reactions[key] || { count: 0, likedByViewer: false };
+      const r = reactions[key] || { count: 0, likedByViewer: false, names: [] };
       const c = comments[key] || [];
       const base = {
         ...i,
-        likeCount: r.count, likedByViewer: r.likedByViewer,
+        likeCount: r.count, likedByViewer: r.likedByViewer, likeNames: r.names || [],
         commentCount: c.length, recentComments: c.slice(-2),
       };
       if (i.kind === 'round') {
-        base.coverThumbUrl = i.coverThumbKey ? await signedUrl(i.coverThumbKey) : null;
-        delete base.coverThumbKey;
+        base.photos = await Promise.all((i.photosRaw || []).map(async (m) => ({
+          type: m.type,
+          thumbUrl: m.thumbnailKey ? await signedUrl(m.thumbnailKey) : await signedUrl(m.objectKey),
+        })));
+        delete base.photosRaw;
       } else {
         base.media = await Promise.all(i.media.map(async (m) => ({
           id: m.id, type: m.type, status: m.status,
