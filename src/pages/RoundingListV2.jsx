@@ -724,7 +724,12 @@ function RoundingListV2() {
           <div onClick={() => setShowCasualSuccess(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1200, backdropFilter: 'blur(4px)' }} />
           <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '24px 24px 0 0', zIndex: 1300, padding: '28px 24px', paddingBottom: 'max(32px, calc(24px + env(safe-area-inset-bottom)))', boxShadow: '0 -4px 32px rgba(0,0,0,0.15)' }}>
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <div style={{ fontSize: '40px', marginBottom: '12px' }}>🏌️</div>
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '12px' }}>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" stroke="#0047AB" strokeWidth="2" />
+                  <path d="M7.5 12.5l3 3 6-6.5" stroke="#0047AB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
               <div style={{ fontSize: '20px', fontWeight: '800', color: '#1E293B', marginBottom: '6px' }}>캐주얼 라운딩 생성 완료!</div>
               <div style={{ fontSize: '14px', color: '#64748B' }}>초대 링크를 공유하면 외부인도 스코어를 입력할 수 있습니다</div>
             </div>
