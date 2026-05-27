@@ -5,12 +5,14 @@ import { checkIsOperator } from '../utils';
 import RoundPostCard from './feed/RoundPostCard';
 import FreePostCard from './feed/FreePostCard';
 import ComposeFreePost from './feed/ComposeFreePost';
+import ComposeChooser from './feed/ComposeChooser';
+import RoundPhotoUploader from './feed/RoundPhotoUploader';
 import MediaGallery from './booking/MediaGallery';
 
 export default function Feed() {
   const { user } = useApp();
   const [items, setItems] = useState(null);
-  const [composing, setComposing] = useState(false);
+  const [composeMode, setComposeMode] = useState(null); // null | 'choose' | 'free' | 'round'
   const [galleryBooking, setGalleryBooking] = useState(null);
   const [bookings, setBookings] = useState([]);
 
@@ -43,9 +45,19 @@ export default function Feed() {
         </div>
       )}
       {!isGuest && (
-        <button onClick={() => setComposing(true)} aria-label="글쓰기" style={{ position: 'fixed', right: 18, bottom: 'calc(72px + env(safe-area-inset-bottom))', width: 56, height: 56, borderRadius: '50%', border: 'none', background: '#0047AB', color: '#fff', fontSize: 28, boxShadow: '0 4px 14px rgba(0,71,171,0.4)', zIndex: 1500 }}>+</button>
+        <button onClick={() => setComposeMode('choose')} aria-label="올리기" style={{ position: 'fixed', right: 18, bottom: 'calc(72px + env(safe-area-inset-bottom))', width: 56, height: 56, borderRadius: '50%', border: 'none', background: '#0047AB', color: '#fff', fontSize: 28, boxShadow: '0 4px 14px rgba(0,71,171,0.4)', zIndex: 1500 }}>+</button>
       )}
-      {composing && <ComposeFreePost onClose={() => setComposing(false)} onCreated={() => load()} />}
+      {composeMode === 'choose' && (
+        <ComposeChooser
+          onPickRound={() => setComposeMode('round')}
+          onPickFree={() => setComposeMode('free')}
+          onClose={() => setComposeMode(null)}
+        />
+      )}
+      {composeMode === 'free' && <ComposeFreePost onClose={() => setComposeMode(null)} onCreated={() => load()} />}
+      {composeMode === 'round' && (
+        <RoundPhotoUploader currentUser={user} onClose={() => setComposeMode(null)} onUploaded={() => load()} />
+      )}
       {galleryBooking && (<MediaGallery booking={galleryBooking} user={user} onClose={() => { setGalleryBooking(null); load(); }} />)}
     </div>
   );
