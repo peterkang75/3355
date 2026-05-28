@@ -16,6 +16,7 @@ export default function RoundPhotoUploader({ currentUser, onClose, onUploaded })
       const today = sydneyToday();
       const myPhone = currentUser?.phone;
       const mine = (bs || [])
+        .filter((b) => b.type === '정기모임') // 정기모임만 (컴페티션 제외)
         .filter((b) => b.date < today) // 지난 라운딩
         .filter((b) => parseParticipants(b.participants).some((p) => p.phone === myPhone)) // 내가 참가
         .sort((a, b) => (a.date < b.date ? 1 : -1)); // 최신순
@@ -34,13 +35,22 @@ export default function RoundPhotoUploader({ currentUser, onClose, onUploaded })
       if (files.length === 0) return;
       setBusyId(booking.id);
       try {
-        const prepared = await Promise.all(files.map((f) =>
-          f.type.startsWith('image/') ? compressImageFile(f) : f));
+        // 이미지는 압축 시도, 실패 시 원본 그대로 (HEIC 등 호환 안전장치)
+        const prepared = [];
+        for (const f of files) {
+          if ((f.type || '').startsWith('image/')) {
+            try { prepared.push(await compressImageFile(f)); }
+            catch (e) { console.warn('compress failed, using original:', f.name, e); prepared.push(f); }
+          } else {
+            prepared.push(f);
+          }
+        }
         await apiService.uploadBookingMedia(booking.id, prepared);
         onUploaded?.();
         onClose();
-      } catch {
-        alert('업로드 실패. 다시 시도해주세요.');
+      } catch (e) {
+        console.error('round photo upload error:', e);
+        alert(`업로드 실패: ${e.message || '알 수 없는 오류'}. 다시 시도해주세요.`);
       } finally {
         setBusyId(null);
       }

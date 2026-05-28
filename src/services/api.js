@@ -325,9 +325,13 @@ class ApiService {
       xhr.upload.onprogress = (ev) => { if (onProgress && ev.lengthComputable) onProgress(ev.loaded / ev.total); };
       xhr.onload = () => {
         if (xhr.status >= 200 && xhr.status < 300) resolve(JSON.parse(xhr.responseText || '{}'));
-        else reject(new Error('업로드에 실패했습니다.'));
+        else {
+          let msg = `업로드 실패 (${xhr.status})`;
+          try { const j = JSON.parse(xhr.responseText || '{}'); if (j.error) msg = `업로드 실패: ${j.error}`; } catch { /* noop */ }
+          reject(new Error(msg));
+        }
       };
-      xhr.onerror = () => reject(new Error('업로드에 실패했습니다.'));
+      xhr.onerror = () => reject(new Error('네트워크 오류로 업로드에 실패했습니다.'));
       xhr.send(fd);
     });
   }

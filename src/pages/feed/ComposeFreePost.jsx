@@ -16,12 +16,24 @@ export default function ComposeFreePost({ onClose, onCreated }) {
     try {
       const { id } = await apiService.createFeedPost(text.trim());
       if (files.length > 0) {
-        const imgs = await Promise.all(files.map((f) => f.type.startsWith('image/') ? compressImageFile(f) : f));
+        // 이미지는 압축 시도, 실패 시 원본 그대로 (HEIC 등 호환 안전장치)
+        const imgs = [];
+        for (const f of files) {
+          if ((f.type || '').startsWith('image/')) {
+            try { imgs.push(await compressImageFile(f)); }
+            catch (e) { console.warn('compress failed, using original:', f.name, e); imgs.push(f); }
+          } else {
+            imgs.push(f);
+          }
+        }
         await apiService.uploadFeedPostMedia(id, imgs);
       }
       onCreated?.();
       onClose();
-    } catch { alert('게시 실패. 다시 시도해주세요.'); } finally { setBusy(false); }
+    } catch (e) {
+      console.error('free post create error:', e);
+      alert(`게시 실패: ${e.message || '알 수 없는 오류'}. 다시 시도해주세요.`);
+    } finally { setBusy(false); }
   };
 
   return (
