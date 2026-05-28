@@ -56,7 +56,11 @@ export default function Feed() {
       )}
       {composeMode === 'free' && <ComposeFreePost onClose={() => setComposeMode(null)} onCreated={() => load()} />}
       {composeMode === 'round' && (
-        <RoundPhotoUploader currentUser={user} onClose={() => setComposeMode(null)} onUploaded={() => load()} />
+        <RoundPhotoUploader
+          currentUser={user}
+          onClose={() => setComposeMode(null)}
+          onPickRound={(b) => { setComposeMode(null); setGalleryBooking(b); }}
+        />
       )}
       {galleryBooking && (<MediaGallery booking={galleryBooking} user={user} onClose={() => { setGalleryBooking(null); load(); }} />)}
     </div>
