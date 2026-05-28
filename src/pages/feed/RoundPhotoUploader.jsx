@@ -7,9 +7,22 @@ function sydneyToday() {
   return new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
 }
 
+// 네트워크 에러일 때만 1회 자동 재시도 (모바일 셀룰러 끊김 보호)
+async function uploadOnceWithRetry(bookingId, file, onProgress) {
+  try {
+    return await apiService.uploadBookingMedia(bookingId, [file], onProgress);
+  } catch (e) {
+    if (/네트워크|업로드 실패/.test(e.message || '')) {
+      return await apiService.uploadBookingMedia(bookingId, [file], onProgress);
+    }
+    throw e;
+  }
+}
+
 export default function RoundPhotoUploader({ currentUser, onClose, onUploaded }) {
   const [rounds, setRounds] = useState(null);
   const [busyId, setBusyId] = useState(null);
+  const [status, setStatus] = useState(null); // { label, pct }
 
   useEffect(() => {
     apiService.fetchBookings().then((bs) => {
@@ -34,10 +47,14 @@ export default function RoundPhotoUploader({ currentUser, onClose, onUploaded })
       const files = Array.from(input.files || []);
       if (files.length === 0) return;
       setBusyId(booking.id);
+      setStatus({ label: '준비 중', pct: 0 });
+      const errors = [];
       try {
-        // 이미지는 압축 시도, 실패 시 원본 그대로 (HEIC 등 호환 안전장치)
+        // 1) 압축 (HEIC 안전 폴백)
         const prepared = [];
-        for (const f of files) {
+        for (let i = 0; i < files.length; i++) {
+          const f = files[i];
+          setStatus({ label: files.length > 1 ? `압축 중 ${i + 1}/${files.length}` : '압축 중', pct: 0 });
           if ((f.type || '').startsWith('image/')) {
             try { prepared.push(await compressImageFile(f)); }
             catch (e) { console.warn('compress failed, using original:', f.name, e); prepared.push(f); }
@@ -45,14 +62,32 @@ export default function RoundPhotoUploader({ currentUser, onClose, onUploaded })
             prepared.push(f);
           }
         }
-        await apiService.uploadBookingMedia(booking.id, prepared);
+        // 2) 1장씩 업로드 (모바일 회선 보호 + 1회 재시도)
+        for (let i = 0; i < prepared.length; i++) {
+          const f = prepared[i];
+          const base = prepared.length > 1 ? `올리는 중 ${i + 1}/${prepared.length}` : '올리는 중';
+          try {
+            await uploadOnceWithRetry(booking.id, f, (frac) =>
+              setStatus({ label: base, pct: Math.round((frac || 0) * 100) }));
+          } catch (e) {
+            console.error('upload fail (file', i + 1, ')', e);
+            errors.push(`${i + 1}/${prepared.length}: ${e.message || '오류'}`);
+          }
+        }
+        if (errors.length === prepared.length) {
+          throw new Error(errors.join('\n'));
+        }
         onUploaded?.();
+        if (errors.length > 0) {
+          alert(`일부 실패(${errors.length}/${prepared.length})\n${errors.join('\n')}`);
+        }
         onClose();
       } catch (e) {
         console.error('round photo upload error:', e);
-        alert(`업로드 실패: ${e.message || '알 수 없는 오류'}. 다시 시도해주세요.`);
+        alert(`업로드 실패: ${e.message || '알 수 없는 오류'}\n다시 시도해주세요.`);
       } finally {
         setBusyId(null);
+        setStatus(null);
       }
     };
     input.click();
@@ -73,16 +108,23 @@ export default function RoundPhotoUploader({ currentUser, onClose, onUploaded })
         ) : rounds.map((b) => {
           const d = new Date(b.date);
           const count = b._count?.media || 0;
+          const isBusy = busyId === b.id;
           return (
             <button key={b.id} onClick={() => pickAndUpload(b)} disabled={!!busyId}
               style={{ display: 'flex', alignItems: 'center', width: '100%', gap: 10, padding: '14px 8px', border: 'none', borderBottom: '1px solid #F1F5F9', background: 'none', cursor: 'pointer', textAlign: 'left' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600, fontSize: 15, color: '#0F172A' }}>{b.title || '정기모임'}</div>
                 <div style={{ fontSize: 12.5, color: '#94A3B8', marginTop: 2 }}>{d.getFullYear()}. {d.getMonth() + 1}. {d.getDate()} · {b.courseName}</div>
+                {isBusy && status && (
+                  <div style={{ marginTop: 8 }}>
+                    <div style={{ height: 4, background: '#E2E8F0', borderRadius: 999, overflow: 'hidden' }}>
+                      <div style={{ height: '100%', width: `${status.pct || 0}%`, background: '#0047AB', transition: 'width 0.2s ease' }} />
+                    </div>
+                    <div style={{ fontSize: 11.5, color: '#0047AB', fontWeight: 600, marginTop: 4 }}>{status.label} {status.pct ? `${status.pct}%` : ''}</div>
+                  </div>
+                )}
               </div>
-              {busyId === b.id
-                ? <span style={{ fontSize: 12.5, color: '#0047AB', fontWeight: 600 }}>업로드중…</span>
-                : <span style={{ fontSize: 12.5, color: '#94A3B8' }}>사진 {count}</span>}
+              {!isBusy && <span style={{ fontSize: 12.5, color: '#94A3B8' }}>사진 {count}</span>}
             </button>
           );
         })}
