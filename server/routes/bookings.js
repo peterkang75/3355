@@ -6,6 +6,42 @@ const { requireAuth, requireOperator } = require('../middleware/auth');
 
 const router = express.Router();
 
+// 회원·라운딩 조합에 대한 청구 금액 계산
+// - isFeeExempt(회원 참가비 면제) 우선 적용
+// - 그 외에는 라운딩의 항목별 "골프장 멤버 면제" 토글로 항목 차감
+//   (member.club === booking.courseName 인 회원만 대상)
+function computeMemberChargeForBooking(member, booking) {
+  const isClubMember = !!(member.club && booking.courseName && member.club === booking.courseName);
+  const isFeeExempt = !!member.isFeeExempt;
+
+  const waivedItems = [];
+  const green = (isClubMember && booking.waiveGreenFeeForClubMembers)
+    ? (waivedItems.push('그린피'), 0)
+    : (booking.greenFee || 0);
+  const cart = (isClubMember && booking.waiveCartFeeForClubMembers)
+    ? (waivedItems.push('카트비'), 0)
+    : (booking.cartFee || 0);
+
+  let membership;
+  if (isFeeExempt) {
+    membership = 0;
+  } else if (isClubMember && booking.waiveMembershipFeeForClubMembers) {
+    waivedItems.push('참가비');
+    membership = 0;
+  } else {
+    membership = booking.membershipFee || 0;
+  }
+
+  return { total: green + cart + membership, isFeeExempt, isClubMember, waivedItems };
+}
+
+function buildBaseDescription(booking, info) {
+  const title = booking.title || booking.courseName;
+  if (info.isFeeExempt) return `${title} 라운딩 (참가비 면제)`;
+  if (info.waivedItems.length > 0) return `${title} 라운딩 (클럽 멤버: ${info.waivedItems.join('·')} 면제)`;
+  return `${title} 라운딩`;
+}
+
 router.get("/", async (req, res) => {
   try {
     const bookings = await prisma.booking.findMany({
@@ -24,6 +60,7 @@ router.post("/", requireAuth, requireOperator, async (req, res) => {
     const {
       title, type, isSocial, courseName, date, time, gatheringTime,
       organizerId, organizerPhone, participants, notes, greenFee, cartFee, membershipFee,
+      waiveGreenFeeForClubMembers, waiveCartFeeForClubMembers, waiveMembershipFeeForClubMembers,
       registrationDeadline, maxMembers, isGuestAllowed, playEnabled,
       restaurantName, restaurantAddress, is2BB, isAnnounced,
       playManuallyDisabled, useSquadWaitlist, votingEnabled, status, isRecruiting,
@@ -55,6 +92,9 @@ router.post("/", requireAuth, requireOperator, async (req, res) => {
       ...(greenFee !== undefined && { greenFee: parseInt(greenFee) || null }),
       ...(cartFee !== undefined && { cartFee: parseInt(cartFee) || null }),
       ...(membershipFee !== undefined && { membershipFee: parseInt(membershipFee) || null }),
+      ...(waiveGreenFeeForClubMembers !== undefined && { waiveGreenFeeForClubMembers: !!waiveGreenFeeForClubMembers }),
+      ...(waiveCartFeeForClubMembers !== undefined && { waiveCartFeeForClubMembers: !!waiveCartFeeForClubMembers }),
+      ...(waiveMembershipFeeForClubMembers !== undefined && { waiveMembershipFeeForClubMembers: !!waiveMembershipFeeForClubMembers }),
       ...(registrationDeadline !== undefined && { registrationDeadline }),
       ...(maxMembers !== undefined && { maxMembers: parseInt(maxMembers) || 4 }),
       ...(isGuestAllowed !== undefined && { isGuestAllowed }),
@@ -97,17 +137,18 @@ router.put("/:id", requireAuth, requireOperator, async (req, res) => {
       include: { organizer: true },
     });
 
-    // Fee 변경 시 기존 charge 트랜잭션 자동 동기화
+    // Fee/면제토글 변경 시 기존 charge 트랜잭션 자동 동기화
     // (이미 납부된 charge는 건드리지 않음 — 부분 납부 또는 완납은 사용자가 별도 정정해야 안전)
     const feeChanged =
       (req.body.greenFee !== undefined && (parseInt(req.body.greenFee) || 0) !== (oldBooking.greenFee || 0)) ||
       (req.body.cartFee !== undefined && (parseInt(req.body.cartFee) || 0) !== (oldBooking.cartFee || 0)) ||
-      (req.body.membershipFee !== undefined && (parseInt(req.body.membershipFee) || 0) !== (oldBooking.membershipFee || 0));
+      (req.body.membershipFee !== undefined && (parseInt(req.body.membershipFee) || 0) !== (oldBooking.membershipFee || 0)) ||
+      (req.body.waiveGreenFeeForClubMembers !== undefined && !!req.body.waiveGreenFeeForClubMembers !== !!oldBooking.waiveGreenFeeForClubMembers) ||
+      (req.body.waiveCartFeeForClubMembers !== undefined && !!req.body.waiveCartFeeForClubMembers !== !!oldBooking.waiveCartFeeForClubMembers) ||
+      (req.body.waiveMembershipFeeForClubMembers !== undefined && !!req.body.waiveMembershipFeeForClubMembers !== !!oldBooking.waiveMembershipFeeForClubMembers) ||
+      (req.body.courseName !== undefined && req.body.courseName !== oldBooking.courseName);
 
     if (feeChanged) {
-      const newTotalRegular = (booking.greenFee || 0) + (booking.cartFee || 0) + (booking.membershipFee || 0);
-      const newTotalExempt = (booking.greenFee || 0) + (booking.cartFee || 0);
-
       const charges = await prisma.transaction.findMany({
         where: { bookingId: booking.id, type: 'charge' },
       });
@@ -127,10 +168,16 @@ router.put("/:id", requireAuth, requireOperator, async (req, res) => {
           continue;
         }
 
-        // 면제 회원 판단 — description 기반 ("(참가비 면제)" 포함 시) + DB의 isFeeExempt
-        const member = await prisma.member.findUnique({ where: { id: c.memberId }, select: { isFeeExempt: true } });
-        const isExempt = member?.isFeeExempt || (c.description || '').includes('(참가비 면제)');
-        const newAmount = isExempt ? newTotalExempt : newTotalRegular;
+        const member = await prisma.member.findUnique({
+          where: { id: c.memberId },
+          select: { id: true, club: true, isFeeExempt: true },
+        });
+        if (!member) continue;
+        // 게스트 charge는 별도 카테고리(게스트 참가비) — 회원 면제 규칙 미적용, 스킵
+        if (c.category === '게스트 참가비') continue;
+
+        const info = computeMemberChargeForBooking(member, booking);
+        const newAmount = info.total;
 
         if (c.amount !== newAmount) {
           await prisma.transaction.update({
@@ -181,12 +228,8 @@ router.put("/:id", requireAuth, requireOperator, async (req, res) => {
             continue;
           }
 
-          let totalAmount;
-          if (member.isFeeExempt) {
-            totalAmount = (booking.greenFee || 0) + (booking.cartFee || 0);
-          } else {
-            totalAmount = (booking.greenFee || 0) + (booking.cartFee || 0) + (booking.membershipFee || 0);
-          }
+          const info = computeMemberChargeForBooking(member, booking);
+          const totalAmount = info.total;
 
           if (totalAmount > 0) {
             const memberTransactionsBefore = await prisma.transaction.findMany({
@@ -198,9 +241,7 @@ router.put("/:id", requireAuth, requireOperator, async (req, res) => {
             const creditToUse = Math.min(creditBalance, totalAmount);
             const remainingCharge = totalAmount - creditToUse;
             const today = new Date().toISOString().split("T")[0];
-            const baseDescription = member.isFeeExempt
-              ? `${booking.title} 라운딩 (참가비 면제)`
-              : `${booking.title} 라운딩`;
+            const baseDescription = buildBaseDescription(booking, info);
 
             await prisma.$transaction(async (tx) => {
               if (creditToUse > 0) {
@@ -549,9 +590,8 @@ router.patch("/:id/toggle-join", requireAuth, async (req, res) => {
       });
 
       if (!existingCharge) {
-        const totalAmount = member.isFeeExempt
-          ? (booking.greenFee || 0) + (booking.cartFee || 0)
-          : (booking.greenFee || 0) + (booking.cartFee || 0) + (booking.membershipFee || 0);
+        const info = computeMemberChargeForBooking(member, booking);
+        const totalAmount = info.total;
 
         if (totalAmount > 0) {
           const memberTransactions = await prisma.transaction.findMany({ where: { memberId: member.id } });
@@ -560,9 +600,7 @@ router.patch("/:id/toggle-join", requireAuth, async (req, res) => {
           const creditToUse = Math.min(creditBalance, totalAmount);
           const remainingCharge = totalAmount - creditToUse;
           const today = new Date().toISOString().split("T")[0];
-          const baseDescription = member.isFeeExempt
-            ? `${booking.title || booking.courseName} 라운딩 (참가비 면제)`
-            : `${booking.title || booking.courseName} 라운딩`;
+          const baseDescription = buildBaseDescription(booking, info);
 
           await prisma.$transaction(async (tx) => {
             if (creditToUse > 0) {

@@ -85,6 +85,9 @@ model Booking {
   greenFee             Int?
   cartFee              Int?
   membershipFee        Int?
+  waiveGreenFeeForClubMembers      Boolean  @default(false)
+  waiveCartFeeForClubMembers       Boolean  @default(false)
+  waiveMembershipFeeForClubMembers Boolean  @default(false)
   registrationDeadline String?
   restaurantName       String?
   restaurantAddress    String?

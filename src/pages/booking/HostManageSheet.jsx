@@ -25,6 +25,40 @@ const dateInputStyle = {
 
 // 모듈 레벨로 정의: 부모 리렌더 시에도 컴포넌트 reference가 안정적이라 input이 재마운트되지 않음
 // (이전엔 부모 함수 안에 정의되어 매 리렌더마다 새 컴포넌트로 인식 → input DOM 파괴/재생성 → iOS 키보드 닫힘)
+// 비용 항목 옆 미니 토글 — 그 항목을 해당 골프장 소속 회원에게 면제
+const FeeWaiveInline = ({ field, hmAdvanced, onToggle, disabled }) => {
+  const checked = !!hmAdvanced[field];
+  return (
+    <button
+      type="button"
+      onClick={() => { if (!disabled) onToggle(field); }}
+      title={disabled ? '골프장이 비어 있어 면제 처리할 수 없습니다.' : '해당 골프장 소속 회원에게 이 항목 면제'}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: '6px',
+        background: 'none', border: 'none', padding: '4px 0 10px',
+        cursor: disabled ? 'not-allowed' : 'pointer', opacity: disabled ? 0.4 : 1,
+      }}
+    >
+      <span style={{ width: 28, height: 16, borderRadius: 8, background: checked ? PRIMARY : '#D1D5DB', position: 'relative', display: 'inline-block', transition: 'background 0.15s' }}>
+        <span style={{ position: 'absolute', top: 2, left: checked ? 14 : 2, width: 12, height: 12, borderRadius: 6, background: '#fff', transition: 'left 0.15s', boxShadow: '0 1px 2px rgba(0,0,0,0.25)' }} />
+      </span>
+      <span style={{ fontSize: 12, color: checked ? PRIMARY : '#64748B', fontWeight: 600 }}>
+        클럽 멤버 면제
+      </span>
+    </button>
+  );
+};
+
+const ClubMemberPreviewLine = ({ members, courseName }) => {
+  const base = { marginTop: 4, padding: '8px 10px', borderRadius: 8, fontSize: 12, lineHeight: 1.5 };
+  if (!courseName) return <div style={{ ...base, background: '#FEF3C7', color: '#92400E' }}>골프장이 비어 있어 면제 대상을 표시할 수 없습니다.</div>;
+  const matches = (members || []).filter(m => m && m.club && m.club === courseName);
+  if (matches.length === 0) return <div style={{ ...base, background: '#FEE2E2', color: '#991B1B' }}>"{courseName}" 소속 회원이 없습니다. 회원 정보의 소속 클럽을 확인하세요.</div>;
+  const names = matches.slice(0, 6).map(m => m.nickname || m.name).filter(Boolean).join(', ');
+  const more = matches.length > 6 ? ` 외 ${matches.length - 6}명` : '';
+  return <div style={{ ...base, background: '#EBF4FF', color: '#1E40AF' }}>면제 대상 <strong>{matches.length}명</strong>: {names}{more}</div>;
+};
+
 const InputRow = ({ label, field, placeholder, type = 'text', hmAdvanced, setHmAdvanced, onSave, hmSaveField }) => {
   const isPickerType = type === 'date' || type === 'time' || type === 'datetime-local';
   const parseValue = (val) => type === 'number' ? (val ? parseInt(val) : null) : val;
@@ -533,8 +567,14 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
       <div style={card}>
         {sLabel('비용 정보')}
         <InputRow {...inputRowProps} label="그린피" field="greenFee" placeholder="$0" type="number" />
+        <FeeWaiveInline field="waiveGreenFeeForClubMembers" hmAdvanced={hmAdvanced} onToggle={handleHmAdvancedToggle} disabled={!booking.courseName} />
         <InputRow {...inputRowProps} label="카트비" field="cartFee" placeholder="$0" type="number" />
+        <FeeWaiveInline field="waiveCartFeeForClubMembers" hmAdvanced={hmAdvanced} onToggle={handleHmAdvancedToggle} disabled={!booking.courseName} />
         <InputRow {...inputRowProps} label="참가비" field="membershipFee" placeholder="$0" type="number" />
+        <FeeWaiveInline field="waiveMembershipFeeForClubMembers" hmAdvanced={hmAdvanced} onToggle={handleHmAdvancedToggle} disabled={!booking.courseName} />
+        {(hmAdvanced.waiveGreenFeeForClubMembers || hmAdvanced.waiveCartFeeForClubMembers || hmAdvanced.waiveMembershipFeeForClubMembers) && (
+          <ClubMemberPreviewLine members={members} courseName={booking.courseName} />
+        )}
       </div>
 
       <div style={card}>

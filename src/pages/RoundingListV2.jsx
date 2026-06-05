@@ -53,6 +53,7 @@ function RoundingListV2() {
   const [hmClubMemberOnly, setHmClubMemberOnly] = useState(false);
   const [hmAdvanced, setHmAdvanced] = useState({
     playEnabled: false, is2BB: false, isRecruiting: false, greenFee: '', cartFee: '', membershipFee: '',
+    waiveGreenFeeForClubMembers: false, waiveCartFeeForClubMembers: false, waiveMembershipFeeForClubMembers: false,
     notes: '', courseName: '', date: '', gatheringTime: '', restaurantName: '',
     restaurantAddress: '', isFoursome: false, maxMembers: 4, registrationDeadline: '', gameMode: 'stroke',
   });
@@ -65,6 +66,9 @@ function RoundingListV2() {
   const [officialForm, setOfficialForm] = useState({
     title: '', courseName: '', date: '', time: '', greenFee: '', cartFee: '',
     membershipFee: '', registrationDeadline: '', maxMembers: 28, notes: '', meetingTime: '',
+    waiveGreenFeeForClubMembers: false,
+    waiveCartFeeForClubMembers: false,
+    waiveMembershipFeeForClubMembers: false,
   });
   const [casualForm, setCasualForm] = useState({
     courseName: '', courseNameCustom: '', date: '', timeSlot: 'Morning', time: '',
@@ -217,6 +221,9 @@ function RoundingListV2() {
     setHmAdvanced({
       playEnabled: booking.playEnabled || false, is2BB: booking.is2BB || false,
       greenFee: booking.greenFee || '', cartFee: booking.cartFee || '', membershipFee: booking.membershipFee || '',
+      waiveGreenFeeForClubMembers: !!booking.waiveGreenFeeForClubMembers,
+      waiveCartFeeForClubMembers: !!booking.waiveCartFeeForClubMembers,
+      waiveMembershipFeeForClubMembers: !!booking.waiveMembershipFeeForClubMembers,
       notes: booking.notes || '', courseName: booking.courseName || '', date: booking.date || '',
       gatheringTime: booking.gatheringTime || '', restaurantName: booking.restaurantName || '',
       restaurantAddress: booking.restaurantAddress || '', isFoursome: booking.title?.includes('포썸') || false,
@@ -379,6 +386,9 @@ function RoundingListV2() {
         gatheringTime: officialForm.meetingTime || null,
         greenFee: parseInt(officialForm.greenFee) || null, cartFee: parseInt(officialForm.cartFee) || null,
         membershipFee: parseInt(officialForm.membershipFee) || null,
+        waiveGreenFeeForClubMembers: !!officialForm.waiveGreenFeeForClubMembers,
+        waiveCartFeeForClubMembers: !!officialForm.waiveCartFeeForClubMembers,
+        waiveMembershipFeeForClubMembers: !!officialForm.waiveMembershipFeeForClubMembers,
         registrationDeadline: officialForm.registrationDeadline || null,
         maxMembers: parseInt(officialForm.maxMembers) || 28, notes: officialForm.notes || null,
         organizerId: user.id, organizerPhone: user.phone,
@@ -386,7 +396,11 @@ function RoundingListV2() {
         isGuestAllowed: true,
       });
       setShowCreateModal(false);
-      setOfficialForm({ title: '', courseName: '', date: '', time: '', greenFee: '', cartFee: '', membershipFee: '', registrationDeadline: '', maxMembers: 28, notes: '', meetingTime: '' });
+      setOfficialForm({
+        title: '', courseName: '', date: '', time: '', greenFee: '', cartFee: '', membershipFee: '',
+        registrationDeadline: '', maxMembers: 28, notes: '', meetingTime: '',
+        waiveGreenFeeForClubMembers: false, waiveCartFeeForClubMembers: false, waiveMembershipFeeForClubMembers: false,
+      });
     } catch (err) { alert('라운딩 생성에 실패했습니다.\n' + (err.message || '')); }
     finally { setIsCreating(false); }
   };

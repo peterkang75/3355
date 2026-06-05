@@ -28,6 +28,57 @@ const sectionStyle = {
   padding: '16px', marginBottom: '12px',
 };
 
+// 클럽 멤버 면제 토글 — 비용 입력란 옆에 붙는 작은 스위치
+function ClubWaiveToggle({ checked, onChange, disabled }) {
+  return (
+    <button
+      type="button"
+      onClick={() => { if (!disabled) onChange(!checked); }}
+      title={disabled ? '골프장을 먼저 선택하세요' : '해당 골프장 소속 회원에게 이 항목 면제'}
+      style={{
+        display: 'inline-flex', alignItems: 'center', gap: '6px',
+        background: 'none', border: 'none', padding: 0,
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        opacity: disabled ? 0.4 : 1, marginLeft: 'auto',
+      }}
+    >
+      <span style={{ fontSize: '11px', color: checked ? '#0047AB' : '#9CA3AF', fontWeight: 600, letterSpacing: 0 }}>
+        클럽 멤버 면제
+      </span>
+      <span style={{
+        width: 28, height: 16, borderRadius: 8,
+        background: checked ? '#0047AB' : '#D1D5DB',
+        position: 'relative', transition: 'background 0.15s', display: 'inline-block',
+      }}>
+        <span style={{
+          position: 'absolute', top: 2, left: checked ? 14 : 2,
+          width: 12, height: 12, borderRadius: 6, background: '#fff',
+          transition: 'left 0.15s', boxShadow: '0 1px 2px rgba(0,0,0,0.25)',
+        }} />
+      </span>
+    </button>
+  );
+}
+
+// 클럽 멤버 면제 대상 미리보기 — 어느 토글이든 켜져 있을 때 비용 섹션 하단에 한 번 표시
+function ClubMemberPreview({ members, courseName }) {
+  const base = { marginTop: 4, padding: '8px 10px', borderRadius: 8, fontSize: 12, lineHeight: 1.5 };
+  if (!courseName) {
+    return <div style={{ ...base, background: '#FEF3C7', color: '#92400E' }}>골프장을 먼저 선택하면 면제 대상이 표시됩니다.</div>;
+  }
+  const matches = (members || []).filter(m => m && m.club && m.club === courseName);
+  if (matches.length === 0) {
+    return <div style={{ ...base, background: '#FEE2E2', color: '#991B1B' }}>"{courseName}" 소속으로 등록된 회원이 없습니다. 회원 정보의 소속 클럽을 확인하세요.</div>;
+  }
+  const names = matches.slice(0, 6).map(m => m.nickname || m.name).filter(Boolean).join(', ');
+  const more = matches.length > 6 ? ` 외 ${matches.length - 6}명` : '';
+  return (
+    <div style={{ ...base, background: '#EBF4FF', color: '#1E40AF' }}>
+      면제 대상 <strong>{matches.length}명</strong>: {names}{more}
+    </div>
+  );
+}
+
 // ── 캐주얼 라운딩 폼 ─────────────────────────────────────────────────────────
 function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
   // 골프장 검색
@@ -580,18 +631,44 @@ export default function CreateBookingModal({
                   <div style={{ fontSize: '13px', fontWeight: '700', color: '#B45309', marginBottom: '12px' }}>💰 비용 안내</div>
                   <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
                     <div style={{ flex: 1 }}>
-                      <label style={labelStyle}>그린피</label>
+                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', gap: '8px' }}>
+                        <label style={{ ...labelStyle, marginBottom: 0 }}>그린피</label>
+                        <ClubWaiveToggle
+                          checked={!!officialForm.waiveGreenFeeForClubMembers}
+                          onChange={(v) => onChangeOfficialForm({ ...officialForm, waiveGreenFeeForClubMembers: v })}
+                          disabled={!officialForm.courseName}
+                        />
+                      </div>
                       <input type="number" value={officialForm.greenFee} onChange={(e) => onChangeOfficialForm({ ...officialForm, greenFee: e.target.value })} placeholder="$0" style={inputStyle} />
                     </div>
                     <div style={{ flex: 1 }}>
-                      <label style={labelStyle}>카트비</label>
+                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', gap: '8px' }}>
+                        <label style={{ ...labelStyle, marginBottom: 0 }}>카트비</label>
+                        <ClubWaiveToggle
+                          checked={!!officialForm.waiveCartFeeForClubMembers}
+                          onChange={(v) => onChangeOfficialForm({ ...officialForm, waiveCartFeeForClubMembers: v })}
+                          disabled={!officialForm.courseName}
+                        />
+                      </div>
                       <input type="number" value={officialForm.cartFee} onChange={(e) => onChangeOfficialForm({ ...officialForm, cartFee: e.target.value })} placeholder="$0" style={inputStyle} />
                     </div>
                   </div>
                   <div>
-                    <label style={labelStyle}>참가비</label>
+                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', gap: '8px' }}>
+                      <label style={{ ...labelStyle, marginBottom: 0 }}>참가비</label>
+                      <ClubWaiveToggle
+                        checked={!!officialForm.waiveMembershipFeeForClubMembers}
+                        onChange={(v) => onChangeOfficialForm({ ...officialForm, waiveMembershipFeeForClubMembers: v })}
+                        disabled={!officialForm.courseName}
+                      />
+                    </div>
                     <input type="number" value={officialForm.membershipFee} onChange={(e) => onChangeOfficialForm({ ...officialForm, membershipFee: e.target.value })} placeholder="$0" style={inputStyle} />
                   </div>
+                  {(officialForm.waiveGreenFeeForClubMembers || officialForm.waiveCartFeeForClubMembers || officialForm.waiveMembershipFeeForClubMembers) && (
+                    <div style={{ marginTop: 10 }}>
+                      <ClubMemberPreview members={members} courseName={officialForm.courseName} />
+                    </div>
+                  )}
                 </div>
 
                 <div style={sectionStyle}>
