@@ -42,6 +42,50 @@ function buildBaseDescription(booking, info) {
   return `${title} 라운딩`;
 }
 
+// 회원 1명에게 라운딩 charge를 발행 (크레딧 자동 차감 포함)
+// 중복(이미 같은 booking에 charge/expense 존재 시)은 호출 측에서 사전 확인
+async function issueRoundingChargeForMember(member, booking) {
+  const info = computeMemberChargeForBooking(member, booking);
+  const totalAmount = info.total;
+  if (totalAmount <= 0) return { created: false, reason: 'zero-total' };
+
+  const memberTxs = await prisma.transaction.findMany({ where: { memberId: member.id } });
+  const currentBalance = calculateBalance(memberTxs);
+  const creditBalance = currentBalance > 0 ? currentBalance : 0;
+  const creditToUse = Math.min(creditBalance, totalAmount);
+  const remainingCharge = totalAmount - creditToUse;
+  const today = new Date().toISOString().split('T')[0];
+  const baseDescription = buildBaseDescription(booking, info);
+
+  await prisma.$transaction(async (tx) => {
+    if (creditToUse > 0) {
+      await tx.transaction.create({ data: { type: 'expense', amount: creditToUse, description: `${baseDescription} (크레딧 자동 차감)`, category: '크레딧 자동 차감', date: today, memberId: member.id, bookingId: booking.id } });
+      await tx.transaction.create({ data: { type: 'payment', amount: creditToUse, description: `${baseDescription} (크레딧 자동 차감)`, category: '크레딧 자동 차감', date: today, memberId: member.id, bookingId: booking.id } });
+    }
+    if (remainingCharge > 0) {
+      await tx.transaction.create({ data: { type: 'charge', amount: remainingCharge, description: creditToUse > 0 ? `${baseDescription} (크레딧 $${creditToUse} 사용 후 잔액)` : baseDescription, date: today, memberId: member.id, bookingId: booking.id } });
+    }
+  });
+  await recalculateAndUpdateBalance(member.id);
+  return { created: true, totalAmount, creditToUse, remainingCharge };
+}
+
+// 라운딩 생성 시 초기 participants에 대한 charge 일괄 발행
+async function chargeInitialParticipants(booking) {
+  const parseParticipant = (p) => { try { return typeof p === 'string' ? JSON.parse(p) : p; } catch { return null; } };
+  const list = (booking.participants || []).map(parseParticipant).filter(Boolean);
+  for (const p of list) {
+    if (!p.phone) continue;
+    const member = await prisma.member.findFirst({ where: { phone: p.phone } });
+    if (!member) continue; // 게스트 등 비회원은 별도 게스트 라우트에서 처리
+    const existing = await prisma.transaction.findFirst({
+      where: { memberId: member.id, bookingId: booking.id, type: { in: ['charge', 'expense'] } },
+    });
+    if (existing) continue;
+    try { await issueRoundingChargeForMember(member, booking); } catch (e) { console.error('charge 발행 실패', member.id, e.message); }
+  }
+}
+
 router.get("/", async (req, res) => {
   try {
     const bookings = await prisma.booking.findMany({
@@ -113,7 +157,11 @@ router.post("/", requireAuth, requireOperator, async (req, res) => {
       data,
       include: { organizer: true },
     });
+    // 초기 participants(보통 organizer 1명)에게 charge 자동 발행
+    try { await chargeInitialParticipants(booking); } catch (e) { console.error('initial participants charge 실패', e); }
     req.io.emit("bookings:updated");
+    req.io.emit("transactions:updated");
+    req.io.emit("members:updated");
     res.json(booking);
   } catch (error) {
     console.error("Error creating booking:", error.message);
