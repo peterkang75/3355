@@ -48,6 +48,44 @@ router.get("/", async (req, res) => {
   }
 });
 
+// 참가자 추가용 통합 검색 — 활성/비활성 회원 + 과거 게스트 전부 검색
+// (전역 GET / 는 활성만 내려주므로, 참가자 추가 시 비활성·게스트도 찾기 위한 전용 엔드포인트)
+router.get("/search", requireAuth, requireOperator, async (req, res) => {
+  try {
+    const q = (req.query.q || '').trim();
+    if (!q) return res.json([]);
+
+    const members = await prisma.member.findMany({
+      where: {
+        OR: [
+          { name: { contains: q, mode: 'insensitive' } },
+          { nickname: { contains: q, mode: 'insensitive' } },
+        ],
+      },
+      orderBy: [{ isActive: 'desc' }, { name: 'asc' }],
+      take: 20,
+      select: {
+        id: true,
+        name: true,
+        nickname: true,
+        phone: true,
+        handicap: true,
+        gaHandy: true,
+        houseHandy: true,
+        golflinkNumber: true,
+        isActive: true,
+        approvalStatus: true,
+        isGuest: true,
+        role: true,
+      },
+    });
+    res.json(members);
+  } catch (error) {
+    console.error("Error searching members:", error);
+    res.status(500).json({ error: "Failed to search members" });
+  }
+});
+
 router.get("/:id", requireAuth, async (req, res) => {
   try {
     const member = await prisma.member.findUnique({

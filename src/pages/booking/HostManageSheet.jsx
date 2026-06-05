@@ -52,13 +52,13 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
   if (!show || !booking) return null;
 
   const {
-    hmType, hmTitle, hmTime, hmParticipants, hmGuestName, hmGuestHandicap, hmMemberSearch,
-    hmMemberDropdownOpen, hmSaving, hmSaveStatus, hmDeleteConfirm,
+    hmType, hmTitle, hmTime, hmParticipants, hmGuestHandicap, hmMemberSearch,
+    hmMemberDropdownOpen, hmSearchResults, hmSearchLoading, hmSaving, hmSaveStatus, hmDeleteConfirm,
     hmInviteUrl, hmInviteLoading, hmViewMode, hmClubMemberOnly, hmAdvanced,
   } = state;
 
   const {
-    setHmType, setHmTitle, setHmTime, setHmGuestName, setHmGuestHandicap, setHmMemberSearch,
+    setHmType, setHmTitle, setHmTime, setHmGuestHandicap, setHmMemberSearch,
     setHmMemberDropdownOpen, setHmDeleteConfirm,
     setHmInviteUrl, setHmInviteLoading, setHmViewMode, setHmAdvanced,
   } = setters;
@@ -96,13 +96,35 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
   // InputRow 호출 시 매번 반복되는 의존성을 한 번에 묶어서 전달
   const inputRowProps = { hmAdvanced, setHmAdvanced, onSave: handleHmAdvancedSave, hmSaveField };
 
+  // 검색결과 없을 때 인라인 초대링크 (생성 후 공유)
+  const handleInlineInvite = async () => {
+    let url = hmInviteUrl;
+    if (!url) {
+      setHmInviteLoading(true);
+      try {
+        const res = await apiService.generateInviteLink(booking.id);
+        url = res.inviteUrl;
+        setHmInviteUrl(url);
+      } catch { alert('링크 생성 실패'); setHmInviteLoading(false); return; }
+      setHmInviteLoading(false);
+    }
+    if (navigator.share) { try { await navigator.share({ title: '라운딩 초대', url }); } catch {} }
+    else { navigator.clipboard.writeText(url); alert('링크가 복사되었습니다.'); }
+  };
+
   const renderBasicView = () => {
-    const participantPhones = hmParticipants.map(p => p.phone);
-    const availableMembers = members.filter(m => m.isActive && m.approvalStatus === 'approved' && !participantPhones.includes(m.phone));
-    const searchTerm = hmMemberSearch.trim().toLowerCase();
-    const filteredMembers = searchTerm
-      ? availableMembers.filter(m => (m.nickname || m.name || '').toLowerCase().includes(searchTerm))
-      : availableMembers;
+    const participantPhones = new Set(hmParticipants.map(p => p.phone).filter(Boolean));
+    const searchTerm = hmMemberSearch.trim();
+    // 검색 결과 (이미 참가자인 사람 제외)
+    const foundMembers = (hmSearchResults || []).filter(m => !participantPhones.has(m.phone));
+    const noResult = searchTerm.length > 0 && !hmSearchLoading && foundMembers.length === 0;
+
+    // 회원 구분 배지
+    const memberBadge = (m) => {
+      if (m.isGuest || m.approvalStatus === 'guest') return { label: '게스트', bg: '#FFF7ED', color: '#EA580C' };
+      if (m.isActive && m.approvalStatus === 'approved') return { label: '회원', bg: '#EBF2FF', color: PRIMARY };
+      return { label: '비활성', bg: '#F1F5F9', color: '#64748B' };
+    };
 
     return (
       <>
@@ -166,25 +188,55 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
               placeholder="+ 회원 검색 또는 추가..."
               style={{ ...inputStyle, border: `1px solid ${hmMemberDropdownOpen ? PRIMARY : '#E8ECF0'}` }}
             />
-            {hmMemberDropdownOpen && filteredMembers.length > 0 && (
-              <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#FFFFFF', border: '1px solid #E8ECF0', borderRadius: '12px', marginTop: '4px', maxHeight: '180px', overflowY: 'auto', zIndex: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }}>
-                {filteredMembers.map(m => (
-                  <div key={m.id} onClick={() => { handleHmAddMember(m); setHmMemberSearch(''); setHmMemberDropdownOpen(false); }}
-                    style={{ padding: '10px 14px', fontSize: '14px', color: '#1E293B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid #F8FAFC' }}>
-                    <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#EBF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: PRIMARY, fontWeight: '700', flexShrink: 0 }}>
-                      {(m.nickname || m.name || '').charAt(0)}
+            {hmMemberDropdownOpen && searchTerm && (hmSearchLoading || foundMembers.length > 0) && (
+              <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#FFFFFF', border: '1px solid #E8ECF0', borderRadius: '12px', marginTop: '4px', maxHeight: '220px', overflowY: 'auto', zIndex: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }}>
+                {hmSearchLoading && foundMembers.length === 0 ? (
+                  <div style={{ padding: '12px 14px', fontSize: '14px', color: '#94A3B8' }}>검색 중…</div>
+                ) : foundMembers.map(m => {
+                  const badge = memberBadge(m);
+                  return (
+                    <div key={m.id} onClick={() => { handleHmAddMember(m); }}
+                      style={{ padding: '10px 14px', fontSize: '14px', color: '#1E293B', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1px solid #F8FAFC' }}>
+                      <div style={{ width: '28px', height: '28px', borderRadius: '50%', background: '#EBF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', color: PRIMARY, fontWeight: '700', flexShrink: 0 }}>
+                        {(m.nickname || m.name || '').charAt(0)}
+                      </div>
+                      <span style={{ flex: 1 }}>{m.nickname || m.name}</span>
+                      <span style={{ fontSize: '11px', fontWeight: '700', padding: '3px 8px', borderRadius: '8px', background: badge.bg, color: badge.color, flexShrink: 0 }}>{badge.label}</span>
                     </div>
-                    {m.nickname || m.name}
-                  </div>
-                ))}
-              </div>
-            )}
-            {hmMemberDropdownOpen && filteredMembers.length === 0 && searchTerm && (
-              <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#FFFFFF', border: '1px solid #E8ECF0', borderRadius: '12px', marginTop: '4px', padding: '12px 14px', fontSize: '14px', color: '#94A3B8', zIndex: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.1)' }}>
-                검색 결과가 없습니다
+                  );
+                })}
               </div>
             )}
           </div>
+
+          {/* 검색 결과 없음 → 게스트로 추가 안내 (이름 고정, 핸디만 입력) */}
+          {noResult && (
+            <div style={{ background: '#F8FAFC', border: '1px solid #E8ECF0', borderRadius: '12px', padding: '14px', marginBottom: '10px' }}>
+              <div style={{ fontSize: '14px', fontWeight: '700', color: '#1E293B', marginBottom: '4px' }}>
+                '{searchTerm}'님은 멤버가 아니네요.
+              </div>
+              <div style={{ fontSize: '13px', color: '#64748B', marginBottom: '12px' }}>게스트로 추가할까요?</div>
+              <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
+                <input type="text" value={searchTerm} readOnly
+                  style={{ ...inputStyle, flex: 2, background: '#EEF2F7', color: '#475569', fontWeight: '600' }} />
+                <input type="number" inputMode="decimal" value={hmGuestHandicap}
+                  onChange={(e) => setHmGuestHandicap(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleHmAddGuest(); } }}
+                  placeholder="핸디"
+                  style={{ ...inputStyle, flex: 1, minWidth: 0 }} />
+                <button type="button" onClick={() => handleHmAddGuest()} disabled={hmSaving}
+                  style={{ padding: '12px 16px', borderRadius: '10px', background: PRIMARY, color: '#FFFFFF', border: 'none', fontWeight: '700', fontSize: '14px', cursor: 'pointer', whiteSpace: 'nowrap', opacity: hmSaving ? 0.4 : 1 }}>
+                  게스트 추가
+                </button>
+              </div>
+              {!hmClubMemberOnly && (
+                <button type="button" onClick={handleInlineInvite} disabled={hmInviteLoading}
+                  style={{ width: '100%', padding: '10px', borderRadius: '10px', border: '1px dashed #CBD5E1', background: '#FFFFFF', color: hmInviteLoading ? '#94A3B8' : '#475569', fontSize: '13px', fontWeight: '600', cursor: hmInviteLoading ? 'not-allowed' : 'pointer' }}>
+                  {hmInviteLoading ? '링크 준비 중…' : '또는 초대링크 보내기 (본인이 직접 등록)'}
+                </button>
+              )}
+            </div>
+          )}
 
           {/* 참가자 목록 (번호대여 회원도 함께 표시) */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginBottom: '12px' }}>
@@ -299,25 +351,6 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
               GA 명단 PDF 다운로드
             </button>
           )}
-
-          {/* 게스트 추가 */}
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-            <input type="text" value={hmGuestName}
-              onChange={(e) => { e.stopPropagation(); setHmGuestName(e.target.value); }}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); handleHmAddGuest(); } }}
-              placeholder="이름"
-              style={{ ...inputStyle, flex: 2 }} />
-            <input type="number" inputMode="decimal" value={hmGuestHandicap}
-              onChange={(e) => { e.stopPropagation(); setHmGuestHandicap(e.target.value); }}
-              onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); handleHmAddGuest(); } }}
-              placeholder="핸디"
-              style={{ ...inputStyle, flex: 1, minWidth: 0 }} />
-            <button type="button" onClick={(e) => { e.stopPropagation(); e.preventDefault(); handleHmAddGuest(); }}
-              disabled={hmSaving || !hmGuestName.trim()}
-              style={{ padding: '12px 16px', borderRadius: '10px', background: PRIMARY, color: '#FFFFFF', border: 'none', fontWeight: '700', fontSize: '14px', cursor: 'pointer', whiteSpace: 'nowrap', opacity: (!hmGuestName.trim() || hmSaving) ? 0.4 : 1 }}>
-              추가
-            </button>
-          </div>
         </div>
 
         {/* 조편성 */}

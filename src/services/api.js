@@ -915,6 +915,31 @@ class ApiService {
     return response.json();
   }
 
+  // 참가자 추가용 통합 검색 (활성/비활성 회원 + 과거 게스트)
+  async searchMembersForParticipant(q) {
+    const term = (q || '').trim();
+    if (!term) return [];
+    const response = await fetch(`${API_BASE}/members/search?q=${encodeURIComponent(term)}`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error('Failed to search members');
+    return response.json();
+  }
+
+  // 참가자 추가 통합 — 기존 회원/게스트(memberId) 또는 신규 게스트(name+handicap)
+  async addParticipant(bookingId, payload) {
+    const response = await fetch(`${API_BASE}/bookings/${bookingId}/add-participant`, {
+      method: 'POST',
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || '참가자 추가에 실패했습니다.');
+    }
+    return response.json();
+  }
+
   async creditToDonation(memberId, amount, memo) {
     const response = await fetch(`${API_BASE}/transactions/credit-to-donation`, {
       method: 'POST',

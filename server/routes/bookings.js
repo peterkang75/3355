@@ -414,6 +414,107 @@ router.post("/:id/add-guest", requireAuth, requireOperator, async (req, res) => 
   }
 });
 
+// ── 참가자 추가 통합: 기존 회원/게스트(memberId) 또는 신규 게스트(name+handicap) ──
+// 회원=참가비 청구 안 함 / 게스트(신규·기존)=그린피+카트피 청구(중복 청구 방지)
+router.post("/:id/add-participant", requireAuth, requireOperator, async (req, res) => {
+  try {
+    const { id: bookingId } = req.params;
+    const { memberId, name, handicap } = req.body;
+
+    const booking = await prisma.booking.findUnique({ where: { id: bookingId } });
+    if (!booking) return res.status(404).json({ error: '라운딩을 찾을 수 없습니다.' });
+
+    const currentParticipants = (booking.participants || []).map(p => {
+      try { return typeof p === 'string' ? JSON.parse(p) : p; } catch { return null; }
+    }).filter(Boolean);
+
+    const today = new Date().toISOString().split('T')[0];
+    const feeAmount = (booking.greenFee || 0) + (booking.cartFee || 0);
+
+    // 게스트 참가비 청구 (이미 이 라운딩에 청구된 적 있으면 건너뜀)
+    const chargeGuestFee = async (mId) => {
+      if (feeAmount <= 0) return 0;
+      const existing = await prisma.transaction.findFirst({
+        where: { memberId: mId, bookingId: booking.id, type: 'charge', category: '게스트 참가비' },
+      });
+      if (existing) return 0;
+      await prisma.transaction.create({
+        data: {
+          type: 'charge', amount: feeAmount,
+          description: `${booking.title || booking.courseName} 라운딩 (게스트)`,
+          category: '게스트 참가비', date: today, memberId: mId, bookingId: booking.id,
+        },
+      });
+      await recalculateAndUpdateBalance(mId);
+      return feeAmount;
+    };
+
+    const saveParticipant = (newParticipant) =>
+      prisma.booking.update({
+        where: { id: bookingId },
+        data: { participants: [...currentParticipants.map(p => JSON.stringify(p)), JSON.stringify(newParticipant)] },
+      });
+
+    // ── 케이스 A: 기존 회원/게스트를 ID로 추가 ──
+    if (memberId) {
+      const member = await prisma.member.findUnique({ where: { id: memberId } });
+      if (!member) return res.status(404).json({ error: '회원을 찾을 수 없습니다.' });
+
+      const dup = currentParticipants.some(
+        p => (p.phone && p.phone === member.phone) || p.id === member.id || p.memberId === member.id
+      );
+      if (dup) return res.status(400).json({ error: '이미 참가자로 추가되어 있습니다.' });
+
+      if (booking.type === '컴페티션' && (!member.golflinkNumber || !member.golflinkNumber.trim())) {
+        return res.status(400).json({ error: `${member.nickname || member.name}님은 골프링크 번호가 없어 컴페티션에 추가할 수 없습니다.` });
+      }
+
+      const isGuestMember = member.isGuest || member.approvalStatus === 'guest' || member.role === '게스트';
+
+      const newParticipant = isGuestMember
+        ? { id: member.id, name: member.name, nickname: member.nickname || member.name, phone: member.phone, isGuest: true, handicap: member.handicap || '36', gaHandy: member.gaHandy || member.handicap || '36' }
+        : { name: member.name, nickname: member.nickname, phone: member.phone, memberId: member.id };
+
+      await saveParticipant(newParticipant);
+      const feeCharged = isGuestMember ? await chargeGuestFee(member.id) : 0;
+
+      req.io.emit('bookings:updated');
+      req.io.emit('members:updated');
+      req.io.emit('transactions:updated');
+      return res.json({ success: true, participant: newParticipant, feeCharged });
+    }
+
+    // ── 케이스 B: 신규 게스트 생성 ──
+    if (!name || !name.trim()) {
+      return res.status(400).json({ error: '이름을 입력해주세요.' });
+    }
+    const parsedHandicap = parseFloat(handicap) || 36;
+    const phone = `guest_${crypto.randomBytes(8).toString('hex')}`;
+    const guest = await prisma.member.create({
+      data: {
+        name: name.trim(), nickname: name.trim(), phone,
+        isGuest: true, isActive: false, approvalStatus: 'guest', role: '게스트',
+        handicap: String(parsedHandicap), gaHandy: String(parsedHandicap),
+      },
+    });
+
+    const newParticipant = {
+      id: guest.id, name: guest.name, nickname: guest.name, phone: guest.phone,
+      isGuest: true, handicap: String(parsedHandicap), gaHandy: String(parsedHandicap),
+    };
+    await saveParticipant(newParticipant);
+    const feeCharged = await chargeGuestFee(guest.id);
+
+    req.io.emit('bookings:updated');
+    req.io.emit('members:updated');
+    req.io.emit('transactions:updated');
+    return res.json({ success: true, participant: newParticipant, feeCharged });
+  } catch (error) {
+    console.error('Error adding participant:', error);
+    res.status(500).json({ error: error.message || 'Failed to add participant' });
+  }
+});
+
 router.delete("/:id", requireAuth, requireOperator, async (req, res) => {
   try {
     // 소식 피드 다형성 반응/댓글 정리 (FK 없음 → 고아 레코드 방지)

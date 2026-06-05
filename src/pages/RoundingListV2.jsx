@@ -44,6 +44,8 @@ function RoundingListV2() {
   const [hmGuestHandicap, setHmGuestHandicap] = useState('');
   const [hmMemberSearch, setHmMemberSearch] = useState('');
   const [hmMemberDropdownOpen, setHmMemberDropdownOpen] = useState(false);
+  const [hmSearchResults, setHmSearchResults] = useState([]);
+  const [hmSearchLoading, setHmSearchLoading] = useState(false);
   const [hmSaving, setHmSaving] = useState(false);
   const [hmSaveStatus, setHmSaveStatus] = useState('idle'); // 'idle' | 'saving' | 'saved'
   const [hmDeleteConfirm, setHmDeleteConfirm] = useState(false);
@@ -201,6 +203,9 @@ function RoundingListV2() {
     setHmTime(booking.time || '');
     setHmParticipants(parts);
     setHmGuestName('');
+    setHmGuestHandicap('');
+    setHmMemberSearch('');
+    setHmSearchResults([]);
     setHmDeleteConfirm(false);
     setHmSaving(false);
     setHmViewMode('basic');
@@ -274,32 +279,57 @@ function RoundingListV2() {
     await hmSaveField({ participants: updated.map(p => JSON.stringify(p)) });
   };
 
+  // 기존 회원/게스트(검색 결과)를 ID로 추가 — 회원=무료 / 게스트=참가비 (서버 판별)
   const handleHmAddMember = async (member) => {
+    if (!hmBooking?.id) return;
     if (hmParticipants.some(p => p.phone === member.phone)) return;
-    if (hmType === '컴페티션' && (!member.golflinkNumber || member.golflinkNumber.trim() === '')) {
-      alert(`${member.nickname || member.name}님은 골프링크 번호가 없어 컴페티션에 추가할 수 없습니다.`);
-      return;
+    try {
+      const result = await apiService.addParticipant(hmBooking.id, { memberId: member.id });
+      setHmParticipants(prev => [...prev, result.participant]);
+      setHmMemberSearch('');
+      setHmSearchResults([]);
+      setHmMemberDropdownOpen(false);
+    } catch (e) {
+      alert(e.message || '참가자 추가 중 오류가 발생했습니다.');
     }
-    const updated = [...hmParticipants, { name: member.name, nickname: member.nickname, phone: member.phone, memberId: member.id }];
-    setHmParticipants(updated);
-    await hmSaveField({ participants: updated.map(p => JSON.stringify(p)) });
   };
 
+  // 검색 안 되는 신규 게스트 생성 — 이름은 검색어, 핸디만 입력받음
   const handleHmAddGuest = async () => {
-    const name = hmGuestName.trim();
+    const name = hmMemberSearch.trim();
     if (!name || !hmBooking?.id) return;
     const hc = hmGuestHandicap !== '' ? parseFloat(hmGuestHandicap) : 36;
     const handicap = isNaN(hc) ? 36 : hc;
     try {
-      const result = await apiService.addGuestToBooking(hmBooking.id, name, handicap);
-      // 서버가 반환한 participant(id 포함)를 state에 반영
+      const result = await apiService.addParticipant(hmBooking.id, { name, handicap });
       setHmParticipants(prev => [...prev, result.participant]);
-      setHmGuestName('');
+      setHmMemberSearch('');
       setHmGuestHandicap('');
+      setHmSearchResults([]);
+      setHmMemberDropdownOpen(false);
     } catch (e) {
-      alert('게스트 추가 중 오류가 발생했습니다.');
+      alert(e.message || '게스트 추가 중 오류가 발생했습니다.');
     }
   };
+
+  // 참가자 검색 — 활성/비활성 회원 + 과거 게스트 (디바운스)
+  useEffect(() => {
+    if (!showHostManage) return;
+    const term = hmMemberSearch.trim();
+    if (!term) { setHmSearchResults([]); setHmSearchLoading(false); return; }
+    setHmSearchLoading(true);
+    const t = setTimeout(async () => {
+      try {
+        const results = await apiService.searchMembersForParticipant(term);
+        setHmSearchResults(results);
+      } catch {
+        setHmSearchResults([]);
+      } finally {
+        setHmSearchLoading(false);
+      }
+    }, 250);
+    return () => clearTimeout(t);
+  }, [hmMemberSearch, showHostManage]);
 
   const handleHmAdvancedToggle = async (field) => {
     const newVal = !hmAdvanced[field];
@@ -687,7 +717,7 @@ function RoundingListV2() {
         show={showHostManage}
         onClose={() => setShowHostManage(false)}
         booking={hmBooking}
-        state={{ hmType, hmTitle, hmTime, hmParticipants, hmGuestName, hmGuestHandicap, hmMemberSearch, hmMemberDropdownOpen, hmSaving, hmSaveStatus, hmDeleteConfirm, hmInviteUrl, hmInviteLoading, hmViewMode, hmClubMemberOnly, hmAdvanced }}
+        state={{ hmType, hmTitle, hmTime, hmParticipants, hmGuestName, hmGuestHandicap, hmMemberSearch, hmMemberDropdownOpen, hmSearchResults, hmSearchLoading, hmSaving, hmSaveStatus, hmDeleteConfirm, hmInviteUrl, hmInviteLoading, hmViewMode, hmClubMemberOnly, hmAdvanced }}
         setters={{ setHmType, setHmTitle, setHmTime, setHmGuestName, setHmGuestHandicap, setHmMemberSearch, setHmMemberDropdownOpen, setHmDeleteConfirm, setHmInviteUrl, setHmInviteLoading, setHmViewMode, setHmAdvanced }}
         handlers={{ handleHmTypeChange, handleHmTitleSave, handleHmTimeSave, handleHmRemoveParticipant, handleHmAddMember, handleHmAddGuest, handleHmAdvancedToggle, handleHmAdvancedSave, handleHmDelete, handleHmGameModeChange, hmSaveField }}
         user={user}
