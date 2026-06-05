@@ -287,19 +287,7 @@ function Dashboard() {
           3355 골프클럽
         </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          {user && (
-            <>
-              <span style={{
-                fontSize: 14,
-                fontWeight: 600,
-                color: 'var(--on-background)',
-                letterSpacing: '-0.02em',
-              }}>
-                {user.nickname || user.name}
-              </span>
-              <ProfileBadge user={user} size={34} />
-            </>
-          )}
+          {user && <ProfileBadge user={user} size={34} showInlineName />}
         </div>
       </div>
 

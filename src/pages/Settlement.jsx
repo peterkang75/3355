@@ -983,14 +983,7 @@ function Settlement() {
           <div style={{ width: 38 }} />
           <span style={{ fontSize: 17, fontWeight: 800, color: '#1e293b', letterSpacing: '-0.02em' }}>클럽회계</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            {user && (
-              <>
-                <span style={{ fontSize: 13, fontWeight: 600, color: '#1e293b', letterSpacing: '-0.02em' }}>
-                  {user.nickname || user.name}
-                </span>
-                <ProfileBadge user={user} size={32} />
-              </>
-            )}
+            {user && <ProfileBadge user={user} size={32} showInlineName />}
           </div>
         </div>
 

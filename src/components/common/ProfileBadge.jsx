@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import CrownIcon from '../CrownIcon';
 import { useApp } from '../../contexts/AppContext';
 
-function ProfileBadge({ user, showGreeting = false, size = 36, clubMode = false }) {
+function ProfileBadge({ user, showGreeting = false, showInlineName = false, size = 36, clubMode = false }) {
   const navigate = useNavigate();
   const { members, login } = useApp();
   const [showMemberDropdown, setShowMemberDropdown] = useState(false);
@@ -82,10 +82,10 @@ function ProfileBadge({ user, showGreeting = false, size = 36, clubMode = false 
       }}
     >
       {showGreeting && (
-        <div 
-          style={{ 
-            fontSize: '14px', 
-            fontWeight: '500', 
+        <div
+          style={{
+            fontSize: '14px',
+            fontWeight: '500',
             color: '#374151',
             cursor: canSwitchUsers ? 'pointer' : 'default',
             display: 'flex',
@@ -94,7 +94,7 @@ function ProfileBadge({ user, showGreeting = false, size = 36, clubMode = false 
           }}
           onClick={handleNameClick}
         >
-          환영합니다 <span style={{ 
+          환영합니다 <span style={{
             textDecoration: canSwitchUsers ? 'underline' : 'none',
             textDecorationStyle: 'dotted'
           }}>{user.nickname || user.name}</span>님
@@ -103,10 +103,31 @@ function ProfileBadge({ user, showGreeting = false, size = 36, clubMode = false 
           )}
         </div>
       )}
-      
-      <div 
+
+      {showInlineName && !showGreeting && (
+        <span
+          onClick={handleNameClick}
+          style={{
+            fontSize: 14,
+            fontWeight: 600,
+            color: clubMode ? '#ffffff' : 'var(--on-background)',
+            letterSpacing: '-0.02em',
+            cursor: canSwitchUsers ? 'pointer' : 'default',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 3,
+          }}
+        >
+          {user.nickname || user.name}
+          {canSwitchUsers && (
+            <span style={{ fontSize: 9, opacity: 0.6, marginLeft: 1 }}>▼</span>
+          )}
+        </span>
+      )}
+
+      <div
         style={{ position: 'relative', cursor: 'pointer' }}
-        onClick={() => navigate('/mypage')}
+        onClick={canSwitchUsers ? handleNameClick : () => navigate('/mypage')}
       >
         <div style={{
           width: `${size}px`,
