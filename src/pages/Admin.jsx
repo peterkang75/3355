@@ -870,16 +870,35 @@ function Admin() {
 
       const booking = bookings.find(b => b.id === selectedExpense.bookingId);
       const member = members.find(m => m.id === selectedExpense.memberId);
-      const isRefundOrCredit = category?.name === '환불' || category?.name === '회원 크레딧';
-      
+      const isRefund = category?.name === '환불';
+      const isCreditGrant = category?.name === '회원 크레딧';
+      const isMemberTx = isRefund || isCreditGrant;
+
+      // 환불: 회원이 '낸 돈'을 현금으로 돌려줌 → 회원 잔액 차감(type=expense).
+      //   레거시 '환불'(잔액 영향 없음, 구 데이터)과 구분하려고 '회원환불' 카테고리로 저장.
+      // 회원 크레딧: 회원이 '안 낸 돈'(상금·보상)을 크레딧으로 지급 → 회원 잔액 증가(type=credit).
+      const amountNum = parseFloat(selectedExpense.amount);
+      if (isRefund) {
+        const avail = member?.balance || 0;
+        if (amountNum > avail) {
+          const ok = window.confirm(
+            `${member?.nickname || member?.name || '이 회원'}님의 사용 가능 크레딧은 $${avail}입니다.\n` +
+            `$${amountNum} 환불은 그보다 큽니다.\n\n` +
+            `청구된 돈을 환불하는 경우라면 환불만으로는 미납으로 표시될 수 있습니다(청구취소 기능 필요).\n\n` +
+            `그래도 진행할까요?`
+          );
+          if (!ok) return false;
+        }
+      }
+
       const transactionData = {
-        type: isRefundOrCredit ? 'credit' : 'expense',
-        amount: parseFloat(selectedExpense.amount),
-        category: category?.name,
+        type: isRefund ? 'expense' : (isCreditGrant ? 'credit' : 'expense'),
+        amount: amountNum,
+        category: isRefund ? '회원환불' : category?.name,
         memo: selectedExpense.memo || null,
-        description: category?.name,
+        description: isRefund ? '환불' : category?.name,
         date: selectedExpense.date,
-        memberId: isRefundOrCredit ? selectedExpense.memberId : null,
+        memberId: isMemberTx ? selectedExpense.memberId : null,
         bookingId: selectedExpense.bookingId || null,
         receiptImage: selectedExpense.receiptImage || null,
         createdBy: user.id

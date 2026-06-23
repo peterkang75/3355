@@ -16,6 +16,7 @@ const getTransactionLabel = (t) => {
     if (t.category === "크레딧 자동 차감" && t.description) {
       return `${t.description.split(" (크레딧")[0]}(크레딧차감)`;
     }
+    if (t.category === "회원환불" || t.category === "환불") return "환불";
     return t.category || t.description || "지출";
   }
   if (t.type === "charge") {
