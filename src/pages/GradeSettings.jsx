@@ -207,6 +207,11 @@ function GradeSettings() {
                 <span style={{ fontSize: '14px', opacity: 0.7 }}>까지</span>
               </div>
             </div>
+            {(gradeSettings.gradeB.max === '' || gradeSettings.gradeB.max === null) && gradeSettings.gradeB.min !== '' && (
+              <div style={{ marginTop: '8px', fontSize: '12px', color: '#0047AB', fontWeight: '500' }}>
+                * "까지" 미입력 시 {gradeSettings.gradeB.min} 이상은 모두 B 그레이드로 분류됩니다
+              </div>
+            )}
           </div>
 
           {/* Grade C */}
