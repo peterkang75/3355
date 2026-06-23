@@ -148,6 +148,27 @@ function MemberDetail() {
     }
   };
 
+  // 청구취소: 청구(charge)를 삭제 → 잔액 +금액(미납 제거), 정산서 미수금도 제거.
+  // (취소기록을 +로 남기면 정산서가 클럽 지출로 오계산하므로 삭제 방식이 정확)
+  const handleCancelCharge = async (transaction) => {
+    const amt = (transaction.amount || 0).toLocaleString();
+    const who = member?.nickname || member?.name || '이 회원';
+    const ok = window.confirm(
+      `${who}님의 청구 $${amt}를 취소합니다.\n\n` +
+      `미납이 사라지고 잔액이 +$${amt} 됩니다.\n` +
+      `이미 납부된 청구라면 +크레딧이 남으니, 현금 반환은 '환불'로 처리하세요.\n\n계속할까요?`
+    );
+    if (!ok) return;
+    try {
+      await apiService.deleteTransaction(transaction.id);
+      await loadTransactions();
+      alert('청구가 취소되었습니다.');
+    } catch (error) {
+      console.error('청구취소 실패:', error);
+      alert('청구취소에 실패했습니다.');
+    }
+  };
+
   const handleSave = async () => {
     if (isSaving) return;
     setValidationError('');
@@ -863,6 +884,12 @@ function MemberDetail() {
                         <div style={{ textAlign: 'right', flexShrink: 0 }}>
                           <div style={{ fontSize: '15px', fontWeight: '700', color: amtColor }}>{sign}${transaction.amount.toLocaleString()}</div>
                           <div style={{ fontSize: '10px', fontWeight: '700', color: isPositive ? '#059669' : '#DC2626', opacity: 0.6, letterSpacing: '0.5px' }}>{isPositive ? 'COMPLETED' : 'BILLED'}</div>
+                          {isAdmin && transaction.type === 'charge' && (
+                            <button onClick={() => handleCancelCharge(transaction)}
+                              style={{ marginTop: '6px', fontSize: '11px', fontWeight: '700', color: '#DC2626', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '6px', padding: '3px 9px', cursor: 'pointer' }}>
+                              청구취소
+                            </button>
+                          )}
                         </div>
                       </div>
                     );
