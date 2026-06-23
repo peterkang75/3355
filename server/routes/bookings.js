@@ -680,6 +680,56 @@ router.patch("/:id/toggle-join", requireAuth, async (req, res) => {
   }
 });
 
+// 관리자: 특정 회원을 라운딩에서 제거 + 관련 청구 삭제
+// (회원 상세의 "청구취소 → 참가까지 취소" 경로에서 사용. toggle-join 취소와 동일한 결과)
+router.patch("/:id/remove-participant", requireAuth, requireOperator, async (req, res) => {
+  try {
+    const { memberId } = req.body;
+    if (!memberId) return res.status(400).json({ error: "memberId is required" });
+
+    const booking = await prisma.booking.findUnique({ where: { id: req.params.id } });
+    if (!booking) return res.status(404).json({ error: "Booking not found" });
+
+    const member = await prisma.member.findUnique({ where: { id: memberId } });
+    if (!member) return res.status(404).json({ error: "Member not found" });
+
+    const parseParticipant = (p) => {
+      try { return typeof p === "string" ? JSON.parse(p) : p; } catch { return p; }
+    };
+    const participants = (booking.participants || []).map(parseParticipant);
+    const updatedParticipants = participants.filter(p => p.phone !== member.phone);
+
+    await prisma.$transaction(async (tx) => {
+      await tx.transaction.deleteMany({
+        where: {
+          memberId: member.id,
+          bookingId: booking.id,
+          OR: [
+            { type: "charge" },
+            { type: "expense", category: "크레딧 자동 차감" },
+            { type: "payment", category: "크레딧 자동 차감" },
+          ],
+        },
+      });
+    });
+    await recalculateAndUpdateBalance(member.id);
+
+    const updated = await prisma.booking.update({
+      where: { id: req.params.id },
+      data: { participants: updatedParticipants.map(p => JSON.stringify(p)) },
+      include: { organizer: true },
+    });
+
+    req.io.emit("bookings:updated");
+    req.io.emit("transactions:updated");
+    req.io.emit("members:updated");
+    res.json({ booking: updated });
+  } catch (error) {
+    console.error("Error removing participant:", error);
+    res.status(500).json({ error: "Failed to remove participant" });
+  }
+});
+
 router.patch("/:id/toggle-number-rental", requireAuth, async (req, res) => {
   try {
     const { userPhone } = req.body;

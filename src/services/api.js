@@ -390,6 +390,20 @@ class ApiService {
     return response.json();
   }
 
+  async removeBookingParticipant(bookingId, memberId) {
+    const response = await fetch(`${API_BASE}/bookings/${bookingId}/remove-participant`, {
+      method: 'PATCH',
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ memberId }),
+    });
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error || 'Failed to remove participant');
+    }
+    this.invalidateCache('bookings');
+    return response.json();
+  }
+
   async deleteBooking(id) {
     const response = await fetch(`${API_BASE}/bookings/${id}`, {
       method: 'DELETE',

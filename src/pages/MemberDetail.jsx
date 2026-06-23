@@ -159,10 +159,25 @@ function MemberDetail() {
       `이미 납부된 청구라면 +크레딧이 남으니, 현금 반환은 '환불'로 처리하세요.\n\n계속할까요?`
     );
     if (!ok) return;
+
+    // 라운딩과 연결된 청구라면, 라운딩 참가까지 함께 취소할지 물어본다.
+    // 확인=참가+청구 모두 취소 / 취소=청구만 취소
+    const alsoRemoveParticipant = transaction.bookingId
+      ? window.confirm(
+          `${who}님의 라운딩 참가 신청도 함께 취소할까요?\n\n` +
+          `[확인] 참가 명단에서도 제외 (청구도 함께 취소)\n` +
+          `[취소] 청구만 취소 (라운딩 참가는 유지)`
+        )
+      : false;
+
     try {
-      await apiService.deleteTransaction(transaction.id);
+      if (alsoRemoveParticipant) {
+        await apiService.removeBookingParticipant(transaction.bookingId, member.id);
+      } else {
+        await apiService.deleteTransaction(transaction.id);
+      }
       await loadTransactions();
-      alert('청구가 취소되었습니다.');
+      alert(alsoRemoveParticipant ? '청구와 라운딩 참가가 취소되었습니다.' : '청구가 취소되었습니다.');
     } catch (error) {
       console.error('청구취소 실패:', error);
       alert('청구취소에 실패했습니다.');
