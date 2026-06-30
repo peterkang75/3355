@@ -129,7 +129,8 @@ router.get('/', requireAuthOrGuest, async (req, res) => {
       if (i.kind === 'round') {
         base.photos = await Promise.all((i.photosRaw || []).map(async (m) => ({
           type: m.type,
-          thumbUrl: m.thumbnailKey ? await signedUrl(m.thumbnailKey) : await signedUrl(m.objectKey),
+          url: await signedUrl(m.objectKey),
+          thumbUrl: m.thumbnailKey ? await signedUrl(m.thumbnailKey) : null,
         })));
         delete base.photosRaw;
       } else {

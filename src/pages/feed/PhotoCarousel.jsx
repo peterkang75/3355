@@ -38,7 +38,7 @@ export default function PhotoCarousel({ images, onOpen, aspectRatio = '1/1' }) {
             onClick={() => onOpen?.(i)}
             style={{ flex: '0 0 100%', scrollSnapAlign: 'start', border: 'none', padding: 0, margin: 0, background: '#000', cursor: 'pointer' }}
           >
-            <img src={m.thumbUrl || m.url} alt="" loading="lazy"
+            <img src={m.url || m.thumbUrl} alt="" loading="lazy"
               style={{ width: '100%', height: '100%', aspectRatio, objectFit: 'cover', display: 'block' }} />
           </button>
         ))}
