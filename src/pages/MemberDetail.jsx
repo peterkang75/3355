@@ -120,6 +120,17 @@ function MemberDetail() {
       } catch (e) {
         console.error('사진 로드 실패:', e);
       }
+    } else {
+      // 전역 목록에 없는 회원(예: 비활성 회원)은 ID로 직접 조회
+      try {
+        const fullMember = await apiService.fetchMember(id);
+        if (fullMember) {
+          setMember(fullMember);
+          setEditData(fullMember);
+        }
+      } catch (e) {
+        console.error('회원 조회 실패:', e);
+      }
     }
   };
 
