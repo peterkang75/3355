@@ -9,8 +9,9 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   try {
     const includePhoto = req.query.includePhoto === 'true';
+    const includeInactive = req.query.includeInactive === 'true';
     const members = await prisma.member.findMany({
-      where: { isActive: true },
+      where: includeInactive ? {} : { isActive: true },
       orderBy: { createdAt: "desc" },
       select: {
         id: true,

@@ -55,7 +55,7 @@ class ApiService {
   }
 
   async fetchMembersWithPhotos() {
-    const response = await fetch(`${API_BASE}/members?includePhoto=true`, {
+    const response = await fetch(`${API_BASE}/members?includePhoto=true&includeInactive=true`, {
       headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to fetch members');
