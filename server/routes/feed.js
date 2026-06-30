@@ -92,7 +92,7 @@ router.get('/', requireAuthOrGuest, async (req, res) => {
           kind: 'round', id: b.id, targetType: 'booking', targetId: b.id,
           title: b.title || `${b.type}`, courseName: b.courseName, date: b.date,
           mediaCount: b.media.length,
-          photosRaw: ordered.slice(0, 10).map((m) => ({ type: m.type, objectKey: m.objectKey, thumbnailKey: m.thumbnailKey })),
+          photosRaw: ordered.map((m) => ({ type: m.type, objectKey: m.objectKey, thumbnailKey: m.thumbnailKey })),
           feedTs,
         };
       });
