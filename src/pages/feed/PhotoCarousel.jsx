@@ -36,10 +36,16 @@ export default function PhotoCarousel({ images, onOpen, aspectRatio = '1/1' }) {
           <button
             key={i}
             onClick={() => onOpen?.(i)}
-            style={{ flex: '0 0 100%', scrollSnapAlign: 'start', border: 'none', padding: 0, margin: 0, background: '#000', cursor: 'pointer' }}
+            style={{ flex: '0 0 100%', scrollSnapAlign: 'start', border: 'none', padding: 0, margin: 0, background: '#000', cursor: 'pointer', position: 'relative' }}
           >
-            <img src={m.url || m.thumbUrl} alt="" loading="lazy"
+            {/* 사진은 원본(선명), 영상은 mp4를 img로 못 띄우므로 포스터 썸네일 */}
+            <img src={m.type === 'video' ? (m.thumbUrl || m.url) : (m.url || m.thumbUrl)} alt="" loading="lazy"
               style={{ width: '100%', height: '100%', aspectRatio, objectFit: 'cover', display: 'block' }} />
+            {m.type === 'video' && (
+              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 46, height: 46, borderRadius: '50%', background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><polygon points="8 5 19 12 8 19" /></svg>
+              </div>
+            )}
           </button>
         ))}
       </div>
