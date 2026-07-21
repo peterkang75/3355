@@ -23,6 +23,7 @@ function Leaderboard() {
   const [bookingGradeSettings, setBookingGradeSettings] = useState(null);
   const [gameMode, setGameMode] = useState('stroke');
   const [foursomeTeams, setFoursomeTeams] = useState([]);
+  const [ambroseTeams, setAmbroseTeams] = useState([]);
   const [twoBallTeams, setTwoBallTeams] = useState([]);
   const [is2BB, setIs2BB] = useState(false);
   const [viewMode, setViewMode] = useState('individual'); // 'individual' or '2bb'
@@ -248,7 +249,8 @@ function Leaderboard() {
           inStbl,
           playedPar,
           stablefordTotal: stableford?.total ?? null,
-          stablefordPerHole: stableford?.perHole ?? null
+          stablefordPerHole: stableford?.perHole ?? null,
+          updatedAt: score.updatedAt || null
         };
       });
 
@@ -345,7 +347,64 @@ function Leaderboard() {
       } else {
         setFoursomeTeams([]);
       }
-      
+
+      // 엠브로스 모드 팀 랭킹 계산 (그로스 기준, 핸디캡 미적용)
+      if (detectedGameMode === 'ambrose' && booking.teams) {
+        const teamsData = typeof booking.teams === 'string' ? JSON.parse(booking.teams) : booking.teams;
+        const ambroseList = [];
+
+        teamsData.forEach((team) => {
+          const teamMembers = (team.members || []).filter(Boolean);
+          if (teamMembers.length === 0) return;
+
+          // 대표 점수: 팀원 전원 동일 점수여야 하지만, 복제 지연/실패 대비
+          // "가장 최근 갱신된(updatedAt) 행"을 대표로 선택 → 오래된 행이 순위를 오염시키지 않음
+          const teamScores = [];
+          for (const member of teamMembers) {
+            const memberObj = members.find(m => m.phone === member.phone);
+            const memberScore = processedScores.find(s =>
+              s.odId === memberObj?.id ||
+              s.odId === member.phone ||
+              s.phone === member.phone
+            );
+            if (memberScore && memberScore.totalScore > 0) teamScores.push(memberScore);
+          }
+          const rep = teamScores.length
+            ? teamScores.reduce((latest, cur) =>
+                (new Date(cur.updatedAt || 0) > new Date(latest.updatedAt || 0)) ? cur : latest)
+            : null;
+
+          const memberNames = teamMembers.map(m => {
+            const fullMember = members.find(fm => fm.phone === m.phone);
+            return fullMember?.nickname || fullMember?.name || m.nickname || m.name || '미정';
+          }).join(', ');
+
+          ambroseList.push({
+            teamNumber: team.teamNumber,
+            memberNames,
+            memberCount: teamMembers.length,
+            score: rep ? rep.totalScore : null,
+            overUnder: rep ? rep.overUnder : null,
+            playedPar: rep ? rep.playedPar : null,
+            outScore: rep ? rep.outScore : null,
+            inScore: rep ? rep.inScore : null,
+            holes: rep ? rep.holes : null,
+          });
+        });
+
+        // 그로스(총타) 오름차순 정렬, 점수 없는 팀은 뒤로
+        ambroseList.sort((a, b) => {
+          if (a.score == null && b.score == null) return 0;
+          if (a.score == null) return 1;
+          if (b.score == null) return -1;
+          return a.score - b.score;
+        });
+
+        setAmbroseTeams(ambroseList);
+      } else {
+        setAmbroseTeams([]);
+      }
+
       // 2BB Best Ball 팀 랭킹 계산
       const bookingIs2BB = booking.is2BB || false;
       setIs2BB(bookingIs2BB);
@@ -940,6 +999,106 @@ function Leaderboard() {
                   fontWeight: '700'
                 }}>
                   {team.netScore != null ? team.netScore : '-'}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
+      ) : gameMode === 'ambrose' ? (
+        <div style={{ padding: '0 16px' }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #0891b2 0%, #0047AB 100%)',
+            borderRadius: '12px',
+            padding: '16px',
+            marginBottom: '16px',
+            textAlign: 'center'
+          }}>
+            <div style={{ fontSize: '20px', marginBottom: '4px' }}>🏆</div>
+            <div style={{ color: 'white', fontSize: '16px', fontWeight: '700' }}>
+              엠브로스 팀 랭킹
+            </div>
+            <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', marginTop: '4px' }}>
+              팀 공동 스코어 · 그로스 기준
+            </div>
+          </div>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '36px 1fr 40px 40px 52px',
+            gap: '4px',
+            padding: '12px 4px',
+            borderBottom: '2px solid rgba(255,255,255,0.3)',
+            color: 'rgba(255,255,255,0.9)',
+            fontSize: '12px',
+            fontWeight: '700'
+          }}>
+            <div>순위</div>
+            <div>팀</div>
+            <div style={{ textAlign: 'center' }}>OUT</div>
+            <div style={{ textAlign: 'center' }}>IN</div>
+            <div style={{ textAlign: 'center' }}>총타</div>
+          </div>
+
+          {ambroseTeams.length === 0 ? (
+            <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.5)', padding: '40px 0' }}>
+              아직 스코어가 없습니다
+            </div>
+          ) : (
+            ambroseTeams.map((team, index) => (
+              <div
+                key={`ambrose-${team.teamNumber}-${index}`}
+                onClick={() => {
+                  if (team.score) {
+                    setSelectedScore({
+                      odId: `ambrose-team-${team.teamNumber}`,
+                      nickname: `${team.teamNumber}조 (${team.memberNames})`,
+                      handicap: null,
+                      totalScore: team.score,
+                      overUnder: team.overUnder,
+                      holes: team.holes || [],
+                      outScore: team.outScore,
+                      inScore: team.inScore,
+                    });
+                  }
+                }}
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '36px 1fr 40px 40px 52px',
+                  gap: '4px',
+                  padding: '12px 4px',
+                  background: index === 0 && team.score != null
+                    ? 'linear-gradient(90deg, rgba(255,215,0,0.2) 0%, rgba(255,215,0,0.05) 100%)'
+                    : index % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
+                  borderBottom: '1px solid rgba(255,255,255,0.1)',
+                  alignItems: 'center',
+                  borderLeft: index === 0 && team.score != null ? '3px solid #FFD700' : 'none',
+                  cursor: team.score ? 'pointer' : 'default'
+                }}
+              >
+                <div style={{
+                  color: index === 0 && team.score != null ? '#FFD700' : 'white',
+                  fontSize: '13px', fontWeight: '700',
+                  display: 'flex', alignItems: 'center', gap: '2px'
+                }}>
+                  {index === 0 && team.score != null && <span>🥇</span>}
+                  {index === 1 && team.score != null && <span style={{ opacity: 0.8 }}>🥈</span>}
+                  {index === 2 && team.score != null && <span style={{ opacity: 0.6 }}>🥉</span>}
+                  {(index > 2 || team.score == null) && <span>{index + 1}</span>}
+                </div>
+                <div>
+                  <div style={{ color: 'white', fontSize: '12px', fontWeight: '500', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                    <span style={{ fontWeight: '700', color: '#67e8f9' }}>{team.teamNumber}조</span>
+                    <span style={{ fontSize: '11px', color: 'rgba(255,255,255,0.75)' }}>{team.memberNames}</span>
+                  </div>
+                </div>
+                <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.9)', fontSize: '11px' }}>
+                  {team.outScore || '-'}
+                </div>
+                <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.9)', fontSize: '11px' }}>
+                  {team.inScore || '-'}
+                </div>
+                <div style={{ textAlign: 'center', color: 'white', fontSize: '13px', fontWeight: '700' }}>
+                  {team.score || '-'}
                 </div>
               </div>
             ))

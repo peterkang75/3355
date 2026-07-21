@@ -22,6 +22,8 @@ function Badge({
         return { backgroundColor: '#3B82F6', color: '#FFFFFF' };
       case 'purple':
         return { backgroundColor: '#8B5CF6', color: '#FFFFFF' };
+      case 'cyan':
+        return { backgroundColor: '#0891b2', color: '#FFFFFF' };
       case 'outline':
         return { backgroundColor: 'transparent', color: 'var(--primary)', border: '1px solid var(--primary)' };
       default:

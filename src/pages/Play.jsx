@@ -311,9 +311,12 @@ function Play() {
   }, [bookingId, holeScores, pickedUpHoles, currentHole, selectedTeammate, step, roundStartTime, foursomeData]);
 
   // 스코어 변경 시 서버에 실시간 자동 저장 (debounced)
+  const isAmbrose = gameMode === 'ambrose';
   useEffect(() => {
-    if (!bookingId || !booking || !effectiveUserId || !selectedTeammate || step === 'selectMember' || skipAutoSaveRef.current) return;
-    
+    // 엠브로스는 마커(selectedTeammate) 없이 팀 공용 점수를 저장하므로 selectedTeammate 요건 제외
+    if (!bookingId || !booking || !effectiveUserId || step === 'selectMember' || skipAutoSaveRef.current) return;
+    if (!isAmbrose && !selectedTeammate) return;
+
     // 스코어가 모두 0이면 저장하지 않음
     const hasAnyScore = holeScores.me.some(s => s > 0) || holeScores.teammate.some(s => s > 0);
     if (!hasAnyScore) return;
@@ -328,6 +331,8 @@ function Play() {
     }
     
     serverSaveTimerRef.current = setTimeout(async () => {
+      // 타이머 발화 완료 → ref 비움 (엠브로스 실시간 수신 가드가 '저장 대기 중'을 정확히 판단하도록)
+      serverSaveTimerRef.current = null;
       setSaveStatus('saving');
       try {
         const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
@@ -337,6 +342,55 @@ function Play() {
         const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
         const totalTeammate = holeScores.teammate.reduce((a, b) => a + b, 0);
         const coursePar = userParArr.reduce((a, b) => a + b, 0);
+
+        // ── 엠브로스: 팀 공용 점수 1건만 저장 (서버가 팀 전원에게 복제) ──
+        if (isAmbrose) {
+          const myHasPickup = pickedUpHoles.me.some(Boolean);
+          const ambroseMeta = {
+            ambroseTeam: (teammates || []).map(t => ({ name: t?.nickname || t?.name, phone: t?.phone })),
+            recordedBy: user?.nickname || user?.name,
+            ...(myHasPickup ? { pickedUpHoles: pickedUpHoles.me } : {}),
+          };
+          const teamPayload = {
+            memberId: effectiveUserId,
+            markerId: effectiveUserId,
+            roundingName: booking.title,
+            date: scoreDate,
+            courseName: courseData?.name || booking.courseName,
+            totalScore: totalMe,
+            coursePar,
+            holes: holeScores.me,
+            gameMode: 'ambrose',
+            gameMetadata: ambroseMeta,
+          };
+          if (!isOnlineRef.current) {
+            saveQueueRef.current.push(teamPayload);
+            persistQueue(saveQueueRef.current);
+            setSaveStatus('queued');
+            return;
+          }
+          try {
+            const r = await fetch('/api/scores', {
+              method: 'POST', headers: getAuthHeaders(), body: JSON.stringify(teamPayload),
+            });
+            if (!r.ok) {
+              saveQueueRef.current.push(teamPayload);
+              persistQueue(saveQueueRef.current);
+              setSaveStatus('failed');
+            } else {
+              saveQueueRef.current = [];
+              persistQueue([]);
+              lastSavedScoresRef.current = currentScoresKey;
+              setSaveStatus('saved');
+              setTimeout(() => setSaveStatus('idle'), 3000);
+            }
+          } catch (e) {
+            saveQueueRef.current.push(teamPayload);
+            persistQueue(saveQueueRef.current);
+            setSaveStatus('failed');
+          }
+          return;
+        }
 
         const foursomeMeta = gameMode === 'foursome' && foursomeData ? {
           partner: { name: foursomeData.partner?.nickname || foursomeData.partner?.name, phone: foursomeData.partner?.phone },
@@ -448,7 +502,7 @@ function Play() {
         clearTimeout(serverSaveTimerRef.current);
       }
     };
-  }, [bookingId, booking, user, selectedTeammate, holeScores, pickedUpHoles, step, courseData, gameMode, foursomeData, members]);
+  }, [bookingId, booking, user, selectedTeammate, holeScores, pickedUpHoles, step, courseData, gameMode, foursomeData, members, teammates, isAmbrose]);
 
   useEffect(() => {
     if (!bookingId || bookings.length === 0) return;
@@ -996,6 +1050,44 @@ function Play() {
     return () => clearInterval(interval);
   }, [booking, selectedTeammate, step, fetchPeerScores]);
 
+  // ── 엠브로스 실시간 공유: 다른 팀원이 입력한 팀 점수를 받아 화면 갱신 ──
+  // 내가 편집(디바운스 저장 대기/저장 중)일 때는 덮어쓰지 않음(로컬 입력 보호)
+  const refreshAmbroseScore = useCallback(async () => {
+    if (!isAmbrose || !booking?.title || !effectiveUserId) return;
+    if (serverSaveTimerRef.current || saveStatus === 'saving' || saveStatus === 'queued') return;
+    try {
+      const res = await fetch(`/api/scores/by-rounding/${encodeURIComponent(booking.title)}?date=${booking?.date || ''}`, {
+        headers: getAuthHeaders(),
+      });
+      if (!res.ok) return;
+      const all = await res.json();
+      const myRow = all.find(s => s.userId === effectiveUserId);
+      if (!myRow || !myRow.holes) return;
+      const serverHoles = typeof myRow.holes === 'string' ? JSON.parse(myRow.holes) : myRow.holes;
+      if (!Array.isArray(serverHoles) || serverHoles.length !== 18) return;
+      setHoleScores(prev => {
+        if (JSON.stringify(prev.me) === JSON.stringify(serverHoles)) return prev;
+        return { ...prev, me: serverHoles };
+      });
+    } catch (e) {
+      // 네트워크 오류는 조용히 무시
+    }
+  }, [isAmbrose, booking, effectiveUserId, saveStatus]);
+
+  useEffect(() => {
+    if (!isAmbrose || !booking || step === 'selectMember') return;
+    refreshAmbroseScore();
+    const interval = setInterval(refreshAmbroseScore, 15000);
+    return () => clearInterval(interval);
+  }, [isAmbrose, booking, step, refreshAmbroseScore]);
+
+  useEffect(() => {
+    if (!socket || !isAmbrose) return;
+    const onScoresUpdated = () => { refreshAmbroseScore(); };
+    socket.on('scores:updated', onScoresUpdated);
+    return () => { socket.off('scores:updated', onScoresUpdated); };
+  }, [socket, isAmbrose, refreshAmbroseScore]);
+
   useEffect(() => {
     if (!socket) return;
     const onScoresUpdated = () => { fetchPeerScores(); };
@@ -1186,6 +1278,90 @@ function Play() {
       );
     }
     
+    // 엠브로스 모드: 우리 팀 확인 UI (마커 없음, 팀 공용 점수)
+    if (gameMode === 'ambrose') {
+      const meName = user?.nickname || user?.name || guestSession?.guestName || '나';
+      const teamRoster = [{ name: meName, isMe: true }, ...teammates.map(t => ({ name: t?.nickname || t?.name || '-', isMe: false }))];
+
+      const handleStartAmbrose = () => {
+        if (isStartingRound) return;
+        setIsStartingRound(true);
+        setRoundStartTime(Date.now());
+        setCurrentHole(1);
+        setHoleScores({ teammate: Array(18).fill(0), me: Array(18).fill(0) });
+        setPickedUpHoles({ teammate: Array(18).fill(false), me: Array(18).fill(false) });
+        setShowMismatches(false);
+        setStep('scorecard');
+        setIsStartingRound(false);
+      };
+
+      return (
+        <div style={{ minHeight: '100vh', background: '#0d1a45' }}>
+          <PageHeader title="우리 팀 확인" onBack={() => navigate(-1)} />
+          <div style={{ padding: '16px', paddingBottom: '80px' }}>
+            <div className="card">
+              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                <div style={{
+                  display: 'inline-block', padding: '6px 16px',
+                  background: 'linear-gradient(135deg, #0891b2 0%, #0047AB 100%)',
+                  borderRadius: '20px', color: 'white', fontSize: '14px', fontWeight: '700', marginBottom: '12px'
+                }}>
+                  엠브로스 · 팀 공용 스코어
+                </div>
+                <h2 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
+                  한 팀이 공동 점수를 기록합니다
+                </h2>
+                <div style={{ fontSize: '14px', color: '#666' }}>{courseData?.name}</div>
+              </div>
+
+              <div style={{ background: 'rgba(8,145,178,0.08)', borderRadius: '12px', padding: '16px', marginBottom: '16px' }}>
+                <div style={{ fontSize: '12px', fontWeight: '700', color: '#0891b2', marginBottom: '10px', textAlign: 'center' }}>
+                  우리 팀 ({teamRoster.length}명)
+                </div>
+                <div style={{ display: 'grid', gap: '8px' }}>
+                  {teamRoster.map((m, i) => (
+                    <div key={i} style={{
+                      display: 'flex', alignItems: 'center', gap: '10px',
+                      background: 'white', borderRadius: '10px', padding: '12px 14px',
+                      border: m.isMe ? '1.5px solid #0891b2' : '1px solid #E8ECF0'
+                    }}>
+                      <div style={{
+                        width: '32px', height: '32px', borderRadius: '9px', flexShrink: 0,
+                        background: m.isMe ? '#0891b2' : '#EFF6FF', color: m.isMe ? 'white' : '#0047AB',
+                        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '800'
+                      }}>
+                        {(m.name || '?').charAt(0)}
+                      </div>
+                      <div style={{ fontSize: '15px', fontWeight: '700', color: '#1E293B' }}>
+                        {m.name}{m.isMe && <span style={{ fontSize: '11px', fontWeight: '600', color: '#0891b2', marginLeft: '6px' }}>(나)</span>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div style={{ fontSize: '12px', color: '#94A3B8', lineHeight: 1.6, textAlign: 'center', marginBottom: '16px' }}>
+                팀원 누구나 점수를 입력·수정할 수 있고, 입력한 점수는 팀 전원에게 공유됩니다.
+              </div>
+
+              <button
+                onClick={handleStartAmbrose}
+                disabled={isStartingRound}
+                style={{
+                  width: '100%', padding: '16px', borderRadius: '12px',
+                  background: isStartingRound ? '#999' : 'linear-gradient(135deg, #0891b2 0%, #0047AB 100%)',
+                  color: 'white', border: 'none', fontSize: '16px', fontWeight: '700',
+                  cursor: isStartingRound ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {isStartingRound ? '시작 중...' : '스코어 입력 시작'}
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     // 포썸 모드: 팀 대 팀 확인 UI
     if (gameMode === 'foursome' && foursomeData) {
       const partnerName = foursomeData.partner?.nickname || foursomeData.partner?.name || '파트너 없음';
@@ -1743,7 +1919,52 @@ function Play() {
     const courseParMe = parArrMe.reduce((a, b) => a + b, 0);
     const diffTeammate = totalTeammate - courseParTeammate;
     const diffMe = totalMe - courseParMe;
-    
+
+    // 엠브로스: 팀 공용 점수 카드 1개만 표시
+    if (isAmbrose) {
+      const meName = user?.nickname || user?.name || guestSession?.guestName || '나';
+      const others = teammates.map(t => t?.nickname || t?.name).filter(Boolean);
+      const teamLabel = others.length ? `우리 팀 (${meName} 외 ${others.length}명)` : '우리 팀';
+      return (
+        <div style={{ minHeight: '100vh', padding: '16px', background: '#0d1a45', paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
+          <div style={{ textAlign: 'center', color: 'white', marginTop: '20px', marginBottom: '32px' }}>
+            <div style={{ fontSize: '24px', fontWeight: '700', marginBottom: '8px' }}>🏌️ 라운드 종료!</div>
+            <div style={{ fontSize: '14px', opacity: 0.8 }}>{booking?.title} - {courseData?.name}</div>
+          </div>
+          <div className="card" style={{ marginBottom: '24px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+              <div style={{ fontSize: '16px', fontWeight: '700', color: '#0891b2' }}>{teamLabel}</div>
+              <div style={{ fontSize: '13px', color: '#94A3B8', marginTop: '4px' }}>엠브로스 · 팀 공동 스코어</div>
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: '24px' }}>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#666' }}>팀 총타수</div>
+                <div style={{ fontSize: '28px', fontWeight: '700' }}>{totalMe}</div>
+              </div>
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '12px', color: '#666' }}>오버/언더</div>
+                <div style={{ fontSize: '28px', fontWeight: '700', color: diffMe > 0 ? '#e74c3c' : diffMe < 0 ? '#27ae60' : '#333' }}>
+                  {diffMe > 0 ? `+${diffMe}` : diffMe}
+                </div>
+              </div>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate(`/leaderboard?id=${bookingId}`)}
+            style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg, #0891b2 0%, #0047AB 100%)', border: 'none', borderRadius: '8px', color: 'white', fontWeight: '700', fontSize: '16px', cursor: 'pointer', marginBottom: '12px' }}
+          >
+            리더보드 보기
+          </button>
+          <button
+            onClick={() => navigate('/')}
+            style={{ width: '100%', padding: '16px', background: '#F1F5F9', border: 'none', borderRadius: '8px', color: '#64748B', fontWeight: '700', fontSize: '16px', cursor: 'pointer' }}
+          >
+            완료
+          </button>
+        </div>
+      );
+    }
+
     return (
       <div style={{ minHeight: '100vh', padding: '16px', background: '#0d1a45', paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
         <div style={{ textAlign: 'center', color: 'white', marginTop: '20px', marginBottom: '32px' }}>
@@ -1914,7 +2135,13 @@ function Play() {
 
     // 선수명 및 핸디 (포썸 모드 포함)
     let playerName, handicap;
-    if (gameMode === 'foursome' && foursomeData) {
+    if (gameMode === 'ambrose') {
+      // 엠브로스: 팀 공용 카드 1개. 핸디캡 미적용(그로스)
+      const meName = user?.nickname || user?.name || guestSession?.guestName || '나';
+      const others = teammates.map(t => t?.nickname || t?.name).filter(Boolean);
+      playerName = others.length ? `우리 팀 (${meName} 외 ${others.length}명)` : '우리 팀';
+      handicap = '-';
+    } else if (gameMode === 'foursome' && foursomeData) {
       if (isTeammate) {
         playerName = foursomeData.opponents?.map(o => o?.nickname || o?.name).filter(Boolean).join(' & ') || '상대팀';
         handicap = foursomeData.isTeamA ? foursomeData.teamBHandicap : foursomeData.teamAHandicap;
@@ -2257,14 +2484,14 @@ function Play() {
   };
 
   const handleScoreCheck = async () => {
-    // 버그 수정 1: 미완성 홀 경고
+    // 버그 수정 1: 미완성 홀 경고 (엠브로스는 팀 공용 점수 1개만 체크)
     const myEmptyHoles = holeScores.me.map((s, i) => s === 0 ? i + 1 : null).filter(Boolean);
-    const tmEmptyHoles = holeScores.teammate.map((s, i) => s === 0 ? i + 1 : null).filter(Boolean);
+    const tmEmptyHoles = isAmbrose ? [] : holeScores.teammate.map((s, i) => s === 0 ? i + 1 : null).filter(Boolean);
     if (myEmptyHoles.length > 0 || tmEmptyHoles.length > 0) {
       const lines = [];
-      if (myEmptyHoles.length > 0) lines.push(`내 스코어 미입력: ${myEmptyHoles.join(', ')}홀`);
+      if (myEmptyHoles.length > 0) lines.push(`${isAmbrose ? '팀 스코어' : '내 스코어'} 미입력: ${myEmptyHoles.join(', ')}홀`);
       if (tmEmptyHoles.length > 0) lines.push(`팀메이트 스코어 미입력: ${tmEmptyHoles.join(', ')}홀`);
-      const ok = window.confirm(`아직 입력되지 않은 홀이 있습니다.\n${lines.join('\n')}\n\n그래도 점수확인을 진행하시겠습니까?`);
+      const ok = window.confirm(`아직 입력되지 않은 홀이 있습니다.\n${lines.join('\n')}\n\n그래도 진행하시겠습니까?`);
       if (!ok) return;
     }
 
@@ -2279,14 +2506,19 @@ function Play() {
       const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
       const coursePar = userParArr.reduce((a, b) => a + b, 0);
 
+      const myHasPickup = pickedUpHoles.me.some(Boolean);
       const foursomeMeta = gameMode === 'foursome' && foursomeData ? {
         partner: { name: foursomeData.partner?.nickname || foursomeData.partner?.name, phone: foursomeData.partner?.phone },
         opponents: foursomeData.opponents?.map(o => ({ name: o?.nickname || o?.name, phone: o?.phone })) || [],
         recordedBy: user?.nickname || user?.name,
       } : null;
-      const myHasPickup = pickedUpHoles.me.some(Boolean);
-      const myGameMetadata = (foursomeMeta || myHasPickup) ? {
-        ...(foursomeMeta || {}),
+      const ambroseMeta = isAmbrose ? {
+        ambroseTeam: (teammates || []).map(t => ({ name: t?.nickname || t?.name, phone: t?.phone })),
+        recordedBy: user?.nickname || user?.name,
+      } : null;
+      const baseMeta = ambroseMeta || foursomeMeta;
+      const myGameMetadata = (baseMeta || myHasPickup) ? {
+        ...(baseMeta || {}),
         ...(myHasPickup ? { pickedUpHoles: pickedUpHoles.me } : {}),
       } : null;
 
@@ -2298,7 +2530,7 @@ function Play() {
         totalScore: totalMe,
         coursePar,
         holes: holeScores.me,
-        gameMode: gameMode === 'foursome' ? 'foursome' : null,
+        gameMode: isAmbrose ? 'ambrose' : (gameMode === 'foursome' ? 'foursome' : null),
         gameMetadata: myGameMetadata,
       };
 
@@ -2321,9 +2553,10 @@ function Play() {
 
     setTeammateReady(false);
     setServerMismatches([]);
-    setStep('scoreCheck');
+    // 엠브로스는 마커 상호검증 없음 → 바로 라운드 종료 화면으로
+    setStep(isAmbrose ? 'roundComplete' : 'scoreCheck');
   };
-  
+
   return (
     <div
       ref={scorecardRootRef}
@@ -2388,7 +2621,7 @@ function Play() {
                   WebkitTapHighlightColor: 'transparent', lineHeight: 1.2,
                 }}
               >
-                점수확인
+                {isAmbrose ? '완료' : '점수확인'}
               </button>
             )}
           </div>
@@ -2404,8 +2637,14 @@ function Play() {
         willChange: 'transform',
         touchAction: 'none',
       }}>
-        <ScoreSection isTeammate={true} />
-        <ScoreSection isTeammate={false} />
+        {isAmbrose ? (
+          <ScoreSection isTeammate={false} />
+        ) : (
+          <>
+            <ScoreSection isTeammate={true} />
+            <ScoreSection isTeammate={false} />
+          </>
+        )}
       </div>
 
       {/* 홀 선택 모달 */}
@@ -2645,19 +2884,24 @@ function Play() {
                     const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
                     const coursePar = userParArr.reduce((a, b) => a + b, 0);
                     
-                    // 포썸 메타데이터 + Pickup 마크 생성
+                    // 포썸/엠브로스 메타데이터 + Pickup 마크 생성
                     const foursomeMeta = gameMode === 'foursome' && foursomeData ? {
                       partner: { name: foursomeData.partner?.nickname || foursomeData.partner?.name, phone: foursomeData.partner?.phone },
                       opponents: foursomeData.opponents?.map(o => ({ name: o?.nickname || o?.name, phone: o?.phone })) || [],
                       recordedBy: user?.nickname || user?.name,
                     } : null;
+                    const ambroseMeta = isAmbrose ? {
+                      ambroseTeam: (teammates || []).map(t => ({ name: t?.nickname || t?.name, phone: t?.phone })),
+                      recordedBy: user?.nickname || user?.name,
+                    } : null;
+                    const baseMeta = ambroseMeta || foursomeMeta;
                     const myHasPickup = pickedUpHoles.me.some(Boolean);
-                    const myGameMetadata = (foursomeMeta || myHasPickup) ? {
-                      ...(foursomeMeta || {}),
+                    const myGameMetadata = (baseMeta || myHasPickup) ? {
+                      ...(baseMeta || {}),
                       ...(myHasPickup ? { pickedUpHoles: pickedUpHoles.me } : {}),
                     } : null;
-                    
-                    // 내 스코어 저장
+
+                    // 내 스코어(엠브로스는 팀 공용 점수) 저장
                     await fetch('/api/scores', {
                       method: 'POST',
                       headers: getAuthHeaders(),
@@ -2670,22 +2914,24 @@ function Play() {
                         totalScore: totalMe,
                         coursePar,
                         holes: holeScores.me,
-                        gameMode: gameMode === 'foursome' ? 'foursome' : null,
+                        gameMode: isAmbrose ? 'ambrose' : (gameMode === 'foursome' ? 'foursome' : null),
                         gameMetadata: myGameMetadata,
                       })
                     });
 
-                    // 스코어 완료 처리
-                    await fetch('/api/scores/complete', {
-                      method: 'POST',
-                      headers: getAuthHeaders(),
-                      body: JSON.stringify({
-                        memberId: teammateMemberId,
-                        markerId: effectiveUserId,
-                        date: scoreDate,
-                        roundingName: booking?.title
-                      })
-                    });
+                    // 스코어 완료 처리 (엠브로스는 마커 팀메이트가 없으므로 생략 — 서버가 팀 전원 복제)
+                    if (!isAmbrose && teammateMemberId) {
+                      await fetch('/api/scores/complete', {
+                        method: 'POST',
+                        headers: getAuthHeaders(),
+                        body: JSON.stringify({
+                          memberId: teammateMemberId,
+                          markerId: effectiveUserId,
+                          date: scoreDate,
+                          roundingName: booking?.title
+                        })
+                      });
+                    }
                     
                     // 서버 저장 상태 초기화
                     lastSavedScoresRef.current = null;

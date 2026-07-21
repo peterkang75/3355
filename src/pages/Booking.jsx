@@ -466,14 +466,17 @@ function Booking() {
       ? (parseInt(booking.greenFee) || 0) + (parseInt(booking.cartFee) || 0)
       : (parseInt(booking.greenFee) || 0) + (parseInt(booking.cartFee) || 0) + (parseInt(booking.membershipFee) || 0);
     
-    // 포썸 모드 체크
+    // 포썸/엠브로스 모드 체크
     let isFoursome = false;
+    let isAmbrose = false;
     try {
-      const settings = typeof booking.gradeSettings === 'string' 
-        ? JSON.parse(booking.gradeSettings) 
+      const settings = typeof booking.gradeSettings === 'string'
+        ? JSON.parse(booking.gradeSettings)
         : booking.gradeSettings;
       if (settings && settings.mode === 'foursome') {
         isFoursome = true;
+      } else if (settings && settings.mode === 'ambrose') {
+        isAmbrose = true;
       }
     } catch (e) {}
     
@@ -509,6 +512,7 @@ function Booking() {
         clubMembers={members}
         totalFee={totalFee}
         isFoursome={isFoursome}
+        isAmbrose={isAmbrose}
         isJoined={isJoined}
         isRenting={isRenting}
         isFeeExempt={user.isFeeExempt}

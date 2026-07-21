@@ -90,7 +90,8 @@ function MemberDetail() {
 
   useEffect(() => {
     if (member && scores.length >= 0) {
-      const validScores = scores.filter(s => s.totalScore && s.totalScore > 0);
+      // 엠브로스(팀 공동 스코어)는 개인 핸디캡 계산에서 제외
+      const validScores = scores.filter(s => s.totalScore && s.totalScore > 0 && s.gameMode !== 'ambrose');
       const calculatedHandicap = calculateHandicap(member, validScores);
       setHandicapData(calculatedHandicap);
     }
@@ -351,7 +352,8 @@ function MemberDetail() {
       setEditingScoreId(null);
       const updatedScores = await apiService.fetchScores(id);
       setScores(updatedScores || []);
-      const validScores = (updatedScores || []).filter(s => s.totalScore && s.totalScore > 0);
+      // 엠브로스(팀 공동 스코어)는 개인 핸디캡 계산에서 제외
+      const validScores = (updatedScores || []).filter(s => s.totalScore && s.totalScore > 0 && s.gameMode !== 'ambrose');
       const calculatedHandicap = calculateHandicap(member, validScores);
       await apiService.updateMember(id, { handicap: String(calculatedHandicap.value) });
       await refreshMembers();
@@ -655,7 +657,8 @@ function MemberDetail() {
   // 스탯 계산
   const sortedMembers = [...members].filter(m => m.isActive !== false).sort((a, b) => parseFloat(a.handicap) - parseFloat(b.handicap));
   const ranking = sortedMembers.findIndex(m => m.id === id) + 1;
-  const bestScore = scores.length > 0 ? Math.min(...scores.map(s => s.totalScore).filter(Boolean)) : null;
+  const personalScores = scores.filter(s => s.gameMode !== 'ambrose');
+  const bestScore = personalScores.length > 0 ? Math.min(...personalScores.map(s => s.totalScore).filter(Boolean)) : null;
 
   return (
     <div style={{ paddingBottom: '80px', background: '#F1F5F9', minHeight: '100vh' }}>
@@ -742,7 +745,7 @@ function MemberDetail() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', background: 'rgba(255,255,255,0.1)', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.15)' }}>
           {[
             { label: 'RANKING', value: ranking > 0 ? `#${ranking}` : '-' },
-            { label: 'ROUNDS', value: scores.length },
+            { label: 'ROUNDS', value: personalScores.length },
             { label: 'BEST', value: bestScore ?? '-' },
           ].map((stat, i) => (
             <div key={stat.label} style={{ padding: '14px 8px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.15)' : 'none' }}>
@@ -1008,7 +1011,12 @@ function MemberDetail() {
                       )}
                       {/* 라운딩 정보 */}
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: '14px', fontWeight: '700', color: '#111827', marginBottom: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{score.roundingName}</div>
+                        <div style={{ fontSize: '14px', fontWeight: '700', color: '#111827', marginBottom: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{score.roundingName}</span>
+                          {score.gameMode === 'ambrose' && (
+                            <span style={{ flexShrink: 0, fontSize: '10px', fontWeight: '700', color: '#0891b2', background: '#e0f2fe', padding: '2px 6px', borderRadius: '6px' }}>엠브로스(팀)</span>
+                          )}
+                        </div>
                         <div style={{ fontSize: '12px', color: '#94A3B8', display: 'flex', alignItems: 'center', gap: '4px' }}>
                           <span>📍</span>
                           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{score.courseName || '-'}</span>

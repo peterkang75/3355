@@ -441,6 +441,77 @@ router.post("/", requireAuthOrGuest, async (req, res) => {
       console.error('포썸 파트너 스코어 동기화 오류:', syncError);
     }
 
+    // 엠브로스 모드: 같은 조(팀) 전원에게 동일한 팀 공용 점수 복제 (원자적 트랜잭션)
+    try {
+      const booking = await prisma.booking.findFirst({ where: { title: roundingName } });
+      if (booking) {
+        let gradeSettings = null;
+        try {
+          gradeSettings = typeof booking.gradeSettings === 'string'
+            ? JSON.parse(booking.gradeSettings.replace(/^"|"$/g, ''))
+            : booking.gradeSettings;
+        } catch (e) {}
+
+        if (gradeSettings?.mode === 'ambrose' && booking.teams) {
+          let teams = null;
+          try {
+            teams = typeof booking.teams === 'string'
+              ? JSON.parse(booking.teams.replace(/^"|"$/g, ''))
+              : booking.teams;
+          } catch (e) {}
+
+          if (teams && Array.isArray(teams)) {
+            const member = await prisma.member.findUnique({ where: { id: memberId } });
+            if (member) {
+              // 기록자가 속한 조(팀) 찾기
+              const myTeam = teams.find(t => Array.isArray(t.members) && t.members.some(m => m?.phone === member.phone));
+              if (myTeam) {
+                const sharedMeta = gameMetadata ? JSON.stringify(gameMetadata) : null;
+                const ops = [];
+                for (const tm of myTeam.members) {
+                  if (!tm?.phone || tm.phone === member.phone) continue;
+                  const tmMember = await prisma.member.findFirst({ where: { phone: tm.phone } });
+                  if (!tmMember || tmMember.id === memberId) continue;
+                  ops.push(
+                    prisma.score.upsert({
+                      where: {
+                        userId_date_roundingName: { userId: tmMember.id, date, roundingName: roundingName || "" },
+                      },
+                      update: {
+                        courseName, totalScore, coursePar,
+                        holes: JSON.stringify(holes),
+                        markerId: memberId,
+                        verified: false,
+                        verifiedBy: null,
+                        gameMode: 'ambrose',
+                        gameMetadata: sharedMeta,
+                      },
+                      create: {
+                        userId: tmMember.id,
+                        markerId: memberId,
+                        roundingName: roundingName || "",
+                        date, courseName, totalScore, coursePar,
+                        holes: JSON.stringify(holes),
+                        verified: false,
+                        gameMode: 'ambrose',
+                        gameMetadata: sharedMeta,
+                      },
+                    })
+                  );
+                }
+                if (ops.length > 0) {
+                  await prisma.$transaction(ops);
+                  console.log(`👥 엠브로스 팀 점수 복제: ${member.nickname || member.name} → ${ops.length}명`);
+                }
+              }
+            }
+          }
+        }
+      }
+    } catch (ambroseError) {
+      console.error('엠브로스 팀 스코어 복제 오류:', ambroseError);
+    }
+
     if (req.io) req.io.emit('scores:updated');
     res.json(score);
   } catch (error) {

@@ -492,13 +492,13 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
         {/* 게임 방식 */}
         <div>
           <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', marginBottom: '8px' }}>게임 방식</div>
-          <div style={{ display: 'flex', gap: '6px' }}>
-            {['stroke', 'stableford', 'foursome'].map(mode => {
+          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+            {['stroke', 'stableford', 'foursome', 'ambrose'].map(mode => {
               const isActive = hmAdvanced.gameMode === mode;
               return (
                 <button key={mode} onClick={() => handleHmGameModeChange(mode)} disabled={hmSaving}
-                  style={{ flex: 1, padding: '10px 4px', borderRadius: '10px', border: isActive ? 'none' : '1px solid #E8ECF0', background: isActive ? PRIMARY : '#FFFFFF', color: isActive ? '#FFFFFF' : '#64748B', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>
-                  {mode === 'stroke' ? '스트로크' : mode === 'stableford' ? '스테이블포드' : '포썸'}
+                  style={{ flex: '1 0 22%', padding: '10px 4px', borderRadius: '10px', border: isActive ? 'none' : '1px solid #E8ECF0', background: isActive ? PRIMARY : '#FFFFFF', color: isActive ? '#FFFFFF' : '#64748B', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>
+                  {mode === 'stroke' ? '스트로크' : mode === 'stableford' ? '스테이블포드' : mode === 'foursome' ? '포썸' : '엠브로스'}
                 </button>
               );
             })}

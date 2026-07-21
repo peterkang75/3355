@@ -44,18 +44,32 @@ const BookingForm = memo(function BookingForm({
           >
             <option value="stroke">스트로크</option>
             <option value="foursome">포썸</option>
+            <option value="ambrose">엠브로스</option>
           </select>
 
           {gameMode === 'foursome' && (
-            <div style={{ 
-              marginBottom: '16px', 
-              padding: '12px', 
-              background: 'var(--bg-green)', 
+            <div style={{
+              marginBottom: '16px',
+              padding: '12px',
+              background: 'var(--bg-green)',
               borderRadius: '6px',
               fontSize: '13px',
               color: 'var(--text-gray)'
             }}>
               ※ 포썸은 2인 1조 팀 매치 방식으로 진행됩니다.
+            </div>
+          )}
+
+          {gameMode === 'ambrose' && (
+            <div style={{
+              marginBottom: '16px',
+              padding: '12px',
+              background: 'var(--bg-green)',
+              borderRadius: '6px',
+              fontSize: '13px',
+              color: 'var(--text-gray)'
+            }}>
+              ※ 엠브로스는 한 조(최대 4인)가 한 팀이 되어 팀 공동 점수를 기록하는 방식입니다. 팀원 누구나 점수를 입력할 수 있고, 순위는 팀별 타수(그로스)로 매겨집니다.
             </div>
           )}
 

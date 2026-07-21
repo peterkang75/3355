@@ -169,7 +169,9 @@ function MyPage() {
   const manualHH = parseFloat(user.houseHandy);
 
   // 추천핸디: FinanceContext 타이밍에 의존하지 않고 로컬 scores로 직접 계산
-  const recommendation = !isGAMemberDisplay ? calculateHandicap(user, scores) : null;
+  // 엠브로스(팀 공동 스코어)는 개인 스코어가 아니므로 핸디캡 계산에서 제외
+  const personalScores = scores.filter(s => s.gameMode !== 'ambrose');
+  const recommendation = !isGAMemberDisplay ? calculateHandicap(user, personalScores) : null;
   const recommendedHcp = recommendation?.type === 'HH' ? recommendation.value : null;
   const recommendedExplanation = recommendation?.explanation ?? null;
 
@@ -213,8 +215,8 @@ function MyPage() {
     }
   };
 
-  // 내 라운딩 수: 실제 스코어 기록 기준 (핸디 계산과 동일 소스)
-  const myRoundCount = scores.length;
+  // 내 라운딩 수: 실제 스코어 기록 기준 (핸디 계산과 동일 소스, 엠브로스 팀 스코어 제외)
+  const myRoundCount = personalScores.length;
 
   const toggleSection = (key) => setExpandedSection(prev => prev === key ? null : key);
 
@@ -486,7 +488,12 @@ function MyPage() {
                       <div key={i} onClick={() => mb && navigate(`/leaderboard?id=${mb.id}&userId=${user.id}&openScorecard=true`)}
                         style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: '#fff', borderRadius: 10, cursor: mb ? 'pointer' : 'default', border: '1px solid #F1F5F9' }}>
                         <div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>{score.roundingName}</div>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 6 }}>
+                            {score.roundingName}
+                            {score.gameMode === 'ambrose' && (
+                              <span style={{ fontSize: 10, fontWeight: 700, color: '#0891b2', background: '#e0f2fe', padding: '2px 6px', borderRadius: 6 }}>엠브로스(팀)</span>
+                            )}
+                          </div>
                           <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>{score.courseName} · {new Date(score.date).toLocaleDateString('ko-KR')}</div>
                         </div>
                         <div style={{ fontSize: 20, fontWeight: 800, color: '#0047AB' }}>{score.totalScore}</div>

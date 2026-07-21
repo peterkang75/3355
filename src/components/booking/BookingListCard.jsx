@@ -13,6 +13,7 @@ const BookingListCard = memo(function BookingListCard({
   clubMembers,
   totalFee,
   isFoursome,
+  isAmbrose,
   isJoined,
   isRenting,
   isFeeExempt,
@@ -162,6 +163,9 @@ const BookingListCard = memo(function BookingListCard({
               {isFoursome && (
                 <Badge variant="purple" size="xs">포썸</Badge>
               )}
+              {isAmbrose && (
+                <Badge variant="cyan" size="xs">엠브로스</Badge>
+              )}
             </h3>
           )}
           <div style={{ fontSize: '16px', fontWeight: '600', color: '#333', marginBottom: '4px' }}>
@@ -288,6 +292,9 @@ const BookingListCard = memo(function BookingListCard({
                 {booking.title}
                 {isFoursome && (
                   <Badge variant="purple" size="xs">포썸</Badge>
+                )}
+                {isAmbrose && (
+                  <Badge variant="cyan" size="xs">엠브로스</Badge>
                 )}
               </h3>
             )}
@@ -754,6 +761,9 @@ const BookingListCard = memo(function BookingListCard({
             {booking.title}
             {isFoursome && (
               <Badge variant="purple" size="xs">포썸</Badge>
+            )}
+            {isAmbrose && (
+              <Badge variant="cyan" size="xs">엠브로스</Badge>
             )}
           </div>
         )}

@@ -487,6 +487,23 @@ function RoundingManagement() {
                 >
                   🏌️ 포썸
                 </button>
+                <button
+                  type="button"
+                  onClick={() => setEditData({ ...editData, gameMode: 'ambrose' })}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    border: editData.gameMode === 'ambrose' ? '2px solid #0891b2' : '1px solid #ddd',
+                    borderRadius: '8px',
+                    background: editData.gameMode === 'ambrose' ? '#e0f2fe' : 'white',
+                    color: editData.gameMode === 'ambrose' ? '#0891b2' : '#666',
+                    fontWeight: editData.gameMode === 'ambrose' ? '700' : '500',
+                    fontSize: '14px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  👥 엠브로스
+                </button>
               </div>
             </div>
 
