@@ -2675,12 +2675,13 @@ function Play() {
         willChange: 'transform',
         touchAction: 'none',
       }}>
+        {/* ScoreSection을 JSX 요소가 아닌 함수 호출로 인라인 → 매 렌더 리마운트 제거(탭 유실 방지) */}
         {isAmbrose ? (
-          <ScoreSection isTeammate={false} />
+          ScoreSection({ isTeammate: false })
         ) : (
           <>
-            <ScoreSection isTeammate={true} />
-            <ScoreSection isTeammate={false} />
+            {ScoreSection({ isTeammate: true })}
+            {ScoreSection({ isTeammate: false })}
           </>
         )}
       </div>
