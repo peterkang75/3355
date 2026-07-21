@@ -44,6 +44,7 @@ function Play() {
   const lastRestoredBookingRef = useRef(null);
   const serverSaveTimerRef = useRef(null);
   const lastSavedScoresRef = useRef(null);
+  const lastLocalEditRef = useRef(0);   // 마지막 로컬 점수 편집 시각 (엠브로스 실시간 덮어쓰기 방지용)
   const saveQueueRef = useRef([]);         // 오프라인 큐 (메모리)
   const bookingSetupDoneRef = useRef(null); // booking setup 중복 실행 방지
   const isOnlineRef = useRef(typeof navigator !== 'undefined' ? navigator.onLine : true);
@@ -1081,10 +1082,12 @@ function Play() {
   }, [booking, selectedTeammate, step, fetchPeerScores]);
 
   // ── 엠브로스 실시간 공유: 다른 팀원이 입력한 팀 점수를 받아 화면 갱신 ──
-  // 내가 편집(디바운스 저장 대기/저장 중)일 때는 덮어쓰지 않음(로컬 입력 보호)
+  // 내가 편집(디바운스 저장 대기/저장 중/최근 편집)일 때는 덮어쓰지 않음(로컬 입력 보호)
   const refreshAmbroseScore = useCallback(async () => {
     if (!isAmbrose || !booking?.title || !effectiveUserId) return;
     if (serverSaveTimerRef.current || saveStatus === 'saving' || saveStatus === 'queued') return;
+    // 최근 5초 이내에 로컬 편집이 있었으면 서버 값으로 덮어쓰지 않음 (내 입력이 튕겨나가는 현상 방지)
+    if (Date.now() - lastLocalEditRef.current < 5000) return;
     try {
       const res = await fetch(`/api/scores/by-rounding/${encodeURIComponent(booking.title)}?date=${booking?.date || ''}`, {
         headers: getAuthHeaders(),
@@ -1095,6 +1098,8 @@ function Play() {
       if (!myRow || !myRow.holes) return;
       const serverHoles = typeof myRow.holes === 'string' ? JSON.parse(myRow.holes) : myRow.holes;
       if (!Array.isArray(serverHoles) || serverHoles.length !== 18) return;
+      // fetch 도중 로컬 편집이 발생했으면 반영하지 않음 (in-flight 응답이 내 입력 덮어쓰는 것 방지)
+      if (Date.now() - lastLocalEditRef.current < 5000 || serverSaveTimerRef.current || saveStatus === 'saving') return;
       setHoleScores(prev => {
         if (JSON.stringify(prev.me) === JSON.stringify(serverHoles)) return prev;
         return { ...prev, me: serverHoles };
@@ -2112,6 +2117,7 @@ function Play() {
   };
 
   const updateScore = (isTeammate, delta) => {
+    lastLocalEditRef.current = Date.now();
     const newScores = { ...holeScores };
     const scoreArray = isTeammate ? [...newScores.teammate] : [...newScores.me];
     scoreArray[currentHole - 1] = Math.max(0, scoreArray[currentHole - 1] + delta);
@@ -2121,6 +2127,7 @@ function Play() {
   };
 
   const setScoreValue = (isTeammate, value) => {
+    lastLocalEditRef.current = Date.now();
     const newScores = { ...holeScores };
     const scoreArray = isTeammate ? [...newScores.teammate] : [...newScores.me];
     scoreArray[currentHole - 1] = value;
@@ -2223,6 +2230,7 @@ function Play() {
     // 스코어와 Pickup 마크를 함께 set (clearPickupFlag 우회)
     const handlePickupClick = () => {
       if (!hasSI || !par) return;
+      lastLocalEditRef.current = Date.now();
       const extra = strokesArr ? strokesArr[currentHole - 1] : 0;
       const netDoubleBogey = par + extra + 2;
       const key = isTeammate ? 'teammate' : 'me';
