@@ -533,8 +533,38 @@ function Play() {
     }
     setGameMode(detectedGameMode);
     console.log('🎮 게임 모드:', detectedGameMode);
-    
-    if (foundBooking?.teams) {
+
+    if (detectedGameMode === 'ambrose') {
+      // 엠브로스: 팀 = 내 조(booking.teams). 조편성 없으면 팀원 없음 → "조편성 필요" 안내
+      // (스트로크 폴백처럼 참가자 전원을 한 팀으로 묶지 않는다)
+      setFoursomeData(null);
+      setSelectedTeammate(null);
+      let ambroseMates = [];
+      if (foundBooking?.teams) {
+        try {
+          const teams = typeof foundBooking.teams === 'string' ? JSON.parse(foundBooking.teams) : foundBooking.teams;
+          const userTeam = teams.find(t => t.members?.some(m => m?.phone === effectiveUserPhone));
+          if (userTeam?.members) {
+            const mates = userTeam.members.filter(m => m && m.phone !== effectiveUserPhone);
+            ambroseMates = mates.map(tm => {
+              const fullMember = members?.find(m => m.phone === tm.phone);
+              if (fullMember) return { ...tm, ...fullMember };
+              if (tm.phone?.startsWith('guest_')) {
+                const parsed = (foundBooking.participants || []).map(p => {
+                  try { return typeof p === 'string' ? JSON.parse(p) : p; } catch { return null; }
+                }).filter(Boolean).find(p => p.phone === tm.phone);
+                if (parsed) return { ...tm, ...parsed };
+              }
+              return tm;
+            });
+          }
+        } catch (e) {
+          console.error('엠브로스 팀 파싱 오류:', e);
+        }
+      }
+      console.log('👥 엠브로스 우리 조 팀원:', ambroseMates.length, '명');
+      setTeammates(ambroseMates);
+    } else if (foundBooking?.teams) {
       try {
         const teams = typeof foundBooking.teams === 'string' ? JSON.parse(foundBooking.teams) : foundBooking.teams;
         console.log('👥 팀 데이터:', teams);
