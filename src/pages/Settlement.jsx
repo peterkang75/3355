@@ -636,6 +636,9 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
   const [deletingMember, setDeletingMember] = useState(false);
+  const [editingId, setEditingId] = useState(null);
+  const [editAmount, setEditAmount] = useState('');
+  const [savingEdit, setSavingEdit] = useState(false);
 
   useEffect(() => {
     if (!member) return;
@@ -665,6 +668,28 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
       alert('청구 취소에 실패했습니다.');
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleEditSave = async (charge) => {
+    const val = parseFloat(editAmount);
+    if (isNaN(val) || val < 0) { alert('올바른 금액을 입력하세요.'); return; }
+    if (val === charge.amount) { setEditingId(null); return; }
+    setSavingEdit(true);
+    try {
+      const r = await fetch(`/api/transactions/${charge.id}`, {
+        method: 'PUT',
+        headers: authHeaders,
+        body: JSON.stringify({ amount: val }),
+      });
+      if (!r.ok) throw new Error('Failed');
+      setCharges(prev => prev.map(c => c.id === charge.id ? { ...c, amount: val } : c));
+      setEditingId(null);
+      onRefresh?.();
+    } catch {
+      alert('청구 금액 수정에 실패했습니다.');
+    } finally {
+      setSavingEdit(false);
     }
   };
 
@@ -755,23 +780,83 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
                     </div>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5, flexShrink: 0, marginLeft: 12 }}>
-                    <span style={{ fontSize: 15, fontWeight: 800, color: '#ea580c' }}>-{formatCurrency(c.amount)}</span>
-                    {!isClosed && (
-                      <button
-                        onClick={() => handleCancel(c)}
-                        disabled={deletingId === c.id}
-                        style={{
-                          padding: '3px 10px', borderRadius: 8,
-                          border: '1px solid #fecaca',
-                          background: deletingId === c.id ? '#f8fafc' : '#fff5f5',
-                          color: deletingId === c.id ? '#9ca3af' : '#dc2626',
-                          fontSize: 11, fontWeight: 600,
-                          cursor: deletingId === c.id ? 'not-allowed' : 'pointer',
-                          whiteSpace: 'nowrap',
-                        }}
-                      >
-                        {deletingId === c.id ? '처리중...' : '청구취소'}
-                      </button>
+                    {editingId === c.id ? (
+                      <>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                          <span style={{ fontSize: 14, fontWeight: 700, color: '#ea580c' }}>$</span>
+                          <input
+                            type="number"
+                            inputMode="decimal"
+                            value={editAmount}
+                            onChange={(e) => setEditAmount(e.target.value)}
+                            autoFocus
+                            style={{
+                              width: 80, padding: '5px 8px', borderRadius: 8,
+                              border: '1px solid #cbd5e1', fontSize: 14, fontWeight: 700,
+                              textAlign: 'right', color: 'var(--on-background)',
+                            }}
+                          />
+                        </div>
+                        <div style={{ display: 'flex', gap: 6 }}>
+                          <button
+                            onClick={() => handleEditSave(c)}
+                            disabled={savingEdit}
+                            style={{
+                              padding: '3px 10px', borderRadius: 8, border: 'none',
+                              background: savingEdit ? '#93c5fd' : 'var(--primary-green)',
+                              color: '#fff', fontSize: 11, fontWeight: 700,
+                              cursor: savingEdit ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap',
+                            }}
+                          >
+                            {savingEdit ? '저장중...' : '저장'}
+                          </button>
+                          <button
+                            onClick={() => setEditingId(null)}
+                            disabled={savingEdit}
+                            style={{
+                              padding: '3px 10px', borderRadius: 8, border: '1px solid #e2e8f0',
+                              background: '#fff', color: 'var(--text-muted)', fontSize: 11, fontWeight: 600,
+                              cursor: 'pointer', whiteSpace: 'nowrap',
+                            }}
+                          >
+                            취소
+                          </button>
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <span style={{ fontSize: 15, fontWeight: 800, color: '#ea580c' }}>-{formatCurrency(c.amount)}</span>
+                        {!isClosed && (
+                          <div style={{ display: 'flex', gap: 6 }}>
+                            <button
+                              onClick={() => { setEditingId(c.id); setEditAmount(String(c.amount)); }}
+                              style={{
+                                padding: '3px 10px', borderRadius: 8,
+                                border: '1px solid #bfdbfe', background: '#eff6ff',
+                                color: '#0047AB', fontSize: 11, fontWeight: 600,
+                                cursor: 'pointer', whiteSpace: 'nowrap',
+                              }}
+                            >
+                              수정
+                            </button>
+                            <button
+                              onClick={() => handleCancel(c)}
+                              disabled={deletingId === c.id}
+                              style={{
+                                padding: '3px 10px', borderRadius: 8,
+                                border: '1px solid #fecaca',
+                                background: deletingId === c.id ? '#f8fafc' : '#fff5f5',
+                                color: deletingId === c.id ? '#9ca3af' : '#dc2626',
+                                fontSize: 11, fontWeight: 600,
+                                cursor: deletingId === c.id ? 'not-allowed' : 'pointer',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                              {deletingId === c.id ? '처리중...' : '청구취소'}
+                            </button>
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
