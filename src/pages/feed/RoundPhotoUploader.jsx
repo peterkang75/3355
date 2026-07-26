@@ -16,7 +16,7 @@ export default function RoundPhotoUploader({ currentUser, onClose, onPickRound }
       const myPhone = currentUser?.phone;
       const mine = (bs || [])
         .filter((b) => b.type === '정기모임')        // 정기모임만
-        .filter((b) => b.date < today)               // 지난 라운딩
+        .filter((b) => b.date <= today)              // 오늘 포함 지난 라운딩
         .filter((b) => parseParticipants(b.participants).some((p) => p.phone === myPhone)) // 참가
         .sort((a, b) => (a.date < b.date ? 1 : -1)); // 최신순
       setRounds(mine);
