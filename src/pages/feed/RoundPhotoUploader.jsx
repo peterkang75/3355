@@ -14,10 +14,13 @@ export default function RoundPhotoUploader({ currentUser, onClose, onPickRound }
     apiService.fetchBookings().then((bs) => {
       const today = sydneyToday();
       const myPhone = currentUser?.phone;
+      const myId = currentUser?.id;
+      // 참가 판정: 회원 ID 우선(전화번호 변경에도 안전), 없으면 전화번호 매칭
+      const isMine = (p) => (myId && (p.memberId === myId || p.id === myId)) || (myPhone && p.phone === myPhone);
       const mine = (bs || [])
         .filter((b) => b.type === '정기모임')        // 정기모임만
         .filter((b) => b.date <= today)              // 오늘 포함 지난 라운딩
-        .filter((b) => parseParticipants(b.participants).some((p) => p.phone === myPhone)) // 참가
+        .filter((b) => parseParticipants(b.participants).some(isMine)) // 참가
         .sort((a, b) => (a.date < b.date ? 1 : -1)); // 최신순
       setRounds(mine);
     }).catch(() => setRounds([]));
