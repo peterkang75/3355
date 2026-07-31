@@ -345,6 +345,13 @@ router.post("/", requireAuth, requireOperator, async (req, res) => {
       data.type = 'credit';
     }
 
+    // 도네이션은 클럽에 기부한 돈 — 회원 개인 잔액(크레딧)이 되면 안 된다.
+    // 정산 화면의 수입 입력은 항상 type=payment로 보내므로 여기서 donation으로 보정.
+    // (payment로 저장되면 그 회원 크레딧이 되어 다음 라운딩 참가비가 기부금에서 자동 차감됨)
+    if (data.category === '도네이션' && data.type === 'payment') {
+      data.type = 'donation';
+    }
+
     const transaction = await prisma.transaction.create({
       data,
       include: { member: true, booking: true },
