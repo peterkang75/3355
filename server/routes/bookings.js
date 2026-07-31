@@ -2,6 +2,7 @@ const express = require("express");
 const prisma = require("../db");
 const crypto = require('crypto');
 const { calculateBalance, recalculateAndUpdateBalance } = require('../utils/balance');
+const { computeGuestChargeForBooking } = require('../utils/fees');
 const { requireAuth, requireOperator } = require('../middleware/auth');
 
 const router = express.Router();
@@ -474,8 +475,8 @@ router.post("/:id/add-guest", requireAuth, requireOperator, async (req, res) => 
       data: { participants: [...currentParticipants.map(p => JSON.stringify(p)), JSON.stringify(newParticipant)] },
     });
 
-    // 참가비 청구 (greenFee + cartFee)
-    const feeAmount = (booking.greenFee || 0) + (booking.cartFee || 0);
+    // 참가비 청구 (그린피 + 카트비 + 회비)
+    const feeAmount = computeGuestChargeForBooking(booking);
     if (feeAmount > 0) {
       const today = new Date().toISOString().split('T')[0];
       await prisma.transaction.create({

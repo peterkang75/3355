@@ -2,6 +2,7 @@ const express = require('express');
 const prisma = require('../db');
 const { requireAuth, requireOperator } = require('../middleware/auth');
 const { recalculateAndUpdateBalance } = require('../utils/balance');
+const { computeGuestChargeForBooking } = require('../utils/fees');
 const crypto = require('crypto');
 
 const router = express.Router();
@@ -184,7 +185,7 @@ router.post('/invite/:token/register', async (req, res) => {
         },
       });
 
-      const feeAmount2 = (booking.greenFee || 0) + (booking.cartFee || 0);
+      const feeAmount2 = computeGuestChargeForBooking(booking);
       if (feeAmount2 > 0 && !dupTransaction) {
         const today = new Date().toISOString().split('T')[0];
         await prisma.transaction.create({
@@ -277,8 +278,8 @@ router.post('/invite/:token/register', async (req, res) => {
       },
     });
 
-    // 참가비 자동청구 (greenFee + cartFee, 멤버십피 제외)
-    const feeAmount = (booking.greenFee || 0) + (booking.cartFee || 0);
+    // 참가비 자동청구 (그린피 + 카트비 + 회비)
+    const feeAmount = computeGuestChargeForBooking(booking);
     if (feeAmount > 0) {
       const today = new Date().toISOString().split('T')[0];
       await prisma.transaction.create({
