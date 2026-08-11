@@ -55,6 +55,23 @@ export function normalizeHoles(raw) {
 }
 
 /**
+ * 12홀 지정 저장 payload를 만든다.
+ * 경기방식·적용률·그레이드는 서버가 병합해 보존하므로 여기서는 신페리오 키만 보낸다.
+ * 지정 취소는 명시적 null이어야 서버 병합에서 키가 삭제된다 (생략하면 기존 값이 남음).
+ *
+ * @param {number[]|null} holes - 지정 12홀. null이면 지정 취소
+ * @param {string|null} userId - 지정한 운영진
+ * @param {string} nowISO - 지정 시각 (ISO 문자열)
+ */
+export function buildNewPeriaHolesPayload(holes, userId, nowISO) {
+  return JSON.stringify(
+    holes
+      ? { newPeriaHoles: holes, newPeriaSetBy: userId ?? null, newPeriaSetAt: nowISO }
+      : { newPeriaHoles: null, newPeriaSetBy: null, newPeriaSetAt: null }
+  );
+}
+
+/**
  * 신페리오 핸디캡 계산.
  *
  * @param {number[]} holeScores - 18홀 스코어 (0 또는 없음 = 미기록)

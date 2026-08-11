@@ -5,7 +5,8 @@ import apiService from '../../services/api';
 import { formatDate, getBookingStatusFlags } from './bookingHelpers';
 import { GAME_MODES } from '../../constants/gameModes';
 import { rateToPercent } from '../../components/booking/NewPeriaRateField';
-import { NEWPERIA_DEFAULT_RATE } from '../../utils/newperia';
+import { NEWPERIA_DEFAULT_RATE, parseNewPeriaConfig, buildNewPeriaHolesPayload } from '../../utils/newperia';
+import NewPeriaHolesSheet from './NewPeriaHolesSheet';
 
 // 이 화면에는 스테이블포드가 별도로 있어 공용 목록에 한 항목을 끼워 쓴다
 const HOST_GAME_MODES = [
@@ -91,9 +92,30 @@ const InputRow = ({ label, field, placeholder, type = 'text', hmAdvanced, setHmA
   );
 };
 
-export default function HostManageSheet({ show, onClose, booking, state, setters, handlers, user, members }) {
+export default function HostManageSheet({ show, onClose, booking, state, setters, handlers, user, members, onRefresh }) {
   const navigate = useNavigate();
+  const [showNpSheet, setShowNpSheet] = React.useState(false);
+  const [npSaving, setNpSaving] = React.useState(false);
   if (!show || !booking) return null;
+
+  const npConfig = parseNewPeriaConfig(booking.gradeSettings);
+
+  // 12홀 지정 저장. 지정자·시각을 함께 남겨 제비뽑기 시점과 대조할 수 있게 한다.
+  const saveNewPeriaHoles = async (holes) => {
+    setNpSaving(true);
+    try {
+      const updated = await apiService.updateBooking(booking.id, {
+        gradeSettings: buildNewPeriaHolesPayload(holes, user?.id, new Date().toISOString()),
+      });
+      await onRefresh?.(updated);
+      setShowNpSheet(false);
+      alert(holes ? '홀 지정이 저장되었습니다. 순위가 신페리오 기준으로 매겨집니다.' : '홀 지정이 취소되었습니다.');
+    } catch {
+      alert('저장에 실패했습니다.');
+    } finally {
+      setNpSaving(false);
+    }
+  };
 
   const {
     hmType, hmTitle, hmTime, hmParticipants, hmGuestName, hmGuestHandicap, hmMemberSearch,
@@ -369,6 +391,15 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
           <button onClick={() => { onClose(); navigate(`/team-formation?id=${booking.id}`); }}
             style={{ width: '100%', padding: '14px', borderRadius: '12px', background: '#1E293B', color: '#FFFFFF', border: 'none', fontWeight: '700', fontSize: '15px', cursor: 'pointer', marginBottom: '10px' }}>
             조편성 하기
+          </button>
+        )}
+
+        {/* 신페리오 홀 지정 — 라운딩이 끝난 뒤 제비뽑기 결과를 입력한다 */}
+        {npConfig.isNewPeria && (
+          <button onClick={() => setShowNpSheet(true)}
+            style={{ width: '100%', padding: '14px', borderRadius: '12px', background: npConfig.isConfigured ? '#FFFBEB' : '#d97706', color: npConfig.isConfigured ? '#B45309' : '#FFFFFF', border: npConfig.isConfigured ? '1px solid #FDE68A' : 'none', fontWeight: '700', fontSize: '15px', cursor: 'pointer', marginBottom: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+            <span>🎲</span>
+            <span>{npConfig.isConfigured ? `신페리오 홀 지정됨 · ${npConfig.holes.join(', ')}` : '신페리오 홀 지정하기'}</span>
           </button>
         )}
 
@@ -678,6 +709,21 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
           {hmViewMode === 'basic' ? renderBasicView() : renderAdvancedView()}
         </div>
       </div>
+
+      {showNpSheet && (
+        <NewPeriaHolesSheet
+          initialHoles={npConfig.holes}
+          setByName={npConfig.setBy
+            ? ((members || []).find(m => m.id === npConfig.setBy)?.nickname
+               || (members || []).find(m => m.id === npConfig.setBy)?.name)
+            : null}
+          setAt={npConfig.setAt}
+          saving={npSaving}
+          onSave={(holes) => saveNewPeriaHoles(holes)}
+          onClear={() => saveNewPeriaHoles(null)}
+          onClose={() => !npSaving && setShowNpSheet(false)}
+        />
+      )}
     </>
   );
 }

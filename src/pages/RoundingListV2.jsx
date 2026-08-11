@@ -706,6 +706,11 @@ function RoundingListV2() {
         handlers={{ handleHmTypeChange, handleHmTitleSave, handleHmTimeSave, handleHmRemoveParticipant, handleHmAddMember, handleHmAddGuest, handleHmAdvancedToggle, handleHmAdvancedSave, handleHmDelete, handleHmGameModeChange, hmSaveField }}
         user={user}
         members={members}
+        onRefresh={async (updated) => {
+          // 시트가 열린 채로 저장하므로 화면에 보이는 booking도 최신값으로 맞춘다
+          if (updated) setHmBooking(prev => ({ ...prev, ...updated }));
+          await refreshBookings();
+        }}
       />
 
       <CreateBookingModal

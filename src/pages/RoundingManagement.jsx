@@ -4,7 +4,7 @@ import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 import { GAME_MODES, getGameMode } from '../constants/gameModes';
 import NewPeriaRateField, { rateToPercent, percentToRate } from '../components/booking/NewPeriaRateField';
-import { NEWPERIA_DEFAULT_RATE, parseNewPeriaConfig, NEWPERIA_HOLE_COUNT } from '../utils/newperia';
+import { NEWPERIA_DEFAULT_RATE, parseNewPeriaConfig, NEWPERIA_HOLE_COUNT, buildNewPeriaHolesPayload } from '../utils/newperia';
 import NewPeriaHolesSheet from './booking/NewPeriaHolesSheet';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 import PageHeader from '../components/common/PageHeader';
@@ -286,18 +286,12 @@ function RoundingManagement() {
   const newPeriaConfig = parseNewPeriaConfig(booking?.gradeSettings);
   const isNewPeriaBooking = newPeriaConfig.isNewPeria;
 
-  // 12홀 지정 저장. 경기방식·적용률·그레이드는 서버가 병합해 보존한다.
-  // 지정자·시각을 함께 남겨 제비뽑기 시점과 대조할 수 있게 한다.
+  // 12홀 지정 저장. 지정자·시각을 함께 남겨 제비뽑기 시점과 대조할 수 있게 한다.
   const saveNewPeriaHoles = async (holes) => {
     setSavingHoles(true);
     try {
       await apiService.updateBooking(bookingId, {
-        gradeSettings: JSON.stringify(
-          holes
-            ? { newPeriaHoles: holes, newPeriaSetBy: user?.id ?? null, newPeriaSetAt: new Date().toISOString() }
-            // null을 명시해야 서버 병합에서 키가 삭제된다 (생략하면 기존 값이 남음)
-            : { newPeriaHoles: null, newPeriaSetBy: null, newPeriaSetAt: null }
-        ),
+        gradeSettings: buildNewPeriaHolesPayload(holes, user?.id, new Date().toISOString()),
       });
       await refreshBookings();
       setShowHolesSheet(false);
