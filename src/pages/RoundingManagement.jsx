@@ -4,7 +4,8 @@ import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 import { GAME_MODES, getGameMode } from '../constants/gameModes';
 import NewPeriaRateField, { rateToPercent, percentToRate } from '../components/booking/NewPeriaRateField';
-import { NEWPERIA_DEFAULT_RATE, parseNewPeriaConfig } from '../utils/newperia';
+import { NEWPERIA_DEFAULT_RATE, parseNewPeriaConfig, NEWPERIA_HOLE_COUNT } from '../utils/newperia';
+import NewPeriaHolesSheet from './booking/NewPeriaHolesSheet';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 import PageHeader from '../components/common/PageHeader';
 
@@ -12,13 +13,15 @@ function RoundingManagement() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const bookingId = searchParams.get('id');
-  const { user, bookings, refreshBookings } = useApp();
+  const { user, members, bookings, refreshBookings } = useApp();
   const [booking, setBooking] = useState(null);
   const [showMenu, setShowMenu] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editData, setEditData] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [showHolesSheet, setShowHolesSheet] = useState(false);
+  const [savingHoles, setSavingHoles] = useState(false);
   const [isTogglingAnnounce, setIsTogglingAnnounce] = useState(false);
   const [isTogglingPlay, setIsTogglingPlay] = useState(false);
   const [isTogglingGuest, setIsTogglingGuest] = useState(false);
@@ -280,7 +283,31 @@ function RoundingManagement() {
   const isOrganizer = booking && user?.id === booking.organizerId;
   const canAccess = hasAdminAccess || isOrganizer;
   const isOfficial = booking?.type === '정기모임' || user?.isAdmin;
-  const isNewPeriaBooking = parseNewPeriaConfig(booking?.gradeSettings).isNewPeria;
+  const newPeriaConfig = parseNewPeriaConfig(booking?.gradeSettings);
+  const isNewPeriaBooking = newPeriaConfig.isNewPeria;
+
+  // 12홀 지정 저장. 경기방식·적용률·그레이드는 서버가 병합해 보존한다.
+  // 지정자·시각을 함께 남겨 제비뽑기 시점과 대조할 수 있게 한다.
+  const saveNewPeriaHoles = async (holes) => {
+    setSavingHoles(true);
+    try {
+      await apiService.updateBooking(bookingId, {
+        gradeSettings: JSON.stringify(
+          holes
+            ? { newPeriaHoles: holes, newPeriaSetBy: user?.id ?? null, newPeriaSetAt: new Date().toISOString() }
+            // null을 명시해야 서버 병합에서 키가 삭제된다 (생략하면 기존 값이 남음)
+            : { newPeriaHoles: null, newPeriaSetBy: null, newPeriaSetAt: null }
+        ),
+      });
+      await refreshBookings();
+      setShowHolesSheet(false);
+      alert(holes ? '홀 지정이 저장되었습니다. 순위가 신페리오 기준으로 매겨집니다.' : '홀 지정이 취소되었습니다.');
+    } catch {
+      alert('저장에 실패했습니다.');
+    } finally {
+      setSavingHoles(false);
+    }
+  };
 
   if (!booking) {
     return (
@@ -915,6 +942,17 @@ function RoundingManagement() {
               path: `/member-score-entry?id=${bookingId}`,
               officialOnly: true
             },
+            {
+              icon: '🎲',
+              bg: '#FEF3C7',
+              title: '신페리오 홀 지정',
+              desc: newPeriaConfig.isConfigured
+                ? `지정 완료 · ${newPeriaConfig.holes.join(', ')}번 홀`
+                : `제비뽑기로 뽑은 ${NEWPERIA_HOLE_COUNT}개 홀 입력`,
+              onClick: () => setShowHolesSheet(true),
+              officialOnly: true,
+              newPeriaOnly: true
+            },
             { 
               icon: '⚙️', 
               bg: '#ECEFF1', 
@@ -926,10 +964,11 @@ function RoundingManagement() {
               hideForNewPeria: true
             }
           ].filter(item => !(item.hideForNewPeria && isNewPeriaBooking))
+           .filter(item => !(item.newPeriaOnly && !isNewPeriaBooking))
            .filter(item => !item.officialOnly || isOfficial).map((item, idx, arr) => (
             <button
-              key={item.path}
-              onClick={() => navigate(item.path)}
+              key={item.path || item.title}
+              onClick={item.onClick ? item.onClick : () => navigate(item.path)}
               style={{
                 width: '100%',
                 padding: '16px 20px',
@@ -966,6 +1005,19 @@ function RoundingManagement() {
           ))}
         </div>
       </div>
+
+      {showHolesSheet && (
+        <NewPeriaHolesSheet
+          initialHoles={newPeriaConfig.holes}
+          setByName={(members || []).find(m => m.id === newPeriaConfig.setBy)?.nickname
+            || (members || []).find(m => m.id === newPeriaConfig.setBy)?.name}
+          setAt={newPeriaConfig.setAt}
+          saving={savingHoles}
+          onSave={(holes) => saveNewPeriaHoles(holes)}
+          onClear={() => saveNewPeriaHoles(null)}
+          onClose={() => !savingHoles && setShowHolesSheet(false)}
+        />
+      )}
     </div>
   );
 }
