@@ -407,7 +407,7 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
             <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
               <input type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="게스트 이름"
                 style={{ ...iStyle, flex: 2 }} />
-              <input type="number" value={guestHandicap} onChange={e => setGuestHandicap(e.target.value)} placeholder="HC"
+              <input type="text" inputMode="decimal" value={guestHandicap} onChange={e => setGuestHandicap(e.target.value.replace(/[^0-9.]/g, ''))} placeholder="HC"
                 style={{ ...iStyle, flex: 1 }} />
               <button onClick={addGuest}
                 style={{ padding: '0 14px', borderRadius: '10px', border: 'none', background: '#065F46', color: '#fff', fontWeight: '700', fontSize: '13px', cursor: 'pointer', flexShrink: 0 }}>

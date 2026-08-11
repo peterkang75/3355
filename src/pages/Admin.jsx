@@ -2280,9 +2280,9 @@ function Admin() {
                   />
                 </div>
                 <input
-                  type="number"
-                  inputMode="numeric"
-                  placeholder="핸디"
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="예: 18.4"
                   value={editMemberData.handicap}
                   onChange={(e) => setEditMemberData({ ...editMemberData, handicap: e.target.value })}
                   style={{ marginBottom: '12px' }}

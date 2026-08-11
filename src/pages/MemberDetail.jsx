@@ -526,14 +526,14 @@ function MemberDetail() {
                   <input type="text" value={editData.clubMemberNumber || ''} onChange={(e) => setEditData({ ...editData, clubMemberNumber: e.target.value })} style={{ borderColor: !editData.clubMemberNumber?.trim() && !!validationError ? '#e74c3c' : undefined }} />
                 </EF>
                 <EF label="GA 핸디캡" required error={!editData.gaHandy?.toString().trim() && !!validationError}>
-                  <input type="number" inputMode="numeric" value={editData.gaHandy || ''} onChange={(e) => setEditData({ ...editData, gaHandy: e.target.value, handicap: e.target.value })} style={{ borderColor: !editData.gaHandy?.toString().trim() && !!validationError ? '#e74c3c' : undefined }} />
+                  <input type="text" inputMode="decimal" placeholder="예: 18.4" value={editData.gaHandy || ''} onChange={(e) => { const v = e.target.value.replace(/[^0-9.]/g, ''); setEditData({ ...editData, gaHandy: v, handicap: v }); }} style={{ borderColor: !editData.gaHandy?.toString().trim() && !!validationError ? '#e74c3c' : undefined }} />
                 </EF>
               </>
             )}
 
             {editData.isClubMember === 'no' && (
               <EF label="House 핸디캡" required error={!editData.handicap?.toString().trim() && !!validationError}>
-                <input type="number" inputMode="numeric" value={editData.handicap || ''} onChange={(e) => setEditData({ ...editData, handicap: e.target.value, houseHandy: e.target.value })} style={{ borderColor: !editData.handicap?.toString().trim() && !!validationError ? '#e74c3c' : undefined }} />
+                <input type="text" inputMode="decimal" placeholder="예: 18.4" value={editData.handicap || ''} onChange={(e) => { const v = e.target.value.replace(/[^0-9.]/g, ''); setEditData({ ...editData, handicap: v, houseHandy: v }); }} style={{ borderColor: !editData.handicap?.toString().trim() && !!validationError ? '#e74c3c' : undefined }} />
               </EF>
             )}
           </div>

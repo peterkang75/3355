@@ -157,7 +157,9 @@ function PickWinner() {
       if (!member) return;
 
       const rawHandicap = getHandicapValue(member, p, booking);
-      const handicap = Math.round(rawHandicap);
+      // 그레이드 분류는 소수점 그대로 비교한다 (Leaderboard·roundingRanking과 동일 기준).
+      // 반올림하면 핸디 18.4가 여기선 B, 리더보드에선 C로 갈려 예측 대상과 실제 우승자가 어긋난다.
+      const handicap = Number(rawHandicap) || 0;
       
       let grade = 'D';
       

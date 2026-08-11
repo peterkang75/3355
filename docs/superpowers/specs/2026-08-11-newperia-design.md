@@ -80,8 +80,9 @@
 |---|---|---|
 | `src/utils/roundingRanking.js` | 73 | `Math.round` → 라운딩 결과·우승자 순위가 정수 핸디로 계산 |
 | `src/pages/Leaderboard.jsx` | 200 | 동일 |
-| `src/pages/Play.jsx` | 2204 | 동일 |
-| `src/pages/PickWinner.jsx` | 160 | 동일 |
+| `src/pages/PickWinner.jsx` | 160 | **그레이드 분류**를 반올림 핸디로 판정 → 리더보드(소수점 그대로)와 불일치. 핸디 18.4가 여기선 B, 리더보드에선 C로 갈릴 수 있음 |
+
+> **조사 후 정정:** 초안에 넣었던 `src/pages/Play.jsx:2204`는 **고치지 않는다.** 그 값은 `allocateStrokes()`(스테이블포드 홀별 스트로크 배분)에만 쓰이며 정수여야 한다. `stableford.js:34`와 같은 사유.
 
 네트 스코어가 소수로 바뀌므로 **표시부는 소수점 1자리로 포맷**한다.
 
@@ -89,14 +90,21 @@
 
 | 파일 | 위치 | 증상 |
 |---|---|---|
-| `src/pages/MemberDetail.jsx` | 529, 536 | `type="number" inputMode="numeric"` → 모바일 키패드에 소수점 없음 |
-| `src/pages/MyPage.jsx` | 461 | `type="number"` → 브라우저에 따라 소수점 거부 |
+| `src/pages/MemberDetail.jsx` | 529, 536 | `inputMode="numeric"` → 모바일 키패드에 소수점 없음 |
+| `src/pages/MyPage.jsx` | 449, 461 | `type="number"` (GA Handy·House Handy 둘 다) |
+| `src/pages/MemberInfoForm.jsx` | 358, 375 | `inputMode="numeric"` (GA·House 핸디캡) |
+| `src/pages/Admin.jsx` | 2282 | `inputMode="numeric"` (회원 정보 수정) |
+| `src/pages/booking/CreateBookingModal.jsx` | 410 | `type="number"` 단독 (게스트 핸디캡) |
+
+이미 소수점을 받고 있어 손대지 않은 곳: `JoinPage`, `GuestJoin`, `ParticipantManagement`(step=0.1), `HostManageSheet`, `Admin:2573`.
+
+공통 헬퍼 `round1()`을 `src/utils/index.js`에 추가해 4곳이 아닌 한 곳에서 관리한다 — 단순 뺄셈은 `60 − 32.2 = 27.799999999999997` 같은 부동소수점 잔재가 화면에 노출된다.
 
 **기준 패턴은 `src/pages/JoinPage.jsx:421,430`** — `type="text" inputMode="decimal"` + `replace(/[^0-9.]/g,'')` + placeholder "예: 18.4". 이 방식을 그대로 적용한다.
 
 ### 고치지 않는 곳
 
-`src/utils/stableford.js:34` — `Math.round(hcp)`. 스테이블포드는 핸디캡을 홀별 스트로크로 배분하므로 정수여야 한다. 0.4타는 배분 불가. **정상 동작이므로 유지.**
+`src/pages/Play.jsx:2204`, `src/utils/stableford.js:34` — `Math.round(hcp)`. 스테이블포드는 핸디캡을 홀별 스트로크로 배분하므로 정수여야 한다. 0.4타는 배분 불가. **정상 동작이므로 유지.**
 
 ### 영향 없음 확인
 

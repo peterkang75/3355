@@ -1,4 +1,5 @@
 import { calculateStableford } from './stableford';
+import { round1 } from './index';
 
 // 리더보드(Leaderboard.jsx)의 순위 계산을 그대로 옮긴 공용 함수.
 // 라운딩 페이지에서 "우승자"(리더보드 맨 위 이름)를 동일하게 뽑기 위함.
@@ -70,8 +71,9 @@ export function computeRoundingRanking(bookingScores, { booking, members = [], c
     const totalScore = currentTotalScore || (score.totalScore || 0);
     if (!hasHoleData && score.totalScore > 0) playedPar = 72;
 
-    const hcp = Math.round(Number(handicap) || 0);
-    const netScore = totalScore - hcp;
+    // 핸디캡은 소수점 유지(18.4 등). 스테이블포드는 내부에서 정수로 반올림해 쓴다.
+    const hcp = round1(handicap);
+    const netScore = round1(totalScore - hcp);
 
     const playerGender = member?.gender === 'female' ? 'female' : 'male';
     const playerSI = course?.holeIndexes?.[playerGender] || course?.holeIndexes?.male || null;

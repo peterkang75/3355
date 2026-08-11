@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketContext';
 import { calculateStableford } from '../utils/stableford';
+import { round1 } from '../utils';
 
 function Leaderboard() {
   const navigate = useNavigate();
@@ -197,9 +198,10 @@ function Leaderboard() {
         const outScore = holesArray?.slice(0, 9).reduce((a, b) => a + b, 0) || 0;
         const inScore = holesArray?.slice(9, 18).reduce((a, b) => a + b, 0) || 0;
 
-        const hcp = Math.round(Number(handicap) || 0);
-        const netScore = totalScore - hcp;
-        const netOverUnder = netScore - playedPar;
+        // 핸디캡은 소수점 유지(18.4 등). 스테이블포드는 내부에서 정수로 반올림해 쓴다.
+        const hcp = round1(handicap);
+        const netScore = round1(totalScore - hcp);
+        const netOverUnder = round1(netScore - playedPar);
 
         const playerGender = member?.gender === 'female' ? 'female' : 'male';
         const playerSI = course?.holeIndexes?.[playerGender] || course?.holeIndexes?.male || null;

@@ -356,9 +356,9 @@ function MemberInfoForm() {
                   GA 핸디캡 *
                 </label>
                 <input
-                  type="number"
-                  inputMode="numeric"
-                  placeholder="GA 핸디캡"
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="예: 18.4"
                   value={formData.gaHandy}
                   onChange={(e) => setFormData({ ...formData, gaHandy: e.target.value })}
                   style={{ width: '100%' }}
@@ -373,9 +373,9 @@ function MemberInfoForm() {
                 핸디캡 *
               </label>
               <input
-                type="number"
-                inputMode="numeric"
-                placeholder="핸디캡을 입력하세요"
+                type="text"
+                inputMode="decimal"
+                placeholder="예: 18.4"
                 value={formData.houseHandy}
                 onChange={(e) => setFormData({ ...formData, houseHandy: e.target.value })}
                 style={{ width: '100%' }}

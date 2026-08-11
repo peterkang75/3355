@@ -446,11 +446,14 @@ function MyPage() {
                           </>
                         )}
                       </div>
-                      {[['GA Handy', 'gaHandy', 'number'], ['Golflink 번호', 'golflinkNumber', 'text'], ['클럽 회원번호', 'clubMemberNumber', 'text']].map(([label, key, type]) => (
+                      {/* 핸디캡은 소수점(18.4) 입력을 받아야 하므로 decimal 키패드 + 숫자·점만 허용 */}
+                      {[['GA Handy', 'gaHandy', 'decimal'], ['Golflink 번호', 'golflinkNumber', 'text'], ['클럽 회원번호', 'clubMemberNumber', 'text']].map(([label, key, type]) => (
                         <div key={key} style={{ marginBottom: 14 }}>
                           <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 6 }}>{label}</div>
-                          <input type={type} value={editData[key] || ''}
-                            onChange={(e) => setEditData({ ...editData, [key]: e.target.value })}
+                          <input type="text" inputMode={type === 'decimal' ? 'decimal' : 'text'}
+                            placeholder={type === 'decimal' ? '예: 18.4' : undefined}
+                            value={editData[key] || ''}
+                            onChange={(e) => setEditData({ ...editData, [key]: type === 'decimal' ? e.target.value.replace(/[^0-9.]/g, '') : e.target.value })}
                             style={{ width: '100%', padding: '13px 16px', borderRadius: 14, border: '1.5px solid #E5E7EB', fontSize: 15, outline: 'none', boxSizing: 'border-box', background: '#fff' }} />
                         </div>
                       ))}
@@ -458,8 +461,8 @@ function MyPage() {
                   ) : editData.isMember === 'no' ? (
                     <div style={{ marginBottom: 14 }}>
                       <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 6 }}>House Handy</div>
-                      <input type="number" value={editData.houseHandy || ''}
-                        onChange={(e) => setEditData({ ...editData, houseHandy: e.target.value })}
+                      <input type="text" inputMode="decimal" placeholder="예: 18.4" value={editData.houseHandy || ''}
+                        onChange={(e) => setEditData({ ...editData, houseHandy: e.target.value.replace(/[^0-9.]/g, '') })}
                         style={{ width: '100%', padding: '13px 16px', borderRadius: 14, border: '1.5px solid #E5E7EB', fontSize: 15, outline: 'none', boxSizing: 'border-box', background: '#fff' }} />
                     </div>
                   ) : null}
