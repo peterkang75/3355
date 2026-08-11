@@ -211,6 +211,10 @@ function Admin() {
       setActiveTab('menu');
       window.history.replaceState({}, document.title);
     }
+    if (location.state?.openMembers) {
+      setActiveTab('members');
+      window.history.replaceState({}, document.title);
+    }
     if (location.state?.openScoreRounds) {
       setActiveTab('scoreManagement');
       setScoreManagementView('rounds');
@@ -1868,7 +1872,7 @@ function Admin() {
             <div style={{ background: '#EEF1F6', minHeight: '100vh', paddingBottom: 100 }}>
               {/* 저장소 80% 알림 */}
               {storagePct >= 80 && (
-                <div onClick={() => navigate('/media-storage')} style={{ margin: '16px 16px 0', background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: 14, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
+                <div onClick={() => navigate('/media-storage', { state: { returnTo: { path: '/admin' } } })} style={{ margin: '16px 16px 0', background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: 14, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
                   <span style={{ fontSize: 20, lineHeight: 1 }}>⚠️</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 14, fontWeight: 800, color: '#9A3412' }}>저장소 용량 {storagePct}% 도달</div>
@@ -2158,7 +2162,10 @@ function Admin() {
                 const onlineIndicatorColor = isOnline ? '#22C55E' : '#CBD5E1';
 
                 return (
-                  <div key={member.id} onClick={() => navigate(`/member/${member.id}`)}
+                  <div key={member.id} onClick={() => navigate(`/member/${member.id}`, {
+                    // 관리 화면은 하위 탭을 메모리에만 들고 있어 히스토리 되감기로는 복원되지 않는다
+                    state: { returnTo: { path: '/admin', state: { openMembers: true } } },
+                  })}
                     style={{ background: '#fff', borderRadius: 16, padding: '14px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', opacity: member.isActive === false ? 0.65 : 1 }}>
                     {/* 사진 */}
                     <div style={{ position: 'relative', flexShrink: 0 }}>

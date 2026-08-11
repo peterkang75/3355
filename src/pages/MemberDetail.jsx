@@ -1,5 +1,6 @@
 import React, { useState, useEffect, memo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import useGoBack from '../hooks/useGoBack';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 import { checkIsOperator } from '../utils';
@@ -16,6 +17,7 @@ import SearchableDropdown from '../components/SearchableDropdown';
 function MemberDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const goBack = useGoBack('/admin');
   const { user, refreshMembers, members, courses, requiresProfileComplete, clearRequiresProfileComplete, checkRequiredFields } = useApp();
   const [member, setMember] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
@@ -667,7 +669,7 @@ function MemberDetail() {
       <div style={{ background: 'linear-gradient(160deg, #0A2158 0%, #0047AB 100%)', padding: '0 20px 28px', textAlign: 'center' }}>
         {/* 커스텀 헤더 */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 'calc(env(safe-area-inset-top) + 12px)', paddingBottom: '8px' }}>
-          <button onClick={() => navigate('/admin')} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px 6px', display: 'flex', alignItems: 'center', color: 'white', minHeight: '44px' }}>
+          <button onClick={goBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px 6px', display: 'flex', alignItems: 'center', color: 'white', minHeight: '44px' }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
           </button>
           <span style={{ fontSize: '17px', fontWeight: '700', color: 'white' }}>멤버 프로필</span>
