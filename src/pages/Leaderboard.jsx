@@ -629,7 +629,12 @@ function Leaderboard() {
     return filters;
   };
   
-  const gradeFilters = getAvailableGradeFilters();
+  // 신페리오는 그날 스코어로 핸디캡을 만들어 전원을 한 판에서 겨루게 하므로 그레이드를 쓰지 않는다
+  const gradeFilters = newPeria?.isNewPeria ? [] : getAvailableGradeFilters();
+  const newPeriaSetByName = newPeria?.setBy
+    ? ((members || []).find(m => m.id === newPeria.setBy)?.nickname
+       || (members || []).find(m => m.id === newPeria.setBy)?.name)
+    : null;
 
   if (loading) {
     return (
@@ -1177,6 +1182,35 @@ function Leaderboard() {
             )}
           </div>
 
+          {/* 신페리오 안내 — 12홀 지정 여부에 따라 순위 기준이 달라지므로 반드시 알린다 */}
+          {newPeria?.isNewPeria && (
+            <div style={{
+              margin: '0 16px 12px', padding: '10px 14px', borderRadius: 10,
+              background: newPeria.isConfigured ? 'rgba(255,255,255,0.12)' : 'rgba(251,191,36,0.18)',
+              border: `1px solid ${newPeria.isConfigured ? 'rgba(255,255,255,0.2)' : 'rgba(251,191,36,0.4)'}`,
+              fontSize: 12, color: 'rgba(255,255,255,0.92)', lineHeight: 1.55,
+            }}>
+              {newPeria.isConfigured ? (
+                <>
+                  <strong>신페리오</strong> · 지정 홀 {newPeria.holes.join(', ')}번의 점수로 핸디캡을 산출했습니다
+                  {' '}(적용률 {Math.round(newPeria.rate * 100)}%).
+                  {newPeria.setAt && (
+                    <div style={{ marginTop: 4, color: 'rgba(255,255,255,0.6)', fontSize: 11 }}>
+                      홀 지정: {newPeriaSetByName || '알 수 없음'} · {new Date(newPeria.setAt).toLocaleString('ko-KR', { timeZone: 'Australia/Sydney', dateStyle: 'medium', timeStyle: 'short' })}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <>
+                  <strong>신페리오 홀 지정 전</strong>입니다. 지금은 <strong>그로스(총타수) 순위</strong>로 보여드립니다.
+                  <div style={{ marginTop: 4, color: 'rgba(255,255,255,0.72)', fontSize: 11 }}>
+                    라운딩 관리에서 12개 홀을 지정하면 핸디캡이 적용된 최종 순위가 나옵니다.
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
           {/* 그레이드 탭 — 2번 줄 (그레이드 설정된 라운딩만 노출, 같은 버튼 재선택 시 해제) */}
           {gradeFilters.length > 0 && (
             <div style={{
@@ -1300,9 +1334,9 @@ function Leaderboard() {
                     </div>
                   </div>
 
-                  {/* 핸디 */}
-                  <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.85)', fontSize: '12px' }}>
-                    {score.handicap || '-'}
+                  {/* 핸디 — 신페리오 12홀 미완주자는 산출 불가 */}
+                  <div style={{ textAlign: 'center', color: score.netPending ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.85)', fontSize: '12px' }}>
+                    {score.netPending ? '–' : (score.handicap || '-')}
                   </div>
 
                   {/* OUT — 모드별 */}
@@ -1335,7 +1369,7 @@ function Leaderboard() {
                         {score.totalScore > 0 ? fmtDiff(score.overUnder) : '-'}
                       </div>
                       <div style={{ textAlign: 'center', color: modeColor, fontSize: '13px', fontWeight: '700' }}>
-                        {score.totalScore > 0 ? fmtDiff(score.netOverUnder) : '-'}
+                        {score.netPending ? '–' : (score.totalScore > 0 ? fmtDiff(score.netOverUnder) : '-')}
                       </div>
                     </>
                   )}

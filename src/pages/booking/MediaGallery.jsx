@@ -87,8 +87,8 @@ export default function MediaGallery({ booking, user, onClose }) {
     apiService.fetchRoundingScores(booking.title, booking.date)
       .then((scores) => {
         if (cancelled) return;
-        const { processedScores } = computeRoundingRanking(scores, { booking, members, courses });
-        setWinners(deriveWinners(processedScores));
+        const { processedScores, newPeria } = computeRoundingRanking(scores, { booking, members, courses });
+        setWinners(deriveWinners(processedScores, { isNewPeria: newPeria.isConfigured }));
       })
       .catch(() => {});
     return () => { cancelled = true; };
@@ -235,10 +235,13 @@ export default function MediaGallery({ booking, user, onClose }) {
           )}
 
           {winners?.overall && (() => {
-            const rows = [
-              { label: '전체', name: winners.overall.nickname },
-              ...winners.gradeWinners.map((g) => ({ label: `${g.grade}그레이드`, name: g.winner.nickname })),
-            ];
+            // 신페리오는 그레이드 없이 전체 1·2·3등으로 시상한다
+            const rows = winners.podium.length
+              ? winners.podium.map((p) => ({ label: `${p.rank}등`, name: p.winner.nickname }))
+              : [
+                  { label: '전체', name: winners.overall.nickname },
+                  ...winners.gradeWinners.map((g) => ({ label: `${g.grade}그레이드`, name: g.winner.nickname })),
+                ];
             return (
               <div style={{ borderTop: '1px solid #EEF2F7', marginTop: '12px', paddingTop: '10px' }}>
                 <div style={{ ...labelStyle, color: '#B45309' }}>시상</div>

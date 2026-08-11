@@ -124,11 +124,19 @@ export function computeRoundingRanking(bookingScores, { booking, members = [], c
 }
 
 // 정렬된 순위에서 우승자 추출 (맨 위 이름).
-export function deriveWinners(processedScores) {
-  const played = (processedScores || []).filter((s) => s.totalScore > 0);
-  if (played.length === 0) return { overall: null, gradeWinners: [] };
+export function deriveWinners(processedScores, { isNewPeria = false } = {}) {
+  // 신페리오 12홀 미완주자는 순위 대상이 아니다
+  const played = (processedScores || []).filter((s) => s.totalScore > 0 && !s.netPending);
+  if (played.length === 0) return { overall: null, gradeWinners: [], podium: [] };
   const overall = played[0];
+
+  // 신페리오는 그레이드를 쓰지 않는다 — 전원이 한 판에서 겨루므로 전체 1·2·3등으로 시상한다.
+  if (isNewPeria) {
+    const podium = played.slice(0, 3).map((s, i) => ({ rank: i + 1, winner: s }));
+    return { overall, gradeWinners: [], podium };
+  }
+
   const grades = [...new Set(played.map((s) => s.grade))].filter((g) => g && g !== 'ALL').sort();
   const gradeWinners = grades.map((g) => ({ grade: g, winner: played.find((s) => s.grade === g) }));
-  return { overall, gradeWinners };
+  return { overall, gradeWinners, podium: [] };
 }
