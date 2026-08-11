@@ -30,6 +30,11 @@ export default function NewPeriaRateField({ percent, onChange, disabled }) {
           value={percent}
           disabled={disabled}
           onChange={(e) => onChange(e.target.value.replace(/[^0-9]/g, '').slice(0, 3))}
+          onBlur={() => {
+            // 50~100 범위로 보정한 값을 화면에 되돌려, 저장될 값과 보이는 값이 어긋나지 않게 한다
+            const corrected = String(rateToPercent(percentToRate(percent)));
+            if (corrected !== percent) onChange(corrected);
+          }}
           style={{
             width: 80, padding: '10px 12px', borderRadius: 8, border: '1.5px solid #FCD34D',
             fontSize: 16, fontWeight: 700, textAlign: 'center', outline: 'none',

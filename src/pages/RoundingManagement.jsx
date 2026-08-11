@@ -287,11 +287,11 @@ function RoundingManagement() {
   const isNewPeriaBooking = newPeriaConfig.isNewPeria;
 
   // 12홀 지정 저장. 지정자·시각을 함께 남겨 제비뽑기 시점과 대조할 수 있게 한다.
-  const saveNewPeriaHoles = async (holes) => {
+  const saveNewPeriaHoles = async (holes, rate) => {
     setSavingHoles(true);
     try {
       await apiService.updateBooking(bookingId, {
-        gradeSettings: buildNewPeriaHolesPayload(holes, user?.id, new Date().toISOString()),
+        gradeSettings: buildNewPeriaHolesPayload(holes, user?.id, new Date().toISOString(), rate),
       });
       await refreshBookings();
       setShowHolesSheet(false);
@@ -1003,12 +1003,13 @@ function RoundingManagement() {
       {showHolesSheet && (
         <NewPeriaHolesSheet
           initialHoles={newPeriaConfig.holes}
+          initialRate={newPeriaConfig.rate}
           setByName={(members || []).find(m => m.id === newPeriaConfig.setBy)?.nickname
             || (members || []).find(m => m.id === newPeriaConfig.setBy)?.name}
           setAt={newPeriaConfig.setAt}
           saving={savingHoles}
-          onSave={(holes) => saveNewPeriaHoles(holes)}
-          onClear={() => saveNewPeriaHoles(null)}
+          onSave={(holes, rate) => saveNewPeriaHoles(holes, rate)}
+          onClear={(rate) => saveNewPeriaHoles(null, rate)}
           onClose={() => !savingHoles && setShowHolesSheet(false)}
         />
       )}

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { NEWPERIA_HOLE_COUNT, TOTAL_HOLES } from '../../utils/newperia';
+import NewPeriaRateField, { rateToPercent, percentToRate } from '../../components/booking/NewPeriaRateField';
 
 // 신페리오 12홀 지정 시트.
 // 제비뽑기는 현장에서 하고, 그 결과를 여기에 입력한다.
@@ -7,8 +8,10 @@ import { NEWPERIA_HOLE_COUNT, TOTAL_HOLES } from '../../utils/newperia';
 
 const ACCENT = '#d97706';
 
-export default function NewPeriaHolesSheet({ initialHoles, setByName, setAt, onSave, onClear, onClose, saving }) {
+export default function NewPeriaHolesSheet({ initialHoles, initialRate, setByName, setAt, onSave, onClear, onClose, saving }) {
   const [selected, setSelected] = useState(() => new Set(initialHoles || []));
+  // 적용률은 홀과 함께 확정한다 — 순위가 나오기 직전이 조정하기 가장 자연스러운 시점이다
+  const [percent, setPercent] = useState(() => String(rateToPercent(initialRate)));
   const hadPrevious = Array.isArray(initialHoles) && initialHoles.length === NEWPERIA_HOLE_COUNT;
 
   const toggle = (hole) => {
@@ -31,14 +34,14 @@ export default function NewPeriaHolesSheet({ initialHoles, setByName, setAt, onS
       );
       if (!ok) return;
     }
-    onSave([...selected].sort((a, b) => a - b));
+    onSave([...selected].sort((a, b) => a - b), percentToRate(percent));
   };
 
   const handleClear = () => {
     if (saving) return;
     const ok = window.confirm('지정을 취소하면 순위가 그로스 기준으로 돌아갑니다.\n계속하시겠습니까?');
     if (!ok) return;
-    onClear();
+    onClear(percentToRate(percent));
   };
 
   const renderRow = (label, from, to) => (
@@ -98,6 +101,8 @@ export default function NewPeriaHolesSheet({ initialHoles, setByName, setAt, onS
 
         {renderRow('OUT', 1, 9)}
         {renderRow('IN', 10, TOTAL_HOLES)}
+
+        <NewPeriaRateField percent={percent} onChange={setPercent} disabled={saving} />
 
         <div style={{
           textAlign: 'center', padding: '12px 0', marginBottom: 14,

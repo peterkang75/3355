@@ -62,12 +62,14 @@ export function normalizeHoles(raw) {
  * @param {number[]|null} holes - 지정 12홀. null이면 지정 취소
  * @param {string|null} userId - 지정한 운영진
  * @param {string} nowISO - 지정 시각 (ISO 문자열)
+ * @param {number} [rate] - 적용률(0.85 등). 주면 함께 저장한다
  */
-export function buildNewPeriaHolesPayload(holes, userId, nowISO) {
+export function buildNewPeriaHolesPayload(holes, userId, nowISO, rate) {
+  const ratePart = Number(rate) > 0 ? { newPeriaRate: Number(rate) } : {};
   return JSON.stringify(
     holes
-      ? { newPeriaHoles: holes, newPeriaSetBy: userId ?? null, newPeriaSetAt: nowISO }
-      : { newPeriaHoles: null, newPeriaSetBy: null, newPeriaSetAt: null }
+      ? { ...ratePart, newPeriaHoles: holes, newPeriaSetBy: userId ?? null, newPeriaSetAt: nowISO }
+      : { ...ratePart, newPeriaHoles: null, newPeriaSetBy: null, newPeriaSetAt: null }
   );
 }
 

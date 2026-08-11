@@ -4,8 +4,7 @@ import { jsPDF } from 'jspdf';
 import apiService from '../../services/api';
 import { formatDate, getBookingStatusFlags } from './bookingHelpers';
 import { GAME_MODES } from '../../constants/gameModes';
-import { rateToPercent } from '../../components/booking/NewPeriaRateField';
-import { NEWPERIA_DEFAULT_RATE, parseNewPeriaConfig, buildNewPeriaHolesPayload } from '../../utils/newperia';
+import { parseNewPeriaConfig, buildNewPeriaHolesPayload } from '../../utils/newperia';
 import NewPeriaHolesSheet from './NewPeriaHolesSheet';
 
 // 이 화면에는 스테이블포드가 별도로 있어 공용 목록에 한 항목을 끼워 쓴다
@@ -101,11 +100,11 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
   const npConfig = parseNewPeriaConfig(booking.gradeSettings);
 
   // 12홀 지정 저장. 지정자·시각을 함께 남겨 제비뽑기 시점과 대조할 수 있게 한다.
-  const saveNewPeriaHoles = async (holes) => {
+  const saveNewPeriaHoles = async (holes, rate) => {
     setNpSaving(true);
     try {
       const updated = await apiService.updateBooking(booking.id, {
-        gradeSettings: buildNewPeriaHolesPayload(holes, user?.id, new Date().toISOString()),
+        gradeSettings: buildNewPeriaHolesPayload(holes, user?.id, new Date().toISOString(), rate),
       });
       await onRefresh?.(updated);
       setShowNpSheet(false);
@@ -546,7 +545,7 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
           </div>
           {hmAdvanced.gameMode === 'newperia' && (
             <div style={{ marginTop: 10, padding: 12, background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, fontSize: 12.5, color: '#B45309', lineHeight: 1.5 }}>
-              라운딩이 끝난 뒤 <strong>라운딩 관리</strong>에서 12개 홀을 지정하면 순위가 매겨집니다. 적용률도 그곳에서 바꿀 수 있습니다(기본 {rateToPercent(NEWPERIA_DEFAULT_RATE)}%).
+              라운딩이 끝난 뒤 기본 화면의 <strong>신페리오 홀 지정하기</strong>에서 제비뽑기로 뽑은 12개 홀과 <strong>핸디캡 적용률</strong>을 함께 정하면 순위가 매겨집니다.
             </div>
           )}
         </div>
@@ -713,14 +712,15 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
       {showNpSheet && (
         <NewPeriaHolesSheet
           initialHoles={npConfig.holes}
+          initialRate={npConfig.rate}
           setByName={npConfig.setBy
             ? ((members || []).find(m => m.id === npConfig.setBy)?.nickname
                || (members || []).find(m => m.id === npConfig.setBy)?.name)
             : null}
           setAt={npConfig.setAt}
           saving={npSaving}
-          onSave={(holes) => saveNewPeriaHoles(holes)}
-          onClear={() => saveNewPeriaHoles(null)}
+          onSave={(holes, rate) => saveNewPeriaHoles(holes, rate)}
+          onClear={(rate) => saveNewPeriaHoles(null, rate)}
           onClose={() => !npSaving && setShowNpSheet(false)}
         />
       )}

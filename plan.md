@@ -233,6 +233,10 @@
 
 **부수 정리:** 경기방식 목록을 `constants/gameModes.js` 단일 소스로 통합(3화면에 중복 하드코딩돼 화면마다 목록이 달랐음).
 
+**구현 중 발견 — 도달 불가 화면 (2026-08-11):**
+Step 2·3에서 `BookingForm`(=`Booking.jsx` 전용)과 `/rounding-management`에 UI를 넣었으나 **둘 다 앱에서 도달할 수 없는 화면**이었다. 실제 경로는 `RoundingListV2` → `HostManageSheet`(바텀시트) 하나. 전부 그쪽으로 이전 완료.
+- [ ] 정리 대상: `src/pages/Booking.jsx`(App.jsx가 import 안 함), `/rounding-management`·`/member-info` 라우트(이동 링크 없음)
+
 **운영 확인 필요 (실제 라운딩 전):**
 - [ ] 신페리오 라운딩 생성 → 12홀 지정 → 리더보드·시상 e2e
 - [ ] 게스트 포함 시 핸디캡 산출 확인
