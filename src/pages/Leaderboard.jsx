@@ -4,6 +4,7 @@ import { useApp } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketContext';
 import { calculateStableford } from '../utils/stableford';
 import { round1 } from '../utils';
+import { parseNewPeriaConfig, calculateNewPeriaHandicap } from '../utils/newperia';
 
 function Leaderboard() {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ function Leaderboard() {
   const [autoSelectApplied, setAutoSelectApplied] = useState(false);
   const [bookingGradeSettings, setBookingGradeSettings] = useState(null);
   const [gameMode, setGameMode] = useState('stroke');
+  const [newPeria, setNewPeria] = useState(null);
   const [foursomeTeams, setFoursomeTeams] = useState([]);
   const [ambroseTeams, setAmbroseTeams] = useState([]);
   const [twoBallTeams, setTwoBallTeams] = useState([]);
@@ -92,6 +94,9 @@ function Leaderboard() {
       // 게임 모드 파싱
       const detectedGameMode = gradeSettings?.mode || 'stroke';
       setGameMode(detectedGameMode);
+
+      const newPeriaConfig = parseNewPeriaConfig(gradeSettings);
+      setNewPeria(newPeriaConfig);
 
       const course = courses.find(c => c.name === booking.courseName);
       const holePars = course?.holePars?.male || Array(18).fill(4);
@@ -198,14 +203,20 @@ function Leaderboard() {
         const outScore = holesArray?.slice(0, 9).reduce((a, b) => a + b, 0) || 0;
         const inScore = holesArray?.slice(9, 18).reduce((a, b) => a + b, 0) || 0;
 
-        // 핸디캡은 소수점 유지(18.4 등). 스테이블포드는 내부에서 정수로 반올림해 쓴다.
-        const hcp = round1(handicap);
-        const netScore = round1(totalScore - hcp);
-        const netOverUnder = round1(netScore - playedPar);
-
         const playerGender = member?.gender === 'female' ? 'female' : 'male';
         const playerSI = course?.holeIndexes?.[playerGender] || course?.holeIndexes?.male || null;
         const playerPars = course?.holePars?.[playerGender] || holePars;
+
+        // 신페리오: 등록 핸디캡 대신 그날 지정 12홀에서 뽑은 핸디캡을 쓴다.
+        // 12홀 미지정이거나 지정 홀에 미기록이 있으면 null → 그로스 순위로 표시.
+        const newPeriaHcp = newPeriaConfig.isConfigured
+          ? calculateNewPeriaHandicap(holesArray, newPeriaConfig.holes, playerPars, newPeriaConfig.rate)
+          : null;
+
+        // 핸디캡은 소수점 유지(18.4 등). 스테이블포드는 내부에서 정수로 반올림해 쓴다.
+        const hcp = newPeriaHcp ?? round1(handicap);
+        const netScore = round1(totalScore - hcp);
+        const netOverUnder = round1(netScore - playedPar);
         const stableford = siAvailable && playerSI?.length === 18 && holesArray?.some(h => h > 0)
           ? calculateStableford(holesArray, playerPars, playerSI, hcp)
           : null;
@@ -233,7 +244,11 @@ function Leaderboard() {
           phone: member?.phone || score.userId,
           nickname,
           isGuest: isGuestPlayer,
-          handicap,
+          handicap: newPeriaHcp ?? handicap,
+          newPeriaHandicap: newPeriaHcp,
+          // 신페리오인데 지정 12홀을 다 못 친 사람 — 네트를 낼 수 없어 순위에서 뒤로 뺀다.
+          // 등록 핸디캡으로 폴백하면 한 순위표에 두 가지 핸디캡 체계가 섞인다.
+          netPending: newPeriaConfig.isConfigured && newPeriaHcp === null,
           grade,
           thru,
           totalScore,
@@ -256,13 +271,19 @@ function Leaderboard() {
         };
       });
 
+      // 신페리오인데 12홀이 아직 지정되지 않았으면 네트를 낼 수 없다 → 그로스 순위로 보여준다.
+      const rankByGross = newPeriaConfig.isNewPeria && !newPeriaConfig.isConfigured;
+
       processedScores.sort((a, b) => {
         // 스코어가 없는 사람은 뒤로
         if (a.totalScore === 0 && b.totalScore === 0) return 0;
         if (a.totalScore === 0) return 1;
         if (b.totalScore === 0) return -1;
-        // 넷 스코어 낮은 순 (오름차순)
-        return a.netScore - b.netScore;
+        // 신페리오 12홀 미완주자는 뒤로
+        if (a.netPending !== b.netPending) return a.netPending ? 1 : -1;
+        if (a.netPending && b.netPending) return a.totalScore - b.totalScore;
+        // 넷 스코어 낮은 순 (오름차순). 신페리오 미지정 시엔 그로스 기준.
+        return rankByGross ? a.totalScore - b.totalScore : a.netScore - b.netScore;
       });
 
       setScores(processedScores);

@@ -1,5 +1,6 @@
 import { calculateStableford } from './stableford';
 import { round1 } from './index';
+import { parseNewPeriaConfig, calculateNewPeriaHandicap } from './newperia';
 
 // 리더보드(Leaderboard.jsx)의 순위 계산을 그대로 옮긴 공용 함수.
 // 라운딩 페이지에서 "우승자"(리더보드 맨 위 이름)를 동일하게 뽑기 위함.
@@ -12,6 +13,7 @@ export function computeRoundingRanking(bookingScores, { booking, members = [], c
     ? (typeof booking.gradeSettings === 'string' ? JSON.parse(booking.gradeSettings) : booking.gradeSettings)
     : null;
   const gameMode = gradeSettings?.mode || 'stroke';
+  const newPeria = parseNewPeriaConfig(gradeSettings);
 
   const course = courses.find((c) => c.name === booking.courseName);
   const holePars = course?.holePars?.male || Array(18).fill(4);
@@ -71,13 +73,19 @@ export function computeRoundingRanking(bookingScores, { booking, members = [], c
     const totalScore = currentTotalScore || (score.totalScore || 0);
     if (!hasHoleData && score.totalScore > 0) playedPar = 72;
 
-    // 핸디캡은 소수점 유지(18.4 등). 스테이블포드는 내부에서 정수로 반올림해 쓴다.
-    const hcp = round1(handicap);
-    const netScore = round1(totalScore - hcp);
-
     const playerGender = member?.gender === 'female' ? 'female' : 'male';
     const playerSI = course?.holeIndexes?.[playerGender] || course?.holeIndexes?.male || null;
     const playerPars = course?.holePars?.[playerGender] || holePars;
+
+    // 신페리오: 등록 핸디캡 대신 그날 지정 12홀에서 뽑은 핸디캡을 쓴다.
+    // 12홀 미지정이거나 지정 홀에 미기록이 있으면 null → 그로스 순위로 표시.
+    const newPeriaHcp = newPeria.isConfigured
+      ? calculateNewPeriaHandicap(holesArray, newPeria.holes, playerPars, newPeria.rate)
+      : null;
+
+    // 핸디캡은 소수점 유지(18.4 등). 스테이블포드는 내부에서 정수로 반올림해 쓴다.
+    const hcp = newPeriaHcp ?? round1(handicap);
+    const netScore = round1(totalScore - hcp);
     const stableford = siAvailable && playerSI?.length === 18 && holesArray?.some((h) => h > 0)
       ? calculateStableford(holesArray, playerPars, playerSI, hcp)
       : null;
@@ -87,7 +95,11 @@ export function computeRoundingRanking(bookingScores, { booking, members = [], c
       phone: member?.phone || score.userId,
       nickname,
       isGuest: isGuestPlayer,
-      handicap,
+      handicap: newPeriaHcp ?? handicap,
+      newPeriaHandicap: newPeriaHcp,
+      // 신페리오인데 지정 12홀을 다 못 친 사람 — 네트를 낼 수 없어 순위에서 뒤로 뺀다.
+      // 등록 핸디캡으로 폴백하면 한 순위표에 두 가지 핸디캡 체계가 섞여 비교가 무의미해진다.
+      netPending: newPeria.isConfigured && newPeriaHcp === null,
       grade,
       totalScore,
       netScore,
@@ -95,15 +107,20 @@ export function computeRoundingRanking(bookingScores, { booking, members = [], c
     };
   });
 
+  // 신페리오인데 12홀이 아직 지정되지 않았으면 네트를 낼 수 없다 → 그로스 순위로 보여준다.
+  const rankByGross = newPeria.isNewPeria && !newPeria.isConfigured;
+
   // 리더보드 기본 정렬: 스코어 없는 사람 뒤로, 네트 오름차순
   processedScores.sort((a, b) => {
     if (a.totalScore === 0 && b.totalScore === 0) return 0;
     if (a.totalScore === 0) return 1;
     if (b.totalScore === 0) return -1;
-    return a.netScore - b.netScore;
+    if (a.netPending !== b.netPending) return a.netPending ? 1 : -1;
+    if (a.netPending && b.netPending) return a.totalScore - b.totalScore;
+    return rankByGross ? a.totalScore - b.totalScore : a.netScore - b.netScore;
   });
 
-  return { processedScores, gradeSettings, gameMode };
+  return { processedScores, gradeSettings, gameMode, newPeria, rankByGross };
 }
 
 // 정렬된 순위에서 우승자 추출 (맨 위 이름).
