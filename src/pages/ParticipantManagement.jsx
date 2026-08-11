@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import useGoBack from '../hooks/useGoBack';
 import { useApp } from '../contexts/AppContext';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 import PageHeader from '../components/common/PageHeader';
@@ -7,6 +8,7 @@ import { checkIsOperator } from '../utils';
 
 function ParticipantManagement() {
   const navigate = useNavigate();
+  const goBack = useGoBack('/booking');
   const [searchParams] = useSearchParams();
   const bookingId = searchParams.get('id');
   const { user, bookings, members, refreshBookings } = useApp();
@@ -266,7 +268,7 @@ function ParticipantManagement() {
     <div>
       <PageHeader 
         title="참가자 관리"
-        onBack={() => navigate('/booking')}
+        onBack={goBack}
       />
 
       <div className="page-content">

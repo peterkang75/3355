@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
+import useGoBack from '../hooks/useGoBack';
 import { useApp } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketContext';
 import { calculateStableford } from '../utils/stableford';
@@ -7,7 +8,7 @@ import { round1 } from '../utils';
 import { parseNewPeriaConfig, calculateNewPeriaHandicap } from '../utils/newperia';
 
 function Leaderboard() {
-  const navigate = useNavigate();
+  const goBack = useGoBack('/booking');
   const [searchParams, setSearchParams] = useSearchParams();
   const bookingId = searchParams.get('id');
   const autoSelectUserId = searchParams.get('userId');
@@ -659,7 +660,7 @@ function Leaderboard() {
         zIndex: 200,
       }}>
         <button 
-          onClick={() => navigate(-1)} 
+          onClick={goBack} 
           style={{ 
             background: 'transparent', 
             color: 'white', 

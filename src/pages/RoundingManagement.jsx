@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import useGoBack from '../hooks/useGoBack';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 import { GAME_MODES, getGameMode } from '../constants/gameModes';
@@ -11,6 +12,7 @@ import PageHeader from '../components/common/PageHeader';
 
 function RoundingManagement() {
   const navigate = useNavigate();
+  const goBack = useGoBack('/booking');
   const [searchParams] = useSearchParams();
   const bookingId = searchParams.get('id');
   const { user, members, bookings, refreshBookings } = useApp();
@@ -331,7 +333,7 @@ function RoundingManagement() {
     <div>
       <PageHeader
         title="라운딩 관리"
-        onBack={() => navigate('/booking')}
+        onBack={goBack}
         user={user}
       />
 

@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import useGoBack from '../hooks/useGoBack';
 import { useApp } from '../contexts/AppContext';
 import { io } from 'socket.io-client';
 import { checkIsOperator } from '../utils';
 import PageHeader from '../components/common/PageHeader';
 
 function BingoGame() {
-  const navigate = useNavigate();
+  const goBack = useGoBack('/about');
   const { user, members } = useApp();
   const socketRef = useRef(null);
   
@@ -435,7 +435,7 @@ function BingoGame() {
 
   return (
     <>
-      <PageHeader title="빙고 게임" onBack={() => navigate('/about')} user={user} />
+      <PageHeader title="빙고 게임" onBack={goBack} user={user} />
 
       <div className="page-content" style={{ paddingTop: '12px', paddingBottom: 100 }}>
 

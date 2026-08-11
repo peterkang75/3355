@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
+import useGoBack from '../hooks/useGoBack';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 import PageHeader from '../components/common/PageHeader';
 import { parseParticipants, checkIsOperator } from '../utils';
 
 function MemberScoreEntry() {
-  const navigate = useNavigate();
+  const goBack = useGoBack('/booking');
   const [searchParams] = useSearchParams();
   const bookingId = searchParams.get('id');
   const { user, bookings, members, courses } = useApp();
@@ -350,7 +351,7 @@ function MemberScoreEntry() {
     <div>
       <PageHeader 
         title="스코어 입력"
-        onBack={() => navigate('/booking')}
+        onBack={goBack}
       />
 
       <div className="page-content">

@@ -1,6 +1,7 @@
 import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import ProfileBadge from './ProfileBadge';
+import useGoBack from '../../hooks/useGoBack';
 
 const ROOT_PATHS = ['/', '/booking', '/fees', '/mypage', '/admin', '/board', '/menu'];
 
@@ -99,15 +100,17 @@ function PageHeader({
   variant = 'default',
   user = null,
 }) {
-  const navigate = useNavigate();
   const location = useLocation();
+  // onBack을 안 넘긴 화면의 기본 동작. 히스토리가 없으면(링크 직접 열기·새로고침)
+  // navigate(-1)이 앱을 벗어나므로 홈으로 폴백한다.
+  const goBack = useGoBack('/');
 
   const isRootPath = ROOT_PATHS.includes(location.pathname);
   const shouldShowBack = showBackButton !== null ? showBackButton : !isRootPath;
 
   const handleBack = () => {
     if (onBack) onBack();
-    else navigate(-1);
+    else goBack();
   };
 
   // club variant (대시보드 다크헤더)

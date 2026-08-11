@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import useGoBack from '../hooks/useGoBack';
 import { useApp } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketContext';
 import PageHeader from '../components/common/PageHeader';
@@ -7,6 +8,7 @@ import { stablefordPoints, allocateStrokes } from '../utils/stableford';
 
 function Play() {
   const navigate = useNavigate();
+  const goBack = useGoBack('/booking');
   const [searchParams] = useSearchParams();
   const { user, bookings, courses, members, refreshBookings, featureSettings } = useApp();
   const socket = useSocket();
@@ -1220,7 +1222,7 @@ function Play() {
   if (!bookingId || !booking || !courseData) {
     return (
       <div style={{ minHeight: '100vh', background: '#0d1a45' }}>
-        <PageHeader title="플레이하기" onBack={() => navigate(-1)} />
+        <PageHeader title="플레이하기" />
         <div style={{ padding: '32px 16px', textAlign: 'center', opacity: 0.6, color: 'white' }}>로딩 중...</div>
       </div>
     );
@@ -1245,7 +1247,7 @@ function Play() {
       return (
         <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', padding: '16px', paddingTop: 'calc(env(safe-area-inset-top) + 16px)', background: '#fff', borderBottom: '1px solid #F1F5F9' }}>
-            <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px 4px 0', fontSize: '20px', color: '#1E293B' }}>←</button>
+            <button onClick={goBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px 4px 0', fontSize: '20px', color: '#1E293B' }}>←</button>
             <span style={{ fontSize: '17px', fontWeight: '700', color: '#1E293B' }}>플레이하기</span>
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px', gap: '16px' }}>
@@ -1264,7 +1266,7 @@ function Play() {
               📋 조편성 하러 가기
             </button>
             <button
-              onClick={() => navigate(-1)}
+              onClick={goBack}
               style={{ padding: '10px 24px', borderRadius: '12px', background: '#F1F5F9', color: '#64748B', border: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
             >
               돌아가기
@@ -1279,7 +1281,7 @@ function Play() {
       return (
         <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', padding: '16px', paddingTop: 'calc(env(safe-area-inset-top) + 16px)', background: '#fff', borderBottom: '1px solid #F1F5F9' }}>
-            <button onClick={() => navigate(-1)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px 4px 0', fontSize: '20px', color: '#1E293B' }}>←</button>
+            <button onClick={goBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px 4px 0', fontSize: '20px', color: '#1E293B' }}>←</button>
             <span style={{ fontSize: '17px', fontWeight: '700', color: '#1E293B' }}>플레이하기</span>
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px', gap: '16px' }}>
@@ -1303,7 +1305,7 @@ function Play() {
               </button>
             )}
             <button
-              onClick={() => navigate(-1)}
+              onClick={goBack}
               style={{ padding: '12px 24px', borderRadius: '12px', background: '#F1F5F9', color: '#64748B', border: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
             >
               돌아가기
@@ -1332,7 +1334,7 @@ function Play() {
 
       return (
         <div style={{ minHeight: '100vh', background: '#0d1a45' }}>
-          <PageHeader title="우리 팀 확인" onBack={() => navigate(-1)} />
+          <PageHeader title="우리 팀 확인" />
           <div style={{ padding: '16px', paddingBottom: '80px' }}>
             <div className="card">
               <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -1438,7 +1440,7 @@ function Play() {
       
       return (
         <div style={{ minHeight: '100vh', background: '#0d1a45' }}>
-          <PageHeader title="마커 선택" onBack={() => navigate(-1)} />
+          <PageHeader title="마커 선택" />
           <div style={{ padding: '16px', paddingBottom: '80px' }}>
           <div className="card">
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -1639,7 +1641,7 @@ function Play() {
     // 스트로크 모드: 기존 UI
     return (
       <div style={{ minHeight: '100vh', background: '#F8FAFC', overflowY: 'auto' }}>
-        <PageHeader title="마커 선택" onBack={() => navigate(-1)} />
+        <PageHeader title="마커 선택" />
         <div style={{ padding: '20px 16px 120px' }}>
 
           {/* 라운딩 정보 */}
@@ -2976,7 +2978,7 @@ function Play() {
                     lastSavedScoresRef.current = null;
                     localStorage.removeItem(`play_state_${bookingId}`);
                     setShowEndRoundModal(false);
-                    navigate(-1);
+                    goBack();
                   } catch (e) {
                     console.error('라운드 완료 오류:', e);
                     alert('처리 중 오류가 발생했습니다.');
@@ -3006,7 +3008,7 @@ function Play() {
                   }
                   localStorage.removeItem(`play_state_${bookingId}`);
                   setShowEndRoundModal(false);
-                  navigate(-1);
+                  goBack();
                 }}
                 style={{
                   padding: '14px',

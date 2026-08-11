@@ -209,6 +209,33 @@
 
 ---
 
+## 뒤로가기 일관성 수정 ✅ 2026-08-11
+
+**증상:** 뒤로가기를 누르면 바로 이전 화면이 아니라 메인이나 엉뚱한 페이지로 이동.
+
+**원인:** 화면마다 `onBack={() => navigate('/booking')}`처럼 **목적지를 박아둠.** 같은 화면에 여러 경로로 들어올 수 있으면 반드시 어긋난다.
+- 조편성: 방장시트·라운딩시트·플레이·참가자관리 **4곳**에서 열리는데 뒤로가기는 항상 `/booking`
+- 빙고: 메뉴·소개 **2곳**에서 열리는데 항상 `/about`
+- 스코어입력·참가자관리·라운딩관리: 항상 `/booking`
+- 우승자맞추기: 항상 `/menu` 또는 목록
+
+또한 `PageHeader` 기본값이 `navigate(-1)` 단독이라, 링크를 직접 열거나 새로고침한 뒤 뒤로가기를 누르면 **앱 밖으로 나감**.
+
+**조치:** `src/hooks/useGoBack.js` 단일 소스 신설.
+- 기본은 브라우저 히스토리 바로 이전 항목(`navigate(-1)`)
+- 히스토리 첫 진입(`location.key === 'default'`)일 때만 폴백 경로로 `replace` 이동 → 앱 이탈·무한루프 방지
+- `PageHeader` 기본 동작에도 적용해 `onBack`을 안 넘긴 모든 화면이 자동으로 안전해짐
+
+**적용:** ParticipantManagement, MemberScoreEntry, TeamFormation, RoundingManagement, BingoGame, PickWinner(6곳), Play(6곳), Leaderboard, PageHeader 기본값. 하드코딩 목적지 **0건** 확인.
+
+**의도적으로 유지:**
+- `MemberDetail:426` — 편집 모드 취소(페이지 이동 아님)
+- `GradeSettings:100` — `/booking`으로 가면서 `reopenManage` state를 넘겨 방장 시트를 다시 열어줌. 이게 "이전 화면 복귀"에 더 정확하다.
+
+이동 시나리오 18건 통과.
+
+---
+
 ## 신페리오(New Peria) 경기방식 추가 ✅ 2026-08-11
 
 > 설계·시뮬레이션 근거: `docs/superpowers/specs/2026-08-11-newperia-design.md`

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import useGoBack from '../hooks/useGoBack';
 import { useApp } from '../contexts/AppContext';
 import PageHeader from '../components/common/PageHeader';
 import apiService from '../services/api';
@@ -7,6 +8,8 @@ import { parseNewPeriaConfig } from '../utils/newperia';
 
 function PickWinner() {
   const navigate = useNavigate();
+  const goBack = useGoBack('/menu');
+  const goBackToList = useGoBack('/games/pick-winner');
   const [searchParams] = useSearchParams();
   const bookingId = searchParams.get('id');
   const { user, bookings, members } = useApp();
@@ -466,7 +469,7 @@ function PickWinner() {
   if (loading) {
     return (
       <>
-        <PageHeader title="우승자 맞추기" onBack={() => navigate('/menu')} />
+        <PageHeader title="우승자 맞추기" onBack={goBack} />
         <div className="page-content" style={{ paddingTop: '12px' }}>
           <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
             로딩 중...
@@ -479,7 +482,7 @@ function PickWinner() {
   if (!bookingId) {
     return (
       <>
-        <PageHeader title="우승자 맞추기" onBack={() => navigate('/menu')} />
+        <PageHeader title="우승자 맞추기" onBack={goBack} />
         <div className="page-content" style={{ paddingTop: '12px' }}>
 
           {/* 안내 카드 */}
@@ -666,7 +669,7 @@ function PickWinner() {
   if (!selectedBooking) {
     return (
       <>
-        <PageHeader title="우승자 맞추기" onBack={() => navigate('/games/pick-winner')} />
+        <PageHeader title="우승자 맞추기" onBack={goBackToList} />
         <div className="page-content" style={{ paddingTop: '12px' }}>
           <div className="card" style={{ textAlign: 'center', padding: '40px', color: '#888' }}>
             라운딩을 찾을 수 없습니다
@@ -696,7 +699,7 @@ function PickWinner() {
           onBack={() => {
             setIsAdminMode(false);
             setSelectedVoterId(null);
-            navigate(`/games/pick-winner?id=${selectedBooking.id}`);
+            goBackToList();
           }}
         />
         <div className="page-content" style={{ paddingTop: '12px' }}>
@@ -891,7 +894,7 @@ function PickWinner() {
       <>
         <PageHeader
           title="게임 결과"
-          onBack={() => navigate('/games/pick-winner')}
+          onBack={goBackToList}
         />
         <div className="page-content" style={{ paddingTop: '12px' }}>
         <div style={{ padding: '0 16px' }}>
@@ -1008,7 +1011,7 @@ function PickWinner() {
     <>
       <PageHeader
         title={selectedBooking.title || selectedBooking.courseName}
-        onBack={() => navigate('/games/pick-winner')}
+        onBack={goBackToList}
       />
       <div className="page-content" style={{ paddingTop: '12px' }}>
       <div style={{ padding: '0 16px' }}>

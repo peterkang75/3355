@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
+import useGoBack from '../hooks/useGoBack';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
@@ -7,7 +8,7 @@ import PageHeader from '../components/common/PageHeader';
 import { parseParticipants } from '../utils';
 
 function TeamFormation() {
-  const navigate = useNavigate();
+  const goBack = useGoBack('/booking');
   const [searchParams] = useSearchParams();
   const bookingId = searchParams.get('id');
   const { user, bookings, members } = useApp();
@@ -504,7 +505,7 @@ function TeamFormation() {
     <div>
       <PageHeader
         title="조편성"
-        onBack={() => navigate('/booking')}
+        onBack={goBack}
         user={user}
       />
 
