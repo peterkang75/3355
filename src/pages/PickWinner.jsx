@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import PageHeader from '../components/common/PageHeader';
 import apiService from '../services/api';
+import { parseNewPeriaConfig } from '../utils/newperia';
 
 function PickWinner() {
   const navigate = useNavigate();
@@ -27,6 +28,9 @@ function PickWinner() {
     const now = new Date();
     return bookings.filter(b => {
       if (b.type !== '정기모임') return false;
+      // 신페리오는 그날 지정한 12홀로 핸디캡이 정해져 우승자가 사실상 무작위다.
+      // 예측이 성립하지 않고, 이 게임은 그레이드 A~D를 전제로 만들어져 있어 제외한다.
+      if (parseNewPeriaConfig(b.gradeSettings).isNewPeria) return false;
       const roundingDate = new Date(b.date);
       const dayAfter = new Date(roundingDate);
       dayAfter.setDate(dayAfter.getDate() + 1);
@@ -36,7 +40,9 @@ function PickWinner() {
 
   useEffect(() => {
     if (bookingId) {
-      const booking = bookings.find(b => b.id === bookingId);
+      const found = bookings.find(b => b.id === bookingId);
+      // 직접 링크로 들어와도 신페리오 라운딩은 열지 않는다 (목록 필터와 동일 기준)
+      const booking = found && parseNewPeriaConfig(found.gradeSettings).isNewPeria ? undefined : found;
       setSelectedBooking(booking);
       if (booking) {
         loadPredictions(bookingId);
