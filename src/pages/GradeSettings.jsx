@@ -51,6 +51,7 @@ function GradeSettings() {
     
     setIsSaving(true);
     try {
+      // 서버가 기존 값과 병합하므로 그레이드만 보내도 경기방식·신페리오 설정은 보존된다.
       await apiService.updateBookingGradeSettings(bookingId, gradeSettings);
       
       try {

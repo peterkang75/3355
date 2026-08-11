@@ -3,6 +3,7 @@ const prisma = require("../db");
 const crypto = require('crypto');
 const { calculateBalance, recalculateAndUpdateBalance } = require('../utils/balance');
 const { computeGuestChargeForBooking } = require('../utils/fees');
+const { mergeGradeSettings } = require('../utils/gradeSettings');
 const { requireAuth, requireOperator } = require('../middleware/auth');
 
 const router = express.Router();
@@ -180,9 +181,18 @@ router.put("/:id", requireAuth, requireOperator, async (req, res) => {
       return res.status(404).json({ error: "Booking not found" });
     }
 
+    // gradeSettings는 화면마다 자기가 아는 키만 보내므로 통째로 덮어쓰면 나머지가 소멸한다.
+    // (경기방식 저장 시 그레이드가, 그레이드 저장 시 경기방식이 지워지던 문제)
+    const data = { ...req.body };
+    if (data.gradeSettings !== undefined) {
+      const merged = mergeGradeSettings(oldBooking.gradeSettings, data.gradeSettings);
+      if (merged === undefined) delete data.gradeSettings;
+      else data.gradeSettings = merged;
+    }
+
     const booking = await prisma.booking.update({
       where: { id: req.params.id },
-      data: req.body,
+      data,
       include: { organizer: true },
     });
 
@@ -764,9 +774,21 @@ router.patch("/:id/grade-settings", requireAuth, requireOperator, async (req, re
   try {
     const { gradeSettings } = req.body;
 
+    const existing = await prisma.booking.findUnique({
+      where: { id: req.params.id },
+      select: { gradeSettings: true },
+    });
+    if (!existing) return res.status(404).json({ error: "Booking not found" });
+
+    // 그레이드만 보내와도 경기방식(mode)·신페리오 설정이 살아남도록 병합
+    const merged = mergeGradeSettings(existing.gradeSettings, gradeSettings);
+    if (merged === undefined) {
+      return res.status(400).json({ error: "gradeSettings가 올바르지 않습니다." });
+    }
+
     const updated = await prisma.booking.update({
       where: { id: req.params.id },
-      data: { gradeSettings: JSON.stringify(gradeSettings) },
+      data: { gradeSettings: merged },
       include: { organizer: true },
     });
 

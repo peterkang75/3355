@@ -116,6 +116,7 @@ function RoundingManagement() {
         greenFee: parseInt(editData.greenFee) || null,
         cartFee: parseInt(editData.cartFee) || null,
         membershipFee: parseInt(editData.membershipFee) || null,
+        // 경기방식만 보낸다 — 서버가 기존 그레이드·신페리오 설정과 병합해준다
         gradeSettings: JSON.stringify({ mode: editData.gameMode || 'stroke' })
       };
       delete updatedData.gameMode;
