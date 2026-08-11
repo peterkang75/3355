@@ -211,6 +211,13 @@ function Admin() {
       setActiveTab('menu');
       window.history.replaceState({}, document.title);
     }
+    if (location.state?.openScoreRounds) {
+      setActiveTab('scoreManagement');
+      setScoreManagementView('rounds');
+      setSelectedRoundForScore(null);
+      setRoundScores([]);
+      window.history.replaceState({}, document.title);
+    }
     if (location.state?.openScoreBookingId) {
       const bookingId = location.state.openScoreBookingId;
       setActiveTab('scoreManagement');
@@ -6421,7 +6428,11 @@ function Admin() {
                     </div>
                   </div>
                   <button
-                    onClick={() => navigate(`/leaderboard?id=${selectedRoundForScore.id}`)}
+                    onClick={() => navigate(`/leaderboard?id=${selectedRoundForScore.id}`, {
+                      // 관리자 화면은 하위 화면 위치를 메모리에만 들고 있어 히스토리 되감기로는 복원되지 않는다.
+                      // 어디로 돌아와야 하는지 명시해서 넘긴다.
+                      state: { returnTo: { path: '/admin', state: { openScoreRounds: true } } },
+                    })}
                     style={{
                       background: '#d69e2e',
                       border: 'none',

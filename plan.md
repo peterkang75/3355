@@ -232,7 +232,17 @@
 - `MemberDetail:426` — 편집 모드 취소(페이지 이동 아님)
 - `GradeSettings:100` — `/booking`으로 가면서 `reopenManage` state를 넘겨 방장 시트를 다시 열어줌. 이게 "이전 화면 복귀"에 더 정확하다.
 
-이동 시나리오 18건 통과.
+**후속 (2026-08-11): 화면 상태를 메모리에만 들고 있는 페이지 대응**
+증상: 관리 → 스코어관리 → 라운딩선택 → 리더보드 → 뒤로가기 → **관리 메인**(라운딩 선택 화면이 아님).
+원인: `Admin.jsx`는 어느 하위 화면인지를 URL이 아니라 `activeTab`/`scoreManagementView` state로만 들고 있다. `/leaderboard`로 나갔다 돌아오면 리마운트되며 초기값(`activeTab='menu'`)으로 돌아간다. 히스토리 되감기만으로는 복원 불가.
+조치: `useGoBack`이 `location.state.returnTo`를 우선 인식하도록 확장. 보내는 화면이 복귀 지점을 명시한다.
+- `Admin.jsx:6424` → `state: { returnTo: { path: '/admin', state: { openScoreRounds: true } } }`
+- `Admin.jsx` 복원 effect에 `openScoreRounds` 처리 추가 (스코어관리 탭 + 라운딩 목록)
+같은 성격의 화면이 더 나오면 이 방식으로 처리.
+
+**검증 방식 보완:** 초안 검증(`test_goback.mjs`)은 판정 로직을 테스트 스크립트에 **복제**해 돌려서 실제 렌더 오류를 잡지 못했다. `vite build`도 미선언 변수를 통과시킨다. 이후 `renderToString`으로 실제 컴포넌트를 렌더링해 검증(13건) — `PageHeader`에서 `useNavigate` 선언을 제거한 것이 참조 오류를 만들지 않는지 등.
+
+이동 시나리오 18건 + 렌더 13건 통과.
 
 ---
 
