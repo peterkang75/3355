@@ -1,5 +1,7 @@
 import React, { memo } from 'react';
 import SearchableDropdown from '../SearchableDropdown';
+import { GAME_MODES, getGameMode } from '../../constants/gameModes';
+import NewPeriaRateField from './NewPeriaRateField';
 
 const BookingForm = memo(function BookingForm({
   data,
@@ -14,7 +16,9 @@ const BookingForm = memo(function BookingForm({
   onCancel,
   isSaving,
   courses,
-  currentType
+  currentType,
+  newPeriaPercent,
+  onNewPeriaPercentChange
 }) {
   const isCompetition = currentType === '컴페티션';
 
@@ -42,12 +46,12 @@ const BookingForm = memo(function BookingForm({
             onChange={(e) => onGameModeChange(e.target.value)}
             style={{ marginBottom: '16px' }}
           >
-            <option value="stroke">스트로크</option>
-            <option value="foursome">포썸</option>
-            <option value="ambrose">엠브로스</option>
+            {GAME_MODES.map((m) => (
+              <option key={m.value} value={m.value}>{m.label}</option>
+            ))}
           </select>
 
-          {gameMode === 'foursome' && (
+          {getGameMode(gameMode).hint && (
             <div style={{
               marginBottom: '16px',
               padding: '12px',
@@ -56,21 +60,12 @@ const BookingForm = memo(function BookingForm({
               fontSize: '13px',
               color: 'var(--text-gray)'
             }}>
-              ※ 포썸은 2인 1조 팀 매치 방식으로 진행됩니다.
+              ※ {getGameMode(gameMode).hint}
             </div>
           )}
 
-          {gameMode === 'ambrose' && (
-            <div style={{
-              marginBottom: '16px',
-              padding: '12px',
-              background: 'var(--bg-green)',
-              borderRadius: '6px',
-              fontSize: '13px',
-              color: 'var(--text-gray)'
-            }}>
-              ※ 엠브로스는 한 조(최대 4인)가 한 팀이 되어 팀 공동 점수를 기록하는 방식입니다. 팀원 누구나 점수를 입력할 수 있고, 순위는 팀별 타수(그로스)로 매겨집니다.
-            </div>
+          {gameMode === 'newperia' && (
+            <NewPeriaRateField percent={newPeriaPercent} onChange={onNewPeriaPercentChange} />
           )}
 
           <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600', color: 'var(--primary-green)' }}>

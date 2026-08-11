@@ -8,6 +8,8 @@ import BookingListCard from '../components/booking/BookingListCard';
 import { Card, Button, Badge, PageHeader, ProfileBadge } from '../components/common';
 import theme from '../styles/theme';
 import { parseParticipants, formatCurrency, checkIsOperator } from '../utils';
+import { NEWPERIA_DEFAULT_RATE } from '../utils/newperia';
+import { rateToPercent, percentToRate } from '../components/booking/NewPeriaRateField';
 
 function Booking() {
   const { user, members, bookings, courses, scores, addBooking, updateBooking, refreshBookings } = useApp();
@@ -19,6 +21,7 @@ function Booking() {
   const [openMenuId, setOpenMenuId] = useState(null);
   const [bookingType, setBookingType] = useState('정기모임');
   const [gameMode, setGameMode] = useState('stroke');
+  const [newPeriaPercent, setNewPeriaPercent] = useState(String(rateToPercent(NEWPERIA_DEFAULT_RATE)));
   const [isRentalLoading, setIsRentalLoading] = useState(null);
   const [isSavingBooking, setIsSavingBooking] = useState(false);
   const [isDeleting, setIsDeleting] = useState(null);
@@ -151,7 +154,8 @@ function Booking() {
     }
 
     const gradeSettingsToSave = {
-      mode: gameMode
+      mode: gameMode,
+      ...(gameMode === 'newperia' ? { newPeriaRate: percentToRate(newPeriaPercent) } : {}),
     };
 
     const booking = {
@@ -199,6 +203,7 @@ function Booking() {
         if (parsed.mode) {
           savedGameMode = parsed.mode;
         }
+        setNewPeriaPercent(String(rateToPercent(parsed.newPeriaRate)));
       } catch (e) {
         console.error('gradeSettings 파싱 오류:', e);
       }
@@ -243,7 +248,8 @@ function Booking() {
       
       const gradeSettingsToSave = {
         ...existingGradeSettings,
-        mode: gameMode
+        mode: gameMode,
+        ...(gameMode === 'newperia' ? { newPeriaRate: percentToRate(newPeriaPercent) } : {}),
       };
 
       const updatedData = {
@@ -448,6 +454,8 @@ function Booking() {
         onBookingTypeChange={setBookingType}
         gameMode={gameMode}
         onGameModeChange={setGameMode}
+        newPeriaPercent={newPeriaPercent}
+        onNewPeriaPercentChange={setNewPeriaPercent}
         onCancel={isNewBooking ? () => setShowNewBooking(false) : () => {
           setEditingBooking(null);
           setEditBookingData(null);

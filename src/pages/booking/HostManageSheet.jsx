@@ -3,6 +3,16 @@ import { useNavigate } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 import apiService from '../../services/api';
 import { formatDate, getBookingStatusFlags } from './bookingHelpers';
+import { GAME_MODES } from '../../constants/gameModes';
+import { rateToPercent } from '../../components/booking/NewPeriaRateField';
+import { NEWPERIA_DEFAULT_RATE } from '../../utils/newperia';
+
+// 이 화면에는 스테이블포드가 별도로 있어 공용 목록에 한 항목을 끼워 쓴다
+const HOST_GAME_MODES = [
+  { value: 'stroke', label: '스트로크' },
+  { value: 'stableford', label: '스테이블포드' },
+  ...GAME_MODES.filter(m => m.value !== 'stroke').map(m => ({ value: m.value, label: m.label })),
+];
 
 const PRIMARY = '#0047AB';
 
@@ -493,16 +503,21 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
         <div>
           <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', marginBottom: '8px' }}>게임 방식</div>
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-            {['stroke', 'stableford', 'foursome', 'ambrose'].map(mode => {
-              const isActive = hmAdvanced.gameMode === mode;
+            {HOST_GAME_MODES.map(({ value, label }) => {
+              const isActive = hmAdvanced.gameMode === value;
               return (
-                <button key={mode} onClick={() => handleHmGameModeChange(mode)} disabled={hmSaving}
+                <button key={value} onClick={() => handleHmGameModeChange(value)} disabled={hmSaving}
                   style={{ flex: '1 0 22%', padding: '10px 4px', borderRadius: '10px', border: isActive ? 'none' : '1px solid #E8ECF0', background: isActive ? PRIMARY : '#FFFFFF', color: isActive ? '#FFFFFF' : '#64748B', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>
-                  {mode === 'stroke' ? '스트로크' : mode === 'stableford' ? '스테이블포드' : mode === 'foursome' ? '포썸' : '엠브로스'}
+                  {label}
                 </button>
               );
             })}
           </div>
+          {hmAdvanced.gameMode === 'newperia' && (
+            <div style={{ marginTop: 10, padding: 12, background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, fontSize: 12.5, color: '#B45309', lineHeight: 1.5 }}>
+              라운딩이 끝난 뒤 <strong>라운딩 관리</strong>에서 12개 홀을 지정하면 순위가 매겨집니다. 적용률도 그곳에서 바꿀 수 있습니다(기본 {rateToPercent(NEWPERIA_DEFAULT_RATE)}%).
+            </div>
+          )}
         </div>
       </div>
 
@@ -547,10 +562,16 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
           </div>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
+        )}
       </div>
 
       <div style={card}>
         {sLabel('등급 설정')}
+        {hmAdvanced.gameMode === 'newperia' ? (
+          <div style={{ padding: '12px 14px', borderRadius: '10px', background: '#F8FAFC', border: '1px solid #F1F5F9', fontSize: '12.5px', color: '#94A3B8', lineHeight: 1.5 }}>
+            신페리오는 전원이 한 판에서 겨루므로 그레이드를 쓰지 않습니다.
+          </div>
+        ) : (
         <button onClick={() => { onClose(); navigate(`/grade-settings?id=${booking.id}`, { state: { fromBookingId: booking.id } }); }}
           style={{ width: '100%', padding: '12px 14px', borderRadius: '10px', background: '#F8FAFC', border: '1px solid #F1F5F9', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -562,6 +583,7 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
           </div>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
+        )}
       </div>
 
       <div style={card}>

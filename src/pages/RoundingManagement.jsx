@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
+import { GAME_MODES, getGameMode } from '../constants/gameModes';
+import NewPeriaRateField, { rateToPercent, percentToRate } from '../components/booking/NewPeriaRateField';
+import { NEWPERIA_DEFAULT_RATE, parseNewPeriaConfig } from '../utils/newperia';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 import PageHeader from '../components/common/PageHeader';
 
@@ -37,12 +40,14 @@ function RoundingManagement() {
       }
       if (foundBooking && !editData) {
         let gameMode = 'stroke';
+        let newPeriaPercent = String(rateToPercent(NEWPERIA_DEFAULT_RATE));
         if (foundBooking.gradeSettings) {
           try {
             const parsed = typeof foundBooking.gradeSettings === 'string'
               ? JSON.parse(foundBooking.gradeSettings)
               : foundBooking.gradeSettings;
             gameMode = parsed.mode || 'stroke';
+            newPeriaPercent = String(rateToPercent(parsed.newPeriaRate));
           } catch (e) {
             console.error('gradeSettings 파싱 오류:', e);
           }
@@ -60,7 +65,8 @@ function RoundingManagement() {
           registrationDeadline: foundBooking.registrationDeadline || '',
           restaurantName: foundBooking.restaurantName || '',
           restaurantAddress: foundBooking.restaurantAddress || '',
-          gameMode: gameMode
+          gameMode: gameMode,
+          newPeriaPercent
         });
       }
     }
@@ -116,10 +122,16 @@ function RoundingManagement() {
         greenFee: parseInt(editData.greenFee) || null,
         cartFee: parseInt(editData.cartFee) || null,
         membershipFee: parseInt(editData.membershipFee) || null,
-        // 경기방식만 보낸다 — 서버가 기존 그레이드·신페리오 설정과 병합해준다
-        gradeSettings: JSON.stringify({ mode: editData.gameMode || 'stroke' })
+        // 경기방식(+신페리오 적용률)만 보낸다 — 서버가 기존 그레이드·12홀 지정과 병합해준다
+        gradeSettings: JSON.stringify({
+          mode: editData.gameMode || 'stroke',
+          ...(editData.gameMode === 'newperia'
+            ? { newPeriaRate: percentToRate(editData.newPeriaPercent) }
+            : {}),
+        })
       };
       delete updatedData.gameMode;
+      delete updatedData.newPeriaPercent;
 
       await apiService.updateBooking(bookingId, updatedData);
       await refreshBookings();
@@ -268,6 +280,7 @@ function RoundingManagement() {
   const isOrganizer = booking && user?.id === booking.organizerId;
   const canAccess = hasAdminAccess || isOrganizer;
   const isOfficial = booking?.type === '정기모임' || user?.isAdmin;
+  const isNewPeriaBooking = parseNewPeriaConfig(booking?.gradeSettings).isNewPeria;
 
   if (!booking) {
     return (
@@ -453,60 +466,44 @@ function RoundingManagement() {
               <label style={{ fontSize: '13px', color: '#666', marginBottom: '6px', display: 'block' }}>
                 경기 방식
               </label>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <button
-                  type="button"
-                  onClick={() => setEditData({ ...editData, gameMode: 'stroke' })}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    border: editData.gameMode === 'stroke' ? '2px solid var(--primary-green)' : '1px solid #ddd',
-                    borderRadius: '8px',
-                    background: editData.gameMode === 'stroke' ? '#e8f5e9' : 'white',
-                    color: editData.gameMode === 'stroke' ? 'var(--primary-green)' : '#666',
-                    fontWeight: editData.gameMode === 'stroke' ? '700' : '500',
-                    fontSize: '14px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  ⛳ 스트로크
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEditData({ ...editData, gameMode: 'foursome' })}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    border: editData.gameMode === 'foursome' ? '2px solid #9333ea' : '1px solid #ddd',
-                    borderRadius: '8px',
-                    background: editData.gameMode === 'foursome' ? '#f3e8ff' : 'white',
-                    color: editData.gameMode === 'foursome' ? '#9333ea' : '#666',
-                    fontWeight: editData.gameMode === 'foursome' ? '700' : '500',
-                    fontSize: '14px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  🏌️ 포썸
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEditData({ ...editData, gameMode: 'ambrose' })}
-                  style={{
-                    flex: 1,
-                    padding: '12px',
-                    border: editData.gameMode === 'ambrose' ? '2px solid #0891b2' : '1px solid #ddd',
-                    borderRadius: '8px',
-                    background: editData.gameMode === 'ambrose' ? '#e0f2fe' : 'white',
-                    color: editData.gameMode === 'ambrose' ? '#0891b2' : '#666',
-                    fontWeight: editData.gameMode === 'ambrose' ? '700' : '500',
-                    fontSize: '14px',
-                    cursor: 'pointer'
-                  }}
-                >
-                  👥 엠브로스
-                </button>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {GAME_MODES.map((m) => {
+                  const active = editData.gameMode === m.value;
+                  return (
+                    <button
+                      key={m.value}
+                      type="button"
+                      onClick={() => setEditData({ ...editData, gameMode: m.value })}
+                      style={{
+                        flex: '1 1 40%',
+                        padding: '12px',
+                        border: active ? `2px solid ${m.color}` : '1px solid #ddd',
+                        borderRadius: '8px',
+                        background: active ? m.activeBg : 'white',
+                        color: active ? m.color : '#666',
+                        fontWeight: active ? '700' : '500',
+                        fontSize: '14px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {m.icon} {m.label}
+                    </button>
+                  );
+                })}
               </div>
+              {getGameMode(editData.gameMode).hint && (
+                <div style={{ marginTop: 10, padding: 12, background: '#F8FAFC', borderRadius: 8, fontSize: 12.5, color: '#64748B', lineHeight: 1.5 }}>
+                  ※ {getGameMode(editData.gameMode).hint}
+                </div>
+              )}
             </div>
+
+            {editData.gameMode === 'newperia' && (
+              <NewPeriaRateField
+                percent={editData.newPeriaPercent ?? String(rateToPercent(NEWPERIA_DEFAULT_RATE))}
+                onChange={(v) => setEditData({ ...editData, newPeriaPercent: v })}
+              />
+            )}
 
             <input
               className="input-field"
@@ -924,9 +921,12 @@ function RoundingManagement() {
               title: '그레이드 설정', 
               desc: '핸디캡 그레이드 기준',
               path: `/grade-settings?id=${bookingId}`,
-              officialOnly: true
+              officialOnly: true,
+              // 신페리오는 그날 스코어로 핸디캡을 만들어 전원을 한 판에서 겨루게 하므로 그레이드를 쓰지 않는다
+              hideForNewPeria: true
             }
-          ].filter(item => !item.officialOnly || isOfficial).map((item, idx, arr) => (
+          ].filter(item => !(item.hideForNewPeria && isNewPeriaBooking))
+           .filter(item => !item.officialOnly || isOfficial).map((item, idx, arr) => (
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
