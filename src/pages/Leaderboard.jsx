@@ -6,6 +6,8 @@ import { useSocket } from '../contexts/SocketContext';
 import { calculateStableford } from '../utils/stableford';
 import { round1 } from '../utils';
 import { parseNewPeriaConfig, calculateNewPeriaHandicap } from '../utils/newperia';
+import { hasTeamModes, getTeamsByMode } from '../utils/teamGameModes';
+import FoursomeRanking from './leaderboard/FoursomeRanking';
 
 function Leaderboard() {
   const goBack = useGoBack('/booking');
@@ -35,6 +37,8 @@ function Leaderboard() {
   const [hasStableford, setHasStableford] = useState(false);
   const [courseHoleIndexes, setCourseHoleIndexes] = useState(null);
   const [stablefordMode, setStablefordMode] = useState(false);
+  // 조별 지정(혼용) 라운딩: 개인 순위표에서 포썸 조를 빼고, 아래에 포썸 섹션을 따로 붙인다
+  const [teamMix, setTeamMix] = useState({ isMixed: false, foursomePhones: new Set() });
 
   useEffect(() => {
     if (!bookingId) return;
@@ -98,6 +102,14 @@ function Leaderboard() {
 
       const newPeriaConfig = parseNewPeriaConfig(gradeSettings);
       setNewPeria(newPeriaConfig);
+
+      // 포썸으로 뛰는 조 — 단일 포썸 라운딩이면 전 조, 조별 지정이면 지정된 조만
+      const foursomeTeamList = getTeamsByMode(gradeSettings, booking.teams, 'foursome');
+      const foursomePhones = new Set();
+      for (const t of foursomeTeamList) {
+        for (const m of (t?.members || [])) if (m?.phone) foursomePhones.add(m.phone);
+      }
+      setTeamMix({ isMixed: hasTeamModes(gradeSettings), foursomePhones });
 
       const course = courses.find(c => c.name === booking.courseName);
       const holePars = course?.holePars?.male || Array(18).fill(4);
@@ -290,11 +302,10 @@ function Leaderboard() {
       setScores(processedScores);
       
       // 포썸 모드 팀 랭킹 계산
-      if (detectedGameMode === 'foursome' && booking.teams) {
-        const teamsData = typeof booking.teams === 'string' ? JSON.parse(booking.teams) : booking.teams;
+      if (foursomeTeamList.length > 0) {
         const teamPairs = [];
-        
-        teamsData.forEach((team, teamIdx) => {
+
+        foursomeTeamList.forEach((team) => {
           if (!team.members || team.members.length < 4) return;
           
           // Pair A: slots 0, 1 - 팀 핸디캡 포함
@@ -593,9 +604,13 @@ function Leaderboard() {
   };
 
   const filteredScores = (() => {
+    // 혼용 라운딩에서는 포썸 조 인원을 개인 순위표에서 뺀다 (아래 포썸 섹션에서 페어로 집계)
+    const base = teamMix.isMixed
+      ? scores.filter(s => !teamMix.foursomePhones.has(s.phone))
+      : scores;
     const filtered = filter === 'ALL'
-      ? scores
-      : scores.filter(s => s.grade === filter.replace('Grade ', ''));
+      ? base
+      : base.filter(s => s.grade === filter.replace('Grade ', ''));
     if (!stablefordMode) return filtered;
     return [...filtered].sort((a, b) => {
       if (a.totalScore === 0 && b.totalScore === 0) return 0;
@@ -702,7 +717,7 @@ function Leaderboard() {
         position: 'relative'
       }}>
         {/* 2BB 모드 토글 버튼 - 우측 상단 */}
-        {is2BB && (
+        {is2BB && !teamMix.isMixed && (
           <button
             onClick={() => setViewMode(viewMode === 'individual' ? '2bb' : 'individual')}
             style={{
@@ -752,7 +767,7 @@ function Leaderboard() {
       </div>
 
       {/* 2BB 팀 리더보드 */}
-      {is2BB && viewMode === '2bb' ? (
+      {is2BB && !teamMix.isMixed && viewMode === '2bb' ? (
         <div style={{ padding: '0 16px' }}>
           <div style={{
             background: 'linear-gradient(135deg, #FF9800 0%, #F57C00 100%)',
@@ -877,163 +892,10 @@ function Leaderboard() {
         </div>
       ) : (
         <>
-      {/* 포썸 모드: 팀 랭킹 표시 */}
-      {gameMode === 'foursome' ? (
-        <div style={{ padding: '0 16px' }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            borderRadius: '12px',
-            padding: '16px',
-            marginBottom: '16px',
-            textAlign: 'center'
-          }}>
-            <div style={{ fontSize: '20px', marginBottom: '4px' }}>🏆</div>
-            <div style={{ color: 'white', fontSize: '16px', fontWeight: '700' }}>
-              포썸 팀 랭킹
-            </div>
-            <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', marginTop: '4px' }}>
-              2인 1팀 대결
-            </div>
-          </div>
-          
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: '32px 1fr 32px 32px 44px 40px 44px',
-            gap: '4px',
-            padding: '12px 4px',
-            borderBottom: '2px solid rgba(255,255,255,0.3)',
-            color: 'rgba(255,255,255,0.9)',
-            fontSize: '12px',
-            fontWeight: '700'
-          }}>
-            <div>순위</div>
-            <div>팀원</div>
-            <div style={{ textAlign: 'center' }}>OUT</div>
-            <div style={{ textAlign: 'center' }}>IN</div>
-            <div style={{ textAlign: 'center' }}>총타</div>
-            <div style={{ textAlign: 'center' }}>핸디</div>
-            <div style={{ textAlign: 'center' }}>NET</div>
-          </div>
-
-          {foursomeTeams.length === 0 ? (
-            <div style={{ 
-              textAlign: 'center', 
-              color: 'rgba(255,255,255,0.5)', 
-              padding: '40px 0' 
-            }}>
-              아직 스코어가 없습니다
-            </div>
-          ) : (
-            foursomeTeams.map((team, index) => (
-              <div
-                key={`${team.teamNumber}-${team.pairLabel}-${index}`}
-                onClick={() => {
-                  if (team.score) {
-                    setSelectedScore({
-                      odId: `team-${team.teamNumber}-${team.pairLabel}`,
-                      nickname: team.memberNames,
-                      handicap: team.teamHandicap,
-                      totalScore: team.score,
-                      overUnder: team.overUnder,
-                      holes: team.holes || [],
-                      outScore: team.outScore,
-                      inScore: team.inScore,
-                      isFoursomeTeam: true,
-                      teamNumber: team.teamNumber,
-                      pairLabel: team.pairLabel,
-                      netScore: team.netScore
-                    });
-                  }
-                }}
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '32px 1fr 32px 32px 44px 40px 44px',
-                  gap: '4px',
-                  padding: '12px 4px',
-                  background: index === 0 && team.netScore != null
-                    ? 'linear-gradient(90deg, rgba(255,215,0,0.2) 0%, rgba(255,215,0,0.05) 100%)' 
-                    : index % 2 === 0 ? 'rgba(255,255,255,0.05)' : 'transparent',
-                  borderBottom: '1px solid rgba(255,255,255,0.1)',
-                  alignItems: 'center',
-                  borderLeft: index === 0 && team.netScore != null ? '3px solid #FFD700' : 'none',
-                  cursor: team.score ? 'pointer' : 'default'
-                }}
-              >
-                <div style={{ 
-                  color: index === 0 && team.netScore != null ? '#FFD700' : 'white', 
-                  fontSize: '13px',
-                  fontWeight: '700',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '2px'
-                }}>
-                  {index === 0 && team.netScore != null && <span>🥇</span>}
-                  {index === 1 && team.netScore != null && <span style={{ opacity: 0.8 }}>🥈</span>}
-                  {index === 2 && team.netScore != null && <span style={{ opacity: 0.6 }}>🥉</span>}
-                  {(index > 2 || team.netScore == null) && <span>{index + 1}</span>}
-                </div>
-                <div>
-                  <div style={{ 
-                    color: 'white', 
-                    fontSize: '12px', 
-                    fontWeight: '500',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '2px'
-                  }}>
-                    <span>{team.memberNames || '미정'}</span>
-                    <span style={{ 
-                      fontSize: '10px', 
-                      color: team.pairLabel === 'A' ? '#3B82F6' : '#EF4444',
-                      fontWeight: '600'
-                    }}>
-                      {team.teamNumber}조 {team.pairLabel}팀
-                    </span>
-                  </div>
-                </div>
-                <div style={{ 
-                  textAlign: 'center', 
-                  color: 'rgba(255,255,255,0.9)',
-                  fontSize: '11px'
-                }}>
-                  {team.outScore || '-'}
-                </div>
-                <div style={{ 
-                  textAlign: 'center', 
-                  color: 'rgba(255,255,255,0.9)',
-                  fontSize: '11px'
-                }}>
-                  {team.inScore || '-'}
-                </div>
-                <div style={{ 
-                  textAlign: 'center', 
-                  color: 'white',
-                  fontSize: '11px',
-                  fontWeight: '600'
-                }}>
-                  {team.score || '-'}
-                </div>
-                <div style={{ 
-                  textAlign: 'center', 
-                  color: '#60a5fa',
-                  fontSize: '11px',
-                  fontWeight: '600'
-                }}>
-                  {team.teamHandicap != null ? team.teamHandicap : '-'}
-                </div>
-                <div style={{ 
-                  textAlign: 'center', 
-                  color: '#fbbf24',
-                  fontSize: '12px',
-                  fontWeight: '700'
-                }}>
-                  {team.netScore != null ? team.netScore : '-'}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      ) : gameMode === 'ambrose' ? (
+      {/* 포썸 모드: 팀 랭킹 표시 (혼용 라운딩은 아래에서 개인+포썸 두 섹션으로 나눠 그린다) */}
+      {!teamMix.isMixed && gameMode === 'foursome' ? (
+        <FoursomeRanking teams={foursomeTeams} onSelect={setSelectedScore} />
+      ) : !teamMix.isMixed && gameMode === 'ambrose' ? (
         <div style={{ padding: '0 16px' }}>
           <div style={{
             background: 'linear-gradient(135deg, #0891b2 0%, #0047AB 100%)',
@@ -1135,6 +997,21 @@ function Leaderboard() {
         </div>
       ) : (
         <>
+          {/* 혼용 라운딩: 이 순위표가 누구를 대상으로 하는지 먼저 밝힌다 */}
+          {teamMix.isMixed && (
+            <div style={{ padding: '16px 16px 0' }}>
+              <div style={{
+                background: 'linear-gradient(135deg, #d97706 0%, #92400e 100%)',
+                borderRadius: '12px', padding: '16px', textAlign: 'center',
+              }}>
+                <div style={{ fontSize: '20px', marginBottom: '4px' }}>🏆</div>
+                <div style={{ color: 'white', fontSize: '16px', fontWeight: '700' }}>신페리오 개인 순위</div>
+                <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', marginTop: '4px' }}>
+                  조별 지정 · 지정 12홀 핸디캡
+                </div>
+              </div>
+            </div>
+          )}
           {/* 모드 토글 (STROKE / STBL) — 1번 줄 */}
           <div style={{
             display: 'flex',
@@ -1379,6 +1256,17 @@ function Leaderboard() {
             )}
           </div>
         </>
+      )}
+
+      {/* 조별 지정(혼용): 개인 순위 아래에 포썸 페어 순위를 함께 보여준다 */}
+      {teamMix.isMixed && (
+        <div style={{ marginTop: '28px' }}>
+          <FoursomeRanking
+            teams={foursomeTeams}
+            onSelect={setSelectedScore}
+            subtitle="조별 지정 · 2인 1팀 대결"
+          />
+        </div>
       )}
       </>
       )}
