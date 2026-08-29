@@ -1264,7 +1264,7 @@ function Leaderboard() {
           <FoursomeRanking
             teams={foursomeTeams}
             onSelect={setSelectedScore}
-            subtitle="조별 지정 · 2인 1팀 대결"
+            subtitle="2인 1팀 · 팀 핸디캡 적용 넷 순위"
           />
         </div>
       )}

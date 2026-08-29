@@ -5,8 +5,8 @@ import React from 'react';
 export default function FoursomeRanking({
   teams = [],
   onSelect,
-  title = '포썸 팀 랭킹',
-  subtitle = '2인 1팀 대결',
+  title = '포썸 팀 순위',
+  subtitle = '2인 1팀 · 팀 핸디캡 적용 넷 순위',
 }) {
   return (
     <div style={{ padding: '0 16px' }}>

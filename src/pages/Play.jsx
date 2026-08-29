@@ -1427,7 +1427,9 @@ function Play() {
       );
     }
 
-    // 포썸 모드: 팀 대 팀 확인 UI
+    // 포썸 모드: 우리 팀 확인 UI
+    // 순위는 조 안의 대결이 아니라 전체 포썸 팀끼리 매긴다. 같은 조 다른 팀의 점수는
+    // 한 사람이 함께 기록하는 것뿐이므로 '상대'가 아니라 '같은 조 다른 팀'으로 표현한다.
     if (gameMode === 'foursome' && foursomeData) {
       const partnerName = foursomeData.partner?.nickname || foursomeData.partner?.name || '파트너 없음';
       const opponentNames = foursomeData.opponents.map(o => o?.nickname || o?.name).filter(Boolean).join(' & ') || '상대 없음';
@@ -1473,7 +1475,7 @@ function Play() {
       
       return (
         <div style={{ minHeight: '100vh', background: '#0d1a45' }}>
-          <PageHeader title="포썸 매치" />
+          <PageHeader title="포썸" />
           <div style={{ padding: '16px', paddingBottom: '80px' }}>
           <div className="card">
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -1487,16 +1489,19 @@ function Play() {
                 fontWeight: '700',
                 marginBottom: '12px'
               }}>
-                포썸 매치
+                포썸
               </div>
               <h2 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '8px' }}>
-                팀 대 팀 경기를 시작합니다
+                포썸 팀 순위전
               </h2>
               <div style={{ fontSize: '14px', color: '#666' }}>
                 {courseData?.name}
               </div>
+              <div style={{ fontSize: '12.5px', color: '#94A3B8', marginTop: '8px', lineHeight: 1.55 }}>
+                우리 팀 점수에 팀 핸디캡을 적용해<br />전체 포썸 팀과 순위를 겨룹니다.
+              </div>
             </div>
-            
+
             {/* 우리 팀 */}
             <div style={{
               background: 'rgba(59, 130, 246, 0.1)',
@@ -1559,7 +1564,7 @@ function Play() {
               </div>
             </div>
             
-            {/* VS 구분선 */}
+            {/* 구분선 — 대결이 아니라 같은 조 두 팀을 나눠 보여줄 뿐이다 */}
             <div style={{
               display: 'flex',
               alignItems: 'center',
@@ -1580,7 +1585,7 @@ function Play() {
                 borderRadius: '16px',
                 border: '2px solid #ddd'
               }}>
-                VS
+                같은 조
               </span>
               <div style={{
                 background: 'linear-gradient(90deg, transparent, #ddd, transparent)',
@@ -1589,7 +1594,7 @@ function Play() {
               }} />
             </div>
             
-            {/* 상대 팀 */}
+            {/* 같은 조 다른 팀 — 점수를 함께 기록한다 */}
             <div style={{
               background: 'rgba(239, 68, 68, 0.1)',
               borderRadius: '12px',
@@ -1608,7 +1613,7 @@ function Play() {
                 justifyContent: 'center',
                 gap: '8px'
               }}>
-                <span>{opponentTeamLabel} (상대 팀)</span>
+                <span>{opponentTeamLabel} (같은 조 · 점수 함께 기록)</span>
                 {opponentTeamHandicap != null && (
                   <span style={{
                     background: '#EF4444',
@@ -1666,7 +1671,7 @@ function Play() {
                     cursor: ready ? 'pointer' : 'not-allowed',
                   }}
                 >
-                  {isStartingRound ? '확인 중...' : opponentLead ? '매치 시작' : '상대 페어가 없습니다'}
+                  {isStartingRound ? '확인 중...' : opponentLead ? '시작하기' : '같은 조 다른 팀이 없습니다'}
                 </button>
               );
             })()}
