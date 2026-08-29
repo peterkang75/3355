@@ -668,13 +668,17 @@ function Play() {
             const parsedParticipants = (foundBooking.participants || []).map(p => {
               try { return typeof p === 'string' ? JSON.parse(p) : p; } catch { return null; }
             }).filter(Boolean);
+            // 배정 여부는 "내 조"가 아니라 "전체 조" 기준이어야 한다.
+            // 내 조만 보면 다른 조에 배정된 게스트가 미배정으로 오인돼 모든 조의 마커 목록에 뜬다.
+            const allTeamMembers = (Array.isArray(teams) ? teams : [])
+              .flatMap(t => (t?.members || []).filter(Boolean));
             const assignedPhones = new Set([
               effectiveUserPhone,
-              ...userTeam.members.filter(Boolean).map(m => m.phone),
+              ...allTeamMembers.map(m => m.phone),
             ]);
             // 이름 중복 방지: 조편성에 이미 같은 이름 게스트가 있으면 제외
             const assignedGuestNames = new Set(
-              userTeam.members.filter(m => m?.isGuest).map(m => (m.name || '').trim().toLowerCase())
+              allTeamMembers.filter(m => m?.isGuest).map(m => (m.name || '').trim().toLowerCase())
             );
             const extraGuests = parsedParticipants.filter(
               p => p.isGuest && p.phone && !assignedPhones.has(p.phone)
