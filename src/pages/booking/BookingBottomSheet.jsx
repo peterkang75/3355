@@ -88,6 +88,13 @@ export default function BookingBottomSheet({
   const showTeamFormation = totalCountAll > 4;
 
   // ── 버튼 스타일 헬퍼 ──────────────────────────────────────────────────────
+  const subBtn = {
+    flex: 1, padding: '14px', borderRadius: '12px',
+    border: '1px solid #BFDBFE', background: '#EBF2FF', color: '#0047AB',
+    fontSize: '15px', fontWeight: '700', cursor: 'pointer',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px',
+  };
+
   const btn = (bg, color, border) => ({
     flex: 1, padding: '14px', borderRadius: '12px',
     border: border || 'none', background: bg, color,
@@ -106,7 +113,6 @@ export default function BookingBottomSheet({
             {showTeamFormation && (
               <button onClick={() => navigate(`/team-formation?id=${booking.id}`)} style={btn('#F1F5F9', '#475569', '1px solid #E8ECF0')}>조편성</button>
             )}
-            <button onClick={() => navigate(`/leaderboard?id=${booking.id}`)} style={btn('#0047AB', '#FFFFFF')}>결과보기</button>
           </div>
           {!isCompetition && (
             <button onClick={() => navigate(`/play?id=${booking.id}`)} style={{ ...btn('#0047AB', '#FFFFFF'), width: '100%' }}>플레이하기</button>
@@ -304,17 +310,29 @@ export default function BookingBottomSheet({
         {/* ── 액션 버튼 ── */}
         <div style={{ padding: '12px 20px', paddingBottom: 'max(100px, calc(90px + env(safe-area-inset-bottom)))', borderTop: '1px solid #F1F5F9', background: '#F8FAFC', flexShrink: 0 }}>
           {renderActionButtons()}
-          {onOpenGallery && (
+          {/* 라운딩 화면으로 이동하는 보조 버튼 — 진행 중에도 순위를 볼 수 있어야 한다 */}
+          <div style={{ display: 'flex', gap: '8px', marginTop: '10px' }}>
             <button
-              onClick={(e) => { e.stopPropagation(); onOpenGallery(booking); }}
-              style={{ width: '100%', marginTop: '10px', padding: '14px', borderRadius: '12px', border: '1px solid #BFDBFE', background: '#EBF2FF', color: '#0047AB', fontSize: '15px', fontWeight: '700', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}
+              onClick={(e) => { e.stopPropagation(); navigate(`/leaderboard?id=${booking.id}`); }}
+              style={subBtn}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                <line x1="6" y1="20" x2="6" y2="13"/><line x1="12" y1="20" x2="12" y2="7"/><line x1="18" y1="20" x2="18" y2="10"/>
               </svg>
-              사진·영상{booking._count?.media ? ` ${booking._count.media}` : ''}
+              리더보드
             </button>
-          )}
+            {onOpenGallery && (
+              <button
+                onClick={(e) => { e.stopPropagation(); onOpenGallery(booking); }}
+                style={subBtn}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                </svg>
+                사진·영상{booking._count?.media ? ` ${booking._count.media}` : ''}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </>
