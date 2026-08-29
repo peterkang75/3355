@@ -47,7 +47,8 @@ export default function NewPeriaHolesSheet({ initialHoles, initialRate, setByNam
   const renderRow = (label, from, to) => (
     <div style={{ marginBottom: 14 }}>
       <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 8, letterSpacing: '0.05em' }}>{label}</div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: 6 }}>
+      {/* minmax(0,1fr) + minWidth 0 이 없으면 aspect-ratio 때문에 칸이 화면 밖으로 밀린다 */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, minmax(0, 1fr))', gap: 5 }}>
         {Array.from({ length: to - from + 1 }, (_, i) => from + i).map((hole) => {
           const on = selected.has(hole);
           const full = !on && count >= NEWPERIA_HOLE_COUNT;
@@ -57,11 +58,11 @@ export default function NewPeriaHolesSheet({ initialHoles, initialRate, setByNam
               onClick={() => toggle(hole)}
               disabled={saving}
               style={{
-                aspectRatio: '1', padding: 0, borderRadius: 10,
+                aspectRatio: '1', padding: 0, borderRadius: 9, minWidth: 0,
                 border: on ? `2px solid ${ACCENT}` : '1px solid #E2E8F0',
                 background: on ? '#FEF3C7' : '#fff',
                 color: on ? ACCENT : (full ? '#CBD5E1' : '#475569'),
-                fontWeight: on ? 800 : 600, fontSize: 14,
+                fontWeight: on ? 800 : 600, fontSize: 13.5, lineHeight: 1,
                 cursor: saving ? 'not-allowed' : 'pointer',
               }}
             >
