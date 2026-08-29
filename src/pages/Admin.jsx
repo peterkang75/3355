@@ -168,6 +168,25 @@ function Admin() {
   const [roundScores, setRoundScores] = useState([]);
   const [editingScore, setEditingScore] = useState(null);
   const [editScoreData, setEditScoreData] = useState(null);
+
+  // 스코어 입력 모달(라운딩별 목록에서 여는 쪽)도 같은 규칙:
+  // 신페리오로 뛰는 회원은 총타수만으로 저장할 수 없다.
+  const editScorePlayerMode = resolvePlayerMode(
+    selectedRoundForScore?.gradeSettings,
+    selectedRoundForScore?.teams,
+    editingScore?.participant?.phone,
+  );
+  const editScoreHolesOnly = editScorePlayerMode === 'newperia';
+
+  useEffect(() => {
+    if (editScoreHolesOnly && editScoreData && editScoreData.inputMode !== 'holes') {
+      setEditScoreData(prev => ({
+        ...prev,
+        inputMode: 'holes',
+        totalScore: (prev?.holes || []).reduce((a, b) => a + (b || 0), 0),
+      }));
+    }
+  }, [editScoreHolesOnly, editScoreData?.inputMode]);
   const [isLoadingRoundScores, setIsLoadingRoundScores] = useState(false);
   
   // 회원별 스코어 관리 상태
@@ -179,14 +198,13 @@ function Admin() {
   const [existingMemberScore, setExistingMemberScore] = useState(null);
 
   // 대리입력 대상 회원이 이 라운딩에서 어떤 방식으로 뛰는지.
-  // 조별 지정(혼용) 라운딩은 홀별 점수가 있어야 신페리오 핸디캡·포썸 페어 집계가 되므로
-  // 총타수만 넣는 입력을 막는다.
-  const memberScoreIsMixed = hasTeamModes(memberScoreBooking?.gradeSettings);
+  // 신페리오는 지정 12홀 점수로 핸디캡을 내므로 총타수만으로는 순위를 낼 수 없다 → 홀별 입력만 허용.
   const memberScorePlayerMode = resolvePlayerMode(
     memberScoreBooking?.gradeSettings,
     memberScoreBooking?.teams,
     selectedMemberForScore?.phone,
   );
+  const memberScoreIsMixed = memberScorePlayerMode === 'newperia';
 
   // 어느 경로로 화면에 들어오든 혼용 라운딩이면 홀별 입력으로 맞춘다
   useEffect(() => {
@@ -6043,7 +6061,7 @@ function Admin() {
                   }}>
                     <button
                       disabled={memberScoreIsMixed}
-                      title={memberScoreIsMixed ? '조별 지정 라운딩은 홀별 입력만 가능합니다' : undefined}
+                      title={memberScoreIsMixed ? '신페리오는 홀별 입력만 가능합니다' : undefined}
                       onClick={() => { if (!memberScoreIsMixed) setMemberScoreData(prev => ({ ...prev, inputMode: 'total' })); }}
                       style={{
                         flex: 1,
@@ -6083,10 +6101,7 @@ function Admin() {
                       background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.4)',
                       fontSize: '13px', color: '#fbbf24', lineHeight: 1.55,
                     }}>
-                      조별 지정 라운딩이라 <strong>홀별 입력만</strong> 가능합니다.
-                      {memberScorePlayerMode === 'foursome'
-                        ? ' 이 회원은 포썸 조라 저장하면 페어 상대에게도 같은 점수가 반영됩니다.'
-                        : ' 신페리오 핸디캡은 홀별 점수가 있어야 산출됩니다.'}
+                      신페리오는 지정 12홀 점수로 핸디캡을 내므로 <strong>홀별 입력만</strong> 가능합니다.
                     </div>
                   )}
 
@@ -6244,7 +6259,7 @@ function Admin() {
                     
                     if (memberScoreData.inputMode === 'total') {
                       if (memberScoreIsMixed) {
-                        alert('조별 지정 라운딩은 홀별 입력만 저장할 수 있습니다.');
+                        alert('신페리오는 홀별 타수로만 저장할 수 있습니다.');
                         return;
                       }
                       if (inputTotal <= 0) {
@@ -7305,12 +7320,14 @@ function Admin() {
                         padding: '10px 12px',
                         border: editScoreData?.inputMode === 'total' ? '2px solid var(--primary-green)' : '1px solid #ddd',
                         borderRadius: '8px',
-                        cursor: 'pointer',
-                        background: editScoreData?.inputMode === 'total' ? 'var(--bg-green)' : 'white'
+                        cursor: editScoreHolesOnly ? 'not-allowed' : 'pointer',
+                        background: editScoreData?.inputMode === 'total' ? 'var(--bg-green)' : 'white',
+                        opacity: editScoreHolesOnly ? 0.45 : 1
                       }}>
                         <input
                           type="radio"
                           name="scoreInputMode"
+                          disabled={editScoreHolesOnly}
                           checked={editScoreData?.inputMode === 'total'}
                           onChange={() => setEditScoreData(prev => ({ 
                             ...prev, 
@@ -7346,6 +7363,15 @@ function Admin() {
                         <span style={{ fontWeight: '600', fontSize: '14px' }}>홀별타수 입력</span>
                       </label>
                     </div>
+                    {editScoreHolesOnly && (
+                      <div style={{
+                        padding: '11px 13px', borderRadius: '9px',
+                        background: '#FFFBEB', border: '1px solid #FDE68A',
+                        fontSize: '12.5px', color: '#B45309', lineHeight: 1.55,
+                      }}>
+                        신페리오는 지정 12홀 점수로 핸디캡을 내므로 <strong>홀별 입력만</strong> 가능합니다.
+                      </div>
+                    )}
                   </div>
                   <div style={{ marginBottom: '16px' }}>
                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: editScoreData?.inputMode === 'holes' ? '#999' : 'inherit' }}>
@@ -7436,6 +7462,13 @@ function Admin() {
                     </button>
                     <button
                       onClick={async () => {
+                        if (editScoreHolesOnly) {
+                          const holesSum = (editScoreData?.holes || []).reduce((a, b) => a + (b || 0), 0);
+                          if (holesSum < 1) {
+                            alert('신페리오는 홀별 타수로만 저장할 수 있습니다.');
+                            return;
+                          }
+                        }
                         if (!editScoreData?.totalScore || editScoreData.totalScore < 1) {
                           alert('총 타수를 입력해주세요');
                           return;
