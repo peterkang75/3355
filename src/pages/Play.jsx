@@ -1145,37 +1145,78 @@ function Play() {
   }, [showHoleSelector, showEndRoundModal, showNtpModal, showMismatches]);
 
   // ── 스와이프: document-level touch listeners (크로스플랫폼) ──
+  //
+  // 예전엔 touchmove를 무조건 preventDefault 해서, 손가락이 1px만 흔들려도
+  // 그 터치가 제스처로 가로채져 +/− 버튼의 클릭이 아예 발생하지 않았다.
+  // → 일정 거리(슬롭)를 넘기 전까지는 아무것도 하지 않고 브라우저에 맡긴다.
+  //   버튼·입력 위에서 시작한 터치는 슬롭을 크게 잡아 웬만한 흔들림은 탭으로 처리한다.
   useEffect(() => {
+    const SLOP = 14;         // 스와이프로 전환하기까지 필요한 가로 이동
+    const SLOP_ON_CONTROL = 48; // 버튼/입력 위에서 시작했을 때 (탭 우선)
+    const THRESHOLD = 60;    // 홀 이동을 확정하는 거리
+
     let startX = null;
+    let startY = null;
+    let slop = SLOP;
+    let active = false;   // 스와이프로 전환됐는가
+    let canceled = false; // 세로 스크롤로 판정되어 포기했는가
+
+    const reset = () => { startX = null; startY = null; active = false; canceled = false; };
 
     const onStart = (e) => {
-      if (!e.touches || !e.touches.length) return;
+      if (!e.touches || e.touches.length !== 1) return reset();
       if (!cardContainerRef.current) return;
+      if (swipeModalsRef.current) return reset(); // 모달이 열려 있으면 스와이프하지 않는다
+
       startX = e.touches[0].clientX;
-      const c = cardContainerRef.current;
-      c.style.transition = 'none';
-      c.style.transform = 'none';
+      startY = e.touches[0].clientY;
+      active = false;
+      canceled = false;
+
+      // 버튼·입력 위에서 시작한 터치는 "누르려는 것"으로 본다
+      const t = e.target;
+      const onControl = !!(t && t.closest && t.closest('button, input, select, textarea, a, [role="button"]'));
+      slop = onControl ? SLOP_ON_CONTROL : SLOP;
     };
 
     const onMove = (e) => {
-      try { e.preventDefault(); } catch (_) {}
-      if (startX === null) return;
+      if (startX === null || canceled) return;
+      if (!e.touches || !e.touches.length) return;
+
       const dx = e.touches[0].clientX - startX;
+      const dy = e.touches[0].clientY - startY;
+
+      if (!active) {
+        // 세로가 더 크면 스크롤 의도 → 스와이프 포기 (화면 스크롤을 막지 않는다)
+        if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > SLOP) { canceled = true; return; }
+        if (Math.abs(dx) < slop) return; // 아직 탭일 수 있다 — 아무것도 하지 않는다
+        active = true;
+      }
+
+      // 여기서부터는 확실한 가로 스와이프
+      try { e.preventDefault(); } catch (_) {}
       const c = cardContainerRef.current;
       if (c) { c.style.transition = 'none'; c.style.transform = `translateX(${dx}px)`; }
     };
 
     const onEnd = (e) => {
-      if (startX === null) return;
-      if (!e.changedTouches || !e.changedTouches.length) return;
+      if (startX === null) { reset(); return; }
+      if (!active) { reset(); return; } // 탭이었다 — 버튼 클릭이 그대로 진행된다
+      if (!e.changedTouches || !e.changedTouches.length) { reset(); return; }
+
       const dx = e.changedTouches[0].clientX - startX;
-      startX = null;
+      reset();
       const c = cardContainerRef.current;
 
-      if (Math.abs(dx) < 40) {
+      if (Math.abs(dx) < THRESHOLD) {
         if (c) { c.style.transition = 'transform 200ms ease-out'; c.style.transform = 'none'; }
         return;
       }
+
+      // 스와이프가 확정되면 이 터치로 생길 클릭은 막는다 (버튼 위에서 끝난 경우)
+      const swallow = (ev) => { ev.stopPropagation(); ev.preventDefault(); };
+      document.addEventListener('click', swallow, { capture: true, once: true });
+      setTimeout(() => document.removeEventListener('click', swallow, { capture: true }), 350);
 
       const dir = dx < 0 ? -1 : 1;
       const w = window.innerWidth;
@@ -1187,14 +1228,22 @@ function Play() {
       }));
     };
 
-    document.addEventListener('touchstart', onStart, { passive: false, capture: true });
+    const onCancel = () => {
+      const c = cardContainerRef.current;
+      if (active && c) { c.style.transition = 'transform 200ms ease-out'; c.style.transform = 'none'; }
+      reset();
+    };
+
+    document.addEventListener('touchstart', onStart, { passive: true, capture: true });
     document.addEventListener('touchmove', onMove, { passive: false, capture: true });
     document.addEventListener('touchend', onEnd, { passive: true, capture: true });
+    document.addEventListener('touchcancel', onCancel, { passive: true, capture: true });
 
     return () => {
       document.removeEventListener('touchstart', onStart, { capture: true });
       document.removeEventListener('touchmove', onMove, { capture: true });
       document.removeEventListener('touchend', onEnd, { capture: true });
+      document.removeEventListener('touchcancel', onCancel, { capture: true });
     };
   }, []);
 
