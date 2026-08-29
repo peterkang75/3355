@@ -1,5 +1,6 @@
 const express = require("express");
 const { usesMode, resolveTeamMode } = require('../utils/teamGameModes');
+const { syncFoursomePartner } = require('../utils/foursomeSync');
 const prisma = require("../db");
 const { requireAuth, requireAuthOrGuest, requireOperator } = require('../middleware/auth');
 
@@ -361,86 +362,11 @@ router.post("/", requireAuthOrGuest, async (req, res) => {
       },
     });
 
-    // 포썸 모드: 파트너 스코어 자동 동기화
+    // 포썸 모드: 파트너 스코어 자동 동기화 (규칙은 utils/foursomeSync.js 한 곳)
     try {
-      const booking = await prisma.booking.findFirst({ where: { title: roundingName } });
-
-      if (booking) {
-        let gradeSettings = null;
-        try {
-          gradeSettings = typeof booking.gradeSettings === 'string'
-            ? JSON.parse(booking.gradeSettings.replace(/^"|"$/g, ''))
-            : booking.gradeSettings;
-        } catch (e) {}
-
-        // 조별 지정(혼용)이면 라운딩 전체가 아니라 "포썸으로 지정된 조"만 동기화 대상
-        if (usesMode(gradeSettings, 'foursome') && booking.teams) {
-          let teams = null;
-          try {
-            teams = typeof booking.teams === 'string'
-              ? JSON.parse(booking.teams.replace(/^"|"$/g, ''))
-              : booking.teams;
-          } catch (e) {}
-
-          if (teams && Array.isArray(teams)) {
-            const member = await prisma.member.findUnique({ where: { id: memberId } });
-            if (member) {
-              for (const team of teams) {
-                if (!team.members) continue;
-                const memberIndex = team.members.findIndex(m => m?.phone === member.phone);
-                if (memberIndex >= 0) {
-                  // 내 조가 포썸이 아니면(신페리오 조 등) 페어 복사를 하면 안 된다 — 남의 개인 스코어를 덮어쓴다
-                  if (resolveTeamMode(gradeSettings, team.teamNumber) !== 'foursome') break;
-                  const partnerIndex = memberIndex % 2 === 0 ? memberIndex + 1 : memberIndex - 1;
-                  const partner = team.members[partnerIndex];
-
-                  if (partner?.phone) {
-                    const partnerMember = await prisma.member.findFirst({ where: { phone: partner.phone } });
-                    if (partnerMember && partnerMember.id !== memberId) {
-                      const isTeamA = memberIndex < 2;
-                      const opponentIndices = isTeamA ? [2, 3] : [0, 1];
-                      const opponents = opponentIndices.map(i => team.members[i]).filter(Boolean);
-
-                      const partnerGameMetadata = {
-                        partner: { name: member.nickname || member.name, phone: member.phone },
-                        opponents: opponents.map(o => ({ name: o.nickname || o.name, phone: o.phone })),
-                        recordedBy: member.nickname || member.name,
-                      };
-
-                      await prisma.score.upsert({
-                        where: {
-                          userId_date_roundingName: { userId: partnerMember.id, date, roundingName: roundingName || "" },
-                        },
-                        update: {
-                          courseName, totalScore, coursePar,
-                          holes: JSON.stringify(holes),
-                          markerId: memberId,
-                          verified: false,
-                          verifiedBy: null,
-                          gameMode: 'foursome',
-                          gameMetadata: JSON.stringify(partnerGameMetadata),
-                        },
-                        create: {
-                          userId: partnerMember.id,
-                          markerId: memberId,
-                          roundingName: roundingName || "",
-                          date, courseName, totalScore, coursePar,
-                          holes: JSON.stringify(holes),
-                          verified: false,
-                          gameMode: 'foursome',
-                          gameMetadata: JSON.stringify(partnerGameMetadata),
-                        },
-                      });
-                      console.log(`🏌️ 포썸 파트너 스코어 동기화: ${member.nickname} → ${partnerMember.nickname}`);
-                    }
-                  }
-                  break;
-                }
-              }
-            }
-          }
-        }
-      }
+      await syncFoursomePartner(prisma, {
+        memberId, roundingName, date, courseName, totalScore, coursePar, holes,
+      });
     } catch (syncError) {
       console.error('포썸 파트너 스코어 동기화 오류:', syncError);
     }
@@ -533,6 +459,23 @@ router.put("/:id", requireAuth, requireOperator, async (req, res) => {
       where: { id: req.params.id },
       data: updateData,
     });
+
+    // 운영진이 고친 점수도 포썸 페어에 반영한다 (기존에는 신규 등록에서만 복제됐다)
+    try {
+      await syncFoursomePartner(prisma, {
+        memberId: score.userId,
+        roundingName: score.roundingName,
+        date: score.date,
+        courseName: score.courseName,
+        totalScore: score.totalScore,
+        coursePar: score.coursePar,
+        holes: score.holes ? JSON.parse(score.holes) : [],
+      });
+    } catch (syncError) {
+      console.error('포썸 파트너 스코어 동기화 오류(수정):', syncError);
+    }
+
+    if (req.io) req.io.emit('scores:updated');
     res.json(score);
   } catch (error) {
     console.error("Error updating score:", error);

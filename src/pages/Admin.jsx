@@ -6,6 +6,7 @@ import CrownIcon from '../components/CrownIcon';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 import SearchableDropdown from '../components/SearchableDropdown';
 import PageHeader from '../components/common/PageHeader';
+import { resolvePlayerMode, hasTeamModes } from '../utils/teamGameModes';
 
 function Admin() {
   const navigate = useNavigate();
@@ -176,6 +177,23 @@ function Admin() {
   const [isSavingMemberScore, setIsSavingMemberScore] = useState(false);
   const [memberSearchText, setMemberSearchText] = useState('');
   const [existingMemberScore, setExistingMemberScore] = useState(null);
+
+  // 대리입력 대상 회원이 이 라운딩에서 어떤 방식으로 뛰는지.
+  // 조별 지정(혼용) 라운딩은 홀별 점수가 있어야 신페리오 핸디캡·포썸 페어 집계가 되므로
+  // 총타수만 넣는 입력을 막는다.
+  const memberScoreIsMixed = hasTeamModes(memberScoreBooking?.gradeSettings);
+  const memberScorePlayerMode = resolvePlayerMode(
+    memberScoreBooking?.gradeSettings,
+    memberScoreBooking?.teams,
+    selectedMemberForScore?.phone,
+  );
+
+  // 어느 경로로 화면에 들어오든 혼용 라운딩이면 홀별 입력으로 맞춘다
+  useEffect(() => {
+    if (memberScoreIsMixed && memberScoreData.inputMode !== 'holes') {
+      setMemberScoreData(prev => ({ ...prev, inputMode: 'holes' }));
+    }
+  }, [memberScoreIsMixed, memberScoreData.inputMode]);
   const [showScoreMenu, setShowScoreMenu] = useState(false);
 
   const [activityLogs, setActivityLogs] = useState([]);
@@ -6024,17 +6042,19 @@ function Admin() {
                     marginBottom: '16px' 
                   }}>
                     <button
-                      onClick={() => setMemberScoreData(prev => ({ ...prev, inputMode: 'total' }))}
+                      disabled={memberScoreIsMixed}
+                      title={memberScoreIsMixed ? '조별 지정 라운딩은 홀별 입력만 가능합니다' : undefined}
+                      onClick={() => { if (!memberScoreIsMixed) setMemberScoreData(prev => ({ ...prev, inputMode: 'total' })); }}
                       style={{
                         flex: 1,
                         padding: '10px',
                         background: memberScoreData.inputMode === 'total' ? '#4a9d6a' : 'rgba(255,255,255,0.1)',
-                        color: 'white',
+                        color: memberScoreIsMixed ? 'rgba(255,255,255,0.35)' : 'white',
                         border: 'none',
                         borderRadius: '8px',
                         fontSize: '14px',
                         fontWeight: '600',
-                        cursor: 'pointer'
+                        cursor: memberScoreIsMixed ? 'not-allowed' : 'pointer'
                       }}
                     >
                       총타수 입력
@@ -6056,6 +6076,19 @@ function Admin() {
                       홀별 입력
                     </button>
                   </div>
+
+                  {memberScoreIsMixed && (
+                    <div style={{
+                      marginBottom: '16px', padding: '12px 14px', borderRadius: '10px',
+                      background: 'rgba(251,191,36,0.15)', border: '1px solid rgba(251,191,36,0.4)',
+                      fontSize: '13px', color: '#fbbf24', lineHeight: 1.55,
+                    }}>
+                      조별 지정 라운딩이라 <strong>홀별 입력만</strong> 가능합니다.
+                      {memberScorePlayerMode === 'foursome'
+                        ? ' 이 회원은 포썸 조라 저장하면 페어 상대에게도 같은 점수가 반영됩니다.'
+                        : ' 신페리오 핸디캡은 홀별 점수가 있어야 산출됩니다.'}
+                    </div>
+                  )}
 
                   {memberScoreData.inputMode === 'total' ? (
                     <div style={{ 
@@ -6210,6 +6243,10 @@ function Admin() {
                     let finalHoles;
                     
                     if (memberScoreData.inputMode === 'total') {
+                      if (memberScoreIsMixed) {
+                        alert('조별 지정 라운딩은 홀별 입력만 저장할 수 있습니다.');
+                        return;
+                      }
                       if (inputTotal <= 0) {
                         alert('총타수를 입력해주세요.');
                         return;
@@ -6252,7 +6289,9 @@ function Admin() {
                         courseName: memberScoreBooking.courseName,
                         totalScore: finalScore,
                         holes: finalHoles,
-                        coursePar: coursePar
+                        coursePar: coursePar,
+                        // 포썸 조 회원이면 스코어에 방식을 남긴다 (페어 복제는 서버가 조편성 기준으로 판단)
+                        ...(memberScorePlayerMode === 'foursome' ? { gameMode: 'foursome' } : {}),
                       };
 
                       let res;
