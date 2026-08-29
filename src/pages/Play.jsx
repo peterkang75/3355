@@ -664,30 +664,11 @@ function Play() {
               return tm;
             });
 
-            // 팀에 없는 게스트 보완 (팀편성 전에 추가된 게스트 등)
-            const parsedParticipants = (foundBooking.participants || []).map(p => {
-              try { return typeof p === 'string' ? JSON.parse(p) : p; } catch { return null; }
-            }).filter(Boolean);
-            // 배정 여부는 "내 조"가 아니라 "전체 조" 기준이어야 한다.
-            // 내 조만 보면 다른 조에 배정된 게스트가 미배정으로 오인돼 모든 조의 마커 목록에 뜬다.
-            const allTeamMembers = (Array.isArray(teams) ? teams : [])
-              .flatMap(t => (t?.members || []).filter(Boolean));
-            const assignedPhones = new Set([
-              effectiveUserPhone,
-              ...allTeamMembers.map(m => m.phone),
-            ]);
-            // 이름 중복 방지: 조편성에 이미 같은 이름 게스트가 있으면 제외
-            const assignedGuestNames = new Set(
-              allTeamMembers.filter(m => m?.isGuest).map(m => (m.name || '').trim().toLowerCase())
-            );
-            const extraGuests = parsedParticipants.filter(
-              p => p.isGuest && p.phone && !assignedPhones.has(p.phone)
-                && !assignedGuestNames.has((p.name || '').trim().toLowerCase())
-            );
-
-            const allTeammates = [...enrichedTeammates, ...extraGuests];
-            console.log('🤝 팀원:', allTeammates);
-            setTeammates(allTeammates);
+            // 마커 목록은 "내 조에 배정된 사람"만. 미배정 참가자는 넣지 않는다.
+            // (예전엔 미배정 게스트를 끼워 넣었는데, 다른 조 게스트까지 모든 조에 뜨는 원인이었다.
+            //  배정이 안 됐다는 사실은 아래 마커 선택 화면에서 안내로 드러낸다.)
+            console.log('🤝 팀원:', enrichedTeammates);
+            setTeammates(enrichedTeammates);
           }
         } else {
           // 팀 있지만 내 phone이 없음 (뒤늦게 추가된 게스트 등) → 4명 이하이면 자동 구성
@@ -1759,6 +1740,38 @@ function Play() {
                     );
                   })}
                 </div>
+
+                {/* 조에 배정되지 않은 참가자는 마커 목록에 나오지 않는다 — 왜 없는지 알려준다 */}
+                {(() => {
+                  let unassigned = [];
+                  try {
+                    const t = typeof booking.teams === 'string' ? JSON.parse(booking.teams) : booking.teams;
+                    const assigned = new Set(
+                      (Array.isArray(t) ? t : []).flatMap(x => (x?.members || []).filter(Boolean).map(m => m.phone))
+                    );
+                    unassigned = (booking.participants || [])
+                      .map(p => { try { let r = typeof p === 'string' ? JSON.parse(p) : p; if (typeof r === 'string') r = JSON.parse(r); return r; } catch { return null; } })
+                      .filter(p => p && p.phone && !assigned.has(p.phone));
+                  } catch { unassigned = []; }
+                  if (unassigned.length === 0) return null;
+                  const names = unassigned.map(p => p.nickname || p.name).filter(Boolean).join(', ');
+                  return (
+                    <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '12px', padding: '14px', marginBottom: '20px' }}>
+                      <div style={{ fontSize: '13px', fontWeight: '700', color: '#C2410C', lineHeight: 1.6 }}>
+                        {names} 님은 조에 배정되지 않아 목록에 없습니다.
+                      </div>
+                      <div style={{ fontSize: '12px', color: '#EA580C', marginTop: '4px', lineHeight: 1.6 }}>
+                        조편성에서 배정한 뒤 이 화면을 다시 열어주세요.
+                      </div>
+                      <button
+                        onClick={() => navigate(`/team-formation?id=${bookingId}`)}
+                        style={{ marginTop: '10px', width: '100%', padding: '11px', borderRadius: '10px', border: '1px solid #FDBA74', background: '#FFFFFF', color: '#C2410C', fontSize: '13px', fontWeight: '700', cursor: 'pointer' }}
+                      >
+                        조편성 하러 가기
+                      </button>
+                    </div>
+                  );
+                })()}
               </>
             );
           })()}
