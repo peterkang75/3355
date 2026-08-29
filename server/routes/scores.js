@@ -1,4 +1,5 @@
 const express = require("express");
+const { usesMode, resolveTeamMode } = require('../utils/teamGameModes');
 const prisma = require("../db");
 const { requireAuth, requireAuthOrGuest, requireOperator } = require('../middleware/auth');
 
@@ -372,7 +373,8 @@ router.post("/", requireAuthOrGuest, async (req, res) => {
             : booking.gradeSettings;
         } catch (e) {}
 
-        if (gradeSettings?.mode === 'foursome' && booking.teams) {
+        // 조별 지정(혼용)이면 라운딩 전체가 아니라 "포썸으로 지정된 조"만 동기화 대상
+        if (usesMode(gradeSettings, 'foursome') && booking.teams) {
           let teams = null;
           try {
             teams = typeof booking.teams === 'string'
@@ -387,6 +389,8 @@ router.post("/", requireAuthOrGuest, async (req, res) => {
                 if (!team.members) continue;
                 const memberIndex = team.members.findIndex(m => m?.phone === member.phone);
                 if (memberIndex >= 0) {
+                  // 내 조가 포썸이 아니면(신페리오 조 등) 페어 복사를 하면 안 된다 — 남의 개인 스코어를 덮어쓴다
+                  if (resolveTeamMode(gradeSettings, team.teamNumber) !== 'foursome') break;
                   const partnerIndex = memberIndex % 2 === 0 ? memberIndex + 1 : memberIndex - 1;
                   const partner = team.members[partnerIndex];
 

@@ -5,6 +5,8 @@ import { useApp } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketContext';
 import PageHeader from '../components/common/PageHeader';
 import { stablefordPoints, allocateStrokes } from '../utils/stableford';
+import { resolvePlayerMode } from '../utils/teamGameModes';
+import { getGameModeLabel } from '../constants/gameModes';
 
 function Play() {
   const navigate = useNavigate();
@@ -520,20 +522,12 @@ function Play() {
     console.log('📌 Booking 찾음:', foundBooking?.title);
     setBooking(foundBooking);
     
-    // 게임 모드 파싱
-    let detectedGameMode = 'stroke';
-    if (foundBooking?.gradeSettings) {
-      try {
-        const gradeSettings = typeof foundBooking.gradeSettings === 'string'
-          ? JSON.parse(foundBooking.gradeSettings)
-          : foundBooking.gradeSettings;
-        if (gradeSettings.mode) {
-          detectedGameMode = gradeSettings.mode;
-        }
-      } catch (e) {
-        console.error('gradeSettings 파싱 오류:', e);
-      }
-    }
+    // 게임 모드 판정 — 조별 지정이 있으면 "내 조"의 방식, 없으면 라운딩 기본 방식
+    const detectedGameMode = resolvePlayerMode(
+      foundBooking?.gradeSettings,
+      foundBooking?.teams,
+      effectiveUserPhone,
+    );
     setGameMode(detectedGameMode);
     console.log('🎮 게임 모드:', detectedGameMode);
 
@@ -1655,7 +1649,7 @@ function Play() {
                 {booking?.type === '컴페티션' ? '컴페티션' : '소셜'}
               </span>
               <span style={{ fontSize: '12px', fontWeight: '700', color: '#FFFFFF', background: 'rgba(255,255,255,0.18)', borderRadius: '6px', padding: '3px 10px' }}>
-                {gameMode === 'stableford' ? '스테이블포드' : gameMode === 'foursome' ? '포썸' : '스트로크'}
+                {gameMode === 'stableford' ? '스테이블포드' : getGameModeLabel(gameMode)}
               </span>
             </div>
           </div>
