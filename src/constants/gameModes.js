@@ -44,3 +44,17 @@ export const getGameMode = (value) =>
 export const getGameModeLabel = (value) => getGameMode(value).label;
 
 export { NEWPERIA_DEFAULT_RATE };
+
+// 조별로 다른 방식을 쓰는 상태를 나타내는 UI 전용 항목.
+// gradeSettings.mode에 저장되지 않는다 — 저장은 mode(기본 방식) + teamModes(조별 지정)로 나뉜다.
+export const TEAM_MIX_MODE = {
+  value: '__teamMix',
+  label: '조별 지정',
+  icon: '🔀',
+  color: '#0047AB',
+  activeBg: '#E8F0FE',
+  hint: '조마다 다른 경기 방식으로 진행합니다. 조편성이 먼저 되어 있어야 하며, 조에 배정되지 않은 참가자는 신페리오로 집계됩니다.',
+};
+
+// 조별 지정에서 고를 수 있는 방식 (이번 단계는 신페리오·포썸)
+export const TEAM_MIX_BASE_MODE = 'newperia';

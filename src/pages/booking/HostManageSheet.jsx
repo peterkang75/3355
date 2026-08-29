@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 import apiService from '../../services/api';
 import { formatDate, getBookingStatusFlags } from './bookingHelpers';
-import { GAME_MODES } from '../../constants/gameModes';
+import { GAME_MODES, TEAM_MIX_MODE, TEAM_MIX_BASE_MODE } from '../../constants/gameModes';
 import { parseNewPeriaConfig, buildNewPeriaHolesPayload } from '../../utils/newperia';
+import { parseTeamModes, hasTeamModes, buildTeamModesPayload, parseTeams } from '../../utils/teamGameModes';
+import TeamModeAssigner from '../../components/booking/TeamModeAssigner';
 import NewPeriaHolesSheet from './NewPeriaHolesSheet';
 
 // 이 화면에는 스테이블포드가 별도로 있어 공용 목록에 한 항목을 끼워 쓴다
@@ -12,6 +14,7 @@ const HOST_GAME_MODES = [
   { value: 'stroke', label: '스트로크' },
   { value: 'stableford', label: '스테이블포드' },
   ...GAME_MODES.filter(m => m.value !== 'stroke').map(m => ({ value: m.value, label: m.label })),
+  { value: TEAM_MIX_MODE.value, label: TEAM_MIX_MODE.label },
 ];
 
 const PRIMARY = '#0047AB';
@@ -95,6 +98,9 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
   const navigate = useNavigate();
   const [showNpSheet, setShowNpSheet] = React.useState(false);
   const [npSaving, setNpSaving] = React.useState(false);
+  // 조별 지정을 막 켠 직후엔 아직 저장된 teamModes가 없을 수 있어 화면 상태를 따로 들고 있는다
+  const [teamMixOpen, setTeamMixOpen] = React.useState(false);
+  const [tmSaving, setTmSaving] = React.useState(false);
   if (!show || !booking) return null;
 
   const npConfig = parseNewPeriaConfig(booking.gradeSettings);
@@ -116,6 +122,46 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
     }
   };
 
+  // ── 조별 경기 방식 ──────────────────────────────────────────────────────────
+  const teamModes = parseTeamModes(booking.gradeSettings);
+  const isTeamMixActive = hasTeamModes(booking.gradeSettings) || teamMixOpen;
+
+  const saveGradeSettings = async (patch) => {
+    setTmSaving(true);
+    try {
+      const updated = await apiService.updateBooking(booking.id, {
+        gradeSettings: JSON.stringify(patch),
+      });
+      await onRefresh?.(updated);
+    } catch {
+      alert('저장에 실패했습니다.');
+    } finally {
+      setTmSaving(false);
+    }
+  };
+
+  // 조별 지정 켜기: 기본 방식을 신페리오로 두고, 이미 편성된 조는 전부 신페리오로 시작한다.
+  const enableTeamMix = async () => {
+    setTeamMixOpen(true);
+    setHmAdvanced(prev => ({ ...prev, gameMode: TEAM_MIX_BASE_MODE }));
+    const initial = {};
+    for (const t of parseTeams(booking.teams)) {
+      if (Number.isInteger(Number(t?.teamNumber))) initial[t.teamNumber] = TEAM_MIX_BASE_MODE;
+    }
+    await saveGradeSettings({ mode: TEAM_MIX_BASE_MODE, ...buildTeamModesPayload(initial) });
+  };
+
+  // 단일 방식으로 되돌리기: 조별 지정을 명시적으로 지운다(null이어야 서버 병합에서 삭제됨)
+  const selectSingleMode = async (mode) => {
+    setTeamMixOpen(false);
+    setHmAdvanced(prev => ({ ...prev, gameMode: mode }));
+    await saveGradeSettings({ mode, teamModes: null });
+  };
+
+  const changeTeamMode = async (teamNumber, mode) => {
+    await saveGradeSettings(buildTeamModesPayload({ ...teamModes, [teamNumber]: mode }));
+  };
+
   const {
     hmType, hmTitle, hmTime, hmParticipants, hmGuestName, hmGuestHandicap, hmMemberSearch,
     hmMemberDropdownOpen, hmSaving, hmSaveStatus, hmDeleteConfirm,
@@ -131,7 +177,7 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
   const {
     handleHmTypeChange, handleHmTitleSave, handleHmTimeSave, handleHmRemoveParticipant,
     handleHmAddMember, handleHmAddGuest, handleHmAdvancedToggle,
-    handleHmAdvancedSave, handleHmDelete, handleHmGameModeChange, hmSaveField,
+    handleHmAdvancedSave, handleHmDelete, hmSaveField,
   } = handlers;
 
   const typeColors = {
@@ -534,15 +580,29 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
           <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', marginBottom: '8px' }}>게임 방식</div>
           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
             {HOST_GAME_MODES.map(({ value, label }) => {
-              const isActive = hmAdvanced.gameMode === value;
+              const isTeamMixButton = value === TEAM_MIX_MODE.value;
+              const isActive = isTeamMixButton ? isTeamMixActive : (!isTeamMixActive && hmAdvanced.gameMode === value);
               return (
-                <button key={value} onClick={() => handleHmGameModeChange(value)} disabled={hmSaving}
+                <button key={value}
+                  onClick={() => (isTeamMixButton ? enableTeamMix() : selectSingleMode(value))}
+                  disabled={hmSaving || tmSaving}
                   style={{ flex: '1 0 22%', padding: '10px 4px', borderRadius: '10px', border: isActive ? 'none' : '1px solid #E8ECF0', background: isActive ? PRIMARY : '#FFFFFF', color: isActive ? '#FFFFFF' : '#64748B', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>
                   {label}
                 </button>
               );
             })}
           </div>
+          {isTeamMixActive && (
+            <TeamModeAssigner
+              teams={booking.teams}
+              teamModes={teamModes}
+              baseMode={TEAM_MIX_BASE_MODE}
+              members={members}
+              disabled={hmSaving || tmSaving}
+              onChange={changeTeamMode}
+              onGoTeamFormation={() => { onClose(); navigate(`/team-formation?id=${booking.id}`); }}
+            />
+          )}
           {hmAdvanced.gameMode === 'newperia' && (
             <div style={{ marginTop: 10, padding: 12, background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, fontSize: 12.5, color: '#B45309', lineHeight: 1.5 }}>
               라운딩이 끝난 뒤 기본 화면의 <strong>신페리오 홀 지정하기</strong>에서 제비뽑기로 뽑은 12개 홀과 <strong>핸디캡 적용률</strong>을 함께 정하면 순위가 매겨집니다.

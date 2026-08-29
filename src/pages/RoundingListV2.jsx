@@ -330,21 +330,6 @@ function RoundingListV2() {
     finally { setHmSaving(false); }
   };
 
-  const handleHmGameModeChange = async (mode) => {
-    setHmAdvanced(prev => ({ ...prev, gameMode: mode }));
-    setHmSaving(true);
-    try {
-      let existing = {};
-      if (hmBooking.gradeSettings) {
-        try { existing = typeof hmBooking.gradeSettings === 'string' ? JSON.parse(hmBooking.gradeSettings) : hmBooking.gradeSettings; } catch {}
-      }
-      await apiService.updateBooking(hmBooking.id, { gradeSettings: JSON.stringify({ ...existing, mode }) });
-      setHmBooking(prev => ({ ...prev, gradeSettings: JSON.stringify({ ...existing, mode }) }));
-      await refreshBookings();
-    } catch { alert('저장 중 오류가 발생했습니다.'); }
-    finally { setHmSaving(false); }
-  };
-
   // ── Create booking ─────────────────────────────────────────────────────────
   const timeSlotValues = { 'Morning': '08:00', 'Afternoon': '13:00', 'Evening': '17:00', 'TBD': '23:59' };
 
@@ -703,7 +688,7 @@ function RoundingListV2() {
         booking={hmBooking}
         state={{ hmType, hmTitle, hmTime, hmParticipants, hmGuestName, hmGuestHandicap, hmMemberSearch, hmMemberDropdownOpen, hmSaving, hmSaveStatus, hmDeleteConfirm, hmInviteUrl, hmInviteLoading, hmViewMode, hmClubMemberOnly, hmAdvanced }}
         setters={{ setHmType, setHmTitle, setHmTime, setHmGuestName, setHmGuestHandicap, setHmMemberSearch, setHmMemberDropdownOpen, setHmDeleteConfirm, setHmInviteUrl, setHmInviteLoading, setHmViewMode, setHmAdvanced }}
-        handlers={{ handleHmTypeChange, handleHmTitleSave, handleHmTimeSave, handleHmRemoveParticipant, handleHmAddMember, handleHmAddGuest, handleHmAdvancedToggle, handleHmAdvancedSave, handleHmDelete, handleHmGameModeChange, hmSaveField }}
+        handlers={{ handleHmTypeChange, handleHmTitleSave, handleHmTimeSave, handleHmRemoveParticipant, handleHmAddMember, handleHmAddGuest, handleHmAdvancedToggle, handleHmAdvancedSave, handleHmDelete, hmSaveField }}
         user={user}
         members={members}
         onRefresh={async (updated) => {

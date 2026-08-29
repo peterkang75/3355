@@ -3,7 +3,9 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import useGoBack from '../hooks/useGoBack';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
-import { GAME_MODES, getGameMode } from '../constants/gameModes';
+import { GAME_MODES, getGameMode, TEAM_MIX_MODE, TEAM_MIX_BASE_MODE } from '../constants/gameModes';
+import { parseTeamModes, buildTeamModesPayload, parseTeams } from '../utils/teamGameModes';
+import TeamModeAssigner from '../components/booking/TeamModeAssigner';
 import NewPeriaRateField, { rateToPercent, percentToRate } from '../components/booking/NewPeriaRateField';
 import { NEWPERIA_DEFAULT_RATE, parseNewPeriaConfig, NEWPERIA_HOLE_COUNT, buildNewPeriaHolesPayload } from '../utils/newperia';
 import NewPeriaHolesSheet from './booking/NewPeriaHolesSheet';
@@ -46,6 +48,7 @@ function RoundingManagement() {
       if (foundBooking && !editData) {
         let gameMode = 'stroke';
         let newPeriaPercent = String(rateToPercent(NEWPERIA_DEFAULT_RATE));
+        let teamModes = {};
         if (foundBooking.gradeSettings) {
           try {
             const parsed = typeof foundBooking.gradeSettings === 'string'
@@ -53,6 +56,7 @@ function RoundingManagement() {
               : foundBooking.gradeSettings;
             gameMode = parsed.mode || 'stroke';
             newPeriaPercent = String(rateToPercent(parsed.newPeriaRate));
+            teamModes = parseTeamModes(parsed);
           } catch (e) {
             console.error('gradeSettings 파싱 오류:', e);
           }
@@ -71,7 +75,9 @@ function RoundingManagement() {
           restaurantName: foundBooking.restaurantName || '',
           restaurantAddress: foundBooking.restaurantAddress || '',
           gameMode: gameMode,
-          newPeriaPercent
+          newPeriaPercent,
+          teamModes,
+          teamMix: Object.keys(teamModes).length > 0,
         });
       }
     }
@@ -133,10 +139,14 @@ function RoundingManagement() {
           ...(editData.gameMode === 'newperia'
             ? { newPeriaRate: percentToRate(editData.newPeriaPercent) }
             : {}),
+          // 조별 지정을 끄면 명시적 null이어야 서버 병합에서 키가 삭제된다
+          ...(editData.teamMix ? buildTeamModesPayload(editData.teamModes) : { teamModes: null }),
         })
       };
       delete updatedData.gameMode;
       delete updatedData.newPeriaPercent;
+      delete updatedData.teamModes;
+      delete updatedData.teamMix;
 
       await apiService.updateBooking(bookingId, updatedData);
       await refreshBookings();
@@ -490,13 +500,28 @@ function RoundingManagement() {
                 경기 방식
               </label>
               <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                {GAME_MODES.map((m) => {
-                  const active = editData.gameMode === m.value;
+                {[...GAME_MODES, TEAM_MIX_MODE].map((m) => {
+                  const isMixBtn = m.value === TEAM_MIX_MODE.value;
+                  const active = isMixBtn
+                    ? !!editData.teamMix
+                    : (!editData.teamMix && editData.gameMode === m.value);
                   return (
                     <button
                       key={m.value}
                       type="button"
-                      onClick={() => setEditData({ ...editData, gameMode: m.value })}
+                      onClick={() => setEditData(isMixBtn
+                        ? {
+                            ...editData,
+                            teamMix: true,
+                            gameMode: TEAM_MIX_BASE_MODE,
+                            // 이미 편성된 조는 전부 신페리오로 시작 — 포썸으로 뺄 조만 바꾸면 된다
+                            teamModes: Object.keys(editData.teamModes || {}).length > 0
+                              ? editData.teamModes
+                              : Object.fromEntries(parseTeams(booking?.teams)
+                                  .filter((t) => Number.isInteger(Number(t?.teamNumber)))
+                                  .map((t) => [t.teamNumber, TEAM_MIX_BASE_MODE])),
+                          }
+                        : { ...editData, teamMix: false, gameMode: m.value, teamModes: {} })}
                       style={{
                         flex: '1 1 40%',
                         padding: '12px',
@@ -514,10 +539,24 @@ function RoundingManagement() {
                   );
                 })}
               </div>
-              {getGameMode(editData.gameMode).hint && (
+              {(editData.teamMix ? TEAM_MIX_MODE.hint : getGameMode(editData.gameMode).hint) && (
                 <div style={{ marginTop: 10, padding: 12, background: '#F8FAFC', borderRadius: 8, fontSize: 12.5, color: '#64748B', lineHeight: 1.5 }}>
-                  ※ {getGameMode(editData.gameMode).hint}
+                  ※ {editData.teamMix ? TEAM_MIX_MODE.hint : getGameMode(editData.gameMode).hint}
                 </div>
+              )}
+
+              {editData.teamMix && (
+                <TeamModeAssigner
+                  teams={booking?.teams}
+                  teamModes={editData.teamModes || {}}
+                  baseMode={TEAM_MIX_BASE_MODE}
+                  members={members}
+                  onChange={(teamNumber, mode) => setEditData({
+                    ...editData,
+                    teamModes: { ...(editData.teamModes || {}), [teamNumber]: mode },
+                  })}
+                  onGoTeamFormation={() => navigate(`/team-formation?id=${bookingId}`)}
+                />
               )}
             </div>
 
