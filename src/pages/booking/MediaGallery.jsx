@@ -4,7 +4,7 @@ import apiService from '../../services/api';
 import { useApp } from '../../contexts/AppContext';
 import { compressImageFile } from '../../utils/compressImage';
 import { parseParticipants } from '../../utils';
-import { computeRoundingRanking, deriveWinners } from '../../utils/roundingRanking';
+import { computeRoundingRanking, deriveWinners, deriveFoursomeWinners } from '../../utils/roundingRanking';
 
 const fmtDur = (sec) => {
   if (!sec && sec !== 0) return '';
@@ -87,8 +87,14 @@ export default function MediaGallery({ booking, user, onClose }) {
     apiService.fetchRoundingScores(booking.title, booking.date)
       .then((scores) => {
         if (cancelled) return;
-        const { processedScores, newPeria } = computeRoundingRanking(scores, { booking, members, courses });
-        setWinners(deriveWinners(processedScores, { isNewPeria: newPeria.isConfigured }));
+        const { processedScores, newPeria, isMixed, foursomePairs } =
+          computeRoundingRanking(scores, { booking, members, courses });
+        setWinners({
+          ...deriveWinners(processedScores, { isNewPeria: newPeria.isConfigured }),
+          isMixed,
+          // 조별 지정 라운딩은 개인 시상과 별개로 포썸 우승·준우승 페어를 함께 낸다
+          foursomeWinners: isMixed ? deriveFoursomeWinners(foursomePairs, 2) : [],
+        });
       })
       .catch(() => {});
     return () => { cancelled = true; };
@@ -234,21 +240,34 @@ export default function MediaGallery({ booking, user, onClose }) {
             </div>
           )}
 
-          {winners?.overall && (() => {
+          {(winners?.overall || winners?.foursomeWinners?.length > 0) && (() => {
             // 신페리오는 그레이드 없이 전체 1·2·3등으로 시상한다
-            const rows = winners.podium.length
-              ? winners.podium.map((p) => ({ label: `${p.rank}등`, name: p.winner.nickname }))
-              : [
-                  { label: '전체', name: winners.overall.nickname },
-                  ...winners.gradeWinners.map((g) => ({ label: `${g.grade}그레이드`, name: g.winner.nickname })),
-                ];
+            const individualRows = !winners.overall
+              ? []
+              : winners.podium.length
+                ? winners.podium.map((p) => ({ label: `${p.rank}등`, name: p.winner.nickname }))
+                : [
+                    { label: '전체', name: winners.overall.nickname },
+                    ...winners.gradeWinners.map((g) => ({ label: `${g.grade}그레이드`, name: g.winner.nickname })),
+                  ];
+            // 조별 지정 라운딩은 개인 시상과 포썸 시상을 함께 보여준다
+            const rows = winners.isMixed
+              ? [
+                  ...individualRows.map((r) => ({ ...r, label: `신페리오 ${r.label}` })),
+                  ...winners.foursomeWinners.map((w) => ({
+                    label: `포썸 ${w.rank}위`,
+                    name: `${w.pair.memberNames} (${w.pair.teamNumber}조 ${w.pair.pairLabel}팀)`,
+                  })),
+                ]
+              : individualRows;
+            if (rows.length === 0) return null;
             return (
               <div style={{ borderTop: '1px solid #EEF2F7', marginTop: '12px', paddingTop: '10px' }}>
                 <div style={{ ...labelStyle, color: '#B45309' }}>시상</div>
                 <div style={{ marginTop: '7px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {rows.map((row, i) => (
                     <div key={row.label} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <span style={{ width: '62px', flexShrink: 0, fontSize: '12px', fontWeight: '600', color: '#94A3B8' }}>{row.label}</span>
+                      <span style={{ width: winners.isMixed ? '86px' : '62px', flexShrink: 0, fontSize: '12px', fontWeight: '600', color: '#94A3B8' }}>{row.label}</span>
                       <span style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A' }}>{row.name}</span>
                       {i === rows.length - 1 && (
                         <span onClick={openLeaderboard} style={{ marginLeft: 'auto', fontSize: '12.5px', fontWeight: '600', color: '#64748B', cursor: 'pointer', whiteSpace: 'nowrap' }}>

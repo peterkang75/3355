@@ -1,6 +1,7 @@
 import { calculateStableford } from './stableford';
 import { round1 } from './index';
 import { parseNewPeriaConfig, calculateNewPeriaHandicap } from './newperia';
+import { hasTeamModes, getTeamsByMode } from './teamGameModes';
 
 // 리더보드(Leaderboard.jsx)의 순위 계산을 그대로 옮긴 공용 함수.
 // 라운딩 페이지에서 "우승자"(리더보드 맨 위 이름)를 동일하게 뽑기 위함.
@@ -27,7 +28,15 @@ export function computeRoundingRanking(bookingScores, { booking, members = [], c
     return p;
   }).filter(Boolean);
 
-  const processedScores = (bookingScores || []).map((score) => {
+  // 포썸으로 뛰는 조 — 단일 포썸 라운딩이면 전 조, 조별 지정이면 지정된 조만
+  const isMixed = hasTeamModes(gradeSettings);
+  const foursomeTeamList = getTeamsByMode(gradeSettings, booking.teams, 'foursome');
+  const foursomePhones = new Set();
+  for (const t of foursomeTeamList) {
+    for (const m of (t?.members || [])) if (m?.phone) foursomePhones.add(m.phone);
+  }
+
+  const allProcessed = (bookingScores || []).map((score) => {
     const member = score.user || members.find((m) => m.id === score.userId || m.phone === score.userId);
     const participant = participants.find((p) => p.phone === score.userId || p.id === score.userId);
     const guestHandicap = participant?.gaHandy || participant?.houseHandy || participant?.handicap;
@@ -107,6 +116,45 @@ export function computeRoundingRanking(bookingScores, { booking, members = [], c
     };
   });
 
+  // 포썸 페어 순위 (리더보드와 동일 규칙: 페어 중 점수가 있는 사람의 스코어 − 팀 핸디캡)
+  const foursomePairs = [];
+  for (const team of foursomeTeamList) {
+    if (!Array.isArray(team?.members) || team.members.length < 4) continue;
+    for (const [pairLabel, slots, hcpKey] of [['A', [0, 1], 'pairAHandicap'], ['B', [2, 3], 'pairBHandicap']]) {
+      const pairMembers = slots.map((i) => team.members[i]).filter(Boolean);
+      const teamHandicap = team[hcpKey] ?? null;
+      let totalScore = null;
+      for (const m of pairMembers) {
+        const found = allProcessed.find((s) => s.phone === m.phone || s.odId === m.phone);
+        if (found && found.totalScore > 0) { totalScore = found.totalScore; break; }
+      }
+      foursomePairs.push({
+        teamNumber: team.teamNumber,
+        pairLabel,
+        memberNames: pairMembers
+          .map((m) => {
+            const full = members.find((x) => x?.phone === m.phone);
+            return full?.nickname || full?.name || m.nickname || m.name || '미정';
+          })
+          .join(' & '),
+        teamHandicap,
+        totalScore,
+        netScore: totalScore == null ? null : round1(totalScore - (teamHandicap ?? 0)),
+      });
+    }
+  }
+  foursomePairs.sort((a, b) => {
+    if (a.netScore === null && b.netScore === null) return 0;
+    if (a.netScore === null) return 1;
+    if (b.netScore === null) return -1;
+    return a.netScore - b.netScore;
+  });
+
+  // 혼용 라운딩에서는 포썸 조 인원을 개인 순위에서 뺀다 (위 페어 순위로 집계되므로)
+  const processedScores = isMixed
+    ? allProcessed.filter((s) => !foursomePhones.has(s.phone))
+    : allProcessed;
+
   // 신페리오인데 12홀이 아직 지정되지 않았으면 네트를 낼 수 없다 → 그로스 순위로 보여준다.
   const rankByGross = newPeria.isNewPeria && !newPeria.isConfigured;
 
@@ -120,7 +168,7 @@ export function computeRoundingRanking(bookingScores, { booking, members = [], c
     return rankByGross ? a.totalScore - b.totalScore : a.netScore - b.netScore;
   });
 
-  return { processedScores, gradeSettings, gameMode, newPeria, rankByGross };
+  return { processedScores, gradeSettings, gameMode, newPeria, rankByGross, isMixed, foursomePairs };
 }
 
 // 정렬된 순위에서 우승자 추출 (맨 위 이름).
@@ -139,4 +187,13 @@ export function deriveWinners(processedScores, { isNewPeria = false } = {}) {
   const grades = [...new Set(played.map((s) => s.grade))].filter((g) => g && g !== 'ALL').sort();
   const gradeWinners = grades.map((g) => ({ grade: g, winner: played.find((s) => s.grade === g) }));
   return { overall, gradeWinners, podium: [] };
+}
+
+// 포썸 페어 시상 — 넷 스코어 낮은 순으로 상위 N팀.
+// 스코어가 없는 페어는 대상이 아니다.
+export function deriveFoursomeWinners(foursomePairs, count = 2) {
+  return (foursomePairs || [])
+    .filter((p) => p.netScore != null)
+    .slice(0, count)
+    .map((pair, i) => ({ rank: i + 1, pair }));
 }
