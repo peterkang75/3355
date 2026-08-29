@@ -63,6 +63,7 @@ router.get("/by-rounding/:roundingName", async (req, res) => {
             id: true,
             name: true,
             nickname: true,
+            phone: true,   // 조편성(teams)은 phone으로 사람을 식별한다 — 빠지면 조별 방식 판정이 어긋난다
             handicap: true,
             gaHandy: true,
             gender: true,

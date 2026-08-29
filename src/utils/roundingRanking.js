@@ -101,7 +101,8 @@ export function computeRoundingRanking(bookingScores, { booking, members = [], c
 
     return {
       odId: score.userId,
-      phone: member?.phone || score.userId,
+      // score.user에 phone이 없을 수 있어 회원 목록에서 한 번 더 찾는다
+      phone: member?.phone || members.find((m) => m.id === score.userId)?.phone || score.userId,
       nickname,
       isGuest: isGuestPlayer,
       handicap: newPeriaHcp ?? handicap,
