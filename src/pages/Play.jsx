@@ -1437,13 +1437,18 @@ function Play() {
       const myTeamHandicap = foursomeData.isTeamA ? foursomeData.teamAHandicap : foursomeData.teamBHandicap;
       const opponentTeamHandicap = foursomeData.isTeamA ? foursomeData.teamBHandicap : foursomeData.teamAHandicap;
       
+      // 포썸은 상대 페어가 조편성으로 이미 정해져 있어 마커를 고를 게 없다.
+      // (selectedTeammate는 스코어카드에서 "상대 페어 카드"를 가리키는 내부 값일 뿐)
+      const opponentLead = foursomeData.opponents?.[0] || selectedTeammate || null;
+
       const handleStartFoursome = async () => {
-        if (isStartingRound) return;
-        
+        if (isStartingRound || !opponentLead) return;
+
+        setSelectedTeammate(opponentLead);
         setIsStartingRound(true);
         try {
           const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
-          const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
+          const teammateMemberId = members?.find(m => m.phone === opponentLead.phone)?.id || opponentLead.id;
           const res = await fetch(`/api/scores/check?memberId=${teammateMemberId}&date=${scoreDate}&roundingName=${encodeURIComponent(booking?.title || '')}`);
           const data = await res.json();
           
@@ -1468,7 +1473,7 @@ function Play() {
       
       return (
         <div style={{ minHeight: '100vh', background: '#0d1a45' }}>
-          <PageHeader title="마커 선택" />
+          <PageHeader title="포썸 매치" />
           <div style={{ padding: '16px', paddingBottom: '80px' }}>
           <div className="card">
             <div style={{ textAlign: 'center', marginBottom: '20px' }}>
@@ -1642,24 +1647,29 @@ function Play() {
               </div>
             </div>
             
-            <button
-              onClick={handleStartFoursome}
-              disabled={isStartingRound || !selectedTeammate}
-              style={{
-                width: '100%',
-                padding: '16px',
-                background: (!isStartingRound && selectedTeammate) ? 'var(--primary-green)' : 'var(--bg-card)',
-                border: 'none',
-                borderRadius: '8px',
-                color: 'white',
-                fontWeight: '700',
-                fontSize: '16px',
-                cursor: (!isStartingRound && selectedTeammate) ? 'pointer' : 'not-allowed',
-                opacity: (!isStartingRound && selectedTeammate) ? 1 : 0.5
-              }}
-            >
-              {isStartingRound ? '확인 중...' : '매치 시작'}
-            </button>
+            {(() => {
+              const ready = !isStartingRound && !!opponentLead;
+              return (
+                <button
+                  onClick={handleStartFoursome}
+                  disabled={!ready}
+                  style={{
+                    width: '100%',
+                    padding: '16px',
+                    // 예전엔 비활성 배경이 흰색인데 글씨도 흰색이라 버튼이 아예 안 보였다
+                    background: ready ? '#0047AB' : '#E2E8F0',
+                    border: 'none',
+                    borderRadius: '10px',
+                    color: ready ? '#FFFFFF' : '#94A3B8',
+                    fontWeight: '700',
+                    fontSize: '16px',
+                    cursor: ready ? 'pointer' : 'not-allowed',
+                  }}
+                >
+                  {isStartingRound ? '확인 중...' : opponentLead ? '매치 시작' : '상대 페어가 없습니다'}
+                </button>
+              );
+            })()}
           </div>
           </div>
         </div>
