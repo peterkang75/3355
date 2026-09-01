@@ -731,6 +731,159 @@ router.post("/refund", requireAuth, requireOperator, async (req, res) => {
   }
 });
 
+// ── 정산 대기 (참가 취소 후 환불 여부 미결) ────────────────────────────────
+// 취소는 라운딩 며칠 전에 일어나지만 실제 돈은 한참 뒤에 움직인다. 그 사이를
+// "정산 대기"로 붙잡아두고 총무가 건별로 셋 중 하나를 고른다.
+//   charge_cancelled — 안 낸 사람. 청구를 지우고 종결 (예전 취소 동작과 동일)
+//   refunded         — 낸 사람. 현금환불 또는 크레딧전환 기록. 청구는 유지
+//   forfeited        — 낸 사람인데 안 돌려줌. 클럽 수입으로 확정
+
+// GET /api/transactions/pending-settlements — 미결 목록
+router.get("/pending-settlements", requireAuth, requireOperator, async (req, res) => {
+  try {
+    const rows = await prisma.roundCancellation.findMany({
+      where: { status: "pending" },
+      include: {
+        member: { select: { id: true, name: true, nickname: true, isGuest: true, balance: true } },
+        booking: { select: { id: true, title: true, courseName: true, date: true } },
+      },
+      orderBy: { cancelledAt: "desc" },
+    });
+
+    const items = [];
+    for (const row of rows) {
+      const related = await prisma.transaction.findMany({
+        where: { memberId: row.memberId, bookingId: row.bookingId },
+        select: { type: true, amount: true, category: true },
+      });
+
+      const chargeTotal = related
+        .filter(t => t.type === "charge")
+        .reduce((s, t) => s + t.amount, 0);
+      // 크레딧으로 자동 결제된 몫 (이 라운딩에 한해 확실히 알 수 있는 유일한 납부액)
+      const paidByCredit = related
+        .filter(t => t.type === "payment" && t.category === "크레딧 자동 차감")
+        .reduce((s, t) => s + t.amount, 0);
+      const alreadyRefunded = related
+        .filter(t => (t.type === "expense" && t.category === "환불") || (t.type === "credit" && t.category === "크레딧전환"))
+        .reduce((s, t) => s + t.amount, 0);
+
+      items.push({
+        id: row.id,
+        bookingId: row.bookingId,
+        bookingTitle: row.booking?.title || row.booking?.courseName || "(삭제된 라운딩)",
+        bookingDate: row.booking?.date || null,
+        memberId: row.memberId,
+        memberName: row.member?.nickname || row.member?.name || "(알 수 없음)",
+        isGuest: !!row.member?.isGuest,
+        memberBalance: row.member?.balance ?? 0,
+        chargeTotal,
+        paidByCredit,
+        alreadyRefunded,
+        refundableAmount: Math.max(chargeTotal - alreadyRefunded, 0),
+        cancelledAt: row.cancelledAt,
+      });
+    }
+
+    res.json(items);
+  } catch (error) {
+    console.error("Error fetching pending settlements:", error);
+    res.status(500).json({ error: "Failed to fetch pending settlements" });
+  }
+});
+
+// POST /api/transactions/pending-settlements/:id/resolve
+// body: { action: 'charge_cancelled'|'refunded'|'forfeited', mode?: 'cash'|'credit',
+//         amount?, memo?, date?, receiptImage? }
+router.post("/pending-settlements/:id/resolve", requireAuth, requireOperator, async (req, res) => {
+  try {
+    const { action, mode, amount, memo, date, receiptImage } = req.body;
+    const VALID = ["charge_cancelled", "refunded", "forfeited"];
+    if (!VALID.includes(action)) {
+      return res.status(400).json({ error: "action은 charge_cancelled | refunded | forfeited 중 하나여야 합니다" });
+    }
+
+    const row = await prisma.roundCancellation.findUnique({
+      where: { id: req.params.id },
+      include: { booking: { select: { title: true, courseName: true } } },
+    });
+    if (!row) return res.status(404).json({ error: "정산 대기 항목을 찾을 수 없습니다" });
+    if (row.status !== "pending") {
+      return res.status(400).json({ error: "이미 처리된 항목입니다" });
+    }
+
+    const { memberId, bookingId } = row;
+    const settledBy = req.member?.id || null;
+    const today = date || new Date().toLocaleDateString("en-CA", { timeZone: "Australia/Sydney" });
+
+    if (action === "charge_cancelled") {
+      // 안 낸 사람 — 청구와 크레딧 자동차감 쌍을 지운다 (크레딧은 회원에게 되돌아감)
+      await prisma.transaction.deleteMany({
+        where: {
+          memberId,
+          bookingId,
+          OR: [
+            { type: "charge" },
+            { type: "expense", category: "크레딧 자동 차감" },
+            { type: "payment", category: "크레딧 자동 차감" },
+          ],
+        },
+      });
+      await recalculateAndUpdateBalance(memberId);
+
+    } else if (action === "refunded") {
+      if (!["cash", "credit"].includes(mode)) {
+        return res.status(400).json({ error: "환불은 mode(cash|credit)가 필요합니다" });
+      }
+      const amt = Number(amount);
+      if (!amt || amt <= 0) return res.status(400).json({ error: "환불 금액을 입력해주세요" });
+
+      // 이 라운딩 청구 총액 − 이미 환불된 금액을 넘을 수 없다
+      const related = await prisma.transaction.findMany({
+        where: { memberId, bookingId },
+        select: { type: true, amount: true, category: true },
+      });
+      const chargeTotal = related.filter(t => t.type === "charge").reduce((s, t) => s + t.amount, 0);
+      const alreadyRefunded = related
+        .filter(t => (t.type === "expense" && t.category === "환불") || (t.type === "credit" && t.category === "크레딧전환"))
+        .reduce((s, t) => s + t.amount, 0);
+      const refundable = chargeTotal - alreadyRefunded;
+      if (amt > refundable) {
+        return res.status(400).json({ error: `환불 가능 금액($${refundable})을 초과했습니다` });
+      }
+
+      const base = row.booking?.title || row.booking?.courseName || "환불";
+      const description = memo ? `${base} - ${memo}` : `${base} (불참 환불)`;
+
+      await prisma.transaction.create({
+        data: mode === "credit"
+          ? { type: "credit", amount: amt, description, category: "크레딧전환", date: today, memberId, bookingId, memo: memo || null, createdBy: settledBy }
+          : { type: "expense", amount: amt, description, category: "환불", date: today, memberId, bookingId, memo: memo || null, receiptImage: receiptImage || null, createdBy: settledBy },
+      });
+      await recalculateAndUpdateBalance(memberId);
+    }
+    // forfeited — 거래를 만들지 않는다. 낸 돈이 그대로 클럽 수입으로 남는다.
+
+    const updated = await prisma.roundCancellation.update({
+      where: { id: row.id },
+      data: {
+        status: action,
+        chargeKept: action !== "charge_cancelled",
+        settledAt: new Date(),
+        settledBy,
+        note: memo || null,
+      },
+    });
+
+    req.io.emit("transactions:updated");
+    req.io.emit("members:updated");
+    res.json({ success: true, settlement: updated });
+  } catch (error) {
+    console.error("Error resolving pending settlement:", error);
+    res.status(500).json({ error: "Failed to resolve pending settlement" });
+  }
+});
+
 // ── GET /api/transactions/pending-receipts — 영수증 첨부된 미납 charge 목록 ─
 router.get("/pending-receipts", requireAuth, requireOperator, async (req, res) => {
   try {

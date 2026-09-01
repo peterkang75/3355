@@ -899,6 +899,27 @@ class ApiService {
     return response.json();
   }
 
+  async fetchPendingSettlements() {
+    const response = await fetch(`${API_BASE}/transactions/pending-settlements`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error('Failed to fetch pending settlements');
+    return response.json();
+  }
+
+  async resolvePendingSettlement(id, payload) {
+    const response = await fetch(`${API_BASE}/transactions/pending-settlements/${id}/resolve`, {
+      method: 'POST',
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(payload)
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Failed to resolve pending settlement');
+    }
+    return response.json();
+  }
+
   async createChargeWithCredit(chargeData) {
     const response = await fetch(`${API_BASE}/transactions/charge-with-credit`, {
       method: 'POST',
