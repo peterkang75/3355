@@ -4,6 +4,7 @@
   "description": "3355 Golf Club Management App",
   "main": "server/server.js",
   "scripts": {
+    "postinstall": "prisma generate",
     "dev": "concurrently \"vite\" \"node server/server.js\"",
     "build": "vite build",
     "preview": "vite preview",

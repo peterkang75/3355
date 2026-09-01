@@ -797,7 +797,7 @@ router.get("/pending-settlements", requireAuth, requireOperator, async (req, res
 //         amount?, memo?, date?, receiptImage? }
 router.post("/pending-settlements/:id/resolve", requireAuth, requireOperator, async (req, res) => {
   try {
-    const { action, mode, amount, memo, date, receiptImage } = req.body;
+    const { action, mode, amount, memo, date, receiptImage, acknowledgeCredit } = req.body;
     const VALID = ["charge_cancelled", "refunded", "forfeited"];
     if (!VALID.includes(action)) {
       return res.status(400).json({ error: "action은 charge_cancelled | refunded | forfeited 중 하나여야 합니다" });
@@ -818,6 +818,32 @@ router.post("/pending-settlements/:id/resolve", requireAuth, requireOperator, as
 
     if (action === "charge_cancelled") {
       // 안 낸 사람 — 청구와 크레딧 자동차감 쌍을 지운다 (크레딧은 회원에게 되돌아감)
+      //
+      // 방어벽: 이미 낸 사람에게 이걸 누르면 payment만 남아 잔액이 +로 뒤집힌다.
+      // 그게 바로 이 기능이 없애려던 유령 크레딧이므로, 처리 후 잔액이 +가 되면
+      // 명시적 확인(acknowledgeCredit) 없이는 막는다.
+      // (납부 여부를 추론하는 게 아니라, 실제 행들로 처리 후 잔액을 계산하는 것뿐이다)
+      const [memberRow, rel] = await Promise.all([
+        prisma.member.findUnique({ where: { id: memberId }, select: { balance: true } }),
+        prisma.transaction.findMany({
+          where: { memberId, bookingId },
+          select: { type: true, amount: true, category: true },
+        }),
+      ]);
+      const chargeSum = rel.filter(t => t.type === "charge").reduce((s, t) => s + t.amount, 0);
+      const creditExpenseSum = rel
+        .filter(t => t.type === "expense" && t.category === "크레딧 자동 차감")
+        .reduce((s, t) => s + t.amount, 0);
+      const projected = (memberRow?.balance || 0) + chargeSum + creditExpenseSum;
+
+      if (projected > 0 && !acknowledgeCredit) {
+        return res.status(400).json({
+          error: `청구를 지우면 이 회원 잔액이 +$${projected} 크레딧이 됩니다. 이미 납부하신 분일 수 있습니다. 환불이 맞다면 '환불'로 처리하세요.`,
+          projectedBalance: projected,
+          requiresAcknowledge: true,
+        });
+      }
+
       await prisma.transaction.deleteMany({
         where: {
           memberId,

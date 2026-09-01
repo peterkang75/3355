@@ -1088,6 +1088,16 @@ function SettlementResolveSheet({ item, onClose, onDone }) {
     { key: 'forfeited', label: '환불 없음', desc: '돌려드리지 않고 클럽 수입으로 확정합니다.' },
   ];
 
+  // 처리 후 잔액을 미리 계산해서 보여준다. 추측이 아니라 실제 거래 행으로 하는 산술이다.
+  // "청구 취소"를 이미 낸 사람에게 누르면 잔액이 +로 뒤집혀(유령 크레딧) 이 기능이
+  // 없애려던 문제가 그대로 재현되므로, 누르기 전에 결과가 보여야 한다.
+  const projectedBalance = (() => {
+    if (action === 'charge_cancelled') return item.memberBalance + item.chargeTotal + item.paidByCredit;
+    if (action === 'refunded' && mode === 'credit') return item.memberBalance + (parseFloat(amount) || 0);
+    return item.memberBalance;
+  })();
+  const willCreateCredit = action === 'charge_cancelled' && projectedBalance > 0;
+
   const handleSubmit = async () => {
     if (!action || saving) return;
     if (action === 'refunded') {
@@ -1097,11 +1107,21 @@ function SettlementResolveSheet({ item, onClose, onDone }) {
         return;
       }
     }
+    if (willCreateCredit) {
+      const ok = window.confirm(
+        `청구를 지우면 ${item.memberName}님 잔액이 +${formatCurrency(projectedBalance)} 크레딧이 됩니다.\n\n` +
+        `이미 납부하신 분일 가능성이 높습니다. 돈을 돌려드릴 거라면 '환불'로 처리하세요.\n\n` +
+        `그래도 청구 취소로 진행할까요?`
+      );
+      if (!ok) return;
+    }
+
     setSaving(true);
     try {
       await apiService.resolvePendingSettlement(item.id, {
         action,
         ...(action === 'refunded' ? { mode, amount: parseFloat(amount), date, receiptImage: receiptImage || null } : {}),
+        ...(willCreateCredit ? { acknowledgeCredit: true } : {}),
         memo: memo || null,
       });
       onDone();
@@ -1162,6 +1182,28 @@ function SettlementResolveSheet({ item, onClose, onDone }) {
               </div>
             ))}
           </div>
+
+          {/* 처리 후 잔액 미리보기 — 잘못 고르면 유령 크레딧이 생기므로 결과를 먼저 보여준다 */}
+          {action && (
+            <div style={{
+              borderRadius: 12, padding: '12px 14px', marginBottom: 18,
+              background: willCreateCredit ? '#FEF3C7' : '#f8fafc',
+              border: willCreateCredit ? '1.5px solid #fcd34d' : 'none',
+            }}>
+              <div style={{ fontSize: 13, color: '#475569' }}>
+                이 처리 후 {item.memberName}님 잔액{' '}
+                <b style={{ color: projectedBalance > 0 ? '#ea580c' : projectedBalance < 0 ? '#ef4444' : '#1e293b' }}>
+                  {projectedBalance > 0 ? '+' : ''}{formatCurrency(projectedBalance)}
+                </b>
+                {projectedBalance === 0 && <span style={{ color: 'var(--text-muted)' }}> — 미납·크레딧 없이 깔끔하게 끝납니다</span>}
+              </div>
+              {willCreateCredit && (
+                <div style={{ fontSize: 12, color: '#92400e', marginTop: 6, fontWeight: 600, lineHeight: 1.5 }}>
+                  크레딧이 생깁니다. 이미 납부하신 분일 가능성이 높습니다 — 돈을 돌려드릴 거라면 '환불'을 고르세요.
+                </div>
+              )}
+            </div>
+          )}
 
           {/* 환불 상세 */}
           {action === 'refunded' && (
