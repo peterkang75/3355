@@ -614,36 +614,34 @@ router.get("/refund-candidates/:memberId", requireAuth, requireOperator, async (
       }),
     ]);
 
+    // 이 앱은 납부(payment)를 특정 청구(bookingId)에 연결해서 기록하지 않는 경우가 대부분이라
+    // ("빠른 입력"에는 라운딩 선택 필드 자체가 없음) 청구별로 "이 청구가 결제됐는지"를 개별 매칭할 수 없다.
+    // 대신 회원의 현재 전체 잔액이 마이너스(미납)가 아니면 "완납 상태"로 간주한다.
     const results = [];
-    for (const charge of charges) {
-      const related = await prisma.transaction.findMany({
-        where: { memberId, bookingId: charge.bookingId },
-        select: { type: true, amount: true, category: true },
-      });
+    if ((member?.balance || 0) >= 0) {
+      for (const charge of charges) {
+        const related = await prisma.transaction.findMany({
+          where: { memberId, bookingId: charge.bookingId },
+          select: { type: true, amount: true, category: true },
+        });
 
-      // 이 청구(bookingId+memberId)에 연결된 payment는 카테고리 불문(크레딧 납부 포함) 전부 합산 —
-      // "실제 현금이 들어왔는지"가 아니라 "이 청구가 어떤 방식으로든 완전히 정산됐는지"만 판단
-      const paidAmount = related
-        .filter(t => t.type === "payment")
-        .reduce((sum, t) => sum + t.amount, 0);
-      if (paidAmount < charge.amount) continue; // 미납 청구는 대상 아님 (회원상세의 "청구취소" 사용)
+        const alreadyRefunded = related
+          .filter(t => (t.type === "expense" && t.category === "환불") || (t.type === "credit" && t.category === "크레딧전환"))
+          .reduce((sum, t) => sum + t.amount, 0);
 
-      const alreadyRefunded = related
-        .filter(t => (t.type === "expense" && t.category === "환불") || (t.type === "credit" && t.category === "크레딧전환"))
-        .reduce((sum, t) => sum + t.amount, 0);
+        const refundableAmount = charge.amount - alreadyRefunded;
+        if (refundableAmount <= 0) continue;
 
-      const refundableAmount = charge.amount - alreadyRefunded;
-      if (refundableAmount <= 0) continue;
-
-      results.push({
-        chargeId: charge.id,
-        bookingId: charge.bookingId,
-        bookingTitle: charge.booking?.title || charge.booking?.courseName || charge.description,
-        date: charge.date,
-        chargeAmount: charge.amount,
-        alreadyRefunded,
-        refundableAmount,
-      });
+        results.push({
+          chargeId: charge.id,
+          bookingId: charge.bookingId,
+          bookingTitle: charge.booking?.title || charge.booking?.courseName || charge.description,
+          date: charge.date,
+          chargeAmount: charge.amount,
+          alreadyRefunded,
+          refundableAmount,
+        });
+      }
     }
 
     res.json({
@@ -678,12 +676,18 @@ router.post("/refund", requireAuth, requireOperator, async (req, res) => {
     let baseDescription = "환불";
 
     if (chargeId) {
-      const charge = await prisma.transaction.findUnique({
-        where: { id: chargeId },
-        include: { booking: { select: { title: true, courseName: true } } },
-      });
+      const [charge, memberForCheck] = await Promise.all([
+        prisma.transaction.findUnique({
+          where: { id: chargeId },
+          include: { booking: { select: { title: true, courseName: true } } },
+        }),
+        prisma.member.findUnique({ where: { id: memberId }, select: { balance: true } }),
+      ]);
       if (!charge || charge.memberId !== memberId || charge.type !== "charge") {
         return res.status(400).json({ error: "유효하지 않은 청구입니다" });
+      }
+      if ((memberForCheck?.balance || 0) < 0) {
+        return res.status(400).json({ error: "이 회원은 현재 미납 상태라 완납 청구 환불 대상이 아닙니다" });
       }
       bookingId = charge.bookingId;
       baseDescription = charge.booking?.title || charge.booking?.courseName || charge.description || "환불";

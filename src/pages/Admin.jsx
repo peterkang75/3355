@@ -9698,12 +9698,12 @@ function Admin() {
               {!refundMemberId ? (
                 <>
                   <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>회원 선택</div>
-                  {(contextMembers || members || []).filter(m => m.isActive).map(member => (
+                  {(contextMembers || members || []).filter(m => m.isActive || m.isGuest).map(member => (
                     <div key={member.id}
                       onClick={() => handleSelectRefundMember(member.id)}
                       style={{ display: 'flex', alignItems: 'center', padding: '12px', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }}
                     >
-                      <div style={{ fontSize: '15px', fontWeight: '600' }}>{member.nickname || member.name}</div>
+                      <div style={{ fontSize: '15px', fontWeight: '600' }}>{member.nickname || member.name}{member.isGuest ? ' (게스트)' : ''}</div>
                     </div>
                   ))}
                 </>

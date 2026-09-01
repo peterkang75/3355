@@ -251,8 +251,8 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                 <select value={selectedMember} onChange={e => setSelectedMember(e.target.value)}
                   style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, color: 'var(--on-background)', background: '#f8fafc', outline: 'none' }}>
                   <option value="">회원 선택</option>
-                  {members.filter(m => m.isActive).map(m => (
-                    <option key={m.id} value={m.id}>{m.nickname || m.name}</option>
+                  {members.filter(m => m.isActive || m.isGuest).map(m => (
+                    <option key={m.id} value={m.id}>{m.nickname || m.name}{m.isGuest ? ' (게스트)' : ''}</option>
                   ))}
                 </select>
               </div>
