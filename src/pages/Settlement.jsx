@@ -62,8 +62,34 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
   const [saving, setSaving] = useState(false);
   const [receiptImages, setReceiptImages] = useState([]);
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
   const [date, setDate] = useState(todayStr);
+
+  // "환불" 카테고리는 자유입력이 아니라 완납 청구/보유 크레딧에서 골라서 처리 (청구는 그대로 유지)
+  const isRefundFlow = mode === 'expense' && selectedCategory === '환불';
+  const [refundCandidates, setRefundCandidates] = useState({ charges: [], creditBalance: 0 });
+  const [refundTargetKey, setRefundTargetKey] = useState('');
+  const [refundSubMode, setRefundSubMode] = useState('cash');
+
+  useEffect(() => {
+    if (!isRefundFlow || !selectedMember) {
+      setRefundCandidates({ charges: [], creditBalance: 0 });
+      setRefundTargetKey('');
+      return;
+    }
+    apiService.fetchRefundCandidates(selectedMember)
+      .then(setRefundCandidates)
+      .catch(() => setRefundCandidates({ charges: [], creditBalance: 0 }));
+  }, [isRefundFlow, selectedMember]);
+
+  const getRefundTarget = () => {
+    if (!refundTargetKey) return null;
+    if (refundTargetKey === 'credit') {
+      return { type: 'credit', chargeId: null, maxAmount: refundCandidates.creditBalance };
+    }
+    const charge = refundCandidates.charges.find(c => c.chargeId === refundTargetKey);
+    return charge ? { type: 'charge', chargeId: charge.chargeId, maxAmount: charge.refundableAmount } : null;
+  };
 
   // 바텀시트 열릴 때 body 스크롤 잠금
   useEffect(() => {
@@ -94,6 +120,37 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
   const categories = mode === 'income' ? incomeCategories : expenseCategories;
 
   const handleSave = async () => {
+    if (isRefundFlow) {
+      const target = getRefundTarget();
+      if (!selectedMember || !target) { alert('회원과 환불 대상을 선택해주세요.'); return; }
+      const parsed = parseInt(String(amount).replace(/,/g, ''), 10);
+      if (!parsed || parsed <= 0 || parsed > target.maxAmount) {
+        alert(`0보다 크고 $${target.maxAmount}을 넘지 않는 금액을 입력해주세요.`);
+        return;
+      }
+      if (!date) { alert('날짜를 선택해주세요.'); return; }
+      setSaving(true);
+      try {
+        await apiService.createRefund({
+          memberId: selectedMember,
+          mode: refundSubMode,
+          chargeId: target.type === 'charge' ? target.chargeId : undefined,
+          amount: parsed,
+          memo: memo || null,
+          date,
+          receiptImage: receiptImages[0] || null,
+          createdBy: authHeaders?.['X-Member-Id'] || null,
+        });
+        onSaved();
+        onClose();
+      } catch (e) {
+        alert('환불 처리 실패: ' + e.message);
+      } finally {
+        setSaving(false);
+      }
+      return;
+    }
+
     if (!amount || !selectedCategory) { alert('항목과 금액을 입력해주세요.'); return; }
     const parsed = parseInt(amount.replace(/,/g, ''), 10);
     if (!parsed || parsed <= 0) { alert('올바른 금액을 입력하세요.'); return; }
@@ -171,7 +228,12 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>항목 선택</div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
               {categories.map(cat => (
-                <button key={cat.id} onClick={() => setSelectedCategory(cat.name)}
+                <button key={cat.id} onClick={() => {
+                    setSelectedCategory(cat.name);
+                    setAmount('');
+                    setRefundTargetKey('');
+                    setRefundSubMode('cash');
+                  }}
                   style={{
                     padding: '8px 14px', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none',
                     background: selectedCategory === cat.name ? (mode === 'income' ? 'var(--primary)' : '#ef4444') : '#f1f5f9',
@@ -181,102 +243,229 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
             </div>
           </div>
 
-          {/* 금액 */}
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>금액</div>
-            <div style={{ position: 'relative' }}>
-              <input type="number" inputMode="numeric" placeholder="0" value={amount} onChange={e => setAmount(e.target.value)}
-                style={{ width: '100%', padding: '14px 16px 14px 36px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 20, fontWeight: 700, color: 'var(--on-background)', background: '#f8fafc', outline: 'none', boxSizing: 'border-box' }} />
-              <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'var(--text-muted)', fontWeight: 600 }}>$</span>
-            </div>
-          </div>
-
-          {/* 영수증 + 메모 (나란히 배치) */}
-          <div style={{ marginBottom: 16, display: 'flex', gap: 10, alignItems: 'stretch' }}>
-            {/* 영수증 첨부 (지출만) */}
-            {mode === 'expense' && (
-              <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>영수증 (선택)</div>
-                <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 6, alignContent: 'flex-start' }}>
-                  {receiptImages.map((img, i) => (
-                    <div key={i} style={{ position: 'relative', width: 72, height: 72 }}>
-                      <img src={img} alt="영수증" style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 10, border: '1.5px solid #e2e8f0' }} />
-                      <button onClick={() => setReceiptImages(prev => prev.filter((_, idx) => idx !== i))}
-                        style={{ position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%', border: 'none', background: '#ef4444', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
-                    </div>
+          {isRefundFlow ? (
+            <>
+              {/* 환불: 회원 선택 → 완납 청구/보유 크레딧에서 대상 선택 → 현금환불/크레딧전환 */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>회원</div>
+                <select value={selectedMember} onChange={e => setSelectedMember(e.target.value)}
+                  style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, color: 'var(--on-background)', background: '#f8fafc', outline: 'none' }}>
+                  <option value="">회원 선택</option>
+                  {members.filter(m => m.isActive).map(m => (
+                    <option key={m.id} value={m.id}>{m.nickname || m.name}</option>
                   ))}
-                  {receiptImages.length < 5 && (
-                    <label style={{ width: 72, height: 72, borderRadius: 10, border: '1.5px dashed #cbd5e1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', gap: 4, background: '#f8fafc' }}>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
-                      </svg>
-                      <span style={{ fontSize: 10, fontWeight: 600 }}>사진 추가</span>
-                      <input type="file" accept="image/*" onChange={handleImageAdd} style={{ display: 'none' }} />
-                    </label>
-                  )}
+                </select>
+              </div>
+
+              {selectedMember && (
+                refundCandidates.charges.length === 0 && refundCandidates.creditBalance <= 0 ? (
+                  <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13, background: '#f8fafc', borderRadius: 12, marginBottom: 16 }}>
+                    환불하거나 크레딧으로 전환할 완납 내역이 없습니다.
+                  </div>
+                ) : (
+                  <div style={{ marginBottom: 16 }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>환불 대상</div>
+                    {refundCandidates.charges.map(c => (
+                      <div key={c.chargeId}
+                        onClick={() => { setRefundTargetKey(c.chargeId); setRefundSubMode('cash'); setAmount(String(c.refundableAmount)); }}
+                        style={{
+                          padding: '10px 12px', borderRadius: 12, border: '1.5px solid ' + (refundTargetKey === c.chargeId ? '#ef4444' : '#e2e8f0'),
+                          background: refundTargetKey === c.chargeId ? '#fef2f2' : '#f8fafc', marginBottom: 8, cursor: 'pointer',
+                        }}>
+                        <div style={{ fontSize: 14, fontWeight: 700 }}>{c.bookingTitle}</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>청구 ${c.chargeAmount.toLocaleString()} (완납) · 환불 가능 ${c.refundableAmount.toLocaleString()}</div>
+                      </div>
+                    ))}
+                    {refundCandidates.creditBalance > 0 && (
+                      <div
+                        onClick={() => { setRefundTargetKey('credit'); setRefundSubMode('cash'); setAmount(String(refundCandidates.creditBalance)); }}
+                        style={{
+                          padding: '10px 12px', borderRadius: 12, border: '1.5px solid ' + (refundTargetKey === 'credit' ? '#ef4444' : '#e2e8f0'),
+                          background: refundTargetKey === 'credit' ? '#fef2f2' : '#f8fafc', cursor: 'pointer',
+                        }}>
+                        <div style={{ fontSize: 14, fontWeight: 700 }}>보유 크레딧</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>사용 가능 ${refundCandidates.creditBalance.toLocaleString()}</div>
+                      </div>
+                    )}
+                  </div>
+                )
+              )}
+
+              {refundTargetKey && (() => {
+                const target = getRefundTarget();
+                return (
+                  <>
+                    {refundTargetKey !== 'credit' && (
+                      <div style={{ marginBottom: 16 }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>처리 방식</div>
+                        <div style={{ display: 'flex', gap: 8 }}>
+                          {[['cash', '현금으로 환불'], ['credit', '크레딧으로 전환']].map(([val, label]) => (
+                            <button key={val} onClick={() => setRefundSubMode(val)}
+                              style={{ flex: 1, padding: 10, borderRadius: 10, border: 'none', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                                background: refundSubMode === val ? '#ef4444' : '#f1f5f9', color: refundSubMode === val ? '#fff' : 'var(--on-background)' }}>
+                              {label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div style={{ background: '#f8fafc', borderRadius: 12, padding: 12, marginBottom: 16, fontSize: 12, color: 'var(--text-muted)' }}>
+                      {refundSubMode === 'credit'
+                        ? '청구는 그대로 유지되고, 이 금액만큼 크레딧이 발급됩니다. 회원 잔액이 늘어나며 현금은 나가지 않습니다.'
+                        : '청구는 그대로 유지되고, 이 환불만 별도로 기록됩니다. 실제 현금이 나가지만 회원 잔액에는 영향이 없습니다.'}
+                    </div>
+
+                    <div style={{ marginBottom: 16 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>금액 (최대 ${target?.maxAmount?.toLocaleString()})</div>
+                      <div style={{ position: 'relative' }}>
+                        <input type="number" inputMode="numeric" value={amount} onChange={e => setAmount(e.target.value)}
+                          style={{ width: '100%', padding: '14px 16px 14px 36px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 20, fontWeight: 700, color: 'var(--on-background)', background: '#f8fafc', outline: 'none', boxSizing: 'border-box' }} />
+                        <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'var(--text-muted)', fontWeight: 600 }}>$</span>
+                      </div>
+                    </div>
+
+                    <div style={{ marginBottom: 16 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>사유 메모 (선택)</div>
+                      <textarea placeholder="예: 그린피만 환불, 카트비·참가비는 환불불가" value={memo} onChange={e => setMemo(e.target.value)}
+                        style={{ width: '100%', minHeight: 60, padding: '10px 12px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, background: '#f8fafc', outline: 'none', boxSizing: 'border-box', resize: 'none', fontFamily: 'inherit' }} />
+                    </div>
+
+                    <div style={{ marginBottom: 16 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.04em' }}>{refundSubMode === 'credit' ? '크레딧전환 일자' : '실제 환불(입금)한 날짜'}</div>
+                        {date !== todayStr && (
+                          <button onClick={() => setDate(todayStr)} style={{ fontSize: 11, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}>오늘로 되돌리기</button>
+                        )}
+                      </div>
+                      <input type="date" value={date} onChange={e => setDate(e.target.value)}
+                        style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, background: '#f8fafc', outline: 'none', boxSizing: 'border-box' }} />
+                    </div>
+
+                    {refundSubMode === 'cash' && (
+                      <div style={{ marginBottom: 16 }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>환불 증빙 (선택 — 이체내역 캡처 등)</div>
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                          {receiptImages.map((img, i) => (
+                            <div key={i} style={{ position: 'relative', width: 72, height: 72 }}>
+                              <img src={img} alt="증빙" style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 10, border: '1.5px solid #e2e8f0' }} />
+                              <button onClick={() => setReceiptImages(prev => prev.filter((_, idx) => idx !== i))}
+                                style={{ position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%', border: 'none', background: '#ef4444', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>×</button>
+                            </div>
+                          ))}
+                          {receiptImages.length < 1 && (
+                            <label style={{ width: 72, height: 72, borderRadius: 10, border: '1.5px dashed #cbd5e1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', gap: 4, background: '#f8fafc' }}>
+                              <span style={{ fontSize: 10, fontWeight: 600 }}>사진 추가</span>
+                              <input type="file" accept="image/*" onChange={handleImageAdd} style={{ display: 'none' }} />
+                            </label>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
+            </>
+          ) : (
+            <>
+              {/* 금액 */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>금액</div>
+                <div style={{ position: 'relative' }}>
+                  <input type="number" inputMode="numeric" placeholder="0" value={amount} onChange={e => setAmount(e.target.value)}
+                    style={{ width: '100%', padding: '14px 16px 14px 36px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 20, fontWeight: 700, color: 'var(--on-background)', background: '#f8fafc', outline: 'none', boxSizing: 'border-box' }} />
+                  <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'var(--text-muted)', fontWeight: 600 }}>$</span>
                 </div>
               </div>
-            )}
 
-            {/* 메모 */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>메모 (선택)</div>
-              <textarea
-                placeholder="메모 입력"
-                value={memo}
-                onChange={e => setMemo(e.target.value)}
-                style={{
-                  flex: 1,
-                  minHeight: mode === 'expense' ? 88 : 72,
-                  padding: '10px 12px',
-                  borderRadius: 12,
-                  border: '1.5px solid #e2e8f0',
-                  fontSize: 14,
-                  color: 'var(--on-background)',
-                  background: '#f8fafc',
-                  outline: 'none',
-                  boxSizing: 'border-box',
-                  resize: 'none',
-                  fontFamily: 'inherit',
-                  lineHeight: 1.5,
-                }}
-              />
-            </div>
-          </div>
+              {/* 영수증 + 메모 (나란히 배치) */}
+              <div style={{ marginBottom: 16, display: 'flex', gap: 10, alignItems: 'stretch' }}>
+                {/* 영수증 첨부 (지출만) */}
+                {mode === 'expense' && (
+                  <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>영수증 (선택)</div>
+                    <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 6, alignContent: 'flex-start' }}>
+                      {receiptImages.map((img, i) => (
+                        <div key={i} style={{ position: 'relative', width: 72, height: 72 }}>
+                          <img src={img} alt="영수증" style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 10, border: '1.5px solid #e2e8f0' }} />
+                          <button onClick={() => setReceiptImages(prev => prev.filter((_, idx) => idx !== i))}
+                            style={{ position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%', border: 'none', background: '#ef4444', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                        </div>
+                      ))}
+                      {receiptImages.length < 5 && (
+                        <label style={{ width: 72, height: 72, borderRadius: 10, border: '1.5px dashed #cbd5e1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', gap: 4, background: '#f8fafc' }}>
+                          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
+                          </svg>
+                          <span style={{ fontSize: 10, fontWeight: 600 }}>사진 추가</span>
+                          <input type="file" accept="image/*" onChange={handleImageAdd} style={{ display: 'none' }} />
+                        </label>
+                      )}
+                    </div>
+                  </div>
+                )}
 
-          {/* 날짜 */}
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.04em' }}>날짜</div>
-              {date !== todayStr && (
-                <button onClick={() => setDate(todayStr)} style={{ fontSize: 11, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}>오늘로 되돌리기</button>
-              )}
-            </div>
-            <input type="date" value={date} onChange={e => setDate(e.target.value)}
-              style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, color: 'var(--on-background)', background: '#f8fafc', outline: 'none', boxSizing: 'border-box', WebkitAppearance: 'none', display: 'block', minHeight: '48px', lineHeight: '1.5' }} />
-            {date !== todayStr && (
-              <div style={{ fontSize: 11, color: '#ea580c', marginTop: 5, fontWeight: 600 }}>⚠ 오늘({todayStr})이 아닌 날짜로 기록됩니다</div>
-            )}
-          </div>
+                {/* 메모 */}
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>메모 (선택)</div>
+                  <textarea
+                    placeholder="메모 입력"
+                    value={memo}
+                    onChange={e => setMemo(e.target.value)}
+                    style={{
+                      flex: 1,
+                      minHeight: mode === 'expense' ? 88 : 72,
+                      padding: '10px 12px',
+                      borderRadius: 12,
+                      border: '1.5px solid #e2e8f0',
+                      fontSize: 14,
+                      color: 'var(--on-background)',
+                      background: '#f8fafc',
+                      outline: 'none',
+                      boxSizing: 'border-box',
+                      resize: 'none',
+                      fontFamily: 'inherit',
+                      lineHeight: 1.5,
+                    }}
+                  />
+                </div>
+              </div>
 
-          {/* 회원 선택 */}
-          <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>회원 (선택)</div>
-            <select value={selectedMember} onChange={e => setSelectedMember(e.target.value)}
-              style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, color: 'var(--on-background)', background: '#f8fafc', outline: 'none' }}>
-              <option value="">회원 선택 안함</option>
-              {members.filter(m => m.isActive).map(m => (
-                <option key={m.id} value={m.id}>{m.nickname || m.name}</option>
-              ))}
-            </select>
-          </div>
+              {/* 날짜 */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.04em' }}>날짜</div>
+                  {date !== todayStr && (
+                    <button onClick={() => setDate(todayStr)} style={{ fontSize: 11, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}>오늘로 되돌리기</button>
+                  )}
+                </div>
+                <input type="date" value={date} onChange={e => setDate(e.target.value)}
+                  style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, color: 'var(--on-background)', background: '#f8fafc', outline: 'none', boxSizing: 'border-box', WebkitAppearance: 'none', display: 'block', minHeight: '48px', lineHeight: '1.5' }} />
+                {date !== todayStr && (
+                  <div style={{ fontSize: 11, color: '#ea580c', marginTop: 5, fontWeight: 600 }}>⚠ 오늘({todayStr})이 아닌 날짜로 기록됩니다</div>
+                )}
+              </div>
+
+              {/* 회원 선택 */}
+              <div style={{ marginBottom: 16 }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>회원 (선택)</div>
+                <select value={selectedMember} onChange={e => setSelectedMember(e.target.value)}
+                  style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, color: 'var(--on-background)', background: '#f8fafc', outline: 'none' }}>
+                  <option value="">회원 선택 안함</option>
+                  {members.filter(m => m.isActive).map(m => (
+                    <option key={m.id} value={m.id}>{m.nickname || m.name}</option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
         </div>
 
         {/* 저장 버튼 — 시트 하단 고정 (flex item, 내비 바 위) */}
         <div style={{ flexShrink: 0, padding: '12px 20px', paddingBottom: 'calc(12px + 60px + env(safe-area-inset-bottom))', background: '#fff', borderTop: '1px solid #f1f5f9' }}>
-          <button onClick={handleSave} disabled={saving}
-            style={{ width: '100%', padding: '16px', borderRadius: 14, border: 'none', fontSize: 16, fontWeight: 800, cursor: saving ? 'not-allowed' : 'pointer', background: saving ? '#94a3b8' : (mode === 'income' ? 'var(--primary)' : '#ef4444'), color: '#fff' }}>
-            {saving ? '저장 중…' : '저장하기'}
+          <button onClick={handleSave} disabled={saving || (isRefundFlow && !refundTargetKey)}
+            style={{ width: '100%', padding: '16px', borderRadius: 14, border: 'none', fontSize: 16, fontWeight: 800, cursor: (saving || (isRefundFlow && !refundTargetKey)) ? 'not-allowed' : 'pointer', background: (saving || (isRefundFlow && !refundTargetKey)) ? '#94a3b8' : (mode === 'income' ? 'var(--primary)' : '#ef4444'), color: '#fff' }}>
+            {saving ? '저장 중…' : (isRefundFlow ? (refundSubMode === 'credit' ? '크레딧전환 처리' : '환불 처리') : '저장하기')}
           </button>
         </div>
       </div>
