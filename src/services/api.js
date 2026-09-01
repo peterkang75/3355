@@ -878,6 +878,27 @@ class ApiService {
     return response.json();
   }
 
+  async fetchRefundCandidates(memberId) {
+    const response = await fetch(`${API_BASE}/transactions/refund-candidates/${memberId}`, {
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error('Failed to fetch refund candidates');
+    return response.json();
+  }
+
+  async createRefund(refundData) {
+    const response = await fetch(`${API_BASE}/transactions/refund`, {
+      method: 'POST',
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(refundData)
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || 'Failed to create refund');
+    }
+    return response.json();
+  }
+
   async createChargeWithCredit(chargeData) {
     const response = await fetch(`${API_BASE}/transactions/charge-with-credit`, {
       method: 'POST',

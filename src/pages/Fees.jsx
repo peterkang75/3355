@@ -11,7 +11,7 @@ import SettlementReportModal from "../components/SettlementReportModal";
 const getTransactionLabel = (t) => {
   if (t.type === "creditDonation") return "도네이션 (크레딧)";
   if (t.type === "donation") return t.category || "도네이션";
-  if (t.type === "credit") return t.description || "크레딧";
+  if (t.type === "credit") return t.category === "크레딧전환" ? "크레딧전환" : (t.description || "크레딧");
   if (t.type === "expense") {
     if (t.category === "크레딧 자동 차감" && t.description) {
       return `${t.description.split(" (크레딧")[0]}(크레딧차감)`;

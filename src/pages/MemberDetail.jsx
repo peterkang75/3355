@@ -898,8 +898,8 @@ function MemberDetail() {
                       typeLabel = desc.includes(' - ') ? desc.split(' - ')[0] : (desc.includes(' (') ? desc.split(' (')[0] : desc);
                       bgColor = '#EFF6FF'; iconText = '💳';
                     } else if (transaction.type === 'donation') { typeLabel = '도네이션'; bgColor = '#FFF7ED'; iconText = '🎁'; }
-                    else if (transaction.type === 'credit') { typeLabel = '크레딧처리'; bgColor = '#F0FDF4'; iconText = '✅'; }
-                    else if (transaction.type === 'expense') { typeLabel = '환불'; bgColor = '#FEF2F2'; iconText = '↩️'; }
+                    else if (transaction.type === 'credit') { typeLabel = transaction.category === '크레딧전환' ? '크레딧전환' : '크레딧처리'; bgColor = '#F0FDF4'; iconText = '✅'; }
+                    else if (transaction.type === 'expense') { typeLabel = transaction.category === '회원환불' ? '환불 (크레딧 반환)' : '환불'; bgColor = '#FEF2F2'; iconText = '↩️'; }
                     else if (transaction.type === 'charge') { typeLabel = '회비 청구'; bgColor = '#FEF2F2'; iconText = '📋'; }
                     const isPositive = ['payment', 'donation', 'credit'].includes(transaction.type);
                     const amtColor = isPositive ? '#059669' : '#DC2626';

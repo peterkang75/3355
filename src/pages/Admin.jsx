@@ -134,6 +134,16 @@ function Admin() {
     receiptImage: ''
   });
   const [showRefundModal, setShowRefundModal] = useState(false);
+  const [showChargeRefundModal, setShowChargeRefundModal] = useState(false);
+  const [refundMemberId, setRefundMemberId] = useState(null);
+  const [refundCandidates, setRefundCandidates] = useState({ charges: [], creditBalance: 0 });
+  const [refundTargetKey, setRefundTargetKey] = useState('');
+  const [refundMode, setRefundMode] = useState('cash');
+  const [refundAmount, setRefundAmount] = useState('');
+  const [refundMemo, setRefundMemo] = useState('');
+  const [refundDate, setRefundDate] = useState('');
+  const [refundReceiptImage, setRefundReceiptImage] = useState('');
+  const [isProcessingChargeRefund, setIsProcessingChargeRefund] = useState(false);
   const [showReceiptModal, setShowReceiptModal] = useState(null);
   const [isProcessingRefund, setIsProcessingRefund] = useState(false);
   const [isSavingMember, setIsSavingMember] = useState(false);
@@ -661,15 +671,121 @@ function Admin() {
 
   const handleOpenRefundModal = () => {
     const category = expenseCategories.find(c => c.id === selectedExpense.categoryId);
-    if (category?.name !== '환불' && category?.name !== '회원 크레딧') {
+    if (category?.name === '회원 크레딧') {
+      setShowRefundModal(true);
       return;
     }
-    setShowRefundModal(true);
+    if (category?.name === '환불') {
+      setRefundMemberId(null);
+      setRefundCandidates({ charges: [], creditBalance: 0 });
+      setRefundTargetKey('');
+      setRefundMode('cash');
+      setRefundAmount('');
+      setRefundMemo('');
+      setRefundDate(new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' }));
+      setRefundReceiptImage('');
+      setShowChargeRefundModal(true);
+    }
   };
 
   const handleCloseRefundModal = () => {
     setShowRefundModal(false);
     setIsProcessingRefund(false);
+  };
+
+  const handleCloseChargeRefundModal = () => {
+    setShowChargeRefundModal(false);
+    setIsProcessingChargeRefund(false);
+  };
+
+  // 완납 청구 목록 + 보유 크레딧 조회 (환불/크레딧전환 대상)
+  const handleSelectRefundMember = async (memberId) => {
+    setRefundMemberId(memberId);
+    setRefundTargetKey('');
+    setRefundMode('cash');
+    setRefundAmount('');
+    setRefundCandidates({ charges: [], creditBalance: 0 });
+    if (!memberId) return;
+    try {
+      const data = await apiService.fetchRefundCandidates(memberId);
+      setRefundCandidates(data);
+    } catch (error) {
+      console.error('환불 대상 조회 실패:', error);
+      alert('환불 대상을 불러오지 못했습니다.');
+      setRefundCandidates({ charges: [], creditBalance: 0 });
+    }
+  };
+
+  const getSelectedRefundTarget = () => {
+    if (!refundTargetKey) return null;
+    if (refundTargetKey === 'credit') {
+      return { type: 'credit', maxAmount: refundCandidates.creditBalance, label: '보유 크레딧' };
+    }
+    const charge = refundCandidates.charges.find(c => c.chargeId === refundTargetKey);
+    if (!charge) return null;
+    return { type: 'charge', chargeId: charge.chargeId, maxAmount: charge.refundableAmount, label: charge.bookingTitle };
+  };
+
+  const handleSelectRefundTarget = (key) => {
+    setRefundTargetKey(key);
+    setRefundMode('cash');
+    const target = key === 'credit'
+      ? { maxAmount: refundCandidates.creditBalance }
+      : refundCandidates.charges.find(c => c.chargeId === key);
+    setRefundAmount(target ? String(target.maxAmount ?? target.refundableAmount) : '');
+  };
+
+  const handleSubmitChargeRefund = async () => {
+    if (isProcessingChargeRefund) return;
+    const target = getSelectedRefundTarget();
+    if (!refundMemberId || !target) {
+      alert('회원과 환불 대상을 선택해주세요.');
+      return;
+    }
+    const amountNum = parseFloat(refundAmount);
+    if (!amountNum || amountNum <= 0 || amountNum > target.maxAmount) {
+      alert(`0보다 크고 $${target.maxAmount}을 넘지 않는 금액을 입력해주세요.`);
+      return;
+    }
+
+    setIsProcessingChargeRefund(true);
+    try {
+      await apiService.createRefund({
+        memberId: refundMemberId,
+        mode: refundMode,
+        chargeId: target.type === 'charge' ? target.chargeId : undefined,
+        amount: amountNum,
+        memo: refundMemo || null,
+        date: refundDate,
+        receiptImage: refundReceiptImage || null,
+        createdBy: user.id,
+      });
+      const member = (contextMembers || members || []).find(m => m.id === refundMemberId);
+      const actionText = refundMode === 'credit' ? '크레딧전환' : '환불';
+      alert(`${member?.nickname || member?.name || '회원'}님에게 $${amountNum} ${actionText} 처리되었습니다.`);
+      handleCloseChargeRefundModal();
+
+      const [transactionsResponse] = await Promise.all([
+        apiService.fetchTransactions({ limit: 50 }),
+        refreshBalanceAndOutstanding()
+      ]);
+      const transactionsData = transactionsResponse?.transactions || transactionsResponse || [];
+      let runningBalance = 0;
+      const transactionsWithBalance = (Array.isArray(transactionsData) ? transactionsData : []).reverse().map(t => {
+        if (t.type === 'payment' || t.type === 'donation') {
+          runningBalance += t.amount;
+        } else if (t.type === 'expense' || t.type === 'credit') {
+          runningBalance -= t.amount;
+        }
+        return { ...t, clubBalance: runningBalance };
+      }).reverse();
+      setRecentTransactions(transactionsWithBalance);
+    } catch (error) {
+      console.error('환불 처리 실패:', error);
+      alert(error.message || '환불 처리에 실패했습니다.');
+    } finally {
+      setIsProcessingChargeRefund(false);
+    }
   };
 
   const handleToggleMember = (memberId) => {
@@ -907,45 +1023,25 @@ function Admin() {
       }
 
       const category = expenseCategories.find(c => c.id === selectedExpense.categoryId);
-      
-      // 환불 또는 회원 크레딧인 경우 회원 선택 필수
-      if ((category?.name === '환불' || category?.name === '회원 크레딧') && !selectedExpense.memberId) {
-        const actionText = category?.name === '회원 크레딧' ? '크레딧을 받을' : '환불받을';
-        alert(`${actionText} 회원을 선택해주세요.`);
+
+      // '환불'은 별도의 환불 모달(handleSubmitChargeRefund)에서 처리되므로 여기로는 오지 않음.
+      // 회원 크레딧(상금·보상 지급, 잔액 +)만 회원 선택이 필요.
+      const isCreditGrant = category?.name === '회원 크레딧';
+      if (isCreditGrant && !selectedExpense.memberId) {
+        alert('크레딧을 받을 회원을 선택해주세요.');
         return;
       }
 
-      const booking = bookings.find(b => b.id === selectedExpense.bookingId);
-      const member = members.find(m => m.id === selectedExpense.memberId);
-      const isRefund = category?.name === '환불';
-      const isCreditGrant = category?.name === '회원 크레딧';
-      const isMemberTx = isRefund || isCreditGrant;
-
-      // 환불: 회원이 '낸 돈'을 현금으로 돌려줌 → 회원 잔액 차감(type=expense).
-      //   레거시 '환불'(잔액 영향 없음, 구 데이터)과 구분하려고 '회원환불' 카테고리로 저장.
-      // 회원 크레딧: 회원이 '안 낸 돈'(상금·보상)을 크레딧으로 지급 → 회원 잔액 증가(type=credit).
       const amountNum = parseFloat(selectedExpense.amount);
-      if (isRefund) {
-        const avail = member?.balance || 0;
-        if (amountNum > avail) {
-          const ok = window.confirm(
-            `${member?.nickname || member?.name || '이 회원'}님의 사용 가능 크레딧은 $${avail}입니다.\n` +
-            `$${amountNum} 환불은 그보다 큽니다.\n\n` +
-            `청구된 돈을 환불하는 경우라면 환불만으로는 미납으로 표시될 수 있습니다(청구취소 기능 필요).\n\n` +
-            `그래도 진행할까요?`
-          );
-          if (!ok) return false;
-        }
-      }
 
       const transactionData = {
-        type: isRefund ? 'expense' : (isCreditGrant ? 'credit' : 'expense'),
+        type: isCreditGrant ? 'credit' : 'expense',
         amount: amountNum,
-        category: isRefund ? '회원환불' : category?.name,
+        category: category?.name,
         memo: selectedExpense.memo || null,
-        description: isRefund ? '환불' : category?.name,
+        description: category?.name,
         date: selectedExpense.date,
-        memberId: isMemberTx ? selectedExpense.memberId : null,
+        memberId: isCreditGrant ? selectedExpense.memberId : null,
         bookingId: selectedExpense.bookingId || null,
         receiptImage: selectedExpense.receiptImage || null,
         createdBy: user.id
@@ -9578,8 +9674,236 @@ function Admin() {
         </div>
       )}
 
+      {showChargeRefundModal && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+          background: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center',
+          justifyContent: 'center', zIndex: 1000, padding: '20px'
+        }} onClick={handleCloseChargeRefundModal}>
+          <div style={{
+            background: 'white', borderRadius: '16px', maxWidth: '500px', width: '100%',
+            maxHeight: '90vh', display: 'flex', flexDirection: 'column', overflow: 'hidden'
+          }} onClick={(e) => e.stopPropagation()}>
+            <div style={{
+              padding: '24px 24px 16px 24px', display: 'flex', justifyContent: 'space-between',
+              alignItems: 'center', borderBottom: '1px solid var(--border-color)'
+            }}>
+              <h3 style={{ fontSize: '20px', fontWeight: '700', margin: 0 }}>환불</h3>
+              <button onClick={handleCloseChargeRefundModal} style={{
+                background: 'none', border: 'none', fontSize: '24px', cursor: 'pointer', padding: '0', color: 'var(--text-dark)'
+              }}>×</button>
+            </div>
+
+            <div style={{ flex: 1, overflowY: 'auto', padding: '24px' }}>
+              {!refundMemberId ? (
+                <>
+                  <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>회원 선택</div>
+                  {(contextMembers || members || []).filter(m => m.isActive).map(member => (
+                    <div key={member.id}
+                      onClick={() => handleSelectRefundMember(member.id)}
+                      style={{ display: 'flex', alignItems: 'center', padding: '12px', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }}
+                    >
+                      <div style={{ fontSize: '15px', fontWeight: '600' }}>{member.nickname || member.name}</div>
+                    </div>
+                  ))}
+                </>
+              ) : (() => {
+                const member = (contextMembers || members || []).find(m => m.id === refundMemberId);
+                const target = getSelectedRefundTarget();
+                const hasCandidates = refundCandidates.charges.length > 0 || refundCandidates.creditBalance > 0;
+
+                return (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                      <div style={{ fontSize: '15px', fontWeight: '700' }}>
+                        {member?.nickname || member?.name} 님
+                      </div>
+                      <button onClick={() => handleSelectRefundMember(null)} style={{
+                        background: 'none', border: 'none', color: 'var(--primary-green)', fontSize: '13px', fontWeight: '600', cursor: 'pointer'
+                      }}>
+                        회원 다시 선택
+                      </button>
+                    </div>
+
+                    {!hasCandidates ? (
+                      <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-secondary)', fontSize: '14px' }}>
+                        환불하거나 크레딧으로 전환할 완납 내역이 없습니다.
+                      </div>
+                    ) : (
+                      <>
+                        <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '10px' }}>환불 대상 선택</div>
+                        <div style={{ marginBottom: '16px' }}>
+                          {refundCandidates.charges.map(c => (
+                            <div key={c.chargeId}
+                              onClick={() => handleSelectRefundTarget(c.chargeId)}
+                              style={{
+                                display: 'flex', alignItems: 'center', padding: '12px',
+                                border: '1px solid var(--border-color)', borderRadius: '8px', marginBottom: '8px', cursor: 'pointer',
+                                background: refundTargetKey === c.chargeId ? 'var(--bg-green)' : 'white'
+                              }}
+                            >
+                              <input type="radio" checked={refundTargetKey === c.chargeId} onChange={() => handleSelectRefundTarget(c.chargeId)} style={{ marginRight: '12px' }} />
+                              <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: '14px', fontWeight: '600' }}>{c.bookingTitle}</div>
+                                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                                  청구 ${c.chargeAmount.toLocaleString()} (완납) · 환불 가능 ${c.refundableAmount.toLocaleString()}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                          {refundCandidates.creditBalance > 0 && (
+                            <div
+                              onClick={() => handleSelectRefundTarget('credit')}
+                              style={{
+                                display: 'flex', alignItems: 'center', padding: '12px',
+                                border: '1px solid var(--border-color)', borderRadius: '8px', cursor: 'pointer',
+                                background: refundTargetKey === 'credit' ? 'var(--bg-green)' : 'white'
+                              }}
+                            >
+                              <input type="radio" checked={refundTargetKey === 'credit'} onChange={() => handleSelectRefundTarget('credit')} style={{ marginRight: '12px' }} />
+                              <div style={{ flex: 1 }}>
+                                <div style={{ fontSize: '14px', fontWeight: '600' }}>보유 크레딧</div>
+                                <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                                  사용 가능 ${refundCandidates.creditBalance.toLocaleString()}
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+
+                        {target && (
+                          <>
+                            {target.type === 'charge' && (
+                              <div style={{ marginBottom: '16px' }}>
+                                <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px' }}>처리 방식</div>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                  {[
+                                    { key: 'cash', label: '현금으로 환불' },
+                                    { key: 'credit', label: '크레딧으로 전환' },
+                                  ].map(opt => (
+                                    <button key={opt.key}
+                                      onClick={() => setRefundMode(opt.key)}
+                                      style={{
+                                        flex: 1, padding: '10px', borderRadius: '8px', border: 'none', cursor: 'pointer',
+                                        fontSize: '14px', fontWeight: '600',
+                                        background: refundMode === opt.key ? 'var(--primary-green)' : '#f0f0f0',
+                                        color: refundMode === opt.key ? 'white' : 'var(--text-dark)'
+                                      }}
+                                    >
+                                      {opt.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            <div style={{
+                              background: '#F5F4EE', borderRadius: '8px', padding: '12px', marginBottom: '16px', fontSize: '13px', color: 'var(--text-secondary)'
+                            }}>
+                              {refundMode === 'credit'
+                                ? '청구는 그대로 유지되고, 이 금액만큼 크레딧이 발급됩니다. 회원 잔액이 그만큼 늘어납니다. (현금은 나가지 않습니다)'
+                                : '청구는 그대로 유지되고, 이 환불만 별도로 기록됩니다. 실제 현금이 나가지만 회원 잔액에는 영향이 없습니다.'}
+                            </div>
+
+                            <div style={{ marginBottom: '16px' }}>
+                              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                                금액 (최대 ${target.maxAmount.toLocaleString()})
+                              </label>
+                              <input
+                                type="number"
+                                value={refundAmount}
+                                onChange={(e) => setRefundAmount(e.target.value)}
+                                max={target.maxAmount}
+                                style={{ width: '100%', padding: '12px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '14px' }}
+                              />
+                            </div>
+
+                            <div style={{ marginBottom: '16px' }}>
+                              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                                {refundMode === 'credit' ? '크레딧전환 일자' : '실제 환불(입금)한 날짜'}
+                              </label>
+                              <input
+                                type="date"
+                                value={refundDate}
+                                onChange={(e) => setRefundDate(e.target.value)}
+                                style={{ width: '100%', padding: '12px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '14px' }}
+                              />
+                            </div>
+
+                            <div style={{ marginBottom: '16px' }}>
+                              <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>사유 메모 (선택)</label>
+                              <input
+                                type="text"
+                                value={refundMemo}
+                                onChange={(e) => setRefundMemo(e.target.value)}
+                                placeholder="예: 그린피만 환불, 카트비·참가비는 환불불가"
+                                style={{ width: '100%', padding: '12px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '14px' }}
+                              />
+                            </div>
+
+                            {refundMode === 'cash' && (
+                              <div style={{ marginBottom: '8px' }}>
+                                <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', fontWeight: '600' }}>
+                                  환불 증빙 이미지 (선택사항 — 이체내역 캡처 등)
+                                </label>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={(e) => {
+                                    const file = e.target.files[0];
+                                    if (!file) return;
+                                    if (file.size > 5 * 1024 * 1024) {
+                                      alert('이미지 크기는 5MB 이하여야 합니다.');
+                                      return;
+                                    }
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => setRefundReceiptImage(reader.result);
+                                    reader.readAsDataURL(file);
+                                  }}
+                                  style={{ width: '100%', padding: '10px', border: '1px solid var(--border-color)', borderRadius: '8px', fontSize: '14px', background: 'white' }}
+                                />
+                                {refundReceiptImage && (
+                                  <img src={refundReceiptImage} alt="증빙 미리보기" style={{ maxWidth: '100%', maxHeight: '120px', borderRadius: '8px', marginTop: '8px', border: '1px solid var(--border-color)' }} />
+                                )}
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </>
+                    )}
+                  </>
+                );
+              })()}
+            </div>
+
+            <div style={{ padding: '16px 24px 24px 24px', borderTop: '1px solid var(--border-color)', display: 'flex', gap: '12px' }}>
+              <button onClick={handleCloseChargeRefundModal} disabled={isProcessingChargeRefund} style={{
+                flex: 1, padding: '12px', background: 'var(--bg-card)', border: '1px solid var(--border-color)',
+                borderRadius: '8px', fontSize: '16px', fontWeight: '600',
+                cursor: isProcessingChargeRefund ? 'not-allowed' : 'pointer', opacity: isProcessingChargeRefund ? 0.5 : 1
+              }}>
+                취소
+              </button>
+              <button
+                onClick={handleSubmitChargeRefund}
+                disabled={isProcessingChargeRefund || !refundTargetKey}
+                style={{
+                  flex: 1, padding: '12px',
+                  background: (isProcessingChargeRefund || !refundTargetKey) ? '#999' : 'var(--primary-green)',
+                  color: 'white', border: 'none', borderRadius: '8px', fontSize: '16px', fontWeight: '600',
+                  cursor: (isProcessingChargeRefund || !refundTargetKey) ? 'not-allowed' : 'pointer',
+                  opacity: (isProcessingChargeRefund || !refundTargetKey) ? 0.7 : 1
+                }}
+              >
+                {isProcessingChargeRefund ? '처리 중...' : (refundMode === 'credit' ? '크레딧전환 처리' : '환불 처리')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {viewingTransaction && (
-        <div 
+        <div
           style={{
             position: 'fixed',
             top: 0,

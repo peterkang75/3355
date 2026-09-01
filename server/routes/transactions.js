@@ -595,6 +595,138 @@ router.post("/credit-to-payment", requireAuth, async (req, res) => {
   }
 });
 
+// ── 완납 청구 환불/크레딧전환 ──────────────────────────────────────────────
+// "환불"(현금, category='환불', 잔액영향 없음 — 청구는 그대로 두고 실제 현금만 나감)과
+// "크레딧전환"(category='크레딧전환', type=credit, 잔액 +증가 — 현금은 안 나가고 다음 참가비에 쓸 크레딧만 발급)을
+// 하나의 진입점으로 통합. chargeId 없이 mode='cash'만 넘기면 기존 "회원환불"(보유 크레딧 현금화, 잔액 차감)과 동일.
+
+// GET /api/transactions/refund-candidates/:memberId — 환불/크레딧전환 가능한 대상 목록
+router.get("/refund-candidates/:memberId", requireAuth, requireOperator, async (req, res) => {
+  try {
+    const { memberId } = req.params;
+
+    const [member, charges] = await Promise.all([
+      prisma.member.findUnique({ where: { id: memberId }, select: { balance: true } }),
+      prisma.transaction.findMany({
+        where: { memberId, type: "charge", bookingId: { not: null } },
+        include: { booking: { select: { title: true, courseName: true, date: true } } },
+        orderBy: { date: "desc" },
+      }),
+    ]);
+
+    const results = [];
+    for (const charge of charges) {
+      const related = await prisma.transaction.findMany({
+        where: { memberId, bookingId: charge.bookingId },
+        select: { type: true, amount: true, category: true },
+      });
+
+      // 이 청구(bookingId+memberId)에 연결된 payment는 카테고리 불문(크레딧 납부 포함) 전부 합산 —
+      // "실제 현금이 들어왔는지"가 아니라 "이 청구가 어떤 방식으로든 완전히 정산됐는지"만 판단
+      const paidAmount = related
+        .filter(t => t.type === "payment")
+        .reduce((sum, t) => sum + t.amount, 0);
+      if (paidAmount < charge.amount) continue; // 미납 청구는 대상 아님 (회원상세의 "청구취소" 사용)
+
+      const alreadyRefunded = related
+        .filter(t => (t.type === "expense" && t.category === "환불") || (t.type === "credit" && t.category === "크레딧전환"))
+        .reduce((sum, t) => sum + t.amount, 0);
+
+      const refundableAmount = charge.amount - alreadyRefunded;
+      if (refundableAmount <= 0) continue;
+
+      results.push({
+        chargeId: charge.id,
+        bookingId: charge.bookingId,
+        bookingTitle: charge.booking?.title || charge.booking?.courseName || charge.description,
+        date: charge.date,
+        chargeAmount: charge.amount,
+        alreadyRefunded,
+        refundableAmount,
+      });
+    }
+
+    res.json({
+      charges: results,
+      creditBalance: Math.max(member?.balance || 0, 0),
+    });
+  } catch (error) {
+    console.error("Error fetching refund candidates:", error);
+    res.status(500).json({ error: "Failed to fetch refund candidates" });
+  }
+});
+
+// POST /api/transactions/refund
+// body: { memberId, mode: 'cash'|'credit', chargeId?, amount, memo?, createdBy? }
+// - chargeId 있음 + mode='cash'   → 완납 청구 현금환불 (category='환불', 잔액영향 없음, 청구 그대로 유지)
+// - chargeId 있음 + mode='credit' → 완납 청구 크레딧전환 (type=credit·category='크레딧전환', 잔액 +, 청구 그대로 유지)
+// - chargeId 없음 + mode='cash'   → 보유 크레딧 현금환불 (category='회원환불', 잔액 −) — 기존 방식과 동일
+router.post("/refund", requireAuth, requireOperator, async (req, res) => {
+  try {
+    const { memberId, mode, chargeId, amount, memo, createdBy, date, receiptImage } = req.body;
+
+    if (!memberId || !amount || amount <= 0 || !["cash", "credit"].includes(mode)) {
+      return res.status(400).json({ error: "memberId, 양수 amount, mode(cash|credit)가 필요합니다" });
+    }
+    if (mode === "credit" && !chargeId) {
+      return res.status(400).json({ error: "크레딧전환은 완납 청구를 선택해야 합니다" });
+    }
+
+    // 시드니 로컬 날짜 기준 (UTC 자정 근처 오전 처리 시 하루 밀리는 것 방지) — 클라이언트가 넘기지 않으면 서버 기준 오늘
+    const today = date || new Date().toLocaleDateString("en-CA", { timeZone: "Australia/Sydney" });
+    let bookingId = null;
+    let baseDescription = "환불";
+
+    if (chargeId) {
+      const charge = await prisma.transaction.findUnique({
+        where: { id: chargeId },
+        include: { booking: { select: { title: true, courseName: true } } },
+      });
+      if (!charge || charge.memberId !== memberId || charge.type !== "charge") {
+        return res.status(400).json({ error: "유효하지 않은 청구입니다" });
+      }
+      bookingId = charge.bookingId;
+      baseDescription = charge.booking?.title || charge.booking?.courseName || charge.description || "환불";
+
+      // 서버측 재검증 — 클라이언트가 보낸 금액을 신뢰하지 않고 남은 환불 가능액을 다시 계산
+      const related = await prisma.transaction.findMany({
+        where: { memberId, bookingId },
+        select: { type: true, amount: true, category: true },
+      });
+      const alreadyRefunded = related
+        .filter(t => (t.type === "expense" && t.category === "환불") || (t.type === "credit" && t.category === "크레딧전환"))
+        .reduce((sum, t) => sum + t.amount, 0);
+      const refundableAmount = charge.amount - alreadyRefunded;
+      if (amount > refundableAmount) {
+        return res.status(400).json({ error: `환불 가능 금액($${refundableAmount})을 초과했습니다` });
+      }
+    } else {
+      const member = await prisma.member.findUnique({ where: { id: memberId }, select: { balance: true } });
+      const avail = member?.balance || 0;
+      if (amount > avail) {
+        return res.status(400).json({ error: `사용 가능 크레딧($${avail})을 초과했습니다` });
+      }
+    }
+
+    const description = memo ? `${baseDescription} - ${memo}` : baseDescription;
+
+    const transaction = await prisma.transaction.create({
+      data: mode === "credit"
+        ? { type: "credit", amount, description, category: "크레딧전환", date: today, memberId, bookingId, memo: memo || null, createdBy: createdBy || null }
+        : { type: "expense", amount, description, category: chargeId ? "환불" : "회원환불", date: today, memberId, bookingId, memo: memo || null, receiptImage: receiptImage || null, createdBy: createdBy || null },
+    });
+
+    const newBalance = await recalculateAndUpdateBalance(memberId);
+
+    req.io.emit("transactions:updated");
+    req.io.emit("members:updated");
+    res.json({ success: true, transaction, newBalance });
+  } catch (error) {
+    console.error("Error processing refund:", error);
+    res.status(500).json({ error: "Failed to process refund" });
+  }
+});
+
 // ── GET /api/transactions/pending-receipts — 영수증 첨부된 미납 charge 목록 ─
 router.get("/pending-receipts", requireAuth, requireOperator, async (req, res) => {
   try {
