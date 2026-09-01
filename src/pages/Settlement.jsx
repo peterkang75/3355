@@ -1058,6 +1058,184 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
   );
 }
 
+// ─── 정산 처리 바텀시트 (참가 취소 건의 환불 여부 결정) ──────────────────────
+function SettlementResolveSheet({ item, onClose, onDone }) {
+  const [action, setAction] = useState('');
+  const [mode, setMode] = useState('cash');
+  const [amount, setAmount] = useState(String(item.refundableAmount || ''));
+  const [memo, setMemo] = useState('');
+  const [date, setDate] = useState(new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' }));
+  const [receiptImage, setReceiptImage] = useState('');
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = ''; };
+  }, []);
+
+  const CHOICES = [
+    { key: 'charge_cancelled', label: '청구 취소', desc: '아직 안 내신 분 — 청구를 지우고 끝냅니다.' },
+    { key: 'refunded', label: '환불', desc: '내신 돈을 돌려드립니다. 청구 기록은 그대로 남습니다.' },
+    { key: 'forfeited', label: '환불 없음', desc: '돌려드리지 않고 클럽 수입으로 확정합니다.' },
+  ];
+
+  const handleSubmit = async () => {
+    if (!action || saving) return;
+    if (action === 'refunded') {
+      const amt = parseFloat(amount);
+      if (!amt || amt <= 0 || amt > item.refundableAmount) {
+        alert(`0보다 크고 ${formatCurrency(item.refundableAmount)}을 넘지 않는 금액을 입력해주세요.`);
+        return;
+      }
+    }
+    setSaving(true);
+    try {
+      await apiService.resolvePendingSettlement(item.id, {
+        action,
+        ...(action === 'refunded' ? { mode, amount: parseFloat(amount), date, receiptImage: receiptImage || null } : {}),
+        memo: memo || null,
+      });
+      onDone();
+      onClose();
+    } catch (e) {
+      alert(e.message || '처리에 실패했습니다.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const labelStyle = { fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' };
+  const inputStyle = { width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, background: '#f8fafc', outline: 'none', boxSizing: 'border-box' };
+
+  return (
+    <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 320, display: 'flex', alignItems: 'flex-end', touchAction: 'none' }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: '100%', background: '#fff', borderRadius: '22px 22px 0 0', display: 'flex', flexDirection: 'column', maxHeight: '88dvh', overscrollBehavior: 'contain' }}>
+        <div style={{ overflowY: 'auto', padding: '24px 20px 20px', flex: 1 }}>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+            <span style={{ fontSize: 17, fontWeight: 800, color: 'var(--on-background)' }}>정산 처리</span>
+            <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: 'var(--text-muted)' }}>×</button>
+          </div>
+
+          {/* 상황 요약 */}
+          <div style={{ background: '#f8fafc', borderRadius: 12, padding: '14px 16px', marginBottom: 20 }}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#1e293b', marginBottom: 2 }}>
+              {item.memberName}{item.isGuest ? ' (게스트)' : ''}
+            </div>
+            <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 10 }}>
+              {item.bookingTitle} · 참가 취소함
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 14px', fontSize: 12, color: '#475569' }}>
+              <span>청구 <b style={{ color: '#1e293b' }}>{formatCurrency(item.chargeTotal)}</b></span>
+              {item.alreadyRefunded > 0 && <span>이미 환불 <b style={{ color: '#1e293b' }}>{formatCurrency(item.alreadyRefunded)}</b></span>}
+              {item.paidByCredit > 0 && <span>크레딧 결제 <b style={{ color: '#1e293b' }}>{formatCurrency(item.paidByCredit)}</b></span>}
+              <span>현재 잔액 <b style={{ color: item.memberBalance < 0 ? '#ef4444' : '#1e293b' }}>{formatCurrency(item.memberBalance)}</b></span>
+            </div>
+            {item.memberBalance < 0 && (
+              <div style={{ fontSize: 11, color: '#ea580c', marginTop: 8, fontWeight: 600 }}>
+                잔액이 마이너스입니다 — 아직 안 내셨을 가능성이 높습니다.
+              </div>
+            )}
+          </div>
+
+          {/* 처리 방식 */}
+          <div style={{ ...labelStyle }}>어떻게 처리할까요?</div>
+          <div style={{ marginBottom: 18 }}>
+            {CHOICES.map(c => (
+              <div key={c.key} onClick={() => setAction(c.key)}
+                style={{
+                  padding: '12px 14px', borderRadius: 12, marginBottom: 8, cursor: 'pointer',
+                  border: '1.5px solid ' + (action === c.key ? '#0047AB' : '#e2e8f0'),
+                  background: action === c.key ? '#EFF6FF' : '#fff',
+                }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: action === c.key ? '#0047AB' : '#1e293b' }}>{c.label}</div>
+                <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{c.desc}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* 환불 상세 */}
+          {action === 'refunded' && (
+            <>
+              <div style={{ marginBottom: 16 }}>
+                <div style={labelStyle}>환불 방식</div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {[['cash', '현금으로 환불'], ['credit', '크레딧으로 전환']].map(([val, label]) => (
+                    <button key={val} onClick={() => setMode(val)}
+                      style={{
+                        flex: 1, padding: 10, borderRadius: 10, border: 'none', fontSize: 13, fontWeight: 700, cursor: 'pointer',
+                        background: mode === val ? '#0047AB' : '#f1f5f9', color: mode === val ? '#fff' : 'var(--on-background)',
+                      }}>{label}</button>
+                  ))}
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8, lineHeight: 1.5 }}>
+                  {mode === 'credit'
+                    ? '현금은 나가지 않고, 다음 참가비에 쓸 크레딧이 생깁니다.'
+                    : '실제 현금이 나갑니다. 회원 잔액에는 영향이 없습니다.'}
+                </div>
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <div style={labelStyle}>금액 (최대 {formatCurrency(item.refundableAmount)})</div>
+                <input type="number" inputMode="numeric" value={amount} onChange={e => setAmount(e.target.value)} style={inputStyle} />
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <div style={labelStyle}>{mode === 'credit' ? '크레딧전환 일자' : '실제 환불한 날짜'}</div>
+                <input type="date" value={date} onChange={e => setDate(e.target.value)} style={inputStyle} />
+              </div>
+
+              {mode === 'cash' && (
+                <div style={{ marginBottom: 16 }}>
+                  <div style={labelStyle}>환불 증빙 (선택 — 이체내역 캡처 등)</div>
+                  {receiptImage ? (
+                    <div style={{ position: 'relative', width: 84, height: 84 }}>
+                      <img src={receiptImage} alt="증빙" style={{ width: 84, height: 84, objectFit: 'cover', borderRadius: 10, border: '1.5px solid #e2e8f0' }} />
+                      <button onClick={() => setReceiptImage('')}
+                        style={{ position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%', border: 'none', background: '#ef4444', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>×</button>
+                    </div>
+                  ) : (
+                    <label style={{ display: 'flex', width: 84, height: 84, borderRadius: 10, border: '1.5px dashed #cbd5e1', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11, fontWeight: 600, background: '#f8fafc' }}>
+                      사진 추가
+                      <input type="file" accept="image/*" style={{ display: 'none' }}
+                        onChange={e => {
+                          const file = e.target.files[0];
+                          if (!file) return;
+                          if (file.size > 5 * 1024 * 1024) { alert('이미지는 5MB 이하만 가능합니다.'); return; }
+                          const reader = new FileReader();
+                          reader.onload = ev => setReceiptImage(ev.target.result);
+                          reader.readAsDataURL(file);
+                        }} />
+                    </label>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+
+          <div style={{ marginBottom: 8 }}>
+            <div style={labelStyle}>메모 (선택)</div>
+            <input type="text" value={memo} onChange={e => setMemo(e.target.value)}
+              placeholder={action === 'forfeited' ? '예: 전날 취소로 위약금 처리' : '예: 그린피만 환불, 카트비·참가비는 환불불가'}
+              style={inputStyle} />
+          </div>
+        </div>
+
+        <div style={{ flexShrink: 0, padding: '12px 20px', paddingBottom: 'calc(12px + 60px + env(safe-area-inset-bottom))', background: '#fff', borderTop: '1px solid #f1f5f9' }}>
+          <button onClick={handleSubmit} disabled={!action || saving}
+            style={{
+              width: '100%', padding: 16, borderRadius: 14, border: 'none', fontSize: 16, fontWeight: 800,
+              cursor: (!action || saving) ? 'not-allowed' : 'pointer',
+              background: (!action || saving) ? '#94a3b8' : '#0047AB', color: '#fff',
+            }}>
+            {saving ? '처리 중…' : '처리하기'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── 메인 Settlement 페이지 ──────────────────────────────────────────────────
 function Settlement() {
   const navigate = useNavigate();
@@ -1082,6 +1260,8 @@ function Settlement() {
   const [catSheet, setCatSheet] = useState(null); // { key, side }
   const [chargeSheet, setChargeSheet] = useState(null); // { memberId, memberName, isGuest }
   const [pendingReceipts, setPendingReceipts] = useState([]);
+  const [pendingSettlements, setPendingSettlements] = useState([]);
+  const [resolvingItem, setResolvingItem] = useState(null);
   const [completingId, setCompletingId] = useState(null);
   const [receiptViewer, setReceiptViewer] = useState(null);
 
@@ -1120,6 +1300,14 @@ function Settlement() {
     } catch {}
   }, [isOperator, user?.id]);
 
+  // 참가 취소 후 환불 여부가 아직 안 정해진 건들
+  const loadPendingSettlements = useCallback(async () => {
+    if (!isOperator) return;
+    try {
+      setPendingSettlements(await apiService.fetchPendingSettlements());
+    } catch {}
+  }, [isOperator, user?.id]);
+
   const handleCompletePayment = async (chargeId) => {
     if (!confirm('이 영수증으로 납부완료 처리하시겠습니까?')) return;
     setCompletingId(chargeId);
@@ -1141,7 +1329,8 @@ function Settlement() {
     finally { setCompletingId(null); }
   };
 
-  useEffect(() => { load(); loadOutstanding(); loadPendingReceipts(); }, [load, loadOutstanding, loadPendingReceipts]);
+  useEffect(() => { load(); loadOutstanding(); loadPendingReceipts(); loadPendingSettlements(); },
+    [load, loadOutstanding, loadPendingReceipts, loadPendingSettlements]);
 
   const handlePayMember = async () => {
     if (!payingMember || paying) return;
@@ -1402,6 +1591,44 @@ function Settlement() {
                   {data.netBalance >= 0 ? '' : '-'}{formatCurrency(Math.abs(data.netBalance))}
                 </div>
               </div>
+
+              {/* 정산 대기 — 참가 취소했는데 환불 여부가 아직 안 정해진 건 */}
+              {pendingSettlements.length > 0 && (
+                <div style={{ background: '#fff', borderRadius: 20, padding: '18px 20px', marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1.5px solid #bfdbfe' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#0047AB', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#0047AB"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                      정산 대기
+                    </div>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#0047AB', background: '#DBEAFE', borderRadius: 8, padding: '2px 8px' }}>
+                      {pendingSettlements.length}건
+                    </span>
+                  </div>
+
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4, lineHeight: 1.5 }}>
+                    참가를 취소한 분들입니다. 환불할지 여부를 정해주세요.
+                  </div>
+
+                  {pendingSettlements.map(p => (
+                    <div key={p.id} onClick={() => setResolvingItem(p)}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 0', borderTop: '1px solid #DBEAFE', cursor: 'pointer' }}>
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>
+                          {p.memberName}
+                          {p.isGuest && <span style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', marginLeft: 6 }}>게스트</span>}
+                        </div>
+                        <div style={{ fontSize: 12, color: 'var(--text-muted)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {p.bookingTitle}
+                        </div>
+                      </div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: '#1e293b' }}>{formatCurrency(p.refundableAmount)}</span>
+                        <ChevronRight />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* 미수금 목록 */}
               {outstandingMembers.length > 0 && (() => {
@@ -1680,6 +1907,14 @@ function Settlement() {
           yearMonth={yearMonth}
           authHeaders={authHeaders}
           onClose={() => setShowReport(false)}
+        />
+      )}
+
+      {resolvingItem && (
+        <SettlementResolveSheet
+          item={resolvingItem}
+          onClose={() => setResolvingItem(null)}
+          onDone={() => { load(); loadOutstanding(); loadPendingSettlements(); }}
         />
       )}
 
