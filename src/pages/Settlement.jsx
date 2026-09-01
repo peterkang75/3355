@@ -1058,6 +1058,15 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
   );
 }
 
+// 미수금 목록에서 "참가 취소한 사람"을 구분하는 표식.
+// 취소자는 청구가 남아 있어 미수금으로 잡히는데, 실제로는 받을 돈이 아니라
+// 정산(환불/청구취소)을 해야 할 건이다. 표식이 없으면 회비를 독촉하게 된다.
+const CancelledTag = () => (
+  <span style={{ fontSize: 10, fontWeight: 800, color: '#0047AB', background: '#DBEAFE', borderRadius: 6, padding: '2px 6px', whiteSpace: 'nowrap' }}>
+    취소 · 정산대기
+  </span>
+);
+
 // ─── 정산 처리 바텀시트 (참가 취소 건의 환불 여부 결정) ──────────────────────
 function SettlementResolveSheet({ item, onClose, onDone }) {
   const [action, setAction] = useState('');
@@ -1331,6 +1340,11 @@ function Settlement() {
 
   useEffect(() => { load(); loadOutstanding(); loadPendingReceipts(); loadPendingSettlements(); },
     [load, loadOutstanding, loadPendingReceipts, loadPendingSettlements]);
+
+  const cancelledMemberIds = React.useMemo(
+    () => new Set(pendingSettlements.map(p => p.memberId)),
+    [pendingSettlements]
+  );
 
   const handlePayMember = async () => {
     if (!payingMember || paying) return;
@@ -1661,7 +1675,10 @@ function Settlement() {
                     {/* 일반 회원 */}
                     {regularMembers.map((m, i) => (
                       <div key={m.memberId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 0', borderTop: '1px solid #FEF3C7' }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{m.memberNickname || m.memberName}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
+                          <span style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{m.memberNickname || m.memberName}</span>
+                          {cancelledMemberIds.has(m.memberId) && <CancelledTag />}
+                        </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           {m.receiptImages?.length > 0 && (
                             <button
@@ -1701,6 +1718,7 @@ function Settlement() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                           <span style={{ fontSize: 10, fontWeight: 800, color: '#7c3aed', background: '#EDE9FE', borderRadius: 6, padding: '2px 6px', letterSpacing: '0.02em' }}>G</span>
                           <span style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{m.memberNickname || m.memberName}</span>
+                          {cancelledMemberIds.has(m.memberId) && <CancelledTag />}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           {m.receiptImages?.length > 0 && (

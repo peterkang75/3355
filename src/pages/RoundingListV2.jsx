@@ -172,6 +172,16 @@ function RoundingListV2() {
       return;
     }
 
+    // 취소는 탭 한 번으로 끝나던 동작이라 실수가 잦았다. 참가비를 낸 뒤 취소하면
+    // 환불이 걸린 문제이므로 한 번 확인받는다.
+    if (alreadyJoined) {
+      const ok = window.confirm(
+        '참가를 취소하시겠습니까?\n\n' +
+        '이미 참가비를 내셨다면 환불은 총무가 확인 후 처리합니다.'
+      );
+      if (!ok) return;
+    }
+
     setIsJoining(true);
     try {
       await apiService.toggleJoinBooking(booking.id);

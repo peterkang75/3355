@@ -89,7 +89,7 @@ function ParticipantManagement() {
       
       const response = await fetch(`/api/bookings/${bookingId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Member-Id': user?.id || '' },
         body: JSON.stringify({
           participants: updatedParticipants.map(p => JSON.stringify(p))
         })
@@ -136,7 +136,7 @@ function ParticipantManagement() {
       
       const response = await fetch(`/api/bookings/${bookingId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Member-Id': user?.id || '' },
         body: JSON.stringify({
           participants: updatedParticipants.map(p => JSON.stringify(p))
         })
@@ -190,7 +190,7 @@ function ParticipantManagement() {
       
       const response = await fetch(`/api/bookings/${bookingId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Member-Id': user?.id || '' },
         body: JSON.stringify(updateData)
       });
 
@@ -217,7 +217,7 @@ function ParticipantManagement() {
       
       const response = await fetch(`/api/bookings/${bookingId}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', 'X-Member-Id': user?.id || '' },
         body: JSON.stringify({
           numberRentals: updatedRentals
         })
