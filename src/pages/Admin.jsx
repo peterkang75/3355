@@ -7,6 +7,7 @@ import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 import SearchableDropdown from '../components/SearchableDropdown';
 import PageHeader from '../components/common/PageHeader';
 import { resolvePlayerMode, hasTeamModes } from '../utils/teamGameModes';
+import { generateGolflinkPdf } from '../utils/pdfList';
 
 function Admin() {
   const navigate = useNavigate();
@@ -2071,6 +2072,34 @@ function Admin() {
                   <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
                 </svg>
                 링크 복사
+              </button>
+            </div>
+
+            {/* 골프링크 명단 PDF */}
+            <div style={{ background: '#fff', borderRadius: 16, padding: '14px 18px', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>골프링크 명단 PDF</div>
+                <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>
+                  번호 · 이름 순으로 정리 · {members.filter(m => m.isActive !== false && m.approvalStatus !== 'pending' && !m.isGuest && (m.golflinkNumber || '').toString().trim()).length}명
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  const result = generateGolflinkPdf(members);
+                  if (result.exported === 0) {
+                    alert('골프링크 번호가 등록된 회원이 없습니다.');
+                    return;
+                  }
+                  if (result.missing.length > 0) {
+                    alert(`PDF ${result.exported}명 저장 완료.\n\n골프링크 번호가 없어 제외된 회원 ${result.missing.length}명:\n${result.missing.join(', ')}`);
+                  }
+                }}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: '#0047AB', color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                PDF 저장
               </button>
             </div>
 

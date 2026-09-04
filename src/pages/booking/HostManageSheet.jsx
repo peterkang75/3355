@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { jsPDF } from 'jspdf';
+import { generateListPdf } from '../../utils/pdfList';
 import apiService from '../../services/api';
 import { formatDate, getBookingStatusFlags } from './bookingHelpers';
 import { GAME_MODES, TEAM_MIX_MODE, TEAM_MIX_BASE_MODE } from '../../constants/gameModes';
@@ -359,7 +359,6 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
           {hmParticipants.length > 0 && (
             <button
               onClick={() => {
-                const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
                 const date = booking.date || '';
                 const rows = hmParticipants.map(p => {
                   const m = members.find(mm => mm.phone === p.phone || mm.id === p.memberId);
@@ -369,34 +368,17 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
                   };
                 }).sort((a, b) => a.name.localeCompare(b.name));
 
-                doc.setFontSize(16);
-                doc.setFont(undefined, 'bold');
-                doc.text('3355 GOLF CLUB', 14, 18);
-                doc.setFontSize(10);
-                doc.setFont(undefined, 'normal');
-                doc.text(date, 14, 25);
-
-                const startY = 35;
-                const colX = [14, 110];
-                const rowH = 8;
-
-                doc.setFontSize(10);
-                doc.setFont(undefined, 'bold');
-                doc.text('GA Registered Name', colX[0], startY);
-                doc.text('Golflink Number', colX[1], startY);
-                doc.line(14, startY + 2, 196, startY + 2);
-
-                doc.setFont(undefined, 'normal');
-                rows.forEach((r, i) => {
-                  const y = startY + rowH * (i + 1);
-                  doc.text(r.name, colX[0], y);
-                  doc.text(r.golflink, colX[1], y);
+                generateListPdf({
+                  title: '3355 GOLF CLUB',
+                  subtitle: date,
+                  columns: [
+                    { key: 'name', header: 'GA Registered Name', x: 14 },
+                    { key: 'golflink', header: 'Golflink Number', x: 110 },
+                  ],
+                  rows,
+                  totalLabel: `Total: ${rows.length} players`,
+                  fileName: `3355_GA_List_${date}.pdf`,
                 });
-
-                doc.setFontSize(8);
-                doc.text(`Total: ${rows.length} players`, 14, startY + rowH * (rows.length + 1) + 4);
-
-                doc.save(`3355_GA_List_${date}.pdf`);
               }}
               style={{
                 width: '100%', padding: '10px', borderRadius: '10px',
