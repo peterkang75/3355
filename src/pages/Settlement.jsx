@@ -531,6 +531,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
   const [editCategory, setEditCategory] = useState('');
   const [editMemo, setEditMemo] = useState('');
   const [editAmount, setEditAmount] = useState('');
+  const [editDate, setEditDate] = useState('');
   const [editSaving, setEditSaving] = useState(false);
   const [categories, setCategories] = useState([]);
 
@@ -556,22 +557,35 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
     setEditCategory(tx.category || categoryKey);
     setEditMemo(tx.memo || tx.description || '');
     setEditAmount(String(tx.amount));
+    setEditDate((tx.date || '').slice(0, 10));
   };
 
   const handleEditSave = async () => {
     if (!editingTx) return;
     const amt = parseFloat(editAmount);
     if (!amt || isNaN(amt)) { alert('금액을 입력해주세요.'); return; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(editDate)) { alert('날짜를 선택해주세요.'); return; }
+
+    // 날짜를 다른 달로 옮기면 이 내역이 그 달의 정산으로 넘어간다 — 되돌리기 어려우므로 확인받는다
+    const movedToMonth = editDate.slice(0, 7);
+    const movesMonth = movedToMonth !== yearMonth;
+    if (movesMonth) {
+      const [y, m] = movedToMonth.split('-');
+      if (!window.confirm(`이 내역이 ${y}년 ${parseInt(m, 10)}월 정산으로 옮겨집니다.\n\n지금 보고 계신 ${yearMonth.split('-')[0]}년 ${parseInt(yearMonth.split('-')[1], 10)}월 수입·지출에서는 빠집니다. 계속할까요?`)) return;
+    }
+
     setEditSaving(true);
     try {
       const r = await fetch(`/api/transactions/${editingTx.id}`, {
         method: 'PUT',
         headers: { ...authHeaders, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: amt, memo: editMemo, description: editMemo, category: editCategory }),
+        body: JSON.stringify({ amount: amt, memo: editMemo, description: editMemo, category: editCategory, date: editDate }),
       });
       if (!r.ok) throw new Error();
       const updated = await r.json();
-      setTxList(prev => prev.map(t => t.id === updated.id ? { ...t, amount: updated.amount, memo: updated.memo, description: updated.description, category: updated.category } : t));
+      setTxList(prev => movesMonth
+        ? prev.filter(t => t.id !== updated.id)
+        : prev.map(t => t.id === updated.id ? { ...t, amount: updated.amount, memo: updated.memo, description: updated.description, category: updated.category, date: updated.date } : t));
       setEditingTx(null);
       onRefresh?.();
     } catch {
@@ -723,6 +737,18 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* 날짜 — 잘못 입력하면 엉뚱한 달 정산에 잡히므로 여기서 고칠 수 있어야 한다 */}
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>날짜</div>
+              <input type="date" value={editDate} onChange={e => setEditDate(e.target.value)}
+                style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 15, fontWeight: 600, background: '#f8fafc', outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', color: 'var(--on-background)' }} />
+              {editDate.slice(0, 7) !== yearMonth && /^\d{4}-\d{2}-\d{2}$/.test(editDate) && (
+                <div style={{ fontSize: 12, color: '#ea580c', marginTop: 6, fontWeight: 600 }}>
+                  {parseInt(editDate.slice(5, 7), 10)}월 정산으로 옮겨집니다
+                </div>
+              )}
             </div>
 
             {/* 메모 */}
