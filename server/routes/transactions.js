@@ -600,6 +600,29 @@ router.post("/credit-to-payment", requireAuth, async (req, res) => {
 // "크레딧전환"(category='크레딧전환', type=credit, 잔액 +증가 — 현금은 안 나가고 다음 참가비에 쓸 크레딧만 발급)을
 // 하나의 진입점으로 통합. chargeId 없이 mode='cash'만 넘기면 기존 "회원환불"(보유 크레딧 현금화, 잔액 차감)과 동일.
 
+// GET /api/transactions/refund-members — 환불 처리 대상이 될 수 있는 회원 목록
+// 게스트는 isActive=false로 저장되어 일반 회원 목록(GET /members)에 아예 안 실린다.
+// 그래서 환불 화면에서 게스트를 고를 수 없었음 → 여기서 따로 내려준다.
+// 거래 기록이 하나도 없는 게스트는 환불할 것이 있을 수 없으므로 제외(목록 노이즈 방지).
+router.get("/refund-members", requireAuth, requireOperator, async (req, res) => {
+  try {
+    const rows = await prisma.member.findMany({
+      where: {
+        OR: [
+          { isActive: true, isGuest: false },
+          { isGuest: true, transactions: { some: {} } },
+        ],
+      },
+      select: { id: true, name: true, nickname: true, isGuest: true, balance: true },
+      orderBy: [{ isGuest: "asc" }, { name: "asc" }],
+    });
+    res.json(rows);
+  } catch (error) {
+    console.error("Error fetching refund members:", error);
+    res.status(500).json({ error: "Failed to fetch refund members" });
+  }
+});
+
 // GET /api/transactions/refund-candidates/:memberId — 환불/크레딧전환 가능한 대상 목록
 router.get("/refund-candidates/:memberId", requireAuth, requireOperator, async (req, res) => {
   try {

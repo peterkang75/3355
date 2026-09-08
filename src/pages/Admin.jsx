@@ -137,6 +137,8 @@ function Admin() {
   const [showRefundModal, setShowRefundModal] = useState(false);
   const [showChargeRefundModal, setShowChargeRefundModal] = useState(false);
   const [refundMemberId, setRefundMemberId] = useState(null);
+  // 게스트는 isActive=false라 일반 회원 목록에 안 실린다 → 환불용 목록은 따로 받아온다
+  const [refundMembers, setRefundMembers] = useState([]);
   const [refundCandidates, setRefundCandidates] = useState({ charges: [], creditBalance: 0 });
   const [refundTargetKey, setRefundTargetKey] = useState('');
   const [refundMode, setRefundMode] = useState('cash');
@@ -686,6 +688,9 @@ function Admin() {
       setRefundDate(new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' }));
       setRefundReceiptImage('');
       setShowChargeRefundModal(true);
+      apiService.fetchRefundMembers()
+        .then(setRefundMembers)
+        .catch(() => setRefundMembers([]));
     }
   };
 
@@ -761,7 +766,7 @@ function Admin() {
         receiptImage: refundReceiptImage || null,
         createdBy: user.id,
       });
-      const member = (contextMembers || members || []).find(m => m.id === refundMemberId);
+      const member = [...refundMembers, ...(contextMembers || members || [])].find(m => m.id === refundMemberId);
       const actionText = refundMode === 'credit' ? '크레딧전환' : '환불';
       alert(`${member?.nickname || member?.name || '회원'}님에게 $${amountNum} ${actionText} 처리되었습니다.`);
       handleCloseChargeRefundModal();
@@ -9727,7 +9732,7 @@ function Admin() {
               {!refundMemberId ? (
                 <>
                   <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px' }}>회원 선택</div>
-                  {(contextMembers || members || []).filter(m => m.isActive || m.isGuest).map(member => (
+                  {(refundMembers.length > 0 ? refundMembers : (contextMembers || members || []).filter(m => m.isActive)).map(member => (
                     <div key={member.id}
                       onClick={() => handleSelectRefundMember(member.id)}
                       style={{ display: 'flex', alignItems: 'center', padding: '12px', borderBottom: '1px solid var(--border-color)', cursor: 'pointer' }}
@@ -9737,7 +9742,7 @@ function Admin() {
                   ))}
                 </>
               ) : (() => {
-                const member = (contextMembers || members || []).find(m => m.id === refundMemberId);
+                const member = [...refundMembers, ...(contextMembers || members || [])].find(m => m.id === refundMemberId);
                 const target = getSelectedRefundTarget();
                 const hasCandidates = refundCandidates.charges.length > 0 || refundCandidates.creditBalance > 0;
 

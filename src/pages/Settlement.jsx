@@ -70,6 +70,15 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
   const [refundCandidates, setRefundCandidates] = useState({ charges: [], creditBalance: 0 });
   const [refundTargetKey, setRefundTargetKey] = useState('');
   const [refundSubMode, setRefundSubMode] = useState('cash');
+  // 게스트는 isActive=false라 일반 회원 목록에 안 실린다 → 환불용 목록은 따로 받아온다
+  const [refundMembers, setRefundMembers] = useState([]);
+
+  useEffect(() => {
+    if (!isRefundFlow || refundMembers.length > 0) return;
+    apiService.fetchRefundMembers()
+      .then(setRefundMembers)
+      .catch(() => setRefundMembers([]));
+  }, [isRefundFlow, refundMembers.length]);
 
   useEffect(() => {
     if (!isRefundFlow || !selectedMember) {
@@ -251,7 +260,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                 <select value={selectedMember} onChange={e => setSelectedMember(e.target.value)}
                   style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, color: 'var(--on-background)', background: '#f8fafc', outline: 'none' }}>
                   <option value="">회원 선택</option>
-                  {members.filter(m => m.isActive || m.isGuest).map(m => (
+                  {(refundMembers.length > 0 ? refundMembers : members.filter(m => m.isActive)).map(m => (
                     <option key={m.id} value={m.id}>{m.nickname || m.name}{m.isGuest ? ' (게스트)' : ''}</option>
                   ))}
                 </select>
