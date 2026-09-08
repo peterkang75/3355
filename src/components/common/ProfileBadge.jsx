@@ -10,24 +10,16 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
   const [searchTerm, setSearchTerm] = useState('');
   const dropdownRef = useRef(null);
   
-  if (!user) return null;
+  const isAdmin = !!user && (user.isAdmin || user.role === '관리자');
 
-  const isAdmin = user.isAdmin || user.role === '관리자';
-  
-  // 개발자 모드: 관리자가 한번 드롭다운을 사용하면 localStorage에 저장
-  const [devModeEnabled, setDevModeEnabled] = useState(() => {
-    return localStorage.getItem('devModeEnabled') === 'true';
-  });
-
-  // 관리자인 경우 자동으로 개발자 모드 활성화
+  // 회원 전환은 관리자 전용. 과거 기기에 남아있던 개발자 모드 플래그는 제거한다.
   useEffect(() => {
-    if (isAdmin && !devModeEnabled) {
-      localStorage.setItem('devModeEnabled', 'true');
-      setDevModeEnabled(true);
+    if (localStorage.getItem('devModeEnabled')) {
+      localStorage.removeItem('devModeEnabled');
     }
-  }, [isAdmin, devModeEnabled]);
+  }, []);
 
-  const canSwitchUsers = isAdmin || devModeEnabled;
+  const canSwitchUsers = isAdmin;
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -45,6 +37,8 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showMemberDropdown]);
+
+  if (!user) return null;
 
   const handleMemberSelect = (member) => {
     try {
@@ -87,7 +81,7 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
             fontSize: '14px',
             fontWeight: '500',
             color: '#374151',
-            cursor: canSwitchUsers ? 'pointer' : 'default',
+            cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             gap: '4px'
@@ -112,7 +106,7 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
             fontWeight: 600,
             color: clubMode ? '#ffffff' : 'var(--on-background)',
             letterSpacing: '-0.02em',
-            cursor: canSwitchUsers ? 'pointer' : 'default',
+            cursor: 'pointer',
             display: 'inline-flex',
             alignItems: 'center',
             gap: 3,
@@ -127,7 +121,7 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
 
       <div
         style={{ position: 'relative', cursor: 'pointer' }}
-        onClick={canSwitchUsers ? handleNameClick : () => navigate('/mypage')}
+        onClick={() => navigate('/mypage')}
       >
         <div style={{
           width: `${size}px`,
@@ -193,7 +187,7 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
               marginBottom: '8px',
               fontWeight: '600'
             }}>
-              🔧 개발자 모드: 회원 전환
+              관리자 모드: 회원 전환
             </div>
             <input
               type="text"
