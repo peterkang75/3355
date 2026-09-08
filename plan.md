@@ -509,3 +509,9 @@ Step 2·3에서 `BookingForm`(=`Booking.jsx` 전용)과 `/rounding-management`�
   - 드롭다운 라벨 "🔧 개발자 모드" → "관리자 모드".
   - 부수 수정: `if (!user) return null`이 훅 호출 사이에 있어 훅 개수가 바뀌던 문제(React 규칙 위반) — 훅 전부 뒤로 이동.
   - 남은 사항: 회원 전환은 여전히 **클라이언트 판정**(관리자 여부를 프론트에서 확인). 서버 강제는 미적용.
+
+- [x] **마이페이지 클럽 멤버십 항목에 GA Official Name 추가 (2026-09-08)**
+  - 순서 변경: 소속 클럽 → Golflink 번호 → GA Official Name → 클럽 회원번호 → GA Handy (관리자 회원상세 화면과 동일 순서).
+  - GA Official Name 입력칸 안내문구: "GA 에 등록한 영문이름을 적어주세요."
+  - DB 컬럼 `gaRegisteredName`은 이미 존재(관리자 화면·명단 PDF에서 사용 중) → 마이그레이션 불필요. 서버 PUT /members/:id 도 본인 수정 허용 필드에 이미 포함.
+  - 클럽 멤버십 "아니오" 선택 시 함께 초기화, 멤버십 정보 조회 화면에도 표시.

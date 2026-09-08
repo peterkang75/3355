@@ -110,6 +110,7 @@ function MyPage() {
         houseHandy: isGAMember ? null : editData.houseHandy,
         handicap: isGAMember ? editData.gaHandy : editData.houseHandy,
         golflinkNumber: isGAMember ? editData.golflinkNumber : null,
+        gaRegisteredName: isGAMember ? editData.gaRegisteredName : null,
         clubMemberNumber: isGAMember ? editData.clubMemberNumber : null,
         photo: editData.photo,
         gender: editData.gender,
@@ -397,7 +398,7 @@ function MyPage() {
                     <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 6 }}>클럽 멤버십</div>
                     <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: 14, padding: 4, gap: 4 }}>
                       {[['예', 'yes'], ['아니오', 'no']].map(([label, val]) => (
-                        <button key={val} onClick={() => { setEditData(prev => ({ ...prev, isMember: val, ...(val === 'no' ? { club: '', golflinkNumber: '', clubMemberNumber: '' } : {}) })); setClubSearchInput(''); setClubSearchState('idle'); }}
+                        <button key={val} onClick={() => { setEditData(prev => ({ ...prev, isMember: val, ...(val === 'no' ? { club: '', golflinkNumber: '', gaRegisteredName: '', clubMemberNumber: '' } : {}) })); setClubSearchInput(''); setClubSearchState('idle'); }}
                           style={{ flex: 1, padding: '10px 0', borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 700,
                             background: editData.isMember === val ? '#0047AB' : 'transparent',
                             color: editData.isMember === val ? '#fff' : '#94A3B8',
@@ -447,11 +448,16 @@ function MyPage() {
                         )}
                       </div>
                       {/* 핸디캡은 소수점(18.4) 입력을 받아야 하므로 decimal 키패드 + 숫자·점만 허용 */}
-                      {[['GA Handy', 'gaHandy', 'decimal'], ['Golflink 번호', 'golflinkNumber', 'text'], ['클럽 회원번호', 'clubMemberNumber', 'text']].map(([label, key, type]) => (
+                      {[
+                        ['Golflink 번호', 'golflinkNumber', 'text', undefined],
+                        ['GA Official Name', 'gaRegisteredName', 'text', 'GA 에 등록한 영문이름을 적어주세요.'],
+                        ['클럽 회원번호', 'clubMemberNumber', 'text', undefined],
+                        ['GA Handy', 'gaHandy', 'decimal', '예: 18.4'],
+                      ].map(([label, key, type, placeholder]) => (
                         <div key={key} style={{ marginBottom: 14 }}>
                           <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 6 }}>{label}</div>
                           <input type="text" inputMode={type === 'decimal' ? 'decimal' : 'text'}
-                            placeholder={type === 'decimal' ? '예: 18.4' : undefined}
+                            placeholder={placeholder}
                             value={editData[key] || ''}
                             onChange={(e) => setEditData({ ...editData, [key]: type === 'decimal' ? e.target.value.replace(/[^0-9.]/g, '') : e.target.value })}
                             style={{ width: '100%', padding: '13px 16px', borderRadius: 14, border: '1.5px solid #E5E7EB', fontSize: 15, outline: 'none', boxSizing: 'border-box', background: '#fff' }} />
@@ -575,6 +581,7 @@ function MyPage() {
                 ['클럽 멤버', user.isClubMember === 'yes' ? '예' : '아니오'],
                 ['클럽', user.club || '-'],
                 ['Golflink 번호', user.golflinkNumber || '-'],
+                ['GA Official Name', user.gaRegisteredName || '-'],
                 ['클럽 회원번호', user.clubMemberNumber || '-'],
               ].map(([label, value]) => (
                 <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #F1F5F9' }}>
