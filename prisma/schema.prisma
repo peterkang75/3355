@@ -50,6 +50,7 @@ model Member {
   comments              Comment[]          @relation("MemberComments")
   reactions             Reaction[]         @relation("MemberReactions")
   cancellations         RoundCancellation[] @relation("MemberCancellations")
+  attendanceVotes       AttendanceVote[]    @relation("MemberAttendanceVotes")
 }
 
 model Post {
@@ -115,9 +116,54 @@ model Booking {
   winnerPredictions WinnerPrediction[]
   media             RoundingMedia[]
   cancellations     RoundCancellation[]
+  attendancePoll    AttendancePoll?
 
   @@index([organizerId])
   @@index([date])
+}
+
+// 정모 참석 투표 (카카오톡 투표 대체)
+//
+// 왜 필요한가: 참석 여부를 카톡 투표로 받으면 그 결과를 사람이 다시 앱에 옮겨 적어야 하고,
+// 그 사이에 입금한 회원은 청구가 없어 영수증도 못 올린다. 앱에서 투표를 받으면
+// 투표 = 참가 신청이 되어 청구가 즉시 발행되고 영수증 첨부까지 바로 이어진다.
+//
+// 참석 인원의 진실은 booking.participants 다. 이 표는 "누가 어떤 선택지를 골랐는가"와
+// 불참 의사(명단에 없는 것과 아직 투표 안 한 것을 구분하기 위해)만 기록한다.
+model AttendancePoll {
+  id        String   @id @default(cuid())
+  bookingId String   @unique
+  booking   Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  title     String
+  // [{ key, label, kind: 'attend'|'absent', fee: number|null, sortOrder }]
+  // fee = 이 선택지를 고른 사람에게 청구할 금액. null이면 라운딩 기본 금액 계산식을 따른다.
+  options   Json     @default("[]")
+
+  closesAt  DateTime?  // 투표 마감 = 참가 신청 마감 (booking.registrationDeadline 과 동기화)
+  closedAt  DateTime?  // 방장이 수동으로 종료한 시각
+  createdBy String?
+
+  votes     AttendanceVote[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AttendanceVote {
+  id        String         @id @default(cuid())
+  pollId    String
+  poll      AttendancePoll @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  memberId  String
+  member    Member         @relation(fields: [memberId], references: [id], onDelete: Cascade, name: "MemberAttendanceVotes")
+
+  optionKey String
+  votedAt   DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@unique([pollId, memberId])
+  @@index([pollId])
+  @@index([memberId])
 }
 
 // 라운딩 참가 취소 이력 + 정산(환불) 처리 상태
