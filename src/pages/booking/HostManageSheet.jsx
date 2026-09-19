@@ -8,6 +8,7 @@ import { parseNewPeriaConfig, buildNewPeriaHolesPayload } from '../../utils/newp
 import { parseTeamModes, hasTeamModes, buildTeamModesPayload, parseTeams } from '../../utils/teamGameModes';
 import TeamModeAssigner from '../../components/booking/TeamModeAssigner';
 import NewPeriaHolesSheet from './NewPeriaHolesSheet';
+import AttendancePollManager from '../../components/AttendancePollManager';
 
 // 이 화면에는 스테이블포드가 별도로 있어 공용 목록에 한 항목을 끼워 쓴다
 const HOST_GAME_MODES = [
@@ -429,6 +430,9 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
             <span>{npConfig.isConfigured ? `신페리오 홀 지정됨 · ${npConfig.holes.join(', ')}` : '신페리오 홀 지정하기'}</span>
           </button>
         )}
+
+        {/* 참석 투표 — 카톡 투표 대신 앱에서 참석을 받는다 (투표 = 참가 신청) */}
+        <AttendancePollManager booking={booking} />
 
         {/* 게스트 초대링크 */}
         {!hmClubMemberOnly && (

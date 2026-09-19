@@ -153,6 +153,23 @@ const participantCount = async (bookingId) => {
   check('admin은 아직 미투표', notVotedIds.includes(admin.id));
   check('A/B/C는 미투표 목록에 없음', !notVotedIds.includes(A.id) && !notVotedIds.includes(B.id) && !notVotedIds.includes(C.id));
 
+  console.log('\n[10-b] 투표 수정 시 기존 표가 유지되는지 (key 보존)');
+  let before = await call('GET', `/polls/${poll.id}`, admin.id);
+  const beforeCounts = before.data.options.map(o => o.count);
+  r = await call('PUT', `/polls/${poll.id}`, admin.id, {
+    title: '테스트 정모 참석 (수정)',
+    options: before.data.options.filter(o => o.kind === 'attend').map(o => ({ key: o.key, label: o.label + ' *', kind: 'attend', fee: o.fee }))
+      .concat([{ label: '불참', kind: 'absent' }]),
+  });
+  check('수정 성공', r.status === 200, JSON.stringify(r.data).slice(0,200));
+  check('제목 반영', r.data?.title === '테스트 정모 참석 (수정)');
+  check('라벨 반영', r.data?.options?.[0]?.label.endsWith(' *'));
+  check('기존 표 그대로 유지', JSON.stringify(r.data.options.map(o => o.count)) === JSON.stringify(beforeCounts), JSON.stringify(r.data.options.map(o=>o.count)) + ' vs ' + JSON.stringify(beforeCounts));
+
+  console.log('\n[10-c] 라운딩으로 투표 찾기');
+  r = await call('GET', `/polls/booking/${booking.id}`, admin.id);
+  check('bookingId로 조회 성공', r.data?.id === poll.id);
+
   console.log('\n[11] 투표 종료');
   r = await call('POST', `/polls/${poll.id}/close`, admin.id);
   check('종료 성공', r.status === 200 && r.data?.isClosed === true);

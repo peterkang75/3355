@@ -45,7 +45,7 @@ function Avatar({ person, size = 26 }) {
   );
 }
 
-function AttendancePollCard() {
+function AttendancePollCard({ emptyFallback = null }) {
   const { user } = useApp();
   const socket = useSocket();
 
@@ -84,7 +84,8 @@ function AttendancePollCard() {
     [poll]
   );
 
-  if (loading || !poll) return null;
+  if (loading) return null;
+  if (!poll) return emptyFallback;
 
   // 투표를 이미 했고 "다시 투표하기"를 누르지 않았으면 결과를 본다
   const showResult = (!!poll.myVote && !revoting) || poll.isClosed;
