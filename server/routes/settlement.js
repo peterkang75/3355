@@ -91,7 +91,7 @@ router.get('/:yearMonth/category', requireAuth, async (req, res) => {
       where: { date: { startsWith: yearMonth } },
       select: {
         id: true, type: true, category: true, description: true,
-        amount: true, date: true, memo: true,
+        amount: true, date: true, memo: true, memberId: true,
         receiptImages: true, receiptImage: true,
         member: { select: { name: true, nickname: true } },
         booking: { select: { title: true, courseName: true } },

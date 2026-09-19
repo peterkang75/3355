@@ -595,11 +595,35 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
     }
   };
 
-  const handleReverse = async (tx) => {
+  // 납부를 지웠을 때 정말 "미납"으로 돌아가는지는 청구가 있어야 성립한다.
+  // 청구 없이 납부만 기록된 건(게스트에게 자주 생김)은 지우면 흔적 없이 사라지므로 다르게 안내한다.
+  const buildReverseMessage = async (tx) => {
     const memberName = tx.member?.nickname || tx.member?.name || '내역';
-    const confirmMsg = isIncome
-      ? `${memberName}님의 납부(${formatCurrency(tx.amount)})를 취소하고 미납 상태로 되돌리겠습니까?`
-      : `이 지출 내역(${formatCurrency(tx.amount)})을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`;
+    const amountText = formatCurrency(tx.amount);
+    if (!isIncome) {
+      return `이 지출 내역(${amountText})을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.`;
+    }
+
+    const CREDIT_CATEGORIES = ['크레딧 자동 납부', '크레딧 납부', '크레딧 자동 차감'];
+    const fallback = `${memberName}님의 납부(${amountText})를 취소하고 미납 상태로 되돌리겠습니까?`;
+    if (!tx.memberId || CREDIT_CATEGORIES.includes(tx.category)) return fallback;
+
+    try {
+      const r = await fetch(`/api/transactions/balance/${tx.memberId}`, { headers: authHeaders });
+      if (!r.ok) return fallback;
+      const { balance } = await r.json();
+      const after = (balance || 0) - tx.amount; // 이 납부를 지우고 남는 잔액
+      if (after < 0) {
+        return `${memberName}님의 납부(${amountText})를 취소하고 미납 상태로 되돌리겠습니까?\n\n취소하면 ${formatCurrency(Math.abs(after))} 미납으로 표시됩니다.`;
+      }
+      return `${memberName}님에게는 이 납부에 해당하는 청구 기록이 없습니다.\n\n취소해도 미납 목록에 나타나지 않고, 이 납부 기록만 사라집니다.\n\n계속할까요?`;
+    } catch {
+      return fallback;
+    }
+  };
+
+  const handleReverse = async (tx) => {
+    const confirmMsg = await buildReverseMessage(tx);
     if (!confirm(confirmMsg)) return;
     setDeletingId(tx.id);
     try {
