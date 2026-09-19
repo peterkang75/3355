@@ -878,6 +878,81 @@ class ApiService {
     return response.json();
   }
 
+  // ── 참석 투표 ──────────────────────────────────────────────────────────
+  async fetchActivePoll() {
+    const response = await fetch(`${API_BASE}/polls/active`, { headers: this.getAuthHeaders() });
+    if (!response.ok) throw new Error('Failed to fetch active poll');
+    return response.json();
+  }
+
+  async fetchPollByBooking(bookingId) {
+    const response = await fetch(`${API_BASE}/polls/booking/${bookingId}`, { headers: this.getAuthHeaders() });
+    if (!response.ok) throw new Error('Failed to fetch poll');
+    return response.json();
+  }
+
+  async createPoll(data) {
+    const response = await fetch(`${API_BASE}/polls`, {
+      method: 'POST',
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(data),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body.error || '투표 생성에 실패했습니다.');
+    return body;
+  }
+
+  async updatePoll(pollId, data) {
+    const response = await fetch(`${API_BASE}/polls/${pollId}`, {
+      method: 'PUT',
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify(data),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body.error || '투표 수정에 실패했습니다.');
+    return body;
+  }
+
+  async votePoll(pollId, optionKey) {
+    const response = await fetch(`${API_BASE}/polls/${pollId}/vote`, {
+      method: 'POST',
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ optionKey }),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body.error || '투표에 실패했습니다.');
+    return body;
+  }
+
+  async closePoll(pollId) {
+    const response = await fetch(`${API_BASE}/polls/${pollId}/close`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body.error || '투표 종료에 실패했습니다.');
+    return body;
+  }
+
+  async reopenPoll(pollId) {
+    const response = await fetch(`${API_BASE}/polls/${pollId}/reopen`, {
+      method: 'POST',
+      headers: this.getAuthHeaders(),
+    });
+    const body = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(body.error || '투표 재개에 실패했습니다.');
+    return body;
+  }
+
+  async deletePoll(pollId) {
+    const response = await fetch(`${API_BASE}/polls/${pollId}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders(),
+    });
+    if (!response.ok) throw new Error('투표 삭제에 실패했습니다.');
+    return response.json();
+  }
+
   async fetchRefundMembers() {
     const response = await fetch(`${API_BASE}/transactions/refund-members`, {
       headers: this.getAuthHeaders(),

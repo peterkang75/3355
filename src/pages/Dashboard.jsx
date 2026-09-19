@@ -5,6 +5,7 @@ import { ProfileBadge } from '../components/common';
 import { parseParticipants } from '../utils';
 import { isBookingActive } from './booking/bookingHelpers';
 import golfBg from '../assets/golf-bg.jpeg';
+import AttendancePollCard from '../components/AttendancePollCard';
 
 // ─── 아이콘 ───────────────────────────────────────────────────────────────────
 
@@ -305,6 +306,9 @@ function Dashboard() {
           환영합니다, {displayName}님
         </h1>
       </div>
+
+      {/* ── 참석 투표 (열려 있을 때만) ── */}
+      <AttendancePollCard />
 
       {/* ── 메인 배너: 활성 특별공지 > 자동 지난 정기모임 ── */}
       {activeFeatured ? (
