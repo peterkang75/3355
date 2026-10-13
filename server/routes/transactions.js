@@ -604,15 +604,20 @@ router.post("/credit-to-payment", requireAuth, async (req, res) => {
 // 게스트는 isActive=false로 저장되어 일반 회원 목록(GET /members)에 아예 안 실린다.
 // 그래서 환불 화면에서 게스트를 고를 수 없었음 → 여기서 따로 내려준다.
 // 거래 기록이 하나도 없는 게스트는 환불할 것이 있을 수 없으므로 제외(목록 노이즈 방지).
+// ?yearMonth=YYYY-MM 이면 그 달 라운딩에 참가비가 청구된 사람만 (정산 화면에서 그 달 환불할 때)
 router.get("/refund-members", requireAuth, requireOperator, async (req, res) => {
   try {
+    const { yearMonth } = req.query;
+    const where = /^\d{4}-\d{2}$/.test(yearMonth || "")
+      ? { transactions: { some: { type: "charge", booking: { date: { startsWith: yearMonth } } } } }
+      : {
+          OR: [
+            { isActive: true, isGuest: false },
+            { isGuest: true, transactions: { some: {} } },
+          ],
+        };
     const rows = await prisma.member.findMany({
-      where: {
-        OR: [
-          { isActive: true, isGuest: false },
-          { isGuest: true, transactions: { some: {} } },
-        ],
-      },
+      where,
       select: { id: true, name: true, nickname: true, isGuest: true, balance: true },
       orderBy: [{ isGuest: "asc" }, { name: "asc" }],
     });
@@ -627,11 +632,16 @@ router.get("/refund-members", requireAuth, requireOperator, async (req, res) => 
 router.get("/refund-candidates/:memberId", requireAuth, requireOperator, async (req, res) => {
   try {
     const { memberId } = req.params;
+    const { yearMonth } = req.query;
+    // ?yearMonth=YYYY-MM 이면 그 달 라운딩 청구만
+    const bookingFilter = /^\d{4}-\d{2}$/.test(yearMonth || "")
+      ? { booking: { date: { startsWith: yearMonth } } }
+      : { bookingId: { not: null } };
 
     const [member, charges] = await Promise.all([
       prisma.member.findUnique({ where: { id: memberId }, select: { balance: true } }),
       prisma.transaction.findMany({
-        where: { memberId, type: "charge", bookingId: { not: null } },
+        where: { memberId, type: "charge", ...bookingFilter },
         include: { booking: { select: { title: true, courseName: true, date: true } } },
         orderBy: { date: "desc" },
       }),

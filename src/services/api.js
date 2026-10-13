@@ -953,16 +953,16 @@ class ApiService {
     return response.json();
   }
 
-  async fetchRefundMembers() {
-    const response = await fetch(`${API_BASE}/transactions/refund-members`, {
+  async fetchRefundMembers(yearMonth) {
+    const response = await fetch(`${API_BASE}/transactions/refund-members${yearMonth ? `?yearMonth=${yearMonth}` : ''}`, {
       headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to fetch refund members');
     return response.json();
   }
 
-  async fetchRefundCandidates(memberId) {
-    const response = await fetch(`${API_BASE}/transactions/refund-candidates/${memberId}`, {
+  async fetchRefundCandidates(memberId, yearMonth) {
+    const response = await fetch(`${API_BASE}/transactions/refund-candidates/${memberId}${yearMonth ? `?yearMonth=${yearMonth}` : ''}`, {
       headers: this.getAuthHeaders(),
     });
     if (!response.ok) throw new Error('Failed to fetch refund candidates');

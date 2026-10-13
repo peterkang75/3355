@@ -49,6 +49,51 @@ function fmtMonth(ym) {
   const [y, m] = ym.split('-');
   return `${y}년 ${parseInt(m)}월`;
 }
+function sydneyToday() {
+  return new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
+}
+// 정산 중인 달의 날짜 범위 (YYYY-MM-DD)
+function monthBounds(ym) {
+  const [y, m] = ym.split('-').map(Number);
+  const lastDay = new Date(Date.UTC(y, m, 0)).getUTCDate();
+  return { min: `${ym}-01`, max: `${ym}-${String(lastDay).padStart(2, '0')}` };
+}
+// 기록 날짜 기본값: 이번 달이면 오늘, 지난 달이면 그 달 마지막 일요일(정모일)
+function defaultEntryDate(ym) {
+  const today = sydneyToday();
+  if (today.slice(0, 7) === ym) return today;
+  const [y, m] = ym.split('-').map(Number);
+  const last = new Date(Date.UTC(y, m, 0));
+  last.setUTCDate(last.getUTCDate() - last.getUTCDay());
+  return last.toISOString().slice(0, 10);
+}
+function isInMonth(dateStr, ym) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(dateStr || '') && dateStr.slice(0, 7) === ym;
+}
+
+// 정산 중인 달 안에서만 고를 수 있는 날짜 입력 + 기본값 되돌리기
+function MonthDateField({ label, value, onChange, yearMonth, inputStyle, labelStyle }) {
+  const def = defaultEntryDate(yearMonth);
+  const { min, max } = monthBounds(yearMonth);
+  const isToday = def === sydneyToday();
+  return (
+    <>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
+        <div style={labelStyle || { fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.04em' }}>{label}</div>
+        {value !== def && (
+          <button onClick={() => onChange(def)} style={{ fontSize: 11, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}>
+            {isToday ? '오늘로 되돌리기' : `${parseInt(def.slice(8), 10)}일로 되돌리기`}
+          </button>
+        )}
+      </div>
+      <input type="date" value={value} min={min} max={max} onChange={e => onChange(e.target.value)}
+        style={inputStyle || { width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, color: 'var(--on-background)', background: '#f8fafc', outline: 'none', boxSizing: 'border-box', WebkitAppearance: 'none', display: 'block', minHeight: '48px', lineHeight: '1.5' }} />
+      {value && !isInMonth(value, yearMonth) && (
+        <div style={{ fontSize: 11, color: '#dc2626', marginTop: 5, fontWeight: 600 }}>⚠ {fmtMonth(yearMonth)} 안의 날짜만 기록할 수 있습니다</div>
+      )}
+    </>
+  );
+}
 
 // ─── 빠른 입력 바텀시트 ───────────────────────────────────────────────────────
 function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) {
@@ -62,23 +107,22 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
   const [saving, setSaving] = useState(false);
   const [receiptImages, setReceiptImages] = useState([]);
 
-  const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
-  const [date, setDate] = useState(todayStr);
+  const [date, setDate] = useState(() => defaultEntryDate(yearMonth));
 
   // "환불" 카테고리는 자유입력이 아니라 완납 청구/보유 크레딧에서 골라서 처리 (청구는 그대로 유지)
   const isRefundFlow = mode === 'expense' && selectedCategory === '환불';
   const [refundCandidates, setRefundCandidates] = useState({ charges: [], creditBalance: 0 });
   const [refundTargetKey, setRefundTargetKey] = useState('');
   const [refundSubMode, setRefundSubMode] = useState('cash');
-  // 게스트는 isActive=false라 일반 회원 목록에 안 실린다 → 환불용 목록은 따로 받아온다
-  const [refundMembers, setRefundMembers] = useState([]);
+  // 정산 중인 달 라운딩에 참가비가 청구된 사람(게스트 포함)만 환불 목록에 올린다. null = 아직 안 불러옴
+  const [refundMembers, setRefundMembers] = useState(null);
 
   useEffect(() => {
-    if (!isRefundFlow || refundMembers.length > 0) return;
-    apiService.fetchRefundMembers()
+    if (!isRefundFlow || refundMembers !== null) return;
+    apiService.fetchRefundMembers(yearMonth)
       .then(setRefundMembers)
       .catch(() => setRefundMembers([]));
-  }, [isRefundFlow, refundMembers.length]);
+  }, [isRefundFlow, refundMembers, yearMonth]);
 
   useEffect(() => {
     if (!isRefundFlow || !selectedMember) {
@@ -86,10 +130,10 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
       setRefundTargetKey('');
       return;
     }
-    apiService.fetchRefundCandidates(selectedMember)
+    apiService.fetchRefundCandidates(selectedMember, yearMonth)
       .then(setRefundCandidates)
       .catch(() => setRefundCandidates({ charges: [], creditBalance: 0 }));
-  }, [isRefundFlow, selectedMember]);
+  }, [isRefundFlow, selectedMember, yearMonth]);
 
   const getRefundTarget = () => {
     if (!refundTargetKey) return null;
@@ -137,7 +181,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
         alert(`0보다 크고 $${target.maxAmount}을 넘지 않는 금액을 입력해주세요.`);
         return;
       }
-      if (!date) { alert('날짜를 선택해주세요.'); return; }
+      if (!isInMonth(date, yearMonth)) { alert(`${fmtMonth(yearMonth)} 안의 날짜를 선택해주세요.`); return; }
       setSaving(true);
       try {
         await apiService.createRefund({
@@ -163,7 +207,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
     if (!amount || !selectedCategory) { alert('항목과 금액을 입력해주세요.'); return; }
     const parsed = parseInt(amount.replace(/,/g, ''), 10);
     if (!parsed || parsed <= 0) { alert('올바른 금액을 입력하세요.'); return; }
-    if (!date) { alert('날짜를 선택해주세요.'); return; }
+    if (!isInMonth(date, yearMonth)) { alert(`${fmtMonth(yearMonth)} 안의 날짜를 선택해주세요.`); return; }
     setSaving(true);
     try {
       const body = {
@@ -259,11 +303,20 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>회원</div>
                 <select value={selectedMember} onChange={e => setSelectedMember(e.target.value)}
                   style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, color: 'var(--on-background)', background: '#f8fafc', outline: 'none' }}>
-                  <option value="">회원 선택</option>
-                  {(refundMembers.length > 0 ? refundMembers : members.filter(m => m.isActive)).map(m => (
-                    <option key={m.id} value={m.id}>{m.nickname || m.name}{m.isGuest ? ' (게스트)' : ''}</option>
-                  ))}
+                  <option value="">{refundMembers === null ? '불러오는 중…' : `회원 선택 (${fmtMonth(yearMonth)} 참가자)`}</option>
+                  {(refundMembers || []).map(m => {
+                    const nick = (m.nickname || m.name || '').trim();
+                    const real = (m.name || '').trim();
+                    return (
+                      <option key={m.id} value={m.id}>
+                        {nick}{real && real !== nick ? ` (${real})` : ''}{m.isGuest ? ' · 게스트' : ''}
+                      </option>
+                    );
+                  })}
                 </select>
+                {refundMembers?.length === 0 && (
+                  <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 6 }}>{fmtMonth(yearMonth)}에 참가비가 청구된 사람이 없습니다.</div>
+                )}
               </div>
 
               {selectedMember && (
@@ -341,14 +394,8 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                     </div>
 
                     <div style={{ marginBottom: 16 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.04em' }}>{refundSubMode === 'credit' ? '크레딧전환 일자' : '실제 환불(입금)한 날짜'}</div>
-                        {date !== todayStr && (
-                          <button onClick={() => setDate(todayStr)} style={{ fontSize: 11, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}>오늘로 되돌리기</button>
-                        )}
-                      </div>
-                      <input type="date" value={date} onChange={e => setDate(e.target.value)}
-                        style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, background: '#f8fafc', outline: 'none', boxSizing: 'border-box' }} />
+                      <MonthDateField label={refundSubMode === 'credit' ? '크레딧전환 일자' : '실제 환불(입금)한 날짜'}
+                        value={date} onChange={setDate} yearMonth={yearMonth} />
                     </div>
 
                     {refundSubMode === 'cash' && (
@@ -442,17 +489,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
 
               {/* 날짜 */}
               <div style={{ marginBottom: 16 }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.04em' }}>날짜</div>
-                  {date !== todayStr && (
-                    <button onClick={() => setDate(todayStr)} style={{ fontSize: 11, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}>오늘로 되돌리기</button>
-                  )}
-                </div>
-                <input type="date" value={date} onChange={e => setDate(e.target.value)}
-                  style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, color: 'var(--on-background)', background: '#f8fafc', outline: 'none', boxSizing: 'border-box', WebkitAppearance: 'none', display: 'block', minHeight: '48px', lineHeight: '1.5' }} />
-                {date !== todayStr && (
-                  <div style={{ fontSize: 11, color: '#ea580c', marginTop: 5, fontWeight: 600 }}>⚠ 오늘({todayStr})이 아닌 날짜로 기록됩니다</div>
-                )}
+                <MonthDateField label="날짜" value={date} onChange={setDate} yearMonth={yearMonth} />
               </div>
 
               {/* 회원 선택 */}
@@ -807,9 +844,8 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
 }
 
 // ─── 납부 처리 바텀시트 ──────────────────────────────────────────────────────
-function PaySheet({ member, amount, setAmount, memo, setMemo, date, setDate, onConfirm, onClose, paying }) {
+function PaySheet({ member, amount, setAmount, memo, setMemo, date, setDate, yearMonth, onConfirm, onClose, paying }) {
   if (!member) return null;
-  const todayStr = new Date().toISOString().split('T')[0];
   return (
     <>
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 300, backdropFilter: 'blur(2px)' }} />
@@ -836,30 +872,7 @@ function PaySheet({ member, amount, setAmount, memo, setMemo, date, setDate, onC
           </div>
         </div>
         <div style={{ marginBottom: 14 }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 }}>
-            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)' }}>납부 날짜</div>
-            {date !== todayStr && (
-              <button onClick={() => setDate(todayStr)}
-                style={{ fontSize: 11, color: 'var(--primary)', background: 'none', border: 'none', cursor: 'pointer', fontWeight: 600, padding: 0 }}>
-                오늘로 되돌리기
-              </button>
-            )}
-          </div>
-          <input
-            type="date"
-            value={date}
-            onChange={e => setDate(e.target.value)}
-            style={{
-              width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0',
-              fontSize: 14, color: 'var(--on-background)', background: '#f8fafc', outline: 'none', boxSizing: 'border-box',
-              WebkitAppearance: 'none', display: 'block', minHeight: '48px', lineHeight: '1.5',
-            }}
-          />
-          {date !== todayStr && (
-            <div style={{ fontSize: 11, color: '#ea580c', marginTop: 5, fontWeight: 600 }}>
-              ⚠ 오늘({todayStr})이 아닌 날짜로 기록됩니다
-            </div>
-          )}
+          <MonthDateField label="납부 날짜" value={date} onChange={setDate} yearMonth={yearMonth} />
         </div>
         <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6 }}>메모 (선택)</div>
@@ -1127,12 +1140,12 @@ const CancelledTag = () => (
 );
 
 // ─── 정산 처리 바텀시트 (참가 취소 건의 환불 여부 결정) ──────────────────────
-function SettlementResolveSheet({ item, onClose, onDone }) {
+function SettlementResolveSheet({ item, yearMonth, onClose, onDone }) {
   const [action, setAction] = useState('');
   const [mode, setMode] = useState('cash');
   const [amount, setAmount] = useState(String(item.refundableAmount || ''));
   const [memo, setMemo] = useState('');
-  const [date, setDate] = useState(new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' }));
+  const [date, setDate] = useState(() => defaultEntryDate(yearMonth));
   const [receiptImage, setReceiptImage] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -1165,6 +1178,7 @@ function SettlementResolveSheet({ item, onClose, onDone }) {
         alert(`0보다 크고 ${formatCurrency(item.refundableAmount)}을 넘지 않는 금액을 입력해주세요.`);
         return;
       }
+      if (!isInMonth(date, yearMonth)) { alert(`${fmtMonth(yearMonth)} 안의 날짜를 선택해주세요.`); return; }
     }
     if (willCreateCredit) {
       const ok = window.confirm(
@@ -1291,8 +1305,9 @@ function SettlementResolveSheet({ item, onClose, onDone }) {
               </div>
 
               <div style={{ marginBottom: 16 }}>
-                <div style={labelStyle}>{mode === 'credit' ? '크레딧전환 일자' : '실제 환불한 날짜'}</div>
-                <input type="date" value={date} onChange={e => setDate(e.target.value)} style={inputStyle} />
+                <MonthDateField label={mode === 'credit' ? '크레딧전환 일자' : '실제 환불한 날짜'}
+                  value={date} onChange={setDate} yearMonth={yearMonth}
+                  labelStyle={{ ...labelStyle, marginBottom: 0 }} inputStyle={inputStyle} />
               </div>
 
               {mode === 'cash' && (
@@ -1365,7 +1380,7 @@ function Settlement() {
   const [payingMember, setPayingMember] = useState(null);
   const [payAmount, setPayAmount] = useState('');
   const [payMemo, setPayMemo] = useState('');
-  const [payDate, setPayDate] = useState(new Date().toISOString().split('T')[0]);
+  const [payDate, setPayDate] = useState('');
   const [paying, setPaying] = useState(false);
   const [catSheet, setCatSheet] = useState(null); // { key, side }
   const [chargeSheet, setChargeSheet] = useState(null); // { memberId, memberName, isGuest }
@@ -1451,6 +1466,7 @@ function Settlement() {
     if (!payingMember || paying) return;
     const parsed = parseInt(payAmount, 10);
     if (!parsed || parsed <= 0) { alert('올바른 금액을 입력하세요.'); return; }
+    if (!isInMonth(payDate, yearMonth)) { alert(`${fmtMonth(yearMonth)} 안의 날짜를 선택해주세요.`); return; }
     setPaying(true);
     try {
       const isGuestPayment = payingMember.isGuest;
@@ -1470,7 +1486,6 @@ function Settlement() {
       setPayingMember(null);
       setPayAmount('');
       setPayMemo('');
-      setPayDate(new Date().toISOString().split('T')[0]);
       await Promise.all([load(), loadOutstanding()]);
     } catch (e) {
       alert('납부 처리 실패: ' + e.message);
@@ -1795,7 +1810,7 @@ function Settlement() {
                                 style={{ padding: '5px 10px', borderRadius: 10, border: '1px solid #fecaca', background: '#fff5f5', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
                               >청구 내역</button>
                               <button
-                                onClick={() => { setPayingMember(m); setPayAmount(String(Math.abs(m.balance))); setPayMemo(''); }}
+                                onClick={() => { setPayingMember(m); setPayAmount(String(Math.abs(m.balance))); setPayMemo(''); setPayDate(defaultEntryDate(yearMonth)); }}
                                 style={{ padding: '5px 14px', borderRadius: 10, border: 'none', background: '#D1FAE5', color: '#065F46', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
                               >납부 처리</button>
                             </>
@@ -1836,7 +1851,7 @@ function Settlement() {
                                 style={{ padding: '5px 10px', borderRadius: 10, border: '1px solid #c4b5fd', background: '#faf5ff', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
                               >청구 내역</button>
                               <button
-                                onClick={() => { setPayingMember(m); setPayAmount(String(Math.abs(m.balance))); setPayMemo(''); }}
+                                onClick={() => { setPayingMember(m); setPayAmount(String(Math.abs(m.balance))); setPayMemo(''); setPayDate(defaultEntryDate(yearMonth)); }}
                                 style={{ padding: '5px 14px', borderRadius: 10, border: 'none', background: '#EDE9FE', color: '#7c3aed', fontSize: 12, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}
                               >납부 처리</button>
                             </>
@@ -1997,8 +2012,9 @@ function Settlement() {
         setMemo={setPayMemo}
         date={payDate}
         setDate={setPayDate}
+        yearMonth={yearMonth}
         onConfirm={handlePayMember}
-        onClose={() => { setPayingMember(null); setPayAmount(''); setPayMemo(''); setPayDate(new Date().toISOString().split('T')[0]); }}
+        onClose={() => { setPayingMember(null); setPayAmount(''); setPayMemo(''); }}
         paying={paying}
       />
 
@@ -2032,6 +2048,8 @@ function Settlement() {
       {resolvingItem && (
         <SettlementResolveSheet
           item={resolvingItem}
+          // 마감된 달을 보고 있으면 그 달에 기록하면 안 되므로 이번 달로 기록
+          yearMonth={data?.isClosed ? sydneyToday().slice(0, 7) : yearMonth}
           onClose={() => setResolvingItem(null)}
           onDone={() => { load(); loadOutstanding(); loadPendingSettlements(); }}
         />
