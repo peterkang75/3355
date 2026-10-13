@@ -28,6 +28,7 @@ import GuestJoin from './pages/GuestJoin';
 import JoinPage from './pages/JoinPage';
 import Feed from './pages/Feed';
 import VotePage from './pages/VotePage';
+import VoteDonePage from './pages/VoteDonePage';
 import Navigation from './components/Navigation';
 import InstallPrompt from './components/InstallPrompt';
 import KakaoTalkBanner from './components/KakaoTalkBanner';
@@ -70,6 +71,7 @@ function AuthenticatedRoutes({ user, logout, requiresProfileComplete }) {
         <Route path="/games/pick-winner" element={<PickWinner />} />
         <Route path="/settlement" element={<Settlement />} />
         <Route path="/vote" element={<VotePage />} />
+        <Route path="/vote/done" element={<VoteDonePage />} />
         <Route path="/member-info" element={<MemberInfoForm />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
 import { useApp } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketContext';
@@ -48,6 +49,7 @@ function Avatar({ person, size = 26 }) {
 function AttendancePollCard({ emptyFallback = null }) {
   const { user } = useApp();
   const socket = useSocket();
+  const navigate = useNavigate();
 
   const [poll, setPoll] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -95,9 +97,18 @@ function AttendancePollCard({ emptyFallback = null }) {
     setSubmitting(true);
     try {
       const updated = await apiService.votePoll(poll.id, selected);
+      const chosen = (updated?.options || poll.options || []).find(o => o.key === selected);
       setPoll(updated);
       setRevoting(false);
       setSelected('');
+      // 투표 직후 안내 화면 (참석: 납부 안내 / 불참: 인사)
+      navigate('/vote/done', {
+        state: {
+          kind: chosen?.kind === 'absent' ? 'absent' : 'attend',
+          title: updated?.title || poll.title,
+          booking: updated?.booking || poll.booking,
+        },
+      });
     } catch (e) {
       alert(e.message || '투표에 실패했습니다.');
     } finally {
