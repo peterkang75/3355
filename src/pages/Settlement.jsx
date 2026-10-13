@@ -217,6 +217,8 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
 
   // "환불" 카테고리는 자유입력이 아니라 완납 청구/보유 크레딧에서 골라서 처리 (청구는 그대로 유지)
   const isRefundFlow = mode === 'expense' && selectedCategory === '환불';
+  // "기타"는 메모가 없으면 나중에 무슨 돈인지 알 수 없으므로 필수
+  const isMemoRequired = selectedCategory === '기타';
   const [refundCandidates, setRefundCandidates] = useState({ charges: [], creditBalance: 0 });
   const [refundTargetKey, setRefundTargetKey] = useState('');
   const [refundSubMode, setRefundSubMode] = useState('cash');
@@ -311,6 +313,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
     }
 
     if (!amount || !selectedCategory) { alert('항목과 금액을 입력해주세요.'); return; }
+    if (isMemoRequired && !memo.trim()) { alert('기타 항목은 메모를 적어주세요.'); return; }
     const parsed = parseInt(amount.replace(/,/g, ''), 10);
     if (!parsed || parsed <= 0) { alert('올바른 금액을 입력하세요.'); return; }
     if (!isInMonth(date, yearMonth)) { alert(`${fmtMonth(yearMonth)} 안의 날짜를 선택해주세요.`); return; }
@@ -569,9 +572,9 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
 
                 {/* 메모 */}
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>메모 (선택)</div>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>{isMemoRequired ? '메모 (필수)' : '메모 (선택)'}</div>
                   <textarea
-                    placeholder="메모 입력"
+                    placeholder={isMemoRequired ? '어디에 쓴 돈인지 적어주세요' : '메모 입력'}
                     value={memo}
                     onChange={e => setMemo(e.target.value)}
                     style={{
