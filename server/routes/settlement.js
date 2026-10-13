@@ -4,6 +4,70 @@ const { requireAuth, requireOperator } = require('../middleware/auth');
 
 const router = express.Router();
 
+// ── 이 달 라운딩 요약 (정산 화면 "라운딩 정보" 박스용) ─────────────────────
+// 정기모임은 금액 설정이 있으면 항상, 그 외 라운딩은 참가비 청구가 있었던 것만.
+// 청구 금액은 규칙으로 다시 계산하지 않고 실제 청구 거래를 금액별로 묶어서 보여준다.
+function parseJsonish(v) {
+  if (v == null) return null;
+  if (typeof v !== 'string') return v;
+  try { return JSON.parse(v); } catch { return null; }
+}
+
+async function getMonthlyRoundings(yearMonth) {
+  const bookings = await prisma.booking.findMany({
+    where: {
+      date: { startsWith: yearMonth },
+      OR: [{ type: '정기모임' }, { transactions: { some: { type: 'charge' } } }],
+    },
+    select: {
+      id: true, title: true, type: true, courseName: true, date: true, time: true, gatheringTime: true,
+      greenFee: true, cartFee: true, membershipFee: true, participants: true, teams: true,
+      transactions: {
+        where: { type: 'charge' },
+        select: { amount: true, member: { select: { isGuest: true } } },
+      },
+    },
+    orderBy: { date: 'asc' },
+  });
+
+  const toPerson = (p) => ({ name: (p?.nickname || p?.name || '').trim(), isGuest: !!p?.isGuest });
+
+  const result = bookings.map(b => {
+    const participants = (b.participants || []).map(parseJsonish).filter(Boolean).map(toPerson).filter(p => p.name);
+    const teamsRaw = parseJsonish(b.teams);
+    const teams = Array.isArray(teamsRaw)
+      ? teamsRaw
+          .map(t => ({ teamNumber: t.teamNumber, members: (t.members || []).map(toPerson).filter(p => p.name) }))
+          .filter(t => t.members.length > 0)
+      : [];
+
+    // 청구: (게스트 여부, 금액) 별 인원수
+    const groups = {};
+    for (const t of b.transactions) {
+      const isGuest = !!t.member?.isGuest;
+      const k = `${isGuest ? 'g' : 'm'}:${t.amount}`;
+      groups[k] = groups[k] || { isGuest, amount: t.amount, count: 0 };
+      groups[k].count += 1;
+    }
+    const charges = Object.values(groups).sort((a, b2) => (a.isGuest - b2.isGuest) || (b2.count - a.count));
+
+    return {
+      id: b.id, title: b.title, type: b.type, courseName: b.courseName,
+      date: b.date, time: b.time, gatheringTime: b.gatheringTime,
+      greenFee: b.greenFee, cartFee: b.cartFee, membershipFee: b.membershipFee,
+      memberCount: participants.filter(p => !p.isGuest).length,
+      guestCount: participants.filter(p => p.isGuest).length,
+      teams,
+      charges,
+    };
+  });
+
+  // 청구도 없고 금액 설정도 없는 라운딩(테스트용 등)은 정산과 무관하므로 제외
+  const relevant = result.filter(r => r.charges.length > 0 || r.greenFee || r.cartFee || r.membershipFee);
+
+  return relevant.sort((a, b) => (a.type === '정기모임' ? 0 : 1) - (b.type === '정기모임' ? 0 : 1) || a.date.localeCompare(b.date));
+}
+
 // ── 월별 거래 집계 헬퍼 ───────────────────────────────────────────────────
 async function getMonthlyStats(yearMonth) {
   const prefix = yearMonth; // "2026-04"
@@ -164,12 +228,15 @@ router.get('/:yearMonth', requireAuth, async (req, res) => {
       (thisMonthCharges._sum.amount || 0) - (thisMonthPaymentsForCharge._sum.amount || 0)
     );
 
+    const roundings = await getMonthlyRoundings(yearMonth);
+
     res.json({
       yearMonth,
       carryover,
       ...stats,
       netBalance,
       outstanding,
+      roundings,
       isClosed: settlement?.isClosed || false,
       closedAt: settlement?.closedAt || null,
       notes: settlement?.notes || '',

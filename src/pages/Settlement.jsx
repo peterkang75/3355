@@ -95,6 +95,112 @@ function MonthDateField({ label, value, onChange, yearMonth, inputStyle, labelSt
   );
 }
 
+// ─── 이 달 라운딩 정보 카드 (접기/펼치기) ─────────────────────────────────────
+function fmtRoundDate(dateStr) {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const wd = ['일', '월', '화', '수', '목', '금', '토'][new Date(Date.UTC(y, m - 1, d)).getUTCDay()];
+  return `${m}월 ${d}일(${wd})`;
+}
+
+function RoundingInfoCard({ rounding: r }) {
+  const [open, setOpen] = useState(false);
+  const total = r.memberCount + r.guestCount;
+  const fees = [['그린피', r.greenFee], ['카트비', r.cartFee], ['회비', r.membershipFee]].filter(([, v]) => v);
+  const feeSum = fees.reduce((s, [, v]) => s + v, 0);
+  const chargeSum = r.charges.reduce((s, c) => s + c.amount * c.count, 0);
+
+  const sectionLabel = { fontSize: 12, fontWeight: 700, color: '#94a3b8', marginBottom: 8 };
+  const row = { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: 14, padding: '3px 0' };
+  const divider = { borderTop: '1px solid #f1f5f9', margin: '14px 0' };
+
+  return (
+    <div style={{ background: '#fff', borderRadius: 22, marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
+      <button onClick={() => setOpen(o => !o)}
+        style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '16px 20px', minHeight: 44, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--on-background)' }}>{r.title || r.courseName}</div>
+          <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            {fmtRoundDate(r.date)} · {r.courseName} · {total}명
+          </div>
+        </div>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
+          style={{ flexShrink: 0, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
+          <polyline points="6 9 12 15 18 9" />
+        </svg>
+      </button>
+
+      {open && (
+        <div style={{ padding: '0 20px 18px' }}>
+          <div style={{ borderTop: '1px solid #f1f5f9', marginBottom: 14 }} />
+
+          <div style={row}>
+            <span style={{ color: 'var(--text-muted)' }}>일시</span>
+            <span style={{ fontWeight: 600 }}>
+              {fmtRoundDate(r.date)}{r.gatheringTime ? ` · 집합 ${r.gatheringTime}` : ''}{r.time ? ` · 티오프 ${r.time}` : ''}
+            </span>
+          </div>
+          <div style={row}>
+            <span style={{ color: 'var(--text-muted)' }}>참석</span>
+            <span style={{ fontWeight: 600 }}>회원 {r.memberCount}명 · 게스트 {r.guestCount}명</span>
+          </div>
+
+          {fees.length > 0 && (
+            <>
+              <div style={divider} />
+              <div style={sectionLabel}>1인 금액</div>
+              {fees.map(([label, v]) => (
+                <div key={label} style={row}>
+                  <span style={{ color: 'var(--text-muted)' }}>{label}</span>
+                  <span style={{ fontWeight: 600 }}>{formatCurrency(v)}</span>
+                </div>
+              ))}
+              <div style={{ ...row, fontWeight: 800 }}>
+                <span>합계</span>
+                <span>{formatCurrency(feeSum)}</span>
+              </div>
+            </>
+          )}
+
+          {r.charges.length > 0 && (
+            <>
+              <div style={divider} />
+              <div style={sectionLabel}>실제 청구</div>
+              {r.charges.map(c => (
+                <div key={`${c.isGuest}-${c.amount}`} style={row}>
+                  <span style={{ color: 'var(--text-muted)' }}>{c.isGuest ? '게스트' : '회원'} {c.count}명 × {formatCurrency(c.amount)}</span>
+                  <span style={{ fontWeight: 600 }}>{formatCurrency(c.amount * c.count)}</span>
+                </div>
+              ))}
+              <div style={{ ...row, fontWeight: 800 }}>
+                <span>합계</span>
+                <span>{formatCurrency(chargeSum)}</span>
+              </div>
+            </>
+          )}
+
+          <div style={divider} />
+          <div style={sectionLabel}>조편성</div>
+          {r.teams.length === 0 ? (
+            <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>조편성 전</div>
+          ) : r.teams.map(t => (
+            <div key={t.teamNumber} style={{ display: 'flex', gap: 10, fontSize: 13, padding: '4px 0', lineHeight: 1.5 }}>
+              <span style={{ fontWeight: 700, color: '#0047AB', flexShrink: 0, width: 26 }}>{t.teamNumber}조</span>
+              <span style={{ color: 'var(--on-background)' }}>
+                {t.members.map((m, i) => (
+                  <React.Fragment key={i}>
+                    {i > 0 && ', '}
+                    {m.name}{m.isGuest && <span style={{ color: '#7c3aed', fontSize: 11, fontWeight: 700 }}> 게스트</span>}
+                  </React.Fragment>
+                ))}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // ─── 빠른 입력 바텀시트 ───────────────────────────────────────────────────────
 function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) {
   const [mode, setMode] = useState('expense');
@@ -1681,6 +1787,9 @@ function Settlement() {
                   </div>
                 </div>
               </div>
+
+              {/* 이 달 라운딩 정보 (기본 접힘) */}
+              {(data.roundings || []).map(r => <RoundingInfoCard key={r.id} rounding={r} />)}
 
               {/* ② 이월금 / 전체잔액 카드 */}
               <div style={{ background: '#fff', borderRadius: 22, padding: '20px 20px', marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
