@@ -157,21 +157,25 @@ const POLL_INCLUDE = { booking: true, votes: true };
 
 // ── 조회 ─────────────────────────────────────────────────────────────────────
 
-// 홈 화면 상단에 띄울 "지금 열려 있는 투표" 1건
+// 홈 화면 상단에 띄울 투표 1건
+// - 열려 있는 투표가 우선 (라운딩 날짜가 가장 가까운 것)
+// - 없으면 마감된 투표라도 라운딩 당일까지는 결과를 보여준다 (카톡 투표처럼 끝난 뒤에도 현황 확인)
 router.get('/active', requireAuth, async (req, res) => {
   try {
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
     const polls = await prisma.attendancePoll.findMany({
-      where: { closedAt: null },
+      where: { booking: { date: { gte: today } } },
       include: POLL_INCLUDE,
       orderBy: { createdAt: 'desc' },
     });
 
-    const open = polls.filter(p => !isPollClosed(p));
-    if (open.length === 0) return res.json(null);
+    const byDate = (a, b) => String(a.booking?.date || '').localeCompare(String(b.booking?.date || ''));
+    const open = polls.filter(p => !isPollClosed(p)).sort(byDate);
+    const closed = polls.filter(p => isPollClosed(p)).sort(byDate);
+    const pick = open[0] || closed[0];
+    if (!pick) return res.json(null);
 
-    // 라운딩 날짜가 가장 가까운 것
-    open.sort((a, b) => String(a.booking?.date || '').localeCompare(String(b.booking?.date || '')));
-    res.json(await buildPollView(open[0], req.member.id));
+    res.json(await buildPollView(pick, req.member.id));
   } catch (error) {
     console.error('Error fetching active poll:', error);
     res.status(500).json({ error: 'Failed to fetch active poll' });

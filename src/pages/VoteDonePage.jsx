@@ -7,7 +7,7 @@ import { formatCurrency } from '../utils';
 // 참석 투표 직후 보여주는 안내 화면.
 // 참석: 지금 납부할 금액(실제 장부 잔액) + 앱설정의 "개인 회비 납부안내 문구"
 // 불참: 아쉬움 인사
-// 둘 다: 카카오톡 단톡방 바로가기(앱설정 링크, 비어 있으면 숨김) + 홈으로 가기
+// 둘 다: 투표 현황 보기 + 카카오톡 단톡방 바로가기(앱설정 링크, 비어 있으면 숨김) + 홈으로 가기
 
 const PRIMARY = '#0047AB';
 
@@ -110,6 +110,10 @@ function VoteDonePage() {
 
       {/* 버튼 */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 10 }}>
+        <button onClick={() => navigate('/vote', { replace: true })}
+          style={{ minHeight: 52, borderRadius: 14, border: 'none', background: PRIMARY, color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
+          투표 현황 보기
+        </button>
         {kakaoUrl && (
           <a href={kakaoUrl} target="_blank" rel="noopener noreferrer"
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, minHeight: 52, borderRadius: 14, background: '#FEE500', color: '#191919', fontSize: 15, fontWeight: 700, textDecoration: 'none' }}>
@@ -120,7 +124,7 @@ function VoteDonePage() {
           </a>
         )}
         <button onClick={() => navigate('/', { replace: true })}
-          style={{ minHeight: 52, borderRadius: 14, border: 'none', background: PRIMARY, color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
+          style={{ minHeight: 48, borderRadius: 14, border: 'none', background: 'none', color: '#64748b', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
           홈으로 가기
         </button>
       </div>
