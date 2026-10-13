@@ -3,6 +3,7 @@ import { useApp } from '../contexts/AppContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { checkIsOperator, canManagePost, canManageComment } from '../utils';
 import apiService from '../services/api';
+import { renderBold } from '../utils/boldText';
 import PageHeader from '../components/common/PageHeader';
 
 const BackIcon = () => (
@@ -347,7 +348,7 @@ function Board() {
                 {isExpanded && (
                   <div style={{ borderTop: '1px solid #f1f5f9', padding: '16px 20px 20px' }}>
                     <p style={{ fontSize: 14, lineHeight: 1.75, color: 'var(--text-sub)', whiteSpace: 'pre-wrap', marginBottom: 20 }}>
-                      {post.content}
+                      {renderBold(post.content)}
                     </p>
 
                     {/* 운영진: 대시보드 공지 등록/해제 */}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import AttendancePollCard from '../components/AttendancePollCard';
 
 // 카톡방에 올리는 투표 링크(/vote)가 도착하는 화면.
@@ -7,6 +7,7 @@ import AttendancePollCard from '../components/AttendancePollCard';
 
 function VotePage() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <div style={{ background: 'var(--background)', minHeight: '100dvh' }}>
@@ -27,6 +28,7 @@ function VotePage() {
 
       <div style={{ paddingTop: 20 }}>
         <AttendancePollCard
+          initialRevote={!!location.state?.revote}
           emptyFallback={
             <div style={{ padding: '60px 32px', textAlign: 'center' }}>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#475569', marginBottom: 6 }}>

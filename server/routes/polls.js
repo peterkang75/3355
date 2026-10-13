@@ -156,6 +156,39 @@ async function buildPollView(poll, viewerId) {
 
 const POLL_INCLUDE = { booking: true, votes: true };
 
+// ── 투표 공지 → 공지 게시판 글 + 메인 배너 ────────────────────────────────────
+// 투표 공지를 저장하면 공지 게시판 글로 올리고 메인 배너(특별공지)로 지정한다.
+// 배너는 라운딩 당일까지만. 공지를 지우면 글도 내린다. 방향은 투표 → 게시판 한쪽뿐.
+async function syncNoticePost(poll, booking, memberId) {
+  const notice = poll.notice && poll.notice.trim() ? poll.notice.trim() : null;
+  const existing = poll.noticePostId
+    ? await prisma.post.findUnique({ where: { id: poll.noticePostId } })
+    : null;
+
+  if (!notice) {
+    if (existing) await prisma.post.delete({ where: { id: existing.id } });
+    if (poll.noticePostId) {
+      await prisma.attendancePoll.update({ where: { id: poll.id }, data: { noticePostId: null } });
+    }
+    return;
+  }
+
+  const data = {
+    title: poll.title,
+    content: notice,
+    isFeatured: true,
+    isActive: true,
+    featuredUntil: booking?.date ? new Date(booking.date) : null,
+  };
+
+  if (existing) {
+    await prisma.post.update({ where: { id: existing.id }, data });
+  } else {
+    const post = await prisma.post.create({ data: { ...data, authorId: memberId } });
+    await prisma.attendancePoll.update({ where: { id: poll.id }, data: { noticePostId: post.id } });
+  }
+}
+
 // ── 조회 ─────────────────────────────────────────────────────────────────────
 
 // 홈 화면 상단에 띄울 투표 1건
@@ -250,6 +283,11 @@ router.post('/', requireAuth, requireOperator, async (req, res) => {
       });
     }
 
+    if (poll.notice) {
+      await syncNoticePost(poll, booking, req.member.id);
+      req.io.emit('posts:updated');
+    }
+
     req.io.emit('polls:updated');
     req.io.emit('bookings:updated');
     res.json(await buildPollView(poll, req.member.id));
@@ -291,6 +329,11 @@ router.put('/:id', requireAuth, requireOperator, async (req, res) => {
       data,
       include: POLL_INCLUDE,
     });
+
+    if (notice !== undefined || title !== undefined) {
+      await syncNoticePost(updated, updated.booking, req.member.id);
+      req.io.emit('posts:updated');
+    }
 
     req.io.emit('polls:updated');
     req.io.emit('bookings:updated');
@@ -343,7 +386,13 @@ router.post('/:id/reopen', requireAuth, requireOperator, async (req, res) => {
 // 투표만 지운다. 이미 발행된 청구와 참가자 명단은 건드리지 않는다.
 router.delete('/:id', requireAuth, requireOperator, async (req, res) => {
   try {
+    const poll = await prisma.attendancePoll.findUnique({ where: { id: req.params.id } });
     await prisma.attendancePoll.delete({ where: { id: req.params.id } });
+    // 투표 공지로 자동 올린 게시판 글도 같이 내린다
+    if (poll?.noticePostId) {
+      await prisma.post.deleteMany({ where: { id: poll.noticePostId } });
+      req.io.emit('posts:updated');
+    }
     req.io.emit('polls:updated');
     res.json({ success: true });
   } catch (error) {

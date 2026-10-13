@@ -6,6 +6,7 @@ import { parseParticipants } from '../utils';
 import { isBookingActive } from './booking/bookingHelpers';
 import golfBg from '../assets/golf-bg.jpeg';
 import AttendancePollCard from '../components/AttendancePollCard';
+import { plainPreview } from '../utils/boldText';
 
 // ─── 아이콘 ───────────────────────────────────────────────────────────────────
 
@@ -23,9 +24,10 @@ const ArrowRightIcon = () => (
 );
 
 function FeaturedBanner({ post, onClick, badge = '공지사항', ctaText = '자세히 보기' }) {
-  const subtitle = post.content?.length > 60
-    ? post.content.slice(0, 60) + '…'
-    : post.content;
+  const preview = plainPreview(post.content);
+  const subtitle = preview?.length > 60
+    ? preview.slice(0, 60) + '…'
+    : preview;
 
   return (
     <div
@@ -191,7 +193,8 @@ function BookingCard({ booking, user, onClick }) {
 function NoticeItem({ post, onClick }) {
   const d = new Date(post.createdAt);
   const dateStr = `${d.getMonth() + 1}/${d.getDate()}`;
-  const preview = post.content?.length > 40 ? post.content.slice(0, 40) + '…' : post.content;
+  const plain = plainPreview(post.content);
+  const preview = plain?.length > 40 ? plain.slice(0, 40) + '…' : plain;
 
   return (
     <div
@@ -307,14 +310,11 @@ function Dashboard() {
         </h1>
       </div>
 
-      {/* ── 참석 투표 (열려 있을 때만) ── */}
-      <AttendancePollCard />
-
-      {/* ── 메인 배너: 활성 특별공지 > 자동 지난 정기모임 ── */}
+      {/* ── 메인 배너: 활성 특별공지(투표 공지 포함) > 자동 지난 정기모임 ── */}
       {activeFeatured ? (
         <FeaturedBanner
           post={activeFeatured}
-          onClick={() => navigate('/board')}
+          onClick={() => navigate('/board', { state: { openPostId: activeFeatured.id } })}
         />
       ) : lastRegular ? (
         <FeaturedBanner
@@ -324,6 +324,9 @@ function Dashboard() {
           onClick={() => navigate('/feed')}
         />
       ) : null}
+
+      {/* ── 참석 투표 (공지는 위 배너로, 투표는 /vote 에서) ── */}
+      <AttendancePollCard onHome />
 
       {/* ── 나의 라운딩 ── */}
       <div style={{ padding: '0 20px 28px' }}>

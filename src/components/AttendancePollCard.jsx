@@ -1,6 +1,7 @@
 import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
+import { renderBold } from '../utils/boldText';
 import { useApp } from '../contexts/AppContext';
 import { useSocket } from '../contexts/SocketContext';
 
@@ -67,7 +68,7 @@ function PollNotice({ text }) {
         fontSize: 13, color: '#1e3a8a', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
         ...(expanded ? {} : { display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' }),
       }}>
-        {text}
+        {renderBold(text)}
       </div>
       {(overflowing || expanded) && (
         <button onClick={() => setExpanded(v => !v)} style={{
@@ -81,7 +82,9 @@ function PollNotice({ text }) {
   );
 }
 
-function AttendancePollCard({ emptyFallback = null }) {
+// onHome: 홈 화면용 — 공지는 위쪽 메인 배너로 나가므로 숨기고, 투표는 공지와 한 화면인 /vote 에서 하게 한다
+// initialRevote: 홈에서 "다시 투표하기"로 넘어온 경우 바로 선택 화면을 연다
+function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevote = false }) {
   const { user } = useApp();
   const socket = useSocket();
   const navigate = useNavigate();
@@ -90,7 +93,7 @@ function AttendancePollCard({ emptyFallback = null }) {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [revoting, setRevoting] = useState(false);
+  const [revoting, setRevoting] = useState(initialRevote);
   const [expandedKey, setExpandedKey] = useState(null);
   const [showNotVoted, setShowNotVoted] = useState(false);
 
@@ -165,7 +168,7 @@ function AttendancePollCard({ emptyFallback = null }) {
 
   return (
     <div style={{ padding: '0 20px 20px' }}>
-      {poll.notice && <PollNotice text={poll.notice} />}
+      {poll.notice && !onHome && <PollNotice text={poll.notice} />}
       <div style={{
         background: '#fff',
         borderRadius: 18,
@@ -284,7 +287,10 @@ function AttendancePollCard({ emptyFallback = null }) {
                       fontSize: 13.5, fontWeight: 700, color: '#64748b', cursor: 'pointer',
                     }}>투표 종료</button>
                   )}
-                  <button onClick={() => { setSelected(poll.myVote || ''); setRevoting(true); }} style={{
+                  <button onClick={() => {
+                    if (onHome) { navigate('/vote', { state: { revote: true } }); return; }
+                    setSelected(poll.myVote || ''); setRevoting(true);
+                  }} style={{
                     flex: 1, padding: '11px 0', borderRadius: 12,
                     border: `1.5px solid ${PRIMARY}`, background: '#fff',
                     fontSize: 13.5, fontWeight: 700, color: PRIMARY, cursor: 'pointer',
@@ -316,6 +322,12 @@ function AttendancePollCard({ emptyFallback = null }) {
                 </div>
               )}
             </>
+          ) : onHome ? (
+            /* ── 홈: 공지와 투표가 한 화면인 투표 화면으로 보낸다 ── */
+            <button onClick={() => navigate('/vote')} style={{
+              width: '100%', minHeight: 48, borderRadius: 12, border: 'none',
+              background: PRIMARY, color: '#fff', fontSize: 14.5, fontWeight: 800, cursor: 'pointer',
+            }}>투표하러 가기</button>
           ) : (
             /* ── 투표하기 ── */
             <>

@@ -141,6 +141,7 @@ model AttendancePoll {
   options   Json     @default("[]")
 
   notice    String?    // 투표 카드 위에 보이는 공지 (선택)
+  noticePostId String?  // 공지를 자동으로 올린 공지 게시판 글(Post.id) — 메인 배너용
 
   closesAt  DateTime?  // 투표 마감 = 참가 신청 마감 (booking.registrationDeadline 과 동기화)
   closedAt  DateTime?  // 방장이 수동으로 종료한 시각
