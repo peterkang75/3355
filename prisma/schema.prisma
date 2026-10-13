@@ -140,6 +140,8 @@ model AttendancePoll {
   // fee = 이 선택지를 고른 사람에게 청구할 금액. null이면 라운딩 기본 금액 계산식을 따른다.
   options   Json     @default("[]")
 
+  notice    String?    // 투표 카드 위에 보이는 공지 (선택)
+
   closesAt  DateTime?  // 투표 마감 = 참가 신청 마감 (booking.registrationDeadline 과 동기화)
   closedAt  DateTime?  // 방장이 수동으로 종료한 시각
   createdBy String?

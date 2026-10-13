@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import apiService from '../services/api';
 import { useApp } from '../contexts/AppContext';
@@ -42,6 +42,41 @@ function Avatar({ person, size = 26 }) {
       {person.photo
         ? <img src={person.photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
         : <span>{label}</span>}
+    </div>
+  );
+}
+
+// 투표 카드 위 공지 — 홈 맨 위라 길면 투표 버튼이 밀려나므로 4줄까지만 보이고 "더보기"로 펼친다
+function PollNotice({ text }) {
+  const ref = useRef(null);
+  const [expanded, setExpanded] = useState(false);
+  const [overflowing, setOverflowing] = useState(false);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (el && !expanded) setOverflowing(el.scrollHeight > el.clientHeight + 1);
+  }, [text, expanded]);
+
+  return (
+    <div style={{
+      background: '#EBF2FF', border: '1px solid rgba(0,71,171,0.12)', borderRadius: 14,
+      padding: '12px 14px', marginBottom: 10,
+    }}>
+      <div style={{ fontSize: 12, fontWeight: 800, color: PRIMARY, marginBottom: 4 }}>공지</div>
+      <div ref={ref} style={{
+        fontSize: 13, color: '#1e3a8a', lineHeight: 1.6, whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+        ...(expanded ? {} : { display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' }),
+      }}>
+        {text}
+      </div>
+      {(overflowing || expanded) && (
+        <button onClick={() => setExpanded(v => !v)} style={{
+          display: 'block', marginLeft: 'auto', marginTop: 4, padding: '4px 0', minHeight: 28,
+          background: 'none', border: 'none', fontSize: 12, fontWeight: 700, color: PRIMARY, cursor: 'pointer',
+        }}>
+          {expanded ? '접기 ⌃' : '더보기 ⌄'}
+        </button>
+      )}
     </div>
   );
 }
@@ -130,6 +165,7 @@ function AttendancePollCard({ emptyFallback = null }) {
 
   return (
     <div style={{ padding: '0 20px 20px' }}>
+      {poll.notice && <PollNotice text={poll.notice} />}
       <div style={{
         background: '#fff',
         borderRadius: 18,

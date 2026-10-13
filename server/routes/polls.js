@@ -131,6 +131,7 @@ async function buildPollView(poll, viewerId) {
     id: poll.id,
     bookingId: poll.bookingId,
     title: poll.title,
+    notice: poll.notice || null,
     closesAt: poll.closesAt,
     closedAt: poll.closedAt,
     isClosed: isPollClosed(poll),
@@ -215,7 +216,7 @@ router.get('/:id', requireAuth, async (req, res) => {
 
 router.post('/', requireAuth, requireOperator, async (req, res) => {
   try {
-    const { bookingId, title, options, closesAt } = req.body;
+    const { bookingId, title, options, closesAt, notice } = req.body;
 
     if (!bookingId) return res.status(400).json({ error: '라운딩을 선택해주세요.' });
     if (!title || !String(title).trim()) return res.status(400).json({ error: '투표 제목을 입력해주세요.' });
@@ -233,6 +234,7 @@ router.post('/', requireAuth, requireOperator, async (req, res) => {
       data: {
         bookingId,
         title: String(title).trim(),
+        notice: notice && String(notice).trim() ? String(notice).trim() : null,
         options: normalized,
         closesAt: closesAt ? new Date(closesAt) : null,
         createdBy: req.member.id,
@@ -259,7 +261,7 @@ router.post('/', requireAuth, requireOperator, async (req, res) => {
 
 router.put('/:id', requireAuth, requireOperator, async (req, res) => {
   try {
-    const { title, options, closesAt } = req.body;
+    const { title, options, closesAt, notice } = req.body;
     const poll = await prisma.attendancePoll.findUnique({ where: { id: req.params.id } });
     if (!poll) return res.status(404).json({ error: '투표를 찾을 수 없습니다.' });
 
@@ -267,6 +269,9 @@ router.put('/:id', requireAuth, requireOperator, async (req, res) => {
     if (title !== undefined) {
       if (!String(title).trim()) return res.status(400).json({ error: '투표 제목을 입력해주세요.' });
       data.title = String(title).trim();
+    }
+    if (notice !== undefined) {
+      data.notice = notice && String(notice).trim() ? String(notice).trim() : null;
     }
     if (options !== undefined) {
       const normalized = normalizeOptions(options);

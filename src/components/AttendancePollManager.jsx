@@ -42,6 +42,7 @@ function AttendancePollManager({ booking, onChanged }) {
   const [saving, setSaving] = useState(false);
 
   const [title, setTitle] = useState('');
+  const [notice, setNotice] = useState('');
   const [attendOptions, setAttendOptions] = useState([{ label: '참석', fee: '' }]);
   const [absentLabel, setAbsentLabel] = useState('불참');
   const [closesAt, setClosesAt] = useState('');
@@ -60,6 +61,7 @@ function AttendancePollManager({ booking, onChanged }) {
 
   const startCreate = () => {
     setTitle(defaultTitleOf(booking));
+    setNotice('');
     setAttendOptions([{ label: '참석', fee: '' }]);
     setAbsentLabel('불참');
     setClosesAt('');
@@ -68,6 +70,7 @@ function AttendancePollManager({ booking, onChanged }) {
 
   const startEdit = () => {
     setTitle(poll.title);
+    setNotice(poll.notice || '');
     // key를 반드시 들고 다녀야 한다. 새 key로 저장되면 이미 들어온 투표가 어느 선택지
     // 것인지 알 수 없게 되어 집계가 0으로 떨어진다.
     setAttendOptions(poll.options.filter(o => o.kind === 'attend').map(o => ({ key: o.key, label: o.label, fee: o.fee === null ? '' : String(o.fee) })));
@@ -78,6 +81,7 @@ function AttendancePollManager({ booking, onChanged }) {
 
   const buildPayload = () => ({
     title: title.trim(),
+    notice: notice.trim(),
     options: [
       ...attendOptions
         .filter(o => o.label.trim())
@@ -147,6 +151,11 @@ function AttendancePollManager({ booking, onChanged }) {
 
         <input value={title} onChange={e => setTitle(e.target.value)} placeholder="예: 10월 정모 참석"
           style={{ ...inputStyle, fontWeight: 700, marginBottom: 12 }} />
+
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#64748B', marginBottom: 8 }}>공지 (선택) — 투표 카드 위에 보입니다</div>
+        <textarea value={notice} onChange={e => setNotice(e.target.value)} rows={3}
+          placeholder="예: 이번 달은 11시 티오프입니다. 10시까지 집합해주세요."
+          style={{ ...inputStyle, marginBottom: 12, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.5 }} />
 
         <div style={{ fontSize: 12, fontWeight: 700, color: '#64748B', marginBottom: 8 }}>참석 선택지</div>
         {attendOptions.map((o, i) => (
@@ -230,6 +239,9 @@ function AttendancePollManager({ booking, onChanged }) {
       </div>
 
       <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 10 }}>{poll.title}</div>
+      {poll.notice && (
+        <div style={{ fontSize: 12.5, color: '#475569', background: '#F8FAFC', borderRadius: 10, padding: '9px 11px', marginBottom: 10, whiteSpace: 'pre-wrap', lineHeight: 1.55 }}>{poll.notice}</div>
+      )}
 
       {poll.options.map(o => (
         <div key={o.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 0', borderTop: '1px solid #F1F5F9' }}>
