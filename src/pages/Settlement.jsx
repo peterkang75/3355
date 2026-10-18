@@ -1834,8 +1834,8 @@ function Settlement() {
                 </div>
               </div>
 
-              {/* 정산 대기 — 참가 취소했는데 환불 여부가 아직 안 정해진 건 */}
-              {pendingSettlements.length > 0 && (
+              {/* 정산 대기 — 참가 취소했는데 환불 여부가 아직 안 정해진 건. 달과 무관한 할 일 목록이라 이번 달 화면에만 표시 */}
+              {pendingSettlements.length > 0 && yearMonth === sydneyToday().slice(0, 7) && (
                 <div style={{ background: '#fff', borderRadius: 20, padding: '18px 20px', marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1.5px solid #bfdbfe' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                     <div style={{ fontSize: 14, fontWeight: 800, color: '#0047AB', display: 'flex', alignItems: 'center', gap: 6 }}>
