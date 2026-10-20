@@ -456,18 +456,15 @@ function TeamFormation() {
         const name = (m?.gaRegisteredName || '').toString().trim()
           || m?.name || p.name || p.nickname || '-';
         const golflink = (m?.golflinkNumber || '').toString().trim();
-        const gaHandy = (m?.gaHandy || p?.gaHandy || '').toString().trim();
 
         if (isComp && !golflink) missingGolflink.push(name);
         if (/[^\u0000-ÿ]/.test(name)) nonEnglishNames.push(name);
 
         rows.push({
           group: `${team.teamNumber}`,
-          time: team.teeTime || ' ',
           format: isComp ? 'Competition' : 'Social',
           name,
-          // 소셜은 이름만 → GA·골프링크는 공백('-' 방지용 스페이스)
-          ga: isComp && gaHandy ? `GA${gaHandy}` : ' ',
+          // 소셜은 이름만 → 골프링크는 공백('-' 방지용 스페이스)
           golflink: isComp ? (golflink || ' ') : ' ',
         });
       });
@@ -500,11 +497,9 @@ function TeamFormation() {
       subtitle: `Tee Sheet · ${stamp}${booking?.courseName ? ` · ${booking.courseName}` : ''}`,
       columns: [
         { key: 'group', header: 'Group', x: 14 },
-        { key: 'time', header: 'Time', x: 34 },
-        { key: 'format', header: 'Format', x: 58 },
-        { key: 'name', header: 'Name', x: 92 },
-        { key: 'ga', header: 'GA', x: 140 },
-        { key: 'golflink', header: 'Golflink No.', x: 162 },
+        { key: 'format', header: 'Format', x: 34 },
+        { key: 'name', header: 'Name', x: 72 },
+        { key: 'golflink', header: 'Golflink No.', x: 140 },
       ],
       rows,
       totalLabel: `Total: ${rows.length} players`,
