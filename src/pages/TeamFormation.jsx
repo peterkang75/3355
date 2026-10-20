@@ -442,7 +442,8 @@ function TeamFormation() {
 
   const handlePrintPdf = () => {
     const rows = [];
-    const missing = [];
+    const missingGolflink = [];
+    const nonEnglishNames = [];
 
     teams.forEach((team) => {
       const teamMembers = team.members.filter(Boolean);
@@ -451,13 +452,14 @@ function TeamFormation() {
       const isComp = getTeamFormat(team) === 'competition';
       teamMembers.forEach((p) => {
         const m = members.find(mm => mm.phone === p.phone);
-        // 이름은 GA 등록명 우선 (호주 클럽이 골프링크와 대조) → 없으면 닉네임/이름
+        // 이름: GA 등록명(영문, 골프링크 대조용) 우선 → 없으면 실명 → 닉네임
         const name = (m?.gaRegisteredName || '').toString().trim()
-          || (p.nickname || p.name || '-');
+          || m?.name || p.name || p.nickname || '-';
         const golflink = (m?.golflinkNumber || '').toString().trim();
         const gaHandy = (m?.gaHandy || p?.gaHandy || '').toString().trim();
 
-        if (isComp && !golflink) missing.push(name);
+        if (isComp && !golflink) missingGolflink.push(name);
+        if (/[^\u0000-ÿ]/.test(name)) nonEnglishNames.push(name);
 
         rows.push({
           group: `${team.teamNumber}`,
@@ -476,9 +478,16 @@ function TeamFormation() {
       return;
     }
 
-    if (missing.length > 0) {
+    const warns = [];
+    if (missingGolflink.length > 0) {
+      warns.push(`• 골프링크 번호 없음(컴피티션 조, 빈칸으로 인쇄): ${[...new Set(missingGolflink)].join(', ')}`);
+    }
+    if (nonEnglishNames.length > 0) {
+      warns.push(`• 영문 이름(GA 등록명) 없어 한글로 인쇄됨: ${[...new Set(nonEnglishNames)].join(', ')}`);
+    }
+    if (warns.length > 0) {
       const ok = confirm(
-        `다음 분들은 골프링크 번호가 없어 컴피티션 조에 빈칸으로 인쇄됩니다:\n\n${missing.join(', ')}\n\n그래도 인쇄할까요?`
+        `${warns.join('\n\n')}\n\nGA 등록명·골프링크 번호는 마이페이지(회원 정보)에서 입력할 수 있습니다.\n\n그래도 인쇄할까요?`
       );
       if (!ok) return;
     }
