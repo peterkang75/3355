@@ -6,6 +6,7 @@ import apiService from '../services/api';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 import PageHeader from '../components/common/PageHeader';
 import { parseParticipants } from '../utils';
+import { generateListPdf } from '../utils/pdfList';
 
 function TeamFormation() {
   const goBack = useGoBack('/booking');
@@ -439,6 +440,69 @@ function TeamFormation() {
     }
   };
 
+  const handlePrintPdf = () => {
+    const rows = [];
+    const missing = [];
+
+    teams.forEach((team) => {
+      const teamMembers = team.members.filter(Boolean);
+      if (teamMembers.length === 0) return; // 빈 조 제외
+
+      const isComp = getTeamFormat(team) === 'competition';
+      teamMembers.forEach((p) => {
+        const m = members.find(mm => mm.phone === p.phone);
+        // 이름은 GA 등록명 우선 (호주 클럽이 골프링크와 대조) → 없으면 닉네임/이름
+        const name = (m?.gaRegisteredName || '').toString().trim()
+          || (p.nickname || p.name || '-');
+        const golflink = (m?.golflinkNumber || '').toString().trim();
+        const gaHandy = (m?.gaHandy || p?.gaHandy || '').toString().trim();
+
+        if (isComp && !golflink) missing.push(name);
+
+        rows.push({
+          group: `${team.teamNumber}`,
+          time: team.teeTime || ' ',
+          format: isComp ? 'Competition' : 'Social',
+          name,
+          // 소셜은 이름만 → GA·골프링크는 공백('-' 방지용 스페이스)
+          ga: isComp && gaHandy ? `GA${gaHandy}` : ' ',
+          golflink: isComp ? (golflink || ' ') : ' ',
+        });
+      });
+    });
+
+    if (rows.length === 0) {
+      alert('배정된 조가 없습니다. 먼저 조를 편성해주세요.');
+      return;
+    }
+
+    if (missing.length > 0) {
+      const ok = confirm(
+        `다음 분들은 골프링크 번호가 없어 컴피티션 조에 빈칸으로 인쇄됩니다:\n\n${missing.join(', ')}\n\n그래도 인쇄할까요?`
+      );
+      if (!ok) return;
+    }
+
+    const d = booking?.date ? new Date(booking.date) : new Date();
+    const stamp = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
+    generateListPdf({
+      title: '3355 GOLF CLUB',
+      subtitle: `Tee Sheet · ${stamp}${booking?.courseName ? ` · ${booking.courseName}` : ''}`,
+      columns: [
+        { key: 'group', header: 'Group', x: 14 },
+        { key: 'time', header: 'Time', x: 34 },
+        { key: 'format', header: 'Format', x: 58 },
+        { key: 'name', header: 'Name', x: 92 },
+        { key: 'ga', header: 'GA', x: 140 },
+        { key: 'golflink', header: 'Golflink No.', x: 162 },
+      ],
+      rows,
+      totalLabel: `Total: ${rows.length} players`,
+      fileName: `3355_TeeSheet_${stamp}.pdf`,
+    });
+  };
+
   const handleAddTeam = () => {
     const newTeamNumber = teams.length + 1;
     const newTeam = {
@@ -469,6 +533,18 @@ function TeamFormation() {
   const handleTeeTimeChange = (teamIndex, value) => {
     const newTeams = [...teams];
     newTeams[teamIndex] = { ...newTeams[teamIndex], teeTime: value };
+    setTeams(newTeams);
+    setHasUnsavedChanges(true);
+  };
+
+  // 조 구분(컴피티션/소셜): 저장된 값이 없으면 라운딩 종류로 기본값 결정
+  const getTeamFormat = (team) =>
+    team.format || (booking?.type === '컴페티션' ? 'competition' : 'social');
+
+  const handleToggleFormat = (teamIndex) => {
+    const newTeams = [...teams];
+    const next = getTeamFormat(newTeams[teamIndex]) === 'competition' ? 'social' : 'competition';
+    newTeams[teamIndex] = { ...newTeams[teamIndex], format: next };
     setTeams(newTeams);
     setHasUnsavedChanges(true);
   };
@@ -637,11 +713,22 @@ function TeamFormation() {
                   : <><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>저장됨</>
                 }
               </LoadingButton>
+            </div>
+          )}
 
+          {/* 보조 액션: 복사 · 인쇄(PDF) */}
+          {canAccess && (
+            <div style={{ padding: '0 12px 10px', display: 'flex', gap: '6px' }}>
               <button onClick={handleCopyTeamText}
-                style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '8px 10px', borderRadius: '10px', border: '1px solid #E2E8F0', background: '#fff', fontSize: '12px', fontWeight: '600', color: '#475569', cursor: 'pointer', flexShrink: 0 }}>
+                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', padding: '9px 10px', borderRadius: '10px', border: '1px solid #E2E8F0', background: '#fff', fontSize: '12px', fontWeight: '600', color: '#475569', cursor: 'pointer' }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                 복사
+              </button>
+
+              <button onClick={handlePrintPdf}
+                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', padding: '9px 10px', borderRadius: '10px', border: '1px solid #BAE6FD', background: '#F0F9FF', fontSize: '12px', fontWeight: '600', color: '#0369A1', cursor: 'pointer' }}>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+                인쇄 (PDF)
               </button>
             </div>
           )}
@@ -703,6 +790,24 @@ function TeamFormation() {
                     {team.teamNumber}
                   </div>
                   <span style={{ fontSize: '15px', fontWeight: '700', color: '#1E293B' }}>{team.teamNumber}조</span>
+                  {(() => {
+                    const isComp = getTeamFormat(team) === 'competition';
+                    const chipStyle = {
+                      display: 'inline-flex', alignItems: 'center',
+                      padding: '5px 11px', borderRadius: '20px',
+                      fontSize: '11px', fontWeight: '700',
+                      background: isComp ? '#EBF2FF' : '#F1F5F9',
+                      color: isComp ? PRIMARY : '#64748B',
+                      border: `1px solid ${isComp ? '#BFDBFE' : '#E2E8F0'}`,
+                    };
+                    const label = isComp ? '컴피티션' : '소셜';
+                    return canAccess ? (
+                      <button onClick={() => handleToggleFormat(teamIndex)}
+                        style={{ ...chipStyle, cursor: 'pointer' }}>{label}</button>
+                    ) : (
+                      <span style={chipStyle}>{label}</span>
+                    );
+                  })()}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
