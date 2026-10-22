@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import apiService from '../services/api';
@@ -10,6 +10,9 @@ import clubStaffIcon from '../assets/role-club-staff.png';
 import { checkIsOperator, parseParticipants } from '../utils';
 import { getEffectiveHandicap, calculateHandicap } from '../utils/handicap';
 import { Button, PageHeader } from '../components/common';
+import { getClubMemberStatus, getMissingMemberInfo } from '../utils/memberInfo';
+
+const toEditData = (u) => ({ ...u, isMember: getClubMemberStatus(u) });
 
 function MyPage() {
   const { user, logout, updateUser, courses, bookings, refreshCourses } = useApp();
@@ -24,12 +27,22 @@ function MyPage() {
   const [photoStatus, setPhotoStatus] = useState(null); // 사진 업로드 상태 메시지
   const [clubSearchInput, setClubSearchInput] = useState('');
   const [clubSearchState, setClubSearchState] = useState('idle'); // idle | searching | done | error
+  const basicInfoRef = useRef(null);
+
+  // 바로가기 링크(/mypage?edit=1) — 기본 정보를 펼치고 바로 수정 모드로 연다
+  useEffect(() => {
+    if (new URLSearchParams(location.search).get('edit') !== '1') return;
+    setExpandedSection('basicInfo');
+    setIsEditing(true);
+    navigate('/mypage', { replace: true });
+    setTimeout(() => basicInfoRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+  }, [location.search]);
 
   useEffect(() => {
     if (location.state?.reset) {
       setIsEditing(false);
       if (user) {
-        setEditData({ ...user, isMember: user.isClubMember || '' });
+        setEditData(toEditData(user));
       }
       window.history.replaceState({}, document.title);
     }
@@ -37,7 +50,7 @@ function MyPage() {
 
   useEffect(() => {
     if (user) {
-      setEditData({ ...user, isMember: user.isClubMember || '' });
+      setEditData(toEditData(user));
       loadScores();
     }
   }, [user]);
@@ -87,16 +100,11 @@ function MyPage() {
   };
 
   const handleSave = async () => {
-    if (!editData.name || !editData.nickname || !editData.birthYear) {
-      alert('이름, 대화명, 출생연도는 필수 입력 항목입니다.');
+    // 비회원으로 저장하면 클럽 칸은 비워지므로, 점검도 저장될 모습 기준으로
+    const missing = getMissingMemberInfo({ ...editData, isClubMember: editData.isMember, club: editData.isMember === 'yes' ? editData.club : '' });
+    if (missing.length > 0) {
+      alert(`아직 입력하지 않은 항목이 있어요:\n${missing.map(f => f.label).join(', ')}`);
       return;
-    }
-
-    if (editData.isMember === 'yes') {
-      if (!editData.gaHandy || !editData.clubMemberNumber || !editData.golflinkNumber) {
-        alert('클럽 멤버십 선택 시 GA 핸디, 클럽회원번호, Golflink 번호는 필수 입력 항목입니다.');
-        return;
-      }
     }
 
     try {
@@ -322,164 +330,175 @@ function MyPage() {
             label="기본 정보" onClick={() => toggleSection('basicInfo')} open={expandedSection === 'basicInfo'} />
 
           {/* 기본 정보 확장 */}
-          {expandedSection === 'basicInfo' && (
-            <div style={{ background: '#F8FAFC', padding: '16px 18px', borderTop: '1px solid #F1F5F9' }}>
-              {!isEditing ? (
-                <>
-                  {[
-                    ['전화번호', user.phone ? String(user.phone).replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3') : '-'],
-                    ['성별', user.gender || '-'],
-                    ['출생연도', user.birthYear || '-'],
-                    ['지역', user.region || '-'],
-                    ...(user.club ? [
-                      ['클럽', user.club],
-                      ['GA Handy', user.gaHandy || user.handicap || '-'],
-                      ['Golflink', user.golflinkNumber || '-'],
-                    ] : user.houseHandy || user.handicap ? [
-                      ['House Handy', user.houseHandy || user.handicap || '-'],
-                    ] : []),
-                  ].map(([label, value]) => (
-                    <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #F1F5F9' }}>
-                      <span style={{ fontSize: 13, color: '#94A3B8', fontWeight: 600 }}>{label}</span>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>{value}</span>
-                    </div>
-                  ))}
-                  <button onClick={() => setIsEditing(true)} style={{ marginTop: 14, width: '100%', padding: '11px', background: '#0047AB', color: '#fff', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>수정하기</button>
-                </>
-              ) : (
-                <>
-                  {/* ── 기본 정보 ── */}
-                  <div style={{ fontSize: 11, fontWeight: 800, color: '#0047AB', letterSpacing: '0.08em', marginBottom: 14 }}>기본 정보</div>
+          {expandedSection === 'basicInfo' && (() => {
+            const fieldLabel = { fontSize: 12, fontWeight: 500, color: '#475569', marginBottom: 5 };
+            const inputStyle = { width: '100%', height: 44, padding: '0 12px', borderRadius: 10, border: '1px solid #E2E8F0', fontSize: 15, color: '#0F172A', outline: 'none', boxSizing: 'border-box', background: '#fff' };
+            const card = { background: '#fff', borderRadius: 14, padding: '14px 14px 2px', marginBottom: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.07)' };
+            const cardTitle = (title, sub) => (
+              <div style={{ marginBottom: 12 }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A' }}>{title}</div>
+                <div style={{ fontSize: 12, color: '#64748B', marginTop: 2 }}>{sub}</div>
+              </div>
+            );
+            const req = <span style={{ color: '#DC2626' }}> *</span>;
+            const grid2 = { display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: 10 };
+            // 선택된 쪽만 흰색으로 떠오르는 조용한 토글 — 화면에서 "저장"만 진한 파란색으로 남기기 위함
+            const segment = (options, value, onPick) => (
+              <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: 10, padding: 3, height: 44, boxSizing: 'border-box' }}>
+                {options.map(([label, val]) => (
+                  <button key={val} type="button" onClick={() => onPick(val)}
+                    style={{ flex: 1, borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 14,
+                      fontWeight: value === val ? 700 : 500,
+                      background: value === val ? '#fff' : 'transparent',
+                      color: value === val ? '#0047AB' : '#64748B',
+                      boxShadow: value === val ? '0 1px 3px rgba(0,0,0,0.12)' : 'none',
+                      transition: 'all 0.15s' }}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            );
+            const textField = (label, key, { required, placeholder, decimal, tel, number, hint } = {}) => (
+              <div style={{ marginBottom: 12 }}>
+                <div style={fieldLabel}>{label}{required && req}</div>
+                {hint && <div style={{ fontSize: 12, color: '#64748B', margin: '-2px 0 6px', lineHeight: 1.4 }}>{hint}</div>}
+                <input type={number ? 'number' : tel ? 'tel' : 'text'} inputMode={decimal ? 'decimal' : undefined}
+                  placeholder={placeholder} value={editData[key] || ''}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setEditData(prev => ({ ...prev, [key]: tel ? v.replace(/\D/g, '').slice(0, 10) : decimal ? v.replace(/[^0-9.]/g, '') : v }));
+                  }}
+                  style={inputStyle} />
+              </div>
+            );
 
-                  {/* 이름 */}
-                  <div style={{ marginBottom: 14 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 6 }}>이름</div>
-                    <input type="text" value={editData.name || ''}
-                      onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                      style={{ width: '100%', padding: '13px 16px', borderRadius: 14, border: '1.5px solid #E5E7EB', fontSize: 15, outline: 'none', boxSizing: 'border-box', background: '#fff' }} />
+            if (!isEditing) {
+              const missingKeys = new Set(getMissingMemberInfo(user).map(f => f.key));
+              const clubStatus = getClubMemberStatus(user);
+              const row = (label, key, value) => {
+                const empty = value === undefined || value === null || String(value).trim() === '';
+                return (
+                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '9px 0', borderBottom: '1px solid #F1F5F9' }}>
+                    <span style={{ fontSize: 13, color: '#64748B' }}>{label}</span>
+                    <span style={{ fontSize: 13, fontWeight: empty ? 500 : 700, color: empty ? (missingKeys.has(key) ? '#D97706' : '#CBD5E1') : '#1E293B', textAlign: 'right' }}>{empty ? '미입력' : value}</span>
+                  </div>
+                );
+              };
+              return (
+                <div ref={basicInfoRef} style={{ background: '#F8FAFC', padding: '14px 14px 16px', borderTop: '1px solid #F1F5F9' }}>
+                  {missingKeys.size > 0 && (
+                    <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '10px 12px', fontSize: 13, color: '#92400E', marginBottom: 12 }}>
+                      아직 입력하지 않은 정보가 {missingKeys.size}개 있어요.
+                    </div>
+                  )}
+                  <div style={card}>
+                    {cardTitle('나의 정보', '회원 명단과 연락에 쓰여요')}
+                    {row('한국 이름', 'name', user.name)}
+                    {row('카톡 대화명', 'nickname', user.nickname)}
+                    {row('전화번호', 'phone', user.phone ? String(user.phone).replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3') : '')}
+                    {row('성별', 'gender', user.gender)}
+                    {row('출생연도', 'birthYear', user.birthYear)}
+                    <div style={{ height: 10 }} />
+                    {row('지역', 'region', user.region)}
+                  </div>
+                  <div style={card}>
+                    {cardTitle('골프 정보', '핸디와 대회 신청에 쓰여요')}
+                    {row('클럽 회원', 'isClubMember', clubStatus === 'yes' ? '예' : clubStatus === 'no' ? '아니요' : '')}
+                    {clubStatus === 'yes' && <>
+                      {row('소속 클럽', 'club', user.club)}
+                      {row('GA 핸디', 'gaHandy', user.gaHandy)}
+                      {row('클럽 회원번호', 'clubMemberNumber', user.clubMemberNumber)}
+                      {row('Golflink 번호', 'golflinkNumber', user.golflinkNumber)}
+                      {row('골프링크에 등록된 이름', 'gaRegisteredName', user.gaRegisteredName)}
+                    </>}
+                    {clubStatus === 'no' && row('하우스 핸디', 'houseHandy', user.houseHandy || user.handicap)}
+                    <div style={{ height: 10 }} />
+                  </div>
+                  <button onClick={() => setIsEditing(true)} style={{ width: '100%', height: 46, background: '#0047AB', color: '#fff', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>정보 업데이트하기</button>
+                </div>
+              );
+            }
+
+            return (
+              <div ref={basicInfoRef} style={{ background: '#F8FAFC', padding: '14px 14px 16px', borderTop: '1px solid #F1F5F9' }}>
+                <div style={card}>
+                  {cardTitle('나의 정보', '회원 명단과 연락에 쓰여요')}
+                  <div style={grid2}>
+                    {textField('한국 이름', 'name', { required: true, placeholder: '홍길동' })}
+                    {textField('카톡 대화명', 'nickname', { required: true })}
+                  </div>
+                  <div style={grid2}>
+                    <div style={{ marginBottom: 12 }}>
+                      <div style={fieldLabel}>성별{req}</div>
+                      {segment([['남', '남'], ['여', '여']], editData.gender, (g) => setEditData(prev => ({ ...prev, gender: g })))}
+                    </div>
+                    {textField('출생연도', 'birthYear', { required: true, number: true, placeholder: '1975' })}
+                  </div>
+                  <div style={grid2}>
+                    {textField('전화번호', 'phone', { tel: true })}
+                    {textField('지역', 'region', { placeholder: '예: 스트라스필드' })}
+                  </div>
+                </div>
+
+                <div style={card}>
+                  {cardTitle('골프 정보', '핸디와 대회 신청에 쓰여요')}
+                  <div style={{ marginBottom: 12 }}>
+                    <div style={fieldLabel}>골프 클럽에 정식 회원으로 가입되어 있나요?{req}</div>
+                    {/* 아니요를 눌러도 클럽 칸 값은 지우지 않는다 — 저장할 때만 비회원 기준으로 비워진다 */}
+                    {segment([['네, 회원이에요', 'yes'], ['아니요', 'no']], editData.isMember, (val) => {
+                      setEditData(prev => ({ ...prev, isMember: val }));
+                      setClubSearchInput(''); setClubSearchState('idle');
+                    })}
                   </div>
 
-                  {/* 성별 — 세그먼트 토글 */}
-                  <div style={{ marginBottom: 14 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 6 }}>성별</div>
-                    <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: 14, padding: 4, gap: 4 }}>
-                      {['남', '여'].map(g => (
-                        <button key={g} onClick={() => setEditData({ ...editData, gender: g })}
-                          style={{ flex: 1, padding: '10px 0', borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 700,
-                            background: editData.gender === g ? '#0047AB' : 'transparent',
-                            color: editData.gender === g ? '#fff' : '#94A3B8',
-                            transition: 'all 0.15s' }}>
-                          {g}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* 나머지 기본 정보 */}
-                  {[
-                    ['대화명', 'nickname', 'text'], ['전화번호', 'phone', 'tel'],
-                    ['출생연도', 'birthYear', 'number'], ['지역', 'region', 'text'],
-                  ].map(([label, key, type]) => (
-                    <div key={key} style={{ marginBottom: 14 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 6 }}>{label}</div>
-                      <input type={type} value={editData[key] || ''}
-                        onChange={(e) => setEditData({ ...editData, [key]: type === 'tel' ? e.target.value.replace(/\D/g, '').slice(0, 10) : e.target.value })}
-                        style={{ width: '100%', padding: '13px 16px', borderRadius: 14, border: '1.5px solid #E5E7EB', fontSize: 15, outline: 'none', boxSizing: 'border-box', background: '#fff' }} />
-                    </div>
-                  ))}
-
-                  {/* ── 클럽 정보 구분선 ── */}
-                  <div style={{ borderTop: '1.5px dashed #E2E8F0', margin: '18px 0', position: 'relative' }}>
-                    <span style={{ position: 'absolute', top: -10, left: '50%', transform: 'translateX(-50%)', background: '#F8FAFC', padding: '0 10px', fontSize: 11, fontWeight: 800, color: '#0047AB', letterSpacing: '0.08em' }}>클럽 정보</span>
-                  </div>
-
-                  {/* 클럽 멤버십 — 세그먼트 토글 */}
-                  <div style={{ marginBottom: 14 }}>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 6 }}>클럽 멤버십</div>
-                    <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: 14, padding: 4, gap: 4 }}>
-                      {[['예', 'yes'], ['아니오', 'no']].map(([label, val]) => (
-                        <button key={val} onClick={() => { setEditData(prev => ({ ...prev, isMember: val, ...(val === 'no' ? { club: '', golflinkNumber: '', gaRegisteredName: '', clubMemberNumber: '' } : {}) })); setClubSearchInput(''); setClubSearchState('idle'); }}
-                          style={{ flex: 1, padding: '10px 0', borderRadius: 10, border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 700,
-                            background: editData.isMember === val ? '#0047AB' : 'transparent',
-                            color: editData.isMember === val ? '#fff' : '#94A3B8',
-                            transition: 'all 0.15s' }}>
-                          {label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                  {editData.isMember === 'yes' ? (
-                    <>
-                      <div style={{ marginBottom: 14 }}>
-                        <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 6 }}>소속 클럽</div>
-                        {/* 선택된 클럽 표시 */}
-                        {editData.club ? (
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 14px', background: '#F0FDF4', borderRadius: 12, border: '1.5px solid #BBF7D0', marginBottom: 8 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                              <span style={{ fontSize: 14, color: '#059669', fontWeight: 700 }}>✓</span>
-                              <span style={{ fontSize: 14, color: '#059669', fontWeight: 700 }}>{editData.club}</span>
-                            </div>
-                            <button type="button"
-                              onClick={() => { setEditData(prev => ({ ...prev, club: '' })); setClubSearchState('idle'); }}
-                              style={{ background: 'none', border: 'none', color: '#6B7280', fontSize: 18, cursor: 'pointer', padding: '0 4px', lineHeight: 1 }}>×</button>
-                          </div>
-                        ) : (
-                          <>
-                            <div style={{ display: 'flex', gap: 8 }}>
-                              <input
-                                type="text"
-                                placeholder="골프장 이름으로 검색..."
-                                value={clubSearchInput}
-                                onChange={e => { setClubSearchInput(e.target.value); setClubSearchState('idle'); }}
-                                onKeyDown={e => e.key === 'Enter' && handleClubSearch()}
-                                style={{ flex: 1, padding: '13px 14px', borderRadius: 12, border: '1.5px solid #E5E7EB', fontSize: 15, color: '#1e293b', background: '#f8fafc', outline: 'none', boxSizing: 'border-box' }}
-                              />
-                              <button type="button"
-                                onClick={handleClubSearch}
-                                disabled={clubSearchState === 'searching' || !clubSearchInput.trim()}
-                                style={{ padding: '13px 16px', background: (clubSearchState === 'searching' || !clubSearchInput.trim()) ? '#93C5FD' : '#0047AB', color: 'white', border: 'none', borderRadius: 12, fontSize: 13, fontWeight: 700, cursor: (clubSearchState === 'searching' || !clubSearchInput.trim()) ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                                {clubSearchState === 'searching' ? '검색중...' : 'AI 검색'}
-                              </button>
-                            </div>
-                            {clubSearchState === 'error' && (
-                              <div style={{ fontSize: 12, color: '#EF4444', marginTop: 6 }}>검색에 실패했습니다. 다시 시도하거나 정확한 이름을 입력하세요.</div>
-                            )}
-                          </>
-                        )}
-                      </div>
-                      {/* 핸디캡은 소수점(18.4) 입력을 받아야 하므로 decimal 키패드 + 숫자·점만 허용 */}
-                      {[
-                        ['Golflink 번호', 'golflinkNumber', 'text', undefined],
-                        ['GA Official Name', 'gaRegisteredName', 'text', 'GA 에 등록한 영문이름을 적어주세요.'],
-                        ['클럽 회원번호', 'clubMemberNumber', 'text', undefined],
-                        ['GA Handy', 'gaHandy', 'decimal', '예: 18.4'],
-                      ].map(([label, key, type, placeholder]) => (
-                        <div key={key} style={{ marginBottom: 14 }}>
-                          <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 6 }}>{label}</div>
-                          <input type="text" inputMode={type === 'decimal' ? 'decimal' : 'text'}
-                            placeholder={placeholder}
-                            value={editData[key] || ''}
-                            onChange={(e) => setEditData({ ...editData, [key]: type === 'decimal' ? e.target.value.replace(/[^0-9.]/g, '') : e.target.value })}
-                            style={{ width: '100%', padding: '13px 16px', borderRadius: 14, border: '1.5px solid #E5E7EB', fontSize: 15, outline: 'none', boxSizing: 'border-box', background: '#fff' }} />
+                  {editData.isMember === 'yes' && <>
+                    <div style={{ marginBottom: 12 }}>
+                      <div style={fieldLabel}>소속 클럽{req}</div>
+                      {editData.club ? (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 44, padding: '0 6px 0 12px', background: '#EFF6FF', borderRadius: 10, border: '1px solid #BFDBFE', boxSizing: 'border-box' }}>
+                          <span style={{ fontSize: 14, color: '#0047AB', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{editData.club}</span>
+                          <button type="button" aria-label="소속 클럽 지우기"
+                            onClick={() => { setEditData(prev => ({ ...prev, club: '' })); setClubSearchState('idle'); }}
+                            style={{ background: 'none', border: 'none', color: '#64748B', fontSize: 18, cursor: 'pointer', width: 36, height: 36, lineHeight: 1, flexShrink: 0 }}>×</button>
                         </div>
-                      ))}
-                    </>
-                  ) : editData.isMember === 'no' ? (
-                    <div style={{ marginBottom: 14 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 6 }}>House Handy</div>
-                      <input type="text" inputMode="decimal" placeholder="예: 18.4" value={editData.houseHandy || ''}
-                        onChange={(e) => setEditData({ ...editData, houseHandy: e.target.value.replace(/[^0-9.]/g, '') })}
-                        style={{ width: '100%', padding: '13px 16px', borderRadius: 14, border: '1.5px solid #E5E7EB', fontSize: 15, outline: 'none', boxSizing: 'border-box', background: '#fff' }} />
+                      ) : (
+                        <>
+                          <div style={{ display: 'flex', gap: 8 }}>
+                            <input type="text" placeholder="골프장 이름으로 검색"
+                              value={clubSearchInput}
+                              onChange={e => { setClubSearchInput(e.target.value); setClubSearchState('idle'); }}
+                              onKeyDown={e => e.key === 'Enter' && handleClubSearch()}
+                              style={{ ...inputStyle, flex: 1 }} />
+                            <button type="button" onClick={handleClubSearch}
+                              disabled={clubSearchState === 'searching' || !clubSearchInput.trim()}
+                              style={{ height: 44, padding: '0 14px', background: '#fff', color: (clubSearchState === 'searching' || !clubSearchInput.trim()) ? '#94A3B8' : '#0047AB', border: '1px solid #E2E8F0', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                              {clubSearchState === 'searching' ? '검색중...' : '검색'}
+                            </button>
+                          </div>
+                          {clubSearchState === 'error' && (
+                            <div style={{ fontSize: 12, color: '#DC2626', marginTop: 6 }}>검색에 실패했어요. 정확한 이름으로 다시 검색해 주세요.</div>
+                          )}
+                        </>
+                      )}
                     </div>
-                  ) : null}
-                  <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
-                    <button onClick={() => { setIsEditing(false); setEditData(user); }} style={{ flex: 1, padding: 12, borderRadius: 12, border: '1.5px solid #E5E7EB', background: '#fff', color: '#6B7280', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>취소</button>
-                    <button onClick={handleSave} style={{ flex: 2, padding: 12, borderRadius: 12, border: 'none', background: '#0047AB', color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer' }}>저장</button>
-                  </div>
-                </>
-              )}
-            </div>
-          )}
+                    <div style={grid2}>
+                      {textField('GA 핸디', 'gaHandy', { required: true, decimal: true, placeholder: '18.4' })}
+                      {textField('클럽 회원번호', 'clubMemberNumber', { required: true })}
+                    </div>
+                    {textField('Golflink 번호', 'golflinkNumber', { required: true, placeholder: '10자리 숫자' })}
+                    {textField('골프링크에 등록된 이름', 'gaRegisteredName', { required: true, placeholder: 'Jung Hwan Kang', hint: '예약할 때 공식 이름이 필요합니다. GA에 등록된 영문 이름을 적어주세요.' })}
+                  </>}
+
+                  {editData.isMember === 'no' && textField('하우스 핸디', 'houseHandy', { decimal: true, placeholder: '18.4' })}
+                </div>
+
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <button onClick={() => { setIsEditing(false); setEditData(toEditData(user)); }} style={{ flex: 1, height: 46, borderRadius: 12, border: '1px solid #E2E8F0', background: '#fff', color: '#64748B', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}>취소</button>
+                  <button onClick={handleSave} style={{ flex: 2, height: 46, borderRadius: 12, border: 'none', background: '#0047AB', color: '#fff', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>저장</button>
+                </div>
+              </div>
+            );
+          })()}
 
           <MenuRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="#0047AB"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9" stroke="white" strokeWidth="1.5"/></svg>}
             label="최근 스코어" onClick={() => toggleSection('scores')} open={expandedSection === 'scores'} />

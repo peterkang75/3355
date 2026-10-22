@@ -7,6 +7,7 @@ import { isBookingActive } from './booking/bookingHelpers';
 import golfBg from '../assets/golf-bg.jpeg';
 import AttendancePollCard from '../components/AttendancePollCard';
 import { plainPreview } from '../utils/boldText';
+import { getMissingMemberInfo } from '../utils/memberInfo';
 
 // ─── 아이콘 ───────────────────────────────────────────────────────────────────
 
@@ -262,6 +263,7 @@ function Dashboard() {
     .slice(0, 3);
 
   const displayName = user?.nickname || user?.name || '골퍼';
+  const missingInfoCount = user && !user.isGuest ? getMissingMemberInfo(user).length : 0;
 
   return (
     <div style={{
@@ -309,6 +311,22 @@ function Dashboard() {
           환영합니다, {displayName}님
         </h1>
       </div>
+
+      {/* ── 정보 업데이트하기 — 필수 정보가 빠진 회원에게만 ── */}
+      {missingInfoCount > 0 && (
+        <div style={{ padding: '0 20px 16px' }}>
+          <button
+            onClick={() => navigate('/mypage?edit=1')}
+            style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: '#fff', border: '1px solid #FDE68A', borderRadius: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', cursor: 'pointer', textAlign: 'left' }}
+          >
+            <div style={{ flex: 1 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A' }}>내 정보를 업데이트해 주세요</div>
+              <div style={{ fontSize: 13, color: '#92400E', marginTop: 2 }}>아직 입력하지 않은 정보가 {missingInfoCount}개 있어요</div>
+            </div>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)', whiteSpace: 'nowrap' }}>업데이트하기 →</span>
+          </button>
+        </div>
+      )}
 
       {/* ── 메인 배너: 활성 특별공지(투표 공지 포함) > 자동 지난 정기모임 ── */}
       {activeFeatured ? (
