@@ -100,7 +100,7 @@ function MyPage() {
   };
 
   const handleSave = async () => {
-    // 비회원으로 저장하면 클럽 칸은 비워지므로, 점검도 저장될 모습 기준으로
+    // 골프링크 없음으로 저장하면 골프링크·클럽 칸은 비워지므로, 점검도 저장될 모습 기준으로
     const missing = getMissingMemberInfo({ ...editData, isClubMember: editData.isMember, club: editData.isMember === 'yes' ? editData.club : '' });
     if (missing.length > 0) {
       alert(`아직 입력하지 않은 항목이 있어요:\n${missing.map(f => f.label).join(', ')}`);
@@ -119,7 +119,7 @@ function MyPage() {
         handicap: isGAMember ? editData.gaHandy : editData.houseHandy,
         golflinkNumber: isGAMember ? editData.golflinkNumber : null,
         gaRegisteredName: isGAMember ? editData.gaRegisteredName : null,
-        clubMemberNumber: isGAMember ? editData.clubMemberNumber : null,
+        clubMemberNumber: isGAMember && editData.club ? editData.clubMemberNumber : null,
         photo: editData.photo,
         gender: editData.gender,
         birthYear: editData.birthYear,
@@ -403,13 +403,13 @@ function MyPage() {
                   </div>
                   <div style={card}>
                     {cardTitle('골프 정보', '핸디와 대회 신청에 쓰여요')}
-                    {row('클럽 회원', 'isClubMember', clubStatus === 'yes' ? '예' : clubStatus === 'no' ? '아니요' : '')}
+                    {row('골프링크 번호', 'isClubMember', clubStatus === 'yes' ? '있음' : clubStatus === 'no' ? '없음' : '')}
                     {clubStatus === 'yes' && <>
-                      {row('소속 클럽', 'club', user.club)}
-                      {row('GA 핸디', 'gaHandy', user.gaHandy)}
-                      {row('클럽 회원번호', 'clubMemberNumber', user.clubMemberNumber)}
                       {row('Golflink 번호', 'golflinkNumber', user.golflinkNumber)}
                       {row('골프링크에 등록된 이름', 'gaRegisteredName', user.gaRegisteredName)}
+                      {row('GA 핸디', 'gaHandy', user.gaHandy)}
+                      {row('소속 골프장', 'club', user.club ? user.club : '없음')}
+                      {user.club && row('클럽 회원번호', 'clubMemberNumber', user.clubMemberNumber)}
                     </>}
                     {clubStatus === 'no' && row('하우스 핸디', 'houseHandy', user.houseHandy || user.handicap)}
                     <div style={{ height: 10 }} />
@@ -443,17 +443,24 @@ function MyPage() {
                 <div style={card}>
                   {cardTitle('골프 정보', '핸디와 대회 신청에 쓰여요')}
                   <div style={{ marginBottom: 12 }}>
-                    <div style={fieldLabel}>골프 클럽에 정식 회원으로 가입되어 있나요?{req}</div>
-                    {/* 아니요를 눌러도 클럽 칸 값은 지우지 않는다 — 저장할 때만 비회원 기준으로 비워진다 */}
-                    {segment([['네, 회원이에요', 'yes'], ['아니요', 'no']], editData.isMember, (val) => {
+                    <div style={fieldLabel}>골프링크(GA) 번호가 있나요?{req}</div>
+                    <div style={{ fontSize: 12, color: '#64748B', margin: '-2px 0 6px', lineHeight: 1.4 }}>골프장 회원이 아니어도 Future Golf 등으로 받은 번호가 있다면 '네'를 골라 주세요.</div>
+                    {/* 아니요를 눌러도 골프링크·클럽 칸 값은 지우지 않는다 — 저장할 때만 비워진다 */}
+                    {segment([['네, 있어요', 'yes'], ['아니요', 'no']], editData.isMember, (val) => {
                       setEditData(prev => ({ ...prev, isMember: val }));
                       setClubSearchInput(''); setClubSearchState('idle');
                     })}
                   </div>
 
                   {editData.isMember === 'yes' && <>
+                    {textField('Golflink 번호', 'golflinkNumber', { required: true, placeholder: '10자리 숫자', hint: '라운딩 예약에 꼭 필요해요.' })}
+                    {textField('골프링크에 등록된 이름', 'gaRegisteredName', { required: true, placeholder: 'Jung Hwan Kang', hint: '예약할 때 공식 이름이 필요합니다. GA에 등록된 영문 이름을 적어주세요.' })}
+                    {textField('GA 핸디', 'gaHandy', { required: true, decimal: true, placeholder: '18.4' })}
+
+                    <div style={{ borderTop: '1px dashed #E2E8F0', margin: '4px 0 12px' }} />
                     <div style={{ marginBottom: 12 }}>
-                      <div style={fieldLabel}>소속 클럽{req}</div>
+                      <div style={fieldLabel}>회원으로 가입된 골프장이 있나요? <span style={{ color: '#94A3B8' }}>(선택)</span></div>
+                      <div style={{ fontSize: 12, color: '#64748B', margin: '-2px 0 6px', lineHeight: 1.4 }}>적어 두시면 그 골프장 라운딩에서 그린피 면제 등이 자동으로 적용돼요.</div>
                       {editData.club ? (
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 44, padding: '0 6px 0 12px', background: '#EFF6FF', borderRadius: 10, border: '1px solid #BFDBFE', boxSizing: 'border-box' }}>
                           <span style={{ fontSize: 14, color: '#0047AB', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{editData.club}</span>
@@ -481,12 +488,7 @@ function MyPage() {
                         </>
                       )}
                     </div>
-                    <div style={grid2}>
-                      {textField('GA 핸디', 'gaHandy', { required: true, decimal: true, placeholder: '18.4' })}
-                      {textField('클럽 회원번호', 'clubMemberNumber', { required: true })}
-                    </div>
-                    {textField('Golflink 번호', 'golflinkNumber', { required: true, placeholder: '10자리 숫자' })}
-                    {textField('골프링크에 등록된 이름', 'gaRegisteredName', { required: true, placeholder: 'Jung Hwan Kang', hint: '예약할 때 공식 이름이 필요합니다. GA에 등록된 영문 이름을 적어주세요.' })}
+                    {editData.club && textField('클럽 회원번호', 'clubMemberNumber', { required: true })}
                   </>}
 
                   {editData.isMember === 'no' && textField('하우스 핸디', 'houseHandy', { decimal: true, placeholder: '18.4' })}
@@ -597,7 +599,7 @@ function MyPage() {
             <div style={{ background: '#F8FAFC', padding: '16px 18px', borderTop: '1px solid #F1F5F9' }}>
               {[
                 ['역할', user.role || '-'],
-                ['클럽 회원', user.isClubMember === 'yes' ? '예' : user.isClubMember === 'no' ? '아니요' : '-'],
+                ['골프링크 번호', user.isClubMember === 'yes' ? '있음' : user.isClubMember === 'no' ? '없음' : '-'],
                 ['클럽', user.club || '-'],
                 ['Golflink 번호', user.golflinkNumber || '-'],
                 ['골프링크에 등록된 이름', user.gaRegisteredName || '-'],
