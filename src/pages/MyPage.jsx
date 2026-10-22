@@ -597,10 +597,10 @@ function MyPage() {
             <div style={{ background: '#F8FAFC', padding: '16px 18px', borderTop: '1px solid #F1F5F9' }}>
               {[
                 ['역할', user.role || '-'],
-                ['클럽 멤버', user.isClubMember === 'yes' ? '예' : '아니오'],
+                ['클럽 회원', user.isClubMember === 'yes' ? '예' : user.isClubMember === 'no' ? '아니요' : '-'],
                 ['클럽', user.club || '-'],
                 ['Golflink 번호', user.golflinkNumber || '-'],
-                ['GA Official Name', user.gaRegisteredName || '-'],
+                ['골프링크에 등록된 이름', user.gaRegisteredName || '-'],
                 ['클럽 회원번호', user.clubMemberNumber || '-'],
               ].map(([label, value]) => (
                 <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #F1F5F9' }}>
