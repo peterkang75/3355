@@ -122,6 +122,72 @@ export function generateListPdf({ title, subtitle, columns, rows, totalLabel, fi
 }
 
 /**
+ * 그룹(조)마다 박스로 묶은 명단 PDF. 그룹 제목은 박스 위에, 박스 안에는 헤더 + 행.
+ * 박스가 페이지 경계에서 잘리지 않도록 남은 공간이 모자라면 다음 페이지로 넘긴다.
+ *
+ * @param {Array} opts.columns  [{ key, header, x }]  — x 는 페이지 기준 mm
+ * @param {Array} opts.groups   [{ label, tag, rows }]
+ */
+export function generateGroupedPdf({ title, subtitle, columns, groups, totalLabel, fileName }) {
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const LEFT = 14;
+  const RIGHT = 196;
+  const BOTTOM_Y = 282;
+  const ROW_H = 7;
+  const TITLE_H = 7;   // 그룹 제목 줄
+  const GAP = 7;       // 박스 사이 간격
+
+  let y = 18;
+  let page = 1;
+  const stampPageNumber = () => drawText(doc, `Page ${page}`, RIGHT - 15, 290, { size: 8 });
+  const newPage = () => { stampPageNumber(); doc.addPage(); page += 1; y = 18; };
+
+  drawText(doc, title, LEFT, y, { size: 16, bold: true });
+  if (subtitle) { y += 7; drawText(doc, subtitle, LEFT, y, { size: 10 }); }
+  y += 12;
+
+  groups.forEach(({ label, tag, rows }) => {
+    const boxH = 9 + ROW_H * rows.length;
+    if (y + TITLE_H + boxH > BOTTOM_Y) newPage();
+
+    // 그룹 제목 + 구분 태그 (박스 위)
+    drawText(doc, label, LEFT, y, { size: 12, bold: true });
+    if (tag) {
+      doc.setFontSize(12);
+      doc.setFont(undefined, 'bold');
+      const tagX = LEFT + doc.getTextWidth(label) + 3;
+      doc.setTextColor(100);
+      drawText(doc, tag, tagX, y, { size: 10 });
+      doc.setTextColor(0);
+    }
+
+    const top = y + 3;
+    doc.setDrawColor(170);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(LEFT, top, RIGHT - LEFT, boxH, 2, 2);
+
+    const headY = top + 6;
+    columns.forEach(col => drawText(doc, col.header, col.x, headY, { size: 9, bold: true }));
+    doc.setDrawColor(220);
+    doc.line(LEFT, headY + 2, RIGHT, headY + 2);
+
+    rows.forEach((row, i) => {
+      columns.forEach(col => drawText(doc, row[col.key] || '', col.x, headY + ROW_H * (i + 1), { size: 10 }));
+    });
+
+    y = top + boxH + GAP + TITLE_H - 2;
+  });
+
+  if (totalLabel) {
+    if (y > BOTTOM_Y) newPage();
+    drawText(doc, totalLabel, LEFT, y, { size: 9 });
+  }
+
+  stampPageNumber();
+  doc.save(fileName);
+}
+
+/**
  * 골프링크(Golflink) 번호가 등록된 회원만 뽑아 번호 · 이름 순서로 PDF 생성.
  * 이름은 GA 등록명이 있으면 그것을, 없으면 회원 이름을 쓴다.
  *

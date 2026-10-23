@@ -6,7 +6,7 @@ import apiService from '../services/api';
 import LoadingButton, { LoadingOverlay } from '../components/LoadingButton';
 import PageHeader from '../components/common/PageHeader';
 import { parseParticipants } from '../utils';
-import { generateListPdf } from '../utils/pdfList';
+import { generateGroupedPdf } from '../utils/pdfList';
 
 function TeamFormation() {
   const goBack = useGoBack('/booking');
@@ -441,36 +441,31 @@ function TeamFormation() {
   };
 
   const handlePrintPdf = () => {
-    const rows = [];
+    const groups = [];
     const missingGolflink = [];
-    const nonEnglishNames = [];
+    const missingGaName = [];
 
     teams.forEach((team) => {
       const teamMembers = team.members.filter(Boolean);
       if (teamMembers.length === 0) return; // 빈 조 제외
 
       const isComp = getTeamFormat(team) === 'competition';
-      teamMembers.forEach((p) => {
+      const rows = teamMembers.map((p) => {
         const m = members.find(mm => mm.phone === p.phone);
-        // 이름: GA 등록명(영문, 골프링크 대조용) 우선 → 없으면 실명 → 닉네임
-        const name = (m?.gaRegisteredName || '').toString().trim()
-          || m?.name || p.name || p.nickname || '-';
+        const koreanName = m?.name || p.name || '';
+        const nickname = m?.nickname || p.nickname || '';
+        const gaName = (m?.gaRegisteredName || '').toString().trim();
         const golflink = (m?.golflinkNumber || '').toString().trim();
-
-        if (isComp && !golflink) missingGolflink.push(name);
-        if (/[^\u0000-ÿ]/.test(name)) nonEnglishNames.push(name);
-
-        rows.push({
-          group: `${team.teamNumber}`,
-          format: isComp ? 'Competition' : 'Social',
-          name,
-          // 소셜은 이름만 → 골프링크는 공백('-' 방지용 스페이스)
-          golflink: isComp ? (golflink || ' ') : ' ',
-        });
+        const who = nickname || koreanName || '-';
+        // 컴피티션은 골프장 예약에 GA 이름·번호가 필요하므로 빈칸이면 경고
+        if (isComp && !golflink) missingGolflink.push(who);
+        if (isComp && !gaName) missingGaName.push(who);
+        return { koreanName, nickname, gaName, golflink };
       });
+      groups.push({ label: `Group ${team.teamNumber}`, tag: isComp ? 'Competition' : 'Social', rows });
     });
 
-    if (rows.length === 0) {
+    if (groups.length === 0) {
       alert('배정된 조가 없습니다. 먼저 조를 편성해주세요.');
       return;
     }
@@ -479,30 +474,31 @@ function TeamFormation() {
     if (missingGolflink.length > 0) {
       warns.push(`• 골프링크 번호 없음(컴피티션 조, 빈칸으로 인쇄): ${[...new Set(missingGolflink)].join(', ')}`);
     }
-    if (nonEnglishNames.length > 0) {
-      warns.push(`• 영문 이름(GA 등록명) 없어 한글로 인쇄됨: ${[...new Set(nonEnglishNames)].join(', ')}`);
+    if (missingGaName.length > 0) {
+      warns.push(`• GA 이름 없음(컴피티션 조, 빈칸으로 인쇄): ${[...new Set(missingGaName)].join(', ')}`);
     }
     if (warns.length > 0) {
       const ok = confirm(
-        `${warns.join('\n\n')}\n\nGA 등록명·골프링크 번호는 마이페이지(회원 정보)에서 입력할 수 있습니다.\n\n그래도 인쇄할까요?`
+        `${warns.join('\n\n')}\n\nGA 이름·골프링크 번호는 마이페이지(회원 정보)에서 입력할 수 있습니다.\n\n그래도 인쇄할까요?`
       );
       if (!ok) return;
     }
 
     const d = booking?.date ? new Date(booking.date) : new Date();
     const stamp = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    const total = groups.reduce((n, g) => n + g.rows.length, 0);
 
-    generateListPdf({
+    generateGroupedPdf({
       title: '3355 GOLF CLUB',
       subtitle: `Tee Sheet · ${stamp}${booking?.courseName ? ` · ${booking.courseName}` : ''}`,
       columns: [
-        { key: 'group', header: 'Group', x: 14 },
-        { key: 'format', header: 'Format', x: 34 },
-        { key: 'name', header: 'Name', x: 72 },
-        { key: 'golflink', header: 'Golflink No.', x: 140 },
+        { key: 'koreanName', header: '한국 이름', x: 18 },
+        { key: 'nickname', header: '카톡 대화명', x: 50 },
+        { key: 'gaName', header: 'GA Name', x: 88 },
+        { key: 'golflink', header: 'GA No.', x: 158 },
       ],
-      rows,
-      totalLabel: `Total: ${rows.length} players`,
+      groups,
+      totalLabel: `Total: ${total} players`,
       fileName: `3355_TeeSheet_${stamp}.pdf`,
     });
   };

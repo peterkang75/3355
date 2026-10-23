@@ -653,3 +653,10 @@ Step 2·3에서 `BookingForm`(=`Booking.jsx` 전용)과 `/rounding-management`�
 - DB 변경 없음: `isClubMember` 를 "골프링크 번호 보유" 뜻으로 재사용 (기존 'yes' 회원은 모두 골프링크 필수였으므로 호환). 핸디 계산은 원래 golflinkNumber 기준이라 영향 없음
 - 소속 골프장은 선택이지만 그린피/카트비 면제·컴페티션 게스트 구분·참가자 묶음에 쓰이므로 안내문으로 입력 유도
 - [ ] 관리자 회원 추가(Admin)·회원 상세(MemberDetail)·가입(JoinPage)·MemberInfoForm 은 아직 "클럽 멤버 예/아니오" 문구 — 같은 값이라 동작은 맞음, 문구 통일 필요
+
+## 조편성 인쇄(Tee Sheet PDF) — 조별 박스 레이아웃 ✅ 2026-10-23
+- 조마다 둥근 박스, 박스 위에 "Group N" + Competition/Social 표시, 박스가 페이지에서 잘리면 다음 페이지로
+- 박스 안 열: 한국 이름 · 카톡 대화명 · GA Name(골프링크 등록 이름, 없으면 빈칸) · GA No.
+- 이전엔 소셜 조의 골프링크 번호를 숨겼으나 이제 모든 조에 있는 값 그대로 표시
+- 경고: 컴피티션 조에 GA 이름/번호 없는 회원 이름(대화명) 알림
+- `generateGroupedPdf` 추가 (`src/utils/pdfList.js`), 기존 `generateListPdf` 는 골프링크 명단에서 계속 사용
