@@ -655,7 +655,7 @@ Step 2·3에서 `BookingForm`(=`Booking.jsx` 전용)과 `/rounding-management`�
 - [ ] 관리자 회원 추가(Admin)·회원 상세(MemberDetail)·가입(JoinPage)·MemberInfoForm 은 아직 "클럽 멤버 예/아니오" 문구 — 같은 값이라 동작은 맞음, 문구 통일 필요
 
 ## 조편성 인쇄(Tee Sheet PDF) — 조별 박스 레이아웃 ✅ 2026-10-23
-- 조마다 둥근 박스, 박스 위에 "Group N" + Competition/Social 표시, 박스가 페이지에서 잘리면 다음 페이지로
+- 조마다 둥근 박스, 박스 위에 "Group N" + 구분 배지(흑백 인쇄 기준: COMPETITION=검정 채움·흰 글씨, SOCIAL=테두리만), 박스가 페이지에서 잘리면 다음 페이지로
 - 박스 안 열: 한국 이름 · 카톡 대화명 · GA Name(골프링크 등록 이름, 없으면 빈칸) · GA No.
 - 이전엔 소셜 조의 골프링크 번호를 숨겼으나 이제 모든 조에 있는 값 그대로 표시
 - 경고: 컴피티션 조에 GA 이름/번호 없는 회원 이름(대화명) 알림

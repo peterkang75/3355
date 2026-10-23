@@ -462,7 +462,7 @@ function TeamFormation() {
         if (isComp && !gaName) missingGaName.push(who);
         return { koreanName, nickname, gaName, golflink };
       });
-      groups.push({ label: `Group ${team.teamNumber}`, tag: isComp ? 'Competition' : 'Social', rows });
+      groups.push({ label: `Group ${team.teamNumber}`, tag: { text: isComp ? 'Competition' : 'Social', filled: isComp }, rows });
     });
 
     if (groups.length === 0) {

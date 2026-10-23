@@ -126,7 +126,7 @@ export function generateListPdf({ title, subtitle, columns, rows, totalLabel, fi
  * 박스가 페이지 경계에서 잘리지 않도록 남은 공간이 모자라면 다음 페이지로 넘긴다.
  *
  * @param {Array} opts.columns  [{ key, header, x }]  — x 는 페이지 기준 mm
- * @param {Array} opts.groups   [{ label, tag, rows }]
+ * @param {Array} opts.groups   [{ label, tag: { text, filled }, rows }]  — 흑백 인쇄 기준: filled=검정 배지, 아니면 테두리 배지
  */
 export function generateGroupedPdf({ title, subtitle, columns, groups, totalLabel, fileName }) {
   const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -155,9 +155,16 @@ export function generateGroupedPdf({ title, subtitle, columns, groups, totalLabe
     if (tag) {
       doc.setFontSize(12);
       doc.setFont(undefined, 'bold');
-      const tagX = LEFT + doc.getTextWidth(label) + 3;
-      doc.setTextColor(100);
-      drawText(doc, tag, tagX, y, { size: 10 });
+      const badgeX = LEFT + doc.getTextWidth(label) + 4;
+      doc.setFontSize(9);
+      const text = tag.text.toUpperCase();
+      const badgeW = doc.getTextWidth(text) + 5;
+      doc.setDrawColor(0);
+      doc.setFillColor(0);
+      doc.setLineWidth(0.4);
+      doc.roundedRect(badgeX, y - 4.3, badgeW, 5.5, 1.2, 1.2, tag.filled ? 'FD' : 'S');
+      doc.setTextColor(tag.filled ? 255 : 0);
+      doc.text(text, badgeX + 2.5, y - 0.4);
       doc.setTextColor(0);
     }
 
