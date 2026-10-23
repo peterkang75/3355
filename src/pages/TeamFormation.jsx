@@ -460,7 +460,7 @@ function TeamFormation() {
         // 컴피티션은 골프장 예약에 GA 이름·번호가 필요하므로 빈칸이면 경고
         if (isComp && !golflink) missingGolflink.push(who);
         if (isComp && !gaName) missingGaName.push(who);
-        return { koreanName, nickname, gaName, golflink };
+        return { nickname: nickname || koreanName, gaName, golflink };
       });
       groups.push({ label: `Group ${team.teamNumber}`, tag: { text: isComp ? 'Competition' : 'Social', filled: isComp }, rows });
     });
@@ -492,10 +492,9 @@ function TeamFormation() {
       title: '3355 GOLF CLUB',
       subtitle: `Tee Sheet · ${stamp}${booking?.courseName ? ` · ${booking.courseName}` : ''}`,
       columns: [
-        { key: 'koreanName', header: '한국 이름', x: 18 },
-        { key: 'nickname', header: '카톡 대화명', x: 50 },
-        { key: 'gaName', header: 'GA Name', x: 88 },
-        { key: 'golflink', header: 'GA No.', x: 158 },
+        { key: 'nickname', header: '카톡 대화명', x: 18 },
+        { key: 'gaName', header: 'GA Name', x: 72 },
+        { key: 'golflink', header: 'GA No.', x: 150 },
       ],
       groups,
       totalLabel: `Total: ${total} players`,

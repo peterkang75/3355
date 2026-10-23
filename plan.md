@@ -656,7 +656,7 @@ Step 2·3에서 `BookingForm`(=`Booking.jsx` 전용)과 `/rounding-management`�
 
 ## 조편성 인쇄(Tee Sheet PDF) — 조별 박스 레이아웃 ✅ 2026-10-23
 - 조마다 둥근 박스, 박스 위에 "Group N" + 구분 배지(흑백 인쇄 기준: COMPETITION=검정 채움·흰 글씨, SOCIAL=테두리만), 박스가 페이지에서 잘리면 다음 페이지로
-- 박스 안 열: 한국 이름 · 카톡 대화명 · GA Name(골프링크 등록 이름, 없으면 빈칸) · GA No.
+- 박스 안 열: 카톡 대화명(없으면 한국 이름) · GA Name(골프링크 등록 이름, 없으면 빈칸) · GA No.
 - 이전엔 소셜 조의 골프링크 번호를 숨겼으나 이제 모든 조에 있는 값 그대로 표시
 - 경고: 컴피티션 조에 GA 이름/번호 없는 회원 이름(대화명) 알림
 - `generateGroupedPdf` 추가 (`src/utils/pdfList.js`), 기존 `generateListPdf` 는 골프링크 명단에서 계속 사용
