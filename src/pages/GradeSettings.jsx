@@ -46,13 +46,32 @@ function GradeSettings() {
 
   const hasAdminAccess = user?.role === '관리자' || user?.role === '방장' || user?.role === '운영진' || user?.role === '클럽운영진' || user?.isAdmin;
 
+  const round1 = (n) => Math.round(n * 10) / 10;
+  const toNum = (v) => (v === '' || v === null || v === undefined || isNaN(parseFloat(v))) ? '' : parseFloat(v);
+
+  // "까지"만 입력받고, 다음 등급 "부터"는 앞 등급 까지 + 0.1 로 자동 채워 틈을 없앤다.
+  // shortcut: 핸디캡 소수점 1자리 가정(GA 공식 핸디 기준). 2자리 이상이면 +0.1 경계에 틈 발생 가능.
+  // 기존 분류 로직(PickWinner·Leaderboard·roundingRanking)은 min/max·value/type를 그대로 읽으므로 데이터 모양을 유지한다.
+  const deriveGrades = (gs) => {
+    const aMax = toNum(gs.gradeA.value);
+    // 상위 "까지"가 비면 하위도 무효 — 틈·유령 등급 방지
+    const bMax = aMax === '' ? '' : toNum(gs.gradeB.max);
+    const cMax = bMax === '' ? '' : toNum(gs.gradeC.max);
+    return {
+      gradeA: { type: 'below', value: aMax },
+      gradeB: { min: aMax === '' ? '' : round1(aMax + 0.1), max: bMax },
+      gradeC: { min: bMax === '' ? '' : round1(bMax + 0.1), max: cMax },
+      gradeD: { type: 'above', value: cMax === '' ? '' : round1(cMax + 0.1) },
+    };
+  };
+
   const handleSave = async () => {
     if (!booking) return;
-    
+
     setIsSaving(true);
     try {
       // 서버가 기존 값과 병합하므로 그레이드만 보내도 경기방식·신페리오 설정은 보존된다.
-      await apiService.updateBookingGradeSettings(bookingId, gradeSettings);
+      await apiService.updateBookingGradeSettings(bookingId, deriveGrades(gradeSettings));
       
       try {
         await refreshData();
@@ -95,6 +114,11 @@ function GradeSettings() {
     );
   }
 
+  const d = deriveGrades(gradeSettings);
+  const inputStyle = { padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '14px', width: '90px' };
+  const fromStyle = { fontSize: '14px', fontWeight: '700', color: '#0047AB', background: '#EBF2FF', padding: '8px 12px', borderRadius: '8px' };
+  const hintStyle = { marginTop: '8px', fontSize: '12px', color: '#0047AB', fontWeight: '500' };
+
   return (
     <div style={{ background: '#F8FAFC', minHeight: '100vh' }}>
       <PageHeader title="그레이드 설정" onBack={() => {
@@ -118,192 +142,89 @@ function GradeSettings() {
           </div>
         </div>
 
-        <div style={{ fontSize: '13px', color: '#94A3B8', marginBottom: '16px', paddingLeft: '4px' }}>
-          ※ 이 라운딩에 적용할 핸디캡 그레이드 기준을 설정하세요
+        <div style={{ fontSize: '13px', color: '#94A3B8', marginBottom: '16px', paddingLeft: '4px', lineHeight: 1.5 }}>
+          ※ 각 등급의 <b>"까지"</b> 값만 넣으면 다음 등급 "부터"는 자동으로 이어집니다.<br />
+          "까지"를 비우면 그 뒤 핸디는 모두 그 등급입니다.
         </div>
 
-          {/* Grade A */}
+          {/* Grade A — 최상위, "까지"만 입력 */}
           <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' }}>
             <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px', color: '#0047AB' }}>
               ▲ 그레이드 A
             </div>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <span style={{ fontSize: '14px', opacity: 0.7 }}>핸디</span>
               <input
-                type="number"
+                type="number" step="0.1" inputMode="decimal"
                 value={gradeSettings.gradeA.value}
                 onChange={(e) => setGradeSettings({
                   ...gradeSettings,
-                  gradeA: { ...gradeSettings.gradeA, value: e.target.value === '' ? '' : parseInt(e.target.value) }
+                  gradeA: { ...gradeSettings.gradeA, value: e.target.value === '' ? '' : parseFloat(e.target.value) }
                 })}
-                placeholder=""
-                style={{
-                  padding: '10px',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  width: '80px'
-                }}
+                style={inputStyle}
               />
-              <select
-                value={gradeSettings.gradeA.type}
-                onChange={(e) => setGradeSettings({
-                  ...gradeSettings,
-                  gradeA: { ...gradeSettings.gradeA, type: e.target.value }
-                })}
-                style={{
-                  padding: '10px',
-                  borderRadius: '6px',
-                  fontSize: '14px',
-                  width: '80px'
-                }}
-              >
-                <option value="below">이하</option>
-                <option value="above">이상</option>
-              </select>
+              <span style={{ fontSize: '14px', opacity: 0.7 }}>까지</span>
             </div>
           </div>
 
-          {/* Grade B */}
+          {/* Grade B — "부터"는 A까지+0.1 자동, "까지"만 입력 */}
           <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' }}>
             <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px', color: '#0047AB' }}>
               ▲ 그레이드 B
             </div>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '14px', opacity: 0.7 }}>핸디</span>
-                <input
-                  type="number"
-                  value={gradeSettings.gradeB.min}
-                  onChange={(e) => setGradeSettings({
-                    ...gradeSettings,
-                    gradeB: { ...gradeSettings.gradeB, min: e.target.value === '' ? '' : parseInt(e.target.value) }
-                  })}
-                  placeholder=""
-                  style={{
-                    padding: '10px',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    width: '80px'
-                  }}
-                />
-                <span style={{ fontSize: '14px', opacity: 0.7 }}>부터</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input
-                  type="number"
-                  value={gradeSettings.gradeB.max}
-                  onChange={(e) => setGradeSettings({
-                    ...gradeSettings,
-                    gradeB: { ...gradeSettings.gradeB, max: e.target.value === '' ? '' : parseInt(e.target.value) }
-                  })}
-                  placeholder=""
-                  style={{
-                    padding: '10px',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    width: '80px'
-                  }}
-                />
-                <span style={{ fontSize: '14px', opacity: 0.7 }}>까지</span>
-              </div>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <span style={fromStyle}>{d.gradeB.min === '' ? '—' : d.gradeB.min}</span>
+              <span style={{ fontSize: '14px', opacity: 0.7 }}>부터</span>
+              <input
+                type="number" step="0.1" inputMode="decimal"
+                value={gradeSettings.gradeB.max}
+                onChange={(e) => setGradeSettings({
+                  ...gradeSettings,
+                  gradeB: { ...gradeSettings.gradeB, max: e.target.value === '' ? '' : parseFloat(e.target.value) }
+                })}
+                style={inputStyle}
+              />
+              <span style={{ fontSize: '14px', opacity: 0.7 }}>까지</span>
             </div>
-            {(gradeSettings.gradeB.max === '' || gradeSettings.gradeB.max === null) && gradeSettings.gradeB.min !== '' && (
-              <div style={{ marginTop: '8px', fontSize: '12px', color: '#0047AB', fontWeight: '500' }}>
-                * "까지" 미입력 시 {gradeSettings.gradeB.min} 이상은 모두 B 그레이드로 분류됩니다
-              </div>
+            {d.gradeB.max === '' && d.gradeB.min !== '' && (
+              <div style={hintStyle}>* "까지"를 비우면 {d.gradeB.min} 이상은 모두 B (C·D 없음)</div>
             )}
           </div>
 
-          {/* Grade C */}
+          {/* Grade C — "부터"는 B까지+0.1 자동, "까지"만 입력 */}
           <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' }}>
             <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px', color: '#0047AB' }}>
               ▲ 그레이드 C
             </div>
-            <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flexWrap: 'wrap' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '14px', opacity: 0.7 }}>핸디</span>
-                <input
-                  type="number"
-                  value={gradeSettings.gradeC.min}
-                  onChange={(e) => setGradeSettings({
-                    ...gradeSettings,
-                    gradeC: { ...gradeSettings.gradeC, min: e.target.value === '' ? '' : parseInt(e.target.value) }
-                  })}
-                  style={{
-                    padding: '10px',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    width: '80px'
-                  }}
-                />
-                <span style={{ fontSize: '14px', opacity: 0.7 }}>부터</span>
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input
-                  type="number"
-                  value={gradeSettings.gradeC.max}
-                  onChange={(e) => setGradeSettings({
-                    ...gradeSettings,
-                    gradeC: { ...gradeSettings.gradeC, max: e.target.value === '' ? '' : parseInt(e.target.value) }
-                  })}
-                  style={{
-                    padding: '10px',
-                    border: '1px solid var(--border-color)',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    width: '80px'
-                  }}
-                />
-                <span style={{ fontSize: '14px', opacity: 0.7 }}>까지</span>
-              </div>
+            <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+              <span style={fromStyle}>{d.gradeC.min === '' ? '—' : d.gradeC.min}</span>
+              <span style={{ fontSize: '14px', opacity: 0.7 }}>부터</span>
+              <input
+                type="number" step="0.1" inputMode="decimal"
+                value={gradeSettings.gradeC.max}
+                disabled={d.gradeB.max === ''}
+                onChange={(e) => setGradeSettings({
+                  ...gradeSettings,
+                  gradeC: { ...gradeSettings.gradeC, max: e.target.value === '' ? '' : parseFloat(e.target.value) }
+                })}
+                style={{ ...inputStyle, background: d.gradeB.max === '' ? '#F1F5F9' : '#fff' }}
+              />
+              <span style={{ fontSize: '14px', opacity: 0.7 }}>까지</span>
             </div>
-            {(gradeSettings.gradeC.max === '' || gradeSettings.gradeC.max === null) && gradeSettings.gradeC.min !== '' && (
-              <div style={{ marginTop: '8px', fontSize: '12px', color: '#0047AB', fontWeight: '500' }}>
-                * "까지" 미입력 시 {gradeSettings.gradeC.min} 이상은 모두 C 그레이드로 분류됩니다
-              </div>
+            {d.gradeC.min !== '' && d.gradeC.max === '' && (
+              <div style={hintStyle}>* "까지"를 비우면 {d.gradeC.min} 이상은 모두 C (D 없음)</div>
             )}
           </div>
 
-          {/* Grade D - Grade C의 까지 값이 있을 때만 표시 */}
-          {gradeSettings.gradeC.max !== '' && gradeSettings.gradeC.max > 0 && (
+          {/* Grade D — C까지 뒤 나머지 전부(입력칸 없음), C까지가 있을 때만 */}
+          {d.gradeD.value !== '' && (
             <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' }}>
               <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px', color: '#0047AB' }}>
                 ▲ 그레이드 D
               </div>
-              <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                <input
-                  type="number"
-                  value={gradeSettings.gradeD.value}
-                  onChange={(e) => setGradeSettings({
-                    ...gradeSettings,
-                    gradeD: { ...gradeSettings.gradeD, value: e.target.value === '' ? '' : parseInt(e.target.value) }
-                  })}
-                  placeholder=""
-                  style={{
-                    padding: '10px',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    width: '80px'
-                  }}
-                />
-                <select
-                  value={gradeSettings.gradeD.type}
-                  onChange={(e) => setGradeSettings({
-                    ...gradeSettings,
-                    gradeD: { ...gradeSettings.gradeD, type: e.target.value }
-                  })}
-                  style={{
-                    padding: '10px',
-                    borderRadius: '6px',
-                    fontSize: '14px',
-                    width: '80px'
-                  }}
-                >
-                  <option value="below">이하</option>
-                  <option value="above">이상</option>
-                </select>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <span style={fromStyle}>{d.gradeD.value}</span>
+                <span style={{ fontSize: '14px', opacity: 0.7 }}>이상은 모두 D</span>
               </div>
             </div>
           )}
