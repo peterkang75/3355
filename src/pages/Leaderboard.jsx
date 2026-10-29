@@ -765,6 +765,21 @@ function Leaderboard() {
         <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', marginTop: '8px' }}>
           {booking?.courseName || '-'}
         </div>
+        {booking && (() => {
+          const d = new Date(booking.date);
+          const dateStr = isNaN(d) ? booking.date : `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()}`;
+          let parts = booking.participants;
+          if (typeof parts === 'string') { try { parts = JSON.parse(parts); } catch { parts = []; } }
+          parts = Array.isArray(parts) ? parts : [];
+          const names = parts.map(p => p.nickname || p.name).filter(Boolean);
+          const info = [dateStr, booking.time, booking.type, `참가 ${parts.length}명`].filter(Boolean).join(' · ');
+          return (
+            <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '13px', marginTop: '6px', lineHeight: 1.5 }}>
+              <div>{info}</div>
+              {names.length > 0 && <div style={{ marginTop: '4px', fontSize: '12px', opacity: 0.85 }}>{names.join(', ')}</div>}
+            </div>
+          );
+        })()}
       </div>
 
       {/* 2BB 팀 리더보드 */}

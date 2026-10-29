@@ -373,6 +373,18 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
             <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: 'var(--text-muted)' }}>×</button>
           </div>
 
+          <button
+            disabled={saving}
+            onClick={async () => {
+              if (!window.confirm(`${item.memberName}님의 취소 신청을 없던 일로 하고 정상 참석으로 되돌릴까요?\n(청구와 참가자 명단은 그대로 유지됩니다)`)) return;
+              setSaving(true);
+              try { await apiService.dismissPendingSettlement(item.id); onDone(); onClose(); }
+              catch (e) { alert(e.message || '처리에 실패했습니다.'); }
+              finally { setSaving(false); }
+            }}
+            style={{ width: '100%', padding: '12px', marginBottom: 16, borderRadius: 12, border: '1.5px solid #BFDBFE', background: '#EBF2FF', color: '#0047AB', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+          >실제로 참석함 · 취소 신청 되돌리기</button>
+
           {/* 수입/지출 토글 */}
           <div style={{ display: 'flex', background: '#f1f5f9', borderRadius: 12, padding: 4, marginBottom: 20 }}>
             {[['income', '수입'], ['expense', '지출']].map(([val, label]) => (

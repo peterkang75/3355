@@ -1003,6 +1003,18 @@ class ApiService {
     return response.json();
   }
 
+  async dismissPendingSettlement(id) {
+    const response = await fetch(`${API_BASE}/transactions/pending-settlements/${id}`, {
+      method: 'DELETE',
+      headers: this.getAuthHeaders()
+    });
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || '취소 되돌리기에 실패했습니다');
+    }
+    return response.json();
+  }
+
   async createChargeWithCredit(chargeData) {
     const response = await fetch(`${API_BASE}/transactions/charge-with-credit`, {
       method: 'POST',

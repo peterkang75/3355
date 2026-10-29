@@ -827,6 +827,23 @@ router.get("/pending-settlements", requireAuth, requireOperator, async (req, res
 
 // POST /api/transactions/pending-settlements/:id/resolve
 // body: { action: 'charge_cancelled'|'refunded'|'forfeited', mode?: 'cash'|'credit',
+
+// DELETE /api/transactions/pending-settlements/:id — 취소 자체를 취소 (실제로는 참석한 경우)
+// 대기 중인 항목만 지운다. 청구/참가자 명단은 건드리지 않는다.
+router.delete("/pending-settlements/:id", requireAuth, requireOperator, async (req, res) => {
+  try {
+    const row = await prisma.roundCancellation.findUnique({ where: { id: req.params.id } });
+    if (!row) return res.status(404).json({ error: "정산 대기 항목을 찾을 수 없습니다" });
+    if (row.status !== "pending") return res.status(400).json({ error: "이미 처리된 항목입니다" });
+    await prisma.roundCancellation.delete({ where: { id: row.id } });
+    req.io.emit("transactions:updated");
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Error dismissing pending settlement:", error);
+    res.status(500).json({ error: "Failed to dismiss pending settlement" });
+  }
+});
+
 //         amount?, memo?, date?, receiptImage? }
 router.post("/pending-settlements/:id/resolve", requireAuth, requireOperator, async (req, res) => {
   try {
