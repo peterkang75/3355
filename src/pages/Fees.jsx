@@ -21,14 +21,14 @@ const getTransactionLabel = (t) => {
   }
   if (t.type === "charge") {
     const bookingName = t.booking?.title || t.booking?.courseName || '';
-    return bookingName ? `청구 · ${bookingName}` : "청구";
+    const name = bookingName || t.description?.split(" — ")[0] || '';
+    return name ? `청구 · ${name}` : "청구";
   }
   if (t.type === "payment") return t.description?.split(" - ")[0] || "납부";
   return "";
 };
 
 const isDebit = (t) => ["charge", "expense", "creditDonation"].includes(t.type);
-const getTransactionSign = (t) => (isDebit(t) ? "-" : "+");
 
 // 내셔야 할 금액의 근거: 최근 청구부터 미납액이 채워질 때까지 (거래는 최신순으로 옴)
 const getOwedLines = (txs, owed) => {
@@ -342,7 +342,7 @@ function Fees() {
                               </div>
                             </div>
                             <div style={{ textAlign: "right" }}>
-                              <div style={{ fontSize: 15, fontWeight: 700, color: iconColor }}>{getTransactionSign(t)}${t.amount.toLocaleString()}</div>
+                              <div style={{ fontSize: 15, fontWeight: 700, color: iconColor }}>${t.amount.toLocaleString()}</div>
                             </div>
                           </div>
                           {/* charge 타입 — 영수증 첨부 */}
