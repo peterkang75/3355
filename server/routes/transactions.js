@@ -404,7 +404,7 @@ router.post("/charge-with-credit", requireAuth, requireOperator, async (req, res
     const currentBalance = member?.balance || 0;
     const creditBalance = currentBalance > 0 ? currentBalance : 0;
     const creditToUse = Math.min(creditBalance, amount);
-    const today = date || new Date().toISOString().split("T")[0];
+    const today = date || new Date().toLocaleDateString("en-CA", { timeZone: "Australia/Sydney" });
     const transactions = [];
     const remainingCharge = amount - creditToUse;
 
@@ -487,7 +487,7 @@ router.post("/credit-to-donation", requireAuth, async (req, res) => {
       return res.status(400).json({ error: "크레딧 잔액이 부족합니다" });
     }
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toLocaleDateString("en-CA", { timeZone: "Australia/Sydney" });
     let creditDonationTx, clubDonationTx;
 
     await prisma.$transaction(async (tx) => {
@@ -544,7 +544,7 @@ router.post("/credit-to-payment", requireAuth, async (req, res) => {
       return res.status(400).json({ error: "크레딧 잔액이 부족합니다" });
     }
 
-    const today = new Date().toISOString().split("T")[0];
+    const today = new Date().toLocaleDateString("en-CA", { timeZone: "Australia/Sydney" });
     let chargeInfo = null;
 
     if (chargeId) {
@@ -1031,7 +1031,7 @@ router.post("/:id/complete-payment", requireAuth, requireOperator, async (req, r
         amount: charge.amount,
         description: bookingName ? `${bookingName} 참가비 납부` : "참가비 납부",
         category: "회비납부",
-        date: new Date().toISOString().split("T")[0],
+        date: new Date().toLocaleDateString("en-CA", { timeZone: "Australia/Sydney" }),
         memberId: charge.memberId,
         bookingId: charge.bookingId,
         createdBy: req.member.id,

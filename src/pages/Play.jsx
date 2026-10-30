@@ -340,7 +340,7 @@ function Play() {
       serverSaveTimerRef.current = null;
       setSaveStatus('saving');
       try {
-        const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+        const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
         const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
         const userParArr = courseData?.holePars?.[user?.gender === 'F' ? 'female' : 'male'] || Array(18).fill(4);
         const teammateParArr = courseData?.holePars?.[selectedTeammate?.gender === 'F' ? 'female' : 'male'] || userParArr;
@@ -847,7 +847,7 @@ function Play() {
           lastSavedScoresRef.current = null; // 중복 방지 키 초기화
           // holeScores는 변하지 않았으므로 useEffect가 재실행되지 않음 → 직접 저장
           setSaveStatus('saving');
-          const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+          const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
           const myPayload = {
             memberId: effectiveUserId,
             markerId: effectiveUserId,
@@ -958,7 +958,7 @@ function Play() {
   const checkTeammateScores = useCallback(async () => {
     if (!booking || !effectiveUserId) return false;
     try {
-      const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+      const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
       const teammateMemberId = getTeammateMemberId();
       
       const res = await fetch('/api/scores/verify-round', {
@@ -1449,7 +1449,7 @@ function Play() {
         setSelectedTeammate(opponentLead);
         setIsStartingRound(true);
         try {
-          const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+          const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
           const teammateMemberId = members?.find(m => m.phone === opponentLead.phone)?.id || opponentLead.id;
           const res = await fetch(`/api/scores/check?memberId=${teammateMemberId}&date=${scoreDate}&roundingName=${encodeURIComponent(booking?.title || '')}`);
           const data = await res.json();
@@ -1846,7 +1846,7 @@ function Play() {
               if (!selectedTeammate) { alert('선택해주세요'); return; }
               setIsStartingRound(true);
               try {
-                const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+                const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
                 const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
                 const res = await fetch(`/api/scores/check?memberId=${teammateMemberId}&date=${scoreDate}&roundingName=${encodeURIComponent(booking?.title || '')}`);
                 const data = await res.json();
@@ -2617,7 +2617,7 @@ function Play() {
 
     try {
       const userParArr = courseData?.holePars?.[user?.gender === 'F' ? 'female' : 'male'] || [];
-      const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+      const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
       const totalMe = holeScores.me.reduce((a, b) => a + b, 0);
       const coursePar = userParArr.reduce((a, b) => a + b, 0);
 
@@ -2994,7 +2994,7 @@ function Play() {
                   
                   setIsEndingRound(true);
                   try {
-                    const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0];
+                    const scoreDate = booking?.date ? new Date(booking.date).toISOString().split('T')[0] : new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
                     const teammateMemberId = members?.find(m => m.phone === selectedTeammate?.phone)?.id || selectedTeammate?.id;
                     const userParArr = courseData?.holePars?.[user?.gender === 'F' ? 'female' : 'male'] || [];
                     const totalMe = holeScores.me.reduce((a, b) => a + b, 0);

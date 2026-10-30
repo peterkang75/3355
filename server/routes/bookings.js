@@ -231,7 +231,7 @@ router.put("/:id", requireAuth, requireOperator, async (req, res) => {
             const creditBalance = currentBalance > 0 ? currentBalance : 0;
             const creditToUse = Math.min(creditBalance, totalAmount);
             const remainingCharge = totalAmount - creditToUse;
-            const today = new Date().toISOString().split("T")[0];
+            const today = new Date().toLocaleDateString("en-CA", { timeZone: "Australia/Sydney" });
             const baseDescription = buildBaseDescription(booking, info);
 
             await prisma.$transaction(async (tx) => {
@@ -407,7 +407,7 @@ router.post("/:id/add-guest", requireAuth, requireOperator, async (req, res) => 
     // 참가비 청구 (그린피 + 카트비 + 회비)
     const feeAmount = computeGuestChargeForBooking(booking);
     if (feeAmount > 0) {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
       await prisma.transaction.create({
         data: {
           type: 'charge',
@@ -564,7 +564,7 @@ router.patch("/:id/toggle-join", requireAuth, async (req, res) => {
           const creditBalance = currentBalance > 0 ? currentBalance : 0;
           const creditToUse = Math.min(creditBalance, totalAmount);
           const remainingCharge = totalAmount - creditToUse;
-          const today = new Date().toISOString().split("T")[0];
+          const today = new Date().toLocaleDateString("en-CA", { timeZone: "Australia/Sydney" });
           const baseDescription = buildBaseDescription(booking, info);
 
           await prisma.$transaction(async (tx) => {

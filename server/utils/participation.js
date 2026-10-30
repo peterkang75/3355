@@ -78,7 +78,7 @@ async function issueRoundingChargeForMember(member, booking, opts = {}) {
   const creditBalance = currentBalance > 0 ? currentBalance : 0;
   const creditToUse = Math.min(creditBalance, totalAmount);
   const remainingCharge = totalAmount - creditToUse;
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
   const baseDescription = buildBaseDescription(booking, info, optionLabel);
 
   await prisma.$transaction(async (tx) => {

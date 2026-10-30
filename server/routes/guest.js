@@ -187,7 +187,7 @@ router.post('/invite/:token/register', async (req, res) => {
 
       const feeAmount2 = computeGuestChargeForBooking(booking);
       if (feeAmount2 > 0 && !dupTransaction) {
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
         await prisma.transaction.create({
           data: {
             type: 'charge',
@@ -281,7 +281,7 @@ router.post('/invite/:token/register', async (req, res) => {
     // 참가비 자동청구 (그린피 + 카트비 + 회비)
     const feeAmount = computeGuestChargeForBooking(booking);
     if (feeAmount > 0) {
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
       await prisma.transaction.create({
         data: {
           type: 'charge',

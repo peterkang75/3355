@@ -85,7 +85,7 @@ function Admin() {
     amount: '',
     description: '',
     memberId: '',
-    date: new Date().toISOString().split('T')[0]
+    date: new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' })
   });
   
   const [allTransactions, setAllTransactions] = useState([]);
@@ -120,7 +120,7 @@ function Admin() {
     categoryId: '',
     bookingId: null,
     amount: '',
-    date: new Date().toISOString().split('T')[0],
+    date: new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' }),
     manualName: ''
   });
   const [selectedMembers, setSelectedMembers] = useState([]);
@@ -130,7 +130,7 @@ function Admin() {
     bookingId: null,
     memberId: null,
     amount: '',
-    date: new Date().toISOString().split('T')[0],
+    date: new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' }),
     memo: '',
     receiptImage: ''
   });
@@ -992,7 +992,7 @@ function Admin() {
         categoryId: '',
         bookingId: null,
         amount: '',
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' }),
         manualName: ''
       });
       
@@ -1060,7 +1060,7 @@ function Admin() {
         bookingId: null,
         memberId: null,
         amount: '',
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' }),
         memo: '',
         receiptImage: ''
       });
@@ -1114,7 +1114,7 @@ function Admin() {
         type: 'payment',
         amount: Math.abs(amount),
         description: '회비납부',
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' }),
         memberId: memberId,
         bookingId: bookingId,
         createdBy: user.id
@@ -1183,7 +1183,7 @@ function Admin() {
         type: 'payment',
         amount: amount,
         description: '회비납부',
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' }),
         memberId: memberId,
         bookingId: bookingId,
         createdBy: user.id
@@ -1323,7 +1323,7 @@ function Admin() {
         amount: '',
         description: '',
         memberId: '',
-        date: new Date().toISOString().split('T')[0]
+        date: new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' })
       });
 
       await loadFeeData();
