@@ -89,7 +89,7 @@ router.get("/member/:memberId", requireAuth, async (req, res) => {
         bookingId: true,
         receiptImage: true,
         receiptImages: true,
-        booking: { select: { id: true, title: true, courseName: true } },
+        booking: { select: { id: true, title: true, courseName: true, greenFee: true, cartFee: true, membershipFee: true } },
       },
       orderBy: [{ date: "desc" }, { createdAt: "desc" }],
     });

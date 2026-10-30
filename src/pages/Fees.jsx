@@ -30,6 +30,27 @@ const getTransactionLabel = (t) => {
 const isDebit = (t) => ["charge", "expense", "creditDonation"].includes(t.type);
 const getTransactionSign = (t) => (isDebit(t) ? "-" : "+");
 
+// 내셔야 할 금액의 근거: 최근 청구부터 미납액이 채워질 때까지 (거래는 최신순으로 옴)
+const getOwedLines = (txs, owed) => {
+  const lines = [];
+  let covered = 0;
+  for (const t of txs) {
+    if (covered >= owed) break;
+    if (t.type !== "charge") continue;
+    covered += t.amount;
+    const b = t.booking;
+    const items = b ? [["그린피", b.greenFee], ["카트", b.cartFee], ["회비", b.membershipFee]].filter(([, v]) => v > 0) : [];
+    // 금액을 직접 바꿨거나 크레딧 일부 사용·면제가 있으면 항목 합이 달라지므로 총액만 표시
+    const itemized = items.length > 0 && items.reduce((s, [, v]) => s + v, 0) === t.amount;
+    lines.push({
+      id: t.id,
+      title: b?.title || b?.courseName || t.description || t.category || "청구",
+      detail: itemized ? items.map(([k, v]) => `${k} $${v.toLocaleString()}`).join(" · ") : `$${t.amount.toLocaleString()}`,
+    });
+  }
+  return lines;
+};
+
 const fmtDate = (d) => new Date(d).toLocaleDateString("ko-KR", { month: "numeric", day: "numeric" });
 
 // ─── BottomSheet wrapper ──────────────────────────────────────────────────────
@@ -199,10 +220,10 @@ function Fees() {
 
   // ── Balance calculations ───────────────────────────────────────────────────
   // 백엔드 balance.js와 동일한 calculateBalance 사용 (환불 카테고리는 잔액에 영향 없음)
-  const totalCharges = userTransactions.filter((t) => t.type === "charge").reduce((s, t) => s + t.amount, 0);
   const balance = calculateBalance(userTransactions);
   const actualUnpaid = Math.max(0, -balance);
   const creditBalance = balance > 0 ? balance : 0;
+  const owedLines = actualUnpaid > 0 ? getOwedLines(userTransactions, actualUnpaid) : [];
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
@@ -243,56 +264,33 @@ function Fees() {
                 <rect x="22" y="86" width="56" height="6" rx="3" fill="white" opacity="0.7" />
               </svg>
               <div style={{ position: "relative" }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.75)", marginBottom: 8, letterSpacing: "0.06em" }}>현재 잔액</div>
-                <div style={{ fontSize: 38, fontWeight: 800, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1.1 }}>
-                  {balance < 0 ? "-" : ""}${Math.abs(balance).toLocaleString()}
+                <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.75)", marginBottom: 8, letterSpacing: "0.06em" }}>
+                  {creditBalance > 0 ? "미리 낸 금액 (크레딧)" : "내셔야 할 금액"}
                 </div>
-                <div style={{ marginTop: 24, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,255,255,0.12)", backdropFilter: "blur(8px)", borderRadius: 999, padding: "6px 14px" }}>
-                    <span style={{ fontSize: 13 }}>✦</span>
-                    <span style={{ fontSize: 12, fontWeight: 600, color: "#fff" }}>3355 Golf Club</span>
+                <div style={{ fontSize: 38, fontWeight: 800, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1.1 }}>
+                  ${Math.abs(balance).toLocaleString()}
+                </div>
+                <div style={{ marginTop: 20, display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6, minWidth: 0 }}>
+                    {owedLines.length > 0 ? owedLines.map((l) => (
+                      <div key={l.id} style={{ fontSize: 12, lineHeight: 1.45, color: "rgba(255,255,255,0.9)" }}>
+                        <span style={{ fontWeight: 700, color: "#fff" }}>{l.title}</span> · {l.detail}
+                      </div>
+                    )) : (
+                      <div style={{ fontSize: 12, lineHeight: 1.45, color: "rgba(255,255,255,0.9)" }}>
+                        {creditBalance > 0 ? "다음 라운딩 참가비에서 자동으로 빠집니다" : actualUnpaid > 0 ? "자세한 내용은 아래 최근 내역을 확인해 주세요" : "모두 납부 완료 ✓"}
+                      </div>
+                    )}
                   </div>
                   {creditBalance > 0 && (
                     <button
                       onClick={() => { setShowCreditModal("donation"); setCreditActionAmount(creditBalance.toString()); }}
-                      style={{ background: "#fff", color: "#0047AB", border: "none", borderRadius: 12, padding: "8px 18px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}
+                      style={{ background: "#fff", color: "#0047AB", border: "none", borderRadius: 12, padding: "8px 18px", fontSize: 13, fontWeight: 700, cursor: "pointer", flexShrink: 0 }}
                     >
                       기부하기
                     </button>
                   )}
                 </div>
-              </div>
-            </div>
-
-            {/* 청구 / 사용 가능 / 미납 금액 */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginBottom: 20 }}>
-              <div style={{ background: "#fff", borderRadius: 20, padding: "16px 14px", boxShadow: "0 8px 24px rgba(25,27,34,0.06)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(220,38,38,0.07)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>📋</div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#64748B" }}>총 청구</span>
-                </div>
-                <div style={{ fontSize: 17, fontWeight: 800, color: totalCharges > 0 ? "#DC2626" : "#111827" }}>
-                  {totalCharges > 0 ? "-" : ""}${totalCharges.toLocaleString()}
-                </div>
-              </div>
-              <div style={{ background: "#fff", borderRadius: 20, padding: "16px 14px", boxShadow: "0 8px 24px rgba(25,27,34,0.06)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(0,71,171,0.07)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>✓</div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: "#64748B" }}>사용 가능</span>
-                </div>
-                <div style={{ fontSize: 17, fontWeight: 800, color: "#111827" }}>${creditBalance.toLocaleString()}</div>
-                {creditBalance > 0 && actualUnpaid > 0 && (
-                  <button onClick={() => { setShowCreditModal("payment"); setCreditActionAmount(Math.min(creditBalance, actualUnpaid).toString()); }} style={{ marginTop: 8, width: "100%", padding: "6px 0", background: "#0047AB", color: "#fff", border: "none", borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: "pointer" }}>
-                    납부
-                  </button>
-                )}
-              </div>
-              <div style={{ background: actualUnpaid > 0 ? "#FEF2F2" : "#fff", borderRadius: 20, padding: "16px 14px", boxShadow: "0 8px 24px rgba(147,0,10,0.05)" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
-                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: "rgba(255,255,255,0.5)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13 }}>!</div>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: actualUnpaid > 0 ? "#991B1B" : "#64748B" }}>미납</span>
-                </div>
-                <div style={{ fontSize: 17, fontWeight: 800, color: actualUnpaid > 0 ? "#DC2626" : "#111827" }}>${actualUnpaid.toLocaleString()}</div>
               </div>
             </div>
 
