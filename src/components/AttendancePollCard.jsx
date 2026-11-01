@@ -300,7 +300,16 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
 
               <div style={{ fontSize: 12.5, color: '#94a3b8', marginTop: 12 }}>
                 {poll.totalVoted}명 참여
-                {poll.addedByHost > 0 && ` · 방장이 직접 넣은 참가자 ${poll.addedByHost}명`}
+                {(() => {
+                  // 명단 총원 − 투표 참석 = 방장 추가 (연락처 없는 게스트까지 포함되도록 뺄셈으로 계산)
+                  const attend = poll.options.filter(o => o.kind === 'attend').reduce((s, o) => s + o.count, 0);
+                  const extra = poll.participantCount - attend;
+                  return extra > 0 && (
+                    <div style={{ marginTop: 4, color: '#475569', fontWeight: 600 }}>
+                      라운딩 명단 총 {poll.participantCount}명 (투표 참석 {attend} + 방장 추가 {extra})
+                    </div>
+                  );
+                })()}
               </div>
 
               {/* ── 운영진 전용: 아직 투표 안 한 사람 ── */}
