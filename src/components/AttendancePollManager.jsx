@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import apiService from '../services/api';
 
-// 방장·운영진이 라운딩 관리 시트에서 참석 투표를 만들고 관리하는 카드.
+// 방장·운영진이 라운딩 관리 페이지(모집 탭)에서 참석 투표를 만들고 관리하는 카드.
 //
 // 투표를 만들면 회원 홈 최상단에 카톡 모양 투표가 뜨고, 회원이 "참석"을 고르는
 // 순간 참가 신청 + 참가비 청구가 함께 일어난다.
 
 const PRIMARY = '#0047AB';
 
-const cardStyle = { background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', padding: '16px', marginBottom: '10px' };
-const labelStyle = { fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '10px' };
+const cardStyle = { background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' };
+const labelStyle = { fontSize: '13px', fontWeight: '700', color: '#64748B', marginBottom: '10px' };
 const inputStyle = { width: '100%', padding: '11px 13px', borderRadius: '10px', border: '1px solid #E8ECF0', fontSize: '14px', outline: 'none', boxSizing: 'border-box', background: '#FAFBFC', color: '#111827' };
 
 // 라운딩에 등록된 기본 참가비 (금액을 비워두면 이 금액이 청구된다)
@@ -135,7 +135,7 @@ function AttendancePollManager({ booking, onChanged }) {
     else { navigator.clipboard.writeText(shareUrl); alert('투표 링크가 복사되었습니다.\n카톡방에 붙여넣기 해주세요.'); }
   };
 
-  if (loading) return null;
+  if (loading) return <div style={{ ...cardStyle, fontSize: 13, color: '#94A3B8' }}>투표 정보를 불러오는 중…</div>;
 
   // ── 만들기 / 수정 폼 ──────────────────────────────────────────────────────
   if (editing) {

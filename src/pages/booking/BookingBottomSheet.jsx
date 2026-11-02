@@ -34,7 +34,7 @@ export default function BookingBottomSheet({
     });
   const allChips = [...participants, ...rentalMembers];
   const isJoined = participants.some(p => p.phone === user.phone);
-  const { canManage, isClubMemberOnly } = getManagePermissions(booking, user);
+  const { canManage } = getManagePermissions(booking, user);
   const max = booking.maxMembers || 4;
   const rentalPhonesAll = booking.numberRentals || [];
   const participantPhonesAll = new Set(participants.map(p => p.phone).filter(Boolean));
@@ -96,7 +96,7 @@ export default function BookingBottomSheet({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <div style={{ display: 'flex', gap: '8px' }}>
             {canManage && (
-              <button onClick={() => onOpenHostManage(booking, isClubMemberOnly)} style={btn('#F1F5F9', '#475569', '1px solid #E8ECF0')}>관리</button>
+              <button onClick={() => onOpenHostManage(booking)} style={btn('#F1F5F9', '#475569', '1px solid #E8ECF0')}>관리</button>
             )}
             {showTeamFormation && (
               <button onClick={() => navigate(`/team-formation?id=${booking.id}`)} style={btn('#F1F5F9', '#475569', '1px solid #E8ECF0')}>조편성</button>
@@ -114,7 +114,7 @@ export default function BookingBottomSheet({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
           <div style={{ display: 'flex', gap: '8px' }}>
             {canManage && (
-              <button onClick={() => onOpenHostManage(booking, isClubMemberOnly)} style={btn('#F1F5F9', '#475569', '1px solid #E8ECF0')}>관리</button>
+              <button onClick={() => onOpenHostManage(booking)} style={btn('#F1F5F9', '#475569', '1px solid #E8ECF0')}>관리</button>
             )}
             {showTeamFormation && (
               <button onClick={() => navigate(`/team-formation?id=${booking.id}`)} style={btn('#F1F5F9', '#475569', '1px solid #E8ECF0')}>조편성 보기</button>
@@ -131,7 +131,7 @@ export default function BookingBottomSheet({
       <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <div style={{ display: 'flex', gap: '8px' }}>
           {canManage && (
-            <button onClick={() => onOpenHostManage(booking, isClubMemberOnly)} style={btn('#F1F5F9', '#475569', '1px solid #E8ECF0')}>관리</button>
+            <button onClick={() => onOpenHostManage(booking)} style={btn('#F1F5F9', '#475569', '1px solid #E8ECF0')}>관리</button>
           )}
           {isJoined ? (
             <button onClick={(e) => { e.stopPropagation(); onJoinLeave(booking); }} disabled={isJoining}
