@@ -535,7 +535,7 @@ function RoundingListV2() {
         </button>
       )}
 
-      <BookingBottomSheet
+      <BookingBottomSheet key={selectedBooking?.id}
         selectedBooking={selectedBooking}
         bookings={bookings}
         user={user}
