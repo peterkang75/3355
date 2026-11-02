@@ -1,6 +1,6 @@
 // 경기 방식 정의 - 단일 소스
-// 화면 3곳(BookingForm / RoundingManagement / HostManageSheet)이 각자 목록을 갖고 있어
-// 방식을 추가할 때마다 세 곳을 손대야 했다. 여기 한 곳만 고치면 되도록 모은다.
+// 화면마다 각자 목록을 갖고 있어 방식을 추가할 때마다 여러 곳을 손대야 했다.
+// 여기 한 곳만 고치면 되도록 모은다.
 
 import { NEWPERIA_DEFAULT_RATE } from '../utils/newperia';
 

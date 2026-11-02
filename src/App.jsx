@@ -10,7 +10,6 @@ import MyPage from './pages/MyPage';
 import Admin from './pages/Admin';
 import MediaStorage from './pages/MediaStorage';
 import About from './pages/About';
-import RoundingManagement from './pages/RoundingManagement';
 import TeamFormation from './pages/TeamFormation';
 import ParticipantManagement from './pages/ParticipantManagement';
 import MemberScoreEntry from './pages/MemberScoreEntry';
@@ -59,7 +58,6 @@ function AuthenticatedRoutes({ user, logout, requiresProfileComplete }) {
         <Route path="/media-storage" element={<MediaStorage />} />
         <Route path="/about" element={<About />} />
         <Route path="/member/:id" element={<MemberDetail />} />
-        <Route path="/rounding-management" element={<RoundingManagement />} />
         <Route path="/team-formation" element={<TeamFormation />} />
         <Route path="/participant-management" element={<ParticipantManagement />} />
         <Route path="/member-score-entry" element={<MemberScoreEntry />} />

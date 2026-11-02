@@ -638,7 +638,6 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
           </div>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
-        )}
       </div>
 
       <div style={card}>
