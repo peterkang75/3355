@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../contexts/AppContext';
 import { parseParticipants } from '../../utils';
@@ -8,7 +8,6 @@ import { formatDate, getStatusBadge, getBookingStatusFlags, getManagePermissions
 // 시기(모집 → 당일 → 끝남)마다 지금 할 일 하나만 큰 버튼으로, 나머지는 아래 글씨 링크로 둔다.
 
 const INK = '#1E293B';
-const COLLAPSED_COUNT = 8;
 
 const card = { background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' };
 const cardTitle = { fontSize: '13px', fontWeight: '700', color: INK, marginBottom: '10px' };
@@ -44,7 +43,6 @@ export default function BookingBottomSheet({
 }) {
   const navigate = useNavigate();
   const { members } = useApp();
-  const [showAll, setShowAll] = useState(false);
 
   if (!selectedBooking) return null;
   const booking = bookings.find(b => b.id === selectedBooking.id) || selectedBooking;
@@ -151,7 +149,11 @@ export default function BookingBottomSheet({
   }
   if (canCancel && canPlay) links.push({ label: isJoining ? '처리중...' : '참가 취소', onClick: joinLeave });
 
-  const visibleChips = showAll ? allChips : allChips.slice(0, COLLAPSED_COUNT);
+  const fees = [
+    { label: '그린피', value: booking.greenFee },
+    { label: '카트비', value: booking.cartFee },
+    { label: '참가비', value: booking.membershipFee },
+  ].filter(f => f.value);
 
   return (
     <>
@@ -192,10 +194,16 @@ export default function BookingBottomSheet({
                   {getStatusBadge(booking)}
                 </div>
               </div>
+              {canManage && (
+                <button onClick={(e) => { e.stopPropagation(); onOpenHostManage(booking); }}
+                  style={{ height: '36px', minHeight: 36, padding: '0 12px', borderRadius: '10px', border: '1px solid #E8ECF0', background: '#FFFFFF', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13.5px', fontWeight: '700', color: INK, flexShrink: 0, marginLeft: '12px' }}>
+                  관리
+                </button>
+              )}
               <button
                 onClick={(e) => { e.stopPropagation(); handleShare(); }}
                 aria-label="공유"
-                style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid #E8ECF0', background: '#FFFFFF', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginLeft: '12px', color: '#64748B' }}
+                style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid #E8ECF0', background: '#FFFFFF', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginLeft: '8px', color: '#64748B' }}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
@@ -204,18 +212,16 @@ export default function BookingBottomSheet({
                 </svg>
               </button>
             </div>
-            <div style={{ marginTop: '10px', paddingTop: '4px', borderTop: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '13px', color: '#64748B' }}>
-              <span style={{ padding: '6px 0' }}>
-                <span style={{ fontWeight: '600', color: INK }}>{getMemberName(booking.organizerId)}</span>
-                <span style={{ marginLeft: '4px', color: '#94A3B8' }}>호스트</span>
-              </span>
-              {canManage && (
-                <button onClick={(e) => { e.stopPropagation(); onOpenHostManage(booking); }}
-                  style={{ minHeight: 40, padding: '0 0 0 12px', border: 'none', background: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13.5px', fontWeight: '700', color: INK }}>
-                  관리 ›
-                </button>
-              )}
-            </div>
+            {fees.length > 0 && (
+              <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #F1F5F9', display: 'flex', flexWrap: 'wrap', columnGap: '14px', rowGap: '4px', fontSize: '13.5px' }}>
+                {fees.map(f => (
+                  <span key={f.label} style={{ whiteSpace: 'nowrap' }}>
+                    <span style={{ color: '#64748B' }}>{f.label}</span>
+                    <span style={{ marginLeft: '5px', fontWeight: '700', color: INK }}>${f.value}</span>
+                  </span>
+                ))}
+              </div>
+            )}
             {myStatus && (
               <div style={{ marginTop: '4px', paddingTop: '10px', borderTop: '1px solid #F1F5F9', fontSize: '14px', fontWeight: '700', color: INK }}>
                 {myStatus}
@@ -237,52 +243,26 @@ export default function BookingBottomSheet({
               <div style={{ fontSize: '13px', color: '#94A3B8' }}>아직 참가자가 없습니다</div>
             ) : (
               <>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                  {visibleChips.map((p, i) => {
-                    const isHost = p.memberId === booking.organizerId;
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
+                  {allChips.map((p, i) => {
                     const isMe = p.phone === user.phone;
                     const isGuest = p.isGuest;
                     const isRental = p.isRental;
                     let bg = '#F1F5F9', color = '#475569', border = 'transparent', weight = '500';
                     if (isMe) { bg = '#FFFFFF'; color = INK; border = INK; weight = '700'; }
-                    else if (isHost) { bg = '#F8FAFC'; color = INK; border = '#E2E8F0'; weight = '600'; }
                     if (isGuest) { bg = '#FFFFFF'; color = '#94A3B8'; border = '#E2E8F0'; }
                     if (isRental) { bg = '#FFF7ED'; color = '#C2410C'; border = '#FED7AA'; weight = '600'; }
-                    const tag = isHost ? '호스트' : isRental ? '대여' : null;
                     return (
-                      <span key={`${p.phone || 'r'}-${i}`} style={{ display: 'inline-flex', alignItems: 'baseline', gap: '4px', padding: '5px 12px', borderRadius: '9999px', background: bg, color, fontWeight: weight, fontSize: '13px', border: `1px solid ${border}`, whiteSpace: 'nowrap' }}>
+                      <span key={`${p.phone || 'r'}-${i}`} style={{ display: 'inline-flex', alignItems: 'baseline', gap: '4px', padding: '4px 10px', borderRadius: '9999px', background: bg, color, fontWeight: weight, fontSize: '13px', border: `1px solid ${border}`, whiteSpace: 'nowrap' }}>
                         {p.nickname || p.name}
-                        {tag && <span style={{ fontSize: '10.5px', fontWeight: '500', color: '#94A3B8' }}>{tag}</span>}
+                        {isRental && <span style={{ fontSize: '10.5px', fontWeight: '500', color: '#94A3B8' }}>대여</span>}
                       </span>
                     );
                   })}
                 </div>
-                {allChips.length > COLLAPSED_COUNT && (
-                  <button onClick={(e) => { e.stopPropagation(); setShowAll(v => !v); }}
-                    style={{ marginTop: '6px', minHeight: 40, padding: 0, border: 'none', background: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13px', fontWeight: '600', color: INK, textDecoration: 'underline', textUnderlineOffset: 3 }}>
-                    {showAll ? '접기' : `전체 보기 (${allChips.length})`}
-                  </button>
-                )}
               </>
             )}
           </div>
-
-          {/* ── 비용 카드 ── */}
-          {(booking.greenFee || booking.cartFee || booking.membershipFee) && (
-            <div style={card}>
-              <div style={cardTitle}>비용</div>
-              {[
-                { label: '그린피', value: booking.greenFee },
-                { label: '카트비', value: booking.cartFee },
-                { label: '참가비', value: booking.membershipFee },
-              ].filter(r => r.value).map(r => (
-                <div key={r.label} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', marginBottom: '6px' }}>
-                  <span style={{ color: '#64748B' }}>{r.label}</span>
-                  <span style={{ fontWeight: '600', color: INK }}>${r.value}</span>
-                </div>
-              ))}
-            </div>
-          )}
 
           {/* ── 회식 카드 (관리 화면 비용·회식 탭에서 입력) ── */}
           {(booking.restaurantName || booking.restaurantAddress) && (
