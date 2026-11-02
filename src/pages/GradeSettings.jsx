@@ -80,8 +80,7 @@ function GradeSettings() {
       }
       
       alert('그레이드 설정이 저장되었습니다!');
-      const fromId = location.state?.fromBookingId || bookingId;
-      navigate('/booking', { state: { reopenManage: fromId } });
+      leave();
     } catch (error) {
       console.error('그레이드 설정 저장 실패:', error);
       alert('그레이드 설정 저장에 실패했습니다.');
@@ -117,14 +116,18 @@ function GradeSettings() {
   const d = deriveGrades(gradeSettings);
   const inputStyle = { padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '14px', width: '90px' };
   const fromStyle = { fontSize: '14px', fontWeight: '700', color: '#0047AB', background: '#EBF2FF', padding: '8px 12px', borderRadius: '8px' };
+  // 새 관리 페이지에서 왔으면 그 페이지(같은 탭)로, 예전 관리 시트에서 왔으면 시트를 다시 연다
+  function leave() {
+    if (location.state?.fromManage) { navigate(-1); return; }
+    const fromId = location.state?.fromBookingId || bookingId;
+    navigate('/booking', { state: { reopenManage: fromId } });
+  }
+
   const hintStyle = { marginTop: '8px', fontSize: '12px', color: '#0047AB', fontWeight: '500' };
 
   return (
     <div style={{ background: '#F8FAFC', minHeight: '100vh' }}>
-      <PageHeader title="그레이드 설정" onBack={() => {
-        const fromId = location.state?.fromBookingId || bookingId;
-        navigate('/booking', { state: { reopenManage: fromId } });
-      }} />
+      <PageHeader title="그레이드 설정" onBack={leave} />
 
       <div style={{ padding: '16px 16px 100px' }}>
         {/* 라운딩 정보 카드 */}

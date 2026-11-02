@@ -7,6 +7,7 @@ import { parseParticipants } from '../utils';
 import { formatDate, getManagePermissions, isTeeTimeUnknown } from './booking/bookingHelpers';
 import { PRIMARY, C, ManageStyles } from './manage/manageUi';
 import RecruitTab from './manage/RecruitTab';
+import GameTab from './manage/GameTab';
 import InfoEditSheet from './manage/InfoEditSheet';
 
 // 라운딩 관리 — 방장·운영진이 라운딩 하나를 준비하고 마무리하는 화면.
@@ -130,7 +131,8 @@ export default function RoundingManage() {
 
       <main style={{ padding: '0 16px', paddingBottom: 'calc(120px + env(safe-area-inset-bottom))' }}>
         {tab === 'recruit' && <RecruitTab {...tabProps} />}
-        {tab !== 'recruit' && <Center>준비 중입니다.</Center>}
+        {tab === 'game' && <GameTab {...tabProps} />}
+        {(tab === 'cost' || tab === 'result') && <Center>준비 중입니다.</Center>}
       </main>
 
       {showInfo && (
