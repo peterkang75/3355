@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { C, Group, Row, InlineInput, Segmented, Sheet } from './manageUi';
+import { isTeeTimeUnknown } from '../booking/bookingHelpers';
 
 const TYPES = [
   { value: '정기모임', label: '정기' },
@@ -27,8 +28,8 @@ export default function InfoEditSheet({ booking, perms, save, saving, onDelete, 
             <InlineInput type="date" width={150} value={booking.date || ''} onSave={v => save({ date: v || null })} />
           </Row>
         )}
-        {/* 멤버 모집 중이면 티오프 시간이 아직 없다 */}
-        {!booking.isRecruiting && (
+        {/* 컴페티션 모집 중이면 티오프 시간이 아직 없다 */}
+        {!isTeeTimeUnknown(booking) && (
           <Row label="티오프">
             <InlineInput type="time" width={110} value={booking.time || ''} onSave={v => save({ time: v })} />
           </Row>

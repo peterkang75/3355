@@ -4,7 +4,7 @@ import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
 import useGoBack from '../hooks/useGoBack';
 import { parseParticipants } from '../utils';
-import { formatDate, getManagePermissions } from './booking/bookingHelpers';
+import { formatDate, getManagePermissions, isTeeTimeUnknown } from './booking/bookingHelpers';
 import { PRIMARY, C, ManageStyles } from './manage/manageUi';
 import RecruitTab from './manage/RecruitTab';
 import InfoEditSheet from './manage/InfoEditSheet';
@@ -82,7 +82,7 @@ export default function RoundingManage() {
   };
 
   // 골프장 이름이 길어 잘릴 때 날짜·시간은 남도록 앞에 둔다
-  const meta = [formatDate(booking.date), !booking.isRecruiting && booking.time, booking.courseName].filter(Boolean).join(' · ');
+  const meta = [formatDate(booking.date), !isTeeTimeUnknown(booking) && booking.time, booking.courseName].filter(Boolean).join(' · ');
   const tabProps = { booking, members: members || [], user, perms, save, saving, reload };
 
   return (

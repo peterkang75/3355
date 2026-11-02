@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { generateListPdf } from '../../utils/pdfList';
 import apiService from '../../services/api';
-import { formatDate, getBookingStatusFlags } from './bookingHelpers';
+import { formatDate, getBookingStatusFlags, isTeeTimeUnknown } from './bookingHelpers';
 import { GAME_MODES, TEAM_MIX_MODE, TEAM_MIX_BASE_MODE } from '../../constants/gameModes';
 import { parseNewPeriaConfig, buildNewPeriaHolesPayload } from '../../utils/newperia';
 import { parseTeamModes, hasTeamModes, buildTeamModesPayload, parseTeams } from '../../utils/teamGameModes';
@@ -244,8 +244,8 @@ export default function HostManageSheet({ show, onClose, booking, state, setters
           })()}
         </div>
 
-        {/* 라운딩 시간 - 멤버모집(모집 중)이면 숨김 */}
-        {!hmAdvanced.isRecruiting && (
+        {/* 라운딩 시간 - 클럽 컴페티션 모집 중이면 숨김 */}
+        {!isTeeTimeUnknown({ isRecruiting: hmAdvanced.isRecruiting, type: hmType }) && (
         <div style={card}>
           {sLabel('라운딩 시간')}
           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>

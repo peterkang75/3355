@@ -175,3 +175,7 @@ export const getManagePermissions = (booking, user) => {
   const canAdvanced = !isClubMemberOnly && (!!user?.isAdmin || booking?.type === '정기모임' || booking?.type === '컴페티션');
   return { canManage, isClubMemberOnly, canAdvanced };
 };
+
+// 티오프 시간을 아직 모르는 라운딩 — 클럽 컴페티션은 모집이 끝나야 골프장이 시간을 배정한다.
+// 다른 유형은 멤버 모집 중이어도 시간이 이미 정해져 있다.
+export const isTeeTimeUnknown = (booking) => !!booking?.isRecruiting && booking?.type === '컴페티션';
