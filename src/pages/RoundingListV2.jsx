@@ -11,10 +11,11 @@ import WeeklyTimeline from './booking/WeeklyTimeline';
 import BookingBottomSheet from './booking/BookingBottomSheet';
 import MediaGallery from './booking/MediaGallery';
 import CreateBookingModal from './booking/CreateBookingModal';
+import { courseNearHoles, sameHoles } from '../components/booking/NearHolePicker';
 import golfMembersPhoto from '../assets/golf-members.jpeg';
 
 function RoundingListV2() {
-  const { user, bookings, members, courses, addBooking, updateBooking, refreshBookings, addCourse } = useApp();
+  const { user, bookings, members, courses, addBooking, updateBooking, refreshBookings, addCourse, refreshCourses } = useApp();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -187,6 +188,19 @@ function RoundingListV2() {
   };
 
   // ── Create booking ─────────────────────────────────────────────────────────
+  // 개설 창에서 니어홀을 바꿨으면 골프장 정보에 먼저 저장한다 (서버가 운영진에게만 허용)
+  const saveNearHolesIfChanged = async (courseName, nearHoles) => {
+    if (!nearHoles || !canSelectType) return;
+    const course = courses.find(c => c.name === courseName);
+    if (!course || sameHoles(nearHoles, courseNearHoles(course))) return;
+    try {
+      await apiService.updateCourse(course.id, { nearHoles });
+    } catch {
+      throw new Error('니어홀을 저장하지 못했습니다.');
+    }
+    await refreshCourses();
+  };
+
   const timeSlotValues = { 'Morning': '08:00', 'Afternoon': '13:00', 'Evening': '17:00', 'TBD': '23:59' };
 
   const handleCreateRounding = async () => {
@@ -203,7 +217,8 @@ function RoundingListV2() {
 
     setIsCreating(true);
     try {
-      await addBooking({
+      await saveNearHolesIfChanged(newRounding.courseName, newRounding.nearHoles);
+      const created = await addBooking({
         title, type, isSocial: true, courseName: newRounding.courseName,
         date: newRounding.date, time: finalTime, maxMembers: parseInt(newRounding.maxMembers) || 4,
         notes: newRounding.notes || '', organizerId: user.id, organizerPhone: user.phone,
@@ -211,7 +226,9 @@ function RoundingListV2() {
         isGuestAllowed: true, playEnabled: false,
       });
       setShowCreateModal(false);
-      setNewRounding({ date: '', time: '', courseName: 'Strathfield Golf Club', maxMembers: 4, notes: '', roundingType: '', timeSlot: 'Morning' });
+      setNewRounding({ date: '', time: '', courseName: 'Strathfield Golf Club', maxMembers: 4, notes: '', roundingType: '', timeSlot: 'Morning', nearHoles: null });
+      // 만든 뒤 바로 관리 화면으로 — 나머지 설정은 거기서 이어서 한다
+      if (created?.id) navigate(`/booking/manage?id=${created.id}`);
     } catch (err) { alert('라운딩 생성에 실패했습니다.\n' + (err.message || '')); }
     finally { setIsCreating(false); }
   };
@@ -221,7 +238,8 @@ function RoundingListV2() {
     if (!officialForm.courseName || !officialForm.date || !officialForm.time) { alert('골프장, 날짜, 시간은 필수 입력입니다.'); return; }
     setIsCreating(true);
     try {
-      await addBooking({
+      await saveNearHolesIfChanged(officialForm.courseName, officialForm.nearHoles);
+      const created = await addBooking({
         title: officialForm.title || '정기 라운딩', type: '정기모임', isSocial: false,
         courseName: officialForm.courseName, date: officialForm.date, time: officialForm.time,
         gatheringTime: officialForm.meetingTime || null,
@@ -241,7 +259,9 @@ function RoundingListV2() {
         title: '', courseName: '', date: '', time: '', greenFee: '', cartFee: '', membershipFee: '',
         registrationDeadline: '', maxMembers: 28, notes: '', meetingTime: '',
         waiveGreenFeeForClubMembers: false, waiveCartFeeForClubMembers: false, waiveMembershipFeeForClubMembers: false,
+        nearHoles: null,
       });
+      if (created?.id) navigate(`/booking/manage?id=${created.id}`);
     } catch (err) { alert('라운딩 생성에 실패했습니다.\n' + (err.message || '')); }
     finally { setIsCreating(false); }
   };
@@ -547,6 +567,7 @@ function RoundingListV2() {
         casualForm={casualForm}
         isCreating={isCreating}
         canSelectType={canSelectType}
+        canEditNearHoles={canSelectType}
         courses={courses}
         members={members}
         onCloseCreate={() => setShowCreateModal(false)}

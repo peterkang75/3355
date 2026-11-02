@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { timeSlotMap } from './bookingHelpers';
 import apiService from '../../services/api';
+import NearHolePicker from '../../components/booking/NearHolePicker';
 
 const labelStyle = {
   fontSize: '12px', fontWeight: '700', color: '#6B7280',
-  display: 'block', marginBottom: '8px', letterSpacing: '0.03em', textTransform: 'uppercase',
+  display: 'block', marginBottom: '8px',
 };
 
 const inputStyle = {
@@ -27,57 +28,6 @@ const sectionStyle = {
   border: '1px solid #E8ECF0', boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
   padding: '16px', marginBottom: '12px',
 };
-
-// 클럽 멤버 면제 토글 — 비용 입력란 옆에 붙는 작은 스위치
-function ClubWaiveToggle({ checked, onChange, disabled }) {
-  return (
-    <button
-      type="button"
-      onClick={() => { if (!disabled) onChange(!checked); }}
-      title={disabled ? '골프장을 먼저 선택하세요' : '해당 골프장 소속 회원에게 이 항목 면제'}
-      style={{
-        display: 'inline-flex', alignItems: 'center', gap: '6px',
-        background: 'none', border: 'none', padding: 0,
-        cursor: disabled ? 'not-allowed' : 'pointer',
-        opacity: disabled ? 0.4 : 1, marginLeft: 'auto',
-      }}
-    >
-      <span style={{ fontSize: '11px', color: checked ? '#0047AB' : '#9CA3AF', fontWeight: 600, letterSpacing: 0 }}>
-        클럽 멤버 면제
-      </span>
-      <span style={{
-        width: 28, height: 16, borderRadius: 8,
-        background: checked ? '#0047AB' : '#D1D5DB',
-        position: 'relative', transition: 'background 0.15s', display: 'inline-block',
-      }}>
-        <span style={{
-          position: 'absolute', top: 2, left: checked ? 14 : 2,
-          width: 12, height: 12, borderRadius: 6, background: '#fff',
-          transition: 'left 0.15s', boxShadow: '0 1px 2px rgba(0,0,0,0.25)',
-        }} />
-      </span>
-    </button>
-  );
-}
-
-// 클럽 멤버 면제 대상 미리보기 — 어느 토글이든 켜져 있을 때 비용 섹션 하단에 한 번 표시
-function ClubMemberPreview({ members, courseName }) {
-  const base = { marginTop: 4, padding: '8px 10px', borderRadius: 8, fontSize: 12, lineHeight: 1.5 };
-  if (!courseName) {
-    return <div style={{ ...base, background: '#FEF3C7', color: '#92400E' }}>골프장을 먼저 선택하면 면제 대상이 표시됩니다.</div>;
-  }
-  const matches = (members || []).filter(m => m && m.club && m.club === courseName);
-  if (matches.length === 0) {
-    return <div style={{ ...base, background: '#FEE2E2', color: '#991B1B' }}>"{courseName}" 소속으로 등록된 회원이 없습니다. 회원 정보의 소속 클럽을 확인하세요.</div>;
-  }
-  const names = matches.slice(0, 6).map(m => m.nickname || m.name).filter(Boolean).join(', ');
-  const more = matches.length > 6 ? ` 외 ${matches.length - 6}명` : '';
-  return (
-    <div style={{ ...base, background: '#EBF4FF', color: '#1E40AF' }}>
-      면제 대상 <strong>{matches.length}명</strong>: {names}{more}
-    </div>
-  );
-}
 
 // ── 캐주얼 라운딩 폼 ─────────────────────────────────────────────────────────
 function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
@@ -484,6 +434,7 @@ export default function CreateBookingModal({
   onCreateCasual,
   onOpenCreate,
   onAddCourse,
+  canEditNearHoles,
 }) {
   const renderTypeSelector = () => {
     if (!showTypeSelector) return null;
@@ -496,7 +447,6 @@ export default function CreateBookingModal({
 
           {/* 헤더 */}
           <div style={{ padding: '20px 24px 16px' }}>
-            <div style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '6px' }}>ROUNDING</div>
             <div style={{ fontSize: '22px', fontWeight: '800', color: '#1E293B', letterSpacing: '-0.02em' }}>새로운 라운딩 만들기</div>
           </div>
 
@@ -514,7 +464,7 @@ export default function CreateBookingModal({
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '16px', fontWeight: '700', color: '#1E293B', marginBottom: '3px' }}>정기 라운딩 개설</div>
-                <div style={{ fontSize: '13px', color: '#94A3B8', lineHeight: '1.45' }}>관리자 전용 · 회비, 마감일 등 상세 설정</div>
+                <div style={{ fontSize: '13px', color: '#94A3B8', lineHeight: '1.45' }}>관리자 전용 · 비용·마감일은 만든 뒤 관리 화면에서</div>
               </div>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="9 18 15 12 9 6"/>
@@ -579,6 +529,8 @@ export default function CreateBookingModal({
     if (!showCreateModal) return null;
     const isOfficial = createMode === 'official';
     const isCasual = createMode === 'casual';
+    const officialCourse = courses.find(c => c.name === officialForm.courseName);
+    const socialCourse = courses.find(c => c.name === newRounding.courseName);
 
     return (
       <>
@@ -591,9 +543,6 @@ export default function CreateBookingModal({
 
           {/* 모달 헤더 */}
           <div style={{ padding: '16px 24px 12px', flexShrink: 0, borderBottom: '1px solid #F1F5F9' }}>
-            <div style={{ fontSize: '11px', fontWeight: '700', color: isOfficial ? '#B45309' : isCasual ? '#065F46' : '#0047AB', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '4px' }}>
-              {isOfficial ? 'OFFICIAL' : isCasual ? 'CASUAL' : 'SOCIAL / CLUBCOM'}
-            </div>
             <div style={{ fontSize: '20px', fontWeight: '800', color: '#1E293B', letterSpacing: '-0.02em' }}>
               {isOfficial ? '정기 라운딩 만들기' : isCasual ? '캐주얼 라운딩 만들기' : '라운딩 만들기'}
             </div>
@@ -610,11 +559,17 @@ export default function CreateBookingModal({
                   </div>
                   <div style={{ marginBottom: '14px' }}>
                     <label style={labelStyle}>골프장</label>
-                    <select value={officialForm.courseName} onChange={(e) => onChangeOfficialForm({ ...officialForm, courseName: e.target.value })} style={inputStyle}>
+                    <select value={officialForm.courseName} onChange={(e) => onChangeOfficialForm({ ...officialForm, courseName: e.target.value, nearHoles: null })} style={inputStyle}>
                       <option value="">골프장 선택</option>
                       {courses.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                     </select>
                   </div>
+                  {officialCourse && (
+                    <div style={{ marginBottom: '14px', paddingBottom: '14px', borderBottom: '1px solid #F1F5F9' }}>
+                      <NearHolePicker course={officialCourse} value={officialForm.nearHoles} canEdit={canEditNearHoles}
+                        onChange={(v) => onChangeOfficialForm({ ...officialForm, nearHoles: v })} />
+                    </div>
+                  )}
                   <div style={{ display: 'flex', gap: '10px' }}>
                     <div style={{ flex: 1 }}>
                       <label style={labelStyle}>날짜</label>
@@ -627,70 +582,9 @@ export default function CreateBookingModal({
                   </div>
                 </div>
 
-                <div style={sectionStyle}>
-                  <div style={{ fontSize: '13px', fontWeight: '700', color: '#B45309', marginBottom: '12px' }}>💰 비용 안내</div>
-                  <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', gap: '8px' }}>
-                        <label style={{ ...labelStyle, marginBottom: 0 }}>그린피</label>
-                        <ClubWaiveToggle
-                          checked={!!officialForm.waiveGreenFeeForClubMembers}
-                          onChange={(v) => onChangeOfficialForm({ ...officialForm, waiveGreenFeeForClubMembers: v })}
-                          disabled={!officialForm.courseName}
-                        />
-                      </div>
-                      <input type="number" value={officialForm.greenFee} onChange={(e) => onChangeOfficialForm({ ...officialForm, greenFee: e.target.value })} placeholder="$0" style={inputStyle} />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', gap: '8px' }}>
-                        <label style={{ ...labelStyle, marginBottom: 0 }}>카트비</label>
-                        <ClubWaiveToggle
-                          checked={!!officialForm.waiveCartFeeForClubMembers}
-                          onChange={(v) => onChangeOfficialForm({ ...officialForm, waiveCartFeeForClubMembers: v })}
-                          disabled={!officialForm.courseName}
-                        />
-                      </div>
-                      <input type="number" value={officialForm.cartFee} onChange={(e) => onChangeOfficialForm({ ...officialForm, cartFee: e.target.value })} placeholder="$0" style={inputStyle} />
-                    </div>
-                  </div>
-                  <div>
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '8px', gap: '8px' }}>
-                      <label style={{ ...labelStyle, marginBottom: 0 }}>참가비</label>
-                      <ClubWaiveToggle
-                        checked={!!officialForm.waiveMembershipFeeForClubMembers}
-                        onChange={(v) => onChangeOfficialForm({ ...officialForm, waiveMembershipFeeForClubMembers: v })}
-                        disabled={!officialForm.courseName}
-                      />
-                    </div>
-                    <input type="number" value={officialForm.membershipFee} onChange={(e) => onChangeOfficialForm({ ...officialForm, membershipFee: e.target.value })} placeholder="$0" style={inputStyle} />
-                  </div>
-                  {(officialForm.waiveGreenFeeForClubMembers || officialForm.waiveCartFeeForClubMembers || officialForm.waiveMembershipFeeForClubMembers) && (
-                    <div style={{ marginTop: 10 }}>
-                      <ClubMemberPreview members={members} courseName={officialForm.courseName} />
-                    </div>
-                  )}
-                </div>
-
-                <div style={sectionStyle}>
-                  <div style={{ display: 'flex', gap: '10px', marginBottom: '10px' }}>
-                    <div style={{ flex: 1 }}>
-                      <label style={labelStyle}>집결 시간</label>
-                      <input type="time" value={officialForm.meetingTime} onChange={(e) => onChangeOfficialForm({ ...officialForm, meetingTime: e.target.value })} style={dateInputStyle} />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <label style={labelStyle}>접수 마감일</label>
-                      <input type="date" value={officialForm.registrationDeadline} onChange={(e) => onChangeOfficialForm({ ...officialForm, registrationDeadline: e.target.value })} style={dateInputStyle} />
-                    </div>
-                  </div>
-                  <div style={{ marginBottom: '10px' }}>
-                    <label style={labelStyle}>최대 인원</label>
-                    <input type="number" value={officialForm.maxMembers} onChange={(e) => onChangeOfficialForm({ ...officialForm, maxMembers: e.target.value })} style={inputStyle} />
-                  </div>
-                  <div>
-                    <label style={labelStyle}>메모 (선택)</label>
-                    <textarea value={officialForm.notes} onChange={(e) => onChangeOfficialForm({ ...officialForm, notes: e.target.value })} placeholder="추가 안내사항" rows={2} style={{ ...inputStyle, resize: 'none' }} />
-                  </div>
-                </div>
+                <p style={{ margin: '4px 4px 0', fontSize: '12.5px', color: '#94A3B8', lineHeight: 1.6 }}>
+                  비용, 접수 마감일, 최대 인원(기본 28명), 메모는 만든 뒤 바로 열리는 관리 화면에서 정합니다.
+                </p>
               </>
             ) : isCasual ? (
               <CasualForm
@@ -705,11 +599,18 @@ export default function CreateBookingModal({
                 <div style={sectionStyle}>
                   <div style={{ marginBottom: newRounding.courseName ? '14px' : 0 }}>
                     <label style={labelStyle}>골프장</label>
-                    <select value={newRounding.courseName} onChange={(e) => onChangeNewRounding({ ...newRounding, courseName: e.target.value, roundingType: '' })} style={inputStyle}>
+                    <select value={newRounding.courseName} onChange={(e) => onChangeNewRounding({ ...newRounding, courseName: e.target.value, roundingType: '', nearHoles: null })} style={inputStyle}>
                       <option value="">골프장 선택</option>
                       {courses.map(c => <option key={c.id} value={c.name}>{c.name}</option>)}
                     </select>
                   </div>
+
+                  {socialCourse && (
+                    <div style={{ marginBottom: '14px', paddingBottom: '14px', borderBottom: '1px solid #F1F5F9' }}>
+                      <NearHolePicker course={socialCourse} value={newRounding.nearHoles} canEdit={canEditNearHoles}
+                        onChange={(v) => onChangeNewRounding({ ...newRounding, nearHoles: v })} />
+                    </div>
+                  )}
 
                   {newRounding.courseName && (
                     <div>
@@ -756,10 +657,9 @@ export default function CreateBookingModal({
                   </div>
                 )}
 
-                {newRounding.courseName && (
+                {newRounding.courseName && newRounding.roundingType !== 'competition' && (
                   <div style={sectionStyle}>
-                    {newRounding.roundingType !== 'competition' && (
-                    <div style={{ marginBottom: '14px' }}>
+                    <div>
                       <label style={labelStyle}>최대 인원</label>
                       <div style={{ display: 'flex', gap: '8px' }}>
                         {[4, 8, 12, 16, 20, 24].map(n => (
@@ -769,11 +669,6 @@ export default function CreateBookingModal({
                           </button>
                         ))}
                       </div>
-                    </div>
-                    )}
-                    <div>
-                      <label style={labelStyle}>메모 (선택)</label>
-                      <textarea value={newRounding.notes} onChange={(e) => onChangeNewRounding({ ...newRounding, notes: e.target.value })} placeholder="추가 정보를 입력하세요" rows={2} style={{ ...inputStyle, resize: 'none' }} />
                     </div>
                   </div>
                 )}
