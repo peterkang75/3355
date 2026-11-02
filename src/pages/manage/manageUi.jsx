@@ -84,6 +84,18 @@ export function InlineInput({ value, onSave, type = 'text', placeholder, inputMo
   const focused = useRef(false);
   useEffect(() => { if (!focused.current) setDraft(value ?? ''); }, [value]);
   const isPicker = type === 'date' || type === 'time' || type === 'datetime-local';
+  // 비어 있는 날짜칸은 브라우저가 "연도/월/일 --:--"를 그려 지저분하다 → "정하기"를 보여주고 칸은 투명하게 위에 덮는다
+  if (isPicker && !draft) {
+    return (
+      <span style={{ position: 'relative', display: 'inline-flex', justifyContent: 'flex-end', alignItems: 'center', width, minHeight: 40 }}>
+        <span style={{ fontSize: 15, color: PRIMARY, fontWeight: 600 }}>정하기</span>
+        <input className="mg-input" type={type} value="" aria-label={placeholder || '날짜 정하기'}
+          onClick={(e) => { try { e.target.showPicker?.(); } catch { /* 지원 안 하는 브라우저는 기본 동작 */ } }}
+          onChange={(e) => { setDraft(e.target.value); onSave(e.target.value); }}
+          style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', cursor: 'pointer' }} />
+      </span>
+    );
+  }
   return (
     <input
       className="mg-input"

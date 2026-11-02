@@ -81,7 +81,8 @@ export default function RoundingManage() {
     } catch { alert('삭제하지 못했습니다.'); }
   };
 
-  const meta = [booking.courseName, formatDate(booking.date), !booking.isRecruiting && booking.time].filter(Boolean).join(' · ');
+  // 골프장 이름이 길어 잘릴 때 날짜·시간은 남도록 앞에 둔다
+  const meta = [formatDate(booking.date), !booking.isRecruiting && booking.time, booking.courseName].filter(Boolean).join(' · ');
   const tabProps = { booking, members: members || [], user, perms, save, saving, reload };
 
   return (

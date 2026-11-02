@@ -23,7 +23,7 @@ const defaultTitleOf = (booking) => {
 };
 
 // DateTime ↔ <input type="datetime-local"> 변환 (시드니 기준)
-const toLocalInput = (iso) => {
+export const toLocalInput = (iso) => {
   if (!iso) return '';
   try {
     const parts = new Intl.DateTimeFormat('en-CA', {

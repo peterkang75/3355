@@ -3,7 +3,7 @@ import apiService from '../../services/api';
 import { parseParticipants } from '../../utils';
 import { generateListPdf } from '../../utils/pdfList';
 import { getBookingStatusFlags } from '../booking/bookingHelpers';
-import AttendancePollManager from '../../components/AttendancePollManager';
+import AttendancePollManager, { toLocalInput } from '../../components/AttendancePollManager';
 import {
   PRIMARY, C, Section, Group, Row, InlineInput, Switch, Segmented, Sheet,
   textFieldStyle, primaryButtonStyle, secondaryButtonStyle,
@@ -75,6 +75,7 @@ export default function RecruitTab({ booking, members, perms, save, saving, relo
   const [expanded, setExpanded] = useState(false);
   const [sheet, setSheet] = useState(null); // 'member' | 'guest' | null
   const [busy, setBusy] = useState(false);
+  const [pollOpen, setPollOpen] = useState(false);
 
   const participants = parseParticipants(booking.participants);
   const phones = new Set(participants.map(p => p.phone).filter(Boolean));
@@ -242,8 +243,9 @@ export default function RecruitTab({ booking, members, perms, save, saving, relo
               </Row>
             )}
             <Row label="접수 마감일">
-              <InlineInput type="datetime-local" width={190} value={booking.registrationDeadline || ''}
-                onSave={v => save({ registrationDeadline: v || null })} />
+              {/* 투표는 표준시(…Z)로, 예전 화면은 현지 글자로 저장해 왔다 → 보여줄 땐 시드니 시각, 저장은 표준시로 통일 */}
+              <InlineInput type="datetime-local" width={190} value={toLocalInput(booking.registrationDeadline)}
+                onSave={v => save({ registrationDeadline: v ? new Date(v).toISOString() : null })} />
             </Row>
             <Row label="접수 마감" hint={closeHint}>
               <Switch on={isRegistrationClosed} tone={C.danger} disabled={saving}
@@ -254,7 +256,11 @@ export default function RecruitTab({ booking, members, perms, save, saving, relo
       )}
 
       <Section title="참석 받기">
-        <AttendancePollManager booking={booking} onChanged={reload} />
+        {/* 투표 카드는 공지문까지 통째로 보여줘 길어서, 눌렀을 때만 펼친다 */}
+        <Group>
+          <Row label="참석 투표" hint="회원이 앱에서 참석을 누르면 바로 참가 신청 + 청구" value={pollOpen ? '접기' : '열기'} onClick={() => setPollOpen(v => !v)} />
+        </Group>
+        {pollOpen && <div style={{ marginTop: 10 }}><AttendancePollManager booking={booking} onChanged={reload} /></div>}
         {!perms.isClubMemberOnly && (
           <Group style={{ marginTop: 10 }}>
             {inviteUrl ? (
