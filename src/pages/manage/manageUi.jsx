@@ -88,7 +88,7 @@ export function InlineInput({ value, onSave, type = 'text', placeholder, inputMo
   if (isPicker && !draft) {
     return (
       <span style={{ position: 'relative', display: 'inline-flex', justifyContent: 'flex-end', alignItems: 'center', width, minHeight: 40 }}>
-        <span style={{ fontSize: 15, color: PRIMARY, fontWeight: 600 }}>정하기</span>
+        <span style={{ fontSize: 15, color: C.sub, fontWeight: 600, textDecoration: 'underline', textUnderlineOffset: 3 }}>정하기</span>
         <input className="mg-input" type={type} value="" aria-label={placeholder || '날짜 정하기'}
           onClick={(e) => { try { e.target.showPicker?.(); } catch { /* 지원 안 하는 브라우저는 기본 동작 */ } }}
           onChange={(e) => { setDraft(e.target.value); onSave(e.target.value); }}
@@ -120,7 +120,8 @@ export function InlineInput({ value, onSave, type = 'text', placeholder, inputMo
   );
 }
 
-export function Switch({ on, onChange, disabled, tone = PRIMARY }) {
+// 켜짐은 먹색 — 파란색은 주요 버튼에만 아껴 쓴다
+export function Switch({ on, onChange, disabled, tone = C.text }) {
   return (
     <button
       type="button"
@@ -152,7 +153,7 @@ export function Segmented({ options, value, onChange, disabled }) {
             disabled={disabled}
             style={{
               flex: 1, minHeight: 36, padding: '0 10px', border: 'none', borderRadius: 8, whiteSpace: 'nowrap',
-              background: active ? '#FFFFFF' : 'transparent', color: active ? PRIMARY : C.sub,
+              background: active ? '#FFFFFF' : 'transparent', color: active ? C.text : C.muted,
               boxShadow: active ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
               fontSize: 13, fontWeight: 700, cursor: disabled ? 'default' : 'pointer', fontFamily: 'inherit',
             }}

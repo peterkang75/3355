@@ -107,7 +107,7 @@ export default function RoundingManage() {
             </h1>
             <div style={{ fontSize: 12.5, color: C.sub, marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{meta}</div>
           </div>
-          <span aria-live="polite" style={{ fontSize: 12, fontWeight: 600, color: saveStatus === 'saved' ? '#16A34A' : C.muted, flexShrink: 0, minWidth: 40, textAlign: 'right' }}>
+          <span aria-live="polite" style={{ fontSize: 12, fontWeight: 600, color: saveStatus === 'saved' ? C.sub : C.muted, flexShrink: 0, minWidth: 40, textAlign: 'right' }}>
             {saveStatus === 'saving' ? '저장 중' : saveStatus === 'saved' ? '저장됨' : ''}
           </span>
           <button type="button" onClick={() => setShowInfo(true)} aria-label="라운딩 정보 수정"

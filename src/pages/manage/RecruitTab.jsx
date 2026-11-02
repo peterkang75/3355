@@ -5,7 +5,7 @@ import { generateListPdf } from '../../utils/pdfList';
 import { getBookingStatusFlags } from '../booking/bookingHelpers';
 import AttendancePollManager, { toLocalInput } from '../../components/AttendancePollManager';
 import {
-  PRIMARY, C, Section, Group, Row, InlineInput, Switch, Segmented, Sheet,
+  C, Section, Group, Row, InlineInput, Switch, Segmented, Sheet,
   textFieldStyle, primaryButtonStyle, secondaryButtonStyle,
 } from './manageUi';
 
@@ -190,7 +190,7 @@ export default function RecruitTab({ booking, members, perms, save, saving, relo
         </div>
         {showMax && (
           <div style={{ height: 4, borderRadius: 2, background: '#EEF1F5', marginTop: 12, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${Math.min(100, (total / max) * 100)}%`, background: total >= max ? '#16A34A' : PRIMARY, borderRadius: 2 }} />
+            <div style={{ height: '100%', width: `${Math.min(100, (total / max) * 100)}%`, background: C.text, borderRadius: 2 }} />
           </div>
         )}
 
@@ -211,7 +211,7 @@ export default function RecruitTab({ booking, members, perms, save, saving, relo
               </span>
               {rows.length > COLLAPSED_COUNT && (
                 <button type="button" onClick={() => setExpanded(v => !v)}
-                  style={{ border: 'none', background: 'none', color: PRIMARY, fontSize: 13, fontWeight: 700, cursor: 'pointer', padding: '6px 0', fontFamily: 'inherit' }}>
+                  style={{ border: 'none', background: 'none', color: C.text, fontSize: 13, fontWeight: 700, cursor: 'pointer', padding: '6px 0', fontFamily: 'inherit', textDecoration: 'underline', textUnderlineOffset: 3 }}>
                   {expanded ? '접기' : `전체 보기 (${rows.length})`}
                 </button>
               )}
@@ -248,7 +248,7 @@ export default function RecruitTab({ booking, members, perms, save, saving, relo
                 onSave={v => save({ registrationDeadline: v ? new Date(v).toISOString() : null })} />
             </Row>
             <Row label="접수 마감" hint={closeHint}>
-              <Switch on={isRegistrationClosed} tone={C.danger} disabled={saving}
+              <Switch on={isRegistrationClosed} disabled={saving}
                 onChange={() => save({ status: isRegistrationClosed ? 'open' : 'closed' })} />
             </Row>
           </Group>
@@ -268,7 +268,7 @@ export default function RecruitTab({ booking, members, perms, save, saving, relo
                 <button type="button" onClick={deleteInvite} disabled={busy}
                   style={{ border: 'none', background: 'none', color: C.muted, fontSize: 13, fontWeight: 600, minHeight: 44, padding: '0 6px', cursor: 'pointer', fontFamily: 'inherit' }}>지우기</button>
                 <button type="button" onClick={shareInvite}
-                  style={{ border: 'none', background: '#EBF2FF', color: PRIMARY, fontSize: 13, fontWeight: 700, minHeight: 36, padding: '0 14px', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ border: `1px solid ${C.border}`, background: '#FFFFFF', color: C.text, fontSize: 13, fontWeight: 700, minHeight: 36, padding: '0 14px', borderRadius: 10, cursor: 'pointer', fontFamily: 'inherit' }}>
                   {navigator.share ? '공유' : '복사'}
                 </button>
               </Row>

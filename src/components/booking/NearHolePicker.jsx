@@ -9,7 +9,7 @@ import React from 'react';
 //   onChange : (18칸 배열) => void
 //   canEdit  : 운영진 여부
 
-const PRIMARY = '#0047AB';
+const INK = '#1E293B';
 const HOLES = Array.from({ length: 18 }, (_, i) => i);
 
 export const courseNearHoles = (course) => {
@@ -57,12 +57,12 @@ export default function NearHolePicker({ course, value, onChange, canEdit }) {
               style={{
                 minHeight: 46, padding: 0, borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1,
-                border: on ? `1.5px solid ${PRIMARY}` : `1px solid ${par3 ? '#BFDBFE' : '#E8ECF0'}`,
-                background: on ? PRIMARY : par3 ? '#F0F6FF' : '#FFFFFF',
+                border: on ? `1.5px solid ${INK}` : `1px solid ${par3 ? '#CBD5E1' : '#E8ECF0'}`,
+                background: on ? INK : par3 ? '#F1F5F9' : '#FFFFFF',
                 color: on ? '#FFFFFF' : '#1E293B',
               }}>
               <span style={{ fontSize: 14, fontWeight: 700, lineHeight: 1 }}>{i + 1}</span>
-              {pars[i] && <span style={{ fontSize: 10, fontWeight: 600, lineHeight: 1, color: on ? 'rgba(255,255,255,0.8)' : par3 ? PRIMARY : '#94A3B8' }}>P{pars[i]}</span>}
+              {pars[i] && <span style={{ fontSize: 10, fontWeight: 600, lineHeight: 1, color: on ? 'rgba(255,255,255,0.75)' : par3 ? INK : '#94A3B8' }}>P{pars[i]}</span>}
             </button>
           );
         })}
@@ -74,14 +74,14 @@ export default function NearHolePicker({ course, value, onChange, canEdit }) {
     <div>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
         <span style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>니어홀</span>
-        <span style={{ fontSize: 12.5, color: picked.length ? PRIMARY : '#94A3B8', fontWeight: 600 }}>
+        <span style={{ fontSize: 12.5, color: picked.length ? INK : '#94A3B8', fontWeight: 600 }}>
           {picked.length ? `${picked.length}개 · ${picked.join(', ')}번` : '선택 안 함'}
         </span>
       </div>
       {renderNine(0, '전반 1–9')}
       {renderNine(9, '후반 10–18')}
       <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 8, lineHeight: 1.5 }}>
-        파3 홀은 파란 테두리로 표시됩니다. 여기서 바꾸면 이 골프장의 다음 라운딩에도 그대로 적용됩니다.
+        파3 홀은 회색 바탕으로 표시됩니다. 여기서 바꾸면 이 골프장의 다음 라운딩에도 그대로 적용됩니다.
       </div>
     </div>
   );

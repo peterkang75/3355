@@ -4,7 +4,7 @@ import { parseParticipants } from '../../utils';
 import { GAME_MODES, TEAM_MIX_MODE, TEAM_MIX_BASE_MODE } from '../../constants/gameModes';
 import { parseTeams, parseTeamModes, hasTeamModes, buildTeamModesPayload, getBaseMode } from '../../utils/teamGameModes';
 import TeamModeAssigner from '../../components/booking/TeamModeAssigner';
-import { PRIMARY, C, Section, Group, Row, Switch, primaryButtonStyle } from './manageUi';
+import { C, Section, Group, Row, Switch, primaryButtonStyle } from './manageUi';
 
 // 관리 화면에는 스테이블포드가 따로 있어 공용 목록에 한 항목을 끼워 쓴다
 const MODES = [
@@ -82,9 +82,9 @@ export default function GameTab({ booking, members, perms, save, saving }) {
                   <button key={m.value} type="button" onClick={() => !active && selectMode(m.value)} disabled={saving}
                     aria-pressed={active}
                     style={{
-                      minHeight: 44, borderRadius: 10, fontFamily: 'inherit', fontSize: 13.5, fontWeight: 700, cursor: 'pointer',
-                      border: active ? `1.5px solid ${PRIMARY}` : `1px solid ${C.border}`,
-                      background: active ? '#EBF2FF' : '#FFFFFF', color: active ? PRIMARY : C.sub,
+                      minHeight: 44, borderRadius: 10, fontFamily: 'inherit', fontSize: 13.5, cursor: 'pointer',
+                      border: active ? `1.5px solid ${C.text}` : `1px solid ${C.border}`,
+                      background: '#FFFFFF', color: active ? C.text : C.muted, fontWeight: active ? 800 : 600,
                     }}>
                     {m.label}
                   </button>
@@ -93,7 +93,7 @@ export default function GameTab({ booking, members, perms, save, saving }) {
             </div>
             {selectedHint && <p style={{ margin: '12px 2px 2px', fontSize: 12.5, color: C.sub, lineHeight: 1.6 }}>{selectedHint}</p>}
             {selected === 'newperia' && (
-              <p style={{ margin: '8px 2px 2px', fontSize: 12.5, color: '#B45309', lineHeight: 1.6 }}>
+              <p style={{ margin: '8px 2px 2px', fontSize: 12.5, color: C.text, lineHeight: 1.6 }}>
                 라운딩이 끝나면 <strong>결과</strong> 탭에서 제비뽑기로 뽑은 12개 홀을 지정하세요.
               </p>
             )}
