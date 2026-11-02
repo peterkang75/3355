@@ -128,9 +128,12 @@ export function Switch({ on, onChange, disabled, tone = PRIMARY }) {
       aria-checked={!!on}
       onClick={() => !disabled && onChange(!on)}
       disabled={disabled}
-      style={{ width: 46, height: 28, borderRadius: 14, border: 'none', padding: 0, position: 'relative', flexShrink: 0, cursor: disabled ? 'default' : 'pointer', background: on ? tone : '#E2E8F0', transition: 'background 0.2s' }}
+      // 누르는 영역은 앱 공통 최소 44px, 보이는 스위치는 안쪽 28px 알약
+      style={{ width: 46, minHeight: 44, border: 'none', padding: 0, background: 'none', flexShrink: 0, display: 'flex', alignItems: 'center', cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.5 : 1 }}
     >
-      <span style={{ position: 'absolute', top: 3, left: on ? 21 : 3, width: 22, height: 22, borderRadius: 11, background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.18)', transition: 'left 0.2s' }} />
+      <span style={{ position: 'relative', width: 46, height: 28, borderRadius: 14, background: on ? tone : '#E2E8F0', transition: 'background 0.2s' }}>
+        <span style={{ position: 'absolute', top: 3, left: on ? 21 : 3, width: 22, height: 22, borderRadius: 11, background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.18)', transition: 'left 0.2s' }} />
+      </span>
     </button>
   );
 }

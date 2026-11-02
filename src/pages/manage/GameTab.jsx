@@ -125,7 +125,7 @@ export default function GameTab({ booking, members, perms, save, saving }) {
               <Row label="그레이드" hint="신페리오는 전원이 한 판에서 겨루므로 그레이드를 쓰지 않습니다" />
             ) : (
               <Row label="그레이드" hint="핸디캡 구간별 등급 나누기"
-                onClick={() => navigate(`/grade-settings?id=${booking.id}`, { state: { fromBookingId: booking.id, fromManage: true } })} />
+                onClick={() => navigate(`/grade-settings?id=${booking.id}`, { state: { fromBookingId: booking.id } })} />
             )}
           </Group>
         </Section>

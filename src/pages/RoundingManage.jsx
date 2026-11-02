@@ -8,6 +8,9 @@ import { formatDate, getManagePermissions, isTeeTimeUnknown } from './booking/bo
 import { PRIMARY, C, ManageStyles } from './manage/manageUi';
 import RecruitTab from './manage/RecruitTab';
 import GameTab from './manage/GameTab';
+import CostTab from './manage/CostTab';
+import ResultTab from './manage/ResultTab';
+import { parseNewPeriaConfig } from '../utils/newperia';
 import InfoEditSheet from './manage/InfoEditSheet';
 
 // 라운딩 관리 — 방장·운영진이 라운딩 하나를 준비하고 마무리하는 화면.
@@ -18,7 +21,7 @@ const TABS = [
   { key: 'recruit', label: '모집' },
   { key: 'game', label: '경기' },
   { key: 'cost', label: '비용·회식', advancedOnly: true },
-  { key: 'result', label: '결과' },
+  { key: 'result', label: '결과', resultOnly: true },
 ];
 
 const Center = ({ children }) => (
@@ -64,7 +67,9 @@ export default function RoundingManage() {
   const perms = getManagePermissions(booking, user);
   if (!perms.canManage) return <Center>이 라운딩을 관리할 권한이 없습니다.</Center>;
 
-  const tabs = TABS.filter(t => !t.advancedOnly || perms.canAdvanced);
+  // 결과 탭은 스코어 관리(고급 권한)나 신페리오 홀 지정이 있을 때만
+  const hasResult = perms.canAdvanced || parseNewPeriaConfig(booking.gradeSettings).isNewPeria;
+  const tabs = TABS.filter(t => (!t.advancedOnly || perms.canAdvanced) && (!t.resultOnly || hasResult));
   const requested = searchParams.get('tab');
   const tab = tabs.some(t => t.key === requested) ? requested : 'recruit';
   // 다른 화면(조편성·그레이드)에 갔다 돌아와도 같은 탭이 열리도록 주소에 남긴다
@@ -132,7 +137,8 @@ export default function RoundingManage() {
       <main style={{ padding: '0 16px', paddingBottom: 'calc(120px + env(safe-area-inset-bottom))' }}>
         {tab === 'recruit' && <RecruitTab {...tabProps} />}
         {tab === 'game' && <GameTab {...tabProps} />}
-        {(tab === 'cost' || tab === 'result') && <Center>준비 중입니다.</Center>}
+        {tab === 'cost' && <CostTab {...tabProps} />}
+        {tab === 'result' && <ResultTab {...tabProps} />}
       </main>
 
       {showInfo && (

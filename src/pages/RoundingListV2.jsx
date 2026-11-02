@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
-import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import PageHeader from '../components/common/PageHeader';
 import { parseParticipants, checkIsOperator } from '../utils';
 import {
@@ -10,14 +10,12 @@ import {
 import WeeklyTimeline from './booking/WeeklyTimeline';
 import BookingBottomSheet from './booking/BookingBottomSheet';
 import MediaGallery from './booking/MediaGallery';
-import HostManageSheet from './booking/HostManageSheet';
 import CreateBookingModal from './booking/CreateBookingModal';
 import golfMembersPhoto from '../assets/golf-members.jpeg';
 
 function RoundingListV2() {
   const { user, bookings, members, courses, addBooking, updateBooking, refreshBookings, addCourse } = useApp();
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
   // ── UI state ──────────────────────────────────────────────────────────────
@@ -32,31 +30,6 @@ function RoundingListV2() {
   const [viewMode, setViewMode] = useState('upcoming'); // 'upcoming' | 'past'
   const [galleryBooking, setGalleryBooking] = useState(null);
   const sheetRef = useRef(null);
-
-  // ── Host Manage state ──────────────────────────────────────────────────────
-  const [showHostManage, setShowHostManage] = useState(false);
-  const [hmBooking, setHmBooking] = useState(null);
-  const [hmType, setHmType] = useState('');
-  const [hmTitle, setHmTitle] = useState('');
-  const [hmTime, setHmTime] = useState('');
-  const [hmParticipants, setHmParticipants] = useState([]);
-  const [hmGuestName, setHmGuestName] = useState('');
-  const [hmGuestHandicap, setHmGuestHandicap] = useState('');
-  const [hmMemberSearch, setHmMemberSearch] = useState('');
-  const [hmMemberDropdownOpen, setHmMemberDropdownOpen] = useState(false);
-  const [hmSaving, setHmSaving] = useState(false);
-  const [hmSaveStatus, setHmSaveStatus] = useState('idle'); // 'idle' | 'saving' | 'saved'
-  const [hmDeleteConfirm, setHmDeleteConfirm] = useState(false);
-  const [hmInviteUrl, setHmInviteUrl] = useState('');
-  const [hmInviteLoading, setHmInviteLoading] = useState(false);
-  const [hmViewMode, setHmViewMode] = useState('basic');
-  const [hmClubMemberOnly, setHmClubMemberOnly] = useState(false);
-  const [hmAdvanced, setHmAdvanced] = useState({
-    playEnabled: false, is2BB: false, isRecruiting: false, greenFee: '', cartFee: '', membershipFee: '',
-    waiveGreenFeeForClubMembers: false, waiveCartFeeForClubMembers: false, waiveMembershipFeeForClubMembers: false,
-    notes: '', courseName: '', date: '', gatheringTime: '', restaurantName: '',
-    restaurantAddress: '', isFoursome: false, maxMembers: 4, registrationDeadline: '', gameMode: 'stroke',
-  });
 
   // ── Create modal state ─────────────────────────────────────────────────────
   const [newRounding, setNewRounding] = useState({
@@ -207,137 +180,10 @@ function RoundingListV2() {
   };
 
   // ── Host Manage ────────────────────────────────────────────────────────────
-  const openHostManage = (booking, clubMemberOnly = false) => {
-    const parts = parseParticipants(booking.participants);
-    setHmBooking(booking);
-    setHmType(booking.type || '소셜');
-    setHmTitle(booking.title || '');
-    setHmTime(booking.time || '');
-    setHmParticipants(parts);
-    setHmGuestName('');
-    setHmDeleteConfirm(false);
-    setHmSaving(false);
-    setHmViewMode('basic');
-    setHmInviteUrl(booking.inviteToken ? `${window.location.origin}/invite/${booking.inviteToken}` : '');
-    setHmInviteLoading(false);
-    setHmClubMemberOnly(clubMemberOnly);
-    let savedGameMode = 'stroke';
-    if (booking.gradeSettings) {
-      try {
-        const parsed = typeof booking.gradeSettings === 'string' ? JSON.parse(booking.gradeSettings) : booking.gradeSettings;
-        if (parsed?.mode) savedGameMode = parsed.mode;
-      } catch {}
-    }
-    setHmAdvanced({
-      playEnabled: booking.playEnabled || false, is2BB: booking.is2BB || false,
-      greenFee: booking.greenFee || '', cartFee: booking.cartFee || '', membershipFee: booking.membershipFee || '',
-      waiveGreenFeeForClubMembers: !!booking.waiveGreenFeeForClubMembers,
-      waiveCartFeeForClubMembers: !!booking.waiveCartFeeForClubMembers,
-      waiveMembershipFeeForClubMembers: !!booking.waiveMembershipFeeForClubMembers,
-      notes: booking.notes || '', courseName: booking.courseName || '', date: booking.date || '',
-      gatheringTime: booking.gatheringTime || '', restaurantName: booking.restaurantName || '',
-      restaurantAddress: booking.restaurantAddress || '', isFoursome: booking.title?.includes('포썸') || false,
-      maxMembers: booking.maxMembers || 4, registrationDeadline: booking.registrationDeadline || '', gameMode: savedGameMode,
-      isRecruiting: booking.isRecruiting || false,
-    });
-    setShowHostManage(true);
+  // 관리는 전체 화면 페이지에서 한다
+  const openHostManage = (booking) => {
     setSelectedBooking(null);
-  };
-
-  // GradeSettings에서 뒤로가기 시 고급설정 시트 재오픈
-  useEffect(() => {
-    const reopenId = location.state?.reopenManage;
-    if (!reopenId || !bookings.length) return;
-    const target = bookings.find(b => b.id === reopenId);
-    if (target) {
-      openHostManage(target);
-      window.history.replaceState({}, '');
-    }
-  }, [location.state, bookings]);
-
-  const hmSaveField = async (fields) => {
-    if (!hmBooking) return;
-    setHmSaving(true);
-    setHmSaveStatus('saving');
-    try {
-      await updateBooking(hmBooking.id, fields);
-      setHmBooking(prev => ({ ...prev, ...fields }));
-      setHmSaveStatus('saved');
-      setTimeout(() => setHmSaveStatus('idle'), 2000);
-    } catch (err) {
-      alert('저장 중 오류가 발생했습니다.');
-      setHmSaveStatus('idle');
-    } finally {
-      setHmSaving(false);
-    }
-  };
-
-  const handleHmTypeChange = async (newType) => { setHmType(newType); await hmSaveField({ type: newType }); };
-  const handleHmTitleSave = async (val) => await hmSaveField({ title: val });
-  const handleHmTimeSave = async () => await hmSaveField({ time: hmTime });
-
-  const handleHmRemoveParticipant = async (phone) => {
-    // 게스트이고 Member 레코드가 있는 경우 → 이 라운딩 청구 삭제
-    const target = hmParticipants.find(p => p.phone === phone);
-    if (target?.isGuest && target?.id && hmBooking?.id) {
-      try {
-        await apiService.deleteChargeTransaction(target.id, hmBooking.id);
-      } catch (e) {
-        // 청구가 없거나 이미 삭제된 경우 무시
-      }
-    }
-    const updated = hmParticipants.filter(p => p.phone !== phone);
-    setHmParticipants(updated);
-    await hmSaveField({ participants: updated.map(p => JSON.stringify(p)) });
-  };
-
-  const handleHmAddMember = async (member) => {
-    if (hmParticipants.some(p => p.phone === member.phone)) return;
-    if (hmType === '컴페티션' && (!member.golflinkNumber || member.golflinkNumber.trim() === '')) {
-      alert(`${member.nickname || member.name}님은 골프링크 번호가 없어 컴페티션에 추가할 수 없습니다.`);
-      return;
-    }
-    const updated = [...hmParticipants, { name: member.name, nickname: member.nickname, phone: member.phone, memberId: member.id }];
-    setHmParticipants(updated);
-    await hmSaveField({ participants: updated.map(p => JSON.stringify(p)) });
-  };
-
-  const handleHmAddGuest = async () => {
-    const name = hmGuestName.trim();
-    if (!name || !hmBooking?.id) return;
-    const hc = hmGuestHandicap !== '' ? parseFloat(hmGuestHandicap) : 36;
-    const handicap = isNaN(hc) ? 36 : hc;
-    try {
-      const result = await apiService.addGuestToBooking(hmBooking.id, name, handicap);
-      // 서버가 반환한 participant(id 포함)를 state에 반영
-      setHmParticipants(prev => [...prev, result.participant]);
-      setHmGuestName('');
-      setHmGuestHandicap('');
-    } catch (e) {
-      alert('게스트 추가 중 오류가 발생했습니다.');
-    }
-  };
-
-  const handleHmAdvancedToggle = async (field) => {
-    const newVal = !hmAdvanced[field];
-    setHmAdvanced(prev => ({ ...prev, [field]: newVal }));
-    await hmSaveField({ [field]: newVal });
-  };
-
-  const handleHmAdvancedSave = async (field, value) => {
-    setHmAdvanced(prev => ({ ...prev, [field]: value }));
-    await hmSaveField({ [field]: field === 'maxMembers' ? (parseInt(value) || 4) : (value || null) });
-  };
-
-  const handleHmDelete = async () => {
-    if (!hmDeleteConfirm) { setHmDeleteConfirm(true); return; }
-    setHmSaving(true);
-    try {
-      await apiService.deleteBooking(hmBooking.id);
-      setShowHostManage(false);
-      await refreshBookings();
-    } catch { alert('삭제 중 오류가 발생했습니다.'); }
-    finally { setHmSaving(false); }
+    navigate(`/booking/manage?id=${booking.id}`);
   };
 
   // ── Create booking ─────────────────────────────────────────────────────────
@@ -691,22 +537,6 @@ function RoundingListV2() {
           onClose={() => { setGalleryBooking(null); refreshBookings(); }}
         />
       )}
-
-      <HostManageSheet
-        show={showHostManage}
-        onClose={() => setShowHostManage(false)}
-        booking={hmBooking}
-        state={{ hmType, hmTitle, hmTime, hmParticipants, hmGuestName, hmGuestHandicap, hmMemberSearch, hmMemberDropdownOpen, hmSaving, hmSaveStatus, hmDeleteConfirm, hmInviteUrl, hmInviteLoading, hmViewMode, hmClubMemberOnly, hmAdvanced }}
-        setters={{ setHmType, setHmTitle, setHmTime, setHmGuestName, setHmGuestHandicap, setHmMemberSearch, setHmMemberDropdownOpen, setHmDeleteConfirm, setHmInviteUrl, setHmInviteLoading, setHmViewMode, setHmAdvanced }}
-        handlers={{ handleHmTypeChange, handleHmTitleSave, handleHmTimeSave, handleHmRemoveParticipant, handleHmAddMember, handleHmAddGuest, handleHmAdvancedToggle, handleHmAdvancedSave, handleHmDelete, hmSaveField }}
-        user={user}
-        members={members}
-        onRefresh={async (updated) => {
-          // 시트가 열린 채로 저장하므로 화면에 보이는 booking도 최신값으로 맞춘다
-          if (updated) setHmBooking(prev => ({ ...prev, ...updated }));
-          await refreshBookings();
-        }}
-      />
 
       <CreateBookingModal
         showCreateModal={showCreateModal}

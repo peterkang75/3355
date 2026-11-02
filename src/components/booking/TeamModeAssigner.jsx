@@ -2,7 +2,7 @@ import React from 'react';
 import { getGameMode } from '../../constants/gameModes';
 import { MIXABLE_MODES, parseTeams } from '../../utils/teamGameModes';
 
-// 조별 경기 방식 지정 — 방장 관리 시트와 라운딩 관리에서 함께 쓴다.
+// 조별 경기 방식 지정 — 라운딩 관리 페이지의 경기 탭에서 쓴다.
 // 값을 들고 있지 않는 순수 표시 컴포넌트. 저장은 부모가 한다.
 //
 // props

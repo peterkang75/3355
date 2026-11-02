@@ -1098,7 +1098,7 @@ function Leaderboard() {
                 <>
                   <strong>신페리오 홀 지정 전</strong>입니다. 지금은 <strong>그로스(총타수) 순위</strong>로 보여드립니다.
                   <div style={{ marginTop: 4, color: 'rgba(255,255,255,0.72)', fontSize: 11 }}>
-                    라운딩 관리에서 12개 홀을 지정하면 핸디캡이 적용된 최종 순위가 나옵니다.
+                    라운딩 관리의 결과 탭에서 12개 홀을 지정하면 핸디캡이 적용된 최종 순위가 나옵니다.
                   </div>
                 </>
               )}

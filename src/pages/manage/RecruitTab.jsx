@@ -44,7 +44,7 @@ function AddMemberSheet({ booking, members, participants, onAdd, onClose }) {
         {list.map(m => (
           <Row key={m.id} label={m.nickname || m.name}
             hint={booking.type === '컴페티션' && !m.golflinkNumber?.trim() ? '골프링크 번호 없음' : undefined}
-            onClick={() => onAdd(m)} />
+            value="추가" onClick={() => onAdd(m)} />
         ))}
       </Group>
     </Sheet>
