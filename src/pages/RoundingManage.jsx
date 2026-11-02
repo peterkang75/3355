@@ -5,7 +5,7 @@ import apiService from '../services/api';
 import useGoBack from '../hooks/useGoBack';
 import { parseParticipants } from '../utils';
 import { formatDate, getManagePermissions, isTeeTimeUnknown } from './booking/bookingHelpers';
-import { PRIMARY, C, ManageStyles } from './manage/manageUi';
+import { C, ManageStyles } from './manage/manageUi';
 import RecruitTab from './manage/RecruitTab';
 import GameTab from './manage/GameTab';
 import CostTab from './manage/CostTab';
@@ -121,13 +121,16 @@ export default function RoundingManage() {
             const active = t.key === tab;
             return (
               <button key={t.key} role="tab" aria-selected={active} type="button" onClick={() => selectTab(t.key)}
+                // 색 대신 굵기와 글자 폭만큼의 곧은 먹색 밑줄로 구분 (앱 공통 버튼 모서리가 밑줄을 휘게 하므로 0)
                 style={{
-                  flex: 1, minHeight: 44, border: 'none', background: 'none', cursor: 'pointer', fontFamily: 'inherit',
-                  fontSize: 14, fontWeight: active ? 800 : 600, color: active ? PRIMARY : C.sub,
-                  boxShadow: active ? `inset 0 -2px 0 ${PRIMARY}` : 'none',
+                  flex: 1, minHeight: 44, padding: 0, border: 'none', borderRadius: 0, background: 'none', cursor: 'pointer', fontFamily: 'inherit',
+                  fontSize: 14.5, fontWeight: active ? 700 : 500, color: active ? C.text : C.muted, letterSpacing: '-0.01em',
                 }}>
-                {t.label}
-                {t.key === 'recruit' && count > 0 && <span style={{ marginLeft: 4, fontSize: 12, fontWeight: 700, color: active ? PRIMARY : C.muted }}>{count}</span>}
+                <span style={{ position: 'relative', display: 'inline-block', padding: '12px 1px 11px' }}>
+                  {t.label}
+                  {t.key === 'recruit' && count > 0 && <span style={{ marginLeft: 4, fontWeight: 500, color: active ? C.sub : C.muted }}>{count}</span>}
+                  {active && <span style={{ position: 'absolute', left: 0, right: 0, bottom: 0, height: 2, background: C.text }} />}
+                </span>
               </button>
             );
           })}
