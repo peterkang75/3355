@@ -1,8 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useApp } from '../../contexts/AppContext';
-import { parseParticipants, checkIsOperator } from '../../utils';
-import { formatDate, getStatusBadge, getBookingStatusFlags } from './bookingHelpers';
+import { parseParticipants } from '../../utils';
+import { formatDate, getStatusBadge, getBookingStatusFlags, getManagePermissions } from './bookingHelpers';
 
 export default function BookingBottomSheet({
   selectedBooking,
@@ -34,19 +34,7 @@ export default function BookingBottomSheet({
     });
   const allChips = [...participants, ...rentalMembers];
   const isJoined = participants.some(p => p.phone === user.phone);
-  const isOrganizer = user.id === booking.organizerId;
-  const isOperator = checkIsOperator(user);
-  const isRegularMeeting = booking.type === '정기모임';
-  const userClub = (user.club || '').trim().toLowerCase();
-  const bookingCourse = (booking.courseName || '').trim().toLowerCase();
-  const clubMatches = userClub && bookingCourse && (
-    userClub === bookingCourse ||
-    bookingCourse.includes(userClub.split(' ')[0]) ||
-    userClub.includes(bookingCourse.split(' ')[0])
-  );
-  const canManageAsClubMember = !isRegularMeeting && !!clubMatches;
-  const canManage = isOrganizer || isOperator || canManageAsClubMember;
-  const isClubMemberOnly = canManage && !isOrganizer && !isOperator;
+  const { canManage, isClubMemberOnly } = getManagePermissions(booking, user);
   const max = booking.maxMembers || 4;
   const rentalPhonesAll = booking.numberRentals || [];
   const participantPhonesAll = new Set(participants.map(p => p.phone).filter(Boolean));

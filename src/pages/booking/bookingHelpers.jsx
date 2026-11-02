@@ -1,5 +1,5 @@
 import React from 'react';
-import { parseParticipants } from '../../utils';
+import { parseParticipants, checkIsOperator } from '../../utils';
 
 // ─── Pure utility functions ───────────────────────────────────────────────────
 
@@ -155,4 +155,23 @@ export const timeSlotMap = {
   'Evening': { label: '저녁', value: '17:00' },
   'TBD': { label: '시간미정', value: '23:59' },
   'Exact': { label: '직접 입력', value: '' },
+};
+
+// 라운딩 관리 권한 — 라운딩 시트와 관리 페이지가 같은 기준을 쓴다.
+// 정기모임이 아니면, 해당 골프장 소속 회원도 관리할 수 있다(이름 앞단어 기준 느슨한 일치).
+export const getManagePermissions = (booking, user) => {
+  const isOrganizer = user?.id === booking?.organizerId;
+  const isOperator = checkIsOperator(user);
+  const userClub = (user?.club || '').trim().toLowerCase();
+  const bookingCourse = (booking?.courseName || '').trim().toLowerCase();
+  const clubMatches = userClub && bookingCourse && (
+    userClub === bookingCourse ||
+    bookingCourse.includes(userClub.split(' ')[0]) ||
+    userClub.includes(bookingCourse.split(' ')[0])
+  );
+  const canManage = isOrganizer || isOperator || (booking?.type !== '정기모임' && !!clubMatches);
+  const isClubMemberOnly = canManage && !isOrganizer && !isOperator;
+  // 예전 "고급 설정"을 볼 수 있던 기준 그대로
+  const canAdvanced = !isClubMemberOnly && (!!user?.isAdmin || booking?.type === '정기모임' || booking?.type === '컴페티션');
+  return { canManage, isClubMemberOnly, canAdvanced };
 };

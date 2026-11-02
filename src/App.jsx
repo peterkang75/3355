@@ -21,6 +21,7 @@ import BingoGame from './pages/BingoGame';
 import MemberInfoForm from './pages/MemberInfoForm';
 import Menu from './pages/Menu';
 import PickWinner from './pages/PickWinner';
+import RoundingManage from './pages/RoundingManage';
 import RoundingListV2 from './pages/RoundingListV2';
 import Settlement from './pages/Settlement';
 import GuestJoin from './pages/GuestJoin';
@@ -51,6 +52,7 @@ function AuthenticatedRoutes({ user, logout, requiresProfileComplete }) {
         <Route path="/board" element={<Board />} />
         <Route path="/feed" element={<Feed />} />
         <Route path="/booking" element={<RoundingListV2 />} />
+        <Route path="/booking/manage" element={<RoundingManage />} />
         <Route path="/v2/roundings" element={<Navigate to="/booking" replace />} />
         <Route path="/fees" element={<Fees />} />
         <Route path="/mypage" element={<MyPage />} />
