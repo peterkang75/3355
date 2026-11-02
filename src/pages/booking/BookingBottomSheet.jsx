@@ -20,11 +20,11 @@ const bigBtn = (primary, disabled) => ({
   fontSize: '15px', fontWeight: '700', letterSpacing: '-0.01em', cursor: disabled ? 'default' : 'pointer',
 });
 
-const findMyTeam = (raw, phone) => {
+const parseTeams = (raw) => {
   try {
     const teams = typeof raw === 'string' ? JSON.parse(raw) : raw;
-    return Array.isArray(teams) ? teams.find(t => t?.members?.some(m => m?.phone === phone)) : null;
-  } catch { return null; }
+    return Array.isArray(teams) ? teams : [];
+  } catch { return []; }
 };
 
 export default function BookingBottomSheet({
@@ -93,7 +93,9 @@ export default function BookingBottomSheet({
   const effectiveClosed = isCompetition
     ? isRegistrationClosed
     : (isPastRoundingDate || (hasExplicitDeadline && isRegistrationClosed));
-  const showTeamFormation = totalCountAll > 4 && (!isCompetition || effectiveClosed || isPastRoundingDate);
+  // 조편성이 실제로 저장돼 한 명이라도 조에 들어가 있을 때만 "조편성 보기"
+  const teams = parseTeams(booking.teams);
+  const showTeamFormation = teams.some(t => t?.members?.some(Boolean));
 
   // 시기 판정: 끝남 / 스코어 입력 가능(당일이거나 운영진이 미리 열어 둠) / 모집
   const isOver = isPastRoundingDate;
@@ -102,7 +104,7 @@ export default function BookingBottomSheet({
   const canCancel = !isOver && !effectiveClosed && isJoined;
   const joinBlocked = isCompetition ? effectiveClosed : isFull;
 
-  const myTeam = isJoined ? findMyTeam(booking.teams, user.phone) : null;
+  const myTeam = isJoined ? teams.find(t => t?.members?.some(m => m?.phone === user.phone)) : null;
   const myStatus = isJoined
     ? [isOver ? '참가' : '참가 확정', myTeam?.teamNumber && `${myTeam.teamNumber}조`, myTeam?.teeTime].filter(Boolean).join(' · ')
     : isRenting ? '번호 대여 중' : null;
