@@ -63,7 +63,7 @@ function Login({ onLogin }) {
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      background: 'linear-gradient(160deg, #14284B 0%, #24406E 50%, #24406E 100%)',
+      background: '#14284B',
       padding: '24px 20px',
       paddingTop: 'max(24px, env(safe-area-inset-top))',
       paddingBottom: 'max(24px, env(safe-area-inset-bottom))',

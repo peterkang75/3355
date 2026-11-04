@@ -686,7 +686,7 @@ export default function CreateBookingModal({
                 background: isOfficial ? '#92400E' : isCasual ? '#065F46' : '#14284B',
                 color: 'white', fontSize: '16px', fontWeight: '700',
                 cursor: isCreating ? 'not-allowed' : 'pointer', opacity: isCreating ? 0.6 : 1,
-                boxShadow: isOfficial ? '0 4px 12px rgba(146,64,14,0.3)' : isCasual ? '0 4px 12px rgba(6,95,70,0.3)' : '0 4px 12px rgba(20,40,75,0.3)',
+                boxShadow: isOfficial ? '0 4px 12px rgba(146,64,14,0.3)' : isCasual ? '0 4px 12px rgba(6,95,70,0.3)' : '0 4px 12px rgba(20,40,75,0.16)',
               }}
             >
               {isCreating ? '생성중...' : isOfficial ? '정기 라운딩 만들기' : isCasual ? '캐주얼 라운딩 만들기' : '라운딩 만들기'}

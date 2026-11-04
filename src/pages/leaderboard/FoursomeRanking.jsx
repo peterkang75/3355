@@ -11,7 +11,7 @@ export default function FoursomeRanking({
   return (
     <div style={{ padding: '0 16px' }}>
       <div style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        background: '#14284B',
         borderRadius: '12px',
         padding: '16px',
         marginBottom: '16px',

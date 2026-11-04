@@ -9,10 +9,12 @@ web application/stitch/projects/1158634624521437125/screens/e17e9ef60ff948d186d5
 *   **Refined Typography**: 'Pretendard' 폰트를 사용하여 한글과 숫자의 가독성을 극대화하고, 세련된 느낌을 유지합니다.
 
 ## 2. 컬러 팔레트 (Color Palette)
-*   **Primary (Point)**: `#0047AB` (Azure Blue) - 주요 액션 버튼, 활성 탭, 강조 텍스트.
-*   **Surface (Background)**: `#FFFFFF` (White) / `#F8FAFC` (Light Gray) - 깔끔한 배경 및 구역 구분.
-*   **Neutral (Text)**: `#1E293B` (Slate 800) - 주요 텍스트.
-*   **Neutral (Sub-text)**: `#64748B` (Slate 500) - 보조 안내 문구.
+*   **Primary (Point)**: `#14284B` (Navy) - 주요 액션 버튼, 큰 카드, 활성 아이콘. 보조 네이비 `#24406E`. (2026-11-04 Azure Blue `#0047AB`에서 변경)
+*   **Gold (Accent)**: `#9C7A45` - 정기라운딩 표시 등 극히 일부에만. 버튼에 쓰지 않음.
+*   **Surface (Background)**: `#FFFFFF` (White 카드) / `#F7F5F0` (Ivory 바탕) / `#EFEDE7` (구역 구분).
+*   **Neutral (Text)**: `#1A1D26` - 주요 텍스트.
+*   **Neutral (Sub-text)**: `#5E6473` - 보조 안내 문구, `#9A9DA6` - 흐린 라벨.
+*   **그라데이션·빛번짐 금지**: 큰 카드·버튼은 단색 네이비, 그림자는 옅게(최대 rgba(20,40,75,0.16)).
 
 ## 3. 타이포그래피 (Typography)
 *   **Font Family**: `Pretendard`, `Inter`, sans-serif.
@@ -39,7 +41,7 @@ web application/stitch/projects/1158634624521437125/screens/e17e9ef60ff948d186d5
 
 ```js
 background: '#FFFFFF'
-border: '1px solid #E8ECF0'
+border: '1px solid #E6E2D8'
 borderRadius: 14          // 일반 카드 (작은 아이템)
 borderRadius: 16          // 섹션 컨테이너 카드
 boxShadow: '0 2px 8px rgba(0,0,0,0.07)'
@@ -54,7 +56,7 @@ boxShadow: '0 2px 8px rgba(0,0,0,0.07)'
 | 섀도우 | `0 2px 8px rgba(0,0,0,0.07)` |
 
 ## 4-1. 색·글자·모서리 단계 (2026-11-04 정리)
-- **회색**: Slate 한 계열만 (#0F172A, #1E293B, #334155, #475569, #64748B, #94A3B8, #CBD5E1, #E2E8F0, #F1F5F9, #F8FAFC). Tailwind Gray(#6B7280 등) 쓰지 않음.
+- **회색(따뜻한 계열)**: #1A1D26, #363A47, #4B5060, #5E6473, #9A9DA6, #D5D2CA, #E6E2D8(테두리), #EFEDE7, #F7F5F0. Slate·Tailwind Gray 쓰지 않음.
 - **빨강**: #DC2626 (진한 글씨용 #B91C1C)
 - **글자 크기(px)**: 11 / 12 / 13 / 14 / 15 / 16 / 18 / 20 / 22 / 24, 큰 숫자 28 / 32 / 36 / 40 / 48. 10 이하·소수점 값 금지.
 - **모서리(px)**: 4 / 6 / 8 / 10 / 12 / 14(카드) / 16(섹션) / 20 / 24, 원·알약형은 50% / 9999.

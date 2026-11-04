@@ -912,7 +912,7 @@ function Leaderboard() {
       ) : !teamMix.isMixed && gameMode === 'ambrose' ? (
         <div style={{ padding: '0 16px' }}>
           <div style={{
-            background: 'linear-gradient(135deg, #0891b2 0%, #14284B 100%)',
+            background: '#14284B',
             borderRadius: '12px',
             padding: '16px',
             marginBottom: '16px',

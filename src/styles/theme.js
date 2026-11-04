@@ -41,7 +41,7 @@ const theme = {
   },
 
   gradients: {
-    primary: 'linear-gradient(135deg, #14284B, #24406E)',
+    primary: '#14284B',
   },
 
   shadows: {

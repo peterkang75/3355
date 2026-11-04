@@ -531,9 +531,9 @@ function PickWinner() {
                   onClick={() => navigate(`/games/pick-winner?id=${booking.id}`)}
                   style={{
                     position: 'relative',
-                    background: 'linear-gradient(135deg, #14284B 0%, #24406E 60%, #24406E 100%)',
+                    background: '#14284B',
                     borderRadius: 16,
-                    boxShadow: '0 4px 20px rgba(20,40,75,0.30)',
+                    boxShadow: '0 4px 20px rgba(20,40,75,0.16)',
                     marginBottom: 14,
                     overflow: 'hidden',
                     cursor: 'pointer',

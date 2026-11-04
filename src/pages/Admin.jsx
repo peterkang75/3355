@@ -2020,7 +2020,7 @@ function Admin() {
               )}
 
               {/* 히어로 배너 */}
-              <div style={{ margin: '16px 16px 20px', background: 'linear-gradient(135deg, #14284B 0%, #24406E 100%)', borderRadius: 20, padding: '22px 22px 24px', boxShadow: '0 8px 24px rgba(20,40,75,0.25)' }}>
+              <div style={{ margin: '16px 16px 20px', background: '#14284B', borderRadius: 20, padding: '22px 22px 24px', boxShadow: '0 8px 24px rgba(20,40,75,0.16)' }}>
                 <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(214,196,150,0.8)', letterSpacing: '0', marginBottom: 12 }}>관리자 대시보드</div>
                 <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.35, marginBottom: 10, letterSpacing: '-0.02em' }}>
                   반갑습니다, {user.nickname || user.name}님.<br />오늘의 클럽 운영을 시작하세요.
@@ -2148,7 +2148,7 @@ function Admin() {
               ).length;
               return (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
-                  <div style={{ background: 'linear-gradient(135deg, #14284B 0%, #24406E 100%)', borderRadius: 16, padding: '16px 18px', boxShadow: '0 4px 16px rgba(20,40,75,0.25)', position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ background: '#14284B', borderRadius: 16, padding: '16px 18px', boxShadow: '0 4px 16px rgba(20,40,75,0.16)', position: 'relative', overflow: 'hidden' }}>
                     <div style={{ position: 'absolute', right: -10, bottom: -10, opacity: 0.1 }}>
                       <svg width="70" height="70" viewBox="0 0 24 24" fill="white"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                     </div>
@@ -2529,7 +2529,7 @@ function Admin() {
 
             {/* FAB - 새 회원 추가 */}
             <button onClick={() => setShowNewMemberForm(true)}
-              style={{ position: 'fixed', bottom: 90, right: 20, width: 52, height: 52, borderRadius: '50%', background: '#14284B', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(20,40,75,0.4)', zIndex: 100 }}>
+              style={{ position: 'fixed', bottom: 90, right: 20, width: 52, height: 52, borderRadius: '50%', background: '#14284B', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(20,40,75,0.16)', zIndex: 100 }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
             </button>
 
@@ -4847,7 +4847,7 @@ function Admin() {
                 )}
               </div>
               <button onClick={openAddSheet}
-                style={{ flexShrink: 0, width: 46, height: 46, borderRadius: 14, background: PRIMARY, color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(20,40,75,0.25)', fontSize: 22, fontWeight: 300 }}>
+                style={{ flexShrink: 0, width: 46, height: 46, borderRadius: 14, background: PRIMARY, color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(20,40,75,0.16)', fontSize: 22, fontWeight: 300 }}>
                 +
               </button>
             </div>
@@ -5713,7 +5713,7 @@ function Admin() {
         {activeTab === 'scoreManagement' && (
           <div>
             {(scoreManagementView === 'rounds' || scoreManagementView === 'memberScores' || scoreManagementView === 'allScores') && (
-              <div style={{ margin: '12px 16px 16px', background: 'linear-gradient(135deg, #14284B 0%, #1a56db 100%)', borderRadius: '16px', padding: '36px 24px', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ margin: '12px 16px 16px', background: '#14284B', borderRadius: '16px', padding: '36px 24px', position: 'relative', overflow: 'hidden' }}>
                 {/* 스코어카드 배경 패턴 */}
                 <svg style={{ position: 'absolute', right: -12, top: '50%', transform: 'translateY(-50%)', opacity: 0.15, pointerEvents: 'none' }} width="160" height="130" viewBox="0 0 160 130" fill="none" xmlns="http://www.w3.org/2000/svg">
                   {/* 스코어카드 본체 */}

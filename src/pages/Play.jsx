@@ -1366,7 +1366,7 @@ function Play() {
               <div style={{ textAlign: 'center', marginBottom: '20px' }}>
                 <div style={{
                   display: 'inline-block', padding: '6px 16px',
-                  background: 'linear-gradient(135deg, #0891b2 0%, #14284B 100%)',
+                  background: '#14284B',
                   borderRadius: '20px', color: 'white', fontSize: '14px', fontWeight: '700', marginBottom: '12px'
                 }}>
                   엠브로스 · 팀 공용 스코어
@@ -1412,7 +1412,7 @@ function Play() {
                 disabled={isStartingRound}
                 style={{
                   width: '100%', padding: '16px', borderRadius: '12px',
-                  background: isStartingRound ? '#999' : 'linear-gradient(135deg, #0891b2 0%, #14284B 100%)',
+                  background: isStartingRound ? '#999' : '#14284B',
                   color: 'white', border: 'none', fontSize: '16px', fontWeight: '700',
                   cursor: isStartingRound ? 'not-allowed' : 'pointer'
                 }}
@@ -1480,7 +1480,7 @@ function Play() {
               <div style={{ 
                 display: 'inline-block',
                 padding: '6px 16px',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: '#14284B',
                 borderRadius: '20px',
                 color: 'white',
                 fontSize: '14px',
@@ -1686,7 +1686,7 @@ function Play() {
         <div style={{ padding: '20px 16px 120px' }}>
 
           {/* 라운딩 정보 */}
-          <div style={{ background: 'linear-gradient(145deg, #0D1A33 0%, #0F1F3B 100%)', borderRadius: '16px', boxShadow: '0 4px 16px rgba(0,55,128,0.3)', padding: '18px 20px', marginBottom: '16px' }}>
+          <div style={{ background: '#14284B', borderRadius: '16px', boxShadow: '0 4px 16px rgba(0,55,128,0.3)', padding: '18px 20px', marginBottom: '16px' }}>
             <div style={{ fontSize: '17px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '-0.02em' }}>{booking?.courseName}</div>
             <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', marginTop: '4px' }}>
               {booking?.date ? new Date(booking.date).toLocaleDateString('ko-KR') : ''}
@@ -2060,7 +2060,7 @@ function Play() {
           </div>
           <button
             onClick={() => navigate(`/leaderboard?id=${bookingId}`)}
-            style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg, #0891b2 0%, #14284B 100%)', border: 'none', borderRadius: '8px', color: 'white', fontWeight: '700', fontSize: '16px', cursor: 'pointer', marginBottom: '12px' }}
+            style={{ width: '100%', padding: '16px', background: '#14284B', border: 'none', borderRadius: '8px', color: 'white', fontWeight: '700', fontSize: '16px', cursor: 'pointer', marginBottom: '12px' }}
           >
             리더보드 보기
           </button>
@@ -2339,7 +2339,7 @@ function Play() {
     const isFemale = ['f', 'female', '여', '여성', 'w', 'woman'].includes(genderNorm);
     const accent = isFemale ? '#B91C1C' : '#14284B';
     const accentShadowSm = isFemale ? 'rgba(185,28,28,0.10)' : 'rgba(20,40,75,0.10)';
-    const accentShadowLg = isFemale ? 'rgba(185,28,28,0.35)' : 'rgba(20,40,75,0.35)';
+    const accentShadowLg = isFemale ? 'rgba(185,28,28,0.35)' : 'rgba(20,40,75,0.16)';
 
     return (
       <div style={{
@@ -2449,7 +2449,7 @@ function Play() {
                 color: '#fff',
                 fontSize: s(28, 24), fontWeight: 700,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 4px 14px rgba(20,40,75,0.35)',
+                boxShadow: '0 4px 14px rgba(20,40,75,0.16)',
               }}
             >
               +

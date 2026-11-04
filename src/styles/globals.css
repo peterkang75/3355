@@ -82,7 +82,7 @@ input[type="datetime-local"] {
   --shadow-float:   0 12px 40px rgba(20,40,75, 0.10);
 
   /* --- Signature Gradient (Primary CTA) --- */
-  --gradient-primary: linear-gradient(135deg, #14284B, #24406E);
+  --gradient-primary: #14284B;
 
   /* --- Glassmorphism --- */
   --glass-bg:     rgba(255, 255, 255, 0.80);
@@ -846,7 +846,7 @@ input:focus, textarea:focus, select:focus {
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  background: linear-gradient(145deg, #0D1A33 0%, #002d8a 35%, #14284B 60%, #24406E 100%);
+  background: #14284B;
   cursor: pointer;
   box-shadow: 0 16px 48px rgba(0, 22, 14, 0.40);
 }

@@ -359,7 +359,7 @@ function RoundingListV2() {
             {/* 컬러 타이틀 헤더 (클릭 시 펼침/접힘 토글) */}
             <div
               onClick={() => setMyBookingsExpanded(v => !v)}
-              style={{ background: 'linear-gradient(135deg, #14284B 0%, #24406E 100%)', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', WebkitTapHighlightColor: 'transparent', userSelect: 'none' }}
+              style={{ background: '#14284B', padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', WebkitTapHighlightColor: 'transparent', userSelect: 'none' }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
                 <span style={{ fontSize: '14px', fontWeight: '800', color: '#fff', letterSpacing: '-0.01em' }}>나의 라운딩</span>
@@ -434,7 +434,7 @@ function RoundingListV2() {
                 <div style={{ position: 'relative', height: '180px', overflow: 'hidden', cursor: 'pointer' }} onClick={() => setSelectedBooking(b)}>
                   <img src={golfMembersPhoto} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 90%' }} />
                   <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.65) 100%)' }} />
-                  <div style={{ position: 'absolute', top: 14, left: 14, background: '#B91C1C', color: '#fff', fontSize: '11px', fontWeight: '800', padding: '4px 12px', borderRadius: '20px', letterSpacing: '0.02em' }}>정기라운딩</div>
+                  <div style={{ position: 'absolute', top: 14, left: 14, background: '#9C7A45', color: '#fff', fontSize: '11px', fontWeight: '800', padding: '4px 12px', borderRadius: '20px', letterSpacing: '0.02em' }}>정기라운딩</div>
                   {upcomingRegular.length > 1 && (
                     <div style={{ position: 'absolute', top: 14, right: 14, background: 'rgba(255,255,255,0.18)', color: '#fff', fontSize: '11px', fontWeight: '700', padding: '4px 10px', borderRadius: '20px', backdropFilter: 'blur(4px)' }}>전체 {upcomingRegular.length}개</div>
                   )}
@@ -530,7 +530,7 @@ function RoundingListV2() {
 
       {/* FAB */}
       {canCreateBooking && viewMode === 'upcoming' && (
-        <button onClick={openCreate} style={{ position: 'fixed', bottom: '100px', right: '20px', display: 'flex', alignItems: 'center', gap: '6px', border: 'none', background: '#14284B', color: 'white', padding: '12px 20px', borderRadius: '24px', fontWeight: 'bold', fontSize: '15px', boxShadow: '0 4px 16px rgba(20,40,75,0.3), 0 0 0 4px rgba(20,40,75,0.08)', cursor: 'pointer', zIndex: 1000, animation: 'fabPulse 2.8s ease-in-out infinite' }}>
+        <button onClick={openCreate} style={{ position: 'fixed', bottom: '100px', right: '20px', display: 'flex', alignItems: 'center', gap: '6px', border: 'none', background: '#14284B', color: 'white', padding: '12px 20px', borderRadius: '24px', fontWeight: 'bold', fontSize: '15px', boxShadow: '0 4px 16px rgba(20,40,75,0.16), 0 0 0 4px rgba(20,40,75,0.08)', cursor: 'pointer', zIndex: 1000, animation: 'fabPulse 2.8s ease-in-out infinite' }}>
           <span style={{ fontSize: '20px', lineHeight: 1 }}>+</span> 라운딩 만들기
         </button>
       )}
@@ -665,8 +665,8 @@ function RoundingListV2() {
       <style>{`
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         @keyframes fabPulse {
-          0%, 100% { box-shadow: 0 4px 16px rgba(20,40,75,0.3), 0 0 0 4px rgba(20,40,75,0.08); }
-          50% { box-shadow: 0 6px 20px rgba(20,40,75,0.4), 0 0 0 8px rgba(20,40,75,0.05); }
+          0%, 100% { box-shadow: 0 4px 16px rgba(20,40,75,0.16), 0 0 0 4px rgba(20,40,75,0.08); }
+          50% { box-shadow: 0 6px 20px rgba(20,40,75,0.16), 0 0 0 8px rgba(20,40,75,0.05); }
         }
       `}</style>
     </div>

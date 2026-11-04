@@ -1780,9 +1780,9 @@ function Settlement() {
             <>
               {/* ① 메인 다크 카드 — 수입/지출/이달잔액 */}
               <div style={{
-                background: 'linear-gradient(145deg, #0D1A33 0%, #14284B 100%)',
+                background: '#14284B',
                 borderRadius: 24, padding: '20px 20px 22px', marginBottom: 14,
-                boxShadow: '0 8px 28px rgba(20,40,75,0.28)',
+                boxShadow: '0 8px 28px rgba(20,40,75,0.16)',
               }}>
                 <div style={{ display: 'flex', gap: 10, marginBottom: 18 }}>
                   <div style={{ flex: 1, background: 'rgba(255,255,255,0.12)', borderRadius: 16, padding: '14px 16px' }}>
@@ -2071,7 +2071,7 @@ function Settlement() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       <button
                         onClick={() => setShowReport(true)}
-                        style={{ width: '100%', padding: '14px', borderRadius: 16, border: 'none', background: '#14284B', color: '#fff', fontSize: 15, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 14px rgba(20,40,75,0.25)' }}
+                        style={{ width: '100%', padding: '14px', borderRadius: 16, border: 'none', background: '#14284B', color: '#fff', fontSize: 15, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 14px rgba(20,40,75,0.16)' }}
                       >
                         정산서 보기
                       </button>
@@ -2105,7 +2105,7 @@ function Settlement() {
             width: 56, height: 56, borderRadius: '50%',
             background: 'var(--primary)',
             color: '#fff', border: 'none',
-            boxShadow: '0 4px 20px rgba(20,40,75,0.35)',
+            boxShadow: '0 4px 20px rgba(20,40,75,0.16)',
             cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             zIndex: 200,

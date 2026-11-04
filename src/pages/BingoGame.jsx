@@ -441,7 +441,7 @@ function BingoGame() {
 
         {/* ── 타이틀 히어로 카드 ── */}
         <div style={{
-          background: 'linear-gradient(135deg, #14284B 0%, #24406E 55%, #24406E 100%)',
+          background: '#14284B',
           borderRadius: 20,
           padding: '22px 20px 26px',
           marginBottom: 14,
@@ -585,7 +585,7 @@ function BingoGame() {
                       cursor: 'pointer',
                       userSelect: 'none',
                       whiteSpace: 'nowrap',
-                      boxShadow: isSelected ? '0 2px 8px rgba(20,40,75,0.3)' : '0 1px 3px rgba(0,0,0,0.06)',
+                      boxShadow: isSelected ? '0 2px 8px rgba(20,40,75,0.16)' : '0 1px 3px rgba(0,0,0,0.06)',
                       transition: 'all 0.15s ease',
                     }}>
                     {isSelected && <span style={{ marginRight: 4 }}>✓</span>}
@@ -670,7 +670,7 @@ function BingoGame() {
       {isEditMode && !selectedMember && (
         <div style={{ position: 'fixed', bottom: 'calc(60px + env(safe-area-inset-bottom))', left: 0, right: 0, padding: '0 16px 10px', zIndex: 100 }}>
           <button onClick={handleSaveBoard}
-            style={{ width: '100%', padding: '16px 0', background: 'linear-gradient(90deg, #14284B 0%, #24406E 100%)', color: 'white', border: 'none', borderRadius: 14, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 16px rgba(20,40,75,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+            style={{ width: '100%', padding: '16px 0', background: '#14284B', color: 'white', border: 'none', borderRadius: 14, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 16px rgba(20,40,75,0.16)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
             저장 및 게임 시작
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="5 3 19 12 5 21 5 3"/>

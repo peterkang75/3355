@@ -45,7 +45,7 @@ export default function Feed() {
         </div>
       )}
       {!isGuest && (
-        <button onClick={() => setComposeMode('choose')} aria-label="올리기" style={{ position: 'fixed', right: 18, bottom: 'calc(72px + env(safe-area-inset-bottom))', width: 56, height: 56, borderRadius: '50%', border: 'none', background: '#14284B', color: '#fff', fontSize: 28, boxShadow: '0 4px 14px rgba(20,40,75,0.4)', zIndex: 1500 }}>+</button>
+        <button onClick={() => setComposeMode('choose')} aria-label="올리기" style={{ position: 'fixed', right: 18, bottom: 'calc(72px + env(safe-area-inset-bottom))', width: 56, height: 56, borderRadius: '50%', border: 'none', background: '#14284B', color: '#fff', fontSize: 28, boxShadow: '0 4px 14px rgba(20,40,75,0.16)', zIndex: 1500 }}>+</button>
       )}
       {composeMode === 'choose' && (
         <ComposeChooser

@@ -667,7 +667,7 @@ function MemberDetail() {
     <div style={{ paddingBottom: '80px', background: '#EFEDE7', minHeight: '100vh' }}>
 
       {/* ── HERO (헤더 통합) ── */}
-      <div style={{ background: 'linear-gradient(160deg, #0D1A33 0%, #14284B 100%)', padding: '0 20px 28px', textAlign: 'center' }}>
+      <div style={{ background: '#14284B', padding: '0 20px 28px', textAlign: 'center' }}>
         {/* 커스텀 헤더 */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 'calc(env(safe-area-inset-top) + 12px)', paddingBottom: '8px' }}>
           <button onClick={goBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px 6px', display: 'flex', alignItems: 'center', color: 'white', minHeight: '44px' }}>
@@ -835,7 +835,7 @@ function MemberDetail() {
             {/* 정보 수정 버튼 */}
             {isAdmin && (
               <button onClick={() => setIsEditing(true)}
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', width: '100%', padding: '14px', background: '#14284B', color: 'white', border: 'none', borderRadius: '14px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', marginBottom: '12px', boxShadow: '0 2px 8px rgba(20,40,75,0.3)' }}>
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', width: '100%', padding: '14px', background: '#14284B', color: 'white', border: 'none', borderRadius: '14px', fontSize: '15px', fontWeight: '700', cursor: 'pointer', marginBottom: '12px', boxShadow: '0 2px 8px rgba(20,40,75,0.16)' }}>
                 ✏️ 정보 수정
               </button>
             )}

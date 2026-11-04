@@ -594,7 +594,7 @@ function TeamFormation() {
         }}>
           {/* 헤더: 블루 그라디언트 */}
           <div style={{
-            background: 'linear-gradient(145deg, #0D1A33 0%, #0F1F3B 100%)',
+            background: '#14284B',
             padding: '18px 20px', position: 'relative',
           }}>
             <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 80% 10%, rgba(255,255,255,0.07) 0%, transparent 55%)', pointerEvents: 'none' }} />
@@ -951,7 +951,7 @@ function TeamFormation() {
                   color: selectedParticipants.length > 0 ? 'white' : '#9A9DA6',
                   fontSize: '16px', fontWeight: '700',
                   cursor: selectedParticipants.length > 0 ? 'pointer' : 'not-allowed',
-                  boxShadow: selectedParticipants.length > 0 ? '0 4px 12px rgba(20,40,75,0.3)' : 'none',
+                  boxShadow: selectedParticipants.length > 0 ? '0 4px 12px rgba(20,40,75,0.16)' : 'none',
                   transition: 'all 0.2s',
                 }}
               >

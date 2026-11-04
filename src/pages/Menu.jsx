@@ -112,10 +112,10 @@ function Menu() {
       {/* ─── 블루 히어로 카드 ─── */}
       <div style={{ padding: '16px 16px 0' }}>
         <div style={{
-          background: 'linear-gradient(135deg, #14284B 0%, #24406E 60%, #24406E 100%)',
+          background: '#14284B',
           borderRadius: 20,
           padding: '20px 20px 20px',
-          boxShadow: '0 8px 24px rgba(20,40,75,0.28)',
+          boxShadow: '0 8px 24px rgba(20,40,75,0.16)',
           display: 'flex',
           flexDirection: 'column',
           gap: 16,

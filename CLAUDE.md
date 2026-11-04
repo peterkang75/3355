@@ -110,7 +110,7 @@
 
 ## 디자인 시스템
 
-- Primary: #0047AB (Azure Blue)
+- Primary: #14284B (Navy) — 2026-11-04 Azure Blue에서 변경. 바탕 #F7F5F0(Ivory), 포인트 골드 #9C7A45(극소량)
 - Font: Pretendard
 - 모바일 퍼스트, Safe Area 대응, 터치 최적화 (min 44px)
 - CSS 변수 기반 (globals.css)

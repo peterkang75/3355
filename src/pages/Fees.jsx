@@ -247,7 +247,7 @@ function Fees() {
         {activeTab === "personal" ? (
           <div style={{ padding: "0 0 8px" }}>
             {/* 잔액 카드 — azure gradient */}
-            <div style={{ background: "linear-gradient(135deg, #14284B 0%, #0F1F3B 100%)", borderRadius: 24, padding: "28px 24px 24px", marginBottom: 24, boxShadow: "0 20px 40px rgba(0,50,125,0.18)", position: "relative", overflow: "hidden" }}>
+            <div style={{ background: "#14284B", borderRadius: 24, padding: "28px 24px 24px", marginBottom: 24, boxShadow: "0 20px 40px rgba(0,50,125,0.18)", position: "relative", overflow: "hidden" }}>
               {/* 지갑 배경 패턴 */}
               <svg style={{ position: "absolute", right: -8, top: "50%", transform: "translateY(-50%)", opacity: 0.15, pointerEvents: "none" }} width="170" height="150" viewBox="0 0 170 150" fill="none" xmlns="http://www.w3.org/2000/svg">
                 {/* 지갑 본체 */}
