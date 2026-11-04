@@ -605,13 +605,13 @@ function TeamFormation() {
                     display: 'inline-flex', alignItems: 'center',
                     background: 'rgba(255,255,255,0.14)', border: '1px solid rgba(255,255,255,0.2)',
                     borderRadius: '20px', padding: '3px 10px',
-                    fontSize: '10px', fontWeight: '700', color: 'rgba(255,255,255,0.9)',
+                    fontSize: '11px', fontWeight: '700', color: 'rgba(255,255,255,0.9)',
                     letterSpacing: '0.07em', textTransform: 'uppercase', marginBottom: '8px',
                   }}>
                     {booking.type}
                   </div>
                 )}
-                <div style={{ fontSize: '19px', fontWeight: '800', color: '#fff', letterSpacing: '-0.02em', marginBottom: '5px' }}>
+                <div style={{ fontSize: '20px', fontWeight: '800', color: '#fff', letterSpacing: '-0.02em', marginBottom: '5px' }}>
                   {booking.courseName}
                 </div>
                 <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.6)', display: 'flex', gap: '8px' }}>
@@ -636,7 +636,7 @@ function TeamFormation() {
                 <div style={{ fontSize: '18px', fontWeight: '800', color: unassigned.length > 0 ? '#FCA5A5' : '#86EFAC', lineHeight: 1 }}>
                   {unassigned.length}
                 </div>
-                <div style={{ fontSize: '10px', fontWeight: '600', color: 'rgba(255,255,255,0.55)', marginTop: '2px' }}>미배정</div>
+                <div style={{ fontSize: '11px', fontWeight: '600', color: 'rgba(255,255,255,0.55)', marginTop: '2px' }}>미배정</div>
               </div>
             </div>
           </div>
@@ -655,7 +655,7 @@ function TeamFormation() {
                     fontSize: '12px', fontWeight: '600', color: st.text,
                   }}>
                     {getParticipantDisplayName(member)}
-                    {handicapText && <span style={{ fontSize: '10px', opacity: 0.65 }}>({handicapText})</span>}
+                    {handicapText && <span style={{ fontSize: '11px', opacity: 0.65 }}>({handicapText})</span>}
                   </div>
                 );
               })}
@@ -691,10 +691,10 @@ function TeamFormation() {
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
                 <button onClick={handleRemoveTeam} disabled={teams.length === 0}
-                  style={{ width: '28px', height: '28px', borderRadius: '7px', border: '1px solid #E2E8F0', background: '#fff', color: teams.length === 0 ? '#CBD5E1' : '#475569', fontSize: '16px', cursor: teams.length === 0 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>−</button>
+                  style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #E2E8F0', background: '#fff', color: teams.length === 0 ? '#CBD5E1' : '#475569', fontSize: '16px', cursor: teams.length === 0 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>−</button>
                 <span style={{ fontSize: '12px', fontWeight: '700', color: '#1E293B', minWidth: '28px', textAlign: 'center' }}>{teams.length}조</span>
                 <button onClick={handleAddTeam}
-                  style={{ width: '28px', height: '28px', borderRadius: '7px', border: '1px solid #E2E8F0', background: '#fff', color: '#475569', fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>+</button>
+                  style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #E2E8F0', background: '#fff', color: '#475569', fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>+</button>
               </div>
 
               <div style={{ width: '1px', height: '24px', background: '#E2E8F0', flexShrink: 0 }} />
@@ -770,7 +770,7 @@ function TeamFormation() {
                 }}
               >
                 <span style={{ lineHeight: 1.2 }}>{getParticipantDisplayName(member)}</span>
-                {isGuest && <span style={{ fontSize: '10px', fontWeight: '600', background: 'rgba(255,255,255,0.6)', padding: '1px 6px', borderRadius: '6px' }}>게스트</span>}
+                {isGuest && <span style={{ fontSize: '11px', fontWeight: '600', background: 'rgba(255,255,255,0.6)', padding: '1px 6px', borderRadius: '6px' }}>게스트</span>}
                 {handicapText && <span style={{ fontSize: '11px', opacity: 0.65, fontWeight: '500' }}>{handicapText}</span>}
               </button>
             );
@@ -876,7 +876,7 @@ function TeamFormation() {
           }}>
             {/* 핸들 */}
             <div style={{ textAlign: 'center', padding: '14px 0 4px' }}>
-              <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '2px', margin: '0 auto' }} />
+              <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '4px', margin: '0 auto' }} />
             </div>
             {/* 헤더 */}
             <div style={{ padding: '8px 20px 14px', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -930,7 +930,7 @@ function TeamFormation() {
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: '15px', fontWeight: '700', color: isSelected ? 'white' : '#1E293B', display: 'flex', alignItems: 'center', gap: '6px' }}>
                             {getParticipantDisplayName(participant)}
-                            {isGuest && <span style={{ fontSize: '10px', fontWeight: '600', background: isSelected ? 'rgba(255,255,255,0.25)' : st.bg, color: isSelected ? 'white' : st.text, padding: '2px 6px', borderRadius: '6px' }}>게스트</span>}
+                            {isGuest && <span style={{ fontSize: '11px', fontWeight: '600', background: isSelected ? 'rgba(255,255,255,0.25)' : st.bg, color: isSelected ? 'white' : st.text, padding: '2px 6px', borderRadius: '6px' }}>게스트</span>}
                           </div>
                           {handicapText && <div style={{ fontSize: '12px', color: isSelected ? 'rgba(255,255,255,0.75)' : '#94A3B8', marginTop: '1px' }}>{handicapText}</div>}
                         </div>

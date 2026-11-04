@@ -338,7 +338,7 @@ function RoundingListV2() {
               key={k}
               onClick={() => setViewMode(k)}
               style={{
-                flex: 1, padding: '9px', borderRadius: '9px', border: 'none', cursor: 'pointer',
+                flex: 1, padding: '9px', borderRadius: '8px', border: 'none', cursor: 'pointer',
                 fontSize: '14px', fontWeight: '700',
                 background: viewMode === k ? '#fff' : 'transparent',
                 color: viewMode === k ? '#0047AB' : '#94A3B8',
@@ -395,7 +395,7 @@ function RoundingListV2() {
                         style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '9px 14px', cursor: 'pointer', borderTop: idx === 0 ? 'none' : '1px solid #F1F5F9' }}>
                         <div style={{ minWidth: '32px', textAlign: 'center', flexShrink: 0 }}>
                           <div style={{ fontSize: '16px', fontWeight: '700', color: '#0047AB', lineHeight: 1 }}>{d.getDate()}</div>
-                          <div style={{ fontSize: '10px', color: '#94A3B8', marginTop: '1px' }}>{days2[d.getDay()]}</div>
+                          <div style={{ fontSize: '11px', color: '#94A3B8', marginTop: '1px' }}>{days2[d.getDay()]}</div>
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: '13px', fontWeight: '600', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -440,7 +440,7 @@ function RoundingListV2() {
                   )}
                   <div style={{ position: 'absolute', bottom: 16, left: 16 }}>
                     <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.72)', fontWeight: '600', marginBottom: '2px', letterSpacing: '0.04em' }}>라운딩 날짜</div>
-                    <div style={{ fontSize: '26px', fontWeight: '800', color: '#fff', lineHeight: 1, letterSpacing: '-0.02em' }}>{month}월 {day}일 ({dow})</div>
+                    <div style={{ fontSize: '24px', fontWeight: '800', color: '#fff', lineHeight: 1, letterSpacing: '-0.02em' }}>{month}월 {day}일 ({dow})</div>
                   </div>
                 </div>
                 {/* 정보 + 버튼 */}
@@ -476,11 +476,11 @@ function RoundingListV2() {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <div style={{ display: 'flex', gap: '20px' }}>
                       <div>
-                        <div style={{ fontSize: '10px', color: '#94A3B8', fontWeight: '700', letterSpacing: '0.02em', marginBottom: '2px' }}>참여 현황</div>
+                        <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: '700', letterSpacing: '0.02em', marginBottom: '2px' }}>참여 현황</div>
                         <div style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>{parts.length}{b.type === '컴페티션' ? '명' : <>{' '}<span style={{ fontSize: '12px', fontWeight: '500', color: '#94A3B8' }}>/ {maxCap}명</span></>}</div>
                       </div>
                       <div>
-                        <div style={{ fontSize: '10px', color: '#94A3B8', fontWeight: '700', letterSpacing: '0.02em', marginBottom: '2px' }}>티타임</div>
+                        <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: '700', letterSpacing: '0.02em', marginBottom: '2px' }}>티타임</div>
                         <div style={{ fontSize: '15px', fontWeight: '800', color: '#0f172a' }}>{timeStr}</div>
                       </div>
                     </div>
@@ -519,8 +519,8 @@ function RoundingListV2() {
                 <div key={b.id} style={{ background: '#fff', borderRadius: 12, padding: '14px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
                   <div style={{ fontWeight: 700, fontSize: 15, color: '#0F172A' }}>{b.title || '정기라운딩'}</div>
                   <div style={{ fontSize: 13, color: '#94A3B8', marginTop: 3 }}>{d.getFullYear()}. {d.getMonth() + 1}. {d.getDate()} · {b.courseName}</div>
-                  <div style={{ fontSize: 13.5, color: '#475569', marginTop: 8 }}>참가 {parts.length}명 · {summary}</div>
-                  <button onClick={() => navigate(`/leaderboard?id=${b.id}`)} style={{ marginTop: 10, padding: '8px 14px', border: '1px solid #E2E8F0', borderRadius: 8, background: '#F8FAFC', color: '#0047AB', fontWeight: 600, fontSize: 13.5, minHeight: 40 }}>스코어·시상 보기</button>
+                  <div style={{ fontSize: 14, color: '#475569', marginTop: 8 }}>참가 {parts.length}명 · {summary}</div>
+                  <button onClick={() => navigate(`/leaderboard?id=${b.id}`)} style={{ marginTop: 10, padding: '8px 14px', border: '1px solid #E2E8F0', borderRadius: 8, background: '#F8FAFC', color: '#0047AB', fontWeight: 600, fontSize: 14, minHeight: 40 }}>스코어·시상 보기</button>
                 </div>
               );
             })}
@@ -530,7 +530,7 @@ function RoundingListV2() {
 
       {/* FAB */}
       {canCreateBooking && viewMode === 'upcoming' && (
-        <button onClick={openCreate} style={{ position: 'fixed', bottom: '100px', right: '20px', display: 'flex', alignItems: 'center', gap: '6px', border: 'none', background: '#0047AB', color: 'white', padding: '12px 20px', borderRadius: '30px', fontWeight: 'bold', fontSize: '15px', boxShadow: '0 4px 16px rgba(0,71,171,0.3), 0 0 0 4px rgba(0,71,171,0.08)', cursor: 'pointer', zIndex: 1000, animation: 'fabPulse 2.8s ease-in-out infinite' }}>
+        <button onClick={openCreate} style={{ position: 'fixed', bottom: '100px', right: '20px', display: 'flex', alignItems: 'center', gap: '6px', border: 'none', background: '#0047AB', color: 'white', padding: '12px 20px', borderRadius: '24px', fontWeight: 'bold', fontSize: '15px', boxShadow: '0 4px 16px rgba(0,71,171,0.3), 0 0 0 4px rgba(0,71,171,0.08)', cursor: 'pointer', zIndex: 1000, animation: 'fabPulse 2.8s ease-in-out infinite' }}>
           <span style={{ fontSize: '20px', lineHeight: 1 }}>+</span> 라운딩 만들기
         </button>
       )}

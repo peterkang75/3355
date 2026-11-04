@@ -58,11 +58,11 @@ export default function NewPeriaHolesSheet({ initialHoles, initialRate, setByNam
               onClick={() => toggle(hole)}
               disabled={saving}
               style={{
-                aspectRatio: '1', padding: 0, borderRadius: 9, minWidth: 0,
+                aspectRatio: '1', padding: 0, borderRadius: 8, minWidth: 0,
                 border: on ? `2px solid ${ACCENT}` : '1px solid #E2E8F0',
                 background: on ? '#FEF3C7' : '#fff',
                 color: on ? ACCENT : (full ? '#CBD5E1' : '#475569'),
-                fontWeight: on ? 800 : 600, fontSize: 13.5, lineHeight: 1,
+                fontWeight: on ? 800 : 600, fontSize: 14, lineHeight: 1,
                 cursor: saving ? 'not-allowed' : 'pointer',
               }}
             >
@@ -89,13 +89,13 @@ export default function NewPeriaHolesSheet({ initialHoles, initialRate, setByNam
           <span style={{ width: 40 }} />
         </div>
 
-        <div style={{ fontSize: 12.5, color: '#94A3B8', textAlign: 'center', marginBottom: 16, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 13, color: '#94A3B8', textAlign: 'center', marginBottom: 16, lineHeight: 1.5 }}>
           제비뽑기로 뽑은 {NEWPERIA_HOLE_COUNT}개 홀을 선택하세요.<br />
           이 홀들의 점수로 참가자별 핸디캡이 정해집니다.
         </div>
 
         {hadPrevious && setAt && (
-          <div style={{ padding: 12, background: '#F8FAFC', borderRadius: 10, marginBottom: 16, fontSize: 12.5, color: '#64748B', lineHeight: 1.5 }}>
+          <div style={{ padding: 12, background: '#F8FAFC', borderRadius: 10, marginBottom: 16, fontSize: 13, color: '#64748B', lineHeight: 1.5 }}>
             현재 지정: {setByName || '알 수 없음'} · {new Date(setAt).toLocaleString('ko-KR', { timeZone: 'Australia/Sydney', dateStyle: 'medium', timeStyle: 'short' })}
           </div>
         )}

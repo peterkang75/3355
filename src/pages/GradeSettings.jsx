@@ -125,7 +125,7 @@ function GradeSettings() {
 
       <div style={{ padding: '16px 16px 100px' }}>
         {/* 라운딩 정보 카드 */}
-        <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E8ECF0', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', padding: '16px', marginBottom: '12px' }}>
+        <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '12px' }}>
           {booking.title && (
             <div style={{ fontSize: '12px', color: '#0047AB', fontWeight: '700', marginBottom: '4px', letterSpacing: '0.02em' }}>
               {booking.title}

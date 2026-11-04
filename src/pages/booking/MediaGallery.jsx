@@ -216,7 +216,7 @@ export default function MediaGallery({ booking, user, onClose }) {
       <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px 40px' }}>
         {/* 라운딩 정보 · 참가자 · 시상 — 정돈된 카드 */}
         <div style={{ background: '#fff', border: '1px solid #EEF2F7', borderRadius: '14px', padding: '14px 16px', marginBottom: '14px' }}>
-          <div style={{ fontSize: '17px', fontWeight: '700', color: '#0F172A', letterSpacing: '-0.01em' }}>
+          <div style={{ fontSize: '18px', fontWeight: '700', color: '#0F172A', letterSpacing: '-0.01em' }}>
             {fmtDate(booking.date)}{timeStr ? ` · ${timeStr}` : ''}
           </div>
           <div style={{ fontSize: '13px', fontWeight: '500', color: '#64748B', marginTop: '2px' }}>{booking.courseName}</div>
@@ -234,7 +234,7 @@ export default function MediaGallery({ booking, user, onClose }) {
           {participants.length > 0 && (
             <div style={{ borderTop: '1px solid #EEF2F7', marginTop: '12px', paddingTop: '10px' }}>
               <div style={labelStyle}>참가자 {participants.length}</div>
-              <div style={{ fontSize: '13.5px', fontWeight: '500', color: '#475569', lineHeight: 1.55, marginTop: '5px' }}>
+              <div style={{ fontSize: '14px', fontWeight: '500', color: '#475569', lineHeight: 1.55, marginTop: '5px' }}>
                 {participants.map((p) => p.nickname || p.name).join(', ')}
               </div>
             </div>
@@ -270,7 +270,7 @@ export default function MediaGallery({ booking, user, onClose }) {
                       <span style={{ width: winners.isMixed ? '86px' : '62px', flexShrink: 0, fontSize: '12px', fontWeight: '600', color: '#94A3B8' }}>{row.label}</span>
                       <span style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A' }}>{row.name}</span>
                       {i === rows.length - 1 && (
-                        <span onClick={openLeaderboard} style={{ marginLeft: 'auto', fontSize: '12.5px', fontWeight: '600', color: '#64748B', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                        <span onClick={openLeaderboard} style={{ marginLeft: 'auto', fontSize: '13px', fontWeight: '600', color: '#64748B', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                           스코어 / 결과 보기 ›
                         </span>
                       )}
@@ -329,7 +329,7 @@ export default function MediaGallery({ booking, user, onClose }) {
                 return (
                   <div key={m.id} style={{ ...tile, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px', background: '#F1F5F9' }}>
                     <div style={{ width: '22px', height: '22px', border: '3px solid #C7DBFF', borderTopColor: '#0047AB', borderRadius: '9999px', animation: 'mgSpin 0.8s linear infinite' }} />
-                    <div style={{ fontSize: '10px', color: '#64748B', fontWeight: '600' }}>{m.type === 'video' ? '영상 처리 중' : '처리 중'}</div>
+                    <div style={{ fontSize: '11px', color: '#64748B', fontWeight: '600' }}>{m.type === 'video' ? '영상 처리 중' : '처리 중'}</div>
                   </div>
                 );
               }
@@ -337,7 +337,7 @@ export default function MediaGallery({ booking, user, onClose }) {
                 return (
                   <div key={m.id} onClick={() => deleteItem(m)} style={{ ...tile, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', background: '#FEF2F2', cursor: 'pointer' }}>
                     <div style={{ fontSize: '18px' }}>⚠️</div>
-                    <div style={{ fontSize: '10px', color: '#B91C1C', fontWeight: '600' }}>처리 실패<br />(눌러서 삭제)</div>
+                    <div style={{ fontSize: '11px', color: '#B91C1C', fontWeight: '600' }}>처리 실패<br />(눌러서 삭제)</div>
                   </div>
                 );
               }
@@ -352,7 +352,7 @@ export default function MediaGallery({ booking, user, onClose }) {
                         <svg width="30" height="30" viewBox="0 0 24 24" fill="#fff" style={{ filter: 'drop-shadow(0 1px 2px rgba(0,0,0,0.5))' }}><polygon points="6 4 20 12 6 20 6 4"/></svg>
                       </div>
                       {m.durationSec != null && (
-                        <div style={{ position: 'absolute', bottom: '4px', right: '4px', background: 'rgba(0,0,0,0.65)', color: '#fff', fontSize: '10px', fontWeight: '700', padding: '1px 5px', borderRadius: '4px' }}>{fmtDur(m.durationSec)}</div>
+                        <div style={{ position: 'absolute', bottom: '4px', right: '4px', background: 'rgba(0,0,0,0.65)', color: '#fff', fontSize: '11px', fontWeight: '700', padding: '1px 5px', borderRadius: '4px' }}>{fmtDur(m.durationSec)}</div>
                       )}
                     </>
                   )}

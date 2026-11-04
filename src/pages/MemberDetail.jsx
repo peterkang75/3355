@@ -620,7 +620,7 @@ function MemberDetail() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '4px' }}>
             {holesInRow.map(holeNum => (
               <div key={holeNum} style={{ textAlign: 'center' }}>
-                <div style={{ color: '#94A3B8', fontSize: '10px', marginBottom: '2px' }}>{holeNum}</div>
+                <div style={{ color: '#94A3B8', fontSize: '11px', marginBottom: '2px' }}>{holeNum}</div>
                 <input
                   type="number"
                   min="0"
@@ -634,7 +634,7 @@ function MemberDetail() {
                   }}
                   style={{ width: '100%', padding: '6px 2px', fontSize: '13px', fontWeight: '600', textAlign: 'center', borderRadius: '6px', border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#0f172a', marginBottom: 0 }}
                 />
-                <div style={{ color: '#CBD5E1', fontSize: '9px', marginTop: '2px' }}>P{parArr[holeNum - 1] || 4}</div>
+                <div style={{ color: '#CBD5E1', fontSize: '11px', marginTop: '2px' }}>P{parArr[holeNum - 1] || 4}</div>
               </div>
             ))}
           </div>
@@ -672,7 +672,7 @@ function MemberDetail() {
           <button onClick={goBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px 6px', display: 'flex', alignItems: 'center', color: 'white', minHeight: '44px' }}>
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
           </button>
-          <span style={{ fontSize: '17px', fontWeight: '700', color: 'white' }}>멤버 프로필</span>
+          <span style={{ fontSize: '18px', fontWeight: '700', color: 'white' }}>멤버 프로필</span>
           {isAdmin ? (
             <button onClick={() => setShowAdminSheet(true)} style={{ width: '36px', height: '36px', background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.25)', borderRadius: '8px', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', letterSpacing: '-2px', color: 'white' }}>···</button>
           ) : (
@@ -704,7 +704,7 @@ function MemberDetail() {
               <div style={{ width: '96px', height: '96px', background: 'rgba(255,255,255,0.15)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '40px', color: 'rgba(255,255,255,0.6)', border: '3px solid rgba(255,255,255,0.3)' }}>●</div>
             )}
             {isAdmin && (
-              <div style={{ position: 'absolute', bottom: 2, left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.55)', color: 'white', padding: '2px 8px', borderRadius: '10px', fontSize: '10px', fontWeight: '500', whiteSpace: 'nowrap' }}>
+              <div style={{ position: 'absolute', bottom: 2, left: '50%', transform: 'translateX(-50%)', background: 'rgba(0,0,0,0.55)', color: 'white', padding: '2px 8px', borderRadius: '10px', fontSize: '11px', fontWeight: '500', whiteSpace: 'nowrap' }}>
                 사진 변경
               </div>
             )}
@@ -751,7 +751,7 @@ function MemberDetail() {
             { label: 'BEST', value: bestScore ?? '-' },
           ].map((stat, i) => (
             <div key={stat.label} style={{ padding: '14px 8px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.15)' : 'none' }}>
-              <div style={{ fontSize: '10px', fontWeight: '700', color: 'rgba(255,255,255,0.55)', letterSpacing: '0.8px', marginBottom: '6px' }}>{stat.label}</div>
+              <div style={{ fontSize: '11px', fontWeight: '700', color: 'rgba(255,255,255,0.55)', letterSpacing: '0.8px', marginBottom: '6px' }}>{stat.label}</div>
               <div style={{ fontSize: '22px', fontWeight: '800', color: 'white', lineHeight: 1 }}>{stat.value}</div>
             </div>
           ))}
@@ -776,7 +776,7 @@ function MemberDetail() {
               style={{
                 flex: 1, padding: '9px 4px',
                 background: activeTab === key ? 'white' : 'transparent',
-                borderRadius: '9px', border: 'none',
+                borderRadius: '8px', border: 'none',
                 fontSize: '13px', fontWeight: activeTab === key ? '700' : '500',
                 color: activeTab === key ? '#0A2158' : '#64748B',
                 cursor: 'pointer',
@@ -914,7 +914,7 @@ function MemberDetail() {
                         </div>
                         <div style={{ textAlign: 'right', flexShrink: 0 }}>
                           <div style={{ fontSize: '15px', fontWeight: '700', color: amtColor }}>{sign}${transaction.amount.toLocaleString()}</div>
-                          <div style={{ fontSize: '10px', fontWeight: '700', color: isPositive ? '#059669' : '#DC2626', opacity: 0.6, letterSpacing: '0.5px' }}>{isPositive ? 'COMPLETED' : 'BILLED'}</div>
+                          <div style={{ fontSize: '11px', fontWeight: '700', color: isPositive ? '#059669' : '#DC2626', opacity: 0.6, letterSpacing: '0.5px' }}>{isPositive ? 'COMPLETED' : 'BILLED'}</div>
                           {isAdmin && transaction.type === 'charge' && (
                             <button onClick={() => handleCancelCharge(transaction)}
                               style={{ marginTop: '6px', fontSize: '11px', fontWeight: '700', color: '#DC2626', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '6px', padding: '3px 9px', cursor: 'pointer' }}>
@@ -1008,7 +1008,7 @@ function MemberDetail() {
                       {d && (
                         <div style={{ textAlign: 'center', minWidth: '34px' }}>
                           <div style={{ fontSize: '18px', fontWeight: '800', color: '#0A2158', lineHeight: 1 }}>{d.getDate()}</div>
-                          <div style={{ fontSize: '10px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' }}>{d.toLocaleString('en', { month: 'short' })}</div>
+                          <div style={{ fontSize: '11px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase' }}>{d.toLocaleString('en', { month: 'short' })}</div>
                         </div>
                       )}
                       {/* 라운딩 정보 */}
@@ -1016,7 +1016,7 @@ function MemberDetail() {
                         <div style={{ fontSize: '14px', fontWeight: '700', color: '#0f172a', marginBottom: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{score.roundingName}</span>
                           {score.gameMode === 'ambrose' && (
-                            <span style={{ flexShrink: 0, fontSize: '10px', fontWeight: '700', color: '#0891b2', background: '#e0f2fe', padding: '2px 6px', borderRadius: '6px' }}>엠브로스(팀)</span>
+                            <span style={{ flexShrink: 0, fontSize: '11px', fontWeight: '700', color: '#0891b2', background: '#e0f2fe', padding: '2px 6px', borderRadius: '6px' }}>엠브로스(팀)</span>
                           )}
                         </div>
                         <div style={{ fontSize: '12px', color: '#94A3B8', display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -1102,7 +1102,7 @@ function MemberDetail() {
         <>
           <div onClick={() => setShowAdminSheet(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 300 }} />
           <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'white', borderRadius: '20px 20px 0 0', padding: '12px 20px', paddingBottom: 'max(80px, calc(68px + env(safe-area-inset-bottom)))', zIndex: 301, boxShadow: '0 -4px 24px rgba(0,0,0,0.12)' }}>
-            <div style={{ width: '40px', height: '4px', background: '#E2E8F0', borderRadius: '2px', margin: '0 auto 20px' }} />
+            <div style={{ width: '40px', height: '4px', background: '#E2E8F0', borderRadius: '4px', margin: '0 auto 20px' }} />
             <div style={{ fontSize: '12px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '12px' }}>
               {member.nickname || member.name} 관리
             </div>
@@ -1132,7 +1132,7 @@ function MemberDetail() {
         <>
           <div onClick={() => setShowHandicapSheet(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 300 }} />
           <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'white', borderRadius: '20px 20px 0 0', padding: '12px 20px', paddingBottom: 'max(80px, calc(68px + env(safe-area-inset-bottom)))', zIndex: 301, boxShadow: '0 -4px 24px rgba(0,0,0,0.12)' }}>
-            <div style={{ width: '40px', height: '4px', background: '#E2E8F0', borderRadius: '2px', margin: '0 auto 20px' }} />
+            <div style={{ width: '40px', height: '4px', background: '#E2E8F0', borderRadius: '4px', margin: '0 auto 20px' }} />
             <div style={{ fontSize: '15px', fontWeight: '700', color: '#0f172a', marginBottom: '4px' }}>추천 핸디캡 계산</div>
             <div style={{ fontSize: '13px', color: '#64748B', marginBottom: '20px' }}>{member.nickname || member.name}</div>
 

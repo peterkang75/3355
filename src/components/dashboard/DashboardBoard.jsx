@@ -234,7 +234,7 @@ export default function DashboardBoard() {
                         <div className="post-title">
                           {post.title}
                           {isInactive && (
-                            <span style={{ fontSize: 10, background: 'var(--text-muted)', color: 'white', padding: '2px 6px', borderRadius: 4, fontWeight: 500, marginLeft: 6 }}>비활성</span>
+                            <span style={{ fontSize: 11, background: 'var(--text-muted)', color: 'white', padding: '2px 6px', borderRadius: 4, fontWeight: 500, marginLeft: 6 }}>비활성</span>
                           )}
                         </div>
                         <div className="post-meta">

@@ -73,7 +73,7 @@ function WeekTile({ booking, user, onSelect }) {
       <div style={{ flex: 1, padding: isRegular ? '16px 14px' : '12px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '3px', minWidth: 0 }}>
         {/* 배지 (위) */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-          <span style={{ fontSize: '10px', fontWeight: '700', color: typeColor, background: typeBg, borderRadius: '4px', padding: '1px 6px', whiteSpace: 'nowrap', flexShrink: 0 }}>
+          <span style={{ fontSize: '11px', fontWeight: '700', color: typeColor, background: typeBg, borderRadius: '4px', padding: '1px 6px', whiteSpace: 'nowrap', flexShrink: 0 }}>
             {typeLabel}
           </span>
         </div>

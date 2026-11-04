@@ -176,7 +176,7 @@ export default function BookingBottomSheet({
       >
         {/* 핸들 */}
         <div style={{ textAlign: 'center', padding: '14px 0 8px', flexShrink: 0 }}>
-          <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '2px', margin: '0 auto' }} />
+          <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '4px', margin: '0 auto' }} />
         </div>
 
         {/* 스크롤 영역 */}
@@ -198,7 +198,7 @@ export default function BookingBottomSheet({
               </div>
               {canManage && (
                 <button onClick={(e) => { e.stopPropagation(); onOpenHostManage(booking); }}
-                  style={{ height: '36px', minHeight: 36, padding: '0 12px', borderRadius: '10px', border: '1px solid #E8ECF0', background: '#FFFFFF', cursor: 'pointer', fontFamily: 'inherit', fontSize: '13.5px', fontWeight: '700', color: INK, flexShrink: 0, marginLeft: '12px' }}>
+                  style={{ height: '36px', minHeight: 36, padding: '0 12px', borderRadius: '10px', border: '1px solid #E8ECF0', background: '#FFFFFF', cursor: 'pointer', fontFamily: 'inherit', fontSize: '14px', fontWeight: '700', color: INK, flexShrink: 0, marginLeft: '12px' }}>
                   관리
                 </button>
               )}
@@ -215,7 +215,7 @@ export default function BookingBottomSheet({
               </button>
             </div>
             {fees.length > 0 && (
-              <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #F1F5F9', display: 'flex', flexWrap: 'wrap', columnGap: '14px', rowGap: '4px', fontSize: '13.5px' }}>
+              <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #F1F5F9', display: 'flex', flexWrap: 'wrap', columnGap: '14px', rowGap: '4px', fontSize: '14px' }}>
                 {fees.map(f => (
                   <span key={f.label} style={{ whiteSpace: 'nowrap' }}>
                     <span style={{ color: '#64748B' }}>{f.label}</span>
@@ -257,7 +257,7 @@ export default function BookingBottomSheet({
                     return (
                       <span key={`${p.phone || 'r'}-${i}`} style={{ display: 'inline-flex', alignItems: 'baseline', gap: '4px', padding: '4px 10px', borderRadius: '9999px', background: bg, color, fontWeight: weight, fontSize: '13px', border: `1px solid ${border}`, whiteSpace: 'nowrap' }}>
                         {p.nickname || p.name}
-                        {isRental && <span style={{ fontSize: '10.5px', fontWeight: '500', color: '#94A3B8' }}>대여</span>}
+                        {isRental && <span style={{ fontSize: '11px', fontWeight: '500', color: '#94A3B8' }}>대여</span>}
                       </span>
                     );
                   })}
@@ -274,7 +274,7 @@ export default function BookingBottomSheet({
               {booking.restaurantAddress && (
                 <a href={`https://maps.google.com/?q=${encodeURIComponent(booking.restaurantAddress)}`} target="_blank" rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  style={{ display: 'inline-block', marginTop: '4px', fontSize: '13.5px', color: '#64748B', textDecoration: 'underline', textUnderlineOffset: 3, lineHeight: 1.5 }}>
+                  style={{ display: 'inline-block', marginTop: '4px', fontSize: '14px', color: '#64748B', textDecoration: 'underline', textUnderlineOffset: 3, lineHeight: 1.5 }}>
                   {booking.restaurantAddress}
                 </a>
               )}

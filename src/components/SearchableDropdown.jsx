@@ -113,7 +113,7 @@ function SearchableDropdown({
             </span>
           )}
           <span style={{ 
-            fontSize: '10px', 
+            fontSize: '11px', 
             color: '#666',
             transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
             transition: 'transform 0.2s'

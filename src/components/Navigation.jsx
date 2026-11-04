@@ -109,7 +109,7 @@ function NavItem({ href, label, active, onClick, children }) {
         textDecoration: 'none',
         color: active ? 'var(--primary)' : '#94A3B8',
         fontWeight: active ? 700 : 500,
-        fontSize: 10,
+        fontSize: 11,
         gap: 4,
         minHeight: 52,
         WebkitTapHighlightColor: 'transparent',
