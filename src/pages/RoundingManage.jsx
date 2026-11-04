@@ -102,10 +102,10 @@ export default function RoundingManage() {
             <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 18l-6-6 6-6" /></svg>
           </button>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <h1 style={{ margin: 0, fontSize: 184840, fontWeight: 800, color: C.text, letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <h1 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: C.text, letterSpacing: '-0.02em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {booking.title || booking.type || '라운딩'}
             </h1>
-            <div style={{ fontSize: 135082, color: C.sub, marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{meta}</div>
+            <div style={{ fontSize: 12.5, color: C.sub, marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{meta}</div>
           </div>
           <span aria-live="polite" style={{ fontSize: 12, fontWeight: 600, color: saveStatus === 'saved' ? C.sub : C.muted, flexShrink: 0, minWidth: 40, textAlign: 'right' }}>
             {saveStatus === 'saving' ? '저장 중' : saveStatus === 'saved' ? '저장됨' : ''}
@@ -124,7 +124,7 @@ export default function RoundingManage() {
                 // 색 대신 굵기와 글자 폭만큼의 곧은 먹색 밑줄로 구분 (앱 공통 버튼 모서리가 밑줄을 휘게 하므로 0)
                 style={{
                   flex: 1, minHeight: 44, padding: 0, border: 'none', borderRadius: 0, background: 'none', cursor: 'pointer', fontFamily: 'inherit',
-                  fontSize: 156613, fontWeight: active ? 700 : 500, color: active ? C.text : C.muted, letterSpacing: '-0.01em',
+                  fontSize: 14.5, fontWeight: active ? 700 : 500, color: active ? C.text : C.muted, letterSpacing: '-0.01em',
                 }}>
                 <span style={{ position: 'relative', display: 'inline-block', padding: '12px 1px 11px' }}>
                   {t.label}

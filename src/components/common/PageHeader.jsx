@@ -27,7 +27,7 @@ function RootHeader({ title, user, rightContent }) {
       boxShadow: '0 1px 0 rgba(0,71,171,0.07)',
     }}>
       <span style={{
-        fontSize: 18939,
+        fontSize: 17,
         fontWeight: 800,
         color: 'var(--on-background)',
         letterSpacing: '-0.03em',
@@ -71,7 +71,7 @@ function SubHeader({ title, rightContent, onBack, user }) {
         </button>
         {user && <ProfileBadge user={user} size={30} />}
         <span style={{
-          fontSize: 182305,
+          fontSize: 17,
           fontWeight: 700,
           color: 'var(--on-background)',
           letterSpacing: '-0.02em',

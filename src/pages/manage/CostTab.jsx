@@ -9,7 +9,7 @@ const FEES = [
 
 // 면제를 켰을 때 실제로 누가 면제되는지 바로 보여준다 (회원 정보의 소속 클럽 = 골프장 이름)
 function WaivePreview({ members, courseName }) {
-  const base = { margin: '10px 4px 0', fontSize: 13554, lineHeight: 1.6 };
+  const base = { margin: '10px 4px 0', fontSize: 12.5, lineHeight: 1.6 };
   if (!courseName) return <p style={{ ...base, color: '#92400E' }}>골프장이 비어 있어 면제 대상을 알 수 없습니다.</p>;
   const matches = members.filter(m => m?.club && m.club === courseName);
   if (matches.length === 0) return <p style={{ ...base, color: C.danger }}>"{courseName}" 소속 회원이 없습니다. 회원 정보의 소속 클럽을 확인하세요.</p>;

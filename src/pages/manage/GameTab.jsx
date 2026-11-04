@@ -55,11 +55,11 @@ export default function GameTab({ booking, members, perms, save, saving }) {
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
           {teams.length > 0 ? (
             <>
-              <span style={{ fontSize: 282566, fontWeight: 800, color: C.text, letterSpacing: '-0.03em', lineHeight: 1 }}>{teams.length}</span>
+              <span style={{ fontSize: 30, fontWeight: 800, color: C.text, letterSpacing: '-0.03em', lineHeight: 1 }}>{teams.length}</span>
               <span style={{ fontSize: 15, fontWeight: 600, color: C.text }}>개 조 편성됨</span>
             </>
           ) : (
-            <span style={{ fontSize: 182828, fontWeight: 700, color: C.text }}>아직 조편성 전입니다</span>
+            <span style={{ fontSize: 17, fontWeight: 700, color: C.text }}>아직 조편성 전입니다</span>
           )}
         </div>
         <div style={{ fontSize: 13, color: C.muted, marginTop: 6 }}>
@@ -82,7 +82,7 @@ export default function GameTab({ booking, members, perms, save, saving }) {
                   <button key={m.value} type="button" onClick={() => !active && selectMode(m.value)} disabled={saving}
                     aria-pressed={active}
                     style={{
-                      minHeight: 44, borderRadius: 10, fontFamily: 'inherit', fontSize: 143933, cursor: 'pointer',
+                      minHeight: 44, borderRadius: 10, fontFamily: 'inherit', fontSize: 13.5, cursor: 'pointer',
                       border: active ? `1.5px solid ${C.text}` : `1px solid ${C.border}`,
                       background: '#FFFFFF', color: active ? C.text : C.muted, fontWeight: active ? 800 : 600,
                     }}>
@@ -91,9 +91,9 @@ export default function GameTab({ booking, members, perms, save, saving }) {
                 );
               })}
             </div>
-            {selectedHint && <p style={{ margin: '12px 2px 2px', fontSize: 134372, color: C.sub, lineHeight: 1.6 }}>{selectedHint}</p>}
+            {selectedHint && <p style={{ margin: '12px 2px 2px', fontSize: 12.5, color: C.sub, lineHeight: 1.6 }}>{selectedHint}</p>}
             {selected === 'newperia' && (
-              <p style={{ margin: '8px 2px 2px', fontSize: 134532, color: C.text, lineHeight: 1.6 }}>
+              <p style={{ margin: '8px 2px 2px', fontSize: 12.5, color: C.text, lineHeight: 1.6 }}>
                 라운딩이 끝나면 <strong>결과</strong> 탭에서 제비뽑기로 뽑은 12개 홀을 지정하세요.
               </p>
             )}

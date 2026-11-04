@@ -35,7 +35,7 @@ function FeaturedBanner({ post, onClick, badge = '공지사항', ctaText = '자�
       onClick={onClick}
       style={{
         margin: '0 20px 28px',
-        borderRadius: 201520,
+        borderRadius: 22,
         overflow: 'hidden',
         cursor: 'pointer',
         position: 'relative',
@@ -147,7 +147,7 @@ function BookingCard({ booking, user, onClick }) {
         background: '#FFFFFF',
         borderRadius: 14,
         border: '1px solid #E8ECF0',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
         marginBottom: 8,
         cursor: 'pointer',
         gap: 0,
@@ -155,7 +155,7 @@ function BookingCard({ booking, user, onClick }) {
     >
       {/* 날짜 */}
       <div style={{ minWidth: 40, textAlign: 'center', marginRight: 14 }}>
-        <div style={{ fontSize: 244959, fontWeight: 800, color: 'var(--primary)', lineHeight: 1 }}>{day}</div>
+        <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--primary)', lineHeight: 1 }}>{day}</div>
         <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-muted)', marginTop: 2 }}>{dow}</div>
       </div>
 
@@ -169,7 +169,7 @@ function BookingCard({ booking, user, onClick }) {
         </div>
         <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 4, display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
           {booking.type && (
-            <span style={{ background: 'var(--primary)', color: '#fff', fontSize: 115818, fontWeight: 700, borderRadius: 4, padding: '2px 6px' }}>
+            <span style={{ background: 'var(--primary)', color: '#fff', fontSize: 10, fontWeight: 700, borderRadius: 4, padding: '2px 6px' }}>
               {booking.type}
             </span>
           )}
@@ -285,7 +285,7 @@ function Dashboard() {
       }}>
         <span style={{
           fontFamily: 'var(--font-sans)',
-          fontSize: 189897,
+          fontSize: 17,
           fontWeight: 800,
           color: 'var(--on-background)',
           letterSpacing: '-0.03em',
@@ -356,7 +356,7 @@ function Dashboard() {
         }}>
           <h2 style={{
             fontFamily: 'var(--font-sans)',
-            fontSize: 1812506,
+            fontSize: 17,
             fontWeight: 700,
             color: 'var(--on-background)',
             margin: 0,
@@ -417,11 +417,11 @@ function Dashboard() {
             border: '1px solid #E8ECF0',
             padding: '20px 20px 12px',
             overflow: 'hidden',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+            boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
           }}>
             {/* 헤더 */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <h2 style={{ fontFamily: 'var(--font-sans)', fontSize: 1814688, fontWeight: 700, color: 'var(--on-background)', margin: 0 }}>
+              <h2 style={{ fontFamily: 'var(--font-sans)', fontSize: 17, fontWeight: 700, color: 'var(--on-background)', margin: 0 }}>
                 공지사항
               </h2>
               <button

@@ -23,7 +23,7 @@ function Chip({ label, kind, onClick }) {
   const c = CHIP[kind];
   return (
     <button type="button" onClick={onClick}
-      style={{ minHeight: 36, padding: '0 12px', borderRadius: 161106, border: `1px solid ${c.border}`, background: c.bg, color: c.color, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+      style={{ minHeight: 36, padding: '0 12px', borderRadius: 18, border: `1px solid ${c.border}`, background: c.bg, color: c.color, fontSize: 14, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
       {label}
     </button>
   );
@@ -184,13 +184,13 @@ export default function RecruitTab({ booking, members, perms, save, saving, relo
       {/* 핵심: 몇 명 모였나 */}
       <Group style={{ padding: '18px 16px 16px', marginTop: 16 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-          <span style={{ fontSize: 288009, fontWeight: 800, color: C.text, letterSpacing: '-0.03em', lineHeight: 1 }}>{total}</span>
+          <span style={{ fontSize: 30, fontWeight: 800, color: C.text, letterSpacing: '-0.03em', lineHeight: 1 }}>{total}</span>
           <span style={{ fontSize: 15, fontWeight: 600, color: C.text }}>명 참가</span>
           {showMax && <span style={{ fontSize: 14, color: C.muted, marginLeft: 'auto' }}>최대 {max}명</span>}
         </div>
         {showMax && (
-          <div style={{ height: 4, borderRadius: 48381, background: '#EEF1F5', marginTop: 12, overflow: 'hidden' }}>
-            <div style={{ height: '100%', width: `${Math.min(100, (total / max) * 100)}%`, background: C.text, borderRadius: 48570 }} />
+          <div style={{ height: 4, borderRadius: 2, background: '#EEF1F5', marginTop: 12, overflow: 'hidden' }}>
+            <div style={{ height: '100%', width: `${Math.min(100, (total / max) * 100)}%`, background: C.text, borderRadius: 2 }} />
           </div>
         )}
 

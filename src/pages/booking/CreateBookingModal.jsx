@@ -25,7 +25,7 @@ const dateInputStyle = {
 
 const sectionStyle = {
   background: '#FFFFFF', borderRadius: '14px',
-  border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+  border: '1px solid #E8ECF0', boxShadow: '0 2px 12px rgba(0,0,0,0.08)',
   padding: '16px', marginBottom: '12px',
 };
 
@@ -376,7 +376,7 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
             return (
               <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', background: isOrganizer ? '#EFF6FF' : '#F8FAFC', borderRadius: '8px', border: `1px solid ${isOrganizer ? '#BFDBFE' : '#E8ECF0'}` }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: '700', color: isOrganizer ? '#1D4ED8' : (p.type === 'guest' ? '#065F46' : '#0047AB'), background: isOrganizer ? '#DBEAFE' : (p.type === 'guest' ? '#D1FAE5' : '#DBEAFE'), padding: '2px 7px', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: '700', color: isOrganizer ? '#1D4ED8' : (p.type === 'guest' ? '#065F46' : '#0047AB'), background: isOrganizer ? '#DBEAFE' : (p.type === 'guest' ? '#D1FAE5' : '#DBEAFE'), padding: '2px 7px', borderRadius: '5px' }}>
                     {isOrganizer ? '나' : (p.type === 'guest' ? '게스트' : '회원')}
                   </span>
                   <span style={{ fontSize: '14px', fontWeight: '600', color: '#1E293B' }}>{name}</span>
@@ -443,7 +443,7 @@ export default function CreateBookingModal({
         <div onClick={onCloseTypeSelector} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 999, backdropFilter: 'blur(3px)' }} />
         <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#F8FAFC', borderRadius: '24px 24px 0 0', zIndex: 1000, boxShadow: '0 -4px 24px rgba(0,0,0,0.12)', animation: 'slideUp 0.25s ease-out' }}>
           {/* 핸들 */}
-          <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '4px', margin: '14px auto 0' }} />
+          <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '2px', margin: '14px auto 0' }} />
 
           {/* 헤더 */}
           <div style={{ padding: '20px 24px 16px' }}>
@@ -454,7 +454,7 @@ export default function CreateBookingModal({
             {/* 정기 라운딩 */}
             <div
               onClick={() => onSelectType('official')}
-              style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '18px', borderRadius: '16px', background: '#FFFFFF', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', cursor: 'pointer', marginBottom: '10px' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '18px', borderRadius: '16px', background: '#FFFFFF', border: '1px solid #E8ECF0', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', cursor: 'pointer', marginBottom: '10px' }}
             >
               <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -474,7 +474,7 @@ export default function CreateBookingModal({
             {/* 클럽컴/소셜 라운딩 */}
             <div
               onClick={() => onSelectType('social')}
-              style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '18px', borderRadius: '16px', background: '#FFFFFF', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', cursor: 'pointer', marginBottom: '10px' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '18px', borderRadius: '16px', background: '#FFFFFF', border: '1px solid #E8ECF0', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', cursor: 'pointer', marginBottom: '10px' }}
             >
               <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -495,7 +495,7 @@ export default function CreateBookingModal({
             {/* 캐주얼 라운딩 */}
             <div
               onClick={() => onSelectType('casual')}
-              style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '18px', borderRadius: '16px', background: '#FFFFFF', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', cursor: 'pointer', marginBottom: '16px' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '18px', borderRadius: '16px', background: '#FFFFFF', border: '1px solid #E8ECF0', boxShadow: '0 2px 12px rgba(0,0,0,0.08)', cursor: 'pointer', marginBottom: '16px' }}
             >
               <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -538,7 +538,7 @@ export default function CreateBookingModal({
         <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#F8FAFC', borderRadius: '24px 24px 0 0', zIndex: 1100, maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: 'slideUp 0.25s ease-out', overflow: 'hidden' }}>
           {/* 핸들 */}
           <div style={{ textAlign: 'center', padding: '14px 0 0', flexShrink: 0 }}>
-            <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '4px', margin: '0 auto' }} />
+            <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '2px', margin: '0 auto' }} />
           </div>
 
           {/* 모달 헤더 */}
@@ -582,7 +582,7 @@ export default function CreateBookingModal({
                   </div>
                 </div>
 
-                <p style={{ margin: '4px 4px 0', fontSize: '1331111px', color: '#94A3B8', lineHeight: 1.6 }}>
+                <p style={{ margin: '4px 4px 0', fontSize: '12.5px', color: '#94A3B8', lineHeight: 1.6 }}>
                   비용, 접수 마감일, 최대 인원(기본 28명), 메모는 만든 뒤 바로 열리는 관리 화면에서 정합니다.
                 </p>
               </>

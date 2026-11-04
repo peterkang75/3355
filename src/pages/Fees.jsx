@@ -267,7 +267,7 @@ function Fees() {
                 <div style={{ fontSize: 12, fontWeight: 600, color: "rgba(255,255,255,0.75)", marginBottom: 8, letterSpacing: "0.06em" }}>
                   {creditBalance > 0 ? "미리 낸 금액 (크레딧)" : "내셔야 할 금액"}
                 </div>
-                <div style={{ fontSize: 3612605, fontWeight: 800, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1.1 }}>
+                <div style={{ fontSize: 38, fontWeight: 800, color: "#fff", letterSpacing: "-0.02em", lineHeight: 1.1 }}>
                   ${Math.abs(balance).toLocaleString()}
                 </div>
                 <div style={{ marginTop: 20, display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: 12 }}>
@@ -389,9 +389,9 @@ function Fees() {
         ) : (
           <div style={{ padding: "0 0 8px" }}>
             {settlementsLoading ? (
-              <div style={{ background: "#fff", borderRadius: 1621566, padding: "40px 20px", textAlign: "center", color: "#94A3B8", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>불러오는 중...</div>
+              <div style={{ background: "#fff", borderRadius: 18, padding: "40px 20px", textAlign: "center", color: "#94A3B8", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>불러오는 중...</div>
             ) : settlements.length === 0 ? (
-              <div style={{ background: "#fff", borderRadius: 1621797, padding: "48px 20px", textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>
+              <div style={{ background: "#fff", borderRadius: 18, padding: "48px 20px", textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>
                 <div style={{ fontSize: 36, marginBottom: 12 }}>📋</div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: "#334155", marginBottom: 6 }}>아직 마감된 정산서가 없습니다</div>
                 <div style={{ fontSize: 13, color: "#94A3B8" }}>월 마감이 완료되면 여기에 표시됩니다</div>

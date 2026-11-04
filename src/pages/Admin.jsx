@@ -2014,14 +2014,14 @@ function Admin() {
                   <span style={{ fontSize: 20, lineHeight: 1 }}>⚠️</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 14, fontWeight: 800, color: '#9A3412' }}>저장소 용량 {storagePct}% 도달</div>
-                    <div style={{ fontSize: 1372953, color: '#C2410C', marginTop: 2 }}>오래된 사진·영상을 백업·정리하세요. 눌러서 저장소 관리 ›</div>
+                    <div style={{ fontSize: 12.5, color: '#C2410C', marginTop: 2 }}>오래된 사진·영상을 백업·정리하세요. 눌러서 저장소 관리 ›</div>
                   </div>
                 </div>
               )}
 
               {/* 히어로 배너 */}
               <div style={{ margin: '16px 16px 20px', background: 'linear-gradient(135deg, #0047AB 0%, #1E56C5 100%)', borderRadius: 20, padding: '22px 22px 24px', boxShadow: '0 8px 24px rgba(0,71,171,0.25)' }}>
-                <div style={{ fontSize: 1173380, fontWeight: 800, color: 'rgba(177,197,255,0.8)', letterSpacing: '0.18em', marginBottom: 12 }}>AZURE STANDARD DASHBOARD</div>
+                <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(177,197,255,0.8)', letterSpacing: '0.18em', marginBottom: 12 }}>AZURE STANDARD DASHBOARD</div>
                 <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.35, marginBottom: 10, letterSpacing: '-0.02em' }}>
                   반갑습니다, {user.nickname || user.name}님.<br />오늘의 클럽 운영을 시작하세요.
                 </div>
@@ -2133,7 +2133,7 @@ function Admin() {
                 <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>현재 라운딩 가능한 멤버 리스트</div>
               </div>
               <div onClick={() => setShowInactive(!showInactive)}
-                style={{ width: 44, height: 26, borderRadius: 1281034, background: !showInactive ? '#0047AB' : '#CBD5E1', position: 'relative', cursor: 'pointer', transition: 'background 0.2s', flexShrink: 0 }}>
+                style={{ width: 44, height: 26, borderRadius: 13, background: !showInactive ? '#0047AB' : '#CBD5E1', position: 'relative', cursor: 'pointer', transition: 'background 0.2s', flexShrink: 0 }}>
                 <div style={{ position: 'absolute', top: 3, left: !showInactive ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
               </div>
             </div>
@@ -2152,11 +2152,11 @@ function Admin() {
                     <div style={{ position: 'absolute', right: -10, bottom: -10, opacity: 0.1 }}>
                       <svg width="70" height="70" viewBox="0 0 24 24" fill="white"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                     </div>
-                    <div style={{ fontSize: 1182883, fontWeight: 800, color: 'rgba(177,197,255,0.8)', letterSpacing: '0.12em', marginBottom: 8 }}>TOTAL MEMBERS</div>
+                    <div style={{ fontSize: 9, fontWeight: 800, color: 'rgba(177,197,255,0.8)', letterSpacing: '0.12em', marginBottom: 8 }}>TOTAL MEMBERS</div>
                     <div style={{ fontSize: 32, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{totalActive.toLocaleString()}</div>
                   </div>
                   <div style={{ background: '#fff', borderRadius: 16, padding: '16px 18px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
-                    <div style={{ fontSize: 1183338, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.12em', marginBottom: 8 }}>ACTIVE TODAY</div>
+                    <div style={{ fontSize: 9, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.12em', marginBottom: 8 }}>ACTIVE TODAY</div>
                     <div style={{ fontSize: 32, fontWeight: 800, color: '#0047AB', lineHeight: 1 }}>{filtered}</div>
                   </div>
                 </div>
@@ -2300,7 +2300,7 @@ function Admin() {
             
             <div style={{ padding: '0 16px 100px' }}>
               {/* MEMBER DIRECTORY 라벨 */}
-              <div style={{ fontSize: 1189997, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.12em', marginBottom: 12, paddingLeft: 2 }}>MEMBER DIRECTORY</div>
+              <div style={{ fontSize: 10, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.12em', marginBottom: 12, paddingLeft: 2 }}>MEMBER DIRECTORY</div>
 
               {/* 회원 카드 목록 */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -2355,7 +2355,7 @@ function Admin() {
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
                         <span style={{ fontSize: 15, fontWeight: 800, color: '#1E293B' }}>{member.nickname || member.name}</span>
                         {roleBadge && (
-                          <span style={{ fontSize: 1193781, fontWeight: 800, color: roleBadge.color, background: roleBadge.bg, borderRadius: 4, padding: '2px 5px', letterSpacing: '0.05em' }}>{roleBadge.label}</span>
+                          <span style={{ fontSize: 9, fontWeight: 800, color: roleBadge.color, background: roleBadge.bg, borderRadius: 4, padding: '2px 5px', letterSpacing: '0.05em' }}>{roleBadge.label}</span>
                         )}
                       </div>
                       <div style={{ fontSize: 12, color: '#94A3B8' }}>
@@ -2367,7 +2367,7 @@ function Admin() {
 
                     {/* 핸디캡 */}
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      <div style={{ fontSize: 1194515, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.08em', marginBottom: 3 }}>HANDICAP</div>
+                      <div style={{ fontSize: 9, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.08em', marginBottom: 3 }}>HANDICAP</div>
                       <div style={{ fontSize: 15, fontWeight: 800, color: '#0047AB' }}>{hcpDisplay}</div>
                     </div>
                   </div>
@@ -2547,7 +2547,7 @@ function Admin() {
                   bottom: 'calc(60px + env(safe-area-inset-bottom))',
                   left: 'max(0px, calc((100vw - 768px) / 2))',
                   right: 'max(0px, calc((100vw - 768px) / 2))',
-                  background: '#fff', borderRadius: '20px 20px 0 0',
+                  background: '#fff', borderRadius: '22px 22px 0 0',
                   zIndex: 501, display: 'flex', flexDirection: 'column',
                   maxHeight: 'calc(90dvh - 60px)',
                   overflow: 'hidden',
@@ -2555,9 +2555,9 @@ function Admin() {
                 }}>
                   {/* 핸들 + 헤더 (고정) */}
                   <div style={{ flexShrink: 0, padding: '12px 20px 0' }}>
-                    <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 4103422, margin: '0 auto 14px' }} />
+                    <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 2, margin: '0 auto 14px' }} />
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                      <span style={{ fontSize: 18103594, fontWeight: 800, color: '#1e293b' }}>새 회원 추가</span>
+                      <span style={{ fontSize: 17, fontWeight: 800, color: '#1e293b' }}>새 회원 추가</span>
                       <button onClick={() => setShowNewMemberForm(false)}
                         style={{ background: '#f1f5f9', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b', fontSize: 18 }}>×</button>
                     </div>
@@ -2795,7 +2795,7 @@ function Admin() {
               alignItems: 'center'
             }}>
               <div>
-                <div style={{ fontSize: '11118551px', marginBottom: '4px', opacity: 0.9 }}>
+                <div style={{ fontSize: '10px', marginBottom: '4px', opacity: 0.9 }}>
                   클럽 잔액
                 </div>
                 <div style={{ fontSize: '28px', fontWeight: '700' }}>
@@ -3527,12 +3527,12 @@ function Admin() {
                                 <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                                   {guestName}
                                   <span style={{
-                                    fontSize: '11153175px',
+                                    fontSize: '9px',
                                     fontWeight: '600',
                                     background: '#87CEEB',
                                     color: '#1a3a4a',
                                     padding: '1px 4px',
-                                    borderRadius: '4px'
+                                    borderRadius: '3px'
                                   }}>G</span>
                                 </span>
                               ) : (
@@ -3578,7 +3578,7 @@ function Admin() {
                                   title="영수증 보기"
                                 >
                                   {sign}${transaction.amount.toLocaleString()}
-                                  <span style={{ fontSize: '11155939px' }}>📎</span>
+                                  <span style={{ fontSize: '10px' }}>📎</span>
                                 </span>
                               ) : (
                                 <span>
@@ -4469,12 +4469,12 @@ function Admin() {
                                   <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                                     {guestTxName}
                                     <span style={{
-                                      fontSize: '11203288px',
+                                      fontSize: '9px',
                                       fontWeight: '600',
                                       background: '#87CEEB',
                                       color: '#1a3a4a',
                                       padding: '1px 4px',
-                                      borderRadius: '4px'
+                                      borderRadius: '3px'
                                     }}>G</span>
                                   </span>
                                 ) : (
@@ -4520,7 +4520,7 @@ function Admin() {
                                     title="영수증 보기"
                                   >
                                     {sign}${transaction.amount.toLocaleString()}
-                                    <span style={{ fontSize: '11206153px' }}>📎</span>
+                                    <span style={{ fontSize: '10px' }}>📎</span>
                                   </span>
                                 ) : (
                                   <span>
@@ -4625,11 +4625,11 @@ function Admin() {
                             {hi * 9 + i + 1}
                           </div>
                         ))}
-                        <div style={{ textAlign: 'center', fontSize: '11211183px', fontWeight: '700', color: '#94A3B8', padding: '4px 2px' }}>
+                        <div style={{ textAlign: 'center', fontSize: '10px', fontWeight: '700', color: '#94A3B8', padding: '4px 2px' }}>
                           {hi === 0 ? 'OUT' : 'IN'}
                         </div>
                         {/* 파 행 */}
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11211483px', fontWeight: '700', color: '#94A3B8' }}>PAR</div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', fontWeight: '700', color: '#94A3B8' }}>PAR</div>
                         {half.map((p, i) => {
                           const idx = hi * 9 + i;
                           return (
@@ -4649,7 +4649,7 @@ function Admin() {
                         {/* SI 행 */}
                         {siHalf && (
                           <>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11212887px', fontWeight: '700', color: '#0047AB' }}>SI</div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '9px', fontWeight: '700', color: '#0047AB' }}>SI</div>
                             {siHalf.map((v, i) => (
                               <div key={i} style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#0047AB', padding: '3px 1px', background: '#EBF2FF', borderRadius: '4px' }}>
                                 {v}
@@ -4664,28 +4664,28 @@ function Admin() {
                           const halfTotal = holeHalf.reduce((s, h) => s + (h.meters || 0), 0);
                           return (
                             <React.Fragment key={ti}>
-                              <div style={{ display: 'flex', alignItems: 'center', fontSize: '11213839px', fontWeight: '700', color: '#64748B', overflow: 'hidden', whiteSpace: 'nowrap', lineHeight: 1 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', fontSize: '8px', fontWeight: '700', color: '#64748B', overflow: 'hidden', whiteSpace: 'nowrap', lineHeight: 1 }}>
                                 {getTeeLabel(tee.tee_name)}
                               </div>
                               {holeHalf.map((h, i) => (
-                                <div key={i} style={{ textAlign: 'center', fontSize: '11214181px', color: '#475569', padding: '2px 1px', background: ti % 2 === 0 ? '#FAFBFC' : '#F1F5F9', borderRadius: '4px' }}>
+                                <div key={i} style={{ textAlign: 'center', fontSize: '10px', color: '#475569', padding: '2px 1px', background: ti % 2 === 0 ? '#FAFBFC' : '#F1F5F9', borderRadius: '3px' }}>
                                   {h.meters || '-'}
                                 </div>
                               ))}
-                              <div style={{ textAlign: 'center', fontSize: '11214501px', fontWeight: '700', color: '#1E293B', padding: '2px 1px', background: '#F1F5F9', borderRadius: '4px' }}>
+                              <div style={{ textAlign: 'center', fontSize: '10px', fontWeight: '700', color: '#1E293B', padding: '2px 1px', background: '#F1F5F9', borderRadius: '3px' }}>
                                 {halfTotal || '-'}
                               </div>
                             </React.Fragment>
                           );
                         })}
                         {/* 니어 행 */}
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11214954px', color: '#94A3B8' }}>Near</div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '8px', color: '#94A3B8' }}>Near</div>
                         {half.map((_, i) => {
                           const idx = hi * 9 + i;
                           const isNear = nearHoles?.[idx];
                           return (
                             <button key={i} onClick={() => !readOnly && onNearClick && onNearClick(idx)}
-                              style={{ textAlign: 'center', fontSize: '11215357px', fontWeight: '700',
+                              style={{ textAlign: 'center', fontSize: '10px', fontWeight: '700',
                                 color: isNear ? '#FFFFFF' : '#94A3B8',
                                 background: isNear ? PRIMARY : '#F8FAFC',
                                 border: `1.5px solid ${isNear ? PRIMARY : '#E8ECF0'}`,
@@ -4694,7 +4694,7 @@ function Admin() {
                             </button>
                           );
                         })}
-                        <div style={{ textAlign: 'center', fontSize: '11215930px', color: '#CBD5E1', padding: '4px 2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>—</div>
+                        <div style={{ textAlign: 'center', fontSize: '10px', color: '#CBD5E1', padding: '4px 2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>—</div>
                       </div>
                     </div>
                   );
@@ -4837,7 +4837,7 @@ function Admin() {
                     padding: '12px 36px 12px 42px',
                     border: 'none', borderRadius: '14px',
                     fontSize: '14px', color: '#1E293B', background: '#FFFFFF',
-                    outline: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+                    outline: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
                   }}
                 />
                 {courseListSearch && (
@@ -4855,14 +4855,14 @@ function Admin() {
 
             {/* ── COURSE DIRECTORY 헤더 ── */}
             <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 11223568, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.12em', marginBottom: 4 }}>COURSE DIRECTORY</div>
+              <div style={{ fontSize: 10, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.12em', marginBottom: 4 }}>COURSE DIRECTORY</div>
               <div style={{ fontSize: 20, fontWeight: 800, color: '#1E293B' }}>
                 전체 <span style={{ color: PRIMARY }}>{courseListSearch.trim() ? `${filteredCourses.length}` : courses.length}개</span>
               </div>
             </div>
 
             {filteredCourses.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94A3B8', fontSize: '14px', background: '#FFFFFF', borderRadius: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
+              <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94A3B8', fontSize: '14px', background: '#FFFFFF', borderRadius: '18px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}>
                 <div style={{ fontSize: '36px', marginBottom: '10px' }}>⛳</div>
                 {courses.length === 0
                   ? <><div>등록된 골프장이 없습니다</div><div style={{ marginTop: '6px', fontSize: '12px' }}>+ 버튼을 눌러 등록하세요</div></>
@@ -4881,7 +4881,7 @@ function Admin() {
                   const hue = [...(course.name || '')].reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360;
                   return (
                     <div key={course.id} onClick={() => openEditSheet(course)}
-                      style={{ background: '#FFFFFF', borderRadius: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '12px 14px 12px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 }}>
+                      style={{ background: '#FFFFFF', borderRadius: '18px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)', padding: '12px 14px 12px 12px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 14 }}>
                       {/* 썸네일 */}
                       <div style={{ width: 64, height: 64, borderRadius: 14, flexShrink: 0, overflow: 'hidden', background: course.courseImage ? 'transparent' : `hsl(${hue},45%,55%)`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         {course.courseImage
@@ -4894,7 +4894,7 @@ function Admin() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
                           <span style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{course.name}</span>
                           {course.isCompetition && (
-                            <span style={{ fontSize: '11226635px', fontWeight: '700', color: '#fff', background: PRIMARY, borderRadius: '4px', padding: '2px 6px', flexShrink: 0 }}>컴페티션</span>
+                            <span style={{ fontSize: '10px', fontWeight: '700', color: '#fff', background: PRIMARY, borderRadius: '4px', padding: '2px 6px', flexShrink: 0 }}>컴페티션</span>
                           )}
                         </div>
                         {course.address && (
@@ -4934,7 +4934,7 @@ function Admin() {
                   background: '#F8FAFC', borderRadius: '20px 20px 0 0', maxHeight: '90vh', overflowY: 'auto', paddingBottom: '32px' }}>
                   {/* 핸들 */}
                   <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
-                    <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '4px' }} />
+                    <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '2px' }} />
                   </div>
                   {/* 헤더 */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px 16px' }}>
@@ -5011,7 +5011,7 @@ function Admin() {
                               <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '2px' }}>대회 및 공식 경기용</div>
                             </div>
                             <button onClick={() => setEditCourseData(prev => ({ ...prev, isCompetition: !prev.isCompetition }))}
-                              style={{ width: '46px', height: '26px', borderRadius: '12px', border: 'none', background: editCourseData.isCompetition ? PRIMARY : '#E2E8F0', cursor: 'pointer', position: 'relative', padding: 0 }}>
+                              style={{ width: '46px', height: '26px', borderRadius: '13px', border: 'none', background: editCourseData.isCompetition ? PRIMARY : '#E2E8F0', cursor: 'pointer', position: 'relative', padding: 0 }}>
                               <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#fff', position: 'absolute', top: '3px', left: editCourseData.isCompetition ? '23px' : '3px', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.15)' }} />
                             </button>
                           </div>
@@ -5052,11 +5052,11 @@ function Admin() {
                               <div key={ti} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '6px 0', borderBottom: ti < editCourseData.tees.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flex: 1, minWidth: 0 }}>
                                   <span style={{ fontSize: '12px', fontWeight: '700', color: '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tee.tee_name}</span>
-                                  <span style={{ fontSize: '11238980px', color: tee.gender === 'male' ? '#0047AB' : '#DB2777', background: tee.gender === 'male' ? '#EBF2FF' : '#FCE7F3', borderRadius: '4px', padding: '1px 4px', flexShrink: 0 }}>{tee.gender === 'male' ? '남' : '여'}</span>
+                                  <span style={{ fontSize: '10px', color: tee.gender === 'male' ? '#0047AB' : '#DB2777', background: tee.gender === 'male' ? '#EBF2FF' : '#FCE7F3', borderRadius: '3px', padding: '1px 4px', flexShrink: 0 }}>{tee.gender === 'male' ? '남' : '여'}</span>
                                 </div>
                                 <div style={{ fontSize: '11px', color: '#64748B', textAlign: 'right', flexShrink: 0, marginLeft: '8px' }}>
                                   {tee.total_meters ? `${tee.total_meters}m` : ''}{tee.par_total ? ` · Par ${tee.par_total}` : ''}
-                                  {(tee.course_rating || tee.slope_rating) && <span style={{ display: 'block', fontSize: '11239632px', color: '#94A3B8' }}>CR {tee.course_rating} / SL {tee.slope_rating}</span>}
+                                  {(tee.course_rating || tee.slope_rating) && <span style={{ display: 'block', fontSize: '10px', color: '#94A3B8' }}>CR {tee.course_rating} / SL {tee.slope_rating}</span>}
                                 </div>
                               </div>
                             ))}
@@ -5102,11 +5102,11 @@ function Admin() {
                             {[0, 9].map(offset => (
                               <div key={offset} style={{ marginBottom: offset === 0 ? '10px' : 0 }}>
                                 <div style={{ display: 'grid', gridTemplateColumns: '28px repeat(9, 1fr)', gap: '3px', minWidth: '280px' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', fontSize: '11243314px', color: '#94A3B8', fontWeight: '700' }}>홀</div>
+                                  <div style={{ display: 'flex', alignItems: 'center', fontSize: '9px', color: '#94A3B8', fontWeight: '700' }}>홀</div>
                                   {Array.from({ length: 9 }, (_, i) => (
                                     <div key={i} style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#94A3B8', padding: '3px 1px' }}>{offset + i + 1}</div>
                                   ))}
-                                  <div style={{ display: 'flex', alignItems: 'center', fontSize: '11243755px', color: '#0047AB', fontWeight: '700' }}>SI</div>
+                                  <div style={{ display: 'flex', alignItems: 'center', fontSize: '9px', color: '#0047AB', fontWeight: '700' }}>SI</div>
                                   {Array.from({ length: 9 }, (_, i) => {
                                     const idx = offset + i;
                                     return (
@@ -5693,7 +5693,7 @@ function Admin() {
                                   border: '1px solid var(--primary-green)'
                                 }}
                               >
-                                <div style={{ fontSize: '11270942px', color: 'var(--text-dark)', opacity: 0.7 }}>{idx + 1}</div>
+                                <div style={{ fontSize: '10px', color: 'var(--text-dark)', opacity: 0.7 }}>{idx + 1}</div>
                                 <div style={{ fontWeight: '600' }}>
                                   <span style={{ color: 'var(--primary-green)' }}>{malePar}</span>
                                   <span style={{ color: 'var(--text-dark)' }}>/</span>
@@ -6299,7 +6299,7 @@ function Admin() {
                               }}>
                                 {holesInRow.map(holeNum => (
                                   <div key={holeNum} style={{ textAlign: 'center' }}>
-                                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '11302396px', marginBottom: '2px' }}>
+                                    <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '10px', marginBottom: '2px' }}>
                                       {holeNum}
                                     </div>
                                     <input
@@ -6324,7 +6324,7 @@ function Admin() {
                                         color: 'white'
                                       }}
                                     />
-                                    <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11303960px', marginTop: '2px' }}>
+                                    <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '9px', marginTop: '2px' }}>
                                       P{parArr[holeNum - 1] || 4}
                                     </div>
                                   </div>
@@ -6743,7 +6743,7 @@ function Admin() {
                                             color: 'white',
                                             padding: '1px 5px',
                                             borderRadius: '4px',
-                                            fontSize: '11325226px',
+                                            fontSize: '10px',
                                             fontWeight: '600'
                                           }}>포썸</span>
                                         )}
@@ -6928,7 +6928,7 @@ function Admin() {
                                       color: 'white',
                                       padding: '1px 5px',
                                       borderRadius: '4px',
-                                      fontSize: '11335617px',
+                                      fontSize: '10px',
                                       fontWeight: '600'
                                     }}>포썸</span>
                                   )}
@@ -7165,7 +7165,7 @@ function Admin() {
                         background: 'white',
                         borderRadius: '12px',
                         overflow: 'hidden',
-                        boxShadow: '0 2px 8px rgba(0,0,0,0.07)'
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                       }}>
                         <div style={{ 
                           display: 'grid', 
@@ -7495,9 +7495,9 @@ function Admin() {
                     </div>
                     {editScoreHolesOnly && (
                       <div style={{
-                        padding: '11px 13px', borderRadius: '8px',
+                        padding: '11px 13px', borderRadius: '9px',
                         background: '#FFFBEB', border: '1px solid #FDE68A',
-                        fontSize: '13362763px', color: '#B45309', lineHeight: 1.55,
+                        fontSize: '12.5px', color: '#B45309', lineHeight: 1.55,
                       }}>
                         신페리오는 지정 12홀 점수로 핸디캡을 내므로 <strong>홀별 입력만</strong> 가능합니다.
                       </div>
@@ -8318,7 +8318,7 @@ function Admin() {
                             style={{
                               height: '18px',
                               background: isActive ? 'var(--primary-green)' : '#f0f0f0',
-                              borderRadius: '4px',
+                              borderRadius: '3px',
                               cursor: 'pointer',
                               transition: 'all 0.15s',
                               border: '1px solid var(--border-color)'

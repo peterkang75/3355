@@ -733,7 +733,7 @@ input:focus, textarea:focus, select:focus {
     --spacing-lg: 12px;
     --spacing-xl: 16px;
   }
-  .nav-item  { font-size: 11px; padding: 6px 2px; }
+  .nav-item  { font-size: 10px; padding: 6px 2px; }
   .nav-icon  { font-size: 20px; }
   .card      { padding: var(--spacing-md); }
   .loading-logo { width: 80px; height: 80px; }
@@ -890,7 +890,7 @@ input:focus, textarea:focus, select:focus {
   position: absolute;
   top: 16px;
   left: 16px;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.10em;
   text-transform: uppercase;
@@ -911,7 +911,7 @@ input:focus, textarea:focus, select:focus {
 
 .hero-title {
   font-family: var(--font-serif);
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 700;
   color: #ffffff;
   line-height: 1.25;
@@ -1154,7 +1154,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 .section-title {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--on-background);
   margin: 0;
@@ -1277,7 +1277,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 .comment-time {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-muted);
 }
 

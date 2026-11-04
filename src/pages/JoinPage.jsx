@@ -168,7 +168,7 @@ function JoinPage() {
 
         <div style={{
           background: '#fff',
-          borderRadius: 246524,
+          borderRadius: 28,
           padding: '36px 28px 32px',
           width: '100%',
           maxWidth: 420,
@@ -191,7 +191,7 @@ function JoinPage() {
           <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0047AB', marginBottom: 6, letterSpacing: '-0.03em' }}>
             3355 골프클럽에 오신 것을 환영합니다!
           </h2>
-          <div style={{ width: 40, height: 3, background: 'linear-gradient(90deg, #0047AB, #60A5FA)', borderRadius: 47448, margin: '0 auto 20px' }} />
+          <div style={{ width: 40, height: 3, background: 'linear-gradient(90deg, #0047AB, #60A5FA)', borderRadius: 2, margin: '0 auto 20px' }} />
 
           {/* 본문 */}
           <div style={{ fontSize: 14, color: '#475569', lineHeight: 1.85, textAlign: 'left', background: '#F8FAFC', borderRadius: 14, padding: '16px 18px', marginBottom: 24 }}>

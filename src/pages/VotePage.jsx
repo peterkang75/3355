@@ -23,7 +23,7 @@ function VotePage() {
             <polyline points="15 18 9 12 15 6" />
           </svg>
         </button>
-        <span style={{ fontSize: 181121, fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--on-background)' }}>참석 투표</span>
+        <span style={{ fontSize: 17, fontWeight: 800, letterSpacing: '-0.03em', color: 'var(--on-background)' }}>참석 투표</span>
       </div>
 
       <div style={{ paddingTop: 20 }}>

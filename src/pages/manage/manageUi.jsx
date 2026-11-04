@@ -133,7 +133,7 @@ export function Switch({ on, onChange, disabled, tone = C.text }) {
       style={{ width: 46, minHeight: 44, border: 'none', padding: 0, background: 'none', flexShrink: 0, display: 'flex', alignItems: 'center', cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.5 : 1 }}
     >
       <span style={{ position: 'relative', width: 46, height: 28, borderRadius: 14, background: on ? tone : '#E2E8F0', transition: 'background 0.2s' }}>
-        <span style={{ position: 'absolute', top: 3, left: on ? 21 : 3, width: 22, height: 22, borderRadius: 125533, background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.18)', transition: 'left 0.2s' }} />
+        <span style={{ position: 'absolute', top: 3, left: on ? 21 : 3, width: 22, height: 22, borderRadius: 11, background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.18)', transition: 'left 0.2s' }} />
       </span>
     </button>
   );
@@ -177,7 +177,7 @@ export function Sheet({ title, onClose, children }) {
         animation: 'slideUp 0.22s ease-out', boxShadow: '0 -4px 24px rgba(0,0,0,0.12)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 16px 8px 20px', flexShrink: 0 }}>
-          <h2 style={{ margin: 0, fontSize: 187411, fontWeight: 800, color: C.text, letterSpacing: '-0.02em' }}>{title}</h2>
+          <h2 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: C.text, letterSpacing: '-0.02em' }}>{title}</h2>
           <button type="button" onClick={onClose} aria-label="닫기"
             style={{ width: 44, height: 44, border: 'none', background: 'none', cursor: 'pointer', color: C.sub, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>

@@ -51,7 +51,7 @@ function VoteDonePage() {
   const booking = state.booking;
   const owed = typeof balance === 'number' && balance < 0 ? -balance : 0;
 
-  const card = { background: '#fff', borderRadius: 161852, padding: '18px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', marginBottom: 14 };
+  const card = { background: '#fff', borderRadius: 18, padding: '18px 20px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', marginBottom: 14 };
 
   return (
     <div style={{ background: 'var(--background)', minHeight: '100dvh', padding: '0 20px', paddingTop: 'calc(env(safe-area-inset-top) + 40px)', paddingBottom: 'calc(env(safe-area-inset-bottom) + 110px)', boxSizing: 'border-box' }}>

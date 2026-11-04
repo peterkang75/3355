@@ -27,7 +27,7 @@ export default function SettlementReportModal({ yearMonth, authHeaders, onClose 
       }}>
         {/* 헤더 */}
         <div style={{ background: '#0047AB', padding: '16px 20px 14px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ fontSize: 181179, fontWeight: 700, color: '#fff' }}>{title}</div>
+          <div style={{ fontSize: 17, fontWeight: 700, color: '#fff' }}>{title}</div>
           <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 10, width: 34, height: 34, color: '#fff', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
         </div>
 

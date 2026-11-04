@@ -46,9 +46,9 @@ export default function RoundPhotoUploader({ currentUser, onClose, onPickRound }
               style={{ display: 'flex', alignItems: 'center', width: '100%', gap: 10, padding: '14px 8px', border: 'none', borderBottom: '1px solid #F1F5F9', background: 'none', cursor: 'pointer', textAlign: 'left' }}>
               <div style={{ flex: 1 }}>
                 <div style={{ fontWeight: 600, fontSize: 15, color: '#0F172A' }}>{b.title || '정기모임'}</div>
-                <div style={{ fontSize: 132778, color: '#94A3B8', marginTop: 2 }}>{d.getFullYear()}. {d.getMonth() + 1}. {d.getDate()} · {b.courseName}</div>
+                <div style={{ fontSize: 12.5, color: '#94A3B8', marginTop: 2 }}>{d.getFullYear()}. {d.getMonth() + 1}. {d.getDate()} · {b.courseName}</div>
               </div>
-              <span style={{ fontSize: 132954, color: '#94A3B8' }}>사진 {count}</span>
+              <span style={{ fontSize: 12.5, color: '#94A3B8' }}>사진 {count}</span>
             </button>
           );
         })}

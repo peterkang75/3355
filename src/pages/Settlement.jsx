@@ -114,7 +114,7 @@ function RoundingInfoCard({ rounding: r }) {
   const divider = { borderTop: '1px solid #f1f5f9', margin: '14px 0' };
 
   return (
-    <div style={{ background: '#fff', borderRadius: 205588, marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
+    <div style={{ background: '#fff', borderRadius: 22, marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
       <button onClick={() => setOpen(o => !o)}
         style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '16px 20px', minHeight: 44, background: 'none', border: 'none', cursor: 'pointer', textAlign: 'left' }}>
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -355,7 +355,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
         style={{
           width: '100%',
           background: '#fff',
-          borderRadius: '20px 20px 0 0',
+          borderRadius: '22px 22px 0 0',
           display: 'flex',
           flexDirection: 'column',
           maxHeight: '88dvh',
@@ -369,7 +369,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
 
           {/* 헤더 */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <span style={{ fontSize: 1816125, fontWeight: 800, color: 'var(--on-background)' }}>빠른 입력</span>
+            <span style={{ fontSize: 17, fontWeight: 800, color: 'var(--on-background)' }}>빠른 입력</span>
             <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: 'var(--text-muted)' }}>×</button>
           </div>
 
@@ -390,7 +390,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
             {[['income', '수입'], ['expense', '지출']].map(([val, label]) => (
               <button key={val} onClick={() => { setMode(val); setSelectedCategory(''); setReceiptImages([]); }}
                 style={{
-                  flex: 1, padding: '10px', border: 'none', borderRadius: 817506, fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                  flex: 1, padding: '10px', border: 'none', borderRadius: 9, fontSize: 14, fontWeight: 700, cursor: 'pointer',
                   background: mode === val ? (val === 'income' ? 'var(--primary)' : '#dc2626') : 'transparent',
                   color: mode === val ? '#fff' : 'var(--text-muted)', transition: 'all 0.15s',
                 }}>{label}</button>
@@ -532,7 +532,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                           ))}
                           {receiptImages.length < 1 && (
                             <label style={{ width: 72, height: 72, borderRadius: 10, border: '1.5px dashed #cbd5e1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', gap: 4, background: '#f8fafc' }}>
-                              <span style={{ fontSize: 1127573, fontWeight: 600 }}>사진 추가</span>
+                              <span style={{ fontSize: 10, fontWeight: 600 }}>사진 추가</span>
                               <input type="file" accept="image/*" onChange={handleImageAdd} style={{ display: 'none' }} />
                             </label>
                           )}
@@ -574,7 +574,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                           </svg>
-                          <span style={{ fontSize: 1130969, fontWeight: 600 }}>사진 추가</span>
+                          <span style={{ fontSize: 10, fontWeight: 600 }}>사진 추가</span>
                           <input type="file" accept="image/*" onChange={handleImageAdd} style={{ display: 'none' }} />
                         </label>
                       )}
@@ -816,14 +816,14 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 300, backdropFilter: 'blur(2px)' }} />
       <div style={{
         position: 'fixed', bottom: 0, left: 0, right: 0,
-        background: '#fff', borderRadius: '20px 20px 0 0', zIndex: 301,
+        background: '#fff', borderRadius: '22px 22px 0 0', zIndex: 301,
         display: 'flex', flexDirection: 'column', maxHeight: '78vh',
       }}>
         {/* 헤더 */}
         <div style={{ padding: '16px 20px 0', flexShrink: 0 }}>
-          <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 442601, margin: '0 auto 16px' }} />
+          <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 2, margin: '0 auto 16px' }} />
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-            <div style={{ fontSize: 1842773, fontWeight: 800, color: 'var(--on-background)' }}>{categoryKey}</div>
+            <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--on-background)' }}>{categoryKey}</div>
             <button onClick={onClose} style={{ background: '#f1f5f9', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 18 }}>×</button>
           </div>
           <div style={{ fontSize: 13, color: color, fontWeight: 700, marginBottom: 14 }}>
@@ -905,8 +905,8 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
       {editingTx && (
         <>
           <div onClick={() => setEditingTx(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1100 }} />
-          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '20px 20px 0 0', zIndex: 1101, padding: '20px 20px 0' }}>
-            <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 448458, margin: '0 auto 16px' }} />
+          <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '22px 22px 0 0', zIndex: 1101, padding: '20px 20px 0' }}>
+            <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 2, margin: '0 auto 16px' }} />
             <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 16 }}>내역 수정</div>
 
             {/* 항목 선택 */}
@@ -970,13 +970,13 @@ function PaySheet({ member, amount, setAmount, memo, setMemo, date, setDate, yea
   return (
     <>
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 300, backdropFilter: 'blur(2px)' }} />
-      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '20px 20px 0 0', zIndex: 301, padding: '20px 20px 0' }}>
+      <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '22px 22px 0 0', zIndex: 301, padding: '20px 20px 0' }}>
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
-          <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 453161, margin: '0 auto 16px' }} />
-          <div style={{ fontSize: 1853210, fontWeight: 800, color: 'var(--on-background)' }}>납부 처리</div>
+          <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 2, margin: '0 auto 16px' }} />
+          <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--on-background)' }}>납부 처리</div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 4 }}>
             {member.isGuest && (
-              <span style={{ fontSize: 1153462, fontWeight: 800, color: '#7c3aed', background: '#EDE9FE', borderRadius: 6, padding: '2px 6px' }}>게스트</span>
+              <span style={{ fontSize: 10, fontWeight: 800, color: '#7c3aed', background: '#EDE9FE', borderRadius: 6, padding: '2px 6px' }}>게스트</span>
             )}
             <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>{member.memberNickname || member.memberName}</span>
           </div>
@@ -1104,16 +1104,16 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 300, backdropFilter: 'blur(2px)' }} />
       <div style={{
         position: 'fixed', bottom: 0, left: 0, right: 0,
-        background: '#fff', borderRadius: '20px 20px 0 0', zIndex: 301,
+        background: '#fff', borderRadius: '22px 22px 0 0', zIndex: 301,
         display: 'flex', flexDirection: 'column', maxHeight: '70vh',
       }}>
         {/* 헤더 */}
         <div style={{ padding: '16px 20px 0', flexShrink: 0 }}>
-          <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 459348, margin: '0 auto 16px' }} />
+          <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 2, margin: '0 auto 16px' }} />
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-            <div style={{ fontSize: 1859505, fontWeight: 800, color: 'var(--on-background)' }}>
+            <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--on-background)' }}>
               {member.isGuest && (
-                <span style={{ fontSize: 1159636, fontWeight: 800, color: '#7c3aed', background: '#EDE9FE', borderRadius: 6, padding: '2px 6px', marginRight: 6 }}>G</span>
+                <span style={{ fontSize: 10, fontWeight: 800, color: '#7c3aed', background: '#EDE9FE', borderRadius: 6, padding: '2px 6px', marginRight: 6 }}>G</span>
               )}
               {memberName} 청구 내역
             </div>
@@ -1255,7 +1255,7 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
 // 취소자는 청구가 남아 있어 미수금으로 잡히는데, 실제로는 받을 돈이 아니라
 // 정산(환불/청구취소)을 해야 할 건이다. 표식이 없으면 회비를 독촉하게 된다.
 const CancelledTag = () => (
-  <span style={{ fontSize: 1167199, fontWeight: 800, color: '#0047AB', background: '#DBEAFE', borderRadius: 6, padding: '2px 6px', whiteSpace: 'nowrap' }}>
+  <span style={{ fontSize: 10, fontWeight: 800, color: '#0047AB', background: '#DBEAFE', borderRadius: 6, padding: '2px 6px', whiteSpace: 'nowrap' }}>
     취소 · 정산대기
   </span>
 );
@@ -1332,11 +1332,11 @@ function SettlementResolveSheet({ item, yearMonth, onClose, onDone }) {
 
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 320, display: 'flex', alignItems: 'flex-end', touchAction: 'none' }}>
-      <div onClick={e => e.stopPropagation()} style={{ width: '100%', background: '#fff', borderRadius: '20px 20px 0 0', display: 'flex', flexDirection: 'column', maxHeight: '88dvh', overscrollBehavior: 'contain' }}>
+      <div onClick={e => e.stopPropagation()} style={{ width: '100%', background: '#fff', borderRadius: '22px 22px 0 0', display: 'flex', flexDirection: 'column', maxHeight: '88dvh', overscrollBehavior: 'contain' }}>
         <div style={{ overflowY: 'auto', padding: '24px 20px 20px', flex: 1 }}>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <span style={{ fontSize: 1870917, fontWeight: 800, color: 'var(--on-background)' }}>정산 처리</span>
+            <span style={{ fontSize: 17, fontWeight: 800, color: 'var(--on-background)' }}>정산 처리</span>
             <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 22, cursor: 'pointer', color: 'var(--text-muted)' }}>×</button>
           </div>
 
@@ -1695,7 +1695,7 @@ function Settlement() {
           padding: '0 16px', height: 56,
         }}>
           <div style={{ width: 38 }} />
-          <span style={{ fontSize: 1888278, fontWeight: 800, color: '#1e293b', letterSpacing: '-0.02em' }}>클럽회계</span>
+          <span style={{ fontSize: 17, fontWeight: 800, color: '#1e293b', letterSpacing: '-0.02em' }}>클럽회계</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {user && <ProfileBadge user={user} size={32} showInlineName />}
           </div>
@@ -1712,7 +1712,7 @@ function Settlement() {
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="#0047AB"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
-            <span style={{ fontSize: 1889578, fontWeight: 800, color: '#1e293b' }}>{fmtMonth(yearMonth)}</span>
+            <span style={{ fontSize: 17, fontWeight: 800, color: '#1e293b' }}>{fmtMonth(yearMonth)}</span>
             {data?.isClosed && (
               <span style={{ fontSize: 11, background: '#64748b', color: '#fff', borderRadius: 6, padding: '2px 6px', fontWeight: 600 }}>마감</span>
             )}
@@ -1797,7 +1797,7 @@ function Settlement() {
                 </div>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)', fontWeight: 600, marginBottom: 6, letterSpacing: '0.04em' }}>이달 손익</div>
-                  <div style={{ fontSize: 2895264, fontWeight: 900, color: monthNet >= 0 ? '#fff' : '#FF7B7B', letterSpacing: '-0.02em' }}>
+                  <div style={{ fontSize: 30, fontWeight: 900, color: monthNet >= 0 ? '#fff' : '#FF7B7B', letterSpacing: '-0.02em' }}>
                     {monthNet >= 0 ? '+' : '-'}{formatCurrency(Math.abs(monthNet))}
                   </div>
                 </div>
@@ -1807,7 +1807,7 @@ function Settlement() {
               {(data.roundings || []).map(r => <RoundingInfoCard key={r.id} rounding={r} />)}
 
               {/* ② 이월금 / 전체잔액 카드 */}
-              <div style={{ background: '#fff', borderRadius: 2095808, padding: '20px 20px', marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
+              <div style={{ background: '#fff', borderRadius: 22, padding: '20px 20px', marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
                 {/* 지난달 이월금 */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
                   <div style={{ width: 32, height: 32, background: '#F1F5F9', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -1828,7 +1828,7 @@ function Settlement() {
                     )
                   )}
                 </div>
-                <div style={{ fontSize: 2497886, fontWeight: 800, color: '#1e293b', marginBottom: 18, letterSpacing: '-0.02em' }}>
+                <div style={{ fontSize: 26, fontWeight: 800, color: '#1e293b', marginBottom: 18, letterSpacing: '-0.02em' }}>
                   {formatCurrency(data.carryover)}
                 </div>
 
@@ -1841,7 +1841,7 @@ function Settlement() {
                   </div>
                   <span style={{ fontSize: 12, color: '#0047AB', fontWeight: 700, letterSpacing: '0.01em' }}>전체 잔액 (Total Balance)</span>
                 </div>
-                <div style={{ fontSize: 3698861, fontWeight: 900, color: data.netBalance >= 0 ? '#0047AB' : '#dc2626', letterSpacing: '-0.03em' }}>
+                <div style={{ fontSize: 34, fontWeight: 900, color: data.netBalance >= 0 ? '#0047AB' : '#dc2626', letterSpacing: '-0.03em' }}>
                   {data.netBalance >= 0 ? '' : '-'}{formatCurrency(Math.abs(data.netBalance))}
                 </div>
               </div>
@@ -1956,7 +1956,7 @@ function Settlement() {
                     {guestMembers.map((m, i) => (
                       <div key={m.memberId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 0', borderTop: i === 0 && regularMembers.length === 0 ? '1px solid #EDE9FE' : 'none' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                          <span style={{ fontSize: 11107123, fontWeight: 800, color: '#7c3aed', background: '#EDE9FE', borderRadius: 6, padding: '2px 6px', letterSpacing: '0.02em' }}>G</span>
+                          <span style={{ fontSize: 10, fontWeight: 800, color: '#7c3aed', background: '#EDE9FE', borderRadius: 6, padding: '2px 6px', letterSpacing: '0.02em' }}>G</span>
                           <span style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{m.memberNickname || m.memberName}</span>
                           {cancelledMemberIds.has(m.memberId) && <CancelledTag />}
                         </div>

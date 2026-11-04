@@ -144,7 +144,7 @@ function AttendancePollManager({ booking, onChanged }) {
         <div style={labelStyle}>{poll ? '참석 투표 수정' : '참석 투표 만들기'}</div>
 
         {poll?.totalVoted > 0 && (
-          <div style={{ fontSize: 125582, color: '#B45309', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '9px 11px', marginBottom: 12, lineHeight: 1.55 }}>
+          <div style={{ fontSize: 11.5, color: '#B45309', background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '9px 11px', marginBottom: 12, lineHeight: 1.55 }}>
             이미 {poll.totalVoted}명이 투표했습니다. <b>금액을 바꿔도 이미 투표한 분들의 청구서는 그대로</b>입니다 — 참가비 화면에서 직접 고쳐주세요. 선택지를 지우면 그 선택지에 투표한 분들의 표가 사라집니다(참가자 명단은 남습니다).
           </div>
         )}
@@ -173,7 +173,7 @@ function AttendancePollManager({ booking, onChanged }) {
             </div>
             {attendOptions.length > 1 && (
               <button onClick={() => setAttendOptions(prev => prev.filter((_, j) => j !== i))}
-                style={{ width: 36, flexShrink: 0, borderRadius: 10, border: '1px solid #E8ECF0', background: '#fff', color: '#94A3B8', fontSize: 187805, cursor: 'pointer' }}>×</button>
+                style={{ width: 36, flexShrink: 0, borderRadius: 10, border: '1px solid #E8ECF0', background: '#fff', color: '#94A3B8', fontSize: 17, cursor: 'pointer' }}>×</button>
             )}
           </div>
         ))}
@@ -181,7 +181,7 @@ function AttendancePollManager({ booking, onChanged }) {
           style={{ width: '100%', padding: '10px', borderRadius: 10, border: '1.5px dashed #CBD5E1', background: '#FAFBFC', color: '#475569', fontSize: 13, fontWeight: 600, cursor: 'pointer', marginBottom: 6 }}>
           + 참석 선택지 추가
         </button>
-        <div style={{ fontSize: 128261, color: '#94A3B8', marginBottom: 14, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 11.5, color: '#94A3B8', marginBottom: 14, lineHeight: 1.5 }}>
           금액을 비워두면 이 라운딩의 기본 참가비 ${defaultFeeOf(booking)}가 청구됩니다. 참가비 면제 회원은 어느 쪽을 골라도 $0입니다.
         </div>
 
@@ -192,7 +192,7 @@ function AttendancePollManager({ booking, onChanged }) {
         <div style={{ fontSize: 12, fontWeight: 700, color: '#64748B', marginBottom: 8 }}>투표 마감</div>
         <input type="datetime-local" value={closesAt} onChange={e => setClosesAt(e.target.value)}
           style={{ ...inputStyle, marginBottom: 6 }} />
-        <div style={{ fontSize: 128981, color: '#94A3B8', marginBottom: 14, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 11.5, color: '#94A3B8', marginBottom: 14, lineHeight: 1.5 }}>
           이 시간이 참가 신청 마감이기도 합니다. 지나면 투표도 참가 신청도 잠깁니다. 비워두면 마감 없이 계속 열려 있습니다.
         </div>
 
@@ -213,7 +213,7 @@ function AttendancePollManager({ booking, onChanged }) {
     return (
       <div style={cardStyle}>
         <div style={labelStyle}>참석 투표</div>
-        <div style={{ fontSize: 1310052, color: '#64748B', lineHeight: 1.6, marginBottom: 12 }}>
+        <div style={{ fontSize: 12.5, color: '#64748B', lineHeight: 1.6, marginBottom: 12 }}>
           카톡 투표 대신 앱에서 참석을 받습니다. 회원이 "참석"을 고르면 그 즉시 참가 신청이 되고 참가비가 청구돼, 바로 입금하고 영수증을 올릴 수 있습니다.
         </div>
         <button onClick={startCreate}
@@ -232,7 +232,7 @@ function AttendancePollManager({ booking, onChanged }) {
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
         <div style={labelStyle}>참석 투표</div>
         <span style={{
-          fontSize: 1110944, fontWeight: 800, padding: '3px 8px', borderRadius: 611013,
+          fontSize: 10.5, fontWeight: 800, padding: '3px 8px', borderRadius: 7,
           background: poll.isClosed ? '#F1F5F9' : '#E6F0FF',
           color: poll.isClosed ? '#94A3B8' : PRIMARY,
         }}>{poll.isClosed ? '종료됨' : '진행 중'}</span>
@@ -240,29 +240,29 @@ function AttendancePollManager({ booking, onChanged }) {
 
       <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 10 }}>{poll.title}</div>
       {poll.notice && (
-        <div style={{ fontSize: 1311348, color: '#475569', background: '#F8FAFC', borderRadius: 10, padding: '9px 11px', marginBottom: 10, whiteSpace: 'pre-wrap', lineHeight: 1.55 }}>{poll.notice}</div>
+        <div style={{ fontSize: 12.5, color: '#475569', background: '#F8FAFC', borderRadius: 10, padding: '9px 11px', marginBottom: 10, whiteSpace: 'pre-wrap', lineHeight: 1.55 }}>{poll.notice}</div>
       )}
 
       {poll.options.map(o => (
         <div key={o.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 0', borderTop: '1px solid #F1F5F9' }}>
-          <span style={{ fontSize: 1411751, color: '#475569', fontWeight: 600 }}>
+          <span style={{ fontSize: 13.5, color: '#475569', fontWeight: 600 }}>
             {o.label}
             {o.kind === 'attend' && o.fee !== null && (
-              <span style={{ fontSize: 1211912, color: '#94A3B8', marginLeft: 6 }}>${o.fee}</span>
+              <span style={{ fontSize: 11.5, color: '#94A3B8', marginLeft: 6 }}>${o.fee}</span>
             )}
           </span>
-          <span style={{ fontSize: 1412037, fontWeight: 800, color: o.kind === 'attend' ? PRIMARY : '#94A3B8' }}>{o.count}명</span>
+          <span style={{ fontSize: 13.5, fontWeight: 800, color: o.kind === 'attend' ? PRIMARY : '#94A3B8' }}>{o.count}명</span>
         </div>
       ))}
 
-      <div style={{ fontSize: 1212186, color: '#94A3B8', margin: '10px 0 12px', lineHeight: 1.6 }}>
+      <div style={{ fontSize: 11.5, color: '#94A3B8', margin: '10px 0 12px', lineHeight: 1.6 }}>
         {poll.totalVoted}명 투표 · 참석 {attendTotal}명 · 참가자 명단 {poll.participantCount}명
         {poll.notVoted?.length > 0 && <><br />아직 투표 안 한 분 {poll.notVoted.length}명: {poll.notVoted.slice(0, 8).map(m => m.nickname || m.name).join(', ')}{poll.notVoted.length > 8 ? ' 외' : ''}</>}
       </div>
 
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
         <button onClick={handleShare}
-          style={{ flex: '1 1 100%', padding: '11px', borderRadius: 10, border: 'none', background: PRIMARY, color: '#fff', fontSize: 1412784, fontWeight: 700, cursor: 'pointer' }}>
+          style={{ flex: '1 1 100%', padding: '11px', borderRadius: 10, border: 'none', background: PRIMARY, color: '#fff', fontSize: 13.5, fontWeight: 700, cursor: 'pointer' }}>
           {navigator.share ? '카톡방에 투표 링크 공유' : '투표 링크 복사'}
         </button>
         <button onClick={startEdit}
