@@ -95,7 +95,7 @@ export default function RoundingManage() {
     <div style={{ minHeight: '100vh', background: C.bg }}>
       <ManageStyles />
 
-      <header style={{ position: 'sticky', top: 0, zIndex: 200, background: '#FFFFFF', paddingTop: 'env(safe-area-inset-top)', boxShadow: '0 1px 0 rgba(0,71,171,0.07)' }}>
+      <header style={{ position: 'sticky', top: 0, zIndex: 200, background: '#FFFFFF', paddingTop: 'env(safe-area-inset-top)', boxShadow: '0 1px 0 rgba(20,40,75,0.07)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 2, padding: '6px 4px 4px' }}>
           <button type="button" onClick={goBack} aria-label="뒤로"
             style={{ width: 44, height: 44, border: 'none', background: 'none', cursor: 'pointer', color: C.text, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

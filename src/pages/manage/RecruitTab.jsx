@@ -11,7 +11,7 @@ import {
 
 // 조편성 화면과 같은 이름표 색 (DESIGN.md 3-1)
 const CHIP = {
-  male: { bg: '#E1EBF9', color: '#0047AB', border: '#BFDBFE' },
+  male: { bg: '#EEF1F6', color: '#14284B', border: '#D3DBE8' },
   female: { bg: '#FEE2E2', color: '#BE185D', border: '#FECACA' },
   guest: { bg: '#F0FDF4', color: '#15803D', border: '#86EFAC' },
   rental: { bg: '#FFF7ED', color: '#C2410C', border: '#FED7AA' },

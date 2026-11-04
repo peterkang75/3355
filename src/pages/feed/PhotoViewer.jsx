@@ -72,7 +72,7 @@ export default function PhotoViewer({ images, startIndex = 0, onClose }) {
         </div>
       )}
 
-      <div style={{ textAlign: 'center', color: '#cbd5e1', fontSize: 12, padding: '10px 16px max(16px, env(safe-area-inset-bottom))', flexShrink: 0 }}>
+      <div style={{ textAlign: 'center', color: '#D5D2CA', fontSize: 12, padding: '10px 16px max(16px, env(safe-area-inset-bottom))', flexShrink: 0 }}>
         {index + 1} / {images.length}
       </div>
     </div>

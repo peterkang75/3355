@@ -63,7 +63,7 @@ function Login({ onLogin }) {
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      background: 'linear-gradient(160deg, #0047AB 0%, #1565c0 50%, #0d47a1 100%)',
+      background: 'linear-gradient(160deg, #14284B 0%, #24406E 50%, #24406E 100%)',
       padding: '24px 20px',
       paddingTop: 'max(24px, env(safe-area-inset-top))',
       paddingBottom: 'max(24px, env(safe-area-inset-bottom))',
@@ -80,7 +80,7 @@ function Login({ onLogin }) {
           <img
             src={logoImage}
             alt="3355 골프 클럽 로고"
-            style={{ width: 88, height: 88, marginBottom: 16, objectFit: 'cover', borderRadius: '50%', border: '3px solid #eff6ff' }}
+            style={{ width: 88, height: 88, marginBottom: 16, objectFit: 'cover', borderRadius: '50%', border: '3px solid #EEF1F6' }}
           />
           <h1 style={{ fontSize: 22, color: 'var(--on-background)', marginBottom: 6, fontWeight: 800, letterSpacing: '-0.03em' }}>
             3355 골프모임
@@ -106,8 +106,8 @@ function Login({ onLogin }) {
                 fontSize: 22,
                 textAlign: 'center',
                 letterSpacing: 4,
-                background: '#f8fafc',
-                border: '2px solid #e2e8f0',
+                background: '#F7F5F0',
+                border: '2px solid #E6E2D8',
                 borderRadius: 12,
                 padding: '14px',
                 fontWeight: 700,

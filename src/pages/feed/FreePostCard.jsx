@@ -20,10 +20,10 @@ export default function FreePostCard({ item, currentUser, isOperator, onDeleted 
   };
 
   const caption = content ? (
-    <div style={{ fontSize: 14, color: '#1E293B', lineHeight: 1.45, marginTop: 2, whiteSpace: 'pre-wrap' }}>
-      <b style={{ fontWeight: 700, color: '#0F172A' }}>{item.authorName}</b>{' '}
+    <div style={{ fontSize: 14, color: '#1A1D26', lineHeight: 1.45, marginTop: 2, whiteSpace: 'pre-wrap' }}>
+      <b style={{ fontWeight: 700, color: '#1A1D26' }}>{item.authorName}</b>{' '}
       {long && !expanded
-        ? <>{content.slice(0, 90)}… <span onClick={() => setExpanded(true)} style={{ color: '#94A3B8', cursor: 'pointer' }}>더 보기</span></>
+        ? <>{content.slice(0, 90)}… <span onClick={() => setExpanded(true)} style={{ color: '#9A9DA6', cursor: 'pointer' }}>더 보기</span></>
         : content}
     </div>
   ) : null;
@@ -32,11 +32,11 @@ export default function FreePostCard({ item, currentUser, isOperator, onDeleted 
     <div style={{ background: '#fff', borderRadius: 14, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
       {/* 헤더 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px' }}>
-        <div style={{ width: 36, height: 36, borderRadius: '50%', overflow: 'hidden', background: '#E2E8F0', flexShrink: 0 }}>
+        <div style={{ width: 36, height: 36, borderRadius: '50%', overflow: 'hidden', background: '#E6E2D8', flexShrink: 0 }}>
           {item.authorPhoto && <img src={item.authorPhoto} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
         </div>
-        <div style={{ flex: 1, fontWeight: 700, fontSize: 14, color: '#0F172A' }}>{item.authorName}</div>
-        {canDelete && (<button onClick={del} style={{ background: 'none', border: 'none', color: '#CBD5E1', cursor: 'pointer', fontSize: 13 }}>삭제</button>)}
+        <div style={{ flex: 1, fontWeight: 700, fontSize: 14, color: '#1A1D26' }}>{item.authorName}</div>
+        {canDelete && (<button onClick={del} style={{ background: 'none', border: 'none', color: '#D5D2CA', cursor: 'pointer', fontSize: 13 }}>삭제</button>)}
       </div>
 
       {/* 미디어: 사진 캐러셀 → 없으면 링크/유튜브 임베드 */}

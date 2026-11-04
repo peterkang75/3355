@@ -22,7 +22,7 @@ export const GAME_MODES = [
     value: 'ambrose',
     label: '엠브로스',
     color: '#0891b2',
-    activeBg: '#e0f2fe',
+    activeBg: '#EEF1F6',
     hint: '엠브로스는 한 조(최대 4인)가 한 팀이 되어 팀 공동 점수를 기록하는 방식입니다. 팀원 누구나 점수를 입력할 수 있고, 순위는 팀별 타수(그로스)로 매겨집니다.',
   },
   {
@@ -46,8 +46,8 @@ export { NEWPERIA_DEFAULT_RATE };
 export const TEAM_MIX_MODE = {
   value: '__teamMix',
   label: '조별 지정',
-  color: '#0047AB',
-  activeBg: '#E8F0FE',
+  color: '#14284B',
+  activeBg: '#EEF1F6',
   hint: '조마다 다른 경기 방식으로 진행합니다. 조편성이 먼저 되어 있어야 하며, 조에 배정되지 않은 참가자는 신페리오로 집계됩니다.',
 };
 

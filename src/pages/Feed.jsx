@@ -32,11 +32,11 @@ export default function Feed() {
 
   return (
     <div style={{ maxWidth: 640, margin: '0 auto', padding: '12px 12px 90px' }}>
-      <h1 style={{ fontSize: 20, fontWeight: 800, color: '#0F172A', margin: '6px 4px 12px' }}>소식</h1>
+      <h1 style={{ fontSize: 20, fontWeight: 800, color: '#1A1D26', margin: '6px 4px 12px' }}>소식</h1>
       {items === null ? (
-        <div style={{ textAlign: 'center', padding: 60, color: '#94A3B8' }}>불러오는 중…</div>
+        <div style={{ textAlign: 'center', padding: 60, color: '#9A9DA6' }}>불러오는 중…</div>
       ) : items.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: 60, color: '#94A3B8', fontSize: 14 }}>아직 게시물이 없어요.<br />라운딩 사진을 올리거나 첫 글을 남겨보세요.</div>
+        <div style={{ textAlign: 'center', padding: 60, color: '#9A9DA6', fontSize: 14 }}>아직 게시물이 없어요.<br />라운딩 사진을 올리거나 첫 글을 남겨보세요.</div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           {items.map((it) => it.kind === 'round'
@@ -45,7 +45,7 @@ export default function Feed() {
         </div>
       )}
       {!isGuest && (
-        <button onClick={() => setComposeMode('choose')} aria-label="올리기" style={{ position: 'fixed', right: 18, bottom: 'calc(72px + env(safe-area-inset-bottom))', width: 56, height: 56, borderRadius: '50%', border: 'none', background: '#0047AB', color: '#fff', fontSize: 28, boxShadow: '0 4px 14px rgba(0,71,171,0.4)', zIndex: 1500 }}>+</button>
+        <button onClick={() => setComposeMode('choose')} aria-label="올리기" style={{ position: 'fixed', right: 18, bottom: 'calc(72px + env(safe-area-inset-bottom))', width: 56, height: 56, borderRadius: '50%', border: 'none', background: '#14284B', color: '#fff', fontSize: 28, boxShadow: '0 4px 14px rgba(20,40,75,0.4)', zIndex: 1500 }}>+</button>
       )}
       {composeMode === 'choose' && (
         <ComposeChooser

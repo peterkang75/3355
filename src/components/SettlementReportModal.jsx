@@ -26,7 +26,7 @@ export default function SettlementReportModal({ yearMonth, authHeaders, onClose 
         paddingTop: 'env(safe-area-inset-top)',
       }}>
         {/* 헤더 */}
-        <div style={{ background: '#0047AB', padding: '16px 20px 14px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ background: '#14284B', padding: '16px 20px 14px', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ fontSize: 18, fontWeight: 700, color: '#fff' }}>{title}</div>
           <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.2)', border: 'none', borderRadius: 10, width: 34, height: 34, color: '#fff', fontSize: 20, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
         </div>
@@ -34,9 +34,9 @@ export default function SettlementReportModal({ yearMonth, authHeaders, onClose 
         {/* 본문 */}
         <div style={{ flex: 1, overflowY: 'auto', background: '#f4f6fb', paddingBottom: 'calc(24px + env(safe-area-inset-bottom))' }}>
           {loading ? (
-            <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8', fontSize: 14 }}>불러오는 중…</div>
+            <div style={{ textAlign: 'center', padding: 60, color: '#9A9DA6', fontSize: 14 }}>불러오는 중…</div>
           ) : !report ? (
-            <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8', fontSize: 14 }}>데이터를 불러올 수 없습니다</div>
+            <div style={{ textAlign: 'center', padding: 60, color: '#9A9DA6', fontSize: 14 }}>데이터를 불러올 수 없습니다</div>
           ) : (
             <div style={{ padding: '20px 16px', display: 'flex', flexDirection: 'column', gap: 16 }}>
 
@@ -46,14 +46,14 @@ export default function SettlementReportModal({ yearMonth, authHeaders, onClose 
                   {report.bookings.map((b, i) => {
                     const [, bm, bd] = b.date.split('-');
                     return (
-                      <div key={i} style={{ padding: '10px 0', borderBottom: i < report.bookings.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+                      <div key={i} style={{ padding: '10px 0', borderBottom: i < report.bookings.length - 1 ? '1px solid #EFEDE7' : 'none' }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                           <div style={{ minWidth: 0, flex: 1 }}>
-                            <div style={{ fontSize: 12, color: '#94a3b8', fontWeight: 500, marginBottom: 2 }}>{parseInt(bm)}월 {parseInt(bd)}일</div>
-                            <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{b.courseName || b.title}</div>
+                            <div style={{ fontSize: 12, color: '#9A9DA6', fontWeight: 500, marginBottom: 2 }}>{parseInt(bm)}월 {parseInt(bd)}일</div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1D26' }}>{b.courseName || b.title}</div>
                           </div>
                           <div style={{ flexShrink: 0, marginLeft: 12, textAlign: 'right' }}>
-                            <div style={{ fontSize: 12, color: '#64748b' }}>{b.participantCount}명</div>
+                            <div style={{ fontSize: 12, color: '#5E6473' }}>{b.participantCount}명</div>
                           </div>
                         </div>
                       </div>
@@ -68,12 +68,12 @@ export default function SettlementReportModal({ yearMonth, authHeaders, onClose 
                 const totalNet = report.carryover + monthlyNet;
                 return (
                   <Section title="요약">
-                    <SummaryRow label="전달 이월금" value={report.carryover} color="#0047AB" sign />
+                    <SummaryRow label="전달 이월금" value={report.carryover} color="#14284B" sign />
                     <SummaryRow label="이달 총 수입" value={report.totalIncome} color="#16a34a" sign />
                     <SummaryRow label="이달 총 지출" value={report.totalExpense} color="#dc2626" negative />
-                    <div style={{ height: 1, background: '#e2e8f0', margin: '8px 0' }} />
+                    <div style={{ height: 1, background: '#E6E2D8', margin: '8px 0' }} />
                     <SummaryRow label="이달 손익" value={monthlyNet} />
-                    <SummaryRow label="총잔액 (누계)" value={totalNet} color={totalNet >= 0 ? '#0047AB' : '#dc2626'} />
+                    <SummaryRow label="총잔액 (누계)" value={totalNet} color={totalNet >= 0 ? '#14284B' : '#dc2626'} />
                   </Section>
                 );
               })()}
@@ -93,7 +93,7 @@ export default function SettlementReportModal({ yearMonth, authHeaders, onClose 
                 const monthlyNet = report.totalIncome - report.totalExpense;
                 const totalNet = report.carryover + monthlyNet;
                 return (
-                  <div style={{ background: '#0047AB', borderRadius: 16, padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  <div style={{ background: '#14284B', borderRadius: 16, padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 10 }}>
                     <BottomRow label="이달 손익" value={monthlyNet} />
                     <div style={{ height: 1, background: 'rgba(255,255,255,0.2)' }} />
                     <BottomRow label="총잔액 (누계)" value={totalNet} large />
@@ -110,7 +110,7 @@ export default function SettlementReportModal({ yearMonth, authHeaders, onClose 
 
               {/* 마감일 */}
               {report.closedAt && (
-                <div style={{ textAlign: 'center', fontSize: 11, color: '#94a3b8' }}>
+                <div style={{ textAlign: 'center', fontSize: 11, color: '#9A9DA6' }}>
                   {new Date(report.closedAt).toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric' })} 마감
                 </div>
               )}
@@ -126,8 +126,8 @@ export default function SettlementReportModal({ yearMonth, authHeaders, onClose 
 function Section({ title, children }) {
   return (
     <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
-      <div style={{ padding: '13px 16px', background: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
-        <span style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{title}</span>
+      <div style={{ padding: '13px 16px', background: '#F7F5F0', borderBottom: '1px solid #EFEDE7' }}>
+        <span style={{ fontSize: 16, fontWeight: 700, color: '#1A1D26' }}>{title}</span>
       </div>
       <div style={{ padding: '4px 16px 12px' }}>{children}</div>
     </div>
@@ -137,10 +137,10 @@ function Section({ title, children }) {
 // 요약 행 — 모든 금액 동일 사이즈 (14px)
 function SummaryRow({ label, value, color, sign, negative }) {
   const display = negative ? `-${fmt(value)}` : sign ? `+${fmt(value)}` : (value >= 0 ? `+${fmt(value)}` : `-${fmt(value)}`);
-  const c = color || (value >= 0 ? '#334155' : '#dc2626');
+  const c = color || (value >= 0 ? '#363A47' : '#dc2626');
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0' }}>
-      <span style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>{label}</span>
+      <span style={{ fontSize: 13, color: '#5E6473', fontWeight: 400 }}>{label}</span>
       <span style={{ fontSize: 14, fontWeight: 500, color: c }}>{display}</span>
     </div>
   );
@@ -151,33 +151,33 @@ function PLSection({ title, categories, color, sign }) {
   return (
     <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
       {/* 큰 제목 행 */}
-      <div style={{ padding: '13px 16px', background: '#f8fafc', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{title}</span>
+      <div style={{ padding: '13px 16px', background: '#F7F5F0', borderBottom: '1px solid #EFEDE7', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <span style={{ fontSize: 16, fontWeight: 700, color: '#1A1D26' }}>{title}</span>
         <span style={{ fontSize: 15, fontWeight: 600, color }}>
           {sign}{fmt(categories.reduce((s, c) => s + c.total, 0))}
         </span>
       </div>
       {categories.map((cat, ci) => (
-        <div key={ci} style={{ borderBottom: ci < categories.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
+        <div key={ci} style={{ borderBottom: ci < categories.length - 1 ? '1px solid #EFEDE7' : 'none' }}>
           {/* 중간 제목 행 (카테고리) */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 16px', background: '#fafbfc' }}>
-            <span style={{ fontSize: 15, fontWeight: 600, color: '#0f172a' }}>{cat.category}</span>
+            <span style={{ fontSize: 15, fontWeight: 600, color: '#1A1D26' }}>{cat.category}</span>
             <span style={{ fontSize: 15, fontWeight: 600, color }}>{sign}{fmt(cat.total)}</span>
           </div>
           {/* 세부 항목 */}
           {cat.items.map((item, ii) => {
             const [, mm, dd] = item.date.split('-');
             return (
-              <div key={ii} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '6px 16px 6px 28px', borderTop: '1px solid #f8fafc' }}>
+              <div key={ii} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '6px 16px 6px 28px', borderTop: '1px solid #F7F5F0' }}>
                 <div style={{ minWidth: 0, flex: 1 }}>
                   <div>
-                    <span style={{ fontSize: 11, color: '#94a3b8', marginRight: 6 }}>{parseInt(mm)}.{parseInt(dd)}</span>
+                    <span style={{ fontSize: 11, color: '#9A9DA6', marginRight: 6 }}>{parseInt(mm)}.{parseInt(dd)}</span>
                     {item.memberName && (
-                      <span style={{ fontSize: 12, fontWeight: 500, color: '#334155' }}>{item.memberName}</span>
+                      <span style={{ fontSize: 12, fontWeight: 500, color: '#363A47' }}>{item.memberName}</span>
                     )}
                   </div>
                   {item.memo && item.memo !== cat.category && (
-                    <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{item.memo}</div>
+                    <div style={{ fontSize: 11, color: '#5E6473', marginTop: 2 }}>{item.memo}</div>
                   )}
                 </div>
                 <span style={{ fontSize: 12, fontWeight: 400, color, flexShrink: 0, marginLeft: 8, paddingTop: 1 }}>{sign}{fmt(item.amount)}</span>

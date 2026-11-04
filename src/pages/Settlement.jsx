@@ -87,7 +87,7 @@ function MonthDateField({ label, value, onChange, yearMonth, inputStyle, labelSt
         )}
       </div>
       <input type="date" value={value} min={min} max={max} onChange={e => onChange(e.target.value)}
-        style={inputStyle || { width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, color: 'var(--on-background)', background: '#f8fafc', outline: 'none', boxSizing: 'border-box', WebkitAppearance: 'none', display: 'block', minHeight: '48px', lineHeight: '1.5' }} />
+        style={inputStyle || { width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #E6E2D8', fontSize: 14, color: 'var(--on-background)', background: '#F7F5F0', outline: 'none', boxSizing: 'border-box', WebkitAppearance: 'none', display: 'block', minHeight: '48px', lineHeight: '1.5' }} />
       {value && !isInMonth(value, yearMonth) && (
         <div style={{ fontSize: 11, color: '#dc2626', marginTop: 5, fontWeight: 600 }}>{fmtMonth(yearMonth)} 안의 날짜만 기록할 수 있습니다</div>
       )}
@@ -109,9 +109,9 @@ function RoundingInfoCard({ rounding: r }) {
   const feeSum = fees.reduce((s, [, v]) => s + v, 0);
   const chargeSum = r.charges.reduce((s, c) => s + c.amount * c.count, 0);
 
-  const sectionLabel = { fontSize: 12, fontWeight: 700, color: '#94a3b8', marginBottom: 8 };
+  const sectionLabel = { fontSize: 12, fontWeight: 700, color: '#9A9DA6', marginBottom: 8 };
   const row = { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', fontSize: 14, padding: '3px 0' };
-  const divider = { borderTop: '1px solid #f1f5f9', margin: '14px 0' };
+  const divider = { borderTop: '1px solid #EFEDE7', margin: '14px 0' };
 
   return (
     <div style={{ background: '#fff', borderRadius: 20, marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
@@ -123,7 +123,7 @@ function RoundingInfoCard({ rounding: r }) {
             {fmtRoundDate(r.date)} · {r.courseName} · {total}명
           </div>
         </div>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9A9DA6" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"
           style={{ flexShrink: 0, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }}>
           <polyline points="6 9 12 15 18 9" />
         </svg>
@@ -131,7 +131,7 @@ function RoundingInfoCard({ rounding: r }) {
 
       {open && (
         <div style={{ padding: '0 20px 18px' }}>
-          <div style={{ borderTop: '1px solid #f1f5f9', marginBottom: 14 }} />
+          <div style={{ borderTop: '1px solid #EFEDE7', marginBottom: 14 }} />
 
           <div style={row}>
             <span style={{ color: 'var(--text-muted)' }}>일시</span>
@@ -184,7 +184,7 @@ function RoundingInfoCard({ rounding: r }) {
             <div style={{ fontSize: 13, color: 'var(--text-muted)' }}>조편성 전</div>
           ) : r.teams.map(t => (
             <div key={t.teamNumber} style={{ display: 'flex', gap: 10, fontSize: 13, padding: '4px 0', lineHeight: 1.5 }}>
-              <span style={{ fontWeight: 700, color: '#0047AB', flexShrink: 0, width: 26 }}>{t.teamNumber}조</span>
+              <span style={{ fontWeight: 700, color: '#14284B', flexShrink: 0, width: 26 }}>{t.teamNumber}조</span>
               <span style={{ color: 'var(--on-background)' }}>
                 {t.members.map((m, i) => (
                   <React.Fragment key={i}>
@@ -382,11 +382,11 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
               catch (e) { alert(e.message || '처리에 실패했습니다.'); }
               finally { setSaving(false); }
             }}
-            style={{ width: '100%', padding: '12px', marginBottom: 16, borderRadius: 12, border: '1.5px solid #BFDBFE', background: '#EBF2FF', color: '#0047AB', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+            style={{ width: '100%', padding: '12px', marginBottom: 16, borderRadius: 12, border: '1.5px solid #D3DBE8', background: '#EEF1F6', color: '#14284B', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
           >실제로 참석함 · 취소 신청 되돌리기</button>
 
           {/* 수입/지출 토글 */}
-          <div style={{ display: 'flex', background: '#f1f5f9', borderRadius: 12, padding: 4, marginBottom: 20 }}>
+          <div style={{ display: 'flex', background: '#EFEDE7', borderRadius: 12, padding: 4, marginBottom: 20 }}>
             {[['income', '수입'], ['expense', '지출']].map(([val, label]) => (
               <button key={val} onClick={() => { setMode(val); setSelectedCategory(''); setReceiptImages([]); }}
                 style={{
@@ -410,7 +410,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                   }}
                   style={{
                     padding: '8px 14px', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none',
-                    background: selectedCategory === cat.name ? (mode === 'income' ? 'var(--primary)' : '#dc2626') : '#f1f5f9',
+                    background: selectedCategory === cat.name ? (mode === 'income' ? 'var(--primary)' : '#dc2626') : '#EFEDE7',
                     color: selectedCategory === cat.name ? '#fff' : 'var(--on-background)',
                   }}>{cat.name}</button>
               ))}
@@ -423,7 +423,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>회원</div>
                 <select value={selectedMember} onChange={e => setSelectedMember(e.target.value)}
-                  style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, color: 'var(--on-background)', background: '#f8fafc', outline: 'none' }}>
+                  style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #E6E2D8', fontSize: 14, color: 'var(--on-background)', background: '#F7F5F0', outline: 'none' }}>
                   <option value="">{refundMembers === null ? '불러오는 중…' : `회원 선택 (${fmtMonth(yearMonth)} 참가자)`}</option>
                   {(refundMembers || []).map(m => {
                     const nick = (m.nickname || m.name || '').trim();
@@ -442,7 +442,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
 
               {selectedMember && (
                 refundCandidates.charges.length === 0 && refundCandidates.creditBalance <= 0 ? (
-                  <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13, background: '#f8fafc', borderRadius: 12, marginBottom: 16 }}>
+                  <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13, background: '#F7F5F0', borderRadius: 12, marginBottom: 16 }}>
                     환불하거나 크레딧으로 전환할 완납 내역이 없습니다.
                   </div>
                 ) : (
@@ -452,8 +452,8 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                       <div key={c.chargeId}
                         onClick={() => { setRefundTargetKey(c.chargeId); setRefundSubMode('cash'); setAmount(String(c.refundableAmount)); }}
                         style={{
-                          padding: '10px 12px', borderRadius: 12, border: '1.5px solid ' + (refundTargetKey === c.chargeId ? '#dc2626' : '#e2e8f0'),
-                          background: refundTargetKey === c.chargeId ? '#fef2f2' : '#f8fafc', marginBottom: 8, cursor: 'pointer',
+                          padding: '10px 12px', borderRadius: 12, border: '1.5px solid ' + (refundTargetKey === c.chargeId ? '#dc2626' : '#E6E2D8'),
+                          background: refundTargetKey === c.chargeId ? '#fef2f2' : '#F7F5F0', marginBottom: 8, cursor: 'pointer',
                         }}>
                         <div style={{ fontSize: 14, fontWeight: 700 }}>{c.bookingTitle}</div>
                         <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>청구 ${c.chargeAmount.toLocaleString()} (완납) · 환불 가능 ${c.refundableAmount.toLocaleString()}</div>
@@ -463,8 +463,8 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                       <div
                         onClick={() => { setRefundTargetKey('credit'); setRefundSubMode('cash'); setAmount(String(refundCandidates.creditBalance)); }}
                         style={{
-                          padding: '10px 12px', borderRadius: 12, border: '1.5px solid ' + (refundTargetKey === 'credit' ? '#dc2626' : '#e2e8f0'),
-                          background: refundTargetKey === 'credit' ? '#fef2f2' : '#f8fafc', cursor: 'pointer',
+                          padding: '10px 12px', borderRadius: 12, border: '1.5px solid ' + (refundTargetKey === 'credit' ? '#dc2626' : '#E6E2D8'),
+                          background: refundTargetKey === 'credit' ? '#fef2f2' : '#F7F5F0', cursor: 'pointer',
                         }}>
                         <div style={{ fontSize: 14, fontWeight: 700 }}>보유 크레딧</div>
                         <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>사용 가능 ${refundCandidates.creditBalance.toLocaleString()}</div>
@@ -485,7 +485,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                           {[['cash', '현금으로 환불'], ['credit', '크레딧으로 전환']].map(([val, label]) => (
                             <button key={val} onClick={() => setRefundSubMode(val)}
                               style={{ flex: 1, padding: 10, borderRadius: 10, border: 'none', fontSize: 13, fontWeight: 700, cursor: 'pointer',
-                                background: refundSubMode === val ? '#dc2626' : '#f1f5f9', color: refundSubMode === val ? '#fff' : 'var(--on-background)' }}>
+                                background: refundSubMode === val ? '#dc2626' : '#EFEDE7', color: refundSubMode === val ? '#fff' : 'var(--on-background)' }}>
                               {label}
                             </button>
                           ))}
@@ -493,7 +493,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                       </div>
                     )}
 
-                    <div style={{ background: '#f8fafc', borderRadius: 12, padding: 12, marginBottom: 16, fontSize: 12, color: 'var(--text-muted)' }}>
+                    <div style={{ background: '#F7F5F0', borderRadius: 12, padding: 12, marginBottom: 16, fontSize: 12, color: 'var(--text-muted)' }}>
                       {refundSubMode === 'credit'
                         ? '청구는 그대로 유지되고, 이 금액만큼 크레딧이 발급됩니다. 회원 잔액이 늘어나며 현금은 나가지 않습니다.'
                         : '청구는 그대로 유지되고, 이 환불만 별도로 기록됩니다. 실제 현금이 나가지만 회원 잔액에는 영향이 없습니다.'}
@@ -503,7 +503,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                       <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>금액 (최대 ${target?.maxAmount?.toLocaleString()})</div>
                       <div style={{ position: 'relative' }}>
                         <input type="number" inputMode="numeric" value={amount} onChange={e => setAmount(e.target.value)}
-                          style={{ width: '100%', padding: '14px 16px 14px 36px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 20, fontWeight: 700, color: 'var(--on-background)', background: '#f8fafc', outline: 'none', boxSizing: 'border-box' }} />
+                          style={{ width: '100%', padding: '14px 16px 14px 36px', borderRadius: 12, border: '1.5px solid #E6E2D8', fontSize: 20, fontWeight: 700, color: 'var(--on-background)', background: '#F7F5F0', outline: 'none', boxSizing: 'border-box' }} />
                         <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'var(--text-muted)', fontWeight: 600 }}>$</span>
                       </div>
                     </div>
@@ -511,7 +511,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                     <div style={{ marginBottom: 16 }}>
                       <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>사유 메모 (선택)</div>
                       <textarea placeholder="예: 그린피만 환불, 카트비·참가비는 환불불가" value={memo} onChange={e => setMemo(e.target.value)}
-                        style={{ width: '100%', minHeight: 60, padding: '10px 12px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, background: '#f8fafc', outline: 'none', boxSizing: 'border-box', resize: 'none', fontFamily: 'inherit' }} />
+                        style={{ width: '100%', minHeight: 60, padding: '10px 12px', borderRadius: 12, border: '1.5px solid #E6E2D8', fontSize: 14, background: '#F7F5F0', outline: 'none', boxSizing: 'border-box', resize: 'none', fontFamily: 'inherit' }} />
                     </div>
 
                     <div style={{ marginBottom: 16 }}>
@@ -525,13 +525,13 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                           {receiptImages.map((img, i) => (
                             <div key={i} style={{ position: 'relative', width: 72, height: 72 }}>
-                              <img src={img} alt="증빙" style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 10, border: '1.5px solid #e2e8f0' }} />
+                              <img src={img} alt="증빙" style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 10, border: '1.5px solid #E6E2D8' }} />
                               <button onClick={() => setReceiptImages(prev => prev.filter((_, idx) => idx !== i))}
                                 style={{ position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%', border: 'none', background: '#dc2626', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>×</button>
                             </div>
                           ))}
                           {receiptImages.length < 1 && (
-                            <label style={{ width: 72, height: 72, borderRadius: 10, border: '1.5px dashed #cbd5e1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', gap: 4, background: '#f8fafc' }}>
+                            <label style={{ width: 72, height: 72, borderRadius: 10, border: '1.5px dashed #D5D2CA', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', gap: 4, background: '#F7F5F0' }}>
                               <span style={{ fontSize: 11, fontWeight: 600 }}>사진 추가</span>
                               <input type="file" accept="image/*" onChange={handleImageAdd} style={{ display: 'none' }} />
                             </label>
@@ -550,7 +550,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>금액</div>
                 <div style={{ position: 'relative' }}>
                   <input type="number" inputMode="numeric" placeholder="0" value={amount} onChange={e => setAmount(e.target.value)}
-                    style={{ width: '100%', padding: '14px 16px 14px 36px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 20, fontWeight: 700, color: 'var(--on-background)', background: '#f8fafc', outline: 'none', boxSizing: 'border-box' }} />
+                    style={{ width: '100%', padding: '14px 16px 14px 36px', borderRadius: 12, border: '1.5px solid #E6E2D8', fontSize: 20, fontWeight: 700, color: 'var(--on-background)', background: '#F7F5F0', outline: 'none', boxSizing: 'border-box' }} />
                   <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'var(--text-muted)', fontWeight: 600 }}>$</span>
                 </div>
               </div>
@@ -564,13 +564,13 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                     <div style={{ flex: 1, display: 'flex', flexWrap: 'wrap', gap: 6, alignContent: 'flex-start' }}>
                       {receiptImages.map((img, i) => (
                         <div key={i} style={{ position: 'relative', width: 72, height: 72 }}>
-                          <img src={img} alt="영수증" style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 10, border: '1.5px solid #e2e8f0' }} />
+                          <img src={img} alt="영수증" style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 10, border: '1.5px solid #E6E2D8' }} />
                           <button onClick={() => setReceiptImages(prev => prev.filter((_, idx) => idx !== i))}
                             style={{ position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%', border: 'none', background: '#dc2626', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
                         </div>
                       ))}
                       {receiptImages.length < 5 && (
-                        <label style={{ width: 72, height: 72, borderRadius: 10, border: '1.5px dashed #cbd5e1', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', gap: 4, background: '#f8fafc' }}>
+                        <label style={{ width: 72, height: 72, borderRadius: 10, border: '1.5px dashed #D5D2CA', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', gap: 4, background: '#F7F5F0' }}>
                           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                           </svg>
@@ -594,10 +594,10 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                       minHeight: mode === 'expense' ? 88 : 72,
                       padding: '10px 12px',
                       borderRadius: 12,
-                      border: '1.5px solid #e2e8f0',
+                      border: '1.5px solid #E6E2D8',
                       fontSize: 14,
                       color: 'var(--on-background)',
-                      background: '#f8fafc',
+                      background: '#F7F5F0',
                       outline: 'none',
                       boxSizing: 'border-box',
                       resize: 'none',
@@ -617,7 +617,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
               <div style={{ marginBottom: 16 }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' }}>회원 (선택)</div>
                 <select value={selectedMember} onChange={e => setSelectedMember(e.target.value)}
-                  style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, color: 'var(--on-background)', background: '#f8fafc', outline: 'none' }}>
+                  style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #E6E2D8', fontSize: 14, color: 'var(--on-background)', background: '#F7F5F0', outline: 'none' }}>
                   <option value="">회원 선택 안함</option>
                   {members.filter(m => m.isActive).map(m => (
                     <option key={m.id} value={m.id}>{m.nickname || m.name}</option>
@@ -629,9 +629,9 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
         </div>
 
         {/* 저장 버튼 — 시트 하단 고정 (flex item, 내비 바 위) */}
-        <div style={{ flexShrink: 0, padding: '12px 20px', paddingBottom: 'calc(12px + 60px + env(safe-area-inset-bottom))', background: '#fff', borderTop: '1px solid #f1f5f9' }}>
+        <div style={{ flexShrink: 0, padding: '12px 20px', paddingBottom: 'calc(12px + 60px + env(safe-area-inset-bottom))', background: '#fff', borderTop: '1px solid #EFEDE7' }}>
           <button onClick={handleSave} disabled={saving || (isRefundFlow && !refundTargetKey)}
-            style={{ width: '100%', padding: '16px', borderRadius: 14, border: 'none', fontSize: 16, fontWeight: 800, cursor: (saving || (isRefundFlow && !refundTargetKey)) ? 'not-allowed' : 'pointer', background: (saving || (isRefundFlow && !refundTargetKey)) ? '#94a3b8' : (mode === 'income' ? 'var(--primary)' : '#dc2626'), color: '#fff' }}>
+            style={{ width: '100%', padding: '16px', borderRadius: 14, border: 'none', fontSize: 16, fontWeight: 800, cursor: (saving || (isRefundFlow && !refundTargetKey)) ? 'not-allowed' : 'pointer', background: (saving || (isRefundFlow && !refundTargetKey)) ? '#9A9DA6' : (mode === 'income' ? 'var(--primary)' : '#dc2626'), color: '#fff' }}>
             {saving ? '저장 중…' : (isRefundFlow ? (refundSubMode === 'credit' ? '크레딧전환 처리' : '환불 처리') : '저장하기')}
           </button>
         </div>
@@ -821,15 +821,15 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
       }}>
         {/* 헤더 */}
         <div style={{ padding: '16px 20px 0', flexShrink: 0 }}>
-          <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 4, margin: '0 auto 16px' }} />
+          <div style={{ width: 40, height: 4, background: '#D5D2CA', borderRadius: 4, margin: '0 auto 16px' }} />
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
             <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--on-background)' }}>{categoryKey}</div>
-            <button onClick={onClose} style={{ background: '#f1f5f9', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 18 }}>×</button>
+            <button onClick={onClose} style={{ background: '#EFEDE7', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 18 }}>×</button>
           </div>
           <div style={{ fontSize: 13, color: color, fontWeight: 700, marginBottom: 14 }}>
             {isIncome ? '+' : '-'}{formatCurrency(total)} · {txList.length}건
           </div>
-          <div style={{ height: 1, background: '#f1f5f9' }} />
+          <div style={{ height: 1, background: '#EFEDE7' }} />
         </div>
 
         {/* 거래 목록 */}
@@ -847,7 +847,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
               return (
                 <div key={t.id} style={{
                   padding: '13px 0',
-                  borderBottom: i < txList.length - 1 ? '1px solid #f1f5f9' : 'none',
+                  borderBottom: i < txList.length - 1 ? '1px solid #EFEDE7' : 'none',
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 10 }}>
                     {/* 왼쪽: 날짜 + 이름/메모 */}
@@ -860,9 +860,9 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
                           <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--on-background)', marginBottom: 1 }}>{memberName}</div>
                         )}
                         {memoText ? (
-                          <div style={{ fontSize: 12, color: '#64748b' }}>{memoText}</div>
+                          <div style={{ fontSize: 12, color: '#5E6473' }}>{memoText}</div>
                         ) : (
-                          <div style={{ fontSize: 12, color: '#cbd5e1' }}>메모 없음</div>
+                          <div style={{ fontSize: 12, color: '#D5D2CA' }}>메모 없음</div>
                         )}
                       </div>
                     </div>
@@ -871,7 +871,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
                       <span style={{ fontSize: 15, fontWeight: 800, color }}>{isIncome ? '+' : '-'}{formatCurrency(t.amount)}</span>
                       <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                         {images.length > 0 && (
-                          <button onClick={() => setViewerImages(images)} style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 7px', borderRadius: 6, border: '1px solid #e2e8f0', background: '#f8fafc', color: 'var(--text-muted)', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                          <button onClick={() => setViewerImages(images)} style={{ display: 'flex', alignItems: 'center', gap: 3, padding: '3px 7px', borderRadius: 6, border: '1px solid #E6E2D8', background: '#F7F5F0', color: 'var(--text-muted)', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                               <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                             </svg>
@@ -879,12 +879,12 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
                           </button>
                         )}
                         {isOperator && (
-                          <button onClick={() => openEdit(t)} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #dbeafe', background: '#eff6ff', color: '#2563eb', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
+                          <button onClick={() => openEdit(t)} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #D3DBE8', background: '#EEF1F6', color: '#24406E', fontSize: 11, fontWeight: 600, cursor: 'pointer' }}>
                             수정
                           </button>
                         )}
                         {isOperator && !isClosed && (
-                          <button onClick={() => handleReverse(t)} disabled={deletingId === t.id} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #fecaca', background: deletingId === t.id ? '#f8fafc' : '#fff5f5', color: deletingId === t.id ? '#94a3b8' : '#dc2626', fontSize: 11, fontWeight: 600, cursor: deletingId === t.id ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}>
+                          <button onClick={() => handleReverse(t)} disabled={deletingId === t.id} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #fecaca', background: deletingId === t.id ? '#F7F5F0' : '#fff5f5', color: deletingId === t.id ? '#9A9DA6' : '#dc2626', fontSize: 11, fontWeight: 600, cursor: deletingId === t.id ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}>
                             {deletingId === t.id ? '...' : (isIncome ? '취소' : '삭제')}
                           </button>
                         )}
@@ -906,7 +906,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
         <>
           <div onClick={() => setEditingTx(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1100 }} />
           <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '20px 20px 0 0', zIndex: 1101, padding: '20px 20px 0' }}>
-            <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 4, margin: '0 auto 16px' }} />
+            <div style={{ width: 40, height: 4, background: '#D5D2CA', borderRadius: 4, margin: '0 auto 16px' }} />
             <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 16 }}>내역 수정</div>
 
             {/* 항목 선택 */}
@@ -914,7 +914,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>항목</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {categories.map(cat => (
-                  <button key={cat} onClick={() => setEditCategory(cat)} style={{ padding: '7px 14px', borderRadius: 20, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', background: editCategory === cat ? (side === 'income' ? '#0047AB' : '#dc2626') : '#f1f5f9', color: editCategory === cat ? '#fff' : 'var(--on-background)' }}>
+                  <button key={cat} onClick={() => setEditCategory(cat)} style={{ padding: '7px 14px', borderRadius: 20, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', background: editCategory === cat ? (side === 'income' ? '#14284B' : '#dc2626') : '#EFEDE7', color: editCategory === cat ? '#fff' : 'var(--on-background)' }}>
                     {cat}
                   </button>
                 ))}
@@ -925,7 +925,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>날짜</div>
               <input type="date" value={editDate} onChange={e => setEditDate(e.target.value)}
-                style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 15, fontWeight: 600, background: '#f8fafc', outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', color: 'var(--on-background)' }} />
+                style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #E6E2D8', fontSize: 15, fontWeight: 600, background: '#F7F5F0', outline: 'none', boxSizing: 'border-box', fontFamily: 'inherit', color: 'var(--on-background)' }} />
               {editDate.slice(0, 7) !== yearMonth && /^\d{4}-\d{2}-\d{2}$/.test(editDate) && (
                 <div style={{ fontSize: 12, color: '#ea580c', marginTop: 6, fontWeight: 600 }}>
                   {parseInt(editDate.slice(5, 7), 10)}월 정산으로 옮겨집니다
@@ -937,7 +937,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
             <div style={{ marginBottom: 14 }}>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>메모</div>
               <textarea value={editMemo} onChange={e => setEditMemo(e.target.value)} placeholder="메모 입력" rows={2}
-                style={{ width: '100%', padding: '10px 12px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, background: '#f8fafc', outline: 'none', boxSizing: 'border-box', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5 }} />
+                style={{ width: '100%', padding: '10px 12px', borderRadius: 12, border: '1.5px solid #E6E2D8', fontSize: 14, background: '#F7F5F0', outline: 'none', boxSizing: 'border-box', resize: 'none', fontFamily: 'inherit', lineHeight: 1.5 }} />
             </div>
 
             {/* 금액 */}
@@ -945,15 +945,15 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>금액</div>
               <div style={{ position: 'relative' }}>
                 <input type="number" inputMode="numeric" value={editAmount} onChange={e => setEditAmount(e.target.value)}
-                  style={{ width: '100%', padding: '12px 14px 12px 34px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 18, fontWeight: 700, background: '#f8fafc', outline: 'none', boxSizing: 'border-box' }} />
+                  style={{ width: '100%', padding: '12px 14px 12px 34px', borderRadius: 12, border: '1.5px solid #E6E2D8', fontSize: 18, fontWeight: 700, background: '#F7F5F0', outline: 'none', boxSizing: 'border-box' }} />
                 <span style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 15, color: 'var(--text-muted)', fontWeight: 600 }}>$</span>
               </div>
             </div>
 
             {/* 버튼 */}
             <div style={{ display: 'flex', gap: 8, paddingBottom: 'calc(70px + env(safe-area-inset-bottom))' }}>
-              <button onClick={() => setEditingTx(null)} style={{ flex: 1, padding: '14px', borderRadius: 14, border: '1.5px solid #e2e8f0', background: '#f8fafc', fontSize: 15, fontWeight: 700, cursor: 'pointer', color: 'var(--text-muted)' }}>취소</button>
-              <button onClick={handleEditSave} disabled={editSaving} style={{ flex: 2, padding: '14px', borderRadius: 14, border: 'none', background: editSaving ? '#94a3b8' : (side === 'income' ? '#0047AB' : '#dc2626'), color: '#fff', fontSize: 15, fontWeight: 800, cursor: editSaving ? 'not-allowed' : 'pointer' }}>
+              <button onClick={() => setEditingTx(null)} style={{ flex: 1, padding: '14px', borderRadius: 14, border: '1.5px solid #E6E2D8', background: '#F7F5F0', fontSize: 15, fontWeight: 700, cursor: 'pointer', color: 'var(--text-muted)' }}>취소</button>
+              <button onClick={handleEditSave} disabled={editSaving} style={{ flex: 2, padding: '14px', borderRadius: 14, border: 'none', background: editSaving ? '#9A9DA6' : (side === 'income' ? '#14284B' : '#dc2626'), color: '#fff', fontSize: 15, fontWeight: 800, cursor: editSaving ? 'not-allowed' : 'pointer' }}>
                 {editSaving ? '저장 중…' : '저장'}
               </button>
             </div>
@@ -972,7 +972,7 @@ function PaySheet({ member, amount, setAmount, memo, setMemo, date, setDate, yea
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 300, backdropFilter: 'blur(2px)' }} />
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '20px 20px 0 0', zIndex: 301, padding: '20px 20px 0' }}>
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
-          <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 4, margin: '0 auto 16px' }} />
+          <div style={{ width: 40, height: 4, background: '#D5D2CA', borderRadius: 4, margin: '0 auto 16px' }} />
           <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--on-background)' }}>납부 처리</div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 4 }}>
             {member.isGuest && (
@@ -987,7 +987,7 @@ function PaySheet({ member, amount, setAmount, memo, setMemo, date, setDate, yea
             <input
               type="number" inputMode="numeric" value={amount}
               onChange={e => setAmount(e.target.value)}
-              style={{ width: '100%', padding: '14px 16px 14px 36px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 20, fontWeight: 700, outline: 'none', boxSizing: 'border-box' }}
+              style={{ width: '100%', padding: '14px 16px 14px 36px', borderRadius: 12, border: '1.5px solid #E6E2D8', fontSize: 20, fontWeight: 700, outline: 'none', boxSizing: 'border-box' }}
             />
             <span style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', fontSize: 16, color: 'var(--text-muted)', fontWeight: 600 }}>$</span>
           </div>
@@ -998,12 +998,12 @@ function PaySheet({ member, amount, setAmount, memo, setMemo, date, setDate, yea
         <div style={{ marginBottom: 20 }}>
           <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 6 }}>메모 (선택)</div>
           <input type="text" value={memo} onChange={e => setMemo(e.target.value)} placeholder="예: 현장 수령, 계좌 이체..."
-            style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
+            style={{ width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #E6E2D8', fontSize: 14, outline: 'none', boxSizing: 'border-box' }} />
         </div>
         <div style={{ display: 'flex', gap: 8, paddingBottom: 'max(80px, calc(68px + env(safe-area-inset-bottom)))' }}>
-          <button onClick={onClose} style={{ flex: 1, padding: 14, borderRadius: 12, border: '1.5px solid #e2e8f0', background: '#fff', color: 'var(--text-muted)', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>취소</button>
+          <button onClick={onClose} style={{ flex: 1, padding: 14, borderRadius: 12, border: '1.5px solid #E6E2D8', background: '#fff', color: 'var(--text-muted)', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>취소</button>
           <button onClick={onConfirm} disabled={paying}
-            style={{ flex: 2, padding: 14, borderRadius: 12, border: 'none', background: paying ? '#94a3b8' : '#16a34a', color: '#fff', fontWeight: 800, fontSize: 14, cursor: paying ? 'not-allowed' : 'pointer' }}>
+            style={{ flex: 2, padding: 14, borderRadius: 12, border: 'none', background: paying ? '#9A9DA6' : '#16a34a', color: '#fff', fontWeight: 800, fontSize: 14, cursor: paying ? 'not-allowed' : 'pointer' }}>
             {paying ? '처리 중…' : '납부 완료 처리'}
           </button>
         </div>
@@ -1109,7 +1109,7 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
       }}>
         {/* 헤더 */}
         <div style={{ padding: '16px 20px 0', flexShrink: 0 }}>
-          <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 4, margin: '0 auto 16px' }} />
+          <div style={{ width: 40, height: 4, background: '#D5D2CA', borderRadius: 4, margin: '0 auto 16px' }} />
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
             <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--on-background)' }}>
               {member.isGuest && (
@@ -1127,13 +1127,13 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
                   {deletingMember ? '삭제중...' : '게스트 삭제'}
                 </button>
               )}
-              <button onClick={onClose} style={{ background: '#f1f5f9', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 18 }}>×</button>
+              <button onClick={onClose} style={{ background: '#EFEDE7', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 18 }}>×</button>
             </div>
           </div>
           <div style={{ fontSize: 12, color: '#ea580c', fontWeight: 600, marginBottom: 14 }}>
             청구취소 시 해당 미수금이 제거됩니다
           </div>
-          <div style={{ height: 1, background: '#f1f5f9' }} />
+          <div style={{ height: 1, background: '#EFEDE7' }} />
         </div>
 
         {/* 청구 목록 */}
@@ -1149,7 +1149,7 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
               return (
                 <div key={c.id} style={{
                   padding: '13px 0',
-                  borderBottom: i < charges.length - 1 ? '1px solid #f1f5f9' : 'none',
+                  borderBottom: i < charges.length - 1 ? '1px solid #EFEDE7' : 'none',
                   display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 }}>
                   <div style={{ display: 'flex', gap: 12, alignItems: 'center', minWidth: 0 }}>
@@ -1174,7 +1174,7 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
                             autoFocus
                             style={{
                               width: 80, padding: '5px 8px', borderRadius: 8,
-                              border: '1px solid #cbd5e1', fontSize: 14, fontWeight: 700,
+                              border: '1px solid #D5D2CA', fontSize: 14, fontWeight: 700,
                               textAlign: 'right', color: 'var(--on-background)',
                             }}
                           />
@@ -1185,7 +1185,7 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
                             disabled={savingEdit}
                             style={{
                               padding: '3px 10px', borderRadius: 8, border: 'none',
-                              background: savingEdit ? '#93c5fd' : 'var(--primary-green)',
+                              background: savingEdit ? '#9AA9C2' : 'var(--primary-green)',
                               color: '#fff', fontSize: 11, fontWeight: 700,
                               cursor: savingEdit ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap',
                             }}
@@ -1196,7 +1196,7 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
                             onClick={() => setEditingId(null)}
                             disabled={savingEdit}
                             style={{
-                              padding: '3px 10px', borderRadius: 8, border: '1px solid #e2e8f0',
+                              padding: '3px 10px', borderRadius: 8, border: '1px solid #E6E2D8',
                               background: '#fff', color: 'var(--text-muted)', fontSize: 11, fontWeight: 600,
                               cursor: 'pointer', whiteSpace: 'nowrap',
                             }}
@@ -1214,8 +1214,8 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
                               onClick={() => { setEditingId(c.id); setEditAmount(String(c.amount)); }}
                               style={{
                                 padding: '3px 10px', borderRadius: 8,
-                                border: '1px solid #bfdbfe', background: '#eff6ff',
-                                color: '#0047AB', fontSize: 11, fontWeight: 600,
+                                border: '1px solid #D3DBE8', background: '#EEF1F6',
+                                color: '#14284B', fontSize: 11, fontWeight: 600,
                                 cursor: 'pointer', whiteSpace: 'nowrap',
                               }}
                             >
@@ -1227,8 +1227,8 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
                               style={{
                                 padding: '3px 10px', borderRadius: 8,
                                 border: '1px solid #fecaca',
-                                background: deletingId === c.id ? '#f8fafc' : '#fff5f5',
-                                color: deletingId === c.id ? '#94a3b8' : '#dc2626',
+                                background: deletingId === c.id ? '#F7F5F0' : '#fff5f5',
+                                color: deletingId === c.id ? '#9A9DA6' : '#dc2626',
                                 fontSize: 11, fontWeight: 600,
                                 cursor: deletingId === c.id ? 'not-allowed' : 'pointer',
                                 whiteSpace: 'nowrap',
@@ -1255,7 +1255,7 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
 // 취소자는 청구가 남아 있어 미수금으로 잡히는데, 실제로는 받을 돈이 아니라
 // 정산(환불/청구취소)을 해야 할 건이다. 표식이 없으면 회비를 독촉하게 된다.
 const CancelledTag = () => (
-  <span style={{ fontSize: 11, fontWeight: 800, color: '#0047AB', background: '#DBEAFE', borderRadius: 6, padding: '2px 6px', whiteSpace: 'nowrap' }}>
+  <span style={{ fontSize: 11, fontWeight: 800, color: '#14284B', background: '#D3DBE8', borderRadius: 6, padding: '2px 6px', whiteSpace: 'nowrap' }}>
     취소 · 정산대기
   </span>
 );
@@ -1328,7 +1328,7 @@ function SettlementResolveSheet({ item, yearMonth, onClose, onDone }) {
   };
 
   const labelStyle = { fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8, letterSpacing: '0.04em' };
-  const inputStyle = { width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, background: '#f8fafc', outline: 'none', boxSizing: 'border-box' };
+  const inputStyle = { width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #E6E2D8', fontSize: 14, background: '#F7F5F0', outline: 'none', boxSizing: 'border-box' };
 
   return (
     <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 320, display: 'flex', alignItems: 'flex-end', touchAction: 'none' }}>
@@ -1341,18 +1341,18 @@ function SettlementResolveSheet({ item, yearMonth, onClose, onDone }) {
           </div>
 
           {/* 상황 요약 */}
-          <div style={{ background: '#f8fafc', borderRadius: 12, padding: '14px 16px', marginBottom: 20 }}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#1e293b', marginBottom: 2 }}>
+          <div style={{ background: '#F7F5F0', borderRadius: 12, padding: '14px 16px', marginBottom: 20 }}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#1A1D26', marginBottom: 2 }}>
               {item.memberName}{item.isGuest ? ' (게스트)' : ''}
             </div>
             <div style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 10 }}>
               {item.bookingTitle} · 참가 취소함
             </div>
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 14px', fontSize: 12, color: '#475569' }}>
-              <span>청구 <b style={{ color: '#1e293b' }}>{formatCurrency(item.chargeTotal)}</b></span>
-              {item.alreadyRefunded > 0 && <span>이미 환불 <b style={{ color: '#1e293b' }}>{formatCurrency(item.alreadyRefunded)}</b></span>}
-              {item.paidByCredit > 0 && <span>크레딧 결제 <b style={{ color: '#1e293b' }}>{formatCurrency(item.paidByCredit)}</b></span>}
-              <span>현재 잔액 <b style={{ color: item.memberBalance < 0 ? '#dc2626' : '#1e293b' }}>{formatCurrency(item.memberBalance)}</b></span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 14px', fontSize: 12, color: '#4B5060' }}>
+              <span>청구 <b style={{ color: '#1A1D26' }}>{formatCurrency(item.chargeTotal)}</b></span>
+              {item.alreadyRefunded > 0 && <span>이미 환불 <b style={{ color: '#1A1D26' }}>{formatCurrency(item.alreadyRefunded)}</b></span>}
+              {item.paidByCredit > 0 && <span>크레딧 결제 <b style={{ color: '#1A1D26' }}>{formatCurrency(item.paidByCredit)}</b></span>}
+              <span>현재 잔액 <b style={{ color: item.memberBalance < 0 ? '#dc2626' : '#1A1D26' }}>{formatCurrency(item.memberBalance)}</b></span>
             </div>
             {item.memberBalance < 0 && (
               <div style={{ fontSize: 11, color: '#ea580c', marginTop: 8, fontWeight: 600 }}>
@@ -1368,10 +1368,10 @@ function SettlementResolveSheet({ item, yearMonth, onClose, onDone }) {
               <div key={c.key} onClick={() => setAction(c.key)}
                 style={{
                   padding: '12px 14px', borderRadius: 12, marginBottom: 8, cursor: 'pointer',
-                  border: '1.5px solid ' + (action === c.key ? '#0047AB' : '#e2e8f0'),
-                  background: action === c.key ? '#EFF6FF' : '#fff',
+                  border: '1.5px solid ' + (action === c.key ? '#14284B' : '#E6E2D8'),
+                  background: action === c.key ? '#EEF1F6' : '#fff',
                 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: action === c.key ? '#0047AB' : '#1e293b' }}>{c.label}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: action === c.key ? '#14284B' : '#1A1D26' }}>{c.label}</div>
                 <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 2 }}>{c.desc}</div>
               </div>
             ))}
@@ -1381,12 +1381,12 @@ function SettlementResolveSheet({ item, yearMonth, onClose, onDone }) {
           {action && (
             <div style={{
               borderRadius: 12, padding: '12px 14px', marginBottom: 18,
-              background: willCreateCredit ? '#FEF3C7' : '#f8fafc',
+              background: willCreateCredit ? '#FEF3C7' : '#F7F5F0',
               border: willCreateCredit ? '1.5px solid #fcd34d' : 'none',
             }}>
-              <div style={{ fontSize: 13, color: '#475569' }}>
+              <div style={{ fontSize: 13, color: '#4B5060' }}>
                 이 처리 후 {item.memberName}님 잔액{' '}
-                <b style={{ color: projectedBalance > 0 ? '#ea580c' : projectedBalance < 0 ? '#dc2626' : '#1e293b' }}>
+                <b style={{ color: projectedBalance > 0 ? '#ea580c' : projectedBalance < 0 ? '#dc2626' : '#1A1D26' }}>
                   {projectedBalance > 0 ? '+' : ''}{formatCurrency(projectedBalance)}
                 </b>
                 {projectedBalance === 0 && <span style={{ color: 'var(--text-muted)' }}> — 미납·크레딧 없이 깔끔하게 끝납니다</span>}
@@ -1409,7 +1409,7 @@ function SettlementResolveSheet({ item, yearMonth, onClose, onDone }) {
                     <button key={val} onClick={() => setMode(val)}
                       style={{
                         flex: 1, padding: 10, borderRadius: 10, border: 'none', fontSize: 13, fontWeight: 700, cursor: 'pointer',
-                        background: mode === val ? '#0047AB' : '#f1f5f9', color: mode === val ? '#fff' : 'var(--on-background)',
+                        background: mode === val ? '#14284B' : '#EFEDE7', color: mode === val ? '#fff' : 'var(--on-background)',
                       }}>{label}</button>
                   ))}
                 </div>
@@ -1436,12 +1436,12 @@ function SettlementResolveSheet({ item, yearMonth, onClose, onDone }) {
                   <div style={labelStyle}>환불 증빙 (선택 — 이체내역 캡처 등)</div>
                   {receiptImage ? (
                     <div style={{ position: 'relative', width: 84, height: 84 }}>
-                      <img src={receiptImage} alt="증빙" style={{ width: 84, height: 84, objectFit: 'cover', borderRadius: 10, border: '1.5px solid #e2e8f0' }} />
+                      <img src={receiptImage} alt="증빙" style={{ width: 84, height: 84, objectFit: 'cover', borderRadius: 10, border: '1.5px solid #E6E2D8' }} />
                       <button onClick={() => setReceiptImage('')}
                         style={{ position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%', border: 'none', background: '#dc2626', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>×</button>
                     </div>
                   ) : (
-                    <label style={{ display: 'flex', width: 84, height: 84, borderRadius: 10, border: '1.5px dashed #cbd5e1', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11, fontWeight: 600, background: '#f8fafc' }}>
+                    <label style={{ display: 'flex', width: 84, height: 84, borderRadius: 10, border: '1.5px dashed #D5D2CA', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11, fontWeight: 600, background: '#F7F5F0' }}>
                       사진 추가
                       <input type="file" accept="image/*" style={{ display: 'none' }}
                         onChange={e => {
@@ -1467,12 +1467,12 @@ function SettlementResolveSheet({ item, yearMonth, onClose, onDone }) {
           </div>
         </div>
 
-        <div style={{ flexShrink: 0, padding: '12px 20px', paddingBottom: 'calc(12px + 60px + env(safe-area-inset-bottom))', background: '#fff', borderTop: '1px solid #f1f5f9' }}>
+        <div style={{ flexShrink: 0, padding: '12px 20px', paddingBottom: 'calc(12px + 60px + env(safe-area-inset-bottom))', background: '#fff', borderTop: '1px solid #EFEDE7' }}>
           <button onClick={handleSubmit} disabled={!action || saving}
             style={{
               width: '100%', padding: 16, borderRadius: 14, border: 'none', fontSize: 16, fontWeight: 800,
               cursor: (!action || saving) ? 'not-allowed' : 'pointer',
-              background: (!action || saving) ? '#94a3b8' : '#0047AB', color: '#fff',
+              background: (!action || saving) ? '#9A9DA6' : '#14284B', color: '#fff',
             }}>
             {saving ? '처리 중…' : '처리하기'}
           </button>
@@ -1654,8 +1654,8 @@ function Settlement() {
   const getCategoryIcon = (cat, side) => {
     const c = (cat || '').toLowerCase();
     const isIncome = side === 'income';
-    const iconColor = isIncome ? '#0047AB' : '#64748b';
-    const bgColor = isIncome ? '#DBEAFE' : '#F1F5F9';
+    const iconColor = isIncome ? '#14284B' : '#5E6473';
+    const bgColor = isIncome ? '#D3DBE8' : '#EFEDE7';
 
     let path = null;
     if (c.includes('회비') || c.includes('참가비') || c.includes('납부'))
@@ -1685,7 +1685,7 @@ function Settlement() {
   };
 
   return (
-    <div style={{ background: '#EEF1F6', minHeight: '100dvh', paddingTop: 'env(safe-area-inset-top)' }}>
+    <div style={{ background: '#EFEDE7', minHeight: '100dvh', paddingTop: 'env(safe-area-inset-top)' }}>
       {/* 헤더 + 월 선택 고정 */}
       <div style={{ position: 'sticky', top: 'env(safe-area-inset-top)', zIndex: 100 }}>
         {/* 헤더 */}
@@ -1695,7 +1695,7 @@ function Settlement() {
           padding: '0 16px', height: 56,
         }}>
           <div style={{ width: 38 }} />
-          <span style={{ fontSize: 18, fontWeight: 800, color: '#1e293b', letterSpacing: '-0.02em' }}>클럽회계</span>
+          <span style={{ fontSize: 18, fontWeight: 800, color: '#1A1D26', letterSpacing: '-0.02em' }}>클럽회계</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             {user && <ProfileBadge user={user} size={32} showInlineName />}
           </div>
@@ -1706,21 +1706,21 @@ function Settlement() {
         <div style={{ background: '#fff', borderRadius: 20, padding: '10px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <button
             onClick={() => setYearMonth(prevMonth(yearMonth))}
-            style={{ background: '#f1f5f9', border: 'none', borderRadius: 10, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b' }}
+            style={{ background: '#EFEDE7', border: 'none', borderRadius: 10, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#5E6473' }}
           >
             <ChevronLeft />
           </button>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="#0047AB"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
-            <span style={{ fontSize: 18, fontWeight: 800, color: '#1e293b' }}>{fmtMonth(yearMonth)}</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="#14284B"><path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-1V1h-2zm3 18H5V8h14v11z"/></svg>
+            <span style={{ fontSize: 18, fontWeight: 800, color: '#1A1D26' }}>{fmtMonth(yearMonth)}</span>
             {data?.isClosed && (
-              <span style={{ fontSize: 11, background: '#64748b', color: '#fff', borderRadius: 6, padding: '2px 6px', fontWeight: 600 }}>마감</span>
+              <span style={{ fontSize: 11, background: '#5E6473', color: '#fff', borderRadius: 6, padding: '2px 6px', fontWeight: 600 }}>마감</span>
             )}
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="#94a3b8"><path d="M7 10l5 5 5-5z"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="#9A9DA6"><path d="M7 10l5 5 5-5z"/></svg>
           </div>
           <button
             onClick={() => setYearMonth(nextMonth(yearMonth))}
-            style={{ background: '#f1f5f9', border: 'none', borderRadius: 10, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b' }}
+            style={{ background: '#EFEDE7', border: 'none', borderRadius: 10, width: 36, height: 36, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#5E6473' }}
           >
             <ChevronRight />
           </button>
@@ -1742,23 +1742,23 @@ function Settlement() {
               const bookingName = p.booking?.title || p.booking?.courseName || '';
               const images = p.receiptImages?.length ? p.receiptImages : p.receiptImage ? [p.receiptImage] : [];
               return (
-                <div key={p.id} style={{ padding: '10px 0', borderTop: '1px solid #f1f5f9' }}>
+                <div key={p.id} style={{ padding: '10px 0', borderTop: '1px solid #EFEDE7' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{memberName}</div>
-                      <div style={{ fontSize: 11, color: '#64748b' }}>{bookingName} · ${p.amount.toLocaleString()}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1D26' }}>{memberName}</div>
+                      <div style={{ fontSize: 11, color: '#5E6473' }}>{bookingName} · ${p.amount.toLocaleString()}</div>
                     </div>
                     <div style={{ fontSize: 13, fontWeight: 800, color: '#dc2626' }}>-${p.amount.toLocaleString()}</div>
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
                     {images.length > 0 && (
                       <button onClick={() => setReceiptViewer(images)}
-                        style={{ flex: 1, padding: '8px 0', borderRadius: 10, border: '1.5px solid #0047AB', background: '#eff6ff', color: '#0047AB', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
+                        style={{ flex: 1, padding: '8px 0', borderRadius: 10, border: '1.5px solid #14284B', background: '#EEF1F6', color: '#14284B', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>
                         영수증 보기
                       </button>
                     )}
                     <button onClick={() => handleCompletePayment(p.id)} disabled={completingId === p.id}
-                      style={{ flex: 1, padding: '8px 0', borderRadius: 10, border: 'none', background: completingId === p.id ? '#94a3b8' : '#16a34a', color: '#fff', fontSize: 12, fontWeight: 800, cursor: completingId === p.id ? 'not-allowed' : 'pointer' }}>
+                      style={{ flex: 1, padding: '8px 0', borderRadius: 10, border: 'none', background: completingId === p.id ? '#9A9DA6' : '#16a34a', color: '#fff', fontSize: 12, fontWeight: 800, cursor: completingId === p.id ? 'not-allowed' : 'pointer' }}>
                       {completingId === p.id ? '처리 중…' : '✓ 납부완료'}
                     </button>
                   </div>
@@ -1769,9 +1769,9 @@ function Settlement() {
         )}
 
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>불러오는 중…</div>
+          <div style={{ textAlign: 'center', padding: 40, color: '#9A9DA6' }}>불러오는 중…</div>
         ) : !data ? (
-          <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>데이터를 불러올 수 없습니다</div>
+          <div style={{ textAlign: 'center', padding: 40, color: '#9A9DA6' }}>데이터를 불러올 수 없습니다</div>
         ) : (() => {
           const monthNet = data.totalIncome - data.totalExpense;
           const incomeEntries = Object.entries(data.incomeByCategory).sort((a, b) => b[1] - a[1]);
@@ -1780,9 +1780,9 @@ function Settlement() {
             <>
               {/* ① 메인 다크 카드 — 수입/지출/이달잔액 */}
               <div style={{
-                background: 'linear-gradient(145deg, #0A2158 0%, #0047AB 100%)',
+                background: 'linear-gradient(145deg, #0D1A33 0%, #14284B 100%)',
                 borderRadius: 24, padding: '20px 20px 22px', marginBottom: 14,
-                boxShadow: '0 8px 28px rgba(0,71,171,0.28)',
+                boxShadow: '0 8px 28px rgba(20,40,75,0.28)',
               }}>
                 <div style={{ display: 'flex', gap: 10, marginBottom: 18 }}>
                   <div style={{ flex: 1, background: 'rgba(255,255,255,0.12)', borderRadius: 16, padding: '14px 16px' }}>
@@ -1809,51 +1809,51 @@ function Settlement() {
               <div style={{ background: '#fff', borderRadius: 20, padding: '20px 20px', marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
                 {/* 지난달 이월금 */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                  <div style={{ width: 32, height: 32, background: '#F1F5F9', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="#64748b"><path d="M13 3a9 9 0 1 0 0 18A9 9 0 0 0 13 3zm0 16a7 7 0 1 1 0-14 7 7 0 0 1 0 14zm.5-11H12v6l5.25 3.15.75-1.23-4.5-2.67V8z"/></svg>
+                  <div style={{ width: 32, height: 32, background: '#EFEDE7', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="#5E6473"><path d="M13 3a9 9 0 1 0 0 18A9 9 0 0 0 13 3zm0 16a7 7 0 1 1 0-14 7 7 0 0 1 0 14zm.5-11H12v6l5.25 3.15.75-1.23-4.5-2.67V8z"/></svg>
                   </div>
-                  <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600 }}>지난달 이월 금액</span>
+                  <span style={{ fontSize: 12, color: '#9A9DA6', fontWeight: 600 }}>지난달 이월 금액</span>
                   {isOperator && !data.isClosed && (
                     editingCarryover ? (
                       <div style={{ display: 'flex', gap: 5, marginLeft: 'auto' }}>
                         <input type="number" value={carryoverInput} onChange={e => setCarryoverInput(e.target.value)}
-                          style={{ width: 90, padding: '4px 8px', borderRadius: 8, border: '1.5px solid #0047AB', fontSize: 13, outline: 'none' }} autoFocus />
-                        <button onClick={handleSaveCarryover} style={{ background: '#0047AB', color: '#fff', border: 'none', borderRadius: 8, padding: '4px 10px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>저장</button>
-                        <button onClick={() => setEditingCarryover(false)} style={{ background: '#e2e8f0', color: '#64748b', border: 'none', borderRadius: 8, padding: '4px 8px', fontSize: 12, cursor: 'pointer' }}>취소</button>
+                          style={{ width: 90, padding: '4px 8px', borderRadius: 8, border: '1.5px solid #14284B', fontSize: 13, outline: 'none' }} autoFocus />
+                        <button onClick={handleSaveCarryover} style={{ background: '#14284B', color: '#fff', border: 'none', borderRadius: 8, padding: '4px 10px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>저장</button>
+                        <button onClick={() => setEditingCarryover(false)} style={{ background: '#E6E2D8', color: '#5E6473', border: 'none', borderRadius: 8, padding: '4px 8px', fontSize: 12, cursor: 'pointer' }}>취소</button>
                       </div>
                     ) : (
                       <button onClick={() => { setEditingCarryover(true); setCarryoverInput(String(data.carryover)); }}
-                        style={{ marginLeft: 'auto', background: '#EFF6FF', color: '#0047AB', border: 'none', borderRadius: 8, padding: '3px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>수정</button>
+                        style={{ marginLeft: 'auto', background: '#EEF1F6', color: '#14284B', border: 'none', borderRadius: 8, padding: '3px 10px', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}>수정</button>
                     )
                   )}
                 </div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: '#1e293b', marginBottom: 18, letterSpacing: '-0.02em' }}>
+                <div style={{ fontSize: 24, fontWeight: 800, color: '#1A1D26', marginBottom: 18, letterSpacing: '-0.02em' }}>
                   {formatCurrency(data.carryover)}
                 </div>
 
-                <div style={{ height: 1, background: '#F1F5F9', marginBottom: 16 }} />
+                <div style={{ height: 1, background: '#EFEDE7', marginBottom: 16 }} />
 
                 {/* 전체 잔액 */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
-                  <div style={{ width: 32, height: 32, background: '#EFF6FF', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                    <svg width="17" height="17" viewBox="0 0 24 24" fill="#0047AB"><path d="M4 10v7h3v-7H4zm6.5 0v7h3v-7h-3zM2 22h19v-3H2v3zm15-12v7h3v-7h-3zM11.5 1L2 6v2h19V6l-9.5-5z"/></svg>
+                  <div style={{ width: 32, height: 32, background: '#EEF1F6', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <svg width="17" height="17" viewBox="0 0 24 24" fill="#14284B"><path d="M4 10v7h3v-7H4zm6.5 0v7h3v-7h-3zM2 22h19v-3H2v3zm15-12v7h3v-7h-3zM11.5 1L2 6v2h19V6l-9.5-5z"/></svg>
                   </div>
-                  <span style={{ fontSize: 12, color: '#0047AB', fontWeight: 700, letterSpacing: '0.01em' }}>전체 잔액 (Total Balance)</span>
+                  <span style={{ fontSize: 12, color: '#14284B', fontWeight: 700, letterSpacing: '0.01em' }}>전체 잔액 (Total Balance)</span>
                 </div>
-                <div style={{ fontSize: 36, fontWeight: 900, color: data.netBalance >= 0 ? '#0047AB' : '#dc2626', letterSpacing: '-0.03em' }}>
+                <div style={{ fontSize: 36, fontWeight: 900, color: data.netBalance >= 0 ? '#14284B' : '#dc2626', letterSpacing: '-0.03em' }}>
                   {data.netBalance >= 0 ? '' : '-'}{formatCurrency(Math.abs(data.netBalance))}
                 </div>
               </div>
 
               {/* 정산 대기 — 참가 취소했는데 환불 여부가 아직 안 정해진 건. 달과 무관한 할 일 목록이라 이번 달 화면에만 표시 */}
               {pendingSettlements.length > 0 && yearMonth === sydneyToday().slice(0, 7) && (
-                <div style={{ background: '#fff', borderRadius: 20, padding: '18px 20px', marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1.5px solid #bfdbfe' }}>
+                <div style={{ background: '#fff', borderRadius: 20, padding: '18px 20px', marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1.5px solid #D3DBE8' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                    <div style={{ fontSize: 14, fontWeight: 800, color: '#0047AB', display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#0047AB"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+                    <div style={{ fontSize: 14, fontWeight: 800, color: '#14284B', display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="#14284B"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
                       정산 대기
                     </div>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#0047AB', background: '#DBEAFE', borderRadius: 8, padding: '2px 8px' }}>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: '#14284B', background: '#D3DBE8', borderRadius: 8, padding: '2px 8px' }}>
                       {pendingSettlements.length}건
                     </span>
                   </div>
@@ -1864,9 +1864,9 @@ function Settlement() {
 
                   {pendingSettlements.map(p => (
                     <div key={p.id} onClick={() => setResolvingItem(p)}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 0', borderTop: '1px solid #DBEAFE', cursor: 'pointer' }}>
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 0', borderTop: '1px solid #D3DBE8', cursor: 'pointer' }}>
                       <div style={{ minWidth: 0 }}>
-                        <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>
+                        <div style={{ fontSize: 14, fontWeight: 600, color: '#1A1D26' }}>
                           {p.memberName}
                           {p.isGuest && <span style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', marginLeft: 6 }}>게스트</span>}
                         </div>
@@ -1875,7 +1875,7 @@ function Settlement() {
                         </div>
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-                        <span style={{ fontSize: 14, fontWeight: 700, color: '#1e293b' }}>{formatCurrency(p.refundableAmount)}</span>
+                        <span style={{ fontSize: 14, fontWeight: 700, color: '#1A1D26' }}>{formatCurrency(p.refundableAmount)}</span>
                         <ChevronRight />
                       </div>
                     </div>
@@ -1915,14 +1915,14 @@ function Settlement() {
                     {regularMembers.map((m, i) => (
                       <div key={m.memberId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 0', borderTop: '1px solid #FEF3C7' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                          <span style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{m.memberNickname || m.memberName}</span>
+                          <span style={{ fontSize: 14, fontWeight: 600, color: '#1A1D26' }}>{m.memberNickname || m.memberName}</span>
                           {cancelledMemberIds.has(m.memberId) && <CancelledTag />}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           {m.receiptImages?.length > 0 && (
                             <button
                               onClick={() => setReceiptViewer(m.receiptImages)}
-                              style={{ padding: '5px 10px', borderRadius: 10, border: '1.5px solid #0047AB', background: '#eff6ff', color: '#0047AB', fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 3 }}
+                              style={{ padding: '5px 10px', borderRadius: 10, border: '1.5px solid #14284B', background: '#EEF1F6', color: '#14284B', fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 3 }}
                             >영수증 보기</button>
                           )}
                           <span style={{ fontSize: 14, fontWeight: 700, color: '#ea580c' }}>{formatCurrency(Math.abs(m.balance))}</span>
@@ -1956,14 +1956,14 @@ function Settlement() {
                       <div key={m.memberId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '11px 0', borderTop: i === 0 && regularMembers.length === 0 ? '1px solid #EDE9FE' : 'none' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
                           <span style={{ fontSize: 11, fontWeight: 800, color: '#7c3aed', background: '#EDE9FE', borderRadius: 6, padding: '2px 6px', letterSpacing: '0.02em' }}>G</span>
-                          <span style={{ fontSize: 14, fontWeight: 600, color: '#1e293b' }}>{m.memberNickname || m.memberName}</span>
+                          <span style={{ fontSize: 14, fontWeight: 600, color: '#1A1D26' }}>{m.memberNickname || m.memberName}</span>
                           {cancelledMemberIds.has(m.memberId) && <CancelledTag />}
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                           {m.receiptImages?.length > 0 && (
                             <button
                               onClick={() => setReceiptViewer(m.receiptImages)}
-                              style={{ padding: '5px 10px', borderRadius: 10, border: '1.5px solid #0047AB', background: '#eff6ff', color: '#0047AB', fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 3 }}
+                              style={{ padding: '5px 10px', borderRadius: 10, border: '1.5px solid #14284B', background: '#EEF1F6', color: '#14284B', fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 3 }}
                             >영수증 보기</button>
                           )}
                           <span style={{ fontSize: 14, fontWeight: 700, color: '#7c3aed' }}>{formatCurrency(Math.abs(m.balance))}</span>
@@ -1991,8 +1991,8 @@ function Settlement() {
                 <>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, paddingLeft: 4 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="#1e293b"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
-                      <span style={{ fontSize: 16, fontWeight: 800, color: '#1e293b' }}>수입 내역</span>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="#1A1D26"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+                      <span style={{ fontSize: 16, fontWeight: 800, color: '#1A1D26' }}>수입 내역</span>
                     </div>
                     <div style={{ background: '#DCFCE7', color: '#16a34a', borderRadius: 999, padding: '5px 14px', fontSize: 13, fontWeight: 700 }}>
                       + {formatCurrency(data.totalIncome)}
@@ -2002,13 +2002,13 @@ function Settlement() {
                     {incomeEntries.map(([cat, amt], i) => (
                       <div key={cat}
                         onClick={() => setCatSheet({ key: cat, side: 'income' })}
-                        style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: i < incomeEntries.length - 1 ? '1px solid #F1F5F9' : 'none', cursor: 'pointer' }}>
+                        style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: i < incomeEntries.length - 1 ? '1px solid #EFEDE7' : 'none', cursor: 'pointer' }}>
                         {getCategoryIcon(cat, 'income')}
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: '#1e293b' }}>{cat}</div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1D26' }}>{cat}</div>
                         </div>
                         <span style={{ fontSize: 15, fontWeight: 800, color: '#16a34a', flexShrink: 0 }}>+{formatCurrency(amt)}</span>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D5D2CA" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                       </div>
                     ))}
                   </div>
@@ -2020,8 +2020,8 @@ function Settlement() {
                 <>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12, paddingLeft: 4 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="#1e293b"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
-                      <span style={{ fontSize: 16, fontWeight: 800, color: '#1e293b' }}>지출 내역</span>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="#1A1D26"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                      <span style={{ fontSize: 16, fontWeight: 800, color: '#1A1D26' }}>지출 내역</span>
                     </div>
                     <div style={{ background: '#FEE2E2', color: '#dc2626', borderRadius: 999, padding: '5px 14px', fontSize: 13, fontWeight: 700 }}>
                       - {formatCurrency(data.totalExpense)}
@@ -2031,13 +2031,13 @@ function Settlement() {
                     {expenseEntries.map(([cat, amt], i) => (
                       <div key={cat}
                         onClick={() => setCatSheet({ key: cat, side: 'expense' })}
-                        style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: i < expenseEntries.length - 1 ? '1px solid #F1F5F9' : 'none', cursor: 'pointer' }}>
+                        style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 0', borderBottom: i < expenseEntries.length - 1 ? '1px solid #EFEDE7' : 'none', cursor: 'pointer' }}>
                         {getCategoryIcon(cat, 'expense')}
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: '#1e293b' }}>{cat}</div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1D26' }}>{cat}</div>
                         </div>
                         <span style={{ fontSize: 15, fontWeight: 800, color: '#dc2626', flexShrink: 0 }}>-{formatCurrency(amt)}</span>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D5D2CA" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                       </div>
                     ))}
                   </div>
@@ -2046,7 +2046,7 @@ function Settlement() {
 
               {/* 데이터 없음 */}
               {incomeEntries.length === 0 && expenseEntries.length === 0 && (
-                <div style={{ textAlign: 'center', padding: '40px 20px', color: '#94a3b8', background: '#fff', borderRadius: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
+                <div style={{ textAlign: 'center', padding: '40px 20px', color: '#9A9DA6', background: '#fff', borderRadius: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
                   <div style={{ fontSize: 14, fontWeight: 600 }}>이번달 거래 내역이 없습니다</div>
                 </div>
               )}
@@ -2060,7 +2060,7 @@ function Settlement() {
                       disabled={closingMonth}
                       style={{
                         width: '100%', padding: '16px', borderRadius: 16, border: 'none',
-                        background: closingMonth ? '#94a3b8' : '#1e293b',
+                        background: closingMonth ? '#9A9DA6' : '#1A1D26',
                         color: '#fff', fontSize: 15, fontWeight: 800, cursor: closingMonth ? 'not-allowed' : 'pointer',
                         boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
                       }}
@@ -2071,7 +2071,7 @@ function Settlement() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                       <button
                         onClick={() => setShowReport(true)}
-                        style={{ width: '100%', padding: '14px', borderRadius: 16, border: 'none', background: '#0047AB', color: '#fff', fontSize: 15, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 14px rgba(0,71,171,0.25)' }}
+                        style={{ width: '100%', padding: '14px', borderRadius: 16, border: 'none', background: '#14284B', color: '#fff', fontSize: 15, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 14px rgba(20,40,75,0.25)' }}
                       >
                         정산서 보기
                       </button>
@@ -2081,7 +2081,7 @@ function Settlement() {
                           await fetch(`/api/settlement/${yearMonth}/reopen`, { method: 'POST', headers: authHeaders });
                           load();
                         }}
-                        style={{ width: '100%', padding: '12px', borderRadius: 16, border: '1.5px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+                        style={{ width: '100%', padding: '12px', borderRadius: 16, border: '1.5px solid #E6E2D8', background: '#fff', color: '#5E6473', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
                       >
                         마감 취소
                       </button>
@@ -2105,7 +2105,7 @@ function Settlement() {
             width: 56, height: 56, borderRadius: '50%',
             background: 'var(--primary)',
             color: '#fff', border: 'none',
-            boxShadow: '0 4px 20px rgba(0,71,171,0.35)',
+            boxShadow: '0 4px 20px rgba(20,40,75,0.35)',
             cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             zIndex: 200,

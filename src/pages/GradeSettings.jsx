@@ -116,37 +116,37 @@ function GradeSettings() {
 
   const d = deriveGrades(gradeSettings);
   const inputStyle = { padding: '10px', border: '1px solid var(--border-color)', borderRadius: '6px', fontSize: '14px', width: '90px' };
-  const fromStyle = { fontSize: '14px', fontWeight: '700', color: '#0047AB', background: '#EBF2FF', padding: '8px 12px', borderRadius: '8px' };
-  const hintStyle = { marginTop: '8px', fontSize: '12px', color: '#0047AB', fontWeight: '500' };
+  const fromStyle = { fontSize: '14px', fontWeight: '700', color: '#14284B', background: '#EEF1F6', padding: '8px 12px', borderRadius: '8px' };
+  const hintStyle = { marginTop: '8px', fontSize: '12px', color: '#14284B', fontWeight: '500' };
 
   return (
-    <div style={{ background: '#F8FAFC', minHeight: '100vh' }}>
+    <div style={{ background: '#F7F5F0', minHeight: '100vh' }}>
       <PageHeader title="그레이드 설정" onBack={goBack} />
 
       <div style={{ padding: '16px 16px 100px' }}>
         {/* 라운딩 정보 카드 */}
-        <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '12px' }}>
+        <div style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E6E2D8', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '12px' }}>
           {booking.title && (
-            <div style={{ fontSize: '12px', color: '#0047AB', fontWeight: '700', marginBottom: '4px', letterSpacing: '0.02em' }}>
+            <div style={{ fontSize: '12px', color: '#14284B', fontWeight: '700', marginBottom: '4px', letterSpacing: '0.02em' }}>
               {booking.title}
             </div>
           )}
-          <div style={{ fontSize: '18px', fontWeight: '800', color: '#1E293B', letterSpacing: '-0.02em', marginBottom: '6px' }}>
+          <div style={{ fontSize: '18px', fontWeight: '800', color: '#1A1D26', letterSpacing: '-0.02em', marginBottom: '6px' }}>
             {booking.courseName}
           </div>
-          <div style={{ fontSize: '13px', color: '#64748B' }}>
+          <div style={{ fontSize: '13px', color: '#5E6473' }}>
             ◆ {new Date(booking.date).toLocaleDateString('ko-KR')} {booking.time}
           </div>
         </div>
 
-        <div style={{ fontSize: '13px', color: '#94A3B8', marginBottom: '16px', paddingLeft: '4px', lineHeight: 1.5 }}>
+        <div style={{ fontSize: '13px', color: '#9A9DA6', marginBottom: '16px', paddingLeft: '4px', lineHeight: 1.5 }}>
           ※ 각 등급의 <b>"까지"</b> 값만 넣으면 다음 등급 "부터"는 자동으로 이어집니다.<br />
           "까지"를 비우면 그 뒤 핸디는 모두 그 등급입니다.
         </div>
 
           {/* Grade A — 최상위, "까지"만 입력 */}
-          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' }}>
-            <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px', color: '#0047AB' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E6E2D8', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' }}>
+            <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px', color: '#14284B' }}>
               ▲ 그레이드 A
             </div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -165,8 +165,8 @@ function GradeSettings() {
           </div>
 
           {/* Grade B — "부터"는 A까지+0.1 자동, "까지"만 입력 */}
-          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' }}>
-            <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px', color: '#0047AB' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E6E2D8', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' }}>
+            <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px', color: '#14284B' }}>
               ▲ 그레이드 B
             </div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -189,8 +189,8 @@ function GradeSettings() {
           </div>
 
           {/* Grade C — "부터"는 B까지+0.1 자동, "까지"만 입력 */}
-          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' }}>
-            <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px', color: '#0047AB' }}>
+          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E6E2D8', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' }}>
+            <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px', color: '#14284B' }}>
               ▲ 그레이드 C
             </div>
             <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
@@ -204,7 +204,7 @@ function GradeSettings() {
                   ...gradeSettings,
                   gradeC: { ...gradeSettings.gradeC, max: e.target.value === '' ? '' : parseFloat(e.target.value) }
                 })}
-                style={{ ...inputStyle, background: d.gradeB.max === '' ? '#F1F5F9' : '#fff' }}
+                style={{ ...inputStyle, background: d.gradeB.max === '' ? '#EFEDE7' : '#fff' }}
               />
               <span style={{ fontSize: '14px', opacity: 0.7 }}>까지</span>
             </div>
@@ -215,8 +215,8 @@ function GradeSettings() {
 
           {/* Grade D — C까지 뒤 나머지 전부(입력칸 없음), C까지가 있을 때만 */}
           {d.gradeD.value !== '' && (
-            <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' }}>
-              <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px', color: '#0047AB' }}>
+            <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E6E2D8', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' }}>
+              <div style={{ fontSize: '15px', fontWeight: '700', marginBottom: '12px', color: '#14284B' }}>
                 ▲ 그레이드 D
               </div>
               <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -231,7 +231,7 @@ function GradeSettings() {
             disabled={isSaving}
             style={{
               width: '100%', padding: '16px', borderRadius: '14px',
-              background: isSaving ? '#94A3B8' : '#0047AB', color: '#FFFFFF',
+              background: isSaving ? '#9A9DA6' : '#14284B', color: '#FFFFFF',
               border: 'none', fontSize: '16px', fontWeight: '700',
               cursor: isSaving ? 'not-allowed' : 'pointer',
               letterSpacing: '-0.01em', marginTop: '4px',

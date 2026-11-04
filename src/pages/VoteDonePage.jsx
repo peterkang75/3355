@@ -9,7 +9,7 @@ import { formatCurrency } from '../utils';
 // 불참: 아쉬움 인사
 // 둘 다: 투표 현황 보기 + 카카오톡 단톡방 바로가기(앱설정 링크, 비어 있으면 숨김) + 홈으로 가기
 
-const PRIMARY = '#0047AB';
+const PRIMARY = '#14284B';
 
 function fmtBookingDate(dateStr) {
   if (!dateStr) return '';
@@ -59,7 +59,7 @@ function VoteDonePage() {
       <div style={{ textAlign: 'center', marginBottom: 24 }}>
         {isAttend ? (
           <>
-            <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#EBF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
+            <div style={{ width: 56, height: 56, borderRadius: '50%', background: '#EEF1F6', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={PRIMARY} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="20 6 9 17 4 12" />
               </svg>
@@ -69,11 +69,11 @@ function VoteDonePage() {
         ) : (
           <>
             <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--on-background)', letterSpacing: '-0.02em', marginBottom: 8 }}>아쉽네요</div>
-            <div style={{ fontSize: 15, color: '#475569', lineHeight: 1.6 }}>다음번엔 꼭 만나뵙길 기대합니다.</div>
+            <div style={{ fontSize: 15, color: '#4B5060', lineHeight: 1.6 }}>다음번엔 꼭 만나뵙길 기대합니다.</div>
           </>
         )}
         {(state.title || booking) && (
-          <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 8 }}>
+          <div style={{ fontSize: 13, color: '#9A9DA6', marginTop: 8 }}>
             {[state.title, booking?.date && fmtBookingDate(booking.date), booking?.courseName].filter(Boolean).join(' · ')}
           </div>
         )}
@@ -84,9 +84,9 @@ function VoteDonePage() {
           {/* 지금 납부할 금액 — 실제 장부 잔액 기준 */}
           {balance !== undefined && (
             <div style={{ ...card, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span style={{ fontSize: 14, fontWeight: 700, color: '#475569' }}>지금 납부할 금액</span>
+              <span style={{ fontSize: 14, fontWeight: 700, color: '#4B5060' }}>지금 납부할 금액</span>
               {balance === null ? (
-                <span style={{ fontSize: 14, color: '#94a3b8' }}>불러오는 중…</span>
+                <span style={{ fontSize: 14, color: '#9A9DA6' }}>불러오는 중…</span>
               ) : owed > 0 ? (
                 <span style={{ fontSize: 22, fontWeight: 900, color: PRIMARY, letterSpacing: '-0.02em' }}>{formatCurrency(owed)}</span>
               ) : (
@@ -95,14 +95,14 @@ function VoteDonePage() {
             </div>
           )}
           {balance !== null && balance !== undefined && owed === 0 && (
-            <div style={{ fontSize: 12, color: '#94a3b8', margin: '-6px 4px 14px' }}>미리 내신 크레딧으로 처리되었습니다.</div>
+            <div style={{ fontSize: 12, color: '#9A9DA6', margin: '-6px 4px 14px' }}>미리 내신 크레딧으로 처리되었습니다.</div>
           )}
 
           {/* 납부 안내 — 앱설정 문구 그대로 */}
           {guideText && (
-            <div style={{ ...card, background: '#EBF2FF', boxShadow: 'none', border: '1px solid rgba(0,71,171,0.12)' }}>
+            <div style={{ ...card, background: '#EEF1F6', boxShadow: 'none', border: '1px solid rgba(20,40,75,0.12)' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: PRIMARY, marginBottom: 8 }}>납부 안내</div>
-              <div style={{ fontSize: 13, color: '#1e40af', lineHeight: 1.7, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{guideText}</div>
+              <div style={{ fontSize: 13, color: '#24406E', lineHeight: 1.7, whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>{guideText}</div>
             </div>
           )}
         </>
@@ -124,7 +124,7 @@ function VoteDonePage() {
           </a>
         )}
         <button onClick={() => navigate('/', { replace: true })}
-          style={{ minHeight: 48, borderRadius: 14, border: 'none', background: 'none', color: '#64748b', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+          style={{ minHeight: 48, borderRadius: 14, border: 'none', background: 'none', color: '#5E6473', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
           홈으로 가기
         </button>
       </div>

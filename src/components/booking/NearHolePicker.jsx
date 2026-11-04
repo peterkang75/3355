@@ -9,7 +9,7 @@ import React from 'react';
 //   onChange : (18칸 배열) => void
 //   canEdit  : 운영진 여부
 
-const INK = '#1E293B';
+const INK = '#1A1D26';
 const HOLES = Array.from({ length: 18 }, (_, i) => i);
 
 export const courseNearHoles = (course) => {
@@ -34,8 +34,8 @@ export default function NearHolePicker({ course, value, onChange, canEdit }) {
   if (!canEdit) {
     return (
       <div>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>니어홀</div>
-        <div style={{ fontSize: 13, color: '#64748B', marginTop: 4, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1D26' }}>니어홀</div>
+        <div style={{ fontSize: 13, color: '#5E6473', marginTop: 4, lineHeight: 1.5 }}>
           {picked.length ? `${picked.join(', ')}번 홀` : '지정된 니어홀이 없습니다'} · 운영진이 바꿀 수 있습니다
         </div>
       </div>
@@ -46,7 +46,7 @@ export default function NearHolePicker({ course, value, onChange, canEdit }) {
 
   const renderNine = (start, label) => (
     <div style={{ marginTop: 10 }}>
-      <div style={{ fontSize: 12, fontWeight: 600, color: '#94A3B8', marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 12, fontWeight: 600, color: '#9A9DA6', marginBottom: 6 }}>{label}</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: 4 }}>
         {HOLES.slice(start, start + 9).map(i => {
           const on = holes[i];
@@ -57,12 +57,12 @@ export default function NearHolePicker({ course, value, onChange, canEdit }) {
               style={{
                 minHeight: 46, padding: 0, borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 1,
-                border: on ? `1.5px solid ${INK}` : `1px solid ${par3 ? '#CBD5E1' : '#E8ECF0'}`,
-                background: on ? INK : par3 ? '#F1F5F9' : '#FFFFFF',
-                color: on ? '#FFFFFF' : '#1E293B',
+                border: on ? `1.5px solid ${INK}` : `1px solid ${par3 ? '#D5D2CA' : '#E6E2D8'}`,
+                background: on ? INK : par3 ? '#EFEDE7' : '#FFFFFF',
+                color: on ? '#FFFFFF' : '#1A1D26',
               }}>
               <span style={{ fontSize: 14, fontWeight: 700, lineHeight: 1 }}>{i + 1}</span>
-              {pars[i] && <span style={{ fontSize: 11, fontWeight: 600, lineHeight: 1, color: on ? 'rgba(255,255,255,0.75)' : par3 ? INK : '#94A3B8' }}>P{pars[i]}</span>}
+              {pars[i] && <span style={{ fontSize: 11, fontWeight: 600, lineHeight: 1, color: on ? 'rgba(255,255,255,0.75)' : par3 ? INK : '#9A9DA6' }}>P{pars[i]}</span>}
             </button>
           );
         })}
@@ -73,14 +73,14 @@ export default function NearHolePicker({ course, value, onChange, canEdit }) {
   return (
     <div>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
-        <span style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>니어홀</span>
-        <span style={{ fontSize: 13, color: picked.length ? INK : '#94A3B8', fontWeight: 600 }}>
+        <span style={{ fontSize: 13, fontWeight: 700, color: '#1A1D26' }}>니어홀</span>
+        <span style={{ fontSize: 13, color: picked.length ? INK : '#9A9DA6', fontWeight: 600 }}>
           {picked.length ? `${picked.length}개 · ${picked.join(', ')}번` : '선택 안 함'}
         </span>
       </div>
       {renderNine(0, '전반 1–9')}
       {renderNine(9, '후반 10–18')}
-      <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 8, lineHeight: 1.5 }}>
+      <div style={{ fontSize: 12, color: '#9A9DA6', marginTop: 8, lineHeight: 1.5 }}>
         파3 홀은 회색 바탕으로 표시됩니다. 여기서 바꾸면 이 골프장의 다음 라운딩에도 그대로 적용됩니다.
       </div>
     </div>

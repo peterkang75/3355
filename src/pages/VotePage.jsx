@@ -16,7 +16,7 @@ function VotePage() {
         padding: '14px 20px 12px',
         paddingTop: 'calc(env(safe-area-inset-top) + 14px)',
         background: '#fff',
-        boxShadow: '0 1px 0 rgba(0,71,171,0.07)',
+        boxShadow: '0 1px 0 rgba(20,40,75,0.07)',
       }}>
         <button onClick={() => navigate('/')} style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: 'var(--on-background)', display: 'flex' }}>
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -31,15 +31,15 @@ function VotePage() {
           initialRevote={!!location.state?.revote}
           emptyFallback={
             <div style={{ padding: '60px 32px', textAlign: 'center' }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#475569', marginBottom: 6 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#4B5060', marginBottom: 6 }}>
                 지금 진행 중인 투표가 없습니다
               </div>
-              <div style={{ fontSize: 13, color: '#94a3b8', lineHeight: 1.6 }}>
+              <div style={{ fontSize: 13, color: '#9A9DA6', lineHeight: 1.6 }}>
                 투표가 이미 마감되었거나 아직 열리지 않았습니다.
               </div>
               <button onClick={() => navigate('/')} style={{
                 marginTop: 20, padding: '11px 22px', borderRadius: 12, border: 'none',
-                background: '#0047AB', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer',
+                background: '#14284B', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer',
               }}>홈으로</button>
             </div>
           }

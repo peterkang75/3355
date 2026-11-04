@@ -61,7 +61,7 @@ function BottomSheet({ onClose, children, maxHeight = "85vh" }) {
       <div onClick={onClose} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.45)", zIndex: 999, backdropFilter: "blur(2px)" }} />
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: "#fff", borderRadius: "24px 24px 0 0", zIndex: 1000, maxHeight, display: "flex", flexDirection: "column", animation: "slideUpFees 0.25s ease-out", boxShadow: "0 -4px 24px rgba(0,0,0,0.12)" }}>
         <div style={{ textAlign: "center", padding: "14px 0 6px", flexShrink: 0 }}>
-          <div style={{ width: "40px", height: "4px", background: "#CBD5E1", borderRadius: "2px", margin: "0 auto" }} />
+          <div style={{ width: "40px", height: "4px", background: "#D5D2CA", borderRadius: "2px", margin: "0 auto" }} />
         </div>
         {children}
       </div>
@@ -76,34 +76,34 @@ function CreditModal({ mode, creditBalance, actualUnpaid, amount, setAmount, mem
   return (
     <BottomSheet onClose={onClose} maxHeight="60vh">
       <div style={{ padding: "8px 20px 20px" }}>
-        <div style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", marginBottom: 4 }}>
+        <div style={{ fontSize: 18, fontWeight: 700, color: "#1A1D26", marginBottom: 4 }}>
           {isDonation ? "클럽에 기부하기" : "크레딧으로 납부"}
         </div>
-        <div style={{ fontSize: 13, color: "#94A3B8", marginBottom: 20 }}>
+        <div style={{ fontSize: 13, color: "#9A9DA6", marginBottom: 20 }}>
           {isDonation ? `사용 가능 크레딧: $${creditBalance.toLocaleString()}` : `미납: $${actualUnpaid.toLocaleString()} · 크레딧: $${creditBalance.toLocaleString()}`}
         </div>
         <div style={{ marginBottom: 14 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "#64748B", marginBottom: 6 }}>금액</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: "#5E6473", marginBottom: 6 }}>금액</div>
           <input
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1px solid #E2E8F0", fontSize: 16, outline: "none", boxSizing: "border-box", fontWeight: 700 }}
+            style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1px solid #E6E2D8", fontSize: 16, outline: "none", boxSizing: "border-box", fontWeight: 700 }}
           />
         </div>
         <div style={{ marginBottom: 20 }}>
-          <div style={{ fontSize: 12, fontWeight: 600, color: "#64748B", marginBottom: 6 }}>메모 (선택)</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: "#5E6473", marginBottom: 6 }}>메모 (선택)</div>
           <input
             type="text"
             value={memo}
             onChange={(e) => setMemo(e.target.value)}
             placeholder="메모 입력"
-            style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1px solid #E2E8F0", fontSize: 14, outline: "none", boxSizing: "border-box" }}
+            style={{ width: "100%", padding: "12px 14px", borderRadius: 12, border: "1px solid #E6E2D8", fontSize: 14, outline: "none", boxSizing: "border-box" }}
           />
         </div>
         <div style={{ display: "flex", gap: 8, paddingBottom: "max(80px, calc(68px + env(safe-area-inset-bottom)))" }}>
-          <button onClick={onClose} style={{ flex: 1, padding: 14, borderRadius: 12, border: "1.5px solid #E2E8F0", background: "#fff", color: "#64748B", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>취소</button>
-          <button onClick={onConfirm} disabled={loading} style={{ flex: 2, padding: 14, borderRadius: 12, border: "none", background: loading ? "#94A3B8" : "#0047AB", color: "#fff", fontWeight: 700, fontSize: 14, cursor: loading ? "not-allowed" : "pointer" }}>
+          <button onClick={onClose} style={{ flex: 1, padding: 14, borderRadius: 12, border: "1.5px solid #E6E2D8", background: "#fff", color: "#5E6473", fontWeight: 600, fontSize: 14, cursor: "pointer" }}>취소</button>
+          <button onClick={onConfirm} disabled={loading} style={{ flex: 2, padding: 14, borderRadius: 12, border: "none", background: loading ? "#9A9DA6" : "#14284B", color: "#fff", fontWeight: 700, fontSize: 14, cursor: loading ? "not-allowed" : "pointer" }}>
             {loading ? "처리중..." : isDonation ? "기부하기" : "납부하기"}
           </button>
         </div>
@@ -232,12 +232,12 @@ function Fees() {
 
       <div className="page-content" style={{ paddingTop: 8, minHeight: 'calc(100dvh - 60px)' }}>
         {/* 탭 */}
-        <div style={{ display: "flex", background: "#E2E8F0", borderRadius: 14, padding: 4, marginBottom: 16 }}>
+        <div style={{ display: "flex", background: "#E6E2D8", borderRadius: 14, padding: 4, marginBottom: 16 }}>
           {[["personal", "개인 참가비 내역"], ["settlements", "정산서"]].map(([key, label]) => (
             <button
               key={key}
               onClick={() => setActiveTab(key)}
-              style={{ flex: 1, padding: "10px", borderRadius: 10, border: "none", background: activeTab === key ? "#FFF" : "transparent", fontWeight: activeTab === key ? 800 : 600, color: activeTab === key ? "#0047AB" : "#64748B", cursor: "pointer", transition: "all 0.18s", fontSize: 14 }}
+              style={{ flex: 1, padding: "10px", borderRadius: 10, border: "none", background: activeTab === key ? "#FFF" : "transparent", fontWeight: activeTab === key ? 800 : 600, color: activeTab === key ? "#14284B" : "#5E6473", cursor: "pointer", transition: "all 0.18s", fontSize: 14 }}
             >
               {label}
             </button>
@@ -247,7 +247,7 @@ function Fees() {
         {activeTab === "personal" ? (
           <div style={{ padding: "0 0 8px" }}>
             {/* 잔액 카드 — azure gradient */}
-            <div style={{ background: "linear-gradient(135deg, #0047AB 0%, #00327d 100%)", borderRadius: 24, padding: "28px 24px 24px", marginBottom: 24, boxShadow: "0 20px 40px rgba(0,50,125,0.18)", position: "relative", overflow: "hidden" }}>
+            <div style={{ background: "linear-gradient(135deg, #14284B 0%, #0F1F3B 100%)", borderRadius: 24, padding: "28px 24px 24px", marginBottom: 24, boxShadow: "0 20px 40px rgba(0,50,125,0.18)", position: "relative", overflow: "hidden" }}>
               {/* 지갑 배경 패턴 */}
               <svg style={{ position: "absolute", right: -8, top: "50%", transform: "translateY(-50%)", opacity: 0.15, pointerEvents: "none" }} width="170" height="150" viewBox="0 0 170 150" fill="none" xmlns="http://www.w3.org/2000/svg">
                 {/* 지갑 본체 */}
@@ -285,7 +285,7 @@ function Fees() {
                   {creditBalance > 0 && (
                     <button
                       onClick={() => { setShowCreditModal("donation"); setCreditActionAmount(creditBalance.toString()); }}
-                      style={{ background: "#fff", color: "#0047AB", border: "none", borderRadius: 12, padding: "8px 18px", fontSize: 13, fontWeight: 700, cursor: "pointer", flexShrink: 0 }}
+                      style={{ background: "#fff", color: "#14284B", border: "none", borderRadius: 12, padding: "8px 18px", fontSize: 13, fontWeight: 700, cursor: "pointer", flexShrink: 0 }}
                     >
                       기부하기
                     </button>
@@ -297,10 +297,10 @@ function Fees() {
             {/* 거래 내역 */}
             <div style={{ marginBottom: 16 }}>
               <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, padding: "0 2px" }}>
-                <span style={{ fontSize: 18, fontWeight: 800, color: "#0f172a", letterSpacing: "-0.02em" }}>최근 내역</span>
+                <span style={{ fontSize: 18, fontWeight: 800, color: "#1A1D26", letterSpacing: "-0.02em" }}>최근 내역</span>
               </div>
               {userTransactions.length === 0 ? (
-                <div style={{ background: "#fff", borderRadius: 16, padding: "28px 20px", textAlign: "center", color: "#94A3B8", fontSize: 14, boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>내역이 없습니다.</div>
+                <div style={{ background: "#fff", borderRadius: 16, padding: "28px 20px", textAlign: "center", color: "#9A9DA6", fontSize: 14, boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>내역이 없습니다.</div>
               ) : (
                 <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   {userTransactions
@@ -308,8 +308,8 @@ function Fees() {
                     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
                     .map((t) => {
                       const debit = isDebit(t);
-                      const iconBg = debit ? "rgba(220,38,38,0.09)" : "rgba(0,71,171,0.09)";
-                      const iconColor = debit ? "#DC2626" : "#0047AB";
+                      const iconBg = debit ? "rgba(220,38,38,0.09)" : "rgba(20,40,75,0.09)";
+                      const iconColor = debit ? "#DC2626" : "#14284B";
                       const TxIcon = () => {
                         const s = { width: 20, height: 20, stroke: iconColor, fill: "none", strokeWidth: 1.8, strokeLinecap: "round", strokeLinejoin: "round" };
                         if (t.type === "payment" || t.type === "credit") return (
@@ -337,8 +337,8 @@ function Fees() {
                                 <TxIcon />
                               </div>
                               <div>
-                                <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>{getTransactionLabel(t)}</div>
-                                <div style={{ fontSize: 12, color: "#94A3B8", marginTop: 2 }}>{fmtDate(t.date || t.createdAt)}</div>
+                                <div style={{ fontSize: 14, fontWeight: 600, color: "#1A1D26" }}>{getTransactionLabel(t)}</div>
+                                <div style={{ fontSize: 12, color: "#9A9DA6", marginTop: 2 }}>{fmtDate(t.date || t.createdAt)}</div>
                               </div>
                             </div>
                             <div style={{ textAlign: "right" }}>
@@ -347,20 +347,20 @@ function Fees() {
                           </div>
                           {/* charge 타입 — 영수증 첨부 */}
                           {t.type === "charge" && (
-                            <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #f1f5f9", display: "flex", alignItems: "center", gap: 8 }}>
+                            <div style={{ marginTop: 10, paddingTop: 10, borderTop: "1px solid #EFEDE7", display: "flex", alignItems: "center", gap: 8 }}>
                               {hasReceipt ? (
                                 <>
                                   <button onClick={() => setViewerImage(receiptUploaded[t.id] || t.receiptImage)}
-                                    style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1.5px solid #0047AB", background: "#eff6ff", color: "#0047AB", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                                    style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1.5px solid #14284B", background: "#EEF1F6", color: "#14284B", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
                                     영수증 확인
                                   </button>
-                                  <label style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1.5px solid #e2e8f0", background: "#f8fafc", color: "#64748b", fontSize: 12, fontWeight: 600, cursor: "pointer", textAlign: "center", display: "block" }}>
+                                  <label style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1.5px solid #E6E2D8", background: "#F7F5F0", color: "#5E6473", fontSize: 12, fontWeight: 600, cursor: "pointer", textAlign: "center", display: "block" }}>
                                     다시 첨부
                                     <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => handleReceiptUpload(t.id, e.target.files[0])} />
                                   </label>
                                 </>
                               ) : (
-                                <label style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1.5px dashed #0047AB", background: "#eff6ff", color: "#0047AB", fontSize: 12, fontWeight: 700, cursor: "pointer", textAlign: "center", display: "block" }}>
+                                <label style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1.5px dashed #14284B", background: "#EEF1F6", color: "#14284B", fontSize: 12, fontWeight: 700, cursor: "pointer", textAlign: "center", display: "block" }}>
                                   {uploadingReceiptId === t.id ? "업로드 중…" : "계좌이체 영수증 첨부"}
                                   <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => handleReceiptUpload(t.id, e.target.files[0])} disabled={uploadingReceiptId === t.id} />
                                 </label>
@@ -377,10 +377,10 @@ function Fees() {
 
             {/* 납부 안내 문구 — 맨 아래 박스 */}
             {paymentGuideText && (
-              <div style={{ background: "#EBF2FF", borderRadius: 20, padding: "18px 20px", display: "flex", alignItems: "flex-start", gap: 14, border: "1px solid rgba(0,71,171,0.12)", marginBottom: 0 }}>
+              <div style={{ background: "#EEF1F6", borderRadius: 20, padding: "18px 20px", display: "flex", alignItems: "flex-start", gap: 14, border: "1px solid rgba(20,40,75,0.12)", marginBottom: 0 }}>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#0047AB", marginBottom: 6 }}>납부 안내</div>
-                  <div style={{ fontSize: 12, color: "#1e40af", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{paymentGuideText}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#14284B", marginBottom: 6 }}>납부 안내</div>
+                  <div style={{ fontSize: 12, color: "#24406E", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{paymentGuideText}</div>
                 </div>
               </div>
             )}
@@ -388,11 +388,11 @@ function Fees() {
         ) : (
           <div style={{ padding: "0 0 8px" }}>
             {settlementsLoading ? (
-              <div style={{ background: "#fff", borderRadius: 16, padding: "40px 20px", textAlign: "center", color: "#94A3B8", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>불러오는 중...</div>
+              <div style={{ background: "#fff", borderRadius: 16, padding: "40px 20px", textAlign: "center", color: "#9A9DA6", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>불러오는 중...</div>
             ) : settlements.length === 0 ? (
               <div style={{ background: "#fff", borderRadius: 16, padding: "48px 20px", textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: "#334155", marginBottom: 6 }}>아직 마감된 정산서가 없습니다</div>
-                <div style={{ fontSize: 13, color: "#94A3B8" }}>월 마감이 완료되면 여기에 표시됩니다</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: "#363A47", marginBottom: 6 }}>아직 마감된 정산서가 없습니다</div>
+                <div style={{ fontSize: 13, color: "#9A9DA6" }}>월 마감이 완료되면 여기에 표시됩니다</div>
               </div>
             ) : (
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -407,7 +407,7 @@ function Fees() {
                       {/* 1행: 월 제목 + 정산완료 뱃지 + 정산서 보기 버튼 */}
                       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
                         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                          <span style={{ fontSize: 18, fontWeight: 700, color: "#0f172a", letterSpacing: "-0.02em" }}>
+                          <span style={{ fontSize: 18, fontWeight: 700, color: "#1A1D26", letterSpacing: "-0.02em" }}>
                             {y}년 {parseInt(m)}월
                           </span>
                           <div style={{ background: "#d1fae5", borderRadius: 20, padding: "4px 10px" }}>
@@ -416,30 +416,30 @@ function Fees() {
                         </div>
                         <button
                           onClick={() => setReportYearMonth(s.yearMonth)}
-                          style={{ padding: "6px 14px", borderRadius: 10, border: "none", background: "#0047AB", color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}
+                          style={{ padding: "6px 14px", borderRadius: 10, border: "none", background: "#14284B", color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer", whiteSpace: "nowrap" }}
                         >
                           정산서 보기
                         </button>
                       </div>
                       {/* 2행: 누적 잔액 */}
-                      <div style={{ fontSize: 12, color: "#94a3b8", marginBottom: 14 }}>
-                        누적 잔액: <span style={{ fontWeight: 500, color: "#64748b" }}>${s.netBalance.toLocaleString()}</span>
+                      <div style={{ fontSize: 12, color: "#9A9DA6", marginBottom: 14 }}>
+                        누적 잔액: <span style={{ fontWeight: 500, color: "#5E6473" }}>${s.netBalance.toLocaleString()}</span>
                       </div>
                       {/* 구분선 */}
-                      <div style={{ height: 1, background: "#f1f5f9", marginBottom: 12 }} />
+                      <div style={{ height: 1, background: "#EFEDE7", marginBottom: 12 }} />
                       {/* 3행: 수입 / 지출 / 이달 손익 */}
                       <div style={{ display: "flex", alignItems: "flex-end", gap: 0 }}>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 400, marginBottom: 3 }}>수입</div>
-                          <div style={{ fontSize: 15, fontWeight: 400, color: "#0047AB" }}>+${s.totalIncome.toLocaleString()}</div>
+                          <div style={{ fontSize: 11, color: "#9A9DA6", fontWeight: 400, marginBottom: 3 }}>수입</div>
+                          <div style={{ fontSize: 15, fontWeight: 400, color: "#14284B" }}>+${s.totalIncome.toLocaleString()}</div>
                         </div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 400, marginBottom: 3 }}>지출</div>
+                          <div style={{ fontSize: 11, color: "#9A9DA6", fontWeight: 400, marginBottom: 3 }}>지출</div>
                           <div style={{ fontSize: 15, fontWeight: 400, color: "#dc2626" }}>-${s.totalExpense.toLocaleString()}</div>
                         </div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 11, color: "#94a3b8", fontWeight: 400, marginBottom: 3 }}>이달 손익</div>
-                          <div style={{ fontSize: 15, fontWeight: 500, color: monthPos ? "#334155" : "#dc2626" }}>
+                          <div style={{ fontSize: 11, color: "#9A9DA6", fontWeight: 400, marginBottom: 3 }}>이달 손익</div>
+                          <div style={{ fontSize: 15, fontWeight: 500, color: monthPos ? "#363A47" : "#dc2626" }}>
                             {monthPos ? "" : "-"}${Math.abs(monthNet).toLocaleString()}
                           </div>
                         </div>

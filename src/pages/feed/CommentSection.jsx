@@ -38,11 +38,11 @@ export default function CommentSection({ targetType, targetId, currentUser, isOp
     <div style={{ marginTop: 4 }}>
       {comments.map((c) => (
         <div key={c.id} style={{ display: 'flex', gap: 8, padding: '6px 0', fontSize: 14 }}>
-          <span style={{ fontWeight: 600, color: '#0F172A', flexShrink: 0 }}>{c.authorName}</span>
-          <span style={{ color: '#334155', flex: 1 }}>{c.content}</span>
+          <span style={{ fontWeight: 600, color: '#1A1D26', flexShrink: 0 }}>{c.authorName}</span>
+          <span style={{ color: '#363A47', flex: 1 }}>{c.content}</span>
           {(c.authorId === currentUser?.id || isOperator) && (
             <button onClick={() => remove(c.id)} style={{ background: 'none', border: 'none',
-              color: '#CBD5E1', cursor: 'pointer', fontSize: 12 }}>삭제</button>
+              color: '#D5D2CA', cursor: 'pointer', fontSize: 12 }}>삭제</button>
           )}
         </div>
       ))}
@@ -51,11 +51,11 @@ export default function CommentSection({ targetType, targetId, currentUser, isOp
           <input value={text} onChange={(e) => setText(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && submit()}
             placeholder="댓글 입력..."
-            style={{ flex: 1, minHeight: 40, border: '1px solid #E2E8F0', borderRadius: 8,
+            style={{ flex: 1, minHeight: 40, border: '1px solid #E6E2D8', borderRadius: 8,
               padding: '0 12px', fontSize: 14 }} />
           <button onClick={submit} disabled={sending}
             style={{ minHeight: 40, padding: '0 14px', border: 'none', borderRadius: 8,
-              background: '#0047AB', color: '#fff', fontWeight: 600, fontSize: 14 }}>등록</button>
+              background: '#14284B', color: '#fff', fontWeight: 600, fontSize: 14 }}>등록</button>
         </div>
       )}
     </div>

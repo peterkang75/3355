@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 /* ─── 아이콘 SVG (dual-tone: inactive=outline / active=filled) ─── */
 
 const HomeIcon = ({ active }) => {
-  const c = active ? 'var(--primary)' : '#94A3B8';
+  const c = active ? 'var(--primary)' : '#9A9DA6';
   return (
     <svg width="25" height="25" viewBox="0 0 24 24" fill="none">
       <path
@@ -20,7 +20,7 @@ const HomeIcon = ({ active }) => {
 };
 
 const GolfIcon = ({ active }) => {
-  const c = active ? 'var(--primary)' : '#94A3B8';
+  const c = active ? 'var(--primary)' : '#9A9DA6';
   return (
     <svg width="25" height="25" viewBox="0 0 24 24" fill="none">
       {/* 깃대 */}
@@ -40,7 +40,7 @@ const GolfIcon = ({ active }) => {
 };
 
 const FeesIcon = ({ active }) => {
-  const c = active ? 'var(--primary)' : '#94A3B8';
+  const c = active ? 'var(--primary)' : '#9A9DA6';
   const inner = active ? 'white' : c;
   return (
     <svg width="25" height="25" viewBox="0 0 24 24" fill="none">
@@ -63,7 +63,7 @@ const FeesIcon = ({ active }) => {
 };
 
 const FeedIcon = ({ active }) => {
-  const c = active ? 'var(--primary)' : '#94A3B8';
+  const c = active ? 'var(--primary)' : '#9A9DA6';
   return (
     <svg width="25" height="25" viewBox="0 0 24 24" fill="none">
       <rect x="3" y="4" width="18" height="14" rx="3"
@@ -80,7 +80,7 @@ const FeedIcon = ({ active }) => {
 };
 
 const GridIcon = ({ active }) => {
-  const c = active ? 'var(--primary)' : '#94A3B8';
+  const c = active ? 'var(--primary)' : '#9A9DA6';
   const f = active ? 'var(--primary)' : 'none';
   return (
     <svg width="25" height="25" viewBox="0 0 24 24" fill="none">
@@ -107,7 +107,7 @@ function NavItem({ href, label, active, onClick, children }) {
         justifyContent: 'center',
         padding: '8px 4px 5px',
         textDecoration: 'none',
-        color: active ? 'var(--primary)' : '#94A3B8',
+        color: active ? 'var(--primary)' : '#9A9DA6',
         fontWeight: active ? 700 : 500,
         fontSize: 11,
         gap: 4,
@@ -161,7 +161,7 @@ function Navigation({ user }) {
       display: 'flex',
       justifyContent: 'space-around',
       paddingBottom: 'max(6px, env(safe-area-inset-bottom))',
-      boxShadow: '0 -1px 0 rgba(0,0,0,0.06), 0 -4px 20px rgba(0,71,171,0.06)',
+      boxShadow: '0 -1px 0 rgba(0,0,0,0.06), 0 -4px 20px rgba(20,40,75,0.06)',
       zIndex: 1000,
     }}>
       <NavItem href="/" label="홈" active={isActive('/')} onClick={(e) => handleNavClick(e, '/')}>

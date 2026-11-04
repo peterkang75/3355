@@ -56,11 +56,11 @@ export default function TeamModeAssigner({
 
   return (
     <div style={{
-      marginTop: 10, padding: 14, background: '#F8FAFC',
-      border: '1px solid #E8ECF0', borderRadius: 10,
+      marginTop: 10, padding: 14, background: '#F7F5F0',
+      border: '1px solid #E6E2D8', borderRadius: 10,
       boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
     }}>
-      <div style={{ fontSize: 12, color: '#64748B', lineHeight: 1.6, marginBottom: 12 }}>
+      <div style={{ fontSize: 12, color: '#5E6473', lineHeight: 1.6, marginBottom: 12 }}>
         조마다 경기 방식을 지정합니다. 조에 배정되지 않은 참가자는 <strong>신페리오</strong>로 집계됩니다.
       </div>
 
@@ -76,14 +76,14 @@ export default function TeamModeAssigner({
             key={teamNumber}
             style={{
               padding: '10px 0',
-              borderTop: '1px solid #E8ECF0',
+              borderTop: '1px solid #E6E2D8',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, marginBottom: 8 }}>
-              <span style={{ fontSize: 13, fontWeight: 800, color: '#0F172A', flexShrink: 0 }}>
+              <span style={{ fontSize: 13, fontWeight: 800, color: '#1A1D26', flexShrink: 0 }}>
                 {teamNumber}조
               </span>
-              <span style={{ fontSize: 12, color: '#64748B', lineHeight: 1.4 }}>
+              <span style={{ fontSize: 12, color: '#5E6473', lineHeight: 1.4 }}>
                 {names || '배정된 인원 없음'}
               </span>
             </div>
@@ -100,9 +100,9 @@ export default function TeamModeAssigner({
                     onClick={() => onChange?.(teamNumber, value)}
                     style={{
                       flex: 1, padding: '9px 4px', borderRadius: 8,
-                      border: active ? `1.5px solid ${meta.color}` : '1px solid #E2E8F0',
+                      border: active ? `1.5px solid ${meta.color}` : '1px solid #E6E2D8',
                       background: active ? meta.activeBg : '#FFFFFF',
-                      color: active ? meta.color : '#94A3B8',
+                      color: active ? meta.color : '#9A9DA6',
                       fontSize: 13, fontWeight: active ? 800 : 600,
                       cursor: disabled ? 'not-allowed' : 'pointer',
                     }}

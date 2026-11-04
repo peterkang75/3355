@@ -7,16 +7,16 @@ import { formatDate, getStatusBadge, getBookingStatusFlags, getManagePermissions
 // 회원이 라운딩을 눌렀을 때 보는 시트.
 // 시기(모집 → 당일 → 끝남)마다 지금 할 일 하나만 큰 버튼으로, 나머지는 아래 글씨 링크로 둔다.
 
-const INK = '#1E293B';
+const INK = '#1A1D26';
 
-const card = { background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' };
+const card = { background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E6E2D8', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' };
 const cardTitle = { fontSize: '13px', fontWeight: '700', color: INK, marginBottom: '10px' };
 
 const bigBtn = (primary, disabled) => ({
   width: '100%', minHeight: 50, padding: '0 16px', borderRadius: '12px', fontFamily: 'inherit',
-  border: primary ? 'none' : '1px solid #E2E8F0',
-  background: disabled ? '#F1F5F9' : primary ? '#0047AB' : '#FFFFFF',
-  color: disabled ? '#94A3B8' : primary ? '#FFFFFF' : '#475569',
+  border: primary ? 'none' : '1px solid #E6E2D8',
+  background: disabled ? '#EFEDE7' : primary ? '#14284B' : '#FFFFFF',
+  color: disabled ? '#9A9DA6' : primary ? '#FFFFFF' : '#4B5060',
   fontSize: '15px', fontWeight: '700', letterSpacing: '-0.01em', cursor: disabled ? 'default' : 'pointer',
 });
 
@@ -164,7 +164,7 @@ export default function BookingBottomSheet({
         ref={sheetRef}
         style={{
           position: 'fixed', bottom: 0, left: 0, right: 0,
-          background: '#F8FAFC',
+          background: '#F7F5F0',
           borderRadius: '24px 24px 0 0',
           zIndex: 1000,
           maxHeight: '80vh',
@@ -176,7 +176,7 @@ export default function BookingBottomSheet({
       >
         {/* 핸들 */}
         <div style={{ textAlign: 'center', padding: '14px 0 8px', flexShrink: 0 }}>
-          <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '4px', margin: '0 auto' }} />
+          <div style={{ width: '40px', height: '4px', background: '#D5D2CA', borderRadius: '4px', margin: '0 auto' }} />
         </div>
 
         {/* 스크롤 영역 */}
@@ -190,7 +190,7 @@ export default function BookingBottomSheet({
                   {booking.courseName}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
-                  <span style={{ fontSize: '14px', color: '#64748B', fontWeight: '500' }}>
+                  <span style={{ fontSize: '14px', color: '#5E6473', fontWeight: '500' }}>
                     {formatDate(booking.date)} · {booking.time}
                   </span>
                   {getStatusBadge(booking)}
@@ -198,14 +198,14 @@ export default function BookingBottomSheet({
               </div>
               {canManage && (
                 <button onClick={(e) => { e.stopPropagation(); onOpenHostManage(booking); }}
-                  style={{ height: '36px', minHeight: 36, padding: '0 12px', borderRadius: '10px', border: '1px solid #E8ECF0', background: '#FFFFFF', cursor: 'pointer', fontFamily: 'inherit', fontSize: '14px', fontWeight: '700', color: INK, flexShrink: 0, marginLeft: '12px' }}>
+                  style={{ height: '36px', minHeight: 36, padding: '0 12px', borderRadius: '10px', border: '1px solid #E6E2D8', background: '#FFFFFF', cursor: 'pointer', fontFamily: 'inherit', fontSize: '14px', fontWeight: '700', color: INK, flexShrink: 0, marginLeft: '12px' }}>
                   관리
                 </button>
               )}
               <button
                 onClick={(e) => { e.stopPropagation(); handleShare(); }}
                 aria-label="공유"
-                style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid #E8ECF0', background: '#FFFFFF', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginLeft: '8px', color: '#64748B' }}
+                style={{ width: '36px', height: '36px', borderRadius: '10px', border: '1px solid #E6E2D8', background: '#FFFFFF', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginLeft: '8px', color: '#5E6473' }}
               >
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
@@ -215,17 +215,17 @@ export default function BookingBottomSheet({
               </button>
             </div>
             {fees.length > 0 && (
-              <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #F1F5F9', display: 'flex', flexWrap: 'wrap', columnGap: '14px', rowGap: '4px', fontSize: '14px' }}>
+              <div style={{ marginTop: '10px', paddingTop: '10px', borderTop: '1px solid #EFEDE7', display: 'flex', flexWrap: 'wrap', columnGap: '14px', rowGap: '4px', fontSize: '14px' }}>
                 {fees.map(f => (
                   <span key={f.label} style={{ whiteSpace: 'nowrap' }}>
-                    <span style={{ color: '#64748B' }}>{f.label}</span>
+                    <span style={{ color: '#5E6473' }}>{f.label}</span>
                     <span style={{ marginLeft: '5px', fontWeight: '700', color: INK }}>${f.value}</span>
                   </span>
                 ))}
               </div>
             )}
             {myStatus && (
-              <div style={{ marginTop: '4px', paddingTop: '10px', borderTop: '1px solid #F1F5F9', fontSize: '14px', fontWeight: '700', color: INK }}>
+              <div style={{ marginTop: '4px', paddingTop: '10px', borderTop: '1px solid #EFEDE7', fontSize: '14px', fontWeight: '700', color: INK }}>
                 {myStatus}
               </div>
             )}
@@ -237,12 +237,12 @@ export default function BookingBottomSheet({
               <span style={{ fontSize: '13px', fontWeight: '700', color: INK }}>참가자</span>
               <span style={{ fontSize: '13px', fontWeight: '700', color: INK }}>
                 {totalCountAll}{isCompetition && '명'}
-                {extraRentals > 0 && <span style={{ color: '#94A3B8', fontWeight: '500', fontSize: '11px' }}> ({participants.length}+번호대여{extraRentals})</span>}
-                {!isCompetition && <span style={{ color: '#94A3B8', fontWeight: '500' }}>/{max}</span>}
+                {extraRentals > 0 && <span style={{ color: '#9A9DA6', fontWeight: '500', fontSize: '11px' }}> ({participants.length}+번호대여{extraRentals})</span>}
+                {!isCompetition && <span style={{ color: '#9A9DA6', fontWeight: '500' }}>/{max}</span>}
               </span>
             </div>
             {allChips.length === 0 ? (
-              <div style={{ fontSize: '13px', color: '#94A3B8' }}>아직 참가자가 없습니다</div>
+              <div style={{ fontSize: '13px', color: '#9A9DA6' }}>아직 참가자가 없습니다</div>
             ) : (
               <>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
@@ -250,14 +250,14 @@ export default function BookingBottomSheet({
                     const isMe = p.phone === user.phone;
                     const isGuest = p.isGuest;
                     const isRental = p.isRental;
-                    let bg = '#F1F5F9', color = '#475569', border = 'transparent', weight = '500';
+                    let bg = '#EFEDE7', color = '#4B5060', border = 'transparent', weight = '500';
                     if (isMe) { bg = '#FFFFFF'; color = INK; border = INK; weight = '700'; }
-                    if (isGuest) { bg = '#FFFFFF'; color = '#94A3B8'; border = '#E2E8F0'; }
+                    if (isGuest) { bg = '#FFFFFF'; color = '#9A9DA6'; border = '#E6E2D8'; }
                     if (isRental) { bg = '#FFF7ED'; color = '#C2410C'; border = '#FED7AA'; weight = '600'; }
                     return (
                       <span key={`${p.phone || 'r'}-${i}`} style={{ display: 'inline-flex', alignItems: 'baseline', gap: '4px', padding: '4px 10px', borderRadius: '9999px', background: bg, color, fontWeight: weight, fontSize: '13px', border: `1px solid ${border}`, whiteSpace: 'nowrap' }}>
                         {p.nickname || p.name}
-                        {isRental && <span style={{ fontSize: '11px', fontWeight: '500', color: '#94A3B8' }}>대여</span>}
+                        {isRental && <span style={{ fontSize: '11px', fontWeight: '500', color: '#9A9DA6' }}>대여</span>}
                       </span>
                     );
                   })}
@@ -274,7 +274,7 @@ export default function BookingBottomSheet({
               {booking.restaurantAddress && (
                 <a href={`https://maps.google.com/?q=${encodeURIComponent(booking.restaurantAddress)}`} target="_blank" rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  style={{ display: 'inline-block', marginTop: '4px', fontSize: '14px', color: '#64748B', textDecoration: 'underline', textUnderlineOffset: 3, lineHeight: 1.5 }}>
+                  style={{ display: 'inline-block', marginTop: '4px', fontSize: '14px', color: '#5E6473', textDecoration: 'underline', textUnderlineOffset: 3, lineHeight: 1.5 }}>
                   {booking.restaurantAddress}
                 </a>
               )}
@@ -285,19 +285,19 @@ export default function BookingBottomSheet({
           {booking.notes && (
             <div style={card}>
               <div style={{ ...cardTitle, marginBottom: '8px' }}>메모</div>
-              <div style={{ fontSize: '14px', color: '#64748B', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{booking.notes}</div>
+              <div style={{ fontSize: '14px', color: '#5E6473', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>{booking.notes}</div>
             </div>
           )}
         </div>
 
         {/* ── 액션: 큰 버튼 하나 + 글씨 링크 ── */}
-        <div style={{ padding: '12px 20px', paddingBottom: 'max(100px, calc(90px + env(safe-area-inset-bottom)))', borderTop: '1px solid #F1F5F9', background: '#F8FAFC', flexShrink: 0 }}>
+        <div style={{ padding: '12px 20px', paddingBottom: 'max(100px, calc(90px + env(safe-area-inset-bottom)))', borderTop: '1px solid #EFEDE7', background: '#F7F5F0', flexShrink: 0 }}>
           {primary}
           {links.length > 0 && (
             <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', marginTop: primary ? '4px' : 0 }}>
               {links.map((l, i) => (
                 <React.Fragment key={l.label}>
-                  {i > 0 && <span aria-hidden style={{ alignSelf: 'center', width: 1, height: 12, background: '#E2E8F0' }} />}
+                  {i > 0 && <span aria-hidden style={{ alignSelf: 'center', width: 1, height: 12, background: '#E6E2D8' }} />}
                   <button onClick={l.onClick}
                     style={{ minHeight: 44, padding: '0 14px', border: 'none', borderRadius: 0, background: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: '14px', fontWeight: '600', color: INK }}>
                     {l.label}

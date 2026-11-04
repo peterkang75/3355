@@ -56,7 +56,7 @@ function FeaturedBanner({ post, onClick, badge = '공지사항', ctaText = '자�
       {/* 다크 오버레이 */}
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'linear-gradient(145deg, rgba(8,24,58,0.85) 0%, rgba(0,40,110,0.72) 100%)',
+        background: 'linear-gradient(145deg, rgba(10,20,40,0.85) 0%, rgba(20,40,75,0.72) 100%)',
       }} />
 
       {/* 컨텐츠 */}
@@ -146,7 +146,7 @@ function BookingCard({ booking, user, onClick }) {
         padding: '14px 16px',
         background: '#FFFFFF',
         borderRadius: 14,
-        border: '1px solid #E8ECF0',
+        border: '1px solid #E6E2D8',
         boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
         marginBottom: 8,
         cursor: 'pointer',
@@ -160,7 +160,7 @@ function BookingCard({ booking, user, onClick }) {
       </div>
 
       {/* 세로 구분선 */}
-      <div style={{ width: 1, height: 36, background: '#E8ECF0', marginRight: 14, flexShrink: 0 }} />
+      <div style={{ width: 1, height: 36, background: '#E6E2D8', marginRight: 14, flexShrink: 0 }} />
 
       {/* 내용 */}
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -207,7 +207,7 @@ function NoticeItem({ post, onClick }) {
         <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--on-background)', lineHeight: 1.35 }}>
           {post.title}
         </div>
-        <div style={{ fontSize: 13, color: '#7b8fc4', marginTop: 3, lineHeight: 1.4 }}>
+        <div style={{ fontSize: 13, color: '#8C8F98', marginTop: 3, lineHeight: 1.4 }}>
           {preview || `${dateStr} · ${post.author?.nickname || post.author?.name || '운영진'}`}
         </div>
       </div>
@@ -281,7 +281,7 @@ function Dashboard() {
         position: 'sticky',
         top: 0,
         zIndex: 200,
-        boxShadow: '0 1px 0 rgba(0,71,171,0.07)',
+        boxShadow: '0 1px 0 rgba(20,40,75,0.07)',
       }}>
         <span style={{
           fontFamily: 'var(--font-sans)',
@@ -320,7 +320,7 @@ function Dashboard() {
             style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: '#fff', border: '1px solid #FDE68A', borderRadius: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', cursor: 'pointer', textAlign: 'left' }}
           >
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A' }}>내 정보를 업데이트해 주세요</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1D26' }}>내 정보를 업데이트해 주세요</div>
               <div style={{ fontSize: 13, color: '#92400E', marginTop: 2 }}>아직 입력하지 않은 정보가 {missingInfoCount}개 있어요</div>
             </div>
             <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--primary)', whiteSpace: 'nowrap' }}>업데이트하기 →</span>
@@ -413,7 +413,7 @@ function Dashboard() {
             position: 'relative',
             background: '#FFFFFF',
             borderRadius: 16,
-            border: '1px solid #E8ECF0',
+            border: '1px solid #E6E2D8',
             padding: '20px 20px 12px',
             overflow: 'hidden',
             boxShadow: '0 2px 8px rgba(0,0,0,0.07)',

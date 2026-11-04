@@ -50,7 +50,7 @@ const ChatIcon = () => (
   </svg>
 );
 const CheckIcon = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0047AB" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#14284B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="20 6 9 17 4 12"/>
   </svg>
 );
@@ -79,7 +79,7 @@ function About() {
     if (!text) return null;
     return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) => {
       if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={i} style={{ color: '#0047AB' }}>{part.slice(2, -2)}</strong>;
+        return <strong key={i} style={{ color: '#14284B' }}>{part.slice(2, -2)}</strong>;
       }
       return <span key={i}>{part}</span>;
     });
@@ -103,16 +103,16 @@ function About() {
             borderRadius: 20,
             overflow: 'hidden',
             margin: '0 auto 16px',
-            boxShadow: '0 8px 24px rgba(0,71,171,0.18)',
-            border: '2px solid rgba(0,71,171,0.08)',
+            boxShadow: '0 8px 24px rgba(20,40,75,0.18)',
+            border: '2px solid rgba(20,40,75,0.08)',
           }}>
             <img src={logoImage} alt="3355 골프모임"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1E293B', marginBottom: 6, letterSpacing: '-0.03em' }}>
+          <h1 style={{ fontSize: 22, fontWeight: 800, color: '#1A1D26', marginBottom: 6, letterSpacing: '-0.03em' }}>
             3355 골프모임
           </h1>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, fontSize: 11, color: '#94A3B8', fontWeight: 600, letterSpacing: '0.05em' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, fontSize: 11, color: '#9A9DA6', fontWeight: 600, letterSpacing: '0.05em' }}>
             <span>버전 2.0.0</span>
             <span>·</span>
             <span>빌드 {typeof __BUILD_NUMBER__ !== 'undefined' ? __BUILD_NUMBER__ : '---'}</span>
@@ -121,14 +121,14 @@ function About() {
 
         {/* ─── 소개글 ─── */}
         <div style={{ padding: '0 20px 16px' }}>
-          <p style={{ fontSize: 15, lineHeight: 1.85, color: '#334155', margin: 0 }}>
+          <p style={{ fontSize: 15, lineHeight: 1.85, color: '#363A47', margin: 0 }}>
             {renderIntro(introToShow)}
           </p>
         </div>
 
         {/* ─── 인용구 ─── */}
-        <div style={{ margin: '0 20px 20px', padding: '16px 20px', borderLeft: '4px solid #0047AB', background: 'transparent' }}>
-          <p style={{ fontSize: 14, lineHeight: 1.85, color: '#64748B', margin: 0, fontStyle: 'italic' }}>
+        <div style={{ margin: '0 20px 20px', padding: '16px 20px', borderLeft: '4px solid #14284B', background: 'transparent' }}>
+          <p style={{ fontSize: 14, lineHeight: 1.85, color: '#5E6473', margin: 0, fontStyle: 'italic' }}>
             스코어보다 한마디의 격려가, 승부보다 함께한 시간이 더 값지다고 믿습니다.
             3355는 골프를 사랑하는 사람들의 따뜻한 쉼터이자, 진심으로 연결된 친구들의 모임입니다.
           </p>
@@ -149,10 +149,10 @@ function About() {
 
         {/* ─── CAPABILITIES ─── */}
         <div style={{ padding: '0 20px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', letterSpacing: '0', marginBottom: 8 }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9DA6', letterSpacing: '0', marginBottom: 8 }}>
             주요 기능
           </div>
-          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1E293B', marginBottom: 20, letterSpacing: '-0.03em' }}>
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1A1D26', marginBottom: 20, letterSpacing: '-0.03em' }}>
             주요기능
           </h2>
 
@@ -200,21 +200,21 @@ function About() {
                 padding: '16px',
                 marginBottom: 12,
                 boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
-                border: '1px solid #F1F5F9',
+                border: '1px solid #EFEDE7',
                 cursor: item.onClick ? 'pointer' : 'default',
               }}
             >
               {/* 아이콘 + 제목 */}
               <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: item.desc || item.tags.length ? 12 : 0 }}>
-                <div style={{ width: 40, height: 40, borderRadius: 12, background: '#EFF6FF', color: '#0047AB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 12, background: '#EEF1F6', color: '#14284B', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   {item.icon}
                 </div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: '#1E293B' }}>{item.title}</div>
-                {item.onClick && <div style={{ marginLeft: 'auto', color: '#CBD5E1' }}>›</div>}
+                <div style={{ fontSize: 16, fontWeight: 700, color: '#1A1D26' }}>{item.title}</div>
+                {item.onClick && <div style={{ marginLeft: 'auto', color: '#D5D2CA' }}>›</div>}
               </div>
               {/* 설명 */}
               {item.desc && (
-                <div style={{ fontSize: 13, color: '#64748B', lineHeight: 1.6, marginBottom: item.tags.length ? 10 : 0 }}>
+                <div style={{ fontSize: 13, color: '#5E6473', lineHeight: 1.6, marginBottom: item.tags.length ? 10 : 0 }}>
                   {item.desc}
                 </div>
               )}
@@ -222,7 +222,7 @@ function About() {
               {item.tags.length > 0 && (
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginBottom: item.note ? 10 : 0 }}>
                   {item.tags.map(tag => (
-                    <span key={tag} style={{ fontSize: 12, fontWeight: 600, color: '#475569', background: '#F1F5F9', borderRadius: 8, padding: '4px 10px' }}>
+                    <span key={tag} style={{ fontSize: 12, fontWeight: 600, color: '#4B5060', background: '#EFEDE7', borderRadius: 8, padding: '4px 10px' }}>
                       {tag}
                     </span>
                   ))}
@@ -230,7 +230,7 @@ function About() {
               )}
               {/* 체크 노트 */}
               {item.note && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#64748B' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 12, color: '#5E6473' }}>
                   <CheckIcon />
                   {item.note}
                 </div>
@@ -245,7 +245,7 @@ function About() {
           <div style={{ padding: '0 20px', marginBottom: 24 }}>
             <button
               onClick={() => setShowRulesModal(true)}
-              style={{ width: '100%', padding: '13px', background: '#fff', border: '1.5px solid #E2E8F0', borderRadius: 14, fontSize: 14, fontWeight: 700, color: '#334155', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}
+              style={{ width: '100%', padding: '13px', background: '#fff', border: '1.5px solid #E6E2D8', borderRadius: 14, fontSize: 14, fontWeight: 700, color: '#363A47', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}
             >
               모임 회칙 보기
             </button>
@@ -299,15 +299,15 @@ function About() {
 
           return (
             <div style={{ padding: '0 20px', marginBottom: 32 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.12em', marginBottom: 8 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9DA6', letterSpacing: '0.12em', marginBottom: 8 }}>
                 FAQ
               </div>
-              <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1E293B', marginBottom: 16, letterSpacing: '-0.03em' }}>
+              <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1A1D26', marginBottom: 16, letterSpacing: '-0.03em' }}>
                 자주 묻는 질문
               </h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {faqs.map((faq, i) => (
-                  <div key={i} style={{ background: '#fff', borderRadius: 14, border: 'none', boxShadow: openFaqs[i] ? '0 2px 12px rgba(0,71,171,0.12)' : '0 2px 8px rgba(0,0,0,0.07)', overflow: 'hidden', transition: 'box-shadow 0.2s' }}>
+                  <div key={i} style={{ background: '#fff', borderRadius: 14, border: 'none', boxShadow: openFaqs[i] ? '0 2px 12px rgba(20,40,75,0.12)' : '0 2px 8px rgba(0,0,0,0.07)', overflow: 'hidden', transition: 'box-shadow 0.2s' }}>
                     {/* 질문 버튼 */}
                     <button
                       onClick={() => toggleFaq(i)}
@@ -320,12 +320,12 @@ function About() {
                         WebkitTapHighlightColor: 'transparent',
                       }}
                     >
-                      <span style={{ fontSize: 14, fontWeight: 700, color: openFaqs[i] ? '#0047AB' : '#1E293B', lineHeight: 1.5, flex: 1 }}>
+                      <span style={{ fontSize: 14, fontWeight: 700, color: openFaqs[i] ? '#14284B' : '#1A1D26', lineHeight: 1.5, flex: 1 }}>
                         {faq.q}
                       </span>
                       <svg
                         width="18" height="18" viewBox="0 0 24 24" fill="none"
-                        stroke={openFaqs[i] ? '#0047AB' : '#94A3B8'} strokeWidth="2.5"
+                        stroke={openFaqs[i] ? '#14284B' : '#9A9DA6'} strokeWidth="2.5"
                         strokeLinecap="round" strokeLinejoin="round"
                         style={{ flexShrink: 0, transform: openFaqs[i] ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.25s ease' }}
                       >
@@ -339,14 +339,14 @@ function About() {
                       overflow: 'hidden',
                       transition: 'max-height 0.3s ease',
                     }}>
-                      <div style={{ padding: '0 16px 16px', borderTop: '1px solid #F1F5F9' }}>
-                        <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.8, margin: '12px 0 0' }}>
+                      <div style={{ padding: '0 16px 16px', borderTop: '1px solid #EFEDE7' }}>
+                        <p style={{ fontSize: 13, color: '#4B5060', lineHeight: 1.8, margin: '12px 0 0' }}>
                           {faq.a}
                         </p>
                         {faq.bullets && (
                           <ul style={{ margin: '8px 0 0', paddingLeft: 18 }}>
                             {faq.bullets.map((b, j) => (
-                              <li key={j} style={{ fontSize: 13, color: '#475569', lineHeight: 1.8, marginBottom: 2 }}>{b}</li>
+                              <li key={j} style={{ fontSize: 13, color: '#4B5060', lineHeight: 1.8, marginBottom: 2 }}>{b}</li>
                             ))}
                           </ul>
                         )}
@@ -360,14 +360,14 @@ function About() {
         })()}
 
         {/* ─── 푸터 ─── */}
-        <div style={{ borderTop: '1px solid #E2E8F0', margin: '0 20px', paddingTop: 24, textAlign: 'center' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', letterSpacing: '0', marginBottom: 8 }}>
+        <div style={{ borderTop: '1px solid #E6E2D8', margin: '0 20px', paddingTop: 24, textAlign: 'center' }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9DA6', letterSpacing: '0', marginBottom: 8 }}>
             프로젝트 정보
           </div>
-          <div style={{ fontSize: 18, fontWeight: 800, color: '#0047AB', marginBottom: 12, letterSpacing: '-0.02em' }}>
+          <div style={{ fontSize: 18, fontWeight: 800, color: '#14284B', marginBottom: 12, letterSpacing: '-0.02em' }}>
             3355 골프모임 V2.0
           </div>
-          <div style={{ fontSize: 11, color: '#94A3B8', lineHeight: 1.7, marginBottom: 20 }}>
+          <div style={{ fontSize: 11, color: '#9A9DA6', lineHeight: 1.7, marginBottom: 20 }}>
             © 2024 The Azure Standard Group.<br />
             All rights reserved for the community.
           </div>
@@ -378,12 +378,12 @@ function About() {
               { icon: <ChatIcon />, action: () => window.open('https://open.kakao.com/o/g7EaZjRh', '_blank') },
             ].map((item, i) => (
               <button key={i} onClick={item.action}
-                style={{ width: 40, height: 40, borderRadius: 10, background: '#F1F5F9', border: 'none', color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+                style={{ width: 40, height: 40, borderRadius: 10, background: '#EFEDE7', border: 'none', color: '#5E6473', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
                 {item.icon}
               </button>
             ))}
           </div>
-          <div style={{ marginTop: 20, fontSize: 11, color: '#CBD5E1', fontWeight: 600, letterSpacing: '0.08em' }}>
+          <div style={{ marginTop: 20, fontSize: 11, color: '#D5D2CA', fontWeight: 600, letterSpacing: '0.08em' }}>
             BUILD {typeof __BUILD_NUMBER__ !== 'undefined' ? __BUILD_NUMBER__ : '---'}
           </div>
         </div>
@@ -394,19 +394,19 @@ function About() {
       {showRulesModal && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: '#fff', borderRadius: 20, width: '100%', maxWidth: 500, maxHeight: '80vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#1E293B' }}>3355 골프모임 회칙</h3>
+            <div style={{ padding: '16px 20px', borderBottom: '1px solid #EFEDE7', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#1A1D26' }}>3355 골프모임 회칙</h3>
               <button onClick={() => setShowRulesModal(false)}
-                style={{ background: '#F1F5F9', border: 'none', fontSize: 18, cursor: 'pointer', width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
+                style={{ background: '#EFEDE7', border: 'none', fontSize: 18, cursor: 'pointer', width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5E6473' }}>
                 ×
               </button>
             </div>
-            <div style={{ padding: 20, overflowY: 'auto', flex: 1, fontSize: 14, lineHeight: 1.8, color: '#334155', whiteSpace: 'pre-wrap' }}>
+            <div style={{ padding: 20, overflowY: 'auto', flex: 1, fontSize: 14, lineHeight: 1.8, color: '#363A47', whiteSpace: 'pre-wrap' }}>
               {clubRulesText}
             </div>
-            <div style={{ padding: '12px 20px', borderTop: '1px solid #F1F5F9', textAlign: 'center' }}>
+            <div style={{ padding: '12px 20px', borderTop: '1px solid #EFEDE7', textAlign: 'center' }}>
               <button onClick={() => setShowRulesModal(false)}
-                style={{ padding: '12px 40px', background: '#0047AB', color: '#fff', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
+                style={{ padding: '12px 40px', background: '#14284B', color: '#fff', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: 'pointer' }}>
                 닫기
               </button>
             </div>

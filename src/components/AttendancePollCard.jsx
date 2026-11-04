@@ -10,8 +10,8 @@ import { useSocket } from '../contexts/SocketContext';
 // 투표 = 참가 신청이다. "참석"을 고르면 그 즉시 참가자 명단에 들어가고
 // 참가비가 청구되어, 바로 입금하고 참가비 화면에서 영수증을 올릴 수 있다.
 
-const PRIMARY = '#0047AB';
-const MUTED_BAR = '#94a3b8';
+const PRIMARY = '#14284B';
+const MUTED_BAR = '#9A9DA6';
 
 const formatMoney = (n) => `$${Number(n || 0).toLocaleString()}`;
 
@@ -36,7 +36,7 @@ function Avatar({ person, size = 26 }) {
   return (
     <div style={{
       width: size, height: size, borderRadius: '50%', overflow: 'hidden', flexShrink: 0,
-      background: 'rgba(0,71,171,0.1)', color: PRIMARY,
+      background: 'rgba(20,40,75,0.1)', color: PRIMARY,
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       fontSize: Math.round(size * 0.42), fontWeight: 700,
     }}>
@@ -60,7 +60,7 @@ function PollNotice({ text }) {
 
   return (
     <div style={{
-      background: '#EBF2FF', border: '1px solid rgba(0,71,171,0.12)', borderRadius: 14,
+      background: '#EEF1F6', border: '1px solid rgba(20,40,75,0.12)', borderRadius: 14,
       padding: '12px 14px', marginBottom: 10,
     }}>
       <div style={{ fontSize: 12, fontWeight: 800, color: PRIMARY, marginBottom: 4 }}>공지</div>
@@ -174,7 +174,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
         borderRadius: 16,
         overflow: 'hidden',
         boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
-        border: '1px solid #EEF2F7',
+        border: '1px solid #EFEDE7',
       }}>
         {/* ── 상단 안내 바 (카톡과 같은 자리) ── */}
         <div style={{
@@ -182,7 +182,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
           padding: '11px 16px',
           background: '#F5F7FA',
           fontSize: 13,
-          color: poll.isClosed ? '#94a3b8' : '#64748b',
+          color: poll.isClosed ? '#9A9DA6' : '#5E6473',
           fontWeight: 600,
         }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
@@ -202,7 +202,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
             {poll.title}
           </div>
           {poll.booking && (
-            <div style={{ fontSize: 13, color: '#94a3b8', marginBottom: 14 }}>
+            <div style={{ fontSize: 13, color: '#9A9DA6', marginBottom: 14 }}>
               {poll.booking.courseName}
               {poll.booking.date ? ` · ${poll.booking.date.slice(5).replace('-', '월 ')}일` : ''}
             </div>
@@ -231,7 +231,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                         }}>{o.label}</span>
                         {o.kind === 'attend' && o.fee !== null && (
-                          <span style={{ fontSize: 12, color: '#94a3b8', fontWeight: 600, flexShrink: 0 }}>{formatMoney(o.fee)}</span>
+                          <span style={{ fontSize: 12, color: '#9A9DA6', fontWeight: 600, flexShrink: 0 }}>{formatMoney(o.fee)}</span>
                         )}
                       </div>
                       <button
@@ -240,7 +240,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                         style={{
                           display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0,
                           background: 'none', border: 'none', padding: '2px 0',
-                          fontSize: 14, fontWeight: 700, color: o.count === 0 ? '#cbd5e1' : '#64748b',
+                          fontSize: 14, fontWeight: 700, color: o.count === 0 ? '#D5D2CA' : '#5E6473',
                           cursor: o.count === 0 ? 'default' : 'pointer',
                         }}
                       >
@@ -251,7 +251,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                       </button>
                     </div>
 
-                    <div style={{ height: 6, borderRadius: 4, background: '#EEF2F7', overflow: 'hidden' }}>
+                    <div style={{ height: 6, borderRadius: 4, background: '#EFEDE7', overflow: 'hidden' }}>
                       <div style={{
                         width: `${pct}%`, height: '100%', borderRadius: 4,
                         background: o.kind === 'attend' ? PRIMARY : MUTED_BAR,
@@ -263,12 +263,12 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                       <div style={{
                         display: 'flex', flexWrap: 'wrap', gap: 8,
                         marginTop: 10, padding: '10px 12px',
-                        background: '#F8FAFC', borderRadius: 12,
+                        background: '#F7F5F0', borderRadius: 12,
                       }}>
                         {o.voters.map(v => (
                           <div key={v.id} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                             <Avatar person={v} size={22} />
-                            <span style={{ fontSize: 13, color: '#475569', fontWeight: 600 }}>{v.nickname || v.name}</span>
+                            <span style={{ fontSize: 13, color: '#4B5060', fontWeight: 600 }}>{v.nickname || v.name}</span>
                           </div>
                         ))}
                       </div>
@@ -283,8 +283,8 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                   {isOperator && (
                     <button onClick={handleClose} style={{
                       flex: 1, padding: '11px 0', borderRadius: 12,
-                      border: '1.5px solid #E2E8F0', background: '#fff',
-                      fontSize: 14, fontWeight: 700, color: '#64748b', cursor: 'pointer',
+                      border: '1.5px solid #E6E2D8', background: '#fff',
+                      fontSize: 14, fontWeight: 700, color: '#5E6473', cursor: 'pointer',
                     }}>투표 종료</button>
                   )}
                   <button onClick={() => {
@@ -298,14 +298,14 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                 </div>
               )}
 
-              <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 12 }}>
+              <div style={{ fontSize: 13, color: '#9A9DA6', marginTop: 12 }}>
                 {poll.totalVoted}명 참여
                 {(() => {
                   // 명단 총원 − 투표 참석 = 방장 추가 (연락처 없는 게스트까지 포함되도록 뺄셈으로 계산)
                   const attend = poll.options.filter(o => o.kind === 'attend').reduce((s, o) => s + o.count, 0);
                   const extra = poll.participantCount - attend;
                   return extra > 0 && (
-                    <div style={{ marginTop: 4, color: '#475569', fontWeight: 600 }}>
+                    <div style={{ marginTop: 4, color: '#4B5060', fontWeight: 600 }}>
                       라운딩 명단 총 {poll.participantCount}명 (투표 참석 {attend} + 방장 추가 {extra})
                     </div>
                   );
@@ -314,7 +314,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
 
               {/* ── 운영진 전용: 아직 투표 안 한 사람 ── */}
               {isOperator && poll.notVoted?.length > 0 && (
-                <div style={{ marginTop: 10, paddingTop: 12, borderTop: '1px solid #F1F5F9' }}>
+                <div style={{ marginTop: 10, paddingTop: 12, borderTop: '1px solid #EFEDE7' }}>
                   <button onClick={() => setShowNotVoted(v => !v)} style={{
                     display: 'flex', alignItems: 'center', gap: 4,
                     background: 'none', border: 'none', padding: 0,
@@ -324,7 +324,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                     <span style={{ fontSize: 11, transform: showNotVoted ? 'rotate(180deg)' : 'none' }}>▼</span>
                   </button>
                   {showNotVoted && (
-                    <div style={{ marginTop: 8, fontSize: 13, color: '#64748b', lineHeight: 1.7 }}>
+                    <div style={{ marginTop: 8, fontSize: 13, color: '#5E6473', lineHeight: 1.7 }}>
                       {poll.notVoted.map(m => m.nickname || m.name).join(' · ')}
                     </div>
                   )}
@@ -351,13 +351,13 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                       padding: '12px 12px', marginBottom: 8,
                       borderRadius: 12, cursor: 'pointer', textAlign: 'left',
                       border: `1.5px solid ${active ? PRIMARY : '#E9EEF5'}`,
-                      background: active ? 'rgba(0,71,171,0.04)' : '#fff',
+                      background: active ? 'rgba(20,40,75,0.04)' : '#fff',
                       transition: 'all .12s',
                     }}
                   >
                     <span style={{
                       width: 19, height: 19, borderRadius: '50%', flexShrink: 0,
-                      border: `2px solid ${active ? PRIMARY : '#CBD5E1'}`,
+                      border: `2px solid ${active ? PRIMARY : '#D5D2CA'}`,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                     }}>
                       {active && <span style={{ width: 9, height: 9, borderRadius: '50%', background: PRIMARY }} />}
@@ -367,7 +367,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                       color: active ? PRIMARY : 'var(--on-background)',
                     }}>{o.label}</span>
                     {o.kind === 'attend' && o.fee !== null && (
-                      <span style={{ fontSize: 13, fontWeight: 700, color: active ? PRIMARY : '#94a3b8' }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: active ? PRIMARY : '#9A9DA6' }}>
                         {formatMoney(o.fee)}
                       </span>
                     )}
@@ -375,7 +375,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                 );
               })}
 
-              <div style={{ fontSize: 12, color: '#94a3b8', margin: '8px 2px 12px', lineHeight: 1.5 }}>
+              <div style={{ fontSize: 12, color: '#9A9DA6', margin: '8px 2px 12px', lineHeight: 1.5 }}>
                 참석을 고르면 참가 신청이 함께 되고 참가비가 청구됩니다.
               </div>
 
@@ -383,8 +383,8 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                 {revoting && (
                   <button onClick={() => { setRevoting(false); setSelected(''); }} style={{
                     flex: 1, padding: '13px 0', borderRadius: 12,
-                    border: '1.5px solid #E2E8F0', background: '#fff',
-                    fontSize: 14, fontWeight: 700, color: '#64748b', cursor: 'pointer',
+                    border: '1.5px solid #E6E2D8', background: '#fff',
+                    fontSize: 14, fontWeight: 700, color: '#5E6473', cursor: 'pointer',
                   }}>취소</button>
                 )}
                 <button
@@ -392,8 +392,8 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                   disabled={!selected || submitting}
                   style={{
                     flex: 2, padding: '13px 0', borderRadius: 12, border: 'none',
-                    background: (!selected || submitting) ? '#E2E8F0' : PRIMARY,
-                    color: (!selected || submitting) ? '#94a3b8' : '#fff',
+                    background: (!selected || submitting) ? '#E6E2D8' : PRIMARY,
+                    color: (!selected || submitting) ? '#9A9DA6' : '#fff',
                     fontSize: 15, fontWeight: 800,
                     cursor: (!selected || submitting) ? 'not-allowed' : 'pointer',
                   }}

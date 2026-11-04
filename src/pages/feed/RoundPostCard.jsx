@@ -9,12 +9,12 @@ export default function RoundPostCard({ item, currentUser, isOperator, onOpenGal
     <div style={{ background: '#fff', borderRadius: 14, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
       {/* 헤더 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '11px 14px' }}>
-        <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#EFF4FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+        <div style={{ width: 36, height: 36, borderRadius: '50%', background: '#EEF1F6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <PhotoIcon size={18} />
         </div>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontWeight: 700, fontSize: 14, color: '#0F172A', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.title}</div>
-          <div style={{ fontSize: 12, color: '#94A3B8' }}>{item.courseName} · {d.getMonth() + 1}/{d.getDate()}</div>
+          <div style={{ fontWeight: 700, fontSize: 14, color: '#1A1D26', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.title}</div>
+          <div style={{ fontSize: 12, color: '#9A9DA6' }}>{item.courseName} · {d.getMonth() + 1}/{d.getDate()}</div>
         </div>
       </div>
 

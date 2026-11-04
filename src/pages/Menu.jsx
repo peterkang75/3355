@@ -69,8 +69,8 @@ function Menu() {
   const allMenuItems = [
     {
       icon: <TrophyIcon />,
-      iconBg: '#EFF6FF',
-      iconColor: '#0047AB',
+      iconBg: '#EEF1F6',
+      iconColor: '#14284B',
       title: '우승자 맞추기',
       description: '라운딩 우승자를 예측하고 투표하세요',
       path: '/games/pick-winner',
@@ -78,16 +78,16 @@ function Menu() {
     },
     {
       icon: <DiceIcon />,
-      iconBg: '#EFF6FF',
-      iconColor: '#0047AB',
+      iconBg: '#EEF1F6',
+      iconColor: '#14284B',
       title: '빙고 게임',
       description: '멤버들과 함께하는 빙고 게임',
       path: '/bingo',
     },
     {
       icon: <InfoIcon />,
-      iconBg: '#EFF6FF',
-      iconColor: '#0047AB',
+      iconBg: '#EEF1F6',
+      iconColor: '#14284B',
       title: '앱 정보',
       description: '앱 정보 및 버전',
       path: '/about',
@@ -101,7 +101,7 @@ function Menu() {
 
   // 운영진에게만 '관리' 항목을 상단에 노출 (하단 네비에서 더보기로 이동)
   const finalMenuItems = checkIsOperator(user)
-    ? [{ icon: <GearIcon />, iconBg: '#EFF6FF', iconColor: '#0047AB', title: '관리', description: '회원·회비·라운딩 운영 관리', path: '/admin' }, ...menuItems]
+    ? [{ icon: <GearIcon />, iconBg: '#EEF1F6', iconColor: '#14284B', title: '관리', description: '회원·회비·라운딩 운영 관리', path: '/admin' }, ...menuItems]
     : menuItems;
 
   return (
@@ -112,10 +112,10 @@ function Menu() {
       {/* ─── 블루 히어로 카드 ─── */}
       <div style={{ padding: '16px 16px 0' }}>
         <div style={{
-          background: 'linear-gradient(135deg, #0047AB 0%, #1565c0 60%, #0d47a1 100%)',
+          background: 'linear-gradient(135deg, #14284B 0%, #24406E 60%, #24406E 100%)',
           borderRadius: 20,
           padding: '20px 20px 20px',
-          boxShadow: '0 8px 24px rgba(0,71,171,0.28)',
+          boxShadow: '0 8px 24px rgba(20,40,75,0.28)',
           display: 'flex',
           flexDirection: 'column',
           gap: 16,
@@ -188,7 +188,7 @@ function Menu() {
               boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
               WebkitTapHighlightColor: 'transparent',
             }}
-            onMouseEnter={e => e.currentTarget.style.background = '#F8FAFC'}
+            onMouseEnter={e => e.currentTarget.style.background = '#F7F5F0'}
             onMouseLeave={e => e.currentTarget.style.background = '#fff'}
           >
             <div style={{
@@ -201,14 +201,14 @@ function Menu() {
               {item.icon}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a', marginBottom: 2 }}>
+              <div style={{ fontWeight: 700, fontSize: 15, color: '#1A1D26', marginBottom: 2 }}>
                 {item.title}
               </div>
-              <div style={{ fontSize: 12, color: '#94A3B8', lineHeight: 1.4 }}>
+              <div style={{ fontSize: 12, color: '#9A9DA6', lineHeight: 1.4 }}>
                 {item.description}
               </div>
             </div>
-            <div style={{ color: '#CBD5E1', flexShrink: 0 }}>
+            <div style={{ color: '#D5D2CA', flexShrink: 0 }}>
               <ChevronRight />
             </div>
           </div>
@@ -217,22 +217,22 @@ function Menu() {
 
       {/* ─── 고객 지원 ─── */}
       <div style={{ padding: '16px 16px 0' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', letterSpacing: '0', marginBottom: 8, paddingLeft: 4 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9DA6', letterSpacing: '0', marginBottom: 8, paddingLeft: 4 }}>
           고객 지원
         </div>
         <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
           {/* 자주 묻는 질문 → About 페이지 이동 */}
           <div
             onClick={() => navigate('/about')}
-            style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderBottom: '1px solid #F1F5F9', cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }}
+            style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', borderBottom: '1px solid #EFEDE7', cursor: 'pointer', WebkitTapHighlightColor: 'transparent' }}
           >
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: '#F1F5F9', color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: '#EFEDE7', color: '#5E6473', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" strokeWidth="2.5"/>
               </svg>
             </div>
-            <span style={{ flex: 1, fontSize: 15, fontWeight: 600, color: '#0f172a' }}>자주 묻는 질문</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <span style={{ flex: 1, fontSize: 15, fontWeight: 600, color: '#1A1D26' }}>자주 묻는 질문</span>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D5D2CA" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6"/>
             </svg>
           </div>
@@ -242,15 +242,15 @@ function Menu() {
             href="https://open.kakao.com/o/g7EaZjRh"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', textDecoration: 'none', color: '#0f172a', WebkitTapHighlightColor: 'transparent' }}
+            style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', textDecoration: 'none', color: '#1A1D26', WebkitTapHighlightColor: 'transparent' }}
           >
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: '#F1F5F9', color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: '#EFEDE7', color: '#5E6473', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
               </svg>
             </div>
             <span style={{ flex: 1, fontSize: 15, fontWeight: 600 }}>1:1 문의하기</span>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D5D2CA" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
             </svg>
           </a>

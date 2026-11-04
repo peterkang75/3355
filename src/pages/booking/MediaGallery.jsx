@@ -42,7 +42,7 @@ export default function MediaGallery({ booking, user, onClose }) {
     booking.cartFee ? `카트비 $${booking.cartFee}` : null,
     booking.membershipFee ? `회비 $${booking.membershipFee}` : null,
   ].filter(Boolean);
-  const labelStyle = { fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.06em' };
+  const labelStyle = { fontSize: '11px', fontWeight: '700', color: '#9A9DA6', letterSpacing: '0.06em' };
   const openLeaderboard = () => {
     // 스코어 화면에서 뒤로가기 시 이 갤러리로 복귀하도록 표시
     try { sessionStorage.setItem('reopenGalleryBooking', booking.id); } catch { /* noop */ }
@@ -192,20 +192,20 @@ export default function MediaGallery({ booking, user, onClose }) {
     <div style={overlay}>
       <style>{`@keyframes mgIndeterminate { 0% { transform: translateX(-120%); } 100% { transform: translateX(320%); } } @keyframes mgSpin { to { transform: rotate(360deg); } } @keyframes mgSlideInRight { from { transform: translateX(160px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes mgSlideInLeft { from { transform: translateX(-160px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } .mg-strip::-webkit-scrollbar { display: none; }`}</style>
       {/* 헤더 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: 'max(14px, env(safe-area-inset-top)) 16px 12px', borderBottom: '1px solid #EEF2F7', flexShrink: 0 }}>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#1E293B', display: 'flex' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: 'max(14px, env(safe-area-inset-top)) 16px 12px', borderBottom: '1px solid #EFEDE7', flexShrink: 0 }}>
+        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#1A1D26', display: 'flex' }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: '16px', fontWeight: '800', color: '#1E293B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <div style={{ fontSize: '16px', fontWeight: '800', color: '#1A1D26', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
             {booking.title || booking.courseName}
           </div>
-          <div style={{ fontSize: '12px', color: '#94A3B8' }}>
+          <div style={{ fontSize: '12px', color: '#9A9DA6' }}>
             라운딩 상세
           </div>
         </div>
         {!archivedAt && (
-          <button onClick={handlePick} disabled={uploading} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#0047AB', color: '#fff', border: 'none', borderRadius: '10px', padding: '9px 14px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', opacity: uploading ? 0.6 : 1, flexShrink: 0 }}>
+          <button onClick={handlePick} disabled={uploading} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#14284B', color: '#fff', border: 'none', borderRadius: '10px', padding: '9px 14px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', opacity: uploading ? 0.6 : 1, flexShrink: 0 }}>
             <span style={{ fontSize: '16px', lineHeight: 1 }}>＋</span> 올리기
           </button>
         )}
@@ -215,26 +215,26 @@ export default function MediaGallery({ booking, user, onClose }) {
       {/* 본문 */}
       <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px 40px' }}>
         {/* 라운딩 정보 · 참가자 · 시상 — 정돈된 카드 */}
-        <div style={{ background: '#fff', border: '1px solid #EEF2F7', borderRadius: '14px', padding: '14px 16px', marginBottom: '14px' }}>
-          <div style={{ fontSize: '18px', fontWeight: '700', color: '#0F172A', letterSpacing: '-0.01em' }}>
+        <div style={{ background: '#fff', border: '1px solid #EFEDE7', borderRadius: '14px', padding: '14px 16px', marginBottom: '14px' }}>
+          <div style={{ fontSize: '18px', fontWeight: '700', color: '#1A1D26', letterSpacing: '-0.01em' }}>
             {fmtDate(booking.date)}{timeStr ? ` · ${timeStr}` : ''}
           </div>
-          <div style={{ fontSize: '13px', fontWeight: '500', color: '#64748B', marginTop: '2px' }}>{booking.courseName}</div>
+          <div style={{ fontSize: '13px', fontWeight: '500', color: '#5E6473', marginTop: '2px' }}>{booking.courseName}</div>
           {booking.restaurantName && (
-            <div style={{ fontSize: '13px', fontWeight: '500', color: '#94A3B8', marginTop: '2px' }}>회식 · {booking.restaurantName}</div>
+            <div style={{ fontSize: '13px', fontWeight: '500', color: '#9A9DA6', marginTop: '2px' }}>회식 · {booking.restaurantName}</div>
           )}
           {feeChips.length > 0 && (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px' }}>
               {feeChips.map((f) => (
-                <span key={f} style={{ fontSize: '12px', fontWeight: '600', color: '#475569', background: '#F1F5F9', borderRadius: '9999px', padding: '4px 10px' }}>{f}</span>
+                <span key={f} style={{ fontSize: '12px', fontWeight: '600', color: '#4B5060', background: '#EFEDE7', borderRadius: '9999px', padding: '4px 10px' }}>{f}</span>
               ))}
             </div>
           )}
 
           {participants.length > 0 && (
-            <div style={{ borderTop: '1px solid #EEF2F7', marginTop: '12px', paddingTop: '10px' }}>
+            <div style={{ borderTop: '1px solid #EFEDE7', marginTop: '12px', paddingTop: '10px' }}>
               <div style={labelStyle}>참가자 {participants.length}</div>
-              <div style={{ fontSize: '14px', fontWeight: '500', color: '#475569', lineHeight: 1.55, marginTop: '5px' }}>
+              <div style={{ fontSize: '14px', fontWeight: '500', color: '#4B5060', lineHeight: 1.55, marginTop: '5px' }}>
                 {participants.map((p) => p.nickname || p.name).join(', ')}
               </div>
             </div>
@@ -262,15 +262,15 @@ export default function MediaGallery({ booking, user, onClose }) {
               : individualRows;
             if (rows.length === 0) return null;
             return (
-              <div style={{ borderTop: '1px solid #EEF2F7', marginTop: '12px', paddingTop: '10px' }}>
+              <div style={{ borderTop: '1px solid #EFEDE7', marginTop: '12px', paddingTop: '10px' }}>
                 <div style={{ ...labelStyle, color: '#B45309' }}>시상</div>
                 <div style={{ marginTop: '7px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {rows.map((row, i) => (
                     <div key={row.label} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <span style={{ width: winners.isMixed ? '86px' : '62px', flexShrink: 0, fontSize: '12px', fontWeight: '600', color: '#94A3B8' }}>{row.label}</span>
-                      <span style={{ fontSize: '14px', fontWeight: '700', color: '#0F172A' }}>{row.name}</span>
+                      <span style={{ width: winners.isMixed ? '86px' : '62px', flexShrink: 0, fontSize: '12px', fontWeight: '600', color: '#9A9DA6' }}>{row.label}</span>
+                      <span style={{ fontSize: '14px', fontWeight: '700', color: '#1A1D26' }}>{row.name}</span>
                       {i === rows.length - 1 && (
-                        <span onClick={openLeaderboard} style={{ marginLeft: 'auto', fontSize: '13px', fontWeight: '600', color: '#64748B', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                        <span onClick={openLeaderboard} style={{ marginLeft: 'auto', fontSize: '13px', fontWeight: '600', color: '#5E6473', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                           스코어 / 결과 보기 ›
                         </span>
                       )}
@@ -283,21 +283,21 @@ export default function MediaGallery({ booking, user, onClose }) {
         </div>
 
         {/* 사진·영상 섹션 */}
-        <div style={{ fontSize: '14px', fontWeight: '800', color: '#1E293B', marginBottom: '10px' }}>
+        <div style={{ fontSize: '14px', fontWeight: '800', color: '#1A1D26', marginBottom: '10px' }}>
           사진·영상 {readyItems.length > 0 ? readyItems.length : ''}
-          {processingCount > 0 && <span style={{ color: '#0047AB', fontWeight: '600' }}> · 처리 중 {processingCount}</span>}
+          {processingCount > 0 && <span style={{ color: '#14284B', fontWeight: '600' }}> · 처리 중 {processingCount}</span>}
         </div>
 
         {uploading && (
-          <div style={{ background: '#EBF2FF', borderRadius: '12px', padding: '14px', marginBottom: '14px' }}>
-            <div style={{ fontSize: '13px', fontWeight: '700', color: '#0047AB', marginBottom: '9px', textAlign: 'center' }}>
+          <div style={{ background: '#EEF1F6', borderRadius: '12px', padding: '14px', marginBottom: '14px' }}>
+            <div style={{ fontSize: '13px', fontWeight: '700', color: '#14284B', marginBottom: '9px', textAlign: 'center' }}>
               {upLabel || '올리는 중...'}
             </div>
-            <div style={{ height: '8px', background: '#C7DBFF', borderRadius: '9999px', overflow: 'hidden' }}>
+            <div style={{ height: '8px', background: '#D3DBE8', borderRadius: '9999px', overflow: 'hidden' }}>
               {upBusy ? (
-                <div style={{ height: '100%', width: '40%', background: '#0047AB', borderRadius: '9999px', animation: 'mgIndeterminate 1.1s ease-in-out infinite' }} />
+                <div style={{ height: '100%', width: '40%', background: '#14284B', borderRadius: '9999px', animation: 'mgIndeterminate 1.1s ease-in-out infinite' }} />
               ) : (
-                <div style={{ height: '100%', width: `${upPct}%`, background: '#0047AB', borderRadius: '9999px', transition: 'width 0.2s ease' }} />
+                <div style={{ height: '100%', width: `${upPct}%`, background: '#14284B', borderRadius: '9999px', transition: 'width 0.2s ease' }} />
               )}
             </div>
           </div>
@@ -307,27 +307,27 @@ export default function MediaGallery({ booking, user, onClose }) {
         )}
 
         {loading ? (
-          <div style={{ textAlign: 'center', color: '#94A3B8', padding: '60px 0', fontSize: '14px' }}>불러오는 중...</div>
+          <div style={{ textAlign: 'center', color: '#9A9DA6', padding: '60px 0', fontSize: '14px' }}>불러오는 중...</div>
         ) : archivedAt ? (
-          <div style={{ textAlign: 'center', padding: '70px 24px', color: '#64748B' }}>
-            <div style={{ fontSize: '15px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>이 라운딩의 사진·영상은<br />백업 후 정리되었습니다</div>
-            <div style={{ fontSize: '12px', color: '#94A3B8' }}>({fmtDate(archivedAt)} 정리)</div>
+          <div style={{ textAlign: 'center', padding: '70px 24px', color: '#5E6473' }}>
+            <div style={{ fontSize: '15px', fontWeight: '700', color: '#4B5060', marginBottom: '4px' }}>이 라운딩의 사진·영상은<br />백업 후 정리되었습니다</div>
+            <div style={{ fontSize: '12px', color: '#9A9DA6' }}>({fmtDate(archivedAt)} 정리)</div>
           </div>
         ) : items.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '70px 24px', color: '#94A3B8' }}>
+          <div style={{ textAlign: 'center', padding: '70px 24px', color: '#9A9DA6' }}>
             <div style={{ fontSize: '14px' }}>아직 사진·영상이 없습니다</div>
             <div style={{ fontSize: '12px', marginTop: '4px' }}>위 ＋올리기 로 추가하세요</div>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px' }}>
             {items.map((m) => {
-              const tile = { position: 'relative', aspectRatio: '1', background: '#F1F5F9', borderRadius: '6px', overflow: 'hidden' };
+              const tile = { position: 'relative', aspectRatio: '1', background: '#EFEDE7', borderRadius: '6px', overflow: 'hidden' };
 
               if (m.status === 'processing') {
                 return (
-                  <div key={m.id} style={{ ...tile, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px', background: '#F1F5F9' }}>
-                    <div style={{ width: '22px', height: '22px', border: '3px solid #C7DBFF', borderTopColor: '#0047AB', borderRadius: '9999px', animation: 'mgSpin 0.8s linear infinite' }} />
-                    <div style={{ fontSize: '11px', color: '#64748B', fontWeight: '600' }}>{m.type === 'video' ? '영상 처리 중' : '처리 중'}</div>
+                  <div key={m.id} style={{ ...tile, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '6px', background: '#EFEDE7' }}>
+                    <div style={{ width: '22px', height: '22px', border: '3px solid #D3DBE8', borderTopColor: '#14284B', borderRadius: '9999px', animation: 'mgSpin 0.8s linear infinite' }} />
+                    <div style={{ fontSize: '11px', color: '#5E6473', fontWeight: '600' }}>{m.type === 'video' ? '영상 처리 중' : '처리 중'}</div>
                   </div>
                 );
               }
@@ -485,7 +485,7 @@ function Viewer({ item, items, index, total, slideDir, canDelete, onPrev, onNext
       )}
 
       {/* 하단 정보 */}
-      <div style={{ textAlign: 'center', color: '#cbd5e1', fontSize: '12px', padding: '10px 16px max(16px, env(safe-area-inset-bottom))', flexShrink: 0 }}>
+      <div style={{ textAlign: 'center', color: '#D5D2CA', fontSize: '12px', padding: '10px 16px max(16px, env(safe-area-inset-bottom))', flexShrink: 0 }}>
         {index + 1} / {total}{item.uploaderName ? ` · 올린이: ${item.uploaderName}` : ''}
       </div>
     </div>

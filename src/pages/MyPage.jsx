@@ -232,7 +232,7 @@ function MyPage() {
 
   // Chevron icon
   const Chevron = ({ open }) => (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9DA6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
       style={{ transform: open ? 'rotate(90deg)' : 'none', transition: 'transform 0.2s', flexShrink: 0 }}>
       <polyline points="9 18 15 12 9 6"/>
     </svg>
@@ -240,17 +240,17 @@ function MyPage() {
 
   // Menu row
   const MenuRow = ({ icon, label, onClick, open, last }) => (
-    <div onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '15px 18px', cursor: 'pointer', borderBottom: last ? 'none' : '1px solid #F1F5F9' }}>
-      <div style={{ width: 38, height: 38, borderRadius: 12, background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+    <div onClick={onClick} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '15px 18px', cursor: 'pointer', borderBottom: last ? 'none' : '1px solid #EFEDE7' }}>
+      <div style={{ width: 38, height: 38, borderRadius: 12, background: '#EEF1F6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
         {icon}
       </div>
-      <span style={{ flex: 1, fontSize: 15, fontWeight: 600, color: '#1E293B' }}>{label}</span>
+      <span style={{ flex: 1, fontSize: 15, fontWeight: 600, color: '#1A1D26' }}>{label}</span>
       <Chevron open={open} />
     </div>
   );
 
   return (
-    <div style={{ background: '#F8FAFC', minHeight: '100vh' }}>
+    <div style={{ background: '#F7F5F0', minHeight: '100vh' }}>
       <PageHeader title="마이페이지" user={user} showBackButton={false} />
 
       <div style={{ padding: '12px 16px 100px' }}>
@@ -258,14 +258,14 @@ function MyPage() {
         {/* ── 프로필 히어로 ── */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '24px 0 20px' }}>
           <label htmlFor="photoUpload" style={{ position: 'relative', cursor: 'pointer', marginBottom: 16 }}>
-            <div style={{ width: 96, height: 96, borderRadius: '50%', border: '3px solid #0047AB', padding: 3 }}>
+            <div style={{ width: 96, height: 96, borderRadius: '50%', border: '3px solid #14284B', padding: 3 }}>
               {(isEditing ? editData.photo : user.photo) ? (
                 <img src={isEditing ? editData.photo : user.photo} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
               ) : (
-                <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#E8ECF0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}><span style={{ color: '#94A3B8', display: 'flex' }}><LineIcon name="person" size={40} strokeWidth={1.6} /></span></div>
+                <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#E6E2D8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}><span style={{ color: '#9A9DA6', display: 'flex' }}><LineIcon name="person" size={40} strokeWidth={1.6} /></span></div>
               )}
             </div>
-            <div style={{ position: 'absolute', bottom: 2, right: 2, width: 26, height: 26, borderRadius: '50%', background: '#0047AB', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.2)' }}>
+            <div style={{ position: 'absolute', bottom: 2, right: 2, width: 26, height: 26, borderRadius: '50%', background: '#14284B', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.2)' }}>
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/>
               </svg>
@@ -283,75 +283,75 @@ function MyPage() {
           {photoStatus && (
             <div style={{
               fontSize: 12, fontWeight: 600,
-              color: photoStatus.includes('실패') ? '#DC2626' : photoStatus.includes('완료') || photoStatus.includes('업데이트') ? '#16A34A' : '#0047AB',
-              background: photoStatus.includes('실패') ? '#FEF2F2' : photoStatus.includes('완료') || photoStatus.includes('업데이트') ? '#F0FDF4' : '#EFF6FF',
+              color: photoStatus.includes('실패') ? '#DC2626' : photoStatus.includes('완료') || photoStatus.includes('업데이트') ? '#16A34A' : '#14284B',
+              background: photoStatus.includes('실패') ? '#FEF2F2' : photoStatus.includes('완료') || photoStatus.includes('업데이트') ? '#F0FDF4' : '#EEF1F6',
               borderRadius: 8, padding: '6px 14px', marginBottom: 10, textAlign: 'center',
             }}>
               {photoStatus}
             </div>
           )}
-          <div style={{ fontSize: 22, fontWeight: 800, color: '#1E293B', marginBottom: 4 }}>{user.nickname || user.name}</div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#0047AB' }}>3355 Golf Club</div>
+          <div style={{ fontSize: 22, fontWeight: 800, color: '#1A1D26', marginBottom: 4 }}>{user.nickname || user.name}</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#14284B' }}>3355 Golf Club</div>
         </div>
 
         {/* ── 핸디캡 / 라운딩 통계 ── */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 28 }}>
           <div style={{ background: '#fff', borderRadius: 16, padding: '18px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', position: 'relative' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0' }}>내 핸디캡</div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#9A9DA6', letterSpacing: '0' }}>내 핸디캡</div>
               {!isGAMemberDisplay && (
-                <button onClick={() => setShowHandicapInfo(true)} style={{ background: '#F1F5F9', border: 'none', borderRadius: 999, padding: '3px 8px', fontSize: 11, fontWeight: 700, color: '#64748B', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                <button onClick={() => setShowHandicapInfo(true)} style={{ background: '#EFEDE7', border: 'none', borderRadius: 999, padding: '3px 8px', fontSize: 11, fontWeight: 700, color: '#5E6473', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                   추천핸디계산
                 </button>
               )}
             </div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
-              <span style={{ fontSize: 28, fontWeight: 800, color: '#0d1b3e' }}>{displayHcp ?? '-'}</span>
+              <span style={{ fontSize: 28, fontWeight: 800, color: '#0D1A33' }}>{displayHcp ?? '-'}</span>
               {displayType && (
-                <span style={{ fontSize: 11, fontWeight: 700, color: displayType === 'GA' ? '#0047AB' : '#64748B', background: displayType === 'GA' ? '#EBF2FF' : '#F1F5F9', borderRadius: 6, padding: '2px 5px' }}>{displayType}</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: displayType === 'GA' ? '#14284B' : '#5E6473', background: displayType === 'GA' ? '#EEF1F6' : '#EFEDE7', borderRadius: 6, padding: '2px 5px' }}>{displayType}</span>
               )}
             </div>
             {isShowingRecommended && (
-              <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 3 }}>추천값</div>
+              <div style={{ fontSize: 11, color: '#9A9DA6', marginTop: 3 }}>추천값</div>
             )}
           </div>
           <div style={{ background: '#fff', borderRadius: 16, padding: '18px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0', marginBottom: 8 }}>총 라운딩</div>
+            <div style={{ fontSize: 11, fontWeight: 800, color: '#9A9DA6', letterSpacing: '0', marginBottom: 8 }}>총 라운딩</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-              <span style={{ fontSize: 28, fontWeight: 800, color: '#0d1b3e' }}>{myRoundCount}</span>
-              <span style={{ fontSize: 13, color: '#94A3B8' }}>회</span>
+              <span style={{ fontSize: 28, fontWeight: 800, color: '#0D1A33' }}>{myRoundCount}</span>
+              <span style={{ fontSize: 13, color: '#9A9DA6' }}>회</span>
             </div>
           </div>
         </div>
 
         {/* ── ACTIVITY & INFO ── */}
-        <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0', marginBottom: 10, paddingLeft: 4 }}>활동·정보</div>
+        <div style={{ fontSize: 11, fontWeight: 800, color: '#9A9DA6', letterSpacing: '0', marginBottom: 10, paddingLeft: 4 }}>활동·정보</div>
         <div style={{ background: '#fff', borderRadius: 16, marginBottom: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
-          <MenuRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="#0047AB"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>}
+          <MenuRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="#14284B"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>}
             label="기본 정보" onClick={() => toggleSection('basicInfo')} open={expandedSection === 'basicInfo'} />
 
           {/* 기본 정보 확장 */}
           {expandedSection === 'basicInfo' && (() => {
-            const fieldLabel = { fontSize: 12, fontWeight: 500, color: '#475569', marginBottom: 5 };
-            const inputStyle = { width: '100%', height: 44, padding: '0 12px', borderRadius: 10, border: '1px solid #E2E8F0', fontSize: 15, color: '#0F172A', outline: 'none', boxSizing: 'border-box', background: '#fff' };
+            const fieldLabel = { fontSize: 12, fontWeight: 500, color: '#4B5060', marginBottom: 5 };
+            const inputStyle = { width: '100%', height: 44, padding: '0 12px', borderRadius: 10, border: '1px solid #E6E2D8', fontSize: 15, color: '#1A1D26', outline: 'none', boxSizing: 'border-box', background: '#fff' };
             const card = { background: '#fff', borderRadius: 14, padding: '14px 14px 2px', marginBottom: 12, boxShadow: '0 2px 8px rgba(0,0,0,0.07)' };
             const cardTitle = (title, sub) => (
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#0F172A' }}>{title}</div>
-                <div style={{ fontSize: 12, color: '#64748B', marginTop: 2 }}>{sub}</div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1D26' }}>{title}</div>
+                <div style={{ fontSize: 12, color: '#5E6473', marginTop: 2 }}>{sub}</div>
               </div>
             );
             const req = <span style={{ color: '#DC2626' }}> *</span>;
             const grid2 = { display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1fr)', gap: 10 };
             // 선택된 쪽만 흰색으로 떠오르는 조용한 토글 — 화면에서 "저장"만 진한 파란색으로 남기기 위함
             const segment = (options, value, onPick) => (
-              <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: 10, padding: 3, height: 44, boxSizing: 'border-box' }}>
+              <div style={{ display: 'flex', background: '#EFEDE7', borderRadius: 10, padding: 3, height: 44, boxSizing: 'border-box' }}>
                 {options.map(([label, val]) => (
                   <button key={val} type="button" onClick={() => onPick(val)}
                     style={{ flex: 1, borderRadius: 8, border: 'none', cursor: 'pointer', fontSize: 14,
                       fontWeight: value === val ? 700 : 500,
                       background: value === val ? '#fff' : 'transparent',
-                      color: value === val ? '#0047AB' : '#64748B',
+                      color: value === val ? '#14284B' : '#5E6473',
                       boxShadow: value === val ? '0 1px 3px rgba(0,0,0,0.12)' : 'none',
                       transition: 'all 0.15s' }}>
                     {label}
@@ -362,7 +362,7 @@ function MyPage() {
             const textField = (label, key, { required, placeholder, decimal, tel, number, hint } = {}) => (
               <div style={{ marginBottom: 12 }}>
                 <div style={fieldLabel}>{label}{required && req}</div>
-                {hint && <div style={{ fontSize: 12, color: '#64748B', margin: '-2px 0 6px', lineHeight: 1.4 }}>{hint}</div>}
+                {hint && <div style={{ fontSize: 12, color: '#5E6473', margin: '-2px 0 6px', lineHeight: 1.4 }}>{hint}</div>}
                 <input type={number ? 'number' : tel ? 'tel' : 'text'} inputMode={decimal ? 'decimal' : undefined}
                   placeholder={placeholder} value={editData[key] || ''}
                   onChange={(e) => {
@@ -379,14 +379,14 @@ function MyPage() {
               const row = (label, key, value) => {
                 const empty = value === undefined || value === null || String(value).trim() === '';
                 return (
-                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '9px 0', borderBottom: '1px solid #F1F5F9' }}>
-                    <span style={{ fontSize: 13, color: '#64748B' }}>{label}</span>
-                    <span style={{ fontSize: 13, fontWeight: empty ? 500 : 700, color: empty ? (missingKeys.has(key) ? '#D97706' : '#CBD5E1') : '#1E293B', textAlign: 'right' }}>{empty ? '미입력' : value}</span>
+                  <div key={label} style={{ display: 'flex', justifyContent: 'space-between', gap: 12, padding: '9px 0', borderBottom: '1px solid #EFEDE7' }}>
+                    <span style={{ fontSize: 13, color: '#5E6473' }}>{label}</span>
+                    <span style={{ fontSize: 13, fontWeight: empty ? 500 : 700, color: empty ? (missingKeys.has(key) ? '#D97706' : '#D5D2CA') : '#1A1D26', textAlign: 'right' }}>{empty ? '미입력' : value}</span>
                   </div>
                 );
               };
               return (
-                <div ref={basicInfoRef} style={{ background: '#F8FAFC', padding: '14px 14px 16px', borderTop: '1px solid #F1F5F9' }}>
+                <div ref={basicInfoRef} style={{ background: '#F7F5F0', padding: '14px 14px 16px', borderTop: '1px solid #EFEDE7' }}>
                   {missingKeys.size > 0 && (
                     <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '10px 12px', fontSize: 13, color: '#92400E', marginBottom: 12 }}>
                       아직 입력하지 않은 정보가 {missingKeys.size}개 있어요.
@@ -415,13 +415,13 @@ function MyPage() {
                     {clubStatus === 'no' && row('하우스 핸디', 'houseHandy', user.houseHandy || user.handicap)}
                     <div style={{ height: 10 }} />
                   </div>
-                  <button onClick={() => setIsEditing(true)} style={{ width: '100%', height: 46, background: '#0047AB', color: '#fff', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>정보 업데이트하기</button>
+                  <button onClick={() => setIsEditing(true)} style={{ width: '100%', height: 46, background: '#14284B', color: '#fff', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>정보 업데이트하기</button>
                 </div>
               );
             }
 
             return (
-              <div ref={basicInfoRef} style={{ background: '#F8FAFC', padding: '14px 14px 16px', borderTop: '1px solid #F1F5F9' }}>
+              <div ref={basicInfoRef} style={{ background: '#F7F5F0', padding: '14px 14px 16px', borderTop: '1px solid #EFEDE7' }}>
                 <div style={card}>
                   {cardTitle('나의 정보', '회원 명단과 연락에 쓰여요')}
                   <div style={grid2}>
@@ -445,7 +445,7 @@ function MyPage() {
                   {cardTitle('골프 정보', '핸디와 대회 신청에 쓰여요')}
                   <div style={{ marginBottom: 12 }}>
                     <div style={fieldLabel}>골프링크(GA) 번호가 있나요?{req}</div>
-                    <div style={{ fontSize: 12, color: '#64748B', margin: '-2px 0 6px', lineHeight: 1.4 }}>골프장 회원이 아니어도 Future Golf 등으로 받은 번호가 있다면 '네'를 골라 주세요.</div>
+                    <div style={{ fontSize: 12, color: '#5E6473', margin: '-2px 0 6px', lineHeight: 1.4 }}>골프장 회원이 아니어도 Future Golf 등으로 받은 번호가 있다면 '네'를 골라 주세요.</div>
                     {/* 아니요를 눌러도 골프링크·클럽 칸 값은 지우지 않는다 — 저장할 때만 비워진다 */}
                     {segment([['네, 있어요', 'yes'], ['아니요', 'no']], editData.isMember, (val) => {
                       setEditData(prev => ({ ...prev, isMember: val }));
@@ -458,16 +458,16 @@ function MyPage() {
                     {textField('골프링크에 등록된 이름', 'gaRegisteredName', { required: true, placeholder: 'Jung Hwan Kang', hint: '예약할 때 공식 이름이 필요합니다. GA에 등록된 영문 이름을 적어주세요.' })}
                     {textField('GA 핸디', 'gaHandy', { required: true, decimal: true, placeholder: '18.4' })}
 
-                    <div style={{ borderTop: '1px dashed #E2E8F0', margin: '4px 0 12px' }} />
+                    <div style={{ borderTop: '1px dashed #E6E2D8', margin: '4px 0 12px' }} />
                     <div style={{ marginBottom: 12 }}>
-                      <div style={fieldLabel}>회원으로 가입된 골프장이 있나요? <span style={{ color: '#94A3B8' }}>(선택)</span></div>
-                      <div style={{ fontSize: 12, color: '#64748B', margin: '-2px 0 6px', lineHeight: 1.4 }}>적어 두시면 그 골프장 라운딩에서 그린피 면제 등이 자동으로 적용돼요.</div>
+                      <div style={fieldLabel}>회원으로 가입된 골프장이 있나요? <span style={{ color: '#9A9DA6' }}>(선택)</span></div>
+                      <div style={{ fontSize: 12, color: '#5E6473', margin: '-2px 0 6px', lineHeight: 1.4 }}>적어 두시면 그 골프장 라운딩에서 그린피 면제 등이 자동으로 적용돼요.</div>
                       {editData.club ? (
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 44, padding: '0 6px 0 12px', background: '#EFF6FF', borderRadius: 10, border: '1px solid #BFDBFE', boxSizing: 'border-box' }}>
-                          <span style={{ fontSize: 14, color: '#0047AB', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{editData.club}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 44, padding: '0 6px 0 12px', background: '#EEF1F6', borderRadius: 10, border: '1px solid #D3DBE8', boxSizing: 'border-box' }}>
+                          <span style={{ fontSize: 14, color: '#14284B', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{editData.club}</span>
                           <button type="button" aria-label="소속 클럽 지우기"
                             onClick={() => { setEditData(prev => ({ ...prev, club: '' })); setClubSearchState('idle'); }}
-                            style={{ background: 'none', border: 'none', color: '#64748B', fontSize: 18, cursor: 'pointer', width: 36, height: 36, lineHeight: 1, flexShrink: 0 }}>×</button>
+                            style={{ background: 'none', border: 'none', color: '#5E6473', fontSize: 18, cursor: 'pointer', width: 36, height: 36, lineHeight: 1, flexShrink: 0 }}>×</button>
                         </div>
                       ) : (
                         <>
@@ -479,7 +479,7 @@ function MyPage() {
                               style={{ ...inputStyle, flex: 1 }} />
                             <button type="button" onClick={handleClubSearch}
                               disabled={clubSearchState === 'searching' || !clubSearchInput.trim()}
-                              style={{ height: 44, padding: '0 14px', background: '#fff', color: (clubSearchState === 'searching' || !clubSearchInput.trim()) ? '#94A3B8' : '#0047AB', border: '1px solid #E2E8F0', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                              style={{ height: 44, padding: '0 14px', background: '#fff', color: (clubSearchState === 'searching' || !clubSearchInput.trim()) ? '#9A9DA6' : '#14284B', border: '1px solid #E6E2D8', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
                               {clubSearchState === 'searching' ? '검색중...' : '검색'}
                             </button>
                           </div>
@@ -496,38 +496,38 @@ function MyPage() {
                 </div>
 
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <button onClick={() => { setIsEditing(false); setEditData(toEditData(user)); }} style={{ flex: 1, height: 46, borderRadius: 12, border: '1px solid #E2E8F0', background: '#fff', color: '#64748B', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}>취소</button>
-                  <button onClick={handleSave} style={{ flex: 2, height: 46, borderRadius: 12, border: 'none', background: '#0047AB', color: '#fff', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>저장</button>
+                  <button onClick={() => { setIsEditing(false); setEditData(toEditData(user)); }} style={{ flex: 1, height: 46, borderRadius: 12, border: '1px solid #E6E2D8', background: '#fff', color: '#5E6473', fontWeight: 600, fontSize: 15, cursor: 'pointer' }}>취소</button>
+                  <button onClick={handleSave} style={{ flex: 2, height: 46, borderRadius: 12, border: 'none', background: '#14284B', color: '#fff', fontWeight: 700, fontSize: 15, cursor: 'pointer' }}>저장</button>
                 </div>
               </div>
             );
           })()}
 
-          <MenuRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="#0047AB"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9" stroke="white" strokeWidth="1.5"/></svg>}
+          <MenuRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="#14284B"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9" stroke="white" strokeWidth="1.5"/></svg>}
             label="최근 스코어" onClick={() => toggleSection('scores')} open={expandedSection === 'scores'} />
 
           {/* 스코어 확장 */}
           {expandedSection === 'scores' && (
-            <div style={{ background: '#F8FAFC', padding: '16px 18px', borderTop: '1px solid #F1F5F9' }}>
+            <div style={{ background: '#F7F5F0', padding: '16px 18px', borderTop: '1px solid #EFEDE7' }}>
               {scores.length === 0 ? (
-                <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: 14, padding: '20px 0' }}>아직 기록된 스코어가 없습니다.</div>
+                <div style={{ textAlign: 'center', color: '#9A9DA6', fontSize: 14, padding: '20px 0' }}>아직 기록된 스코어가 없습니다.</div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {scores.slice(0, 5).map((score, i) => {
                     const mb = bookings.find(b => b.title === score.roundingName);
                     return (
                       <div key={i} onClick={() => mb && navigate(`/leaderboard?id=${mb.id}&userId=${user.id}&openScorecard=true`)}
-                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: '#fff', borderRadius: 10, cursor: mb ? 'pointer' : 'default', border: '1px solid #F1F5F9' }}>
+                        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', background: '#fff', borderRadius: 10, cursor: mb ? 'pointer' : 'default', border: '1px solid #EFEDE7' }}>
                         <div>
-                          <div style={{ fontSize: 13, fontWeight: 700, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1D26', display: 'flex', alignItems: 'center', gap: 6 }}>
                             {score.roundingName}
                             {score.gameMode === 'ambrose' && (
-                              <span style={{ fontSize: 11, fontWeight: 700, color: '#0891b2', background: '#e0f2fe', padding: '2px 6px', borderRadius: 6 }}>엠브로스(팀)</span>
+                              <span style={{ fontSize: 11, fontWeight: 700, color: '#0891b2', background: '#EEF1F6', padding: '2px 6px', borderRadius: 6 }}>엠브로스(팀)</span>
                             )}
                           </div>
-                          <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>{score.courseName} · {new Date(score.date).toLocaleDateString('ko-KR')}</div>
+                          <div style={{ fontSize: 11, color: '#9A9DA6', marginTop: 2 }}>{score.courseName} · {new Date(score.date).toLocaleDateString('ko-KR')}</div>
                         </div>
-                        <div style={{ fontSize: 20, fontWeight: 800, color: '#0047AB' }}>{score.totalScore}</div>
+                        <div style={{ fontSize: 20, fontWeight: 800, color: '#14284B' }}>{score.totalScore}</div>
                       </div>
                     );
                   })}
@@ -536,7 +536,7 @@ function MyPage() {
             </div>
           )}
 
-          <MenuRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0047AB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>}
+          <MenuRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#14284B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>}
             label="내 라운딩 일정" onClick={() => toggleSection('myRoundings')} open={expandedSection === 'myRoundings'} last />
 
           {expandedSection === 'myRoundings' && (() => {
@@ -547,24 +547,24 @@ function MyPage() {
               .sort((a, b) => new Date(a.date) - new Date(b.date));
             const days = ['일', '월', '화', '수', '목', '금', '토'];
             return (
-              <div style={{ background: '#F8FAFC', padding: '16px 18px', borderTop: '1px solid #F1F5F9' }}>
+              <div style={{ background: '#F7F5F0', padding: '16px 18px', borderTop: '1px solid #EFEDE7' }}>
                 {myUpcoming.length === 0 ? (
-                  <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: 14, padding: '16px 0' }}>예정된 라운딩이 없습니다.</div>
+                  <div style={{ textAlign: 'center', color: '#9A9DA6', fontSize: 14, padding: '16px 0' }}>예정된 라운딩이 없습니다.</div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {myUpcoming.map(b => {
                       const d = new Date(b.date);
                       return (
-                        <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', background: '#fff', borderRadius: 12, border: '1px solid #F1F5F9' }}>
+                        <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', background: '#fff', borderRadius: 12, border: '1px solid #EFEDE7' }}>
                           <div style={{ minWidth: 36, textAlign: 'center' }}>
-                            <div style={{ fontSize: 18, fontWeight: 800, color: '#0047AB', lineHeight: 1 }}>{d.getDate()}</div>
-                            <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>{days[d.getDay()]}</div>
+                            <div style={{ fontSize: 18, fontWeight: 800, color: '#14284B', lineHeight: 1 }}>{d.getDate()}</div>
+                            <div style={{ fontSize: 11, color: '#9A9DA6', marginTop: 1 }}>{days[d.getDay()]}</div>
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <div style={{ fontSize: 13, fontWeight: 700, color: '#1E293B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.title || b.courseName}</div>
-                            <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>{b.courseName} · {b.time && b.time !== '23:59' ? b.time.slice(0,5) : '시간 미정'}</div>
+                            <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1D26', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.title || b.courseName}</div>
+                            <div style={{ fontSize: 11, color: '#9A9DA6', marginTop: 1 }}>{b.courseName} · {b.time && b.time !== '23:59' ? b.time.slice(0,5) : '시간 미정'}</div>
                           </div>
-                          <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 999, background: '#EBF2FF', color: '#0047AB', flexShrink: 0 }}>{b.type}</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 999, background: '#EEF1F6', color: '#14284B', flexShrink: 0 }}>{b.type}</span>
                         </div>
                       );
                     })}
@@ -576,28 +576,28 @@ function MyPage() {
         </div>
 
         {/* ── SETTINGS & MEMBERSHIP ── */}
-        <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0', marginBottom: 10, paddingLeft: 4 }}>설정·회원</div>
+        <div style={{ fontSize: 11, fontWeight: 800, color: '#9A9DA6', letterSpacing: '0', marginBottom: 10, paddingLeft: 4 }}>설정·회원</div>
         <div style={{ background: '#fff', borderRadius: 16, marginBottom: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
-          <MenuRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0047AB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>}
+          <MenuRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#14284B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>}
             label="앱 설정" onClick={() => toggleSection('appSettings')} open={expandedSection === 'appSettings'} />
           {expandedSection === 'appSettings' && (
-            <div style={{ background: '#F8FAFC', padding: '16px 18px', borderTop: '1px solid #F1F5F9' }}>
-              <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: 14, padding: '12px 0' }}>추가 설정 예정</div>
+            <div style={{ background: '#F7F5F0', padding: '16px 18px', borderTop: '1px solid #EFEDE7' }}>
+              <div style={{ textAlign: 'center', color: '#9A9DA6', fontSize: 14, padding: '12px 0' }}>추가 설정 예정</div>
             </div>
           )}
 
-          <MenuRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0047AB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>}
+          <MenuRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#14284B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>}
             label="알림 설정" onClick={() => toggleSection('notifications')} open={expandedSection === 'notifications'} />
           {expandedSection === 'notifications' && (
-            <div style={{ background: '#F8FAFC', padding: '16px 18px', borderTop: '1px solid #F1F5F9' }}>
-              <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: 14, padding: '12px 0' }}>알림 설정 예정</div>
+            <div style={{ background: '#F7F5F0', padding: '16px 18px', borderTop: '1px solid #EFEDE7' }}>
+              <div style={{ textAlign: 'center', color: '#9A9DA6', fontSize: 14, padding: '12px 0' }}>알림 설정 예정</div>
             </div>
           )}
 
-          <MenuRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0047AB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-4 0v2"/></svg>}
+          <MenuRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#14284B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-4 0v2"/></svg>}
             label="멤버십 정보" onClick={() => toggleSection('membership')} open={expandedSection === 'membership'} last />
           {expandedSection === 'membership' && (
-            <div style={{ background: '#F8FAFC', padding: '16px 18px', borderTop: '1px solid #F1F5F9' }}>
+            <div style={{ background: '#F7F5F0', padding: '16px 18px', borderTop: '1px solid #EFEDE7' }}>
               {[
                 ['역할', user.role || '-'],
                 ['골프링크 번호', user.isClubMember === 'yes' ? '있음' : user.isClubMember === 'no' ? '없음' : '-'],
@@ -606,9 +606,9 @@ function MyPage() {
                 ['골프링크에 등록된 이름', user.gaRegisteredName || '-'],
                 ['클럽 회원번호', user.clubMemberNumber || '-'],
               ].map(([label, value]) => (
-                <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #F1F5F9' }}>
-                  <span style={{ fontSize: 13, color: '#94A3B8', fontWeight: 600 }}>{label}</span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>{value}</span>
+                <div key={label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #EFEDE7' }}>
+                  <span style={{ fontSize: 13, color: '#9A9DA6', fontWeight: 600 }}>{label}</span>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#1A1D26' }}>{value}</span>
                 </div>
               ))}
             </div>
@@ -622,8 +622,8 @@ function MyPage() {
           const d = new Date(upcoming.date);
           const days = ['일', '월', '화', '수', '목', '금', '토'];
           return (
-            <div onClick={() => navigate('/booking')} style={{ background: 'linear-gradient(135deg, #0d1b3e 0%, #162d5c 100%)', borderRadius: 20, padding: '24px 20px', marginBottom: 20, cursor: 'pointer', position: 'relative', overflow: 'hidden', boxShadow: '0 8px 24px rgba(13,27,62,0.3)' }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(177,197,255,0.7)', letterSpacing: '0', marginBottom: 8 }}>다가오는 일정</div>
+            <div onClick={() => navigate('/booking')} style={{ background: 'linear-gradient(135deg, #0D1A33 0%, #162d5c 100%)', borderRadius: 20, padding: '24px 20px', marginBottom: 20, cursor: 'pointer', position: 'relative', overflow: 'hidden', boxShadow: '0 8px 24px rgba(13,27,62,0.3)' }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(214,196,150,0.7)', letterSpacing: '0', marginBottom: 8 }}>다가오는 일정</div>
               <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 14, letterSpacing: '-0.01em' }}>{upcoming.title || upcoming.courseName}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{d.getMonth()+1}월 {d.getDate()}일 ({days[d.getDay()]})</span>
@@ -651,21 +651,21 @@ function MyPage() {
           {/* 시트 */}
           <div style={{ position: 'relative', background: '#fff', borderRadius: '20px 20px 0 0', padding: '28px 24px 40px', zIndex: 1 }}>
             {/* 핸들 */}
-            <div style={{ width: 36, height: 4, background: '#E2E8F0', borderRadius: 4, margin: '0 auto 24px' }} />
+            <div style={{ width: 36, height: 4, background: '#E6E2D8', borderRadius: 4, margin: '0 auto 24px' }} />
 
-            <div style={{ fontSize: 13, fontWeight: 800, color: '#94A3B8', letterSpacing: '0', marginBottom: 20 }}>하우스 핸디캡</div>
+            <div style={{ fontSize: 13, fontWeight: 800, color: '#9A9DA6', letterSpacing: '0', marginBottom: 20 }}>하우스 핸디캡</div>
 
             {/* 현재값 vs 추천값 */}
             <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
-              <div style={{ flex: 1, background: '#F8FAFC', borderRadius: 14, padding: '14px 16px' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 6 }}>현재 등록</div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: isNaN(manualHH) ? '#CBD5E1' : '#1E293B' }}>
+              <div style={{ flex: 1, background: '#F7F5F0', borderRadius: 14, padding: '14px 16px' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9DA6', marginBottom: 6 }}>현재 등록</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: isNaN(manualHH) ? '#D5D2CA' : '#1A1D26' }}>
                   {isNaN(manualHH) ? '미등록' : manualHH}
                 </div>
               </div>
-              <div style={{ flex: 1, background: recommendedHcp != null ? '#EBF2FF' : '#F8FAFC', borderRadius: 14, padding: '14px 16px' }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#0047AB', marginBottom: 6 }}>추천 핸디</div>
-                <div style={{ fontSize: 24, fontWeight: 800, color: recommendedHcp != null ? '#0047AB' : '#CBD5E1' }}>
+              <div style={{ flex: 1, background: recommendedHcp != null ? '#EEF1F6' : '#F7F5F0', borderRadius: 14, padding: '14px 16px' }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#14284B', marginBottom: 6 }}>추천 핸디</div>
+                <div style={{ fontSize: 24, fontWeight: 800, color: recommendedHcp != null ? '#14284B' : '#D5D2CA' }}>
                   {recommendedHcp ?? '-'}
                 </div>
               </div>
@@ -680,25 +680,25 @@ function MyPage() {
 
             {/* 계산 근거 */}
             {recommendedExplanation ? (
-              <div style={{ background: '#F8FAFC', borderRadius: 12, padding: '14px 16px', marginBottom: 20 }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.08em', marginBottom: 6 }}>계산 근거</div>
-                <div style={{ fontSize: 13, color: '#475569', lineHeight: 1.6 }}>{recommendedExplanation}</div>
+              <div style={{ background: '#F7F5F0', borderRadius: 12, padding: '14px 16px', marginBottom: 20 }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: '#9A9DA6', letterSpacing: '0.08em', marginBottom: 6 }}>계산 근거</div>
+                <div style={{ fontSize: 13, color: '#4B5060', lineHeight: 1.6 }}>{recommendedExplanation}</div>
               </div>
             ) : (
-              <div style={{ background: '#F8FAFC', borderRadius: 12, padding: '14px 16px', marginBottom: 20 }}>
-                <div style={{ fontSize: 13, color: '#94A3B8', textAlign: 'center' }}>스코어 기록이 없어 추천 핸디를 계산할 수 없습니다.</div>
+              <div style={{ background: '#F7F5F0', borderRadius: 12, padding: '14px 16px', marginBottom: 20 }}>
+                <div style={{ fontSize: 13, color: '#9A9DA6', textAlign: 'center' }}>스코어 기록이 없어 추천 핸디를 계산할 수 없습니다.</div>
               </div>
             )}
 
             {/* 적용 버튼 */}
             {canApplyRecommended && (
               <button onClick={applyRecommendedHandicap} disabled={applyingHcp}
-                style={{ width: '100%', padding: '14px', background: '#0047AB', color: '#fff', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', marginBottom: 10, opacity: applyingHcp ? 0.6 : 1 }}>
+                style={{ width: '100%', padding: '14px', background: '#14284B', color: '#fff', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 700, cursor: 'pointer', marginBottom: 10, opacity: applyingHcp ? 0.6 : 1 }}>
                 {applyingHcp ? '적용 중...' : `추천 핸디 ${recommendedHcp}으로 교체하기`}
               </button>
             )}
             <button onClick={() => setShowHandicapInfo(false)}
-              style={{ width: '100%', padding: '14px', background: 'none', color: '#94A3B8', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ width: '100%', padding: '14px', background: 'none', color: '#9A9DA6', border: 'none', borderRadius: 14, fontSize: 15, fontWeight: 600, cursor: 'pointer' }}>
               닫기
             </button>
           </div>

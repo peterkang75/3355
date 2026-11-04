@@ -912,7 +912,7 @@ function Leaderboard() {
       ) : !teamMix.isMixed && gameMode === 'ambrose' ? (
         <div style={{ padding: '0 16px' }}>
           <div style={{
-            background: 'linear-gradient(135deg, #0891b2 0%, #0047AB 100%)',
+            background: 'linear-gradient(135deg, #0891b2 0%, #14284B 100%)',
             borderRadius: '12px',
             padding: '16px',
             marginBottom: '16px',
@@ -1374,7 +1374,7 @@ function Leaderboard() {
         const getScoreColor = (score, par) => {
           if (!score || score === 0) return 'transparent';
           const diff = score - par;
-          if (diff <= -3) return '#133464';
+          if (diff <= -3) return '#0D1A33';
           if (diff === -2) return '#60B0DF';
           if (diff === -1) return '#a7d6e5';
           if (diff === 0) return 'transparent';
@@ -1656,7 +1656,7 @@ function Leaderboard() {
                     {selectedScore.isFoursomeTeam ? (
                       <>
                         <span style={{
-                          background: selectedScore.pairLabel === 'A' ? '#3B82F6' : '#DC2626',
+                          background: selectedScore.pairLabel === 'A' ? '#24406E' : '#DC2626',
                           padding: '4px 8px',
                           borderRadius: '4px',
                           fontSize: '12px',
@@ -1707,7 +1707,7 @@ function Leaderboard() {
                         </span>
                       </div>
                       {selectedScore.isFoursomeTeam ? (
-                        <div style={{ color: '#60a5fa', fontSize: '12px', fontWeight: '600' }}>
+                        <div style={{ color: '#9AA9C2', fontSize: '12px', fontWeight: '600' }}>
                           NET {selectedScore.netScore}
                         </div>
                       ) : (
@@ -1738,7 +1738,7 @@ function Leaderboard() {
                     display: 'flex', 
                     alignItems: 'center', 
                     padding: '6px 10px',
-                    background: '#133464',
+                    background: '#0D1A33',
                     borderRadius: '4px'
                   }}>
                     <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>Ace/Albatross</span>
@@ -1767,7 +1767,7 @@ function Leaderboard() {
                     padding: '6px 10px',
                     background: '#f5f5f5',
                     borderRadius: '4px',
-                    border: '1px solid #e2e8f0'
+                    border: '1px solid #E6E2D8'
                   }}>
                     <span style={{ color: '#333', fontSize: '11px', fontWeight: '600' }}>Par</span>
                   </div>

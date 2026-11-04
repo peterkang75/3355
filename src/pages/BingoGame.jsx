@@ -441,7 +441,7 @@ function BingoGame() {
 
         {/* ── 타이틀 히어로 카드 ── */}
         <div style={{
-          background: 'linear-gradient(135deg, #0047AB 0%, #1565c0 55%, #1976d2 100%)',
+          background: 'linear-gradient(135deg, #14284B 0%, #24406E 55%, #24406E 100%)',
           borderRadius: 20,
           padding: '22px 20px 26px',
           marginBottom: 14,
@@ -508,22 +508,22 @@ function BingoGame() {
           <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', marginBottom: 14, overflow: 'hidden' }}>
             <div onClick={() => setShowOperatorSettings(prev => !prev)}
               style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', cursor: 'pointer', userSelect: 'none' }}>
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0047AB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: '#EEF1F6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#14284B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
                 </svg>
               </div>
-              <span style={{ flex: 1, fontSize: 15, fontWeight: 700, color: '#1E293B' }}>게임 설정</span>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+              <span style={{ flex: 1, fontSize: 15, fontWeight: 700, color: '#1A1D26' }}>게임 설정</span>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9A9DA6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
                 style={{ transition: 'transform 0.25s', transform: showOperatorSettings ? 'rotate(180deg)' : 'rotate(0deg)' }}>
                 <polyline points="6 9 12 15 18 9"/>
               </svg>
             </div>
             <div style={{ maxHeight: showOperatorSettings ? 320 : 0, overflow: 'hidden', transition: 'max-height 0.3s ease' }}>
-              <div style={{ padding: '0 16px 16px', borderTop: '1px solid #F1F5F9' }}>
+              <div style={{ padding: '0 16px 16px', borderTop: '1px solid #EFEDE7' }}>
                 {/* 목표 라인 */}
                 <div style={{ paddingTop: 14, marginBottom: 14 }}>
-                  <div style={{ fontSize: 12, color: '#64748B', fontWeight: 600, marginBottom: 8 }}>목표 라인 설정</div>
+                  <div style={{ fontSize: 12, color: '#5E6473', fontWeight: 600, marginBottom: 8 }}>목표 라인 설정</div>
                   <div style={{ display: 'flex', gap: 8 }}>
                     {[
                       { label: '3 라인', gridSize: 3, targetLines: 3 },
@@ -534,7 +534,7 @@ function BingoGame() {
                       return (
                         <button key={label}
                           onClick={() => { handleOperatorGridSizeChange(gridSize); handleOperatorTargetLinesChange(targetLines); }}
-                          style={{ flex: 1, padding: '10px 0', background: isActive ? '#0047AB' : '#F1F5F9', color: isActive ? '#fff' : '#475569', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}>
+                          style={{ flex: 1, padding: '10px 0', background: isActive ? '#14284B' : '#EFEDE7', color: isActive ? '#fff' : '#4B5060', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', transition: 'all 0.15s' }}>
                           {label}
                         </button>
                       );
@@ -542,7 +542,7 @@ function BingoGame() {
                   </div>
                 </div>
                 <button onClick={handleOperatorSaveSettings} disabled={isSaving}
-                  style={{ width: '100%', padding: '12px', background: isSaving ? '#CBD5E1' : '#0047AB', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: isSaving ? 'not-allowed' : 'pointer' }}>
+                  style={{ width: '100%', padding: '12px', background: isSaving ? '#D5D2CA' : '#14284B', color: 'white', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: isSaving ? 'not-allowed' : 'pointer' }}>
                   {isSaving ? '저장 중...' : '설정 저장 (모든 회원에게 알림)'}
                 </button>
               </div>
@@ -554,9 +554,9 @@ function BingoGame() {
         {isEditMode && (
           <div style={{ marginBottom: 14 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-              <span style={{ fontSize: 16, fontWeight: 700, color: '#1E293B' }}>참여 가능한 멤버</span>
+              <span style={{ fontSize: 16, fontWeight: 700, color: '#1A1D26' }}>참여 가능한 멤버</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, background: '#EFF6FF', color: '#0047AB', padding: '3px 10px', borderRadius: 20 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, background: '#EEF1F6', color: '#14284B', padding: '3px 10px', borderRadius: 20 }}>
                   {availableMembers.length}명 대기중
                 </span>
                 <button onClick={handleResetBoard}
@@ -576,16 +576,16 @@ function BingoGame() {
                     onClick={() => handleMemberSelect(nickname)}
                     style={{
                       padding: '7px 13px',
-                      background: isSelected ? '#0047AB' : '#fff',
-                      color: isSelected ? '#fff' : '#1E293B',
-                      border: `2px solid ${isSelected ? '#0047AB' : '#E2E8F0'}`,
+                      background: isSelected ? '#14284B' : '#fff',
+                      color: isSelected ? '#fff' : '#1A1D26',
+                      border: `2px solid ${isSelected ? '#14284B' : '#E6E2D8'}`,
                       borderRadius: 20,
                       fontSize: 13,
                       fontWeight: isSelected ? 700 : 500,
                       cursor: 'pointer',
                       userSelect: 'none',
                       whiteSpace: 'nowrap',
-                      boxShadow: isSelected ? '0 2px 8px rgba(0,71,171,0.3)' : '0 1px 3px rgba(0,0,0,0.06)',
+                      boxShadow: isSelected ? '0 2px 8px rgba(20,40,75,0.3)' : '0 1px 3px rgba(0,0,0,0.06)',
                       transition: 'all 0.15s ease',
                     }}>
                     {isSelected && <span style={{ marginRight: 4 }}>✓</span>}
@@ -594,10 +594,10 @@ function BingoGame() {
                 );
               })}
               {availableMembers.length === 0 && (
-                <div style={{ fontSize: 13, color: '#94A3B8', padding: '6px 2px' }}>모든 회원이 배치되었습니다</div>
+                <div style={{ fontSize: 13, color: '#9A9DA6', padding: '6px 2px' }}>모든 회원이 배치되었습니다</div>
               )}
             </div>
-            <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 8 }}>
+            <div style={{ fontSize: 12, color: '#9A9DA6', marginTop: 8 }}>
               총 {members.length}명 중 {usedMembers.length}명 배치됨
             </div>
           </div>
@@ -629,13 +629,13 @@ function BingoGame() {
                     style={{
                       aspectRatio: '1',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      border: isDragOver ? '3px solid #FFD700' : isEditMode ? (canDrop ? '2px dashed #0047AB' : '2px dashed #CBD5E1') : '1px solid #E2E8F0',
+                      border: isDragOver ? '3px solid #FFD700' : isEditMode ? (canDrop ? '2px dashed #14284B' : '2px dashed #D5D2CA') : '1px solid #E6E2D8',
                       borderRadius: 10,
                       fontSize: localGridSize > 7 ? '11px' : localGridSize > 5 ? '12px' : '14px',
                       fontWeight: 700,
                       cursor: 'pointer',
-                      background: isDragOver ? 'rgba(255,215,0,0.25)' : isInBingoLine ? 'linear-gradient(135deg, #FFD700, #FFA500)' : isSelected ? '#0047AB' : isEditMode && canDrop ? 'rgba(0,71,171,0.06)' : '#FAFAFA',
-                      color: (isSelected || isInBingoLine) ? 'white' : '#1E293B',
+                      background: isDragOver ? 'rgba(255,215,0,0.25)' : isInBingoLine ? 'linear-gradient(135deg, #FFD700, #FFA500)' : isSelected ? '#14284B' : isEditMode && canDrop ? 'rgba(20,40,75,0.06)' : '#FAFAFA',
+                      color: (isSelected || isInBingoLine) ? 'white' : '#1A1D26',
                       transition: 'all 0.15s ease',
                       padding: 4, textAlign: 'center', wordBreak: 'break-all', overflow: 'hidden', minHeight: 50, lineHeight: 1.2
                     }}>
@@ -645,9 +645,9 @@ function BingoGame() {
               })
             )}
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTop: '1px solid #F1F5F9' }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#0047AB' }}>현재 빙고: {bingoLines.length}줄</span>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#64748B' }}>목표: {localTargetLines}줄</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTop: '1px solid #EFEDE7' }}>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#14284B' }}>현재 빙고: {bingoLines.length}줄</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: '#5E6473' }}>목표: {localTargetLines}줄</span>
           </div>
         </div>
 
@@ -655,11 +655,11 @@ function BingoGame() {
         {!isEditMode && (
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={handleEditMode}
-              style={{ flex: 1, padding: '13px 0', background: '#475569', color: 'white', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
+              style={{ flex: 1, padding: '13px 0', background: '#4B5060', color: 'white', border: 'none', borderRadius: 12, fontSize: 15, fontWeight: 700, cursor: 'pointer' }}>
               편집 모드
             </button>
             <button onClick={handleClearSelection}
-              style={{ flex: 1, padding: '13px 0', background: '#94A3B8', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+              style={{ flex: 1, padding: '13px 0', background: '#9A9DA6', color: 'white', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
               선택 초기화
             </button>
           </div>
@@ -670,7 +670,7 @@ function BingoGame() {
       {isEditMode && !selectedMember && (
         <div style={{ position: 'fixed', bottom: 'calc(60px + env(safe-area-inset-bottom))', left: 0, right: 0, padding: '0 16px 10px', zIndex: 100 }}>
           <button onClick={handleSaveBoard}
-            style={{ width: '100%', padding: '16px 0', background: 'linear-gradient(90deg, #0047AB 0%, #1565c0 100%)', color: 'white', border: 'none', borderRadius: 14, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 16px rgba(0,71,171,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
+            style={{ width: '100%', padding: '16px 0', background: 'linear-gradient(90deg, #14284B 0%, #24406E 100%)', color: 'white', border: 'none', borderRadius: 14, fontSize: 16, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 16px rgba(20,40,75,0.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}>
             저장 및 게임 시작
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="5 3 19 12 5 21 5 3"/>

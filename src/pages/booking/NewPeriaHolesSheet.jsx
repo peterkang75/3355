@@ -46,7 +46,7 @@ export default function NewPeriaHolesSheet({ initialHoles, initialRate, setByNam
 
   const renderRow = (label, from, to) => (
     <div style={{ marginBottom: 14 }}>
-      <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', marginBottom: 8, letterSpacing: '0.05em' }}>{label}</div>
+      <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9DA6', marginBottom: 8, letterSpacing: '0.05em' }}>{label}</div>
       {/* minmax(0,1fr) + minWidth 0 이 없으면 aspect-ratio 때문에 칸이 화면 밖으로 밀린다 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, minmax(0, 1fr))', gap: 5 }}>
         {Array.from({ length: to - from + 1 }, (_, i) => from + i).map((hole) => {
@@ -59,9 +59,9 @@ export default function NewPeriaHolesSheet({ initialHoles, initialRate, setByNam
               disabled={saving}
               style={{
                 aspectRatio: '1', padding: 0, borderRadius: 8, minWidth: 0,
-                border: on ? `2px solid ${ACCENT}` : '1px solid #E2E8F0',
+                border: on ? `2px solid ${ACCENT}` : '1px solid #E6E2D8',
                 background: on ? '#FEF3C7' : '#fff',
-                color: on ? ACCENT : (full ? '#CBD5E1' : '#475569'),
+                color: on ? ACCENT : (full ? '#D5D2CA' : '#4B5060'),
                 fontWeight: on ? 800 : 600, fontSize: 14, lineHeight: 1,
                 cursor: saving ? 'not-allowed' : 'pointer',
               }}
@@ -84,18 +84,18 @@ export default function NewPeriaHolesSheet({ initialHoles, initialRate, setByNam
       }}>
         <div style={{ display: 'flex', alignItems: 'center', marginBottom: 6 }}>
           <button onClick={onClose} disabled={saving}
-            style={{ background: 'none', border: 'none', color: '#64748B', fontSize: 15, cursor: 'pointer' }}>취소</button>
-          <div style={{ flex: 1, textAlign: 'center', fontWeight: 800, fontSize: 16, color: '#0F172A' }}>신페리오 홀 지정</div>
+            style={{ background: 'none', border: 'none', color: '#5E6473', fontSize: 15, cursor: 'pointer' }}>취소</button>
+          <div style={{ flex: 1, textAlign: 'center', fontWeight: 800, fontSize: 16, color: '#1A1D26' }}>신페리오 홀 지정</div>
           <span style={{ width: 40 }} />
         </div>
 
-        <div style={{ fontSize: 13, color: '#94A3B8', textAlign: 'center', marginBottom: 16, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 13, color: '#9A9DA6', textAlign: 'center', marginBottom: 16, lineHeight: 1.5 }}>
           제비뽑기로 뽑은 {NEWPERIA_HOLE_COUNT}개 홀을 선택하세요.<br />
           이 홀들의 점수로 참가자별 핸디캡이 정해집니다.
         </div>
 
         {hadPrevious && setAt && (
-          <div style={{ padding: 12, background: '#F8FAFC', borderRadius: 10, marginBottom: 16, fontSize: 13, color: '#64748B', lineHeight: 1.5 }}>
+          <div style={{ padding: 12, background: '#F7F5F0', borderRadius: 10, marginBottom: 16, fontSize: 13, color: '#5E6473', lineHeight: 1.5 }}>
             현재 지정: {setByName || '알 수 없음'} · {new Date(setAt).toLocaleString('ko-KR', { timeZone: 'Australia/Sydney', dateStyle: 'medium', timeStyle: 'short' })}
           </div>
         )}
@@ -107,7 +107,7 @@ export default function NewPeriaHolesSheet({ initialHoles, initialRate, setByNam
 
         <div style={{
           textAlign: 'center', padding: '12px 0', marginBottom: 14,
-          fontSize: 14, fontWeight: 700, color: complete ? ACCENT : '#94A3B8',
+          fontSize: 14, fontWeight: 700, color: complete ? ACCENT : '#9A9DA6',
         }}>
           {NEWPERIA_HOLE_COUNT}개 중 {count}개 선택
           {!complete && count > 0 && (
@@ -120,8 +120,8 @@ export default function NewPeriaHolesSheet({ initialHoles, initialRate, setByNam
           disabled={!complete || saving}
           style={{
             width: '100%', padding: 15, borderRadius: 14, border: 'none',
-            background: complete && !saving ? ACCENT : '#E2E8F0',
-            color: complete && !saving ? '#fff' : '#94A3B8',
+            background: complete && !saving ? ACCENT : '#E6E2D8',
+            color: complete && !saving ? '#fff' : '#9A9DA6',
             fontSize: 15, fontWeight: 800,
             cursor: complete && !saving ? 'pointer' : 'not-allowed',
           }}
@@ -133,7 +133,7 @@ export default function NewPeriaHolesSheet({ initialHoles, initialRate, setByNam
           <button onClick={handleClear} disabled={saving}
             style={{
               width: '100%', padding: 12, marginTop: 8, borderRadius: 14,
-              border: '1.5px solid #E2E8F0', background: '#fff', color: '#64748B',
+              border: '1.5px solid #E6E2D8', background: '#fff', color: '#5E6473',
               fontSize: 13, fontWeight: 600, cursor: saving ? 'not-allowed' : 'pointer',
             }}>
             지정 취소

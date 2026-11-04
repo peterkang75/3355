@@ -2,29 +2,29 @@
 const theme = {
   colors: {
     // Brand
-    primary:           '#0047AB',  // Azure Blue
-    primaryContainer:  '#0057d4',  // Azure Blue Light
+    primary:           '#14284B',  // Azure Blue
+    primaryContainer:  '#24406E',  // Azure Blue Light
     secondary:         '#0ea5e9',  // Sky Blue
-    secondaryContainer:'#e0f2fe',
+    secondaryContainer:'#EEF1F6',
 
     // Surface hierarchy (No-Line system)
-    surface:                   '#f8fafc',
+    surface:                   '#F7F5F0',
     surfaceContainerLowest:    '#ffffff',
-    surfaceContainerLow:       '#f1f5f9',
-    surfaceContainer:          '#e8edf4',
+    surfaceContainerLow:       '#EFEDE7',
+    surfaceContainer:          '#EFEDE7',
     surfaceContainerHigh:      '#dde3ee',
     surfaceContainerHighest:   '#d0d8e8',
 
     // Text
-    onBackground: '#1e293b',
-    onSurface:    '#1e293b',
+    onBackground: '#1A1D26',
+    onSurface:    '#1A1D26',
     onPrimary:    '#ffffff',
-    textSub:      '#334155',
-    textMuted:    '#64748b',
+    textSub:      '#363A47',
+    textMuted:    '#5E6473',
 
     // Outline
-    outline:        '#94a3b8',
-    outlineVariant: '#cbd5e1',
+    outline:        '#9A9DA6',
+    outlineVariant: '#D5D2CA',
 
     // Semantic
     error:            '#dc2626',
@@ -35,18 +35,18 @@ const theme = {
     warningContainer: '#ffdea4',
 
     // Legacy aliases
-    bg_app:  '#f8fafc',
+    bg_app:  '#F7F5F0',
     bg_card: '#ffffff',
     danger:  '#dc2626',
   },
 
   gradients: {
-    primary: 'linear-gradient(135deg, #0047AB, #0057d4)',
+    primary: 'linear-gradient(135deg, #14284B, #24406E)',
   },
 
   shadows: {
-    ambient: '0 12px 40px rgba(0, 71, 171, 0.06)',
-    float:   '0 12px 40px rgba(0, 71, 171, 0.12)',
+    ambient: '0 12px 40px rgba(20,40,75, 0.06)',
+    float:   '0 12px 40px rgba(20,40,75, 0.12)',
   },
 
   glass: {

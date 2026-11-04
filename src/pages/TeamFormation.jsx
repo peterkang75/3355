@@ -552,7 +552,7 @@ function TeamFormation() {
   const isOrganizerAccess = booking && user?.id === booking.organizerId;
   const canAccess = hasAdminAccess || isOrganizerAccess;
 
-  const PRIMARY = '#0047AB';
+  const PRIMARY = '#14284B';
 
   const getMemberStyle = (member) => {
     if (!member) return null;
@@ -563,7 +563,7 @@ function TeamFormation() {
     if (isGuest)   return { bg: '#F0FDF4', text: '#15803D', border: '#86EFAC' };
     if (isRenting) return { bg: '#FFF7ED', text: '#C2410C', border: '#FED7AA' };
     if (isFemale)  return { bg: '#FEE2E2', text: '#BE185D', border: '#FECACA' };
-    return { bg: '#E1EBF9', text: PRIMARY, border: '#BFDBFE' };
+    return { bg: '#EEF1F6', text: PRIMARY, border: '#D3DBE8' };
   };
 
   if (!booking) {
@@ -589,12 +589,12 @@ function TeamFormation() {
         {/* ── 상단 통합 카드 ── */}
         <div style={{
           background: '#FFFFFF', borderRadius: '20px',
-          border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+          border: '1px solid #E6E2D8', boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
           overflow: 'hidden', marginBottom: '14px',
         }}>
           {/* 헤더: 블루 그라디언트 */}
           <div style={{
-            background: 'linear-gradient(145deg, #08183A 0%, #003780 100%)',
+            background: 'linear-gradient(145deg, #0D1A33 0%, #0F1F3B 100%)',
             padding: '18px 20px', position: 'relative',
           }}>
             <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse at 80% 10%, rgba(255,255,255,0.07) 0%, transparent 55%)', pointerEvents: 'none' }} />
@@ -643,7 +643,7 @@ function TeamFormation() {
 
           {/* 미배정 칩 목록 */}
           {unassigned.length > 0 && (
-            <div style={{ padding: '12px 16px', borderBottom: '1px solid #F1F5F9', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            <div style={{ padding: '12px 16px', borderBottom: '1px solid #EFEDE7', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
               {unassigned.map((member, index) => {
                 const st = getMemberStyle(member);
                 const handicapText = getHandicapDisplay(member);
@@ -662,7 +662,7 @@ function TeamFormation() {
             </div>
           )}
           {unassigned.length === 0 && (
-            <div style={{ padding: '10px 16px', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <div style={{ padding: '10px 16px', borderBottom: '1px solid #EFEDE7', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#15803D" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
               <span style={{ fontSize: '12px', fontWeight: '600', color: '#15803D' }}>모든 참가자 배정 완료</span>
             </div>
@@ -678,8 +678,8 @@ function TeamFormation() {
                 style={{
                   display: 'flex', alignItems: 'center', gap: '5px',
                   padding: '8px 12px', borderRadius: '10px',
-                  background: '#F1F5F9', border: 'none',
-                  fontSize: '12px', fontWeight: '600', color: '#334155',
+                  background: '#EFEDE7', border: 'none',
+                  fontSize: '12px', fontWeight: '600', color: '#363A47',
                   cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0,
                 }}
               >
@@ -687,17 +687,17 @@ function TeamFormation() {
                 자동배정
               </LoadingButton>
 
-              <div style={{ width: '1px', height: '24px', background: '#E2E8F0', flexShrink: 0 }} />
+              <div style={{ width: '1px', height: '24px', background: '#E6E2D8', flexShrink: 0 }} />
 
               <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
                 <button onClick={handleRemoveTeam} disabled={teams.length === 0}
-                  style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #E2E8F0', background: '#fff', color: teams.length === 0 ? '#CBD5E1' : '#475569', fontSize: '16px', cursor: teams.length === 0 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>−</button>
-                <span style={{ fontSize: '12px', fontWeight: '700', color: '#1E293B', minWidth: '28px', textAlign: 'center' }}>{teams.length}조</span>
+                  style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #E6E2D8', background: '#fff', color: teams.length === 0 ? '#D5D2CA' : '#4B5060', fontSize: '16px', cursor: teams.length === 0 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>−</button>
+                <span style={{ fontSize: '12px', fontWeight: '700', color: '#1A1D26', minWidth: '28px', textAlign: 'center' }}>{teams.length}조</span>
                 <button onClick={handleAddTeam}
-                  style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #E2E8F0', background: '#fff', color: '#475569', fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>+</button>
+                  style={{ width: '28px', height: '28px', borderRadius: '6px', border: '1px solid #E6E2D8', background: '#fff', color: '#4B5060', fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>+</button>
               </div>
 
-              <div style={{ width: '1px', height: '24px', background: '#E2E8F0', flexShrink: 0 }} />
+              <div style={{ width: '1px', height: '24px', background: '#E6E2D8', flexShrink: 0 }} />
 
               <LoadingButton onClick={handleSaveTeams} loading={isSaving} loadingText="저장중…"
                 style={{
@@ -719,7 +719,7 @@ function TeamFormation() {
           {canAccess && (
             <div style={{ padding: '0 12px 10px', display: 'flex', gap: '6px' }}>
               <button onClick={handleCopyTeamText}
-                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', padding: '9px 10px', borderRadius: '10px', border: '1px solid #E2E8F0', background: '#fff', fontSize: '12px', fontWeight: '600', color: '#475569', cursor: 'pointer' }}>
+                style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', padding: '9px 10px', borderRadius: '10px', border: '1px solid #E6E2D8', background: '#fff', fontSize: '12px', fontWeight: '600', color: '#4B5060', cursor: 'pointer' }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
                 복사
               </button>
@@ -743,8 +743,8 @@ function TeamFormation() {
                   onClick={() => handleSlotClick(teamIndex, slotIndex, member)}
                   style={{
                     minHeight: '64px', flex: 1,
-                    background: '#F8FAFC', color: '#CBD5E1',
-                    borderRadius: '12px', border: '1.5px dashed #CBD5E1',
+                    background: '#F7F5F0', color: '#D5D2CA',
+                    borderRadius: '12px', border: '1.5px dashed #D5D2CA',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: '20px', cursor: 'pointer', transition: 'all 0.15s',
                   }}
@@ -777,27 +777,27 @@ function TeamFormation() {
           };
 
           return (
-            <div key={teamIndex} style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px 20px', marginBottom: '12px' }}>
+            <div key={teamIndex} style={{ background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E6E2D8', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px 20px', marginBottom: '12px' }}>
               {/* 조 헤더 */}
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <div style={{
                     width: '32px', height: '32px', borderRadius: '10px',
-                    background: '#EBF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: '#EEF1F6', display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: '14px', fontWeight: '800', color: PRIMARY,
                   }}>
                     {team.teamNumber}
                   </div>
-                  <span style={{ fontSize: '15px', fontWeight: '700', color: '#1E293B' }}>{team.teamNumber}조</span>
+                  <span style={{ fontSize: '15px', fontWeight: '700', color: '#1A1D26' }}>{team.teamNumber}조</span>
                   {(() => {
                     const isComp = getTeamFormat(team) === 'competition';
                     const chipStyle = {
                       display: 'inline-flex', alignItems: 'center',
                       padding: '5px 11px', borderRadius: '20px',
                       fontSize: '11px', fontWeight: '700',
-                      background: isComp ? '#EBF2FF' : '#F1F5F9',
-                      color: isComp ? PRIMARY : '#64748B',
-                      border: `1px solid ${isComp ? '#BFDBFE' : '#E2E8F0'}`,
+                      background: isComp ? '#EEF1F6' : '#EFEDE7',
+                      color: isComp ? PRIMARY : '#5E6473',
+                      border: `1px solid ${isComp ? '#D3DBE8' : '#E6E2D8'}`,
                     };
                     const label = isComp ? '컴피티션' : '소셜';
                     return canAccess ? (
@@ -809,20 +809,20 @@ function TeamFormation() {
                   })()}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9A9DA6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                   {canAccess ? (
                     <input
                       type="time"
                       value={team.teeTime || ''}
                       onChange={(e) => handleTeeTimeChange(teamIndex, e.target.value)}
                       style={{
-                        padding: '5px 10px', border: '1px solid #E2E8F0',
+                        padding: '5px 10px', border: '1px solid #E6E2D8',
                         borderRadius: '8px', fontSize: '13px', fontWeight: '600',
-                        background: '#F8FAFC', color: '#1E293B', outline: 'none',
+                        background: '#F7F5F0', color: '#1A1D26', outline: 'none',
                       }}
                     />
                   ) : (
-                    <span style={{ fontSize: '13px', fontWeight: '600', color: team.teeTime ? PRIMARY : '#CBD5E1' }}>
+                    <span style={{ fontSize: '13px', fontWeight: '600', color: team.teeTime ? PRIMARY : '#D5D2CA' }}>
                       {team.teeTime || '--:--'}
                     </span>
                   )}
@@ -833,19 +833,19 @@ function TeamFormation() {
               {gameMode === 'foursome' ? (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   <div>
-                    <div style={{ fontSize: '11px', fontWeight: '700', color: '#64748B', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '6px', paddingLeft: '2px' }}>A팀</div>
+                    <div style={{ fontSize: '11px', fontWeight: '700', color: '#5E6473', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '6px', paddingLeft: '2px' }}>A팀</div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       {renderSlot(team.members[0], 0)}
                       {renderSlot(team.members[1], 1)}
                     </div>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div style={{ flex: 1, height: '1px', background: '#E8ECF0' }} />
-                    <span style={{ fontSize: '11px', fontWeight: '800', color: '#94A3B8', letterSpacing: '0.1em' }}>VS</span>
-                    <div style={{ flex: 1, height: '1px', background: '#E8ECF0' }} />
+                    <div style={{ flex: 1, height: '1px', background: '#E6E2D8' }} />
+                    <span style={{ fontSize: '11px', fontWeight: '800', color: '#9A9DA6', letterSpacing: '0.1em' }}>VS</span>
+                    <div style={{ flex: 1, height: '1px', background: '#E6E2D8' }} />
                   </div>
                   <div>
-                    <div style={{ fontSize: '11px', fontWeight: '700', color: '#64748B', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '6px', paddingLeft: '2px' }}>B팀</div>
+                    <div style={{ fontSize: '11px', fontWeight: '700', color: '#5E6473', letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: '6px', paddingLeft: '2px' }}>B팀</div>
                     <div style={{ display: 'flex', gap: '8px' }}>
                       {renderSlot(team.members[2], 2)}
                       {renderSlot(team.members[3], 3)}
@@ -870,31 +870,31 @@ function TeamFormation() {
             style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 999, backdropFilter: 'blur(3px)' }} />
           <div style={{
             position: 'fixed', bottom: 'calc(60px + env(safe-area-inset-bottom))', left: 0, right: 0,
-            background: '#F8FAFC', borderRadius: '24px 24px 0 0',
+            background: '#F7F5F0', borderRadius: '24px 24px 0 0',
             zIndex: 1000, maxHeight: '72vh', display: 'flex', flexDirection: 'column',
             boxShadow: '0 -4px 24px rgba(0,0,0,0.12)',
           }}>
             {/* 핸들 */}
             <div style={{ textAlign: 'center', padding: '14px 0 4px' }}>
-              <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '4px', margin: '0 auto' }} />
+              <div style={{ width: '40px', height: '4px', background: '#D5D2CA', borderRadius: '4px', margin: '0 auto' }} />
             </div>
             {/* 헤더 */}
-            <div style={{ padding: '8px 20px 14px', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <div style={{ padding: '8px 20px 14px', borderBottom: '1px solid #EFEDE7', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <div style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0' }}>선택</div>
-                <div style={{ fontSize: '18px', fontWeight: '800', color: '#1E293B', letterSpacing: '-0.02em' }}>
+                <div style={{ fontSize: '11px', fontWeight: '700', color: '#9A9DA6', letterSpacing: '0' }}>선택</div>
+                <div style={{ fontSize: '18px', fontWeight: '800', color: '#1A1D26', letterSpacing: '-0.02em' }}>
                   참가자 선택 <span style={{ fontSize: '14px', fontWeight: '600', color: PRIMARY }}>({selectedParticipants.length}/4)</span>
                 </div>
               </div>
               <button onClick={() => { setShowSelectModal(false); setSelectedSlot(null); setSelectedParticipants([]); }}
-                style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#F1F5F9', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
+                style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#EFEDE7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#5E6473' }}>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
             {/* 목록 */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '12px 16px' }}>
               {unassigned.length === 0 ? (
-                <p style={{ textAlign: 'center', color: '#94A3B8', padding: '32px 0', fontSize: '14px' }}>배정 가능한 참가자가 없습니다.</p>
+                <p style={{ textAlign: 'center', color: '#9A9DA6', padding: '32px 0', fontSize: '14px' }}>배정 가능한 참가자가 없습니다.</p>
               ) : (
                 <div style={{ display: 'grid', gap: '6px' }}>
                   {unassigned.map((participant, index) => {
@@ -928,11 +928,11 @@ function TeamFormation() {
                           }
                         </div>
                         <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: '15px', fontWeight: '700', color: isSelected ? 'white' : '#1E293B', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                          <div style={{ fontSize: '15px', fontWeight: '700', color: isSelected ? 'white' : '#1A1D26', display: 'flex', alignItems: 'center', gap: '6px' }}>
                             {getParticipantDisplayName(participant)}
                             {isGuest && <span style={{ fontSize: '11px', fontWeight: '600', background: isSelected ? 'rgba(255,255,255,0.25)' : st.bg, color: isSelected ? 'white' : st.text, padding: '2px 6px', borderRadius: '6px' }}>게스트</span>}
                           </div>
-                          {handicapText && <div style={{ fontSize: '12px', color: isSelected ? 'rgba(255,255,255,0.75)' : '#94A3B8', marginTop: '1px' }}>{handicapText}</div>}
+                          {handicapText && <div style={{ fontSize: '12px', color: isSelected ? 'rgba(255,255,255,0.75)' : '#9A9DA6', marginTop: '1px' }}>{handicapText}</div>}
                         </div>
                       </button>
                     );
@@ -941,17 +941,17 @@ function TeamFormation() {
               )}
             </div>
             {/* 확인 버튼 */}
-            <div style={{ padding: '12px 16px', paddingBottom: 'max(16px, env(safe-area-inset-bottom))', borderTop: '1px solid #F1F5F9', background: '#F8FAFC' }}>
+            <div style={{ padding: '12px 16px', paddingBottom: 'max(16px, env(safe-area-inset-bottom))', borderTop: '1px solid #EFEDE7', background: '#F7F5F0' }}>
               <button
                 onClick={handleConfirmSelection}
                 disabled={selectedParticipants.length === 0}
                 style={{
                   width: '100%', padding: '15px', borderRadius: '14px', border: 'none',
-                  background: selectedParticipants.length > 0 ? PRIMARY : '#E2E8F0',
-                  color: selectedParticipants.length > 0 ? 'white' : '#94A3B8',
+                  background: selectedParticipants.length > 0 ? PRIMARY : '#E6E2D8',
+                  color: selectedParticipants.length > 0 ? 'white' : '#9A9DA6',
                   fontSize: '16px', fontWeight: '700',
                   cursor: selectedParticipants.length > 0 ? 'pointer' : 'not-allowed',
-                  boxShadow: selectedParticipants.length > 0 ? '0 4px 12px rgba(0,71,171,0.3)' : 'none',
+                  boxShadow: selectedParticipants.length > 0 ? '0 4px 12px rgba(20,40,75,0.3)' : 'none',
                   transition: 'all 0.2s',
                 }}
               >

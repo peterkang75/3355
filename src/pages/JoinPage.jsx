@@ -33,22 +33,22 @@ function JoinPage() {
   const fieldStyle = {
     width: '100%', boxSizing: 'border-box',
     padding: '13px 14px', borderRadius: 12,
-    border: '1.5px solid #e2e8f0', fontSize: 15,
-    color: '#1e293b', background: '#f8fafc',
+    border: '1.5px solid #E6E2D8', fontSize: 15,
+    color: '#1A1D26', background: '#F7F5F0',
     outline: 'none', display: 'block', minWidth: 0,
   };
   const labelStyle = {
     display: 'block', fontSize: 12, fontWeight: 700,
-    color: '#64748b', marginBottom: 6, letterSpacing: '0.03em',
+    color: '#5E6473', marginBottom: 6, letterSpacing: '0.03em',
   };
   const sectionStyle = { marginBottom: 18 };
   const toggleRowStyle = { display: 'flex', gap: 10, width: '100%' };
   const toggleBtn = (active) => ({
     flex: 1, padding: '12px', borderRadius: 12, border: '1.5px solid',
     fontWeight: 700, fontSize: 14, cursor: 'pointer',
-    borderColor: active ? '#0047AB' : '#e2e8f0',
-    background: active ? '#EFF6FF' : '#f8fafc',
-    color: active ? '#0047AB' : '#64748b',
+    borderColor: active ? '#14284B' : '#E6E2D8',
+    background: active ? '#EEF1F6' : '#F7F5F0',
+    color: active ? '#14284B' : '#5E6473',
   });
 
   /* ── 사진 압축 ── */
@@ -154,7 +154,7 @@ function JoinPage() {
       <div style={{
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
         overflowY: 'auto', overflowX: 'hidden',
-        background: 'linear-gradient(160deg, #003f9e 0%, #0047AB 40%, #1565c0 100%)',
+        background: 'linear-gradient(160deg, #003f9e 0%, #14284B 40%, #24406E 100%)',
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         justifyContent: 'center', padding: '24px 20px',
         paddingTop: 'max(24px, env(safe-area-inset-top))',
@@ -178,33 +178,33 @@ function JoinPage() {
           {/* 로고 */}
           <div style={{
             width: 88, height: 88, borderRadius: '50%',
-            border: '3px solid #EFF6FF',
+            border: '3px solid #EEF1F6',
             overflow: 'hidden',
             margin: '0 auto 20px',
-            boxShadow: '0 4px 16px rgba(0,71,171,0.15)',
+            boxShadow: '0 4px 16px rgba(20,40,75,0.15)',
           }}>
             <img src={logoImage} alt="3355 골프클럽 로고"
               style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
           </div>
 
           {/* 타이틀 */}
-          <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0047AB', marginBottom: 6, letterSpacing: '-0.03em' }}>
+          <h2 style={{ fontSize: 20, fontWeight: 800, color: '#14284B', marginBottom: 6, letterSpacing: '-0.03em' }}>
             3355 골프클럽에 오신 것을 환영합니다!
           </h2>
-          <div style={{ width: 40, height: 3, background: 'linear-gradient(90deg, #0047AB, #60A5FA)', borderRadius: 4, margin: '0 auto 20px' }} />
+          <div style={{ width: 40, height: 3, background: 'linear-gradient(90deg, #14284B, #9AA9C2)', borderRadius: 4, margin: '0 auto 20px' }} />
 
           {/* 본문 */}
-          <div style={{ fontSize: 14, color: '#475569', lineHeight: 1.85, textAlign: 'left', background: '#F8FAFC', borderRadius: 14, padding: '16px 18px', marginBottom: 24 }}>
+          <div style={{ fontSize: 14, color: '#4B5060', lineHeight: 1.85, textAlign: 'left', background: '#F7F5F0', borderRadius: 14, padding: '16px 18px', marginBottom: 24 }}>
             <p style={{ marginBottom: 10 }}>
-              <strong style={{ color: '#1e293b' }}>가입 신청이 완료되었습니다.</strong>
+              <strong style={{ color: '#1A1D26' }}>가입 신청이 완료되었습니다.</strong>
             </p>
             <p style={{ marginBottom: 10 }}>
-              운영진 확인 후 승인이 이루어지며, 보통 <strong style={{ color: '#0047AB' }}>1~2일 이내</strong>에 처리됩니다.
+              운영진 확인 후 승인이 이루어지며, 보통 <strong style={{ color: '#14284B' }}>1~2일 이내</strong>에 처리됩니다.
             </p>
             <p style={{ marginBottom: 10 }}>
               승인이 완료되면 다시 접속하셔서 모든 기능을 자유롭게 이용하실 수 있습니다.
             </p>
-            <p style={{ marginBottom: 0, color: '#0047AB', fontWeight: 600 }}>
+            <p style={{ marginBottom: 0, color: '#14284B', fontWeight: 600 }}>
               함께 즐거운 라운딩 만들어가요!
             </p>
           </div>
@@ -232,7 +232,7 @@ function JoinPage() {
             카카오톡 오픈채팅방 바로가기
           </a>
 
-          <p style={{ marginTop: 16, fontSize: 12, color: '#94A3B8' }}>
+          <p style={{ marginTop: 16, fontSize: 12, color: '#9A9DA6' }}>
             전화번호 끝 6자리로 로그인할 수 있습니다
           </p>
         </div>
@@ -254,7 +254,7 @@ function JoinPage() {
 
       {/* 헤더 */}
       <div style={{
-        background: 'linear-gradient(135deg, #0047AB 0%, #1565c0 100%)',
+        background: 'linear-gradient(135deg, #14284B 0%, #24406E 100%)',
         padding: '48px 24px 28px',
         paddingTop: 'max(48px, calc(env(safe-area-inset-top) + 24px))',
         textAlign: 'center',
@@ -268,13 +268,13 @@ function JoinPage() {
       <div style={{ padding: '14px 16px 0', maxWidth: 480, margin: '0 auto', boxSizing: 'border-box', width: '100%', overflow: 'hidden' }}>
         <div style={{
           display: 'flex', alignItems: 'flex-start', gap: 10,
-          background: '#EFF6FF', borderRadius: 12, padding: '12px 14px',
-          border: '1px solid #BFDBFE',
+          background: '#EEF1F6', borderRadius: 12, padding: '12px 14px',
+          border: '1px solid #D3DBE8',
         }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#24406E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}>
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
           </svg>
-          <p style={{ fontSize: 12, color: '#1D4ED8', lineHeight: 1.7, margin: 0 }}>
+          <p style={{ fontSize: 12, color: '#24406E', lineHeight: 1.7, margin: 0 }}>
             3355 골프클럽은 회원님의 개인정보를 소중히 여깁니다.<br />
             모임 운영에 꼭 필요한 정보만 요청드리며, 수집된 정보는 회원님의 동의 없이 외부에 제공하지 않습니다. 안심하고 가입해 주세요.
           </p>
@@ -311,15 +311,15 @@ function JoinPage() {
           {/* 사진 */}
           <div style={sectionStyle}>
             <label style={labelStyle}>사진 (본인) *</label>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 12, border: '1.5px dashed #cbd5e1', background: '#f8fafc', cursor: 'pointer', width: '100%', boxSizing: 'border-box' }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <label style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 14px', borderRadius: 12, border: '1.5px dashed #D5D2CA', background: '#F7F5F0', cursor: 'pointer', width: '100%', boxSizing: 'border-box' }}>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6473" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
               </svg>
-              <span style={{ fontSize: 14, color: '#64748b' }}>{form.photo ? '사진 변경하기' : '사진 선택하기'}</span>
+              <span style={{ fontSize: 14, color: '#5E6473' }}>{form.photo ? '사진 변경하기' : '사진 선택하기'}</span>
               <input type="file" accept="image/*" style={{ display: 'none' }} onChange={handlePhotoChange} />
             </label>
             {form.photo && (
-              <img src={form.photo} alt="미리보기" style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 10, border: '2px solid #e2e8f0', marginTop: 8 }} />
+              <img src={form.photo} alt="미리보기" style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 10, border: '2px solid #E6E2D8', marginTop: 8 }} />
             )}
           </div>
 
@@ -380,7 +380,7 @@ function JoinPage() {
                     </div>
                     <button type="button"
                       onClick={() => { setForm(f => ({ ...f, club: '' })); setClubSearchState('idle'); }}
-                      style={{ background: 'none', border: 'none', color: '#64748B', fontSize: 16, cursor: 'pointer', padding: '0 4px' }}>×</button>
+                      style={{ background: 'none', border: 'none', color: '#5E6473', fontSize: 16, cursor: 'pointer', padding: '0 4px' }}>×</button>
                   </div>
                 )}
 
@@ -392,12 +392,12 @@ function JoinPage() {
                     value={clubSearchInput}
                     onChange={e => { setClubSearchInput(e.target.value); setClubSearchState('idle'); }}
                     onKeyDown={e => e.key === 'Enter' && handleClubSearch()}
-                    style={{ flex: 1, minWidth: 0, padding: '13px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 15, color: '#1e293b', background: '#f8fafc', outline: 'none', boxSizing: 'border-box' }}
+                    style={{ flex: 1, minWidth: 0, padding: '13px 14px', borderRadius: 12, border: '1.5px solid #E6E2D8', fontSize: 15, color: '#1A1D26', background: '#F7F5F0', outline: 'none', boxSizing: 'border-box' }}
                   />
                   <button type="button"
                     onClick={handleClubSearch}
                     disabled={clubSearchState === 'searching' || !clubSearchInput.trim()}
-                    style={{ padding: '13px 16px', background: (clubSearchState === 'searching' || !clubSearchInput.trim()) ? '#93C5FD' : '#0047AB', color: 'white', border: 'none', borderRadius: 12, fontSize: 13, fontWeight: 700, cursor: (clubSearchState === 'searching' || !clubSearchInput.trim()) ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                    style={{ padding: '13px 16px', background: (clubSearchState === 'searching' || !clubSearchInput.trim()) ? '#9AA9C2' : '#14284B', color: 'white', border: 'none', borderRadius: 12, fontSize: 13, fontWeight: 700, cursor: (clubSearchState === 'searching' || !clubSearchInput.trim()) ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
                     {clubSearchState === 'searching' ? '검색중...' : '검색'}
                   </button>
                 </div>
@@ -441,7 +441,7 @@ function JoinPage() {
 
           {/* 제출 버튼 */}
           <button type="button" onClick={handleSubmit} disabled={submitting}
-            style={{ width: '100%', padding: '16px', borderRadius: 14, border: 'none', background: submitting ? '#93C5FD' : '#0047AB', color: '#fff', fontSize: 16, fontWeight: 800, cursor: submitting ? 'not-allowed' : 'pointer', marginTop: 4 }}>
+            style={{ width: '100%', padding: '16px', borderRadius: 14, border: 'none', background: submitting ? '#9AA9C2' : '#14284B', color: '#fff', fontSize: 16, fontWeight: 800, cursor: submitting ? 'not-allowed' : 'pointer', marginTop: 4 }}>
             {submitting ? '처리 중...' : '가입 신청하기'}
           </button>
 

@@ -167,14 +167,14 @@ function Board() {
   const activePosts = posts.filter(p => p.isActive !== false);
 
   return (
-    <div style={{ background: '#f8fafc', minHeight: '100dvh', paddingTop: 'env(safe-area-inset-top)' }}>
+    <div style={{ background: '#F7F5F0', minHeight: '100dvh', paddingTop: 'env(safe-area-inset-top)' }}>
       <PageHeader
         title="공지사항"
         user={user}
         rightContent={canCreatePost ? (
           <button
             onClick={() => setShowNewPost(!showNewPost)}
-            style={{ background: showNewPost ? '#f1f5f9' : 'var(--primary)', border: 'none', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', color: showNewPost ? 'var(--text-muted)' : '#fff', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}
+            style={{ background: showNewPost ? '#EFEDE7' : 'var(--primary)', border: 'none', borderRadius: 8, padding: '6px 12px', cursor: 'pointer', color: showNewPost ? 'var(--text-muted)' : '#fff', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 4 }}
           >
             {showNewPost ? '취소' : <><PlusIcon /> 작성</>}
           </button>
@@ -192,8 +192,8 @@ function Board() {
               value={newPost.title}
               onChange={(e) => setNewPost({ ...newPost, title: e.target.value })}
               style={{
-                width: '100%', padding: '12px 14px', borderRadius: 10, border: '1.5px solid #e2e8f0',
-                fontSize: 15, marginBottom: 10, background: '#f8fafc', color: 'var(--on-background)',
+                width: '100%', padding: '12px 14px', borderRadius: 10, border: '1.5px solid #E6E2D8',
+                fontSize: 15, marginBottom: 10, background: '#F7F5F0', color: 'var(--on-background)',
                 outline: 'none', boxSizing: 'border-box',
               }}
             />
@@ -203,8 +203,8 @@ function Board() {
               onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
               rows={5}
               style={{
-                width: '100%', padding: '12px 14px', borderRadius: 10, border: '1.5px solid #e2e8f0',
-                fontSize: 14, lineHeight: 1.6, resize: 'vertical', background: '#f8fafc',
+                width: '100%', padding: '12px 14px', borderRadius: 10, border: '1.5px solid #E6E2D8',
+                fontSize: 14, lineHeight: 1.6, resize: 'vertical', background: '#F7F5F0',
                 color: 'var(--on-background)', outline: 'none', boxSizing: 'border-box', marginBottom: 14,
               }}
             />
@@ -240,8 +240,8 @@ function Board() {
                     value={editingPost.title}
                     onChange={(e) => setEditingPost({ ...editingPost, title: e.target.value })}
                     style={{
-                      width: '100%', padding: '12px 14px', borderRadius: 10, border: '1.5px solid #e2e8f0',
-                      fontSize: 15, marginBottom: 10, background: '#f8fafc', color: 'var(--on-background)',
+                      width: '100%', padding: '12px 14px', borderRadius: 10, border: '1.5px solid #E6E2D8',
+                      fontSize: 15, marginBottom: 10, background: '#F7F5F0', color: 'var(--on-background)',
                       outline: 'none', boxSizing: 'border-box',
                     }}
                   />
@@ -250,8 +250,8 @@ function Board() {
                     onChange={(e) => setEditingPost({ ...editingPost, content: e.target.value })}
                     rows={6}
                     style={{
-                      width: '100%', padding: '12px 14px', borderRadius: 10, border: '1.5px solid #e2e8f0',
-                      fontSize: 14, lineHeight: 1.6, resize: 'vertical', background: '#f8fafc',
+                      width: '100%', padding: '12px 14px', borderRadius: 10, border: '1.5px solid #E6E2D8',
+                      fontSize: 14, lineHeight: 1.6, resize: 'vertical', background: '#F7F5F0',
                       color: 'var(--on-background)', outline: 'none', boxSizing: 'border-box', marginBottom: 14,
                     }}
                   />
@@ -264,7 +264,7 @@ function Board() {
                     </button>
                     <button
                       onClick={handleCancelEditPost}
-                      style={{ flex: 1, background: '#f1f5f9', color: 'var(--text-muted)', border: 'none', borderRadius: 12, padding: '12px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
+                      style={{ flex: 1, background: '#EFEDE7', color: 'var(--text-muted)', border: 'none', borderRadius: 12, padding: '12px', fontSize: 14, fontWeight: 700, cursor: 'pointer' }}
                     >
                       취소
                     </button>
@@ -283,7 +283,7 @@ function Board() {
                   <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 10 }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-                        <span style={{ background: '#eff6ff', color: 'var(--primary)', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6, letterSpacing: '0.02em' }}>
+                        <span style={{ background: '#EEF1F6', color: 'var(--primary)', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6, letterSpacing: '0.02em' }}>
                           공지
                         </span>
                       </div>
@@ -330,7 +330,7 @@ function Board() {
                               </div>
                               <div
                                 onClick={(e) => { e.stopPropagation(); handleDeletePost(post.id); }}
-                                style={{ padding: '10px 14px', fontSize: 14, cursor: 'pointer', color: '#dc2626', borderTop: '1px solid #f1f5f9' }}
+                                style={{ padding: '10px 14px', fontSize: 14, cursor: 'pointer', color: '#dc2626', borderTop: '1px solid #EFEDE7' }}
                               >
                                 삭제
                               </div>
@@ -345,7 +345,7 @@ function Board() {
 
                 {/* 게시글 본문 */}
                 {isExpanded && (
-                  <div style={{ borderTop: '1px solid #f1f5f9', padding: '16px 20px 20px' }}>
+                  <div style={{ borderTop: '1px solid #EFEDE7', padding: '16px 20px 20px' }}>
                     <p style={{ fontSize: 14, lineHeight: 1.75, color: 'var(--text-sub)', whiteSpace: 'pre-wrap', marginBottom: 20 }}>
                       {renderBold(post.content)}
                     </p>
@@ -361,8 +361,8 @@ function Board() {
                           gap: 6,
                           padding: '8px 14px',
                           borderRadius: 10,
-                          border: post.isFeatured ? '1.5px solid var(--primary)' : '1.5px solid #e2e8f0',
-                          background: post.isFeatured ? '#eff6ff' : '#f8fafc',
+                          border: post.isFeatured ? '1.5px solid var(--primary)' : '1.5px solid #E6E2D8',
+                          background: post.isFeatured ? '#EEF1F6' : '#F7F5F0',
                           color: post.isFeatured ? 'var(--primary)' : 'var(--text-muted)',
                           fontSize: 13,
                           fontWeight: 700,
@@ -380,13 +380,13 @@ function Board() {
                     {canCreatePost && post.isFeatured && (
                       <div onClick={(e) => e.stopPropagation()} style={{ marginTop: -6, marginBottom: 16 }}>
                         <label style={{ display: 'block', fontSize: 12, color: 'var(--text-muted)', marginBottom: 5 }}>
-                          상단 노출 종료일 <span style={{ color: '#94A3B8' }}>(비우면 직접 해제할 때까지 유지)</span>
+                          상단 노출 종료일 <span style={{ color: '#9A9DA6' }}>(비우면 직접 해제할 때까지 유지)</span>
                         </label>
                         <input
                           type="date"
                           value={post.featuredUntil ? new Date(post.featuredUntil).toISOString().slice(0, 10) : ''}
                           onChange={(e) => handleSetFeaturedUntil(post.id, e.target.value)}
-                          style={{ padding: '8px 10px', borderRadius: 8, border: '1.5px solid #e2e8f0', fontSize: 13, color: 'var(--on-background)', background: '#fff' }}
+                          style={{ padding: '8px 10px', borderRadius: 8, border: '1.5px solid #E6E2D8', fontSize: 13, color: 'var(--on-background)', background: '#fff' }}
                         />
                       </div>
                     )}
@@ -404,7 +404,7 @@ function Board() {
                           if (isEditingThis) {
                             return (
                               <div key={comment.id || idx} style={{
-                                background: '#f8fafc', borderRadius: 12, padding: '12px 14px',
+                                background: '#F7F5F0', borderRadius: 12, padding: '12px 14px',
                                 marginBottom: 8, borderLeft: '3px solid var(--primary)',
                               }}>
                                 <textarea
@@ -412,7 +412,7 @@ function Board() {
                                   onChange={(e) => setEditingComment({ ...editingComment, content: e.target.value })}
                                   rows={2}
                                   style={{
-                                    width: '100%', padding: '8px 10px', borderRadius: 8, border: '1.5px solid #e2e8f0',
+                                    width: '100%', padding: '8px 10px', borderRadius: 8, border: '1.5px solid #E6E2D8',
                                     fontSize: 14, background: '#fff', color: 'var(--on-background)', outline: 'none',
                                     boxSizing: 'border-box', resize: 'vertical', marginBottom: 8,
                                   }}
@@ -426,7 +426,7 @@ function Board() {
                                   </button>
                                   <button
                                     onClick={handleCancelEditComment}
-                                    style={{ flex: 1, background: '#e2e8f0', color: 'var(--text-muted)', border: 'none', borderRadius: 8, padding: '8px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                                    style={{ flex: 1, background: '#E6E2D8', color: 'var(--text-muted)', border: 'none', borderRadius: 8, padding: '8px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
                                   >
                                     취소
                                   </button>
@@ -437,7 +437,7 @@ function Board() {
 
                           return (
                             <div key={comment.id || idx} style={{
-                              background: '#f8fafc', borderRadius: 12, padding: '12px 14px',
+                              background: '#F7F5F0', borderRadius: 12, padding: '12px 14px',
                               marginBottom: 8, borderLeft: '3px solid var(--primary)',
                             }}>
                               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
@@ -482,7 +482,7 @@ function Board() {
                                         </div>
                                         <div
                                           onClick={(e) => { e.stopPropagation(); handleDeleteComment(post.id, comment.id); }}
-                                          style={{ padding: '8px 12px', fontSize: 13, cursor: 'pointer', color: '#dc2626', borderTop: '1px solid #f1f5f9' }}
+                                          style={{ padding: '8px 12px', fontSize: 13, cursor: 'pointer', color: '#dc2626', borderTop: '1px solid #EFEDE7' }}
                                         >
                                           삭제
                                         </div>
@@ -506,8 +506,8 @@ function Board() {
                         onChange={(e) => setNewComment(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && handleAddComment(post.id)}
                         style={{
-                          flex: 1, padding: '10px 14px', borderRadius: 10, border: '1.5px solid #e2e8f0',
-                          fontSize: 14, background: '#f8fafc', color: 'var(--on-background)', outline: 'none',
+                          flex: 1, padding: '10px 14px', borderRadius: 10, border: '1.5px solid #E6E2D8',
+                          fontSize: 14, background: '#F7F5F0', color: 'var(--on-background)', outline: 'none',
                         }}
                       />
                       <button

@@ -1249,7 +1249,7 @@ function Play() {
 
   if (!bookingId || !booking || !courseData) {
     return (
-      <div style={{ minHeight: '100vh', background: '#0d1a45' }}>
+      <div style={{ minHeight: '100vh', background: '#0D1A33' }}>
         <PageHeader title="플레이하기" />
         <div style={{ padding: '32px 16px', textAlign: 'center', opacity: 0.6, color: 'white' }}>로딩 중...</div>
       </div>
@@ -1273,28 +1273,28 @@ function Play() {
 
     if (ruleEnabled && participantCount >= 4 && !hasTeamFormation) {
       return (
-        <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', alignItems: 'center', padding: '16px', paddingTop: 'calc(env(safe-area-inset-top) + 16px)', background: '#fff', borderBottom: '1px solid #F1F5F9' }}>
-            <button onClick={goBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px 4px 0', fontSize: '20px', color: '#1E293B' }}>←</button>
-            <span style={{ fontSize: '17px', fontWeight: '700', color: '#1E293B' }}>플레이하기</span>
+        <div style={{ minHeight: '100vh', background: '#F7F5F0', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'center', padding: '16px', paddingTop: 'calc(env(safe-area-inset-top) + 16px)', background: '#fff', borderBottom: '1px solid #EFEDE7' }}>
+            <button onClick={goBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px 4px 0', fontSize: '20px', color: '#1A1D26' }}>←</button>
+            <span style={{ fontSize: '17px', fontWeight: '700', color: '#1A1D26' }}>플레이하기</span>
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px', gap: '16px' }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '17px', fontWeight: '700', color: '#1E293B', marginBottom: '8px' }}>조편을 해야합니다</div>
-              <div style={{ fontSize: '14px', color: '#64748B', lineHeight: 1.6 }}>
+              <div style={{ fontSize: '17px', fontWeight: '700', color: '#1A1D26', marginBottom: '8px' }}>조편을 해야합니다</div>
+              <div style={{ fontSize: '14px', color: '#5E6473', lineHeight: 1.6 }}>
                 참가 인원이 4명 이상입니다.{'\n'}조편성을 완료한 후 플레이를 시작해주세요.
               </div>
-              <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '6px' }}>{participantCount}명 참가 중</div>
+              <div style={{ fontSize: '12px', color: '#9A9DA6', marginTop: '6px' }}>{participantCount}명 참가 중</div>
             </div>
             <button
               onClick={() => navigate(`/team-formation?id=${bookingId}`)}
-              style={{ marginTop: '8px', padding: '14px 32px', borderRadius: '14px', background: '#0047AB', color: '#fff', border: 'none', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}
+              style={{ marginTop: '8px', padding: '14px 32px', borderRadius: '14px', background: '#14284B', color: '#fff', border: 'none', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}
             >
               조편성 하러 가기
             </button>
             <button
               onClick={goBack}
-              style={{ padding: '10px 24px', borderRadius: '12px', background: '#F1F5F9', color: '#64748B', border: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+              style={{ padding: '10px 24px', borderRadius: '12px', background: '#EFEDE7', color: '#5E6473', border: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
             >
               돌아가기
             </button>
@@ -1306,17 +1306,17 @@ function Play() {
 
     if (teammates.length === 0) {
       return (
-        <div style={{ minHeight: '100vh', background: '#F8FAFC', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', alignItems: 'center', padding: '16px', paddingTop: 'calc(env(safe-area-inset-top) + 16px)', background: '#fff', borderBottom: '1px solid #F1F5F9' }}>
-            <button onClick={goBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px 4px 0', fontSize: '20px', color: '#1E293B' }}>←</button>
-            <span style={{ fontSize: '17px', fontWeight: '700', color: '#1E293B' }}>플레이하기</span>
+        <div style={{ minHeight: '100vh', background: '#F7F5F0', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', alignItems: 'center', padding: '16px', paddingTop: 'calc(env(safe-area-inset-top) + 16px)', background: '#fff', borderBottom: '1px solid #EFEDE7' }}>
+            <button onClick={goBack} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 8px 4px 0', fontSize: '20px', color: '#1A1D26' }}>←</button>
+            <span style={{ fontSize: '17px', fontWeight: '700', color: '#1A1D26' }}>플레이하기</span>
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px', gap: '16px' }}>
             <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: '18px', fontWeight: '800', color: '#1E293B', marginBottom: '10px', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '18px', fontWeight: '800', color: '#1A1D26', marginBottom: '10px', letterSpacing: '-0.02em' }}>
                 조편성이 아직 안됐습니다
               </div>
-              <div style={{ fontSize: '14px', color: '#64748B', lineHeight: 1.7 }}>
+              <div style={{ fontSize: '14px', color: '#5E6473', lineHeight: 1.7 }}>
                 {isGuestMode
                   ? '운영진이 조편성을 완료한 후\n다시 이 링크를 열어주세요.'
                   : '조편성이 완료된 후\n플레이를 시작할 수 있습니다.'}
@@ -1325,14 +1325,14 @@ function Play() {
             {!isGuestMode && (
               <button
                 onClick={() => navigate(`/team-formation?id=${bookingId}`)}
-                style={{ marginTop: '8px', padding: '14px 28px', borderRadius: '14px', background: '#0047AB', color: '#fff', border: 'none', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}
+                style={{ marginTop: '8px', padding: '14px 28px', borderRadius: '14px', background: '#14284B', color: '#fff', border: 'none', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}
               >
                 조편성 하러 가기
               </button>
             )}
             <button
               onClick={goBack}
-              style={{ padding: '12px 24px', borderRadius: '12px', background: '#F1F5F9', color: '#64748B', border: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+              style={{ padding: '12px 24px', borderRadius: '12px', background: '#EFEDE7', color: '#5E6473', border: 'none', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
             >
               돌아가기
             </button>
@@ -1359,14 +1359,14 @@ function Play() {
       };
 
       return (
-        <div style={{ minHeight: '100vh', background: '#0d1a45' }}>
+        <div style={{ minHeight: '100vh', background: '#0D1A33' }}>
           <PageHeader title="우리 팀 확인" />
           <div style={{ padding: '16px', paddingBottom: '80px' }}>
             <div className="card">
               <div style={{ textAlign: 'center', marginBottom: '20px' }}>
                 <div style={{
                   display: 'inline-block', padding: '6px 16px',
-                  background: 'linear-gradient(135deg, #0891b2 0%, #0047AB 100%)',
+                  background: 'linear-gradient(135deg, #0891b2 0%, #14284B 100%)',
                   borderRadius: '20px', color: 'white', fontSize: '14px', fontWeight: '700', marginBottom: '12px'
                 }}>
                   엠브로스 · 팀 공용 스코어
@@ -1386,16 +1386,16 @@ function Play() {
                     <div key={i} style={{
                       display: 'flex', alignItems: 'center', gap: '10px',
                       background: 'white', borderRadius: '10px', padding: '12px 14px',
-                      border: m.isMe ? '1.5px solid #0891b2' : '1px solid #E8ECF0'
+                      border: m.isMe ? '1.5px solid #0891b2' : '1px solid #E6E2D8'
                     }}>
                       <div style={{
                         width: '32px', height: '32px', borderRadius: '9px', flexShrink: 0,
-                        background: m.isMe ? '#0891b2' : '#EFF6FF', color: m.isMe ? 'white' : '#0047AB',
+                        background: m.isMe ? '#0891b2' : '#EEF1F6', color: m.isMe ? 'white' : '#14284B',
                         display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '14px', fontWeight: '800'
                       }}>
                         {(m.name || '?').charAt(0)}
                       </div>
-                      <div style={{ fontSize: '15px', fontWeight: '700', color: '#1E293B' }}>
+                      <div style={{ fontSize: '15px', fontWeight: '700', color: '#1A1D26' }}>
                         {m.name}{m.isMe && <span style={{ fontSize: '11px', fontWeight: '600', color: '#0891b2', marginLeft: '6px' }}>(나)</span>}
                       </div>
                     </div>
@@ -1403,7 +1403,7 @@ function Play() {
                 </div>
               </div>
 
-              <div style={{ fontSize: '12px', color: '#94A3B8', lineHeight: 1.6, textAlign: 'center', marginBottom: '16px' }}>
+              <div style={{ fontSize: '12px', color: '#9A9DA6', lineHeight: 1.6, textAlign: 'center', marginBottom: '16px' }}>
                 팀원 누구나 점수를 입력·수정할 수 있고, 입력한 점수는 팀 전원에게 공유됩니다.
               </div>
 
@@ -1412,7 +1412,7 @@ function Play() {
                 disabled={isStartingRound}
                 style={{
                   width: '100%', padding: '16px', borderRadius: '12px',
-                  background: isStartingRound ? '#999' : 'linear-gradient(135deg, #0891b2 0%, #0047AB 100%)',
+                  background: isStartingRound ? '#999' : 'linear-gradient(135deg, #0891b2 0%, #14284B 100%)',
                   color: 'white', border: 'none', fontSize: '16px', fontWeight: '700',
                   cursor: isStartingRound ? 'not-allowed' : 'pointer'
                 }}
@@ -1472,7 +1472,7 @@ function Play() {
       };
       
       return (
-        <div style={{ minHeight: '100vh', background: '#0d1a45' }}>
+        <div style={{ minHeight: '100vh', background: '#0D1A33' }}>
           <PageHeader title="포썸" />
           <div style={{ padding: '16px', paddingBottom: '80px' }}>
           <div className="card">
@@ -1495,7 +1495,7 @@ function Play() {
               <div style={{ fontSize: '14px', color: '#666' }}>
                 {courseData?.name}
               </div>
-              <div style={{ fontSize: '12.5px', color: '#94A3B8', marginTop: '8px', lineHeight: 1.55 }}>
+              <div style={{ fontSize: '12.5px', color: '#9A9DA6', marginTop: '8px', lineHeight: 1.55 }}>
                 우리 팀 점수에 팀 핸디캡을 적용해<br />전체 포썸 팀과 순위를 겨룹니다.
               </div>
             </div>
@@ -1510,7 +1510,7 @@ function Play() {
               <div style={{ 
                 fontSize: '12px', 
                 fontWeight: '700', 
-                color: '#3B82F6', 
+                color: '#24406E', 
                 marginBottom: '8px',
                 textAlign: 'center',
                 display: 'flex',
@@ -1521,7 +1521,7 @@ function Play() {
                 <span>{teamLabel} (우리 팀)</span>
                 {myTeamHandicap != null && (
                   <span style={{
-                    background: '#3B82F6',
+                    background: '#24406E',
                     color: 'white',
                     padding: '2px 8px',
                     borderRadius: '10px',
@@ -1539,7 +1539,7 @@ function Play() {
                 gap: '12px'
               }}>
                 <div style={{
-                  background: '#3B82F6',
+                  background: '#24406E',
                   color: 'white',
                   padding: '10px 16px',
                   borderRadius: '8px',
@@ -1548,9 +1548,9 @@ function Play() {
                 }}>
                   {myName}
                 </div>
-                <span style={{ fontWeight: '600', color: '#3B82F6' }}>&</span>
+                <span style={{ fontWeight: '600', color: '#24406E' }}>&</span>
                 <div style={{
-                  background: '#3B82F6',
+                  background: '#24406E',
                   color: 'white',
                   padding: '10px 16px',
                   borderRadius: '8px',
@@ -1570,7 +1570,7 @@ function Play() {
               padding: '8px 0'
             }}>
               <div style={{
-                background: 'linear-gradient(90deg, transparent, #e2e8f0, transparent)',
+                background: 'linear-gradient(90deg, transparent, #E6E2D8, transparent)',
                 height: '1px',
                 flex: 1
               }} />
@@ -1581,12 +1581,12 @@ function Play() {
                 color: '#888',
                 background: 'white',
                 borderRadius: '16px',
-                border: '2px solid #e2e8f0'
+                border: '2px solid #E6E2D8'
               }}>
                 같은 조
               </span>
               <div style={{
-                background: 'linear-gradient(90deg, transparent, #e2e8f0, transparent)',
+                background: 'linear-gradient(90deg, transparent, #E6E2D8, transparent)',
                 height: '1px',
                 flex: 1
               }} />
@@ -1660,10 +1660,10 @@ function Play() {
                     width: '100%',
                     padding: '16px',
                     // 예전엔 비활성 배경이 흰색인데 글씨도 흰색이라 버튼이 아예 안 보였다
-                    background: ready ? '#0047AB' : '#E2E8F0',
+                    background: ready ? '#14284B' : '#E6E2D8',
                     border: 'none',
                     borderRadius: '10px',
-                    color: ready ? '#FFFFFF' : '#94A3B8',
+                    color: ready ? '#FFFFFF' : '#9A9DA6',
                     fontWeight: '700',
                     fontSize: '16px',
                     cursor: ready ? 'pointer' : 'not-allowed',
@@ -1681,12 +1681,12 @@ function Play() {
 
     // 스트로크 모드: 기존 UI
     return (
-      <div style={{ minHeight: '100vh', background: '#F8FAFC', overflowY: 'auto' }}>
+      <div style={{ minHeight: '100vh', background: '#F7F5F0', overflowY: 'auto' }}>
         <PageHeader title="마커 선택" />
         <div style={{ padding: '20px 16px 120px' }}>
 
           {/* 라운딩 정보 */}
-          <div style={{ background: 'linear-gradient(145deg, #08183A 0%, #003780 100%)', borderRadius: '16px', boxShadow: '0 4px 16px rgba(0,55,128,0.3)', padding: '18px 20px', marginBottom: '16px' }}>
+          <div style={{ background: 'linear-gradient(145deg, #0D1A33 0%, #0F1F3B 100%)', borderRadius: '16px', boxShadow: '0 4px 16px rgba(0,55,128,0.3)', padding: '18px 20px', marginBottom: '16px' }}>
             <div style={{ fontSize: '17px', fontWeight: '800', color: '#FFFFFF', letterSpacing: '-0.02em' }}>{booking?.courseName}</div>
             <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.65)', marginTop: '4px' }}>
               {booking?.date ? new Date(booking.date).toLocaleDateString('ko-KR') : ''}
@@ -1702,7 +1702,7 @@ function Play() {
           </div>
 
           {/* 안내 */}
-          <div style={{ fontSize: '13px', fontWeight: '600', color: '#64748B', marginBottom: '12px', paddingLeft: '2px' }}>
+          <div style={{ fontSize: '13px', fontWeight: '600', color: '#5E6473', marginBottom: '12px', paddingLeft: '2px' }}>
             내가 마크할 회원을 선택하세요
           </div>
 
@@ -1756,9 +1756,9 @@ function Play() {
                         style={{
                           padding: '16px',
                           borderRadius: '14px',
-                          border: isSelected ? `2px solid #0047AB` : '1px solid #E8ECF0',
-                          background: isDisabled ? '#F8FAFC' : isSelected ? '#EBF2FF' : '#FFFFFF',
-                          boxShadow: isSelected ? '0 2px 12px rgba(0,71,171,0.12)' : '0 2px 8px rgba(0,0,0,0.07)',
+                          border: isSelected ? `2px solid #14284B` : '1px solid #E6E2D8',
+                          background: isDisabled ? '#F7F5F0' : isSelected ? '#EEF1F6' : '#FFFFFF',
+                          boxShadow: isSelected ? '0 2px 12px rgba(20,40,75,0.12)' : '0 2px 8px rgba(0,0,0,0.07)',
                           cursor: isDisabled ? 'not-allowed' : 'pointer',
                           display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                           opacity: isDisabled ? 0.5 : 1,
@@ -1768,16 +1768,16 @@ function Play() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <div style={{
                             width: '40px', height: '40px', borderRadius: '50%',
-                            background: isSelected ? '#0047AB' : '#F1F5F9',
+                            background: isSelected ? '#14284B' : '#EFEDE7',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             fontSize: '16px', fontWeight: '700',
-                            color: isSelected ? '#FFFFFF' : '#64748B', flexShrink: 0,
+                            color: isSelected ? '#FFFFFF' : '#5E6473', flexShrink: 0,
                           }}>
                             {(teammate.nickname || teammate.name || '?')[0]}
                           </div>
                           <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
-                              <span style={{ fontSize: '15px', fontWeight: '700', color: isSelected ? '#0047AB' : '#1E293B' }}>
+                              <span style={{ fontSize: '15px', fontWeight: '700', color: isSelected ? '#14284B' : '#1A1D26' }}>
                                 {teammate.nickname || teammate.name}
                               </span>
                               {is2BBPartner && (
@@ -1786,15 +1786,15 @@ function Play() {
                                 </span>
                               )}
                               {isDisabled && (
-                                <span style={{ fontSize: '11px', color: '#94A3B8' }}>마크 불가</span>
+                                <span style={{ fontSize: '11px', color: '#9A9DA6' }}>마크 불가</span>
                               )}
                             </div>
-                            <div style={{ fontSize: '13px', color: isSelected ? '#0047AB' : '#64748B', marginTop: '2px' }}>
+                            <div style={{ fontSize: '13px', color: isSelected ? '#14284B' : '#5E6473', marginTop: '2px' }}>
                               핸디캡 {handicapLabel}
                             </div>
                           </div>
                         </div>
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isSelected ? '#0047AB' : '#CBD5E1'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={isSelected ? '#14284B' : '#D5D2CA'} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <path d="M9 18l6-6-6-6"/>
                         </svg>
                       </div>
@@ -1864,8 +1864,8 @@ function Play() {
             disabled={!selectedTeammate || isStartingRound}
             style={{
               width: '100%', padding: '16px', borderRadius: '14px',
-              background: (selectedTeammate && !isStartingRound) ? '#0047AB' : '#E2E8F0',
-              border: 'none', color: (selectedTeammate && !isStartingRound) ? '#FFFFFF' : '#94A3B8',
+              background: (selectedTeammate && !isStartingRound) ? '#14284B' : '#E6E2D8',
+              border: 'none', color: (selectedTeammate && !isStartingRound) ? '#FFFFFF' : '#9A9DA6',
               fontWeight: '700', fontSize: '16px', letterSpacing: '-0.01em',
               cursor: (selectedTeammate && !isStartingRound) ? 'pointer' : 'not-allowed',
             }}
@@ -1879,8 +1879,8 @@ function Play() {
 
   if (step === 'scoreCheck') {
     return (
-      <div style={{ minHeight: '100vh', background: '#0d1a45' }}>
-        <div style={{ display: 'flex', alignItems: 'center', padding: 'calc(env(safe-area-inset-top) + 8px) 8px 8px', background: '#0d1a45', position: 'sticky', top: 0, zIndex: 200 }}>
+      <div style={{ minHeight: '100vh', background: '#0D1A33' }}>
+        <div style={{ display: 'flex', alignItems: 'center', padding: 'calc(env(safe-area-inset-top) + 8px) 8px 8px', background: '#0D1A33', position: 'sticky', top: 0, zIndex: 200 }}>
           <button onClick={() => setStep('scorecard')} style={{ background: 'transparent', color: 'white', padding: '8px 12px', border: 'none', cursor: 'pointer', fontSize: '15px' }}>
             ← 돌아가기
           </button>
@@ -2035,7 +2035,7 @@ function Play() {
       const others = teammates.map(t => t?.nickname || t?.name).filter(Boolean);
       const teamLabel = others.length ? `우리 팀 (${meName} 외 ${others.length}명)` : '우리 팀';
       return (
-        <div style={{ minHeight: '100vh', padding: '16px', background: '#0d1a45', paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
+        <div style={{ minHeight: '100vh', padding: '16px', background: '#0D1A33', paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
           <div style={{ textAlign: 'center', color: 'white', marginTop: '20px', marginBottom: '32px' }}>
             <div style={{ fontSize: '24px', fontWeight: '700', marginBottom: '8px' }}>라운드 종료!</div>
             <div style={{ fontSize: '14px', opacity: 0.8 }}>{booking?.title} - {courseData?.name}</div>
@@ -2043,7 +2043,7 @@ function Play() {
           <div className="card" style={{ marginBottom: '24px' }}>
             <div style={{ textAlign: 'center', marginBottom: '16px' }}>
               <div style={{ fontSize: '16px', fontWeight: '700', color: '#0891b2' }}>{teamLabel}</div>
-              <div style={{ fontSize: '13px', color: '#94A3B8', marginTop: '4px' }}>엠브로스 · 팀 공동 스코어</div>
+              <div style={{ fontSize: '13px', color: '#9A9DA6', marginTop: '4px' }}>엠브로스 · 팀 공동 스코어</div>
             </div>
             <div style={{ display: 'flex', justifyContent: 'center', gap: '24px' }}>
               <div style={{ textAlign: 'center' }}>
@@ -2060,13 +2060,13 @@ function Play() {
           </div>
           <button
             onClick={() => navigate(`/leaderboard?id=${bookingId}`)}
-            style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg, #0891b2 0%, #0047AB 100%)', border: 'none', borderRadius: '8px', color: 'white', fontWeight: '700', fontSize: '16px', cursor: 'pointer', marginBottom: '12px' }}
+            style={{ width: '100%', padding: '16px', background: 'linear-gradient(135deg, #0891b2 0%, #14284B 100%)', border: 'none', borderRadius: '8px', color: 'white', fontWeight: '700', fontSize: '16px', cursor: 'pointer', marginBottom: '12px' }}
           >
             리더보드 보기
           </button>
           <button
             onClick={() => navigate('/')}
-            style={{ width: '100%', padding: '16px', background: '#F1F5F9', border: 'none', borderRadius: '8px', color: '#64748B', fontWeight: '700', fontSize: '16px', cursor: 'pointer' }}
+            style={{ width: '100%', padding: '16px', background: '#EFEDE7', border: 'none', borderRadius: '8px', color: '#5E6473', fontWeight: '700', fontSize: '16px', cursor: 'pointer' }}
           >
             완료
           </button>
@@ -2075,7 +2075,7 @@ function Play() {
     }
 
     return (
-      <div style={{ minHeight: '100vh', padding: '16px', background: '#0d1a45', paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
+      <div style={{ minHeight: '100vh', padding: '16px', background: '#0D1A33', paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
         <div style={{ textAlign: 'center', color: 'white', marginTop: '20px', marginBottom: '32px' }}>
           <div style={{ fontSize: '24px', fontWeight: '700', marginBottom: '8px' }}>라운드 종료!</div>
           <div style={{ fontSize: '14px', opacity: 0.8 }}>{booking?.title} - {courseData?.name}</div>
@@ -2147,7 +2147,7 @@ function Play() {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        background: '#0d1a45', 
+        background: '#0D1A33', 
         display: 'flex', 
         alignItems: 'center', 
         justifyContent: 'center',
@@ -2215,9 +2215,9 @@ function Play() {
     if (!score || score === 0 || !par) return null;
     const diff = score - par;
     if (diff <= -3) return { text: 'ALBATROSS', color: '#7C3AED' };
-    if (diff === -2) return { text: 'EAGLE', color: '#0047AB' };
+    if (diff === -2) return { text: 'EAGLE', color: '#14284B' };
     if (diff === -1) return { text: 'BIRDIE', color: '#16a34a' };
-    if (diff === 0) return { text: 'PAR', color: '#334155' };
+    if (diff === 0) return { text: 'PAR', color: '#363A47' };
     if (diff === 1) return { text: 'BOGEY', color: '#dc2626' };
     if (diff === 2) return { text: 'DBL BOGEY', color: '#991b1b' };
     return { text: 'TRIPLE+', color: '#7f1d1d' };
@@ -2238,7 +2238,7 @@ function Play() {
     }
     const ouDiff = totalScore - totalPar;
     const ouText = ouDiff > 0 ? `+${ouDiff}` : ouDiff === 0 ? 'E' : String(ouDiff);
-    const ouColor = ouDiff > 0 ? '#dc2626' : ouDiff < 0 ? '#0047AB' : '#334155';
+    const ouColor = ouDiff > 0 ? '#dc2626' : ouDiff < 0 ? '#14284B' : '#363A47';
 
     const scoreLabel = getScoreLabel(score, par);
     const isNtp = !isTeammate && courseData?.nearHoles?.[currentHole - 1];
@@ -2337,9 +2337,9 @@ function Play() {
     // 'F', 'female', 'Female', '여', '여성' 등 가능한 모든 여성 표기 대응
     const genderNorm = String(rawGender ?? '').trim().toLowerCase();
     const isFemale = ['f', 'female', '여', '여성', 'w', 'woman'].includes(genderNorm);
-    const accent = isFemale ? '#B91C1C' : '#0047AB';
-    const accentShadowSm = isFemale ? 'rgba(185,28,28,0.10)' : 'rgba(0,71,171,0.10)';
-    const accentShadowLg = isFemale ? 'rgba(185,28,28,0.35)' : 'rgba(0,71,171,0.35)';
+    const accent = isFemale ? '#B91C1C' : '#14284B';
+    const accentShadowSm = isFemale ? 'rgba(185,28,28,0.10)' : 'rgba(20,40,75,0.10)';
+    const accentShadowLg = isFemale ? 'rgba(185,28,28,0.35)' : 'rgba(20,40,75,0.35)';
 
     return (
       <div style={{
@@ -2356,14 +2356,14 @@ function Play() {
         <div style={{ padding: `${s(35,28)}px ${s(45,36)}px ${s(6,5)}px`, flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: s(8,6) }}>
             <div style={{
-              fontSize: s(20,17), fontWeight: 800, color: '#0f172a',
+              fontSize: s(20,17), fontWeight: 800, color: '#1A1D26',
               letterSpacing: '-0.02em', lineHeight: 1.2,
               minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}>
               {playerName}
             </div>
             <div style={{
-              background: '#EFF6FF', color: '#0047AB',
+              background: '#EEF1F6', color: '#14284B',
               fontSize: s(12,11), fontWeight: 700,
               padding: `${s(3,2)}px ${s(10,8)}px`, borderRadius: 20,
               flexShrink: 0,
@@ -2418,11 +2418,11 @@ function Play() {
                 width: btnSize, height: btnSize, border: 'none',
                 borderRadius: s(18, 15),
                 background: '#fff',
-                outline: `2.5px solid #0047AB`,
-                color: '#0047AB',
+                outline: `2.5px solid #14284B`,
+                color: '#14284B',
                 fontSize: s(28, 24), fontWeight: 700,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 2px 8px rgba(0,71,171,0.10)',
+                boxShadow: '0 2px 8px rgba(20,40,75,0.10)',
               }}
             >
               −
@@ -2431,7 +2431,7 @@ function Play() {
             {/* 스코어 숫자 (Pickup 시 'P' 표시 — 내부 점수는 그대로) */}
             <div style={{
               fontSize: s(56, 46), fontWeight: 800,
-              color: isPicked ? '#475569' : (score > 0 ? '#0f172a' : '#CBD5E1'),
+              color: isPicked ? '#4B5060' : (score > 0 ? '#1A1D26' : '#D5D2CA'),
               lineHeight: 1, minWidth: s(68, 56), textAlign: 'center',
               letterSpacing: '-0.03em',
             }}>
@@ -2445,11 +2445,11 @@ function Play() {
                 ...btnBase,
                 width: btnSize, height: btnSize, border: 'none',
                 borderRadius: s(18, 15),
-                background: '#0047AB',
+                background: '#14284B',
                 color: '#fff',
                 fontSize: s(28, 24), fontWeight: 700,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                boxShadow: '0 4px 14px rgba(0,71,171,0.35)',
+                boxShadow: '0 4px 14px rgba(20,40,75,0.35)',
               }}
             >
               +
@@ -2463,14 +2463,14 @@ function Play() {
           }}>
             <div style={{
               fontSize: s(11, 10), fontWeight: 800,
-              color: isPicked ? '#64748B' : (scoreLabel ? scoreLabel.color : '#CBD5E1'),
+              color: isPicked ? '#5E6473' : (scoreLabel ? scoreLabel.color : '#D5D2CA'),
               letterSpacing: '0.10em',
             }}>
               {isPicked ? 'PICKUP' : (scoreLabel ? scoreLabel.text : (par ? 'PAR' : '—'))}
             </div>
             {hasSI && holeStblPts != null && (
               <div style={{
-                background: holeStblPts >= 3 ? '#16a34a' : holeStblPts === 2 ? '#64748B' : holeStblPts === 1 ? '#F19E38' : '#dc2626',
+                background: holeStblPts >= 3 ? '#16a34a' : holeStblPts === 2 ? '#5E6473' : holeStblPts === 1 ? '#F19E38' : '#dc2626',
                 color: '#fff',
                 fontSize: s(9, 8), fontWeight: 800,
                 padding: `${s(2,1)}px ${s(6,5)}px`,
@@ -2492,7 +2492,7 @@ function Play() {
           <div style={{
             background: '#fff',
             borderRadius: s(12, 10),
-            border: '1px solid #E8ECF0',
+            border: '1px solid #E6E2D8',
             boxShadow: '0 1px 3px rgba(0,0,0,0.07)',
             height: s(82, 70),
             display: 'flex',
@@ -2526,9 +2526,9 @@ function Play() {
                   style={{
                     ...btnBase,
                     width: s(64, 54), height: s(62, 54),
-                    border: '1.5px solid #CBD5E1',
-                    background: '#F1F5F9',
-                    color: '#334155',
+                    border: '1.5px solid #D5D2CA',
+                    background: '#EFEDE7',
+                    color: '#363A47',
                     fontSize: s(22, 18),
                     fontWeight: 900,
                     borderRadius: s(10, 8),
@@ -2542,7 +2542,7 @@ function Play() {
             </div>
 
             {/* 구분선 */}
-            <div style={{ width: 1, height: s(40, 34), background: '#E8ECF0', flexShrink: 0 }} />
+            <div style={{ width: 1, height: s(40, 34), background: '#E6E2D8', flexShrink: 0 }} />
 
             {/* 우측 정보: TOTAL / O/U / STBL — 가벼운 라벨+숫자 텍스트 */}
             <div style={{
@@ -2553,21 +2553,21 @@ function Play() {
               gap: s(8, 6),
             }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: s(3, 2) }}>
-                <div style={{ fontSize: s(10, 9), fontWeight: 700, color: '#94A3B8', letterSpacing: '0.10em' }}>TOTAL</div>
-                <div style={{ fontSize: s(20, 17), fontWeight: 800, color: totalScore > 0 ? '#0f172a' : '#CBD5E1', lineHeight: 1, letterSpacing: '-0.01em' }}>
+                <div style={{ fontSize: s(10, 9), fontWeight: 700, color: '#9A9DA6', letterSpacing: '0.10em' }}>TOTAL</div>
+                <div style={{ fontSize: s(20, 17), fontWeight: 800, color: totalScore > 0 ? '#1A1D26' : '#D5D2CA', lineHeight: 1, letterSpacing: '-0.01em' }}>
                   {totalScore > 0 ? totalScore : '—'}
                 </div>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: s(3, 2) }}>
-                <div style={{ fontSize: s(10, 9), fontWeight: 700, color: '#94A3B8', letterSpacing: '0.10em' }}>O/U</div>
-                <div style={{ fontSize: s(20, 17), fontWeight: 800, color: totalScore > 0 ? ouColor : '#CBD5E1', lineHeight: 1, letterSpacing: '-0.01em' }}>
+                <div style={{ fontSize: s(10, 9), fontWeight: 700, color: '#9A9DA6', letterSpacing: '0.10em' }}>O/U</div>
+                <div style={{ fontSize: s(20, 17), fontWeight: 800, color: totalScore > 0 ? ouColor : '#D5D2CA', lineHeight: 1, letterSpacing: '-0.01em' }}>
                   {totalScore > 0 ? ouText : '—'}
                 </div>
               </div>
               {hasSI && (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: s(3, 2) }}>
-                  <div style={{ fontSize: s(10, 9), fontWeight: 700, color: '#94A3B8', letterSpacing: '0.10em' }}>STBL</div>
-                  <div style={{ fontSize: s(20, 17), fontWeight: 800, color: cumulativeStbl != null ? '#16a34a' : '#CBD5E1', lineHeight: 1, letterSpacing: '-0.01em' }}>
+                  <div style={{ fontSize: s(10, 9), fontWeight: 700, color: '#9A9DA6', letterSpacing: '0.10em' }}>STBL</div>
+                  <div style={{ fontSize: s(20, 17), fontWeight: 800, color: cumulativeStbl != null ? '#16a34a' : '#D5D2CA', lineHeight: 1, letterSpacing: '-0.01em' }}>
                     {cumulativeStbl != null ? cumulativeStbl : '—'}
                   </div>
                 </div>
@@ -2674,7 +2674,7 @@ function Play() {
       ref={scorecardRootRef}
       style={{
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-        background: '#F1F5F9',
+        background: '#EFEDE7',
         display: 'flex', flexDirection: 'column',
         overflow: 'hidden',
         paddingTop: 'env(safe-area-inset-top)',
@@ -2727,7 +2727,7 @@ function Play() {
               <button
                 onClick={handleScoreCheck}
                 style={{
-                  background: '#3B82F6', border: 'none', color: '#fff',
+                  background: '#24406E', border: 'none', color: '#fff',
                   fontSize: s(11,10), fontWeight: 700, cursor: 'pointer',
                   padding: `${s(4,3)}px ${s(8,6)}px`, borderRadius: 6,
                   WebkitTapHighlightColor: 'transparent', lineHeight: 1.2,
@@ -2919,7 +2919,7 @@ function Play() {
                 style={{
                   flex: 1,
                   padding: '12px',
-                  background: '#e2e8f0',
+                  background: '#E6E2D8',
                   color: '#000',
                   border: 'none',
                   borderRadius: '6px',
@@ -3084,7 +3084,7 @@ function Play() {
                 }}
                 style={{
                   padding: '14px',
-                  background: '#64748b',
+                  background: '#5E6473',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
@@ -3166,7 +3166,7 @@ function Play() {
                 style={{
                   flex: 1,
                   padding: '14px',
-                  background: '#e2e8f0',
+                  background: '#E6E2D8',
                   color: '#000',
                   border: 'none',
                   borderRadius: '8px',

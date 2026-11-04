@@ -19,7 +19,7 @@ function Badge({
       case 'danger':
         return { backgroundColor: 'var(--error)', color: '#FFFFFF' };
       case 'info':
-        return { backgroundColor: '#3B82F6', color: '#FFFFFF' };
+        return { backgroundColor: '#24406E', color: '#FFFFFF' };
       case 'purple':
         return { backgroundColor: '#8B5CF6', color: '#FFFFFF' };
       case 'cyan':

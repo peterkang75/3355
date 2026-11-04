@@ -24,7 +24,7 @@ function RootHeader({ title, user, rightContent }) {
       position: 'sticky',
       top: 0,
       zIndex: 200,
-      boxShadow: '0 1px 0 rgba(0,71,171,0.07)',
+      boxShadow: '0 1px 0 rgba(20,40,75,0.07)',
     }}>
       <span style={{
         fontSize: 18,
@@ -56,7 +56,7 @@ function SubHeader({ title, rightContent, onBack, user }) {
       top: 0,
       zIndex: 200,
       height: 'calc(56px + env(safe-area-inset-top))',
-      boxShadow: '0 1px 0 rgba(0,71,171,0.07)',
+      boxShadow: '0 1px 0 rgba(20,40,75,0.07)',
     }}>
       <div style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0, gap: 6 }}>
         <button

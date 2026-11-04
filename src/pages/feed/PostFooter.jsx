@@ -43,13 +43,13 @@ export default function PostFooter({ targetType, targetId, item, currentUser, is
       </div>
 
       {summary && (
-        <div style={{ fontSize: 14, fontWeight: 700, color: '#0F172A', margin: '2px 0' }}>{summary}</div>
+        <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1D26', margin: '2px 0' }}>{summary}</div>
       )}
 
       {captionNode}
 
       {commentCount > 0 && !showComments && (
-        <button onClick={() => setShowComments(true)} style={{ background: 'none', border: 'none', padding: '4px 0 0', color: '#94A3B8', fontSize: 14, cursor: 'pointer' }}>
+        <button onClick={() => setShowComments(true)} style={{ background: 'none', border: 'none', padding: '4px 0 0', color: '#9A9DA6', fontSize: 14, cursor: 'pointer' }}>
           댓글 {commentCount}개 모두 보기
         </button>
       )}
@@ -58,7 +58,7 @@ export default function PostFooter({ targetType, targetId, item, currentUser, is
         <CommentSection targetType={targetType} targetId={targetId} currentUser={currentUser} isOperator={isOperator} onCountChange={setCommentCount} />
       )}
 
-      <div style={{ fontSize: 12, color: '#94A3B8', marginTop: 8, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+      <div style={{ fontSize: 12, color: '#9A9DA6', marginTop: 8, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
         {timeAgo(item.feedTs)}
       </div>
     </div>

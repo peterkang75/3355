@@ -125,7 +125,7 @@ function MemberInfoForm() {
         flexDirection: 'column',
         justifyContent: 'center',
         alignItems: 'center',
-        background: '#0d1a45',
+        background: '#0D1A33',
         padding: '20px'
       }}>
         <div style={{
@@ -178,7 +178,7 @@ function MemberInfoForm() {
         flexDirection: 'column',
         justifyContent: 'flex-start',
         alignItems: 'center',
-        background: '#0d1a45',
+        background: '#0D1A33',
         padding: '20px',
         paddingTop: '40px'
       }}>
@@ -464,7 +464,7 @@ function MemberInfoForm() {
       flexDirection: 'column',
       justifyContent: 'center',
       alignItems: 'center',
-      background: '#0d1a45',
+      background: '#0D1A33',
       padding: '20px'
     }}>
       <div style={{

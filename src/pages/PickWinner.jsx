@@ -487,10 +487,10 @@ function PickWinner() {
 
           {/* 안내 카드 */}
           <div style={{ padding: '4px 4px 12px' }}>
-            <div style={{ fontSize: 18, fontWeight: 800, color: '#1E293B', marginBottom: 6, letterSpacing: '-0.02em' }}>
+            <div style={{ fontSize: 18, fontWeight: 800, color: '#1A1D26', marginBottom: 6, letterSpacing: '-0.02em' }}>
               이번 라운딩의 주인공은 누구?!
             </div>
-            <div style={{ fontSize: 13, color: '#64748B', lineHeight: 1.6 }}>
+            <div style={{ fontSize: 13, color: '#5E6473', lineHeight: 1.6 }}>
               당신의 예측 본능을 발휘해 보세요! 각 그레이드별 우승할 것 같은 선수를 선택하고 투표하세요. 적중하신 분께는 소정의 상품이 지급됩니다!
             </div>
           </div>
@@ -508,10 +508,10 @@ function PickWinner() {
               const dateStr = dateObj.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
               const phaseColor = {
                 voting: { bg: '#D1FAE5', color: '#065F46', label: '투표 중' },
-                voting_disabled: { bg: '#F1F5F9', color: '#64748B', label: '투표 비활성' },
+                voting_disabled: { bg: '#EFEDE7', color: '#5E6473', label: '투표 비활성' },
                 voting_closed: { bg: '#FEF3C7', color: '#92400E', label: '투표 마감' },
                 results: { bg: '#FEF3C7', color: '#92400E', label: '결과 확인' },
-              }[phaseInfo.phase] || { bg: '#F1F5F9', color: '#64748B', label: '-' };
+              }[phaseInfo.phase] || { bg: '#EFEDE7', color: '#5E6473', label: '-' };
 
               const handleToggleVoting = async (e) => {
                 e.stopPropagation();
@@ -531,9 +531,9 @@ function PickWinner() {
                   onClick={() => navigate(`/games/pick-winner?id=${booking.id}`)}
                   style={{
                     position: 'relative',
-                    background: 'linear-gradient(135deg, #0047AB 0%, #1565c0 60%, #1976d2 100%)',
+                    background: 'linear-gradient(135deg, #14284B 0%, #24406E 60%, #24406E 100%)',
                     borderRadius: 16,
-                    boxShadow: '0 4px 20px rgba(0,71,171,0.30)',
+                    boxShadow: '0 4px 20px rgba(20,40,75,0.30)',
                     marginBottom: 14,
                     overflow: 'hidden',
                     cursor: 'pointer',
@@ -646,7 +646,7 @@ function PickWinner() {
                             style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px 6px', fontSize: 18, color: 'rgba(255,255,255,0.7)' }}
                           >⋮</button>
                           {openMenuId === booking.id && (
-                            <div style={{ position: 'absolute', background: '#fff', border: '1px solid #E2E8F0', borderRadius: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.12)', zIndex: 100, minWidth: 130, right: 16 }}>
+                            <div style={{ position: 'absolute', background: '#fff', border: '1px solid #E6E2D8', borderRadius: 10, boxShadow: '0 4px 16px rgba(0,0,0,0.12)', zIndex: 100, minWidth: 130, right: 16 }}>
                               <button
                                 onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); navigate(`/games/pick-winner?id=${booking.id}&admin=true`); }}
                                 style={{ display: 'block', width: '100%', padding: '12px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: 14, fontWeight: 600 }}
@@ -823,7 +823,7 @@ function PickWinner() {
                             style={{
                               padding: '8px 12px',
                               borderRadius: '20px',
-                              border: isSelected ? '2px solid var(--primary-green)' : '1px solid #e2e8f0',
+                              border: isSelected ? '2px solid var(--primary-green)' : '1px solid #E6E2D8',
                               background: isSelected ? 'var(--bg-green)' : 'white',
                               color: isSelected ? 'var(--primary-green)' : '#333',
                               fontWeight: isSelected ? '600' : '400',
@@ -851,7 +851,7 @@ function PickWinner() {
                     padding: '16px',
                     background: 'white',
                     color: '#666',
-                    border: '1px solid #e2e8f0',
+                    border: '1px solid #E6E2D8',
                     borderRadius: '8px',
                     fontSize: '16px',
                     fontWeight: '600',
@@ -1020,23 +1020,23 @@ function PickWinner() {
           alignItems: 'center',
           gap: '6px',
           padding: '8px 14px',
-          background: '#E8F0FE',
+          background: '#EEF1F6',
           borderRadius: '999px',
           marginBottom: '16px'
         }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="#0047AB">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="#14284B">
             <path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/>
           </svg>
-          <span style={{ fontSize: '13px', fontWeight: '700', color: '#0047AB' }}>
+          <span style={{ fontSize: '13px', fontWeight: '700', color: '#14284B' }}>
             {new Date(selectedBooking.date).toLocaleDateString('ko-KR')} {selectedBooking.time}
           </span>
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#0F172A', margin: '0 0 4px', letterSpacing: '-0.02em' }}>
+          <h2 style={{ fontSize: '24px', fontWeight: '800', color: '#1A1D26', margin: '0 0 4px', letterSpacing: '-0.02em' }}>
             참석자 명단
           </h2>
-          <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>
+          <p style={{ fontSize: '13px', color: '#5E6473', margin: 0 }}>
             라운딩 그룹별 배정 현황입니다.
           </p>
         </div>
@@ -1109,10 +1109,10 @@ function PickWinner() {
 
           const badgeStyle = {
             A: { bg: '#FEF3C7', color: '#B45309' },
-            B: { bg: '#E2E8F0', color: '#475569' },
+            B: { bg: '#E6E2D8', color: '#4B5060' },
             C: { bg: '#FFE4D6', color: '#C2410C' },
             D: { bg: '#D1FAE5', color: '#047857' }
-          }[grade] || { bg: '#E2E8F0', color: '#475569' };
+          }[grade] || { bg: '#E6E2D8', color: '#4B5060' };
 
           return (
             <div key={grade} style={{
@@ -1145,20 +1145,20 @@ function PickWinner() {
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: '16px', fontWeight: '700', color: '#0F172A' }}>
+                    <span style={{ fontSize: '16px', fontWeight: '700', color: '#1A1D26' }}>
                       그레이드 {grade}
                     </span>
                     {getGradeRangeLabel(grade) && (
-                      <span style={{ fontSize: '12px', color: '#64748B', fontWeight: '500' }}>
+                      <span style={{ fontSize: '12px', color: '#5E6473', fontWeight: '500' }}>
                         ({getGradeRangeLabel(grade)})
                       </span>
                     )}
                   </div>
-                  <div style={{ fontSize: '13px', color: '#94A3B8', marginTop: '2px' }}>
+                  <div style={{ fontSize: '13px', color: '#9A9DA6', marginTop: '2px' }}>
                     {participants.length}명 참여 중
                   </div>
                 </div>
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#D5D2CA" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <polyline points="9 18 15 12 9 6"/>
                 </svg>
               </div>
@@ -1178,9 +1178,9 @@ function PickWinner() {
                       style={{
                         padding: '8px 16px',
                         borderRadius: '999px',
-                        border: isSelected ? '2px solid #0047AB' : '1px solid #E2E8F0',
-                        background: isSelected ? '#EFF4FB' : '#F8FAFC',
-                        color: isSelected ? '#0047AB' : '#334155',
+                        border: isSelected ? '2px solid #14284B' : '1px solid #E6E2D8',
+                        background: isSelected ? '#EFF4FB' : '#F7F5F0',
+                        color: isSelected ? '#14284B' : '#363A47',
                         fontWeight: isSelected || isMyVote ? '700' : '500',
                         cursor: disabled ? 'default' : 'pointer',
                         fontSize: '14px',
@@ -1189,15 +1189,15 @@ function PickWinner() {
                         gap: '6px'
                       }}
                     >
-                      {isMyVote && <span style={{ color: '#0047AB' }}>✓</span>}
+                      {isMyVote && <span style={{ color: '#14284B' }}>✓</span>}
                       {p.nickname || p.name}
                       {(hasVoted || phaseInfo.phase === 'voting_closed') && voteCount > 0 && (
                         <span style={{
-                          background: 'rgba(0,71,171,0.1)',
+                          background: 'rgba(20,40,75,0.1)',
                           padding: '2px 6px',
                           borderRadius: '10px',
                           fontSize: '11px',
-                          color: '#0047AB',
+                          color: '#14284B',
                           fontWeight: '600'
                         }}>
                           {voteCount}
@@ -1221,7 +1221,7 @@ function PickWinner() {
                   padding: '16px',
                   background: 'white',
                   color: '#666',
-                  border: '1px solid #e2e8f0',
+                  border: '1px solid #E6E2D8',
                   borderRadius: '8px',
                   fontSize: '16px',
                   fontWeight: '600',

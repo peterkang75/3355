@@ -4,14 +4,14 @@ import React, { useEffect, useRef, useState } from 'react';
 // 입력 부품은 반드시 모듈 레벨에 둔다 — 부모 안에서 정의하면 매 렌더마다 새 부품으로 인식돼
 // input이 다시 만들어지고, iOS에서 글자 하나 칠 때마다 키보드가 닫힌다.
 
-export const PRIMARY = '#0047AB';
+export const PRIMARY = '#14284B';
 export const C = {
-  text: '#1E293B',
-  sub: '#64748B',
-  muted: '#94A3B8',
+  text: '#1A1D26',
+  sub: '#5E6473',
+  muted: '#9A9DA6',
   line: '#EEF1F5',
-  border: '#E8ECF0',
-  bg: '#F8FAFC',
+  border: '#E6E2D8',
+  bg: '#F7F5F0',
   danger: '#DC2626',
 };
 
@@ -47,7 +47,7 @@ export function Group({ children, style }) {
 }
 
 const Chevron = () => (
-  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D5D2CA" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
     <polyline points="9 18 15 12 9 6" />
   </svg>
 );
@@ -132,7 +132,7 @@ export function Switch({ on, onChange, disabled, tone = C.text }) {
       // 누르는 영역은 앱 공통 최소 44px, 보이는 스위치는 안쪽 28px 알약
       style={{ width: 46, minHeight: 44, border: 'none', padding: 0, background: 'none', flexShrink: 0, display: 'flex', alignItems: 'center', cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.5 : 1 }}
     >
-      <span style={{ position: 'relative', width: 46, height: 28, borderRadius: 14, background: on ? tone : '#E2E8F0', transition: 'background 0.2s' }}>
+      <span style={{ position: 'relative', width: 46, height: 28, borderRadius: 14, background: on ? tone : '#E6E2D8', transition: 'background 0.2s' }}>
         <span style={{ position: 'absolute', top: 3, left: on ? 21 : 3, width: 22, height: 22, borderRadius: 12, background: '#FFFFFF', boxShadow: '0 1px 3px rgba(0,0,0,0.18)', transition: 'left 0.2s' }} />
       </span>
     </button>
@@ -142,7 +142,7 @@ export function Switch({ on, onChange, disabled, tone = C.text }) {
 // 2~4개 중 하나 고르기
 export function Segmented({ options, value, onChange, disabled }) {
   return (
-    <div style={{ display: 'flex', background: '#F1F5F9', borderRadius: 10, padding: 3, gap: 2 }}>
+    <div style={{ display: 'flex', background: '#EFEDE7', borderRadius: 10, padding: 3, gap: 2 }}>
       {options.map(o => {
         const active = o.value === value;
         return (

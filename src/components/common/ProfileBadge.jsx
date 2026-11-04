@@ -80,7 +80,7 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
           style={{
             fontSize: '14px',
             fontWeight: '500',
-            color: '#334155',
+            color: '#363A47',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -128,11 +128,11 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
           height: `${size}px`,
           borderRadius: '50%',
           overflow: 'hidden',
-          background: clubMode ? 'rgba(255,255,255,0.20)' : 'rgba(0, 71, 171, 0.1)',
+          background: clubMode ? 'rgba(255,255,255,0.20)' : 'rgba(20,40,75, 0.1)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: clubMode ? '#ffffff' : '#0047AB',
+          color: clubMode ? '#ffffff' : '#14284B',
           fontWeight: '700',
           fontSize: `${Math.round(size * 0.39)}px`,
           border: clubMode ? '1.5px solid rgba(255,255,255,0.35)' : 'none',
@@ -180,10 +180,10 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
             overflow: 'hidden'
           }}
         >
-          <div style={{ padding: '12px', borderBottom: '1px solid #E2E8F0' }}>
+          <div style={{ padding: '12px', borderBottom: '1px solid #E6E2D8' }}>
             <div style={{ 
               fontSize: '12px', 
-              color: '#64748B', 
+              color: '#5E6473', 
               marginBottom: '8px',
               fontWeight: '600'
             }}>
@@ -198,7 +198,7 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
               style={{
                 width: '100%',
                 padding: '8px 12px',
-                border: '1px solid #E2E8F0',
+                border: '1px solid #E6E2D8',
                 borderRadius: '8px',
                 fontSize: '14px',
                 outline: 'none'
@@ -215,7 +215,7 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
               <div style={{ 
                 padding: '16px', 
                 textAlign: 'center', 
-                color: '#94A3B8',
+                color: '#9A9DA6',
                 fontSize: '14px'
               }}>
                 검색 결과가 없습니다
@@ -237,7 +237,7 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
                   }}
                   onMouseEnter={(e) => {
                     if (member.id !== user.id) {
-                      e.currentTarget.style.background = '#F1F5F9';
+                      e.currentTarget.style.background = '#EFEDE7';
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -295,7 +295,7 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
                     </div>
                     <div style={{ 
                       fontSize: '11px', 
-                      color: '#94A3B8',
+                      color: '#9A9DA6',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap'

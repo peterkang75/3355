@@ -6,11 +6,11 @@ import apiService from '../services/api';
 // 투표를 만들면 회원 홈 최상단에 카톡 모양 투표가 뜨고, 회원이 "참석"을 고르는
 // 순간 참가 신청 + 참가비 청구가 함께 일어난다.
 
-const PRIMARY = '#0047AB';
+const PRIMARY = '#14284B';
 
-const cardStyle = { background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' };
-const labelStyle = { fontSize: '13px', fontWeight: '700', color: '#64748B', marginBottom: '10px' };
-const inputStyle = { width: '100%', padding: '11px 13px', borderRadius: '10px', border: '1px solid #E8ECF0', fontSize: '14px', outline: 'none', boxSizing: 'border-box', background: '#FAFBFC', color: '#0f172a' };
+const cardStyle = { background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E6E2D8', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' };
+const labelStyle = { fontSize: '13px', fontWeight: '700', color: '#5E6473', marginBottom: '10px' };
+const inputStyle = { width: '100%', padding: '11px 13px', borderRadius: '10px', border: '1px solid #E6E2D8', fontSize: '14px', outline: 'none', boxSizing: 'border-box', background: '#FAFBFC', color: '#1A1D26' };
 
 // 라운딩에 등록된 기본 참가비 (금액을 비워두면 이 금액이 청구된다)
 const defaultFeeOf = (booking) =>
@@ -135,7 +135,7 @@ function AttendancePollManager({ booking, onChanged }) {
     else { navigator.clipboard.writeText(shareUrl); alert('투표 링크가 복사되었습니다.\n카톡방에 붙여넣기 해주세요.'); }
   };
 
-  if (loading) return <div style={{ ...cardStyle, fontSize: 13, color: '#94A3B8' }}>투표 정보를 불러오는 중…</div>;
+  if (loading) return <div style={{ ...cardStyle, fontSize: 13, color: '#9A9DA6' }}>투표 정보를 불러오는 중…</div>;
 
   // ── 만들기 / 수정 폼 ──────────────────────────────────────────────────────
   if (editing) {
@@ -152,12 +152,12 @@ function AttendancePollManager({ booking, onChanged }) {
         <input value={title} onChange={e => setTitle(e.target.value)} placeholder="예: 10월 정모 참석"
           style={{ ...inputStyle, fontWeight: 700, marginBottom: 12 }} />
 
-        <div style={{ fontSize: 12, fontWeight: 700, color: '#64748B', marginBottom: 8 }}>공지 (선택) — 투표 카드 위에 보입니다</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#5E6473', marginBottom: 8 }}>공지 (선택) — 투표 카드 위에 보입니다</div>
         <textarea value={notice} onChange={e => setNotice(e.target.value)} rows={3}
           placeholder="예: 이번 달은 11시 티오프입니다. 10시까지 집합해주세요."
           style={{ ...inputStyle, marginBottom: 12, resize: 'vertical', fontFamily: 'inherit', lineHeight: 1.5 }} />
 
-        <div style={{ fontSize: 12, fontWeight: 700, color: '#64748B', marginBottom: 8 }}>참석 선택지</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#5E6473', marginBottom: 8 }}>참석 선택지</div>
         {attendOptions.map((o, i) => (
           <div key={i} style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
             <input value={o.label}
@@ -165,7 +165,7 @@ function AttendancePollManager({ booking, onChanged }) {
               placeholder="예: 참석 (컴피티션)"
               style={{ ...inputStyle, flex: 1 }} />
             <div style={{ position: 'relative', width: 104, flexShrink: 0 }}>
-              <span style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: '#94A3B8', fontWeight: 600 }}>$</span>
+              <span style={{ position: 'absolute', left: 11, top: '50%', transform: 'translateY(-50%)', fontSize: 13, color: '#9A9DA6', fontWeight: 600 }}>$</span>
               <input value={o.fee} inputMode="decimal"
                 onChange={e => setAttendOptions(prev => prev.map((x, j) => j === i ? { ...x, fee: e.target.value.replace(/[^0-9.]/g, '') } : x))}
                 placeholder={String(defaultFeeOf(booking))}
@@ -173,34 +173,34 @@ function AttendancePollManager({ booking, onChanged }) {
             </div>
             {attendOptions.length > 1 && (
               <button onClick={() => setAttendOptions(prev => prev.filter((_, j) => j !== i))}
-                style={{ width: 36, flexShrink: 0, borderRadius: 10, border: '1px solid #E8ECF0', background: '#fff', color: '#94A3B8', fontSize: 18, cursor: 'pointer' }}>×</button>
+                style={{ width: 36, flexShrink: 0, borderRadius: 10, border: '1px solid #E6E2D8', background: '#fff', color: '#9A9DA6', fontSize: 18, cursor: 'pointer' }}>×</button>
             )}
           </div>
         ))}
         <button onClick={() => setAttendOptions(prev => [...prev, { label: '', fee: '' }])}
-          style={{ width: '100%', padding: '10px', borderRadius: 10, border: '1.5px dashed #CBD5E1', background: '#FAFBFC', color: '#475569', fontSize: 13, fontWeight: 600, cursor: 'pointer', marginBottom: 6 }}>
+          style={{ width: '100%', padding: '10px', borderRadius: 10, border: '1.5px dashed #D5D2CA', background: '#FAFBFC', color: '#4B5060', fontSize: 13, fontWeight: 600, cursor: 'pointer', marginBottom: 6 }}>
           + 참석 선택지 추가
         </button>
-        <div style={{ fontSize: 12, color: '#94A3B8', marginBottom: 14, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 12, color: '#9A9DA6', marginBottom: 14, lineHeight: 1.5 }}>
           금액을 비워두면 이 라운딩의 기본 참가비 ${defaultFeeOf(booking)}가 청구됩니다. 참가비 면제 회원은 어느 쪽을 골라도 $0입니다.
         </div>
 
-        <div style={{ fontSize: 12, fontWeight: 700, color: '#64748B', marginBottom: 8 }}>불참 선택지</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#5E6473', marginBottom: 8 }}>불참 선택지</div>
         <input value={absentLabel} onChange={e => setAbsentLabel(e.target.value)} placeholder="불참"
           style={{ ...inputStyle, marginBottom: 14 }} />
 
-        <div style={{ fontSize: 12, fontWeight: 700, color: '#64748B', marginBottom: 8 }}>투표 마감</div>
+        <div style={{ fontSize: 12, fontWeight: 700, color: '#5E6473', marginBottom: 8 }}>투표 마감</div>
         <input type="datetime-local" value={closesAt} onChange={e => setClosesAt(e.target.value)}
           style={{ ...inputStyle, marginBottom: 6 }} />
-        <div style={{ fontSize: 12, color: '#94A3B8', marginBottom: 14, lineHeight: 1.5 }}>
+        <div style={{ fontSize: 12, color: '#9A9DA6', marginBottom: 14, lineHeight: 1.5 }}>
           이 시간이 참가 신청 마감이기도 합니다. 지나면 투표도 참가 신청도 잠깁니다. 비워두면 마감 없이 계속 열려 있습니다.
         </div>
 
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={() => setEditing(false)} disabled={saving}
-            style={{ flex: 1, padding: '12px', borderRadius: 10, border: '1px solid #E8ECF0', background: '#fff', color: '#64748B', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>취소</button>
+            style={{ flex: 1, padding: '12px', borderRadius: 10, border: '1px solid #E6E2D8', background: '#fff', color: '#5E6473', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>취소</button>
           <button onClick={handleSave} disabled={saving}
-            style={{ flex: 2, padding: '12px', borderRadius: 10, border: 'none', background: saving ? '#94A3B8' : PRIMARY, color: '#fff', fontSize: 14, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer' }}>
+            style={{ flex: 2, padding: '12px', borderRadius: 10, border: 'none', background: saving ? '#9A9DA6' : PRIMARY, color: '#fff', fontSize: 14, fontWeight: 700, cursor: saving ? 'not-allowed' : 'pointer' }}>
             {saving ? '저장 중…' : (poll ? '수정 저장' : '투표 만들기')}
           </button>
         </div>
@@ -213,11 +213,11 @@ function AttendancePollManager({ booking, onChanged }) {
     return (
       <div style={cardStyle}>
         <div style={labelStyle}>참석 투표</div>
-        <div style={{ fontSize: 13, color: '#64748B', lineHeight: 1.6, marginBottom: 12 }}>
+        <div style={{ fontSize: 13, color: '#5E6473', lineHeight: 1.6, marginBottom: 12 }}>
           카톡 투표 대신 앱에서 참석을 받습니다. 회원이 "참석"을 고르면 그 즉시 참가 신청이 되고 참가비가 청구돼, 바로 입금하고 영수증을 올릴 수 있습니다.
         </div>
         <button onClick={startCreate}
-          style={{ width: '100%', padding: '12px 16px', borderRadius: 10, border: '1.5px dashed #CBD5E1', background: '#FAFBFC', color: '#475569', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
+          style={{ width: '100%', padding: '12px 16px', borderRadius: 10, border: '1.5px dashed #D5D2CA', background: '#FAFBFC', color: '#4B5060', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>
           참석 투표 만들기
         </button>
       </div>
@@ -233,29 +233,29 @@ function AttendancePollManager({ booking, onChanged }) {
         <div style={labelStyle}>참석 투표</div>
         <span style={{
           fontSize: 11, fontWeight: 800, padding: '3px 8px', borderRadius: 6,
-          background: poll.isClosed ? '#F1F5F9' : '#E6F0FF',
-          color: poll.isClosed ? '#94A3B8' : PRIMARY,
+          background: poll.isClosed ? '#EFEDE7' : '#E6F0FF',
+          color: poll.isClosed ? '#9A9DA6' : PRIMARY,
         }}>{poll.isClosed ? '종료됨' : '진행 중'}</span>
       </div>
 
-      <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 10 }}>{poll.title}</div>
+      <div style={{ fontSize: 15, fontWeight: 700, color: '#1A1D26', marginBottom: 10 }}>{poll.title}</div>
       {poll.notice && (
-        <div style={{ fontSize: 13, color: '#475569', background: '#F8FAFC', borderRadius: 10, padding: '9px 11px', marginBottom: 10, whiteSpace: 'pre-wrap', lineHeight: 1.55 }}>{poll.notice}</div>
+        <div style={{ fontSize: 13, color: '#4B5060', background: '#F7F5F0', borderRadius: 10, padding: '9px 11px', marginBottom: 10, whiteSpace: 'pre-wrap', lineHeight: 1.55 }}>{poll.notice}</div>
       )}
 
       {poll.options.map(o => (
-        <div key={o.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 0', borderTop: '1px solid #F1F5F9' }}>
-          <span style={{ fontSize: 14, color: '#475569', fontWeight: 600 }}>
+        <div key={o.key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '7px 0', borderTop: '1px solid #EFEDE7' }}>
+          <span style={{ fontSize: 14, color: '#4B5060', fontWeight: 600 }}>
             {o.label}
             {o.kind === 'attend' && o.fee !== null && (
-              <span style={{ fontSize: 12, color: '#94A3B8', marginLeft: 6 }}>${o.fee}</span>
+              <span style={{ fontSize: 12, color: '#9A9DA6', marginLeft: 6 }}>${o.fee}</span>
             )}
           </span>
-          <span style={{ fontSize: 14, fontWeight: 800, color: o.kind === 'attend' ? PRIMARY : '#94A3B8' }}>{o.count}명</span>
+          <span style={{ fontSize: 14, fontWeight: 800, color: o.kind === 'attend' ? PRIMARY : '#9A9DA6' }}>{o.count}명</span>
         </div>
       ))}
 
-      <div style={{ fontSize: 12, color: '#94A3B8', margin: '10px 0 12px', lineHeight: 1.6 }}>
+      <div style={{ fontSize: 12, color: '#9A9DA6', margin: '10px 0 12px', lineHeight: 1.6 }}>
         {poll.totalVoted}명 투표 · 참석 {attendTotal}명 · 참가자 명단 {poll.participantCount}명
         {poll.notVoted?.length > 0 && <><br />아직 투표 안 한 분 {poll.notVoted.length}명: {poll.notVoted.slice(0, 8).map(m => m.nickname || m.name).join(', ')}{poll.notVoted.length > 8 ? ' 외' : ''}</>}
       </div>
@@ -266,13 +266,13 @@ function AttendancePollManager({ booking, onChanged }) {
           {navigator.share ? '카톡방에 투표 링크 공유' : '투표 링크 복사'}
         </button>
         <button onClick={startEdit}
-          style={{ flex: 1, padding: '10px', borderRadius: 10, border: '1px solid #E8ECF0', background: '#fff', color: '#475569', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>수정</button>
+          style={{ flex: 1, padding: '10px', borderRadius: 10, border: '1px solid #E6E2D8', background: '#fff', color: '#4B5060', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>수정</button>
         {poll.isClosed ? (
           <button onClick={handleReopen}
-            style={{ flex: 1, padding: '10px', borderRadius: 10, border: '1px solid #E8ECF0', background: '#fff', color: '#475569', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>다시 열기</button>
+            style={{ flex: 1, padding: '10px', borderRadius: 10, border: '1px solid #E6E2D8', background: '#fff', color: '#4B5060', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>다시 열기</button>
         ) : (
           <button onClick={handleClose}
-            style={{ flex: 1, padding: '10px', borderRadius: 10, border: '1px solid #E8ECF0', background: '#fff', color: '#475569', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>종료</button>
+            style={{ flex: 1, padding: '10px', borderRadius: 10, border: '1px solid #E6E2D8', background: '#fff', color: '#4B5060', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>종료</button>
         )}
         <button onClick={handleDelete}
           style={{ flex: 1, padding: '10px', borderRadius: 10, border: '1px solid #FEE2E2', background: '#fff', color: '#DC2626', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>삭제</button>

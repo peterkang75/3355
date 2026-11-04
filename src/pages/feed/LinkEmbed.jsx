@@ -47,13 +47,13 @@ export default function LinkEmbed({ url }) {
   return (
     <a href={url} target="_blank" rel="noreferrer"
       style={{ display: 'flex', alignItems: 'center', gap: 10, marginTop: 8, padding: 12,
-        border: '1px solid #E2E8F0', borderRadius: 10, textDecoration: 'none',
+        border: '1px solid #E6E2D8', borderRadius: 10, textDecoration: 'none',
         boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
       <LinkIcon size={20} />
       <span style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ display: 'block', fontWeight: 600, color: '#0F172A', fontSize: 14 }}>
+        <span style={{ display: 'block', fontWeight: 600, color: '#1A1D26', fontSize: 14 }}>
           {isInsta ? 'Instagram' : host}</span>
-        <span style={{ display: 'block', color: '#94A3B8', fontSize: 12,
+        <span style={{ display: 'block', color: '#9A9DA6', fontSize: 12,
           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{url}</span>
       </span>
     </a>

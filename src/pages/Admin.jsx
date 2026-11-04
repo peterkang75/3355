@@ -1924,9 +1924,9 @@ function Admin() {
         user={user}
         showBackButton={false}
         rightContent={
-          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#EBF2FF', borderRadius: 999, padding: '4px 10px 4px 7px' }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="#0047AB"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#0047AB' }}>Admin Mode</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#EEF1F6', borderRadius: 999, padding: '4px 10px 4px 7px' }}>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="#14284B"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#14284B' }}>Admin Mode</span>
           </div>
         }
       />
@@ -1939,7 +1939,7 @@ function Admin() {
               label: '회원 관리',
               desc: '회원 가입 승인, 등급 조정 및 이용 내역을 관리합니다.',
               action: '상세 관리하기',
-              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#0047AB"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>,
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#14284B"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>,
               always: true,
             },
             {
@@ -1948,7 +1948,7 @@ function Admin() {
               label: '클럽 회계',
               desc: '수입·지출 입력, 미수금 납부 처리, 월 마감 및 이월을 관리합니다.',
               action: '회계 관리하기',
-              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#0047AB"><path d="M4 10v7h3v-7H4zm6.5 0v7h3v-7h-3zM2 22h19v-3H2v3zm15-12v7h3v-7h-3zM11.5 1L2 6v2h19V6l-9.5-5z"/></svg>,
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#14284B"><path d="M4 10v7h3v-7H4zm6.5 0v7h3v-7h-3zM2 22h19v-3H2v3zm15-12v7h3v-7h-3zM11.5 1L2 6v2h19V6l-9.5-5z"/></svg>,
               always: true,
             },
             {
@@ -1956,7 +1956,7 @@ function Admin() {
               label: '거래 내역',
               desc: '전체 거래 내역을 조회하고 수정·삭제합니다.',
               action: '내역 조회하기',
-              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#0047AB"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>,
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#14284B"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>,
               show: showLedger,
             },
             {
@@ -1964,7 +1964,7 @@ function Admin() {
               label: '골프장 관리',
               desc: '코스 유지보수, 예약 현황 및 홀 컨디션을 조정합니다.',
               action: '코스 관리하기',
-              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#0047AB"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z"/></svg>,
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#14284B"><path d="M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6h-5.6z"/></svg>,
               always: true,
             },
             {
@@ -1972,7 +1972,7 @@ function Admin() {
               label: '스코어 관리',
               desc: '라운딩별 스코어를 조회하고 수정합니다.',
               action: '스코어 조회하기',
-              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#0047AB"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>,
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#14284B"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>,
               always: true,
             },
             {
@@ -1980,7 +1980,7 @@ function Admin() {
               label: '앱 설정',
               desc: '앱 기본 설정 및 공지사항을 관리합니다.',
               action: '설정 열기',
-              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#0047AB"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>,
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#14284B"><path d="M19.14 12.94c.04-.3.06-.61.06-.94s-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>,
               roles: ['관리자', '방장', '운영진'],
             },
             {
@@ -1989,7 +1989,7 @@ function Admin() {
               label: '저장소 관리',
               desc: '사진·영상 저장 용량을 확인하고 월별로 백업·정리합니다.',
               action: '저장소 열기',
-              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#0047AB"><path d="M19 5v3H5V5h14m0-2H5c-1.1 0-2 .9-2 2v3c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 13v3H5v-3h14m0-2H5c-1.1 0-2 .9-2 2v3c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-3c0-1.1-.9-2-2-2zM7 7.5h2v-1H7v1zm0 11h2v-1H7v1z"/></svg>,
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#14284B"><path d="M19 5v3H5V5h14m0-2H5c-1.1 0-2 .9-2 2v3c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 13v3H5v-3h14m0-2H5c-1.1 0-2 .9-2 2v3c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-3c0-1.1-.9-2-2-2zM7 7.5h2v-1H7v1zm0 11h2v-1H7v1z"/></svg>,
               roles: ['관리자'],
             },
             {
@@ -1997,7 +1997,7 @@ function Admin() {
               label: '개발자 설정',
               desc: '권한 설정 및 앱 소개문구를 관리합니다.',
               action: '개발자 설정',
-              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#0047AB"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>,
+              icon: <svg width="22" height="22" viewBox="0 0 24 24" fill="#14284B"><path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/></svg>,
               roles: ['관리자'],
             },
           ].filter(item => {
@@ -2008,7 +2008,7 @@ function Admin() {
           });
 
           return (
-            <div style={{ background: '#EEF1F6', minHeight: '100vh', paddingBottom: 100 }}>
+            <div style={{ background: '#EFEDE7', minHeight: '100vh', paddingBottom: 100 }}>
               {/* 저장소 80% 알림 */}
               {storagePct >= 80 && (
                 <div onClick={() => navigate('/media-storage', { state: { returnTo: { path: '/admin' } } })} style={{ margin: '16px 16px 0', background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: 14, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
@@ -2020,12 +2020,12 @@ function Admin() {
               )}
 
               {/* 히어로 배너 */}
-              <div style={{ margin: '16px 16px 20px', background: 'linear-gradient(135deg, #0047AB 0%, #1E56C5 100%)', borderRadius: 20, padding: '22px 22px 24px', boxShadow: '0 8px 24px rgba(0,71,171,0.25)' }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(177,197,255,0.8)', letterSpacing: '0', marginBottom: 12 }}>관리자 대시보드</div>
+              <div style={{ margin: '16px 16px 20px', background: 'linear-gradient(135deg, #14284B 0%, #24406E 100%)', borderRadius: 20, padding: '22px 22px 24px', boxShadow: '0 8px 24px rgba(20,40,75,0.25)' }}>
+                <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(214,196,150,0.8)', letterSpacing: '0', marginBottom: 12 }}>관리자 대시보드</div>
                 <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.35, marginBottom: 10, letterSpacing: '-0.02em' }}>
                   반갑습니다, {user.nickname || user.name}님.<br />오늘의 클럽 운영을 시작하세요.
                 </div>
-                <div style={{ fontSize: 13, color: 'rgba(177,197,255,0.85)', fontWeight: 400 }}>핵심 기능을 한눈에 제어할 수 있습니다.</div>
+                <div style={{ fontSize: 13, color: 'rgba(214,196,150,0.85)', fontWeight: 400 }}>핵심 기능을 한눈에 제어할 수 있습니다.</div>
               </div>
 
               {/* 메뉴 카드 목록 */}
@@ -2034,17 +2034,17 @@ function Admin() {
                   <div key={item.tab} onClick={() => item.path ? navigate(item.path) : setActiveTab(item.tab)}
                     style={{ background: '#fff', borderRadius: 16, padding: '20px 20px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', cursor: 'pointer' }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, marginBottom: 16 }}>
-                      <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#EEF2FF', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#EEF1F6', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         {item.icon}
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 16, fontWeight: 800, color: '#1E293B', marginBottom: 5 }}>{item.label}</div>
-                        <div style={{ fontSize: 13, color: '#64748B', lineHeight: 1.55 }}>{item.desc}</div>
+                        <div style={{ fontSize: 16, fontWeight: 800, color: '#1A1D26', marginBottom: 5 }}>{item.label}</div>
+                        <div style={{ fontSize: 13, color: '#5E6473', lineHeight: 1.55 }}>{item.desc}</div>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #F1F5F9', paddingTop: 13 }}>
-                      <span style={{ fontSize: 13, fontWeight: 700, color: '#0047AB' }}>{item.action}</span>
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0047AB" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid #EFEDE7', paddingTop: 13 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700, color: '#14284B' }}>{item.action}</span>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#14284B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M9 18l6-6-6-6"/></svg>
                     </div>
                   </div>
                 ))}
@@ -2054,13 +2054,13 @@ function Admin() {
         })()}
 
         {activeTab === 'members' && (
-          <div style={{ background: '#EEF1F6', minHeight: '100vh' }}>
+          <div style={{ background: '#EFEDE7', minHeight: '100vh' }}>
             <div style={{ padding: '16px 16px 0' }}>
             {/* 가입 링크 복사 */}
             <div style={{ background: '#fff', borderRadius: 16, padding: '14px 18px', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>회원가입 링크</div>
-                <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>링크를 공유해 누구나 가입 신청 가능</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1D26' }}>회원가입 링크</div>
+                <div style={{ fontSize: 11, color: '#9A9DA6', marginTop: 2 }}>링크를 공유해 누구나 가입 신청 가능</div>
               </div>
               <button
                 onClick={() => {
@@ -2071,7 +2071,7 @@ function Admin() {
                     prompt('아래 링크를 복사하세요:', url);
                   }
                 }}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: '#0047AB', color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: '#14284B', color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/>
@@ -2083,8 +2083,8 @@ function Admin() {
             {/* 골프링크 명단 PDF */}
             <div style={{ background: '#fff', borderRadius: 16, padding: '14px 18px', marginBottom: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>골프링크 명단 PDF</div>
-                <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#1A1D26' }}>골프링크 명단 PDF</div>
+                <div style={{ fontSize: 11, color: '#9A9DA6', marginTop: 2 }}>
                   번호 · 이름 순으로 정리 · {members.filter(m => m.isActive !== false && m.approvalStatus !== 'pending' && !m.isGuest && (m.golflinkNumber || '').toString().trim()).length}명
                 </div>
               </div>
@@ -2099,7 +2099,7 @@ function Admin() {
                     alert(`PDF ${result.exported}명 저장 완료.\n\n골프링크 번호가 없어 제외된 회원 ${result.missing.length}명:\n${result.missing.join(', ')}`);
                   }
                 }}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: '#0047AB', color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', background: '#14284B', color: '#fff', border: 'none', borderRadius: 10, fontSize: 13, fontWeight: 700, cursor: 'pointer', flexShrink: 0 }}
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
@@ -2111,7 +2111,7 @@ function Admin() {
             {/* 검색 */}
             <div style={{ position: 'relative', marginBottom: 16 }}>
               <div style={{ position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center' }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9DA6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
               </div>
               <input
                 type="text"
@@ -2122,18 +2122,18 @@ function Admin() {
               />
               {memberSearchTerm && (
                 <button onClick={() => setMemberSearchTerm('')}
-                  style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', fontSize: 16, cursor: 'pointer', color: '#94A3B8', padding: 4 }}>✕</button>
+                  style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', fontSize: 16, cursor: 'pointer', color: '#9A9DA6', padding: 4 }}>✕</button>
               )}
             </div>
 
             {/* 토글 */}
             <div style={{ background: '#fff', borderRadius: 16, padding: '14px 18px', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#1E293B' }}>활동 중인 멤버만 보기</div>
-                <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>현재 라운딩 가능한 멤버 리스트</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#1A1D26' }}>활동 중인 멤버만 보기</div>
+                <div style={{ fontSize: 11, color: '#9A9DA6', marginTop: 2 }}>현재 라운딩 가능한 멤버 리스트</div>
               </div>
               <div onClick={() => setShowInactive(!showInactive)}
-                style={{ width: 44, height: 26, borderRadius: 12, background: !showInactive ? '#0047AB' : '#CBD5E1', position: 'relative', cursor: 'pointer', transition: 'background 0.2s', flexShrink: 0 }}>
+                style={{ width: 44, height: 26, borderRadius: 12, background: !showInactive ? '#14284B' : '#D5D2CA', position: 'relative', cursor: 'pointer', transition: 'background 0.2s', flexShrink: 0 }}>
                 <div style={{ position: 'absolute', top: 3, left: !showInactive ? 21 : 3, width: 20, height: 20, borderRadius: '50%', background: '#fff', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.2)' }} />
               </div>
             </div>
@@ -2148,16 +2148,16 @@ function Admin() {
               ).length;
               return (
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
-                  <div style={{ background: 'linear-gradient(135deg, #0047AB 0%, #1E56C5 100%)', borderRadius: 16, padding: '16px 18px', boxShadow: '0 4px 16px rgba(0,71,171,0.25)', position: 'relative', overflow: 'hidden' }}>
+                  <div style={{ background: 'linear-gradient(135deg, #14284B 0%, #24406E 100%)', borderRadius: 16, padding: '16px 18px', boxShadow: '0 4px 16px rgba(20,40,75,0.25)', position: 'relative', overflow: 'hidden' }}>
                     <div style={{ position: 'absolute', right: -10, bottom: -10, opacity: 0.1 }}>
                       <svg width="70" height="70" viewBox="0 0 24 24" fill="white"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                     </div>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(177,197,255,0.8)', letterSpacing: '0.12em', marginBottom: 8 }}>TOTAL MEMBERS</div>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(214,196,150,0.8)', letterSpacing: '0.12em', marginBottom: 8 }}>TOTAL MEMBERS</div>
                     <div style={{ fontSize: 32, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{totalActive.toLocaleString()}</div>
                   </div>
                   <div style={{ background: '#fff', borderRadius: 16, padding: '16px 18px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0', marginBottom: 8 }}>오늘 접속</div>
-                    <div style={{ fontSize: 32, fontWeight: 800, color: '#0047AB', lineHeight: 1 }}>{filtered}</div>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: '#9A9DA6', letterSpacing: '0', marginBottom: 8 }}>오늘 접속</div>
+                    <div style={{ fontSize: 32, fontWeight: 800, color: '#14284B', lineHeight: 1 }}>{filtered}</div>
                   </div>
                 </div>
               );
@@ -2208,7 +2208,7 @@ function Admin() {
                         <div style={{
                           width: '60px',
                           height: '60px',
-                          background: '#e2e8f0',
+                          background: '#E6E2D8',
                           borderRadius: '50%',
                           display: 'flex',
                           alignItems: 'center',
@@ -2300,7 +2300,7 @@ function Admin() {
             
             <div style={{ padding: '0 16px 100px' }}>
               {/* MEMBER DIRECTORY 라벨 */}
-              <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.12em', marginBottom: 12, paddingLeft: 2 }}>MEMBER DIRECTORY</div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#9A9DA6', letterSpacing: '0.12em', marginBottom: 12, paddingLeft: 2 }}>MEMBER DIRECTORY</div>
 
               {/* 회원 카드 목록 */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -2319,13 +2319,13 @@ function Admin() {
 
                 const roleBadge = (() => {
                   if (['관리자', '방장'].includes(member.role)) return { label: 'VIP', bg: '#FEF2F2', color: '#DC2626' };
-                  if (['운영진'].includes(member.role)) return { label: '운영진', bg: '#EFF6FF', color: '#2563EB' };
+                  if (['운영진'].includes(member.role)) return { label: '운영진', bg: '#EEF1F6', color: '#24406E' };
                   if (['클럽운영진'].includes(member.role)) return { label: 'CLUB', bg: '#F0FDF4', color: '#16A34A' };
                   return null;
                 })();
 
                 const isOnline = member.lastActiveAt && (Date.now() - new Date(member.lastActiveAt).getTime()) < 5 * 60 * 1000;
-                const onlineIndicatorColor = isOnline ? '#22C55E' : '#CBD5E1';
+                const onlineIndicatorColor = isOnline ? '#22C55E' : '#D5D2CA';
 
                 return (
                   <div key={member.id} onClick={() => navigate(`/member/${member.id}`, {
@@ -2336,9 +2336,9 @@ function Admin() {
                     {/* 사진 */}
                     <div style={{ position: 'relative', flexShrink: 0 }}>
                       {member.photo ? (
-                        <img src={member.photo} alt={member.name} style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2px solid #F1F5F9' }} />
+                        <img src={member.photo} alt={member.name} style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2px solid #EFEDE7' }} />
                       ) : (
-                        <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#E8ECF0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, color: '#94A3B8' }}><LineIcon name="person" size={24} /></div>
+                        <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#E6E2D8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, color: '#9A9DA6' }}><LineIcon name="person" size={24} /></div>
                       )}
                       {/* 온라인 인디케이터 */}
                       <div style={{ position: 'absolute', bottom: 1, right: 1, width: 11, height: 11, borderRadius: '50%', background: onlineIndicatorColor, border: '2px solid #fff' }} />
@@ -2353,12 +2353,12 @@ function Admin() {
                     {/* 정보 */}
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-                        <span style={{ fontSize: 15, fontWeight: 800, color: '#1E293B' }}>{member.nickname || member.name}</span>
+                        <span style={{ fontSize: 15, fontWeight: 800, color: '#1A1D26' }}>{member.nickname || member.name}</span>
                         {roleBadge && (
                           <span style={{ fontSize: 11, fontWeight: 800, color: roleBadge.color, background: roleBadge.bg, borderRadius: 4, padding: '2px 5px', letterSpacing: '0.05em' }}>{roleBadge.label}</span>
                         )}
                       </div>
-                      <div style={{ fontSize: 12, color: '#94A3B8' }}>
+                      <div style={{ fontSize: 12, color: '#9A9DA6' }}>
                         {member.name !== (member.nickname || member.name) ? member.name : ''}
                         {member.name !== (member.nickname || member.name) && member.club ? ' • ' : ''}
                         {member.club || ''}
@@ -2367,8 +2367,8 @@ function Admin() {
 
                     {/* 핸디캡 */}
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', letterSpacing: '0', marginBottom: 3 }}>핸디캡</div>
-                      <div style={{ fontSize: 15, fontWeight: 800, color: '#0047AB' }}>{hcpDisplay}</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#9A9DA6', letterSpacing: '0', marginBottom: 3 }}>핸디캡</div>
+                      <div style={{ fontSize: 15, fontWeight: 800, color: '#14284B' }}>{hcpDisplay}</div>
                     </div>
                   </div>
                 );
@@ -2529,7 +2529,7 @@ function Admin() {
 
             {/* FAB - 새 회원 추가 */}
             <button onClick={() => setShowNewMemberForm(true)}
-              style={{ position: 'fixed', bottom: 90, right: 20, width: 52, height: 52, borderRadius: '50%', background: '#0047AB', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(0,71,171,0.4)', zIndex: 100 }}>
+              style={{ position: 'fixed', bottom: 90, right: 20, width: 52, height: 52, borderRadius: '50%', background: '#14284B', color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 16px rgba(20,40,75,0.4)', zIndex: 100 }}>
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
             </button>
 
@@ -2555,13 +2555,13 @@ function Admin() {
                 }}>
                   {/* 핸들 + 헤더 (고정) */}
                   <div style={{ flexShrink: 0, padding: '12px 20px 0' }}>
-                    <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 4, margin: '0 auto 14px' }} />
+                    <div style={{ width: 40, height: 4, background: '#D5D2CA', borderRadius: 4, margin: '0 auto 14px' }} />
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                      <span style={{ fontSize: 18, fontWeight: 800, color: '#1e293b' }}>새 회원 추가</span>
+                      <span style={{ fontSize: 18, fontWeight: 800, color: '#1A1D26' }}>새 회원 추가</span>
                       <button onClick={() => setShowNewMemberForm(false)}
-                        style={{ background: '#f1f5f9', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#64748b', fontSize: 18 }}>×</button>
+                        style={{ background: '#EFEDE7', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#5E6473', fontSize: 18 }}>×</button>
                     </div>
-                    <div style={{ height: 1, background: '#f1f5f9' }} />
+                    <div style={{ height: 1, background: '#EFEDE7' }} />
                   </div>
 
                   {/* 스크롤 가능 폼 영역 */}
@@ -2571,14 +2571,14 @@ function Admin() {
                       const fieldStyle = {
                         width: '100%', maxWidth: '100%', boxSizing: 'border-box',
                         padding: '13px 14px', borderRadius: 12,
-                        border: '1.5px solid #e2e8f0', fontSize: 15,
-                        color: '#1e293b', background: '#f8fafc',
+                        border: '1.5px solid #E6E2D8', fontSize: 15,
+                        color: '#1A1D26', background: '#F7F5F0',
                         outline: 'none', display: 'block', marginBottom: 12,
                         minWidth: 0,
                       };
                       const labelStyle = {
                         display: 'block', fontSize: 12, fontWeight: 700,
-                        color: '#64748b', marginBottom: 6, letterSpacing: '0.03em',
+                        color: '#5E6473', marginBottom: 6, letterSpacing: '0.03em',
                       };
                       const sectionStyle = { marginBottom: 16 };
                       return (
@@ -2620,9 +2620,9 @@ function Admin() {
                                   onClick={() => setNewMember({ ...newMember, gender: g })}
                                   style={{
                                     flex: 1, padding: '12px', borderRadius: 12, border: '1.5px solid',
-                                    borderColor: newMember.gender === g ? '#0047AB' : '#e2e8f0',
-                                    background: newMember.gender === g ? '#EFF6FF' : '#f8fafc',
-                                    color: newMember.gender === g ? '#0047AB' : '#64748b',
+                                    borderColor: newMember.gender === g ? '#14284B' : '#E6E2D8',
+                                    background: newMember.gender === g ? '#EEF1F6' : '#F7F5F0',
+                                    color: newMember.gender === g ? '#14284B' : '#5E6473',
                                     fontWeight: 700, fontSize: 14, cursor: 'pointer',
                                   }}>
                                   {g === '남' ? '남' : '여'}
@@ -2654,14 +2654,14 @@ function Admin() {
                             <label style={labelStyle}>사진 (본인)</label>
                             <label style={{
                               display: 'flex', alignItems: 'center', gap: 10,
-                              padding: '12px 14px', borderRadius: 12, border: '1.5px dashed #cbd5e1',
-                              background: '#f8fafc', cursor: 'pointer',
+                              padding: '12px 14px', borderRadius: 12, border: '1.5px dashed #D5D2CA',
+                              background: '#F7F5F0', cursor: 'pointer',
                               width: '100%', boxSizing: 'border-box',
                             }}>
-                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#64748b" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5E6473" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                                 <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                               </svg>
-                              <span style={{ fontSize: 14, color: '#64748b' }}>
+                              <span style={{ fontSize: 14, color: '#5E6473' }}>
                                 {newMember.photo ? '사진 변경하기' : '사진 선택하기'}
                               </span>
                               <input type="file" accept="image/*" style={{ display: 'none' }}
@@ -2676,7 +2676,7 @@ function Admin() {
                             </label>
                             {newMember.photo && (
                               <img src={newMember.photo} alt="미리보기"
-                                style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 10, border: '2px solid #e2e8f0', marginTop: 8 }} />
+                                style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 10, border: '2px solid #E6E2D8', marginTop: 8 }} />
                             )}
                           </div>
 
@@ -2689,9 +2689,9 @@ function Admin() {
                                   onClick={() => setNewMember({ ...newMember, isClubMember: val })}
                                   style={{
                                     flex: 1, padding: '12px', borderRadius: 12, border: '1.5px solid',
-                                    borderColor: newMember.isClubMember === val ? '#0047AB' : '#e2e8f0',
-                                    background: newMember.isClubMember === val ? '#EFF6FF' : '#f8fafc',
-                                    color: newMember.isClubMember === val ? '#0047AB' : '#64748b',
+                                    borderColor: newMember.isClubMember === val ? '#14284B' : '#E6E2D8',
+                                    background: newMember.isClubMember === val ? '#EEF1F6' : '#F7F5F0',
+                                    color: newMember.isClubMember === val ? '#14284B' : '#5E6473',
                                     fontWeight: 700, fontSize: 14, cursor: 'pointer',
                                   }}>{text}</button>
                               ))}
@@ -2711,7 +2711,7 @@ function Admin() {
                                       <span style={{ fontSize: 14, color: '#059669', fontWeight: 700 }}>{newMember.club}</span>
                                     </div>
                                     <button onClick={() => { setNewMember(prev => ({ ...prev, club: '' })); setClubAiState('idle'); }}
-                                      style={{ background: 'none', border: 'none', color: '#64748B', fontSize: 16, cursor: 'pointer', padding: '0 4px' }}>×</button>
+                                      style={{ background: 'none', border: 'none', color: '#5E6473', fontSize: 16, cursor: 'pointer', padding: '0 4px' }}>×</button>
                                   </div>
                                 )}
                                 {/* 검색 입력 */}
@@ -2722,12 +2722,12 @@ function Admin() {
                                     value={clubSearchInput}
                                     onChange={(e) => { setClubSearchInput(e.target.value); setClubAiState('idle'); }}
                                     onKeyDown={(e) => e.key === 'Enter' && handleClubSearch()}
-                                    style={{ flex: 1, minWidth: 0, padding: '13px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 15, color: '#1e293b', background: '#f8fafc', outline: 'none', boxSizing: 'border-box' }}
+                                    style={{ flex: 1, minWidth: 0, padding: '13px 14px', borderRadius: 12, border: '1.5px solid #E6E2D8', fontSize: 15, color: '#1A1D26', background: '#F7F5F0', outline: 'none', boxSizing: 'border-box' }}
                                   />
                                   <button
                                     onClick={handleClubSearch}
                                     disabled={clubAiState === 'searching' || !clubSearchInput.trim()}
-                                    style={{ padding: '13px 16px', background: (clubAiState === 'searching' || !clubSearchInput.trim()) ? '#93C5FD' : '#0047AB', color: 'white', border: 'none', borderRadius: 12, fontSize: 13, fontWeight: 700, cursor: (clubAiState === 'searching' || !clubSearchInput.trim()) ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}
+                                    style={{ padding: '13px 16px', background: (clubAiState === 'searching' || !clubSearchInput.trim()) ? '#9AA9C2' : '#14284B', color: 'white', border: 'none', borderRadius: 12, fontSize: 13, fontWeight: 700, cursor: (clubAiState === 'searching' || !clubSearchInput.trim()) ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}
                                   >
                                     {clubAiState === 'searching' ? '검색중...' : '검색'}
                                   </button>
@@ -2765,15 +2765,15 @@ function Admin() {
                   {/* 하단 버튼 (고정) */}
                   <div style={{
                     flexShrink: 0, padding: '12px 20px 16px',
-                    background: '#fff', borderTop: '1px solid #f1f5f9',
+                    background: '#fff', borderTop: '1px solid #EFEDE7',
                   }}>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: '8px' }}>
                       <button onClick={() => setShowNewMemberForm(false)}
-                        style={{ padding: '14px', borderRadius: 12, border: '1.5px solid #e2e8f0', background: '#fff', color: '#64748b', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>
+                        style={{ padding: '14px', borderRadius: 12, border: '1.5px solid #E6E2D8', background: '#fff', color: '#5E6473', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}>
                         취소
                       </button>
                       <button onClick={handleAddMember}
-                        style={{ padding: '14px', borderRadius: 12, border: 'none', background: '#0047AB', color: '#fff', fontWeight: 800, fontSize: 15, cursor: 'pointer' }}>
+                        style={{ padding: '14px', borderRadius: 12, border: 'none', background: '#14284B', color: '#fff', fontWeight: 800, fontSize: 15, cursor: 'pointer' }}>
                         추가하기
                       </button>
                     </div>
@@ -4588,9 +4588,9 @@ function Admin() {
         )}
 
         {activeTab === 'courses' && (() => {
-          const PRIMARY = '#0047AB';
+          const PRIMARY = '#14284B';
           const cyclePar = (val) => { const v = parseInt(val) || 4; return v >= 5 ? 3 : v + 1; };
-          const parColor = (p) => p === 3 ? '#16A34A' : p === 5 ? '#B91C1C' : '#0047AB';
+          const parColor = (p) => p === 3 ? '#16A34A' : p === 5 ? '#B91C1C' : '#14284B';
 
           const getTeeLabel = (name) => {
             if (!name) return '';
@@ -4620,37 +4620,37 @@ function Admin() {
                         {/* 홀 번호 행 */}
                         <div />
                         {half.map((_, i) => (
-                          <div key={i} style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#94A3B8', padding: '4px 2px' }}>
+                          <div key={i} style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#9A9DA6', padding: '4px 2px' }}>
                             {hi * 9 + i + 1}
                           </div>
                         ))}
-                        <div style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#94A3B8', padding: '4px 2px' }}>
+                        <div style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#9A9DA6', padding: '4px 2px' }}>
                           {hi === 0 ? 'OUT' : 'IN'}
                         </div>
                         {/* 파 행 */}
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '700', color: '#94A3B8' }}>PAR</div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '700', color: '#9A9DA6' }}>PAR</div>
                         {half.map((p, i) => {
                           const idx = hi * 9 + i;
                           return (
                             <button key={i} onClick={() => !readOnly && onParClick && onParClick(idx)}
                               style={{ textAlign: 'center', fontSize: '15px', fontWeight: '800', color: parColor(parseInt(p) || 4),
-                                background: '#F8FAFC', border: '1.5px solid #E8ECF0', borderRadius: '8px', padding: '8px 2px',
+                                background: '#F7F5F0', border: '1.5px solid #E6E2D8', borderRadius: '8px', padding: '8px 2px',
                                 cursor: readOnly ? 'default' : 'pointer' }}>
                               {p || '—'}
                             </button>
                           );
                         })}
-                        <div style={{ textAlign: 'center', fontSize: '13px', fontWeight: '800', color: '#1E293B',
-                          background: '#F1F5F9', border: '1.5px solid #E2E8F0', borderRadius: '8px', padding: '8px 2px',
+                        <div style={{ textAlign: 'center', fontSize: '13px', fontWeight: '800', color: '#1A1D26',
+                          background: '#EFEDE7', border: '1.5px solid #E6E2D8', borderRadius: '8px', padding: '8px 2px',
                           display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                           {hi === 0 ? frontTotal : backTotal}
                         </div>
                         {/* SI 행 */}
                         {siHalf && (
                           <>
-                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '700', color: '#0047AB' }}>SI</div>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', fontWeight: '700', color: '#14284B' }}>SI</div>
                             {siHalf.map((v, i) => (
-                              <div key={i} style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#0047AB', padding: '3px 1px', background: '#EBF2FF', borderRadius: '4px' }}>
+                              <div key={i} style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#14284B', padding: '3px 1px', background: '#EEF1F6', borderRadius: '4px' }}>
                                 {v}
                               </div>
                             ))}
@@ -4663,44 +4663,44 @@ function Admin() {
                           const halfTotal = holeHalf.reduce((s, h) => s + (h.meters || 0), 0);
                           return (
                             <React.Fragment key={ti}>
-                              <div style={{ display: 'flex', alignItems: 'center', fontSize: '11px', fontWeight: '700', color: '#64748B', overflow: 'hidden', whiteSpace: 'nowrap', lineHeight: 1 }}>
+                              <div style={{ display: 'flex', alignItems: 'center', fontSize: '11px', fontWeight: '700', color: '#5E6473', overflow: 'hidden', whiteSpace: 'nowrap', lineHeight: 1 }}>
                                 {getTeeLabel(tee.tee_name)}
                               </div>
                               {holeHalf.map((h, i) => (
-                                <div key={i} style={{ textAlign: 'center', fontSize: '11px', color: '#475569', padding: '2px 1px', background: ti % 2 === 0 ? '#FAFBFC' : '#F1F5F9', borderRadius: '4px' }}>
+                                <div key={i} style={{ textAlign: 'center', fontSize: '11px', color: '#4B5060', padding: '2px 1px', background: ti % 2 === 0 ? '#FAFBFC' : '#EFEDE7', borderRadius: '4px' }}>
                                   {h.meters || '-'}
                                 </div>
                               ))}
-                              <div style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#1E293B', padding: '2px 1px', background: '#F1F5F9', borderRadius: '4px' }}>
+                              <div style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#1A1D26', padding: '2px 1px', background: '#EFEDE7', borderRadius: '4px' }}>
                                 {halfTotal || '-'}
                               </div>
                             </React.Fragment>
                           );
                         })}
                         {/* 니어 행 */}
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', color: '#94A3B8' }}>Near</div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '11px', color: '#9A9DA6' }}>Near</div>
                         {half.map((_, i) => {
                           const idx = hi * 9 + i;
                           const isNear = nearHoles?.[idx];
                           return (
                             <button key={i} onClick={() => !readOnly && onNearClick && onNearClick(idx)}
                               style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700',
-                                color: isNear ? '#FFFFFF' : '#94A3B8',
-                                background: isNear ? PRIMARY : '#F8FAFC',
-                                border: `1.5px solid ${isNear ? PRIMARY : '#E8ECF0'}`,
+                                color: isNear ? '#FFFFFF' : '#9A9DA6',
+                                background: isNear ? PRIMARY : '#F7F5F0',
+                                border: `1.5px solid ${isNear ? PRIMARY : '#E6E2D8'}`,
                                 borderRadius: '6px', padding: '4px 2px', cursor: readOnly ? 'default' : 'pointer' }}>
                               N
                             </button>
                           );
                         })}
-                        <div style={{ textAlign: 'center', fontSize: '11px', color: '#CBD5E1', padding: '4px 2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>—</div>
+                        <div style={{ textAlign: 'center', fontSize: '11px', color: '#D5D2CA', padding: '4px 2px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>—</div>
                       </div>
                     </div>
                   );
                 })}
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#94A3B8' }}>
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#9A9DA6' }}>
                   <span style={{ color: '#16A34A', fontWeight: '700' }}>3</span>
-                  <span style={{ color: '#0047AB', fontWeight: '700' }}>4</span>
+                  <span style={{ color: '#14284B', fontWeight: '700' }}>4</span>
                   <span style={{ color: '#B91C1C', fontWeight: '700' }}>5</span>
                   <span>탭하여 변경</span>
                   <span style={{ marginLeft: '8px' }}>N = 니어핀</span>
@@ -4822,7 +4822,7 @@ function Admin() {
             {/* ── 검색창 ── */}
             <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
               <div style={{ position: 'relative', flex: 1 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9A9DA6" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
                   style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }}>
                   <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
                 </svg>
@@ -4835,33 +4835,33 @@ function Admin() {
                     width: '100%', boxSizing: 'border-box',
                     padding: '12px 36px 12px 42px',
                     border: 'none', borderRadius: '14px',
-                    fontSize: '14px', color: '#1E293B', background: '#FFFFFF',
+                    fontSize: '14px', color: '#1A1D26', background: '#FFFFFF',
                     outline: 'none', boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
                   }}
                 />
                 {courseListSearch && (
                   <button onClick={() => setCourseListSearch('')}
-                    style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: '#F1F5F9', border: 'none', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#94A3B8', fontSize: 14, fontWeight: 700 }}>
+                    style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: '#EFEDE7', border: 'none', borderRadius: '50%', width: 22, height: 22, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#9A9DA6', fontSize: 14, fontWeight: 700 }}>
                     ×
                   </button>
                 )}
               </div>
               <button onClick={openAddSheet}
-                style={{ flexShrink: 0, width: 46, height: 46, borderRadius: 14, background: PRIMARY, color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,71,171,0.25)', fontSize: 22, fontWeight: 300 }}>
+                style={{ flexShrink: 0, width: 46, height: 46, borderRadius: 14, background: PRIMARY, color: '#fff', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(20,40,75,0.25)', fontSize: 22, fontWeight: 300 }}>
                 +
               </button>
             </div>
 
             {/* ── COURSE DIRECTORY 헤더 ── */}
             <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0', marginBottom: 4 }}>골프장 목록</div>
-              <div style={{ fontSize: 20, fontWeight: 800, color: '#1E293B' }}>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#9A9DA6', letterSpacing: '0', marginBottom: 4 }}>골프장 목록</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: '#1A1D26' }}>
                 전체 <span style={{ color: PRIMARY }}>{courseListSearch.trim() ? `${filteredCourses.length}` : courses.length}개</span>
               </div>
             </div>
 
             {filteredCourses.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94A3B8', fontSize: '14px', background: '#FFFFFF', borderRadius: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
+              <div style={{ textAlign: 'center', padding: '48px 20px', color: '#9A9DA6', fontSize: '14px', background: '#FFFFFF', borderRadius: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
                 {courses.length === 0
                   ? <><div>등록된 골프장이 없습니다</div><div style={{ marginTop: '6px', fontSize: '12px' }}>+ 버튼을 눌러 등록하세요</div></>
                   : <div>"{courseListSearch}"에 해당하는 골프장이 없습니다</div>
@@ -4890,29 +4890,29 @@ function Admin() {
                       {/* 정보 */}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                          <span style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{course.name}</span>
+                          <span style={{ fontSize: 15, fontWeight: 700, color: '#1A1D26', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{course.name}</span>
                           {course.isCompetition && (
                             <span style={{ fontSize: '11px', fontWeight: '700', color: '#fff', background: PRIMARY, borderRadius: '4px', padding: '2px 6px', flexShrink: 0 }}>컴페티션</span>
                           )}
                         </div>
                         {course.address && (
-                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#64748B' }}>
-                            <svg width="11" height="11" viewBox="0 0 24 24" fill="#94A3B8"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 4, fontSize: 12, color: '#5E6473' }}>
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="#9A9DA6"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{course.address}</span>
                           </div>
                         )}
                         {nearCount > 0 && (
-                          <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>니어핀 {nearCount}홀</div>
+                          <div style={{ fontSize: 11, color: '#9A9DA6', marginTop: 2 }}>니어핀 {nearCount}홀</div>
                         )}
                       </div>
                       {/* PAR 배지 + 화살표 */}
                       <div style={{ flexShrink: 0, display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 6 }}>
                         {totalPar > 0 && (
-                          <span style={{ fontSize: 11, fontWeight: 800, color: PRIMARY, background: '#EFF6FF', borderRadius: 8, padding: '3px 8px', letterSpacing: '0.04em' }}>
+                          <span style={{ fontSize: 11, fontWeight: 800, color: PRIMARY, background: '#EEF1F6', borderRadius: 8, padding: '3px 8px', letterSpacing: '0.04em' }}>
                             PAR {totalPar}
                           </span>
                         )}
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D5D2CA" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="9 18 15 12 9 6"/>
                         </svg>
                       </div>
@@ -4929,23 +4929,23 @@ function Admin() {
                 <div onClick={closeSheet} style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.4)' }} />
                 {/* 시트 */}
                 <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: '100%', maxWidth: '480px',
-                  background: '#F8FAFC', borderRadius: '20px 20px 0 0', maxHeight: '90vh', overflowY: 'auto', paddingBottom: '32px' }}>
+                  background: '#F7F5F0', borderRadius: '20px 20px 0 0', maxHeight: '90vh', overflowY: 'auto', paddingBottom: '32px' }}>
                   {/* 핸들 */}
                   <div style={{ display: 'flex', justifyContent: 'center', padding: '12px 0 4px' }}>
-                    <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '4px' }} />
+                    <div style={{ width: '40px', height: '4px', background: '#D5D2CA', borderRadius: '4px' }} />
                   </div>
                   {/* 헤더 */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px 16px' }}>
                     <div>
-                      <div style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '4px' }}>
+                      <div style={{ fontSize: '11px', fontWeight: '700', color: '#9A9DA6', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '4px' }}>
                         {courseSheetMode === 'add' ? '새 골프장' : '골프장 수정'}
                       </div>
-                      <div style={{ fontSize: '20px', fontWeight: '800', color: '#1E293B' }}>
+                      <div style={{ fontSize: '20px', fontWeight: '800', color: '#1A1D26' }}>
                         {courseSheetMode === 'add' ? '골프장 추가' : (editCourseData?.name || '')}
                       </div>
                     </div>
                     <button onClick={closeSheet}
-                      style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#F1F5F9', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', color: '#64748B' }}>
+                      style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#EFEDE7', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', color: '#5E6473' }}>
                       ×
                     </button>
                   </div>
@@ -4954,8 +4954,8 @@ function Admin() {
 
                     {/* ─── ADD 모드: AI 검색 ─── */}
                     {courseSheetMode === 'add' && (
-                      <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', padding: '16px' }}>
-                        <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', marginBottom: '8px' }}>골프장 이름으로 자동 검색</div>
+                      <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E6E2D8', padding: '16px' }}>
+                        <div style={{ fontSize: '12px', fontWeight: '700', color: '#5E6473', marginBottom: '8px' }}>골프장 이름으로 자동 검색</div>
                         <div style={{ display: 'flex', gap: '8px' }}>
                           <input
                             type="text"
@@ -4963,7 +4963,7 @@ function Admin() {
                             onChange={e => setCourseSearchQuery(e.target.value)}
                             onKeyDown={e => e.key === 'Enter' && handleCourseSearch()}
                             placeholder="예: Strathfield Golf Club"
-                            style={{ flex: 1, padding: '11px 14px', borderRadius: '10px', border: '1px solid #E8ECF0', fontSize: '14px', outline: 'none', background: '#FAFBFC' }}
+                            style={{ flex: 1, padding: '11px 14px', borderRadius: '10px', border: '1px solid #E6E2D8', fontSize: '14px', outline: 'none', background: '#FAFBFC' }}
                           />
                           <button onClick={handleCourseSearch} disabled={courseSearchState === 'searching' || !courseSearchQuery.trim()}
                             style={{ padding: '11px 16px', borderRadius: '10px', background: PRIMARY, color: '#fff', border: 'none', fontWeight: '700', fontSize: '13px', cursor: 'pointer', opacity: courseSearchState === 'searching' || !courseSearchQuery.trim() ? 0.5 : 1, whiteSpace: 'nowrap' }}>
@@ -4978,11 +4978,11 @@ function Admin() {
                         )}
 
                         {courseSearchState === 'found' && courseSearchResult && (
-                          <div style={{ marginTop: '12px', background: '#EBF2FF', borderRadius: '10px', padding: '12px', border: '1px solid #BFDBFE' }}>
+                          <div style={{ marginTop: '12px', background: '#EEF1F6', borderRadius: '10px', padding: '12px', border: '1px solid #D3DBE8' }}>
                             <div style={{ fontSize: '12px', fontWeight: '700', color: PRIMARY, marginBottom: '6px' }}>✓ 골프장 정보를 찾았습니다</div>
-                            <div style={{ fontSize: '14px', fontWeight: '700', color: '#1E293B' }}>{courseSearchResult.name}</div>
-                            {courseSearchResult.address && <div style={{ fontSize: '12px', color: '#64748B', marginTop: '2px' }}>{courseSearchResult.address}</div>}
-                            <div style={{ fontSize: '12px', color: '#64748B', marginTop: '4px' }}>
+                            <div style={{ fontSize: '14px', fontWeight: '700', color: '#1A1D26' }}>{courseSearchResult.name}</div>
+                            {courseSearchResult.address && <div style={{ fontSize: '12px', color: '#5E6473', marginTop: '2px' }}>{courseSearchResult.address}</div>}
+                            <div style={{ fontSize: '12px', color: '#5E6473', marginTop: '4px' }}>
                               Par {courseSearchResult.totalMale || (courseSearchResult.holePars?.male || []).reduce((s, p) => s + p, 0)}
                             </div>
                           </div>
@@ -4993,32 +4993,32 @@ function Admin() {
                     {/* ─── EDIT 모드 OR ADD 검색 완료: 기본 정보 ─── */}
                     {(courseSheetMode === 'edit' || courseSearchState === 'found') && editCourseData && (
                       <>
-                        <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', padding: '16px' }}>
-                          <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', marginBottom: '8px' }}>기본 정보</div>
+                        <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E6E2D8', padding: '16px' }}>
+                          <div style={{ fontSize: '12px', fontWeight: '700', color: '#5E6473', marginBottom: '8px' }}>기본 정보</div>
                           <input value={editCourseData.name}
                             onChange={e => setEditCourseData({ ...editCourseData, name: e.target.value })}
                             placeholder="골프장 이름"
-                            style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', border: '1px solid #E8ECF0', fontSize: '14px', outline: 'none', boxSizing: 'border-box', marginBottom: '8px' }} />
+                            style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', border: '1px solid #E6E2D8', fontSize: '14px', outline: 'none', boxSizing: 'border-box', marginBottom: '8px' }} />
                           <input value={editCourseData.address || ''}
                             onChange={e => setEditCourseData({ ...editCourseData, address: e.target.value })}
                             placeholder="주소"
-                            style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', border: '1px solid #E8ECF0', fontSize: '14px', outline: 'none', boxSizing: 'border-box', marginBottom: '12px' }} />
+                            style={{ width: '100%', padding: '11px 14px', borderRadius: '10px', border: '1px solid #E6E2D8', fontSize: '14px', outline: 'none', boxSizing: 'border-box', marginBottom: '12px' }} />
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                             <div>
-                              <div style={{ fontSize: '14px', fontWeight: '600', color: '#1E293B' }}>컴페티션 골프장</div>
-                              <div style={{ fontSize: '12px', color: '#94A3B8', marginTop: '2px' }}>대회 및 공식 경기용</div>
+                              <div style={{ fontSize: '14px', fontWeight: '600', color: '#1A1D26' }}>컴페티션 골프장</div>
+                              <div style={{ fontSize: '12px', color: '#9A9DA6', marginTop: '2px' }}>대회 및 공식 경기용</div>
                             </div>
                             <button onClick={() => setEditCourseData(prev => ({ ...prev, isCompetition: !prev.isCompetition }))}
-                              style={{ width: '46px', height: '26px', borderRadius: '12px', border: 'none', background: editCourseData.isCompetition ? PRIMARY : '#E2E8F0', cursor: 'pointer', position: 'relative', padding: 0 }}>
+                              style={{ width: '46px', height: '26px', borderRadius: '12px', border: 'none', background: editCourseData.isCompetition ? PRIMARY : '#E6E2D8', cursor: 'pointer', position: 'relative', padding: 0 }}>
                               <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: '#fff', position: 'absolute', top: '3px', left: editCourseData.isCompetition ? '23px' : '3px', transition: 'left 0.2s', boxShadow: '0 1px 3px rgba(0,0,0,0.15)' }} />
                             </button>
                           </div>
                         </div>
 
-                        <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', padding: '16px' }}>
+                        <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E6E2D8', padding: '16px' }}>
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                            <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748B' }}>홀별 PAR · 니어핀 설정</div>
-                            <div style={{ fontSize: '12px', fontWeight: '700', color: '#1E293B' }}>
+                            <div style={{ fontSize: '12px', fontWeight: '700', color: '#5E6473' }}>홀별 PAR · 니어핀 설정</div>
+                            <div style={{ fontSize: '12px', fontWeight: '700', color: '#1A1D26' }}>
                               Total {editCourseData.maleHolePars.reduce((s, p) => s + (parseInt(p) || 0), 0)}
                             </div>
                           </div>
@@ -5044,17 +5044,17 @@ function Admin() {
 
                         {/* ─── 티박스 요약 ─── */}
                         {editCourseData.tees && editCourseData.tees.length > 0 && (
-                          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', padding: '14px 16px' }}>
-                            <div style={{ fontSize: '12px', fontWeight: '700', color: '#64748B', marginBottom: '8px' }}>티박스 요약</div>
+                          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E6E2D8', padding: '14px 16px' }}>
+                            <div style={{ fontSize: '12px', fontWeight: '700', color: '#5E6473', marginBottom: '8px' }}>티박스 요약</div>
                             {editCourseData.tees.map((tee, ti) => (
-                              <div key={ti} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '6px 0', borderBottom: ti < editCourseData.tees.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
+                              <div key={ti} style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', padding: '6px 0', borderBottom: ti < editCourseData.tees.length - 1 ? '1px solid #EFEDE7' : 'none' }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '5px', flex: 1, minWidth: 0 }}>
-                                  <span style={{ fontSize: '12px', fontWeight: '700', color: '#1E293B', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tee.tee_name}</span>
-                                  <span style={{ fontSize: '11px', color: tee.gender === 'male' ? '#0047AB' : '#DB2777', background: tee.gender === 'male' ? '#EBF2FF' : '#FCE7F3', borderRadius: '4px', padding: '1px 4px', flexShrink: 0 }}>{tee.gender === 'male' ? '남' : '여'}</span>
+                                  <span style={{ fontSize: '12px', fontWeight: '700', color: '#1A1D26', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{tee.tee_name}</span>
+                                  <span style={{ fontSize: '11px', color: tee.gender === 'male' ? '#14284B' : '#DB2777', background: tee.gender === 'male' ? '#EEF1F6' : '#FCE7F3', borderRadius: '4px', padding: '1px 4px', flexShrink: 0 }}>{tee.gender === 'male' ? '남' : '여'}</span>
                                 </div>
-                                <div style={{ fontSize: '11px', color: '#64748B', textAlign: 'right', flexShrink: 0, marginLeft: '8px' }}>
+                                <div style={{ fontSize: '11px', color: '#5E6473', textAlign: 'right', flexShrink: 0, marginLeft: '8px' }}>
                                   {tee.total_meters ? `${tee.total_meters}m` : ''}{tee.par_total ? ` · Par ${tee.par_total}` : ''}
-                                  {(tee.course_rating || tee.slope_rating) && <span style={{ display: 'block', fontSize: '11px', color: '#94A3B8' }}>CR {tee.course_rating} / SL {tee.slope_rating}</span>}
+                                  {(tee.course_rating || tee.slope_rating) && <span style={{ display: 'block', fontSize: '11px', color: '#9A9DA6' }}>CR {tee.course_rating} / SL {tee.slope_rating}</span>}
                                 </div>
                               </div>
                             ))}
@@ -5064,7 +5064,7 @@ function Admin() {
                         {/* ─── SI 없을 때: bluegolf 열기 + 직접 입력 ─── */}
                         {courseSheetMode === 'edit' && !editCourseData.holeIndexes && !siInputMode && (
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                            <div style={{ fontSize: '11px', color: '#94A3B8', textAlign: 'center' }}>
+                            <div style={{ fontSize: '11px', color: '#9A9DA6', textAlign: 'center' }}>
                               bluegolf에서 SI 확인 후 직접 입력하세요
                             </div>
                             <div style={{ display: 'flex', gap: '8px' }}>
@@ -5086,7 +5086,7 @@ function Admin() {
                                 setSiInputValues(Array(18).fill(''));
                                 setSiInputMode(true);
                               }}
-                              style={{ flex: 1, padding: '12px', borderRadius: '10px', background: '#EBF2FF', color: '#0047AB', border: '1px solid #BFDBFE', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
+                              style={{ flex: 1, padding: '12px', borderRadius: '10px', background: '#EEF1F6', color: '#14284B', border: '1px solid #D3DBE8', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
                                 SI 직접 입력
                               </button>
                             </div>
@@ -5095,16 +5095,16 @@ function Admin() {
 
                         {/* ─── SI 직접 입력 UI ─── */}
                         {siInputMode && (
-                          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #BFDBFE', padding: '16px' }}>
-                            <div style={{ fontSize: '12px', fontWeight: '700', color: '#0047AB', marginBottom: '12px' }}>SI 직접 입력 (1~18, 중복 없이)</div>
+                          <div style={{ background: '#FFFFFF', borderRadius: '14px', border: '1px solid #D3DBE8', padding: '16px' }}>
+                            <div style={{ fontSize: '12px', fontWeight: '700', color: '#14284B', marginBottom: '12px' }}>SI 직접 입력 (1~18, 중복 없이)</div>
                             {[0, 9].map(offset => (
                               <div key={offset} style={{ marginBottom: offset === 0 ? '10px' : 0 }}>
                                 <div style={{ display: 'grid', gridTemplateColumns: '28px repeat(9, 1fr)', gap: '3px', minWidth: '280px' }}>
-                                  <div style={{ display: 'flex', alignItems: 'center', fontSize: '11px', color: '#94A3B8', fontWeight: '700' }}>홀</div>
+                                  <div style={{ display: 'flex', alignItems: 'center', fontSize: '11px', color: '#9A9DA6', fontWeight: '700' }}>홀</div>
                                   {Array.from({ length: 9 }, (_, i) => (
-                                    <div key={i} style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#94A3B8', padding: '3px 1px' }}>{offset + i + 1}</div>
+                                    <div key={i} style={{ textAlign: 'center', fontSize: '11px', fontWeight: '700', color: '#9A9DA6', padding: '3px 1px' }}>{offset + i + 1}</div>
                                   ))}
-                                  <div style={{ display: 'flex', alignItems: 'center', fontSize: '11px', color: '#0047AB', fontWeight: '700' }}>SI</div>
+                                  <div style={{ display: 'flex', alignItems: 'center', fontSize: '11px', color: '#14284B', fontWeight: '700' }}>SI</div>
                                   {Array.from({ length: 9 }, (_, i) => {
                                     const idx = offset + i;
                                     return (
@@ -5115,7 +5115,7 @@ function Admin() {
                                           next[idx] = e.target.value;
                                           setSiInputValues(next);
                                         }}
-                                        style={{ textAlign: 'center', fontSize: '13px', fontWeight: '700', color: '#0047AB', padding: '6px 2px', borderRadius: '6px', border: '1.5px solid #BFDBFE', background: '#EBF2FF', outline: 'none', width: '100%', boxSizing: 'border-box' }} />
+                                        style={{ textAlign: 'center', fontSize: '13px', fontWeight: '700', color: '#14284B', padding: '6px 2px', borderRadius: '6px', border: '1.5px solid #D3DBE8', background: '#EEF1F6', outline: 'none', width: '100%', boxSizing: 'border-box' }} />
                                     );
                                   })}
                                 </div>
@@ -5123,7 +5123,7 @@ function Admin() {
                             ))}
                             <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
                               <button onClick={() => setSiInputMode(false)}
-                                style={{ flex: 1, padding: '10px', borderRadius: '8px', background: '#F1F5F9', color: '#64748B', border: 'none', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
+                                style={{ flex: 1, padding: '10px', borderRadius: '8px', background: '#EFEDE7', color: '#5E6473', border: 'none', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
                                 취소
                               </button>
                               <button onClick={() => {
@@ -5136,7 +5136,7 @@ function Admin() {
                                 setEditCourseData(prev => ({ ...prev, holeIndexes: { male: vals } }));
                                 setSiInputMode(false);
                               }}
-                              style={{ flex: 2, padding: '10px', borderRadius: '8px', background: '#0047AB', color: '#fff', border: 'none', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>
+                              style={{ flex: 2, padding: '10px', borderRadius: '8px', background: '#14284B', color: '#fff', border: 'none', fontWeight: '700', fontSize: '13px', cursor: 'pointer' }}>
                                 적용
                               </button>
                             </div>
@@ -5149,7 +5149,7 @@ function Admin() {
                             setSiInputValues((editCourseData.holeIndexes?.male || Array(18).fill('')).map(String));
                             setSiInputMode(true);
                           }}
-                          style={{ width: '100%', padding: '10px', borderRadius: '10px', background: '#F8FAFC', color: '#94A3B8', border: '1px dashed #E2E8F0', fontWeight: '600', fontSize: '12px', cursor: 'pointer' }}>
+                          style={{ width: '100%', padding: '10px', borderRadius: '10px', background: '#F7F5F0', color: '#9A9DA6', border: '1px dashed #E6E2D8', fontWeight: '600', fontSize: '12px', cursor: 'pointer' }}>
                             SI 수정
                           </button>
                         )}
@@ -5172,7 +5172,7 @@ function Admin() {
 
                     {/* ADD 모드: 검색 전 안내 */}
                     {courseSheetMode === 'add' && courseSearchState === 'idle' && (
-                      <div style={{ textAlign: 'center', padding: '24px', color: '#94A3B8', fontSize: '13px' }}>
+                      <div style={{ textAlign: 'center', padding: '24px', color: '#9A9DA6', fontSize: '13px' }}>
                         골프장 이름을 입력하고 AI 검색을 누르면<br/>이름, 주소, 홀 정보가 자동으로 채워집니다.
                       </div>
                     )}
@@ -5713,7 +5713,7 @@ function Admin() {
         {activeTab === 'scoreManagement' && (
           <div>
             {(scoreManagementView === 'rounds' || scoreManagementView === 'memberScores' || scoreManagementView === 'allScores') && (
-              <div style={{ margin: '12px 16px 16px', background: 'linear-gradient(135deg, #0047AB 0%, #1a56db 100%)', borderRadius: '16px', padding: '36px 24px', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ margin: '12px 16px 16px', background: 'linear-gradient(135deg, #14284B 0%, #1a56db 100%)', borderRadius: '16px', padding: '36px 24px', position: 'relative', overflow: 'hidden' }}>
                 {/* 스코어카드 배경 패턴 */}
                 <svg style={{ position: 'absolute', right: -12, top: '50%', transform: 'translateY(-50%)', opacity: 0.15, pointerEvents: 'none' }} width="160" height="130" viewBox="0 0 160 130" fill="none" xmlns="http://www.w3.org/2000/svg">
                   {/* 스코어카드 본체 */}
@@ -7126,7 +7126,7 @@ function Admin() {
                   const getScoreColor = (score, par) => {
                     if (!score || score === 0) return 'transparent';
                     const diff = score - par;
-                    if (diff <= -3) return '#133464'; // Ace/Albatross
+                    if (diff <= -3) return '#0D1A33'; // Ace/Albatross
                     if (diff === -2) return '#60B0DF'; // Eagle
                     if (diff === -1) return '#a7d6e5'; // Birdie
                     if (diff === 0) return 'transparent'; // Par (white)
@@ -7309,7 +7309,7 @@ function Admin() {
                           display: 'flex', 
                           alignItems: 'center', 
                           padding: '6px 10px',
-                          background: '#133464',
+                          background: '#0D1A33',
                           borderRadius: '4px'
                         }}>
                           <span style={{ color: 'white', fontSize: '11px', fontWeight: '600' }}>Ace/Albatross</span>
@@ -7338,7 +7338,7 @@ function Admin() {
                           padding: '6px 10px',
                           background: '#f5f5f5',
                           borderRadius: '4px',
-                          border: '1px solid #e2e8f0'
+                          border: '1px solid #E6E2D8'
                         }}>
                           <span style={{ color: '#333', fontSize: '11px', fontWeight: '600' }}>Par</span>
                         </div>
@@ -7442,7 +7442,7 @@ function Admin() {
                         alignItems: 'center', 
                         gap: '8px',
                         padding: '10px 12px',
-                        border: editScoreData?.inputMode === 'total' ? '2px solid var(--primary-green)' : '1px solid #e2e8f0',
+                        border: editScoreData?.inputMode === 'total' ? '2px solid var(--primary-green)' : '1px solid #E6E2D8',
                         borderRadius: '8px',
                         cursor: editScoreHolesOnly ? 'not-allowed' : 'pointer',
                         background: editScoreData?.inputMode === 'total' ? 'var(--bg-green)' : 'white',
@@ -7468,7 +7468,7 @@ function Admin() {
                         alignItems: 'center', 
                         gap: '8px',
                         padding: '10px 12px',
-                        border: editScoreData?.inputMode === 'holes' ? '2px solid var(--primary-green)' : '1px solid #e2e8f0',
+                        border: editScoreData?.inputMode === 'holes' ? '2px solid var(--primary-green)' : '1px solid #E6E2D8',
                         borderRadius: '8px',
                         cursor: 'pointer',
                         background: editScoreData?.inputMode === 'holes' ? 'var(--bg-green)' : 'white'
@@ -7515,7 +7515,7 @@ function Admin() {
                       style={{
                         width: '100%',
                         padding: '12px',
-                        border: '1px solid #e2e8f0',
+                        border: '1px solid #E6E2D8',
                         borderRadius: '8px',
                         fontSize: '16px',
                         background: editScoreData?.inputMode === 'holes' ? '#f5f5f5' : 'white',
@@ -7555,7 +7555,7 @@ function Admin() {
                             style={{
                               width: '100%',
                               padding: '8px 4px',
-                              border: '1px solid #e2e8f0',
+                              border: '1px solid #E6E2D8',
                               borderRadius: '4px',
                               fontSize: '14px',
                               textAlign: 'center',
@@ -7575,7 +7575,7 @@ function Admin() {
                       style={{
                         flex: 1,
                         padding: '12px',
-                        border: '1px solid #e2e8f0',
+                        border: '1px solid #E6E2D8',
                         borderRadius: '8px',
                         background: 'white',
                         fontSize: '16px',
@@ -7771,7 +7771,7 @@ function Admin() {
               <h3 style={{ fontSize: '18px', fontWeight: '700', marginBottom: '4px' }}>
                 4인 조편성 규칙 적용
               </h3>
-              <div style={{ fontSize: '13px', color: 'var(--text-muted, #64748B)', marginBottom: '16px', lineHeight: 1.5 }}>
+              <div style={{ fontSize: '13px', color: 'var(--text-muted, #5E6473)', marginBottom: '16px', lineHeight: 1.5 }}>
                 활성화된 라운딩 유형에서 4명 이상일 경우 조편성을 완료해야 플레이를 시작할 수 있습니다
               </div>
               {[
@@ -7914,16 +7914,16 @@ function Admin() {
               <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '10px' }}>입금항목 관리</h3>
               {/* 기존 항목 목록 */}
               {incomeCategories.length === 0 ? (
-                <div style={{ padding: '8px 0', color: '#94A3B8', fontSize: '13px', marginBottom: '10px' }}>등록된 입금항목이 없습니다</div>
+                <div style={{ padding: '8px 0', color: '#9A9DA6', fontSize: '13px', marginBottom: '10px' }}>등록된 입금항목이 없습니다</div>
               ) : (
                 <div style={{ marginBottom: '10px' }}>
                   {incomeCategories.map((category, i) => (
                     <div key={category.id} style={{
                       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                       padding: '7px 0',
-                      borderBottom: i < incomeCategories.length - 1 ? '1px solid #F1F5F9' : 'none',
+                      borderBottom: i < incomeCategories.length - 1 ? '1px solid #EFEDE7' : 'none',
                     }}>
-                      <span style={{ fontSize: '14px', color: '#1e293b' }}>{category.name}</span>
+                      <span style={{ fontSize: '14px', color: '#1A1D26' }}>{category.name}</span>
                       <button onClick={() => handleDeleteIncomeCategory(category.id)}
                         style={{ padding: '3px 10px', background: 'none', color: '#DC2626', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>삭제</button>
                     </div>
@@ -7932,8 +7932,8 @@ function Admin() {
               )}
               {/* 새 항목 추가 */}
               <div style={{ display: 'flex', gap: '8px' }}>
-                <input type="text" value={newIncomeCategoryName} onChange={(e) => setNewIncomeCategoryName(e.target.value)} placeholder="새 입금항목명 입력..." style={{ flex: 1, padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px' }} />
-                <button onClick={handleAddIncomeCategory} style={{ padding: '10px 16px', background: '#0047AB', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
+                <input type="text" value={newIncomeCategoryName} onChange={(e) => setNewIncomeCategoryName(e.target.value)} placeholder="새 입금항목명 입력..." style={{ flex: 1, padding: '10px 12px', border: '1px solid #E6E2D8', borderRadius: '8px', fontSize: '14px' }} />
+                <button onClick={handleAddIncomeCategory} style={{ padding: '10px 16px', background: '#14284B', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
               </div>
             </div>
 
@@ -7941,16 +7941,16 @@ function Admin() {
               <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '10px' }}>출금항목 관리</h3>
               {/* 기존 항목 목록 */}
               {expenseCategories.length === 0 ? (
-                <div style={{ padding: '8px 0', color: '#94A3B8', fontSize: '13px', marginBottom: '10px' }}>등록된 출금항목이 없습니다</div>
+                <div style={{ padding: '8px 0', color: '#9A9DA6', fontSize: '13px', marginBottom: '10px' }}>등록된 출금항목이 없습니다</div>
               ) : (
                 <div style={{ marginBottom: '10px' }}>
                   {expenseCategories.map((category, i) => (
                     <div key={category.id} style={{
                       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                       padding: '7px 0',
-                      borderBottom: i < expenseCategories.length - 1 ? '1px solid #F1F5F9' : 'none',
+                      borderBottom: i < expenseCategories.length - 1 ? '1px solid #EFEDE7' : 'none',
                     }}>
-                      <span style={{ fontSize: '14px', color: '#1e293b' }}>{category.name}</span>
+                      <span style={{ fontSize: '14px', color: '#1A1D26' }}>{category.name}</span>
                       <button onClick={() => handleDeleteExpenseCategory(category.id)}
                         style={{ padding: '3px 10px', background: 'none', color: '#DC2626', border: 'none', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>삭제</button>
                     </div>
@@ -7959,8 +7959,8 @@ function Admin() {
               )}
               {/* 새 항목 추가 */}
               <div style={{ display: 'flex', gap: '8px' }}>
-                <input type="text" value={newExpenseCategoryName} onChange={(e) => setNewExpenseCategoryName(e.target.value)} placeholder="새 출금항목명 입력..." style={{ flex: 1, padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px' }} />
-                <button onClick={handleAddExpenseCategory} style={{ padding: '10px 16px', background: '#0047AB', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
+                <input type="text" value={newExpenseCategoryName} onChange={(e) => setNewExpenseCategoryName(e.target.value)} placeholder="새 출금항목명 입력..." style={{ flex: 1, padding: '10px 12px', border: '1px solid #E6E2D8', borderRadius: '8px', fontSize: '14px' }} />
+                <button onClick={handleAddExpenseCategory} style={{ padding: '10px 16px', background: '#14284B', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
               </div>
             </div>
 
@@ -8173,8 +8173,8 @@ function Admin() {
               <div style={{ padding: '10px 12px', background: 'var(--bg-green)', borderRadius: '6px', marginBottom: '12px', fontSize: '12px', color: 'var(--text-dark)', opacity: 0.7 }}>
                 • 아래 링크를 복사해서 공유하면 누구나 회원가입 신청을 할 수 있습니다
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: '#F8FAFC', borderRadius: 8, border: '1px solid #E2E8F0', marginBottom: 12 }}>
-                <span style={{ flex: 1, fontSize: 13, color: '#475569', wordBreak: 'break-all' }}>{window.location.origin}/join</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: '#F7F5F0', borderRadius: 8, border: '1px solid #E6E2D8', marginBottom: 12 }}>
+                <span style={{ flex: 1, fontSize: 13, color: '#4B5060', wordBreak: 'break-all' }}>{window.location.origin}/join</span>
               </div>
               <button
                 onClick={() => {
@@ -8634,8 +8634,8 @@ function Admin() {
                               padding: '2px 8px',
                               borderRadius: '10px',
                               fontSize: '11px',
-                              background: getDeviceType(log.userAgent) === 'Mobile' ? '#dbeafe' : '#f3e8ff',
-                              color: getDeviceType(log.userAgent) === 'Mobile' ? '#1d4ed8' : '#7c3aed'
+                              background: getDeviceType(log.userAgent) === 'Mobile' ? '#D3DBE8' : '#f3e8ff',
+                              color: getDeviceType(log.userAgent) === 'Mobile' ? '#24406E' : '#7c3aed'
                             }}>
                               {getDeviceType(log.userAgent)}
                             </span>
@@ -8667,7 +8667,7 @@ function Admin() {
                   }}
                   style={{
                     width: 48, height: 28, borderRadius: 14,
-                    background: showLedger ? '#0047AB' : '#ccc',
+                    background: showLedger ? '#14284B' : '#ccc',
                     position: 'relative', cursor: 'pointer', flexShrink: 0,
                     transition: 'background 0.2s',
                   }}
@@ -8792,7 +8792,7 @@ function Admin() {
                     width: '100%',
                     padding: '12px',
                     fontSize: '14px',
-                    border: '2px solid #e2e8f0',
+                    border: '2px solid #E6E2D8',
                     borderRadius: '6px',
                     boxSizing: 'border-box'
                   }}
@@ -8817,7 +8817,7 @@ function Admin() {
                     width: '100%',
                     padding: '12px',
                     fontSize: '14px',
-                    border: '2px solid #e2e8f0',
+                    border: '2px solid #E6E2D8',
                     borderRadius: '6px',
                     boxSizing: 'border-box'
                   }}
@@ -8864,7 +8864,7 @@ function Admin() {
                     width: '100%',
                     padding: '12px',
                     fontSize: '14px',
-                    border: '2px solid #e2e8f0',
+                    border: '2px solid #E6E2D8',
                     borderRadius: '6px',
                     boxSizing: 'border-box'
                   }}

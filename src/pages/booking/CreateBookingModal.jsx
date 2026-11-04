@@ -4,14 +4,14 @@ import apiService from '../../services/api';
 import NearHolePicker from '../../components/booking/NearHolePicker';
 
 const labelStyle = {
-  fontSize: '12px', fontWeight: '700', color: '#64748B',
+  fontSize: '12px', fontWeight: '700', color: '#5E6473',
   display: 'block', marginBottom: '8px',
 };
 
 const inputStyle = {
   width: '100%', padding: '13px 14px', borderRadius: '10px',
-  border: '1px solid #E8ECF0', fontSize: '15px', outline: 'none',
-  boxSizing: 'border-box', background: '#FAFBFC', color: '#0f172a',
+  border: '1px solid #E6E2D8', fontSize: '15px', outline: 'none',
+  boxSizing: 'border-box', background: '#FAFBFC', color: '#1A1D26',
 };
 
 // iOS에서 type="date"/"time" 인풋이 얇아지는 문제 방지
@@ -25,7 +25,7 @@ const dateInputStyle = {
 
 const sectionStyle = {
   background: '#FFFFFF', borderRadius: '14px',
-  border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+  border: '1px solid #E6E2D8', boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
   padding: '16px', marginBottom: '12px',
 };
 
@@ -51,9 +51,9 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
     { key: 'Exact', label: '직접입력' },
   ];
 
-  const sStyle = { background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '12px' };
-  const lStyle = { fontSize: '12px', fontWeight: '700', color: '#64748B', display: 'block', marginBottom: '8px', letterSpacing: '0.03em', textTransform: 'uppercase' };
-  const iStyle = { width: '100%', padding: '13px 14px', borderRadius: '10px', border: '1px solid #E8ECF0', fontSize: '15px', outline: 'none', boxSizing: 'border-box', background: '#FAFBFC', color: '#0f172a' };
+  const sStyle = { background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E6E2D8', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '12px' };
+  const lStyle = { fontSize: '12px', fontWeight: '700', color: '#5E6473', display: 'block', marginBottom: '8px', letterSpacing: '0.03em', textTransform: 'uppercase' };
+  const iStyle = { width: '100%', padding: '13px 14px', borderRadius: '10px', border: '1px solid #E6E2D8', fontSize: '15px', outline: 'none', boxSizing: 'border-box', background: '#FAFBFC', color: '#1A1D26' };
 
   // 기존 골프장 필터
   const filteredCourses = courseQuery.trim()
@@ -213,8 +213,8 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
                 disabled={!courseQuery.trim() || aiState === 'searching'}
                 style={{
                   padding: '0 16px', borderRadius: '10px', border: 'none', flexShrink: 0,
-                  background: (!courseQuery.trim() || aiState === 'searching') ? '#E2E8F0' : '#065F46',
-                  color: (!courseQuery.trim() || aiState === 'searching') ? '#94A3B8' : '#fff',
+                  background: (!courseQuery.trim() || aiState === 'searching') ? '#E6E2D8' : '#065F46',
+                  color: (!courseQuery.trim() || aiState === 'searching') ? '#9A9DA6' : '#fff',
                   fontWeight: '700', fontSize: '13px', cursor: (!courseQuery.trim() || aiState === 'searching') ? 'not-allowed' : 'pointer',
                   whiteSpace: 'nowrap',
                 }}
@@ -232,8 +232,8 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
 
             {/* 기존 골프장 드롭다운 */}
             {courseDropOpen && filteredCourses.length > 0 && (
-              <div style={{ border: '1px solid #E8ECF0', borderRadius: '10px', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', background: '#fff', marginTop: '6px', overflow: 'hidden', maxHeight: '180px', overflowY: 'auto' }}>
-                <div style={{ padding: '8px 14px', fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.04em', background: '#F8FAFC', borderBottom: '1px solid #F1F5F9' }}>
+              <div style={{ border: '1px solid #E6E2D8', borderRadius: '10px', boxShadow: '0 4px 16px rgba(0,0,0,0.1)', background: '#fff', marginTop: '6px', overflow: 'hidden', maxHeight: '180px', overflowY: 'auto' }}>
+                <div style={{ padding: '8px 14px', fontSize: '11px', fontWeight: '700', color: '#9A9DA6', letterSpacing: '0.04em', background: '#F7F5F0', borderBottom: '1px solid #EFEDE7' }}>
                   등록된 골프장
                 </div>
                 {filteredCourses.map(c => (
@@ -241,8 +241,8 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
                     onMouseDown={e => { e.preventDefault(); selectCourse(c.name); }}
                     onTouchStart={e => { e.stopPropagation(); }}
                     onTouchEnd={e => { e.preventDefault(); e.stopPropagation(); selectCourse(c.name); }}
-                    style={{ padding: '14px', cursor: 'pointer', fontSize: '14px', color: '#1E293B', borderBottom: '1px solid #F8FAFC', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0047AB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    style={{ padding: '14px', cursor: 'pointer', fontSize: '14px', color: '#1A1D26', borderBottom: '1px solid #F7F5F0', fontWeight: '500', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#14284B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
                     </svg>
                     {c.name}
@@ -255,11 +255,11 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
             {aiState === 'found' && aiResult && (
               <div style={{ border: '1px solid #A7F3D0', borderRadius: '12px', padding: '14px 16px', marginTop: '10px', background: '#F0FDF4' }}>
                 <div style={{ fontSize: '11px', fontWeight: '700', color: '#065F46', letterSpacing: '0.06em', marginBottom: '6px' }}>AI 검색 결과</div>
-                <div style={{ fontSize: '16px', fontWeight: '800', color: '#1E293B', marginBottom: '3px' }}>{aiResult.name}</div>
+                <div style={{ fontSize: '16px', fontWeight: '800', color: '#1A1D26', marginBottom: '3px' }}>{aiResult.name}</div>
                 {aiResult.address && (
-                  <div style={{ fontSize: '12px', color: '#64748B', marginBottom: '6px' }}>{aiResult.address}</div>
+                  <div style={{ fontSize: '12px', color: '#5E6473', marginBottom: '6px' }}>{aiResult.address}</div>
                 )}
-                <div style={{ fontSize: '12px', color: '#64748B', marginBottom: '12px' }}>
+                <div style={{ fontSize: '12px', color: '#5E6473', marginBottom: '12px' }}>
                   파 {aiResult.totalPar ?? (aiResult.holePars?.male || []).reduce((a, b) => a + b, 0)}
                   {aiResult.totalMeters ? ` · ${aiResult.totalMeters.toLocaleString()}m` : ''}
                   {aiResult.country ? ` · ${aiResult.country}` : ''}
@@ -286,7 +286,7 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
 
             {/* 힌트 */}
             {aiState === 'idle' && !courseQuery && (
-              <div style={{ marginTop: '8px', fontSize: '12px', color: '#94A3B8', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <div style={{ marginTop: '8px', fontSize: '12px', color: '#9A9DA6', display: 'flex', alignItems: 'center', gap: '5px' }}>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
                 </svg>
@@ -307,7 +307,7 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
           {timeSlots.map(({ key, label }) => (
             <button key={key} onClick={() => onChange({ ...casualForm, timeSlot: key, time: '' })}
-              style={{ padding: '9px 16px', borderRadius: '10px', border: casualForm.timeSlot === key ? '2px solid #065F46' : '1px solid #E8ECF0', background: casualForm.timeSlot === key ? '#D1FAE5' : 'white', color: casualForm.timeSlot === key ? '#065F46' : '#64748B', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
+              style={{ padding: '9px 16px', borderRadius: '10px', border: casualForm.timeSlot === key ? '2px solid #065F46' : '1px solid #E6E2D8', background: casualForm.timeSlot === key ? '#D1FAE5' : 'white', color: casualForm.timeSlot === key ? '#065F46' : '#5E6473', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
               {label}
             </button>
           ))}
@@ -338,15 +338,15 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
                 style={iStyle}
               />
               {showMemberDrop && filteredMembers.length > 0 && (
-                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: '1px solid #E8ECF0', borderRadius: '10px', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', zIndex: 50, maxHeight: '160px', overflowY: 'auto' }}>
+                <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#fff', border: '1px solid #E6E2D8', borderRadius: '10px', boxShadow: '0 4px 16px rgba(0,0,0,0.12)', zIndex: 50, maxHeight: '160px', overflowY: 'auto' }}>
                   {filteredMembers.map(m => (
                     <div key={m.phone}
                       onMouseDown={e => { e.preventDefault(); addMember(m); }}
                       onTouchStart={e => e.stopPropagation()}
                       onTouchEnd={e => { e.preventDefault(); e.stopPropagation(); addMember(m); }}
-                      style={{ padding: '14px', cursor: 'pointer', fontSize: '14px', color: '#1E293B', borderBottom: '1px solid #F1F5F9', fontWeight: '500' }}>
+                      style={{ padding: '14px', cursor: 'pointer', fontSize: '14px', color: '#1A1D26', borderBottom: '1px solid #EFEDE7', fontWeight: '500' }}>
                       {m.nickname || m.name}
-                      <span style={{ fontSize: '12px', color: '#94A3B8', marginLeft: '6px' }}>HC {m.handicap || '-'}</span>
+                      <span style={{ fontSize: '12px', color: '#9A9DA6', marginLeft: '6px' }}>HC {m.handicap || '-'}</span>
                     </div>
                   ))}
                 </div>
@@ -374,19 +374,19 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
             const name = p.type === 'member' ? (p.data.nickname || p.data.name) : p.data.name;
             const hc = p.type === 'member' ? (p.data.handicap || '-') : p.data.handicap;
             return (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', background: isOrganizer ? '#EFF6FF' : '#F8FAFC', borderRadius: '8px', border: `1px solid ${isOrganizer ? '#BFDBFE' : '#E8ECF0'}` }}>
+              <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '9px 12px', background: isOrganizer ? '#EEF1F6' : '#F7F5F0', borderRadius: '8px', border: `1px solid ${isOrganizer ? '#D3DBE8' : '#E6E2D8'}` }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: '700', color: isOrganizer ? '#1D4ED8' : (p.type === 'guest' ? '#065F46' : '#0047AB'), background: isOrganizer ? '#DBEAFE' : (p.type === 'guest' ? '#D1FAE5' : '#DBEAFE'), padding: '2px 7px', borderRadius: '6px' }}>
+                  <span style={{ fontSize: '11px', fontWeight: '700', color: isOrganizer ? '#24406E' : (p.type === 'guest' ? '#065F46' : '#14284B'), background: isOrganizer ? '#D3DBE8' : (p.type === 'guest' ? '#D1FAE5' : '#D3DBE8'), padding: '2px 7px', borderRadius: '6px' }}>
                     {isOrganizer ? '나' : (p.type === 'guest' ? '게스트' : '회원')}
                   </span>
-                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1E293B' }}>{name}</span>
-                  <span style={{ fontSize: '12px', color: '#94A3B8' }}>HC {hc}</span>
+                  <span style={{ fontSize: '14px', fontWeight: '600', color: '#1A1D26' }}>{name}</span>
+                  <span style={{ fontSize: '12px', color: '#9A9DA6' }}>HC {hc}</span>
                 </div>
                 {isOrganizer ? (
-                  <span style={{ fontSize: '11px', color: '#93C5FD' }}>주최자</span>
+                  <span style={{ fontSize: '11px', color: '#9AA9C2' }}>주최자</span>
                 ) : (
                   <button onClick={() => removeParticipant(i)}
-                    style={{ background: 'none', border: 'none', color: '#CBD5E1', fontSize: '16px', cursor: 'pointer', padding: '0 4px', lineHeight: 1 }}>
+                    style={{ background: 'none', border: 'none', color: '#D5D2CA', fontSize: '16px', cursor: 'pointer', padding: '0 4px', lineHeight: 1 }}>
                     ✕
                   </button>
                 )}
@@ -395,13 +395,13 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
           })}
           {/* 빈 슬롯 표시 */}
           {Array.from({ length: Math.max(0, 4 - casualForm.participants.length) }).map((_, i) => (
-            <div key={`empty-${i}`} style={{ display: 'flex', alignItems: 'center', padding: '9px 12px', background: '#F8FAFC', borderRadius: '8px', border: '1px dashed #E2E8F0' }}>
-              <span style={{ fontSize: '13px', color: '#CBD5E1' }}>빈 자리</span>
+            <div key={`empty-${i}`} style={{ display: 'flex', alignItems: 'center', padding: '9px 12px', background: '#F7F5F0', borderRadius: '8px', border: '1px dashed #E6E2D8' }}>
+              <span style={{ fontSize: '13px', color: '#D5D2CA' }}>빈 자리</span>
             </div>
           ))}
         </div>
         {casualForm.participants.length < 4 && (
-          <div style={{ fontSize: '12px', color: '#94A3B8', textAlign: 'right', marginTop: '6px' }}>
+          <div style={{ fontSize: '12px', color: '#9A9DA6', textAlign: 'right', marginTop: '6px' }}>
             {4 - casualForm.participants.length}자리 남음
           </div>
         )}
@@ -441,32 +441,32 @@ export default function CreateBookingModal({
     return (
       <>
         <div onClick={onCloseTypeSelector} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 999, backdropFilter: 'blur(3px)' }} />
-        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#F8FAFC', borderRadius: '24px 24px 0 0', zIndex: 1000, boxShadow: '0 -4px 24px rgba(0,0,0,0.12)', animation: 'slideUp 0.25s ease-out' }}>
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#F7F5F0', borderRadius: '24px 24px 0 0', zIndex: 1000, boxShadow: '0 -4px 24px rgba(0,0,0,0.12)', animation: 'slideUp 0.25s ease-out' }}>
           {/* 핸들 */}
-          <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '4px', margin: '14px auto 0' }} />
+          <div style={{ width: '40px', height: '4px', background: '#D5D2CA', borderRadius: '4px', margin: '14px auto 0' }} />
 
           {/* 헤더 */}
           <div style={{ padding: '20px 24px 16px' }}>
-            <div style={{ fontSize: '22px', fontWeight: '800', color: '#1E293B', letterSpacing: '-0.02em' }}>새로운 라운딩 만들기</div>
+            <div style={{ fontSize: '22px', fontWeight: '800', color: '#1A1D26', letterSpacing: '-0.02em' }}>새로운 라운딩 만들기</div>
           </div>
 
           <div style={{ padding: '0 20px', paddingBottom: 'max(100px, calc(90px + env(safe-area-inset-bottom)))' }}>
             {/* 정기 라운딩 */}
             <div
               onClick={() => onSelectType('official')}
-              style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '18px', borderRadius: '16px', background: '#FFFFFF', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', cursor: 'pointer', marginBottom: '10px' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '18px', borderRadius: '16px', background: '#FFFFFF', border: '1px solid #E6E2D8', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', cursor: 'pointer', marginBottom: '10px' }}
             >
-              <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: '#D3DBE8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5z" fill="#1E3A6E"/>
-                  <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65z" stroke="#1E3A6E" strokeWidth="1.5" fill="none"/>
+                  <path d="M12 15.5A3.5 3.5 0 0 1 8.5 12 3.5 3.5 0 0 1 12 8.5a3.5 3.5 0 0 1 3.5 3.5 3.5 3.5 0 0 1-3.5 3.5z" fill="#0D1A33"/>
+                  <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65z" stroke="#0D1A33" strokeWidth="1.5" fill="none"/>
                 </svg>
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '16px', fontWeight: '700', color: '#1E293B', marginBottom: '3px' }}>정기 라운딩 개설</div>
-                <div style={{ fontSize: '13px', color: '#94A3B8', lineHeight: '1.45' }}>관리자 전용 · 비용·마감일은 만든 뒤 관리 화면에서</div>
+                <div style={{ fontSize: '16px', fontWeight: '700', color: '#1A1D26', marginBottom: '3px' }}>정기 라운딩 개설</div>
+                <div style={{ fontSize: '13px', color: '#9A9DA6', lineHeight: '1.45' }}>관리자 전용 · 비용·마감일은 만든 뒤 관리 화면에서</div>
               </div>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D5D2CA" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="9 18 15 12 9 6"/>
               </svg>
             </div>
@@ -474,20 +474,20 @@ export default function CreateBookingModal({
             {/* 클럽컴/소셜 라운딩 */}
             <div
               onClick={() => onSelectType('social')}
-              style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '18px', borderRadius: '16px', background: '#FFFFFF', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', cursor: 'pointer', marginBottom: '10px' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '18px', borderRadius: '16px', background: '#FFFFFF', border: '1px solid #E6E2D8', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', cursor: 'pointer', marginBottom: '10px' }}
             >
-              <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: '#D3DBE8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <line x1="7" y1="4" x2="7" y2="20" stroke="#1E3A6E" strokeWidth="2" strokeLinecap="round"/>
-                  <path d="M7 4l10 4-10 4" fill="#1E3A6E" stroke="#1E3A6E" strokeWidth="1.5" strokeLinejoin="round"/>
-                  <circle cx="10" cy="20" r="1.5" fill="#1E3A6E"/>
+                  <line x1="7" y1="4" x2="7" y2="20" stroke="#0D1A33" strokeWidth="2" strokeLinecap="round"/>
+                  <path d="M7 4l10 4-10 4" fill="#0D1A33" stroke="#0D1A33" strokeWidth="1.5" strokeLinejoin="round"/>
+                  <circle cx="10" cy="20" r="1.5" fill="#0D1A33"/>
                 </svg>
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '16px', fontWeight: '700', color: '#1E293B', marginBottom: '3px' }}>클럽컴/소셜 라운딩 개설</div>
-                <div style={{ fontSize: '13px', color: '#94A3B8', lineHeight: '1.45' }}>누구나 쉽고 빠르게 · 골프장과 시간만 선택</div>
+                <div style={{ fontSize: '16px', fontWeight: '700', color: '#1A1D26', marginBottom: '3px' }}>클럽컴/소셜 라운딩 개설</div>
+                <div style={{ fontSize: '13px', color: '#9A9DA6', lineHeight: '1.45' }}>누구나 쉽고 빠르게 · 골프장과 시간만 선택</div>
               </div>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D5D2CA" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="9 18 15 12 9 6"/>
               </svg>
             </div>
@@ -495,7 +495,7 @@ export default function CreateBookingModal({
             {/* 캐주얼 라운딩 */}
             <div
               onClick={() => onSelectType('casual')}
-              style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '18px', borderRadius: '16px', background: '#FFFFFF', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', cursor: 'pointer', marginBottom: '16px' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '16px', padding: '18px', borderRadius: '16px', background: '#FFFFFF', border: '1px solid #E6E2D8', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', cursor: 'pointer', marginBottom: '16px' }}
             >
               <div style={{ width: '52px', height: '52px', borderRadius: '14px', background: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <svg width="26" height="26" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -508,15 +508,15 @@ export default function CreateBookingModal({
                 </svg>
               </div>
               <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '16px', fontWeight: '700', color: '#1E293B', marginBottom: '3px' }}>캐주얼 라운딩</div>
-                <div style={{ fontSize: '13px', color: '#94A3B8', lineHeight: '1.45' }}>외부인 초대 가능 · 초대링크 자동 생성</div>
+                <div style={{ fontSize: '16px', fontWeight: '700', color: '#1A1D26', marginBottom: '3px' }}>캐주얼 라운딩</div>
+                <div style={{ fontSize: '13px', color: '#9A9DA6', lineHeight: '1.45' }}>외부인 초대 가능 · 초대링크 자동 생성</div>
               </div>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#D5D2CA" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="9 18 15 12 9 6"/>
               </svg>
             </div>
 
-            <button onClick={onCloseTypeSelector} style={{ width: '100%', padding: '14px', background: 'transparent', border: 'none', color: '#94A3B8', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
+            <button onClick={onCloseTypeSelector} style={{ width: '100%', padding: '14px', background: 'transparent', border: 'none', color: '#9A9DA6', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}>
               닫기
             </button>
           </div>
@@ -535,15 +535,15 @@ export default function CreateBookingModal({
     return (
       <>
         <div onClick={onCloseCreate} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 1099, backdropFilter: 'blur(3px)' }} />
-        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#F8FAFC', borderRadius: '24px 24px 0 0', zIndex: 1100, maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: 'slideUp 0.25s ease-out', overflow: 'hidden' }}>
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#F7F5F0', borderRadius: '24px 24px 0 0', zIndex: 1100, maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: 'slideUp 0.25s ease-out', overflow: 'hidden' }}>
           {/* 핸들 */}
           <div style={{ textAlign: 'center', padding: '14px 0 0', flexShrink: 0 }}>
-            <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '4px', margin: '0 auto' }} />
+            <div style={{ width: '40px', height: '4px', background: '#D5D2CA', borderRadius: '4px', margin: '0 auto' }} />
           </div>
 
           {/* 모달 헤더 */}
-          <div style={{ padding: '16px 24px 12px', flexShrink: 0, borderBottom: '1px solid #F1F5F9' }}>
-            <div style={{ fontSize: '20px', fontWeight: '800', color: '#1E293B', letterSpacing: '-0.02em' }}>
+          <div style={{ padding: '16px 24px 12px', flexShrink: 0, borderBottom: '1px solid #EFEDE7' }}>
+            <div style={{ fontSize: '20px', fontWeight: '800', color: '#1A1D26', letterSpacing: '-0.02em' }}>
               {isOfficial ? '정기 라운딩 만들기' : isCasual ? '캐주얼 라운딩 만들기' : '라운딩 만들기'}
             </div>
           </div>
@@ -565,7 +565,7 @@ export default function CreateBookingModal({
                     </select>
                   </div>
                   {officialCourse && (
-                    <div style={{ marginBottom: '14px', paddingBottom: '14px', borderBottom: '1px solid #F1F5F9' }}>
+                    <div style={{ marginBottom: '14px', paddingBottom: '14px', borderBottom: '1px solid #EFEDE7' }}>
                       <NearHolePicker course={officialCourse} value={officialForm.nearHoles} canEdit={canEditNearHoles}
                         onChange={(v) => onChangeOfficialForm({ ...officialForm, nearHoles: v })} />
                     </div>
@@ -582,7 +582,7 @@ export default function CreateBookingModal({
                   </div>
                 </div>
 
-                <p style={{ margin: '4px 4px 0', fontSize: '13px', color: '#94A3B8', lineHeight: 1.6 }}>
+                <p style={{ margin: '4px 4px 0', fontSize: '13px', color: '#9A9DA6', lineHeight: 1.6 }}>
                   비용, 접수 마감일, 최대 인원(기본 28명), 메모는 만든 뒤 바로 열리는 관리 화면에서 정합니다.
                 </p>
               </>
@@ -606,7 +606,7 @@ export default function CreateBookingModal({
                   </div>
 
                   {socialCourse && (
-                    <div style={{ marginBottom: '14px', paddingBottom: '14px', borderBottom: '1px solid #F1F5F9' }}>
+                    <div style={{ marginBottom: '14px', paddingBottom: '14px', borderBottom: '1px solid #EFEDE7' }}>
                       <NearHolePicker course={socialCourse} value={newRounding.nearHoles} canEdit={canEditNearHoles}
                         onChange={(v) => onChangeNewRounding({ ...newRounding, nearHoles: v })} />
                     </div>
@@ -615,14 +615,14 @@ export default function CreateBookingModal({
                   {newRounding.courseName && (
                     <div>
                       <label style={labelStyle}>라운딩 타입</label>
-                      <div style={{ display: 'flex', borderRadius: '10px', overflow: 'hidden', border: '1px solid #E8ECF0' }}>
+                      <div style={{ display: 'flex', borderRadius: '10px', overflow: 'hidden', border: '1px solid #E6E2D8' }}>
                         {[
                           { key: 'competition', label: '컴페티션' },
                           { key: 'greenfee', label: '그린피' },
                           { key: 'social', label: '소셜' },
                         ].map(opt => (
                           <button key={opt.key} onClick={() => onChangeNewRounding({ ...newRounding, roundingType: opt.key })}
-                            style={{ flex: 1, padding: '11px 0', border: 'none', background: newRounding.roundingType === opt.key ? '#0047AB' : '#FFFFFF', color: newRounding.roundingType === opt.key ? '#FFFFFF' : '#64748B', fontWeight: '600', fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                            style={{ flex: 1, padding: '11px 0', border: 'none', background: newRounding.roundingType === opt.key ? '#14284B' : '#FFFFFF', color: newRounding.roundingType === opt.key ? '#FFFFFF' : '#5E6473', fontWeight: '600', fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s' }}>
                             {opt.label}
                           </button>
                         ))}
@@ -642,7 +642,7 @@ export default function CreateBookingModal({
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                         {Object.entries(timeSlotMap).map(([key, { label }]) => (
                           <button key={key} onClick={() => onChangeNewRounding({ ...newRounding, timeSlot: key, time: '' })}
-                            style={{ padding: '9px 16px', borderRadius: '10px', border: newRounding.timeSlot === key ? '2px solid #0047AB' : '1px solid #E8ECF0', background: newRounding.timeSlot === key ? '#EBF2FF' : 'white', color: newRounding.timeSlot === key ? '#0047AB' : '#64748B', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
+                            style={{ padding: '9px 16px', borderRadius: '10px', border: newRounding.timeSlot === key ? '2px solid #14284B' : '1px solid #E6E2D8', background: newRounding.timeSlot === key ? '#EEF1F6' : 'white', color: newRounding.timeSlot === key ? '#14284B' : '#5E6473', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
                             {label}
                           </button>
                         ))}
@@ -664,7 +664,7 @@ export default function CreateBookingModal({
                       <div style={{ display: 'flex', gap: '8px' }}>
                         {[4, 8, 12, 16, 20, 24].map(n => (
                           <button key={n} onClick={() => onChangeNewRounding({ ...newRounding, maxMembers: n })}
-                            style={{ flex: 1, padding: '10px 0', borderRadius: '10px', border: newRounding.maxMembers === n ? '2px solid #0047AB' : '1px solid #E8ECF0', background: newRounding.maxMembers === n ? '#EBF2FF' : 'white', color: newRounding.maxMembers === n ? '#0047AB' : '#64748B', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>
+                            style={{ flex: 1, padding: '10px 0', borderRadius: '10px', border: newRounding.maxMembers === n ? '2px solid #14284B' : '1px solid #E6E2D8', background: newRounding.maxMembers === n ? '#EEF1F6' : 'white', color: newRounding.maxMembers === n ? '#14284B' : '#5E6473', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>
                             {n}명
                           </button>
                         ))}
@@ -677,16 +677,16 @@ export default function CreateBookingModal({
           </div>
 
           {/* 하단 버튼 */}
-          <div style={{ padding: '14px 20px', paddingBottom: 'max(20px, env(safe-area-inset-bottom))', flexShrink: 0, borderTop: '1px solid #F1F5F9', background: '#F8FAFC' }}>
+          <div style={{ padding: '14px 20px', paddingBottom: 'max(20px, env(safe-area-inset-bottom))', flexShrink: 0, borderTop: '1px solid #EFEDE7', background: '#F7F5F0' }}>
             <button
               onClick={isOfficial ? onCreateOfficial : isCasual ? onCreateCasual : onCreateRounding}
               disabled={isCreating}
               style={{
                 width: '100%', padding: '16px', borderRadius: '14px', border: 'none',
-                background: isOfficial ? '#92400E' : isCasual ? '#065F46' : '#0047AB',
+                background: isOfficial ? '#92400E' : isCasual ? '#065F46' : '#14284B',
                 color: 'white', fontSize: '16px', fontWeight: '700',
                 cursor: isCreating ? 'not-allowed' : 'pointer', opacity: isCreating ? 0.6 : 1,
-                boxShadow: isOfficial ? '0 4px 12px rgba(146,64,14,0.3)' : isCasual ? '0 4px 12px rgba(6,95,70,0.3)' : '0 4px 12px rgba(0,71,171,0.3)',
+                boxShadow: isOfficial ? '0 4px 12px rgba(146,64,14,0.3)' : isCasual ? '0 4px 12px rgba(6,95,70,0.3)' : '0 4px 12px rgba(20,40,75,0.3)',
               }}
             >
               {isCreating ? '생성중...' : isOfficial ? '정기 라운딩 만들기' : isCasual ? '캐주얼 라운딩 만들기' : '라운딩 만들기'}
