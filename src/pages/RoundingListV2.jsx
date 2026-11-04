@@ -5,7 +5,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import PageHeader from '../components/common/PageHeader';
 import { parseParticipants, checkIsOperator } from '../utils';
 import {
-  isBookingActive, formatDate, getMonday, getWeekLabel, getTileTypeBadge,
+  isBookingActive, formatDate, getMonday, getWeekLabel, getTileTypeBadge, getBookingStatusFlags,
 } from './booking/bookingHelpers';
 import WeeklyTimeline from './booking/WeeklyTimeline';
 import BookingBottomSheet from './booking/BookingBottomSheet';
@@ -60,7 +60,11 @@ function RoundingListV2() {
     const idParam = searchParams.get('id');
     if (idParam && bookings.length > 0) {
       const found = bookings.find(b => b.id === idParam);
-      if (found) { setSelectedBooking(found); setSearchParams({}, { replace: true }); }
+      if (found) {
+        if (getBookingStatusFlags(found).isPastRoundingDate) { setViewMode('past'); setGalleryBooking(found); }
+        else setSelectedBooking(found);
+        setSearchParams({}, { replace: true });
+      }
     }
   }, [searchParams, bookings]);
 
@@ -72,16 +76,6 @@ function RoundingListV2() {
     sessionStorage.removeItem('reopenGalleryBooking');
     const found = bookings.find(b => b.id === id);
     if (found) { setViewMode('past'); setGalleryBooking(found); }
-  }, [bookings]);
-
-  // 지난 라운딩 상세 → 스코어·시상 → 뒤로가기 시 상세 시트 복원
-  useEffect(() => {
-    if (bookings.length === 0) return;
-    const id = sessionStorage.getItem('reopenBookingSheet');
-    if (!id) return;
-    sessionStorage.removeItem('reopenBookingSheet');
-    const found = bookings.find(b => b.id === id);
-    if (found) { setViewMode('past'); setSelectedBooking(found); }
   }, [bookings]);
 
   useEffect(() => {
@@ -526,7 +520,7 @@ function RoundingListV2() {
               const summary = names.length <= 4 ? names.join(', ') : `${names.slice(0, 4).join(', ')} 외 ${names.length - 4}명`;
               const d = new Date(b.date);
               return (
-                <div key={b.id} onClick={() => setSelectedBooking(b)} style={{ background: '#fff', borderRadius: 12, padding: '14px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <div key={b.id} onClick={() => setGalleryBooking(b)} style={{ background: '#fff', borderRadius: 12, padding: '14px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontWeight: 700, fontSize: 15, color: '#1A1D26' }}>{b.title || '정기라운딩'}</div>
                     <div style={{ fontSize: 13, color: '#9A9DA6', marginTop: 3 }}>{d.getFullYear()}. {d.getMonth() + 1}. {d.getDate()} · {b.courseName}</div>
@@ -567,6 +561,8 @@ function RoundingListV2() {
           booking={galleryBooking}
           user={user}
           onClose={() => { setGalleryBooking(null); refreshBookings(); }}
+          onOpenManage={(b) => { sessionStorage.setItem('reopenGalleryBooking', b.id); setGalleryBooking(null); openHostManage(b); }}
+          rememberReturn
         />
       )}
 

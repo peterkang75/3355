@@ -115,8 +115,8 @@ export default function BookingBottomSheet({
   // 큰 버튼은 하나만
   let primary = null;
   if (isOver) {
-    // 스코어에서 뒤로 오면 이 상세를 다시 연다 (RoundingListV2가 읽음)
-    primary = <button onClick={(e) => { sessionStorage.setItem('reopenBookingSheet', booking.id); go(`/leaderboard?id=${booking.id}`)(e); }} style={bigBtn(true)}>스코어·시상 보기</button>;
+    // 끝난 라운딩은 기록 화면(결과·사진·스코어)으로 모은다
+    primary = <button onClick={(e) => { e.stopPropagation(); onOpenGallery ? onOpenGallery(booking) : navigate(`/leaderboard?id=${booking.id}`); }} style={bigBtn(true)}>라운딩 기록 보기</button>;
   } else if (canJoin) {
     primary = (
       <button onClick={joinLeave} disabled={isJoining || joinBlocked || isRenting}

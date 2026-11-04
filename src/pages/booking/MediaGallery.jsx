@@ -4,6 +4,7 @@ import apiService from '../../services/api';
 import { useApp } from '../../contexts/AppContext';
 import { compressImageFile } from '../../utils/compressImage';
 import { parseParticipants } from '../../utils';
+import { getManagePermissions } from './bookingHelpers';
 import { computeRoundingRanking, deriveWinners, deriveFoursomeWinners } from '../../utils/roundingRanking';
 
 const fmtDur = (sec) => {
@@ -20,7 +21,9 @@ const fmtDate = (dateStr) => {
   return `${d.getFullYear()}.${d.getMonth() + 1}.${d.getDate()} (${days[d.getDay()]})`;
 };
 
-export default function MediaGallery({ booking, user, onClose }) {
+// 라운딩 기록 화면 — 결과·참가자·사진을 한 곳에. 지난 라운딩 카드와 피드에서 연다.
+// rememberReturn: 다른 화면에 갔다가 뒤로 오면 라운딩 목록이 이 화면을 다시 연다 (목록에서 열었을 때만)
+export default function MediaGallery({ booking, user, onClose, onOpenManage, rememberReturn = false }) {
   const [items, setItems] = useState([]);
   const [archivedAt, setArchivedAt] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -37,16 +40,27 @@ export default function MediaGallery({ booking, user, onClose }) {
   const [winners, setWinners] = useState(null);
   const participants = parseParticipants(booking.participants);
   const timeStr = booking.time && booking.time !== '23:59' ? String(booking.time).slice(0, 5) : '';
-  const feeChips = [
-    booking.greenFee ? `그린피 $${booking.greenFee}` : null,
-    booking.cartFee ? `카트비 $${booking.cartFee}` : null,
-    booking.membershipFee ? `회비 $${booking.membershipFee}` : null,
-  ].filter(Boolean);
   const labelStyle = { fontSize: '11px', fontWeight: '700', color: '#9A9DA6', letterSpacing: '0.06em' };
-  const openLeaderboard = () => {
-    // 스코어 화면에서 뒤로가기 시 이 갤러리로 복귀하도록 표시
-    try { sessionStorage.setItem('reopenGalleryBooking', booking.id); } catch { /* noop */ }
-    navigate(`/leaderboard?id=${booking.id}`);
+  const goTo = (path) => {
+    if (rememberReturn) { try { sessionStorage.setItem('reopenGalleryBooking', booking.id); } catch { /* noop */ } }
+    navigate(path);
+  };
+  const [ntpRecords, setNtpRecords] = useState([]);
+  const isCompetition = booking.type === '컴페티션';
+  const isOver = new Date(booking.date) < new Date(new Date().setHours(0, 0, 0, 0));
+  const hasTeams = (() => {
+    try {
+      const t = typeof booking.teams === 'string' ? JSON.parse(booking.teams) : booking.teams;
+      return Array.isArray(t) && t.some((x) => x?.members?.some(Boolean));
+    } catch { return false; }
+  })();
+  const canManage = !!onOpenManage && getManagePermissions(booking, user).canManage;
+  const share = async () => {
+    const url = `${window.location.origin}/booking?id=${booking.id}`;
+    try {
+      if (navigator.share) await navigator.share({ title: booking.title || booking.courseName, url });
+      else { await navigator.clipboard.writeText(url); alert('링크를 복사했습니다'); }
+    } catch { /* 공유 취소 */ }
   };
 
   const load = useCallback(async () => {
@@ -87,9 +101,15 @@ export default function MediaGallery({ booking, user, onClose }) {
     apiService.fetchRoundingScores(booking.title, booking.date)
       .then((scores) => {
         if (cancelled) return;
-        const { processedScores, newPeria, isMixed, foursomePairs } =
+        const { processedScores, newPeria, isMixed, foursomePairs, rankByGross } =
           computeRoundingRanking(scores, { booking, members, courses });
+        // 내 기록 — 우승자와 같은 명단(스코어 있음·신페리오 완주)에서 줄 순서 = 등수 (리더보드와 동일)
+        const played = processedScores.filter((s) => s.totalScore > 0 && !s.netPending);
+        const myIdx = played.findIndex((s) => s.phone === user.phone || s.odId === user.phone || s.odId === user.id);
+        const me = myIdx >= 0 ? played[myIdx] : null;
         setWinners({
+          played: played.length,
+          myRecord: me && { rank: myIdx + 1, label: rankByGross ? '타수' : 'NET', score: rankByGross ? me.totalScore : me.netScore },
           ...deriveWinners(processedScores, { isNewPeria: newPeria.isConfigured }),
           isMixed,
           // 조별 지정 라운딩은 개인 시상과 별개로 포썸 우승·준우승 페어를 함께 낸다
@@ -98,7 +118,17 @@ export default function MediaGallery({ booking, user, onClose }) {
       })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [booking, members, courses]);
+  }, [booking, members, courses, user.phone, user.id]);
+
+  // 니어 — 리더보드와 같은 기록, 홀마다 가장 가까운 사람
+  useEffect(() => {
+    let cancelled = false;
+    fetch(`/api/ntp/${booking.id}`)
+      .then((r) => (r.ok ? r.json() : []))
+      .then((rows) => { if (!cancelled && Array.isArray(rows)) setNtpRecords(rows); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [booking.id]);
 
   const handlePick = () => fileRef.current && fileRef.current.click();
 
@@ -192,100 +222,121 @@ export default function MediaGallery({ booking, user, onClose }) {
     <div style={overlay}>
       <style>{`@keyframes mgIndeterminate { 0% { transform: translateX(-120%); } 100% { transform: translateX(320%); } } @keyframes mgSpin { to { transform: rotate(360deg); } } @keyframes mgSlideInRight { from { transform: translateX(160px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } @keyframes mgSlideInLeft { from { transform: translateX(-160px); opacity: 0; } to { transform: translateX(0); opacity: 1; } } .mg-strip::-webkit-scrollbar { display: none; }`}</style>
       {/* 헤더 */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: 'max(14px, env(safe-area-inset-top)) 16px 12px', borderBottom: '1px solid #EFEDE7', flexShrink: 0 }}>
-        <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#1A1D26', display: 'flex' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', padding: 'max(14px, env(safe-area-inset-top)) 12px 10px', borderBottom: '1px solid #EFEDE7', flexShrink: 0 }}>
+        <button onClick={onClose} aria-label="뒤로" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '4px', color: '#1A1D26', display: 'flex' }}>
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: '16px', fontWeight: '800', color: '#1A1D26', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            {booking.title || booking.courseName}
-          </div>
-          <div style={{ fontSize: '12px', color: '#9A9DA6' }}>
-            라운딩 상세
-          </div>
-        </div>
-        {!archivedAt && (
-          <button onClick={handlePick} disabled={uploading} style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#14284B', color: '#fff', border: 'none', borderRadius: '10px', padding: '9px 14px', fontSize: '14px', fontWeight: '700', cursor: 'pointer', opacity: uploading ? 0.6 : 1, flexShrink: 0 }}>
-            <span style={{ fontSize: '16px', lineHeight: 1 }}>＋</span> 올리기
-          </button>
+        <div style={{ flex: 1, fontSize: '16px', fontWeight: '700', color: '#1A1D26' }}>{isOver ? '지난 라운딩' : '라운딩 기록'}</div>
+        {canManage && (
+          <button onClick={() => onOpenManage(booking)} style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', fontSize: '14px', fontWeight: '600', color: '#5E6473' }}>관리</button>
         )}
+        <button onClick={share} aria-label="공유" style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '8px', color: '#5E6473', display: 'flex' }}>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 12v7a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-7"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+        </button>
         <input ref={fileRef} type="file" accept="image/*,video/*" multiple onChange={handleFiles} style={{ display: 'none' }} />
       </div>
 
       {/* 본문 */}
-      <div style={{ flex: 1, overflowY: 'auto', padding: '14px 16px 40px' }}>
-        {/* 라운딩 정보 · 참가자 · 시상 — 정돈된 카드 */}
-        <div style={{ background: '#fff', border: '1px solid #EFEDE7', borderRadius: '14px', padding: '14px 16px', marginBottom: '14px' }}>
-          <div style={{ fontSize: '18px', fontWeight: '700', color: '#1A1D26', letterSpacing: '-0.01em' }}>
-            {fmtDate(booking.date)}{timeStr ? ` · ${timeStr}` : ''}
-          </div>
-          <div style={{ fontSize: '13px', fontWeight: '500', color: '#5E6473', marginTop: '2px' }}>{booking.courseName}</div>
-          {booking.restaurantName && (
-            <div style={{ fontSize: '13px', fontWeight: '500', color: '#9A9DA6', marginTop: '2px' }}>회식 · {booking.restaurantName}</div>
-          )}
-          {feeChips.length > 0 && (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '10px' }}>
-              {feeChips.map((f) => (
-                <span key={f} style={{ fontSize: '12px', fontWeight: '600', color: '#4B5060', background: '#EFEDE7', borderRadius: '9999px', padding: '4px 10px' }}>{f}</span>
-              ))}
-            </div>
-          )}
+      <div style={{ flex: 1, overflowY: 'auto', padding: '18px 16px 24px', background: '#F7F5F0' }}>
+        {/* 제목 */}
+        {booking.type === '정기모임' && (
+          <div style={{ fontSize: '12px', fontWeight: '700', color: '#9C7A45', marginBottom: '4px' }}>정기라운딩</div>
+        )}
+        <div style={{ fontSize: '22px', fontWeight: '800', color: '#1A1D26', letterSpacing: '-0.02em', lineHeight: 1.3 }}>
+          {booking.title || booking.courseName}
+        </div>
+        <div style={{ fontSize: '13px', color: '#5E6473', marginTop: '6px', lineHeight: 1.5 }}>
+          {fmtDate(booking.date)}{timeStr ? ` ${timeStr}` : ''} · {booking.courseName}{participants.length ? ` · ${participants.length}명` : ''}
+          {booking.restaurantName && <><br />회식 · {booking.restaurantName}</>}
+        </div>
 
-          {participants.length > 0 && (
-            <div style={{ borderTop: '1px solid #EFEDE7', marginTop: '12px', paddingTop: '10px' }}>
-              <div style={labelStyle}>참가자 {participants.length}</div>
-              <div style={{ fontSize: '14px', fontWeight: '500', color: '#4B5060', lineHeight: 1.55, marginTop: '5px' }}>
-                {participants.map((p) => p.nickname || p.name).join(', ')}
-              </div>
-            </div>
-          )}
-
-          {(winners?.overall || winners?.foursomeWinners?.length > 0) && (() => {
-            // 신페리오는 그레이드 없이 전체 1·2·3등으로 시상한다
-            const individualRows = !winners.overall
-              ? []
-              : winners.podium.length
-                ? winners.podium.map((p) => ({ label: `${p.rank}등`, name: p.winner.nickname }))
-                : [
-                    { label: '전체', name: winners.overall.nickname },
-                    ...winners.gradeWinners.map((g) => ({ label: `${g.grade}그레이드`, name: g.winner.nickname })),
-                  ];
-            // 조별 지정 라운딩은 개인 시상과 포썸 시상을 함께 보여준다
-            const rows = winners.isMixed
-              ? [
-                  ...individualRows.map((r) => ({ ...r, label: `신페리오 ${r.label}` })),
-                  ...winners.foursomeWinners.map((w) => ({
-                    label: `포썸 ${w.rank}위`,
-                    name: `${w.pair.memberNames} (${w.pair.teamNumber}조 ${w.pair.pairLabel}팀)`,
-                  })),
-                ]
-              : individualRows;
-            if (rows.length === 0) return null;
-            return (
-              <div style={{ borderTop: '1px solid #EFEDE7', marginTop: '12px', paddingTop: '10px' }}>
-                <div style={{ ...labelStyle, color: '#B45309' }}>시상</div>
-                <div style={{ marginTop: '7px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  {rows.map((row, i) => (
-                    <div key={row.label} style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                      <span style={{ width: winners.isMixed ? '86px' : '62px', flexShrink: 0, fontSize: '12px', fontWeight: '600', color: '#9A9DA6' }}>{row.label}</span>
-                      <span style={{ fontSize: '14px', fontWeight: '700', color: '#1A1D26' }}>{row.name}</span>
-                      {i === rows.length - 1 && (
-                        <span onClick={openLeaderboard} style={{ marginLeft: 'auto', fontSize: '13px', fontWeight: '600', color: '#5E6473', cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                          스코어 / 결과 보기 ›
-                        </span>
-                      )}
+        {/* 결과 */}
+        {winners && (() => {
+          // 신페리오는 그레이드 없이 전체 1·2·3등으로 시상한다
+          const individualRows = !winners.overall
+            ? []
+            : winners.podium.length
+              ? winners.podium.map((p) => ({ label: `${p.rank}등`, name: p.winner.nickname }))
+              : [
+                  { label: '우승', name: winners.overall.nickname },
+                  ...winners.gradeWinners.map((g) => ({ label: `${g.grade}그레이드`, name: g.winner.nickname })),
+                ];
+          // 조별 지정 라운딩은 개인 시상과 포썸 시상을 함께 보여준다
+          const rows = winners.isMixed
+            ? [
+                ...individualRows.map((r) => ({ ...r, label: `신페리오 ${r.label}` })),
+                ...winners.foursomeWinners.map((w) => ({
+                  label: `포썸 ${w.rank}위`,
+                  name: `${w.pair.memberNames} (${w.pair.teamNumber}조 ${w.pair.pairLabel}팀)`,
+                })),
+              ]
+            : individualRows;
+          // 니어: 홀마다 가장 가까운 사람
+          const nearByHole = {};
+          for (const r of ntpRecords) {
+            if (!nearByHole[r.holeNumber] || r.distance < nearByHole[r.holeNumber].distance) nearByHole[r.holeNumber] = r;
+          }
+          const nearRows = Object.keys(nearByHole).map(Number).sort((x, y) => x - y)
+            .map((h) => ({ label: `니어 ${h}번`, name: nearByHole[h].memberName }));
+          const all = [...rows, ...nearRows];
+          const labelW = winners.isMixed ? '86px' : '72px';
+          return (
+            <div style={{ background: '#fff', borderRadius: '14px', padding: '16px', marginTop: '18px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
+              <div style={labelStyle}>결과</div>
+              {all.length === 0 ? (
+                <div style={{ fontSize: '14px', color: '#9A9DA6', marginTop: '8px' }}>스코어가 아직 입력되지 않았습니다</div>
+              ) : (
+                <div style={{ marginTop: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  {all.map((row) => (
+                    <div key={row.label} style={{ display: 'flex', alignItems: 'baseline', gap: '12px' }}>
+                      <span style={{ width: labelW, flexShrink: 0, fontSize: '13px', color: '#9A9DA6' }}>{row.label}</span>
+                      <span style={{ fontSize: '15px', fontWeight: '700', color: '#1A1D26' }}>{row.name}</span>
                     </div>
                   ))}
                 </div>
+              )}
+              {winners.myRecord && (
+                <div style={{ borderTop: '1px solid #EFEDE7', marginTop: '14px', paddingTop: '12px', display: 'flex', alignItems: 'baseline', gap: '12px' }}>
+                  <span style={{ width: labelW, flexShrink: 0, fontSize: '13px', color: '#9A9DA6' }}>내 기록</span>
+                  <span style={{ fontSize: '15px', fontWeight: '700', color: '#14284B' }}>
+                    {winners.played}명 중 {winners.myRecord.rank}위
+                    <span style={{ fontWeight: '500', color: '#5E6473' }}> · {winners.myRecord.label} {winners.myRecord.score}</span>
+                  </span>
+                </div>
+              )}
+            </div>
+          );
+        })()}
+
+        {/* 참가자 */}
+        {participants.length > 0 && (
+          <div style={{ marginTop: '22px' }}>
+            <div style={labelStyle}>참가자 {participants.length}</div>
+            <div style={{ fontSize: '14px', color: '#4B5060', lineHeight: 1.6, marginTop: '6px' }}>
+              {participants.map((p) => p.nickname || p.name).join(', ')}
+            </div>
+            {(hasTeams || (isOver && !isCompetition)) && (
+              <div style={{ display: 'flex', gap: '16px', marginTop: '8px' }}>
+                {hasTeams && (
+                  <span onClick={() => goTo(`/team-formation?id=${booking.id}`)} style={{ fontSize: '13px', fontWeight: '600', color: '#5E6473', cursor: 'pointer', padding: '6px 0' }}>조편성 보기 ›</span>
+                )}
+                {isOver && !isCompetition && (
+                  <span onClick={() => goTo(`/play?id=${booking.id}`)} style={{ fontSize: '13px', fontWeight: '600', color: '#5E6473', cursor: 'pointer', padding: '6px 0' }}>스코어 입력 ›</span>
+                )}
               </div>
-            );
-          })()}
-        </div>
+            )}
+          </div>
+        )}
 
         {/* 사진·영상 섹션 */}
-        <div style={{ fontSize: '14px', fontWeight: '800', color: '#1A1D26', marginBottom: '10px' }}>
-          사진·영상 {readyItems.length > 0 ? readyItems.length : ''}
-          {processingCount > 0 && <span style={{ color: '#14284B', fontWeight: '600' }}> · 처리 중 {processingCount}</span>}
+        <div style={{ display: 'flex', alignItems: 'center', marginTop: '22px', marginBottom: '8px' }}>
+          <div style={{ ...labelStyle, flex: 1 }}>
+            사진·영상 {readyItems.length > 0 ? readyItems.length : ''}
+            {processingCount > 0 && <span style={{ color: '#14284B' }}> · 처리 중 {processingCount}</span>}
+          </div>
+          {!archivedAt && (
+            <span onClick={uploading ? undefined : handlePick} style={{ fontSize: '13px', fontWeight: '600', color: '#14284B', cursor: 'pointer', padding: '6px 0', opacity: uploading ? 0.5 : 1 }}>＋ 올리기</span>
+          )}
         </div>
 
         {uploading && (
@@ -314,9 +365,9 @@ export default function MediaGallery({ booking, user, onClose }) {
             <div style={{ fontSize: '12px', color: '#9A9DA6' }}>({fmtDate(archivedAt)} 정리)</div>
           </div>
         ) : items.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '70px 24px', color: '#9A9DA6' }}>
+          <div style={{ textAlign: 'center', padding: '36px 24px', color: '#9A9DA6' }}>
             <div style={{ fontSize: '14px' }}>아직 사진·영상이 없습니다</div>
-            <div style={{ fontSize: '12px', marginTop: '4px' }}>위 ＋올리기 로 추가하세요</div>
+            <div style={{ fontSize: '12px', marginTop: '4px' }}>＋ 올리기로 추가하세요</div>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px' }}>
@@ -358,6 +409,13 @@ export default function MediaGallery({ booking, user, onClose }) {
             })}
           </div>
         )}
+      </div>
+
+      {/* 하단 버튼 — 하나만 */}
+      <div style={{ padding: '10px 16px max(12px, env(safe-area-inset-bottom))', borderTop: '1px solid #EFEDE7', background: '#fff', flexShrink: 0 }}>
+        <button onClick={() => goTo(`/leaderboard?id=${booking.id}`)} style={{ width: '100%', minHeight: 50, border: 'none', borderRadius: '12px', background: '#14284B', color: '#fff', fontSize: '15px', fontWeight: '700', fontFamily: 'inherit', cursor: 'pointer' }}>
+          전체 스코어 보기
+        </button>
       </div>
 
       {/* 확대 보기 */}
