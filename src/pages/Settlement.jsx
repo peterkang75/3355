@@ -89,7 +89,7 @@ function MonthDateField({ label, value, onChange, yearMonth, inputStyle, labelSt
       <input type="date" value={value} min={min} max={max} onChange={e => onChange(e.target.value)}
         style={inputStyle || { width: '100%', padding: '12px 14px', borderRadius: 12, border: '1.5px solid #e2e8f0', fontSize: 14, color: 'var(--on-background)', background: '#f8fafc', outline: 'none', boxSizing: 'border-box', WebkitAppearance: 'none', display: 'block', minHeight: '48px', lineHeight: '1.5' }} />
       {value && !isInMonth(value, yearMonth) && (
-        <div style={{ fontSize: 11, color: '#dc2626', marginTop: 5, fontWeight: 600 }}>⚠ {fmtMonth(yearMonth)} 안의 날짜만 기록할 수 있습니다</div>
+        <div style={{ fontSize: 11, color: '#dc2626', marginTop: 5, fontWeight: 600 }}>{fmtMonth(yearMonth)} 안의 날짜만 기록할 수 있습니다</div>
       )}
     </>
   );
@@ -1734,7 +1734,6 @@ function Settlement() {
         {isOperator && pendingReceipts.length > 0 && (
           <div style={{ background: '#fff', borderRadius: 16, padding: '14px 16px', marginBottom: 14, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', border: '1.5px solid #fbbf24' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
-              <span style={{ fontSize: 14 }}>🧾</span>
               <span style={{ fontSize: 14, fontWeight: 800, color: '#92400e' }}>납부 영수증 확인 대기</span>
               <span style={{ background: '#fbbf24', color: '#fff', borderRadius: 20, fontSize: 11, fontWeight: 800, padding: '2px 8px', marginLeft: 4 }}>{pendingReceipts.length}건</span>
             </div>
@@ -1924,7 +1923,7 @@ function Settlement() {
                             <button
                               onClick={() => setReceiptViewer(m.receiptImages)}
                               style={{ padding: '5px 10px', borderRadius: 10, border: '1.5px solid #0047AB', background: '#eff6ff', color: '#0047AB', fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 3 }}
-                            >🧾 영수증 보기</button>
+                            >영수증 보기</button>
                           )}
                           <span style={{ fontSize: 14, fontWeight: 700, color: '#ea580c' }}>{formatCurrency(Math.abs(m.balance))}</span>
                           {isOperator && !data?.isClosed && (
@@ -1965,7 +1964,7 @@ function Settlement() {
                             <button
                               onClick={() => setReceiptViewer(m.receiptImages)}
                               style={{ padding: '5px 10px', borderRadius: 10, border: '1.5px solid #0047AB', background: '#eff6ff', color: '#0047AB', fontSize: 12, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: 3 }}
-                            >🧾 영수증 보기</button>
+                            >영수증 보기</button>
                           )}
                           <span style={{ fontSize: 14, fontWeight: 700, color: '#7c3aed' }}>{formatCurrency(Math.abs(m.balance))}</span>
                           {isOperator && !data?.isClosed && (
@@ -2048,7 +2047,6 @@ function Settlement() {
               {/* 데이터 없음 */}
               {incomeEntries.length === 0 && expenseEntries.length === 0 && (
                 <div style={{ textAlign: 'center', padding: '40px 20px', color: '#94a3b8', background: '#fff', borderRadius: 20, boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
-                  <div style={{ fontSize: 36, marginBottom: 10 }}>📊</div>
                   <div style={{ fontSize: 14, fontWeight: 600 }}>이번달 거래 내역이 없습니다</div>
                 </div>
               )}
@@ -2075,7 +2073,7 @@ function Settlement() {
                         onClick={() => setShowReport(true)}
                         style={{ width: '100%', padding: '14px', borderRadius: 16, border: 'none', background: '#0047AB', color: '#fff', fontSize: 15, fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 14px rgba(0,71,171,0.25)' }}
                       >
-                        📋 정산서 보기
+                        정산서 보기
                       </button>
                       <button
                         onClick={async () => {

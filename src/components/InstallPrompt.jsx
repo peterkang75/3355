@@ -280,7 +280,6 @@ function InstallPrompt() {
                   gap: '8px'
                 }}
               >
-                <span style={{ fontSize: '20px' }}>📲</span>
                 {deferredPrompt ? '지금 설치하기' : '설치 방법 보기'}
               </button>
               

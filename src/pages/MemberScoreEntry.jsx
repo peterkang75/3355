@@ -527,7 +527,7 @@ function MemberScoreEntry() {
               color: 'var(--primary-green)',
               textAlign: 'center'
             }}>
-              ★ 라운딩 결과
+              라운딩 결과
             </h3>
 
             {leaderboard.gradeA.length > 0 && (
@@ -773,7 +773,7 @@ function MemberScoreEntry() {
                   border: '1px solid var(--border-color)',
                   borderRadius: '6px'
                 }}>
-                  🏳️ NTP (Near The Pin)
+                  NTP (Near The Pin)
                 </div>
                 {(() => {
                   const groupedByHole = ntpRecords.reduce((acc, record) => {
@@ -816,7 +816,7 @@ function MemberScoreEntry() {
                                 {sortedRecords.map((record, index) => (
                                   <tr key={record.id} style={{ background: index % 2 === 0 ? 'var(--bg-card)' : 'var(--text-light)' }}>
                                     <td style={{ padding: '10px 8px', textAlign: 'center', borderBottom: '1px solid var(--border-color)', fontWeight: index === 0 ? '700' : '400', color: index === 0 ? '#6399CF' : 'inherit' }}>
-                                      {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : index + 1}
+                                      {index === 0 ? '1' : index === 1 ? '2' : index === 2 ? '3' : index + 1}
                                     </td>
                                     <td style={{ padding: '10px 8px', textAlign: 'left', borderBottom: '1px solid var(--border-color)', fontWeight: '600' }}>
                                       {record.memberName}

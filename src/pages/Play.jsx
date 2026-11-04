@@ -1279,7 +1279,6 @@ function Play() {
             <span style={{ fontSize: '17px', fontWeight: '700', color: '#1E293B' }}>플레이하기</span>
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px', gap: '16px' }}>
-            <div style={{ fontSize: '48px' }}>⛳</div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '17px', fontWeight: '700', color: '#1E293B', marginBottom: '8px' }}>조편을 해야합니다</div>
               <div style={{ fontSize: '14px', color: '#64748B', lineHeight: 1.6 }}>
@@ -1291,7 +1290,7 @@ function Play() {
               onClick={() => navigate(`/team-formation?id=${bookingId}`)}
               style={{ marginTop: '8px', padding: '14px 32px', borderRadius: '14px', background: '#0047AB', color: '#fff', border: 'none', fontSize: '15px', fontWeight: '700', cursor: 'pointer' }}
             >
-              📋 조편성 하러 가기
+              조편성 하러 가기
             </button>
             <button
               onClick={goBack}
@@ -1735,7 +1734,6 @@ function Play() {
               <>
                 {is2BB && (
                   <div style={{ background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: '12px', padding: '12px 14px', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    <span style={{ fontSize: '16px' }}>🤝</span>
                     <div>
                       <div style={{ fontSize: '13px', fontWeight: '700', color: '#C2410C' }}>Net 2-Ball Best Ball 모드</div>
                       <div style={{ fontSize: '12px', color: '#EA580C', marginTop: '2px' }}>
@@ -2040,7 +2038,7 @@ function Play() {
       return (
         <div style={{ minHeight: '100vh', padding: '16px', background: '#0d1a45', paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
           <div style={{ textAlign: 'center', color: 'white', marginTop: '20px', marginBottom: '32px' }}>
-            <div style={{ fontSize: '24px', fontWeight: '700', marginBottom: '8px' }}>🏌️ 라운드 종료!</div>
+            <div style={{ fontSize: '24px', fontWeight: '700', marginBottom: '8px' }}>라운드 종료!</div>
             <div style={{ fontSize: '14px', opacity: 0.8 }}>{booking?.title} - {courseData?.name}</div>
           </div>
           <div className="card" style={{ marginBottom: '24px' }}>
@@ -2080,7 +2078,7 @@ function Play() {
     return (
       <div style={{ minHeight: '100vh', padding: '16px', background: '#0d1a45', paddingTop: 'calc(env(safe-area-inset-top) + 16px)' }}>
         <div style={{ textAlign: 'center', color: 'white', marginTop: '20px', marginBottom: '32px' }}>
-          <div style={{ fontSize: '24px', fontWeight: '700', marginBottom: '8px' }}>🏌️ 라운드 종료!</div>
+          <div style={{ fontSize: '24px', fontWeight: '700', marginBottom: '8px' }}>라운드 종료!</div>
           <div style={{ fontSize: '14px', opacity: 0.8 }}>{booking?.title} - {courseData?.name}</div>
         </div>
         

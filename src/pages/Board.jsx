@@ -220,7 +220,6 @@ function Board() {
         {/* 게시글 목록 */}
         {activePosts.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted)' }}>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>📋</div>
             <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 6 }}>공지사항이 없습니다</div>
             {canCreatePost && <div style={{ fontSize: 13 }}>상단 작성 버튼으로 첫 공지를 작성하세요</div>}
           </div>

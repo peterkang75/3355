@@ -17,7 +17,6 @@ export default function FoursomeRanking({
         marginBottom: '16px',
         textAlign: 'center'
       }}>
-        <div style={{ fontSize: '20px', marginBottom: '4px' }}>🏆</div>
         <div style={{ color: 'white', fontSize: '16px', fontWeight: '700' }}>
           {title}
         </div>
@@ -97,9 +96,9 @@ export default function FoursomeRanking({
               alignItems: 'center',
               gap: '2px'
             }}>
-              {index === 0 && team.netScore != null && <span>🥇</span>}
-              {index === 1 && team.netScore != null && <span style={{ opacity: 0.8 }}>🥈</span>}
-              {index === 2 && team.netScore != null && <span style={{ opacity: 0.6 }}>🥉</span>}
+              {index === 0 && team.netScore != null && <span>1</span>}
+              {index === 1 && team.netScore != null && <span>2</span>}
+              {index === 2 && team.netScore != null && <span>3</span>}
               {(index > 2 || team.netScore == null) && <span>{index + 1}</span>}
             </div>
             <div>

@@ -1,3 +1,4 @@
+import LineIcon from '../components/common/LineIcon';
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../contexts/AppContext';
 import apiService from '../services/api';
@@ -85,9 +86,9 @@ export default function MediaStorage() {
                 <div style={{ height: '100%', width: `${pct}%`, background: over80 ? '#F59E0B' : '#0047AB', borderRadius: 9999, transition: 'width 0.3s' }} />
               </div>
               {over80 && (
-                <div style={{ fontSize: 12, color: '#B45309', fontWeight: 600, marginTop: 8 }}>⚠️ 곧 가득 찹니다. 오래된 자료를 백업·정리하세요.</div>
+                <div style={{ fontSize: 12, color: '#B45309', fontWeight: 600, marginTop: 8 }}>곧 가득 찹니다. 오래된 자료를 백업·정리하세요.</div>
               )}
-              <div style={{ fontSize: 12, color: '#94A3B8', marginTop: over80 ? 6 : 8 }}>💻 큰 용량은 PC에서 다운로드하시길 권장합니다.</div>
+              <div style={{ fontSize: 12, color: '#94A3B8', marginTop: over80 ? 6 : 8 }}>큰 용량은 PC에서 다운로드하시길 권장합니다.</div>
             </div>
 
             {/* 월별 */}
@@ -117,7 +118,7 @@ export default function MediaStorage() {
                           aria-label="삭제"
                           style={{ display: 'inline-flex', alignItems: 'center', padding: '9px 11px', borderRadius: 10, border: '1px solid #FECACA', background: '#FEF2F2', color: '#DC2626', fontSize: 14, cursor: 'pointer' }}
                         >
-                          🗑
+                          <LineIcon name="trash" size={16} />
                         </button>
                       </div>
                     </div>

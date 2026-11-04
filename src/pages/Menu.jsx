@@ -88,7 +88,7 @@ function Menu() {
       icon: <InfoIcon />,
       iconBg: '#EFF6FF',
       iconColor: '#0047AB',
-      title: 'About',
+      title: '앱 정보',
       description: '앱 정보 및 버전',
       path: '/about',
     },

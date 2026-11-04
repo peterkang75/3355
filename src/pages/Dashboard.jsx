@@ -382,7 +382,6 @@ function Dashboard() {
               cursor: 'pointer',
             }}
           >
-            <div style={{ fontSize: 28, marginBottom: 10 }}>⛳</div>
             <div style={{ fontSize: 14, color: 'var(--text-muted)', marginBottom: 8 }}>예정된 라운딩이 없습니다</div>
             <div style={{
               display: 'inline-block',

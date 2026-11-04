@@ -117,7 +117,6 @@ export default function WeeklyTimeline({ groupedByWeek, user, onSelectBooking })
   if (groupedByWeek.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94A3B8', fontSize: '14px', background: '#FFFFFF', borderRadius: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-        <div style={{ fontSize: '40px', marginBottom: '12px' }}>⛳</div>
         <div style={{ fontWeight: '500' }}>예정된 라운딩이 없습니다</div>
         <div style={{ marginTop: '6px', fontSize: '13px', color: '#CBD5E1' }}>+ 버튼을 눌러 라운딩을 만들어보세요</div>
       </div>

@@ -128,7 +128,6 @@ function GuestJoin() {
     return (
       <div style={{ minHeight: '100dvh', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>🔗</div>
           <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b', marginBottom: 8 }}>링크가 유효하지 않습니다</div>
           <div style={{ fontSize: 14, color: '#64748b' }}>{loadError}</div>
         </div>

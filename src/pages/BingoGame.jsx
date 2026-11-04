@@ -480,7 +480,7 @@ function BingoGame() {
             animation: 'pulse 0.5s ease-in-out infinite alternate'
           }}>
             <div style={{ fontSize: '32px', fontWeight: '900', color: '#fff', textShadow: '2px 2px 4px rgba(0,0,0,0.3)' }}>
-              🎉 BINGO! 🎉
+              BINGO!
             </div>
             <div style={{ fontSize: '16px', color: '#fff', marginTop: '8px' }}>
               {bingoLines.length}줄 빙고 완성!
@@ -492,7 +492,7 @@ function BingoGame() {
         {settingsChanged && !isOperator && (
           <div style={{ background: 'rgba(255,193,7,0.12)', border: '1px solid #ffc107', borderRadius: 14, padding: '14px 16px', marginBottom: 14 }}>
             <div style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: '#856404' }}>
-              ⚠️ 운영자가 빙고 설정을 변경했습니다
+              운영자가 빙고 설정을 변경했습니다
             </div>
             <div style={{ fontSize: '13px', marginBottom: '12px', color: '#856404' }}>
               새 설정: {serverGridSize}x{serverGridSize} / 목표 {serverTargetLines}줄

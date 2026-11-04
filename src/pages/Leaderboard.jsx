@@ -737,7 +737,6 @@ function Leaderboard() {
               cursor: 'pointer'
             }}
           >
-            <span style={{ fontSize: '12px' }}>🤝</span>
             <span style={{ 
               color: viewMode === '2bb' ? 'white' : '#FF9800', 
               fontWeight: '600',
@@ -792,7 +791,6 @@ function Leaderboard() {
             marginBottom: '16px',
             textAlign: 'center'
           }}>
-            <div style={{ fontSize: '20px', marginBottom: '4px' }}>🤝</div>
             <div style={{ color: 'white', fontSize: '16px', fontWeight: '700' }}>
               2BB Best Ball 팀 랭킹
             </div>
@@ -851,9 +849,9 @@ function Leaderboard() {
                 alignItems: 'center',
                 gap: '2px'
               }}>
-                {index === 0 && <span>🥇</span>}
-                {index === 1 && <span style={{ opacity: 0.8 }}>🥈</span>}
-                {index === 2 && <span style={{ opacity: 0.6 }}>🥉</span>}
+                {index === 0 && <span>1</span>}
+                {index === 1 && <span>2</span>}
+                {index === 2 && <span>3</span>}
                 {index > 2 && <span>{index + 1}</span>}
               </div>
               <div>
@@ -920,7 +918,6 @@ function Leaderboard() {
             marginBottom: '16px',
             textAlign: 'center'
           }}>
-            <div style={{ fontSize: '20px', marginBottom: '4px' }}>🏆</div>
             <div style={{ color: 'white', fontSize: '16px', fontWeight: '700' }}>
               엠브로스 팀 랭킹
             </div>
@@ -987,9 +984,9 @@ function Leaderboard() {
                   fontSize: '13px', fontWeight: '700',
                   display: 'flex', alignItems: 'center', gap: '2px'
                 }}>
-                  {index === 0 && team.score != null && <span>🥇</span>}
-                  {index === 1 && team.score != null && <span style={{ opacity: 0.8 }}>🥈</span>}
-                  {index === 2 && team.score != null && <span style={{ opacity: 0.6 }}>🥉</span>}
+                  {index === 0 && team.score != null && <span>1</span>}
+                  {index === 1 && team.score != null && <span>2</span>}
+                  {index === 2 && team.score != null && <span>3</span>}
                   {(index > 2 || team.score == null) && <span>{index + 1}</span>}
                 </div>
                 <div>
@@ -1020,7 +1017,6 @@ function Leaderboard() {
                 background: 'linear-gradient(135deg, #d97706 0%, #92400e 100%)',
                 borderRadius: '12px', padding: '16px', textAlign: 'center',
               }}>
-                <div style={{ fontSize: '20px', marginBottom: '4px' }}>🏆</div>
                 <div style={{ color: 'white', fontSize: '16px', fontWeight: '700' }}>신페리오 개인 순위</div>
                 <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '12px', marginTop: '4px' }}>
                   조별 지정 · 지정 12홀 핸디캡
@@ -1183,7 +1179,6 @@ function Leaderboard() {
               </div>
             ) : (
               filteredScores.map((score, index) => {
-                const rankIcon = index === 0 ? '🥇 ' : index === 1 ? '🥈 ' : index === 2 ? '🥉 ' : '';
                 const isTopRank = index < 3;
                 const modeColor = stablefordMode ? '#0ea5e9' : '#fb923c';
                 const gridCols = stablefordMode
@@ -1211,7 +1206,7 @@ function Leaderboard() {
                 >
                   {/* 순위 */}
                   <div style={{ color: 'white', fontSize: '13px', fontWeight: isTopRank ? '700' : '600' }}>
-                    {rankIcon}{index + 1}
+                    {index + 1}
                   </div>
 
                   {/* 대화명 */}
@@ -1313,7 +1308,6 @@ function Leaderboard() {
                 alignItems: 'center',
                 gap: '8px'
               }}>
-                <span style={{ fontSize: '16px' }}>📍</span>
                 <span style={{ color: 'white', fontWeight: '700', fontSize: '15px' }}>니어 (NTP) 결과</span>
               </div>
               {holeNumbers.map(hole => {

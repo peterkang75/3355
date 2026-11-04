@@ -428,7 +428,7 @@ function ParticipantManagement() {
             return (
               <div style={{ marginTop: '24px' }}>
                 <h3 style={{ fontSize: '16px', fontWeight: '700', color: '#FF9800', marginBottom: '12px' }}>
-                  🔢 번호대여자 ({rentalMembers.length}명)
+                  번호대여자 ({rentalMembers.length}명)
                 </h3>
                 <div style={{ display: 'grid', gap: '8px' }}>
                   {rentalMembers.map((member, index) => (
@@ -520,7 +520,7 @@ function ParticipantManagement() {
                 cursor: 'pointer'
               }}
             >
-              📋 조편성하기
+              조편성하기
             </button>
             <button
               onClick={() => navigate(`/play?id=${bookingId}`)}
@@ -536,7 +536,7 @@ function ParticipantManagement() {
                 cursor: 'pointer'
               }}
             >
-              ⛳ 플레이하기
+              플레이하기
             </button>
           </div>
         </div>

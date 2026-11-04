@@ -352,7 +352,7 @@ function Fees() {
                                 <>
                                   <button onClick={() => setViewerImage(receiptUploaded[t.id] || t.receiptImage)}
                                     style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1.5px solid #0047AB", background: "#eff6ff", color: "#0047AB", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
-                                    📎 영수증 확인
+                                    영수증 확인
                                   </button>
                                   <label style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1.5px solid #e2e8f0", background: "#f8fafc", color: "#64748b", fontSize: 12, fontWeight: 600, cursor: "pointer", textAlign: "center", display: "block" }}>
                                     다시 첨부
@@ -361,7 +361,7 @@ function Fees() {
                                 </>
                               ) : (
                                 <label style={{ flex: 1, padding: "8px 0", borderRadius: 10, border: "1.5px dashed #0047AB", background: "#eff6ff", color: "#0047AB", fontSize: 12, fontWeight: 700, cursor: "pointer", textAlign: "center", display: "block" }}>
-                                  {uploadingReceiptId === t.id ? "업로드 중…" : "📎 계좌이체 영수증 첨부"}
+                                  {uploadingReceiptId === t.id ? "업로드 중…" : "계좌이체 영수증 첨부"}
                                   <input type="file" accept="image/*" style={{ display: "none" }} onChange={e => handleReceiptUpload(t.id, e.target.files[0])} disabled={uploadingReceiptId === t.id} />
                                 </label>
                               )}
@@ -392,7 +392,6 @@ function Fees() {
               <div style={{ background: "#fff", borderRadius: 16, padding: "40px 20px", textAlign: "center", color: "#94A3B8", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>불러오는 중...</div>
             ) : settlements.length === 0 ? (
               <div style={{ background: "#fff", borderRadius: 16, padding: "48px 20px", textAlign: "center", boxShadow: "0 2px 8px rgba(0,0,0,0.07)" }}>
-                <div style={{ fontSize: 36, marginBottom: 12 }}>📋</div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: "#334155", marginBottom: 6 }}>아직 마감된 정산서가 없습니다</div>
                 <div style={{ fontSize: 13, color: "#94A3B8" }}>월 마감이 완료되면 여기에 표시됩니다</div>
               </div>

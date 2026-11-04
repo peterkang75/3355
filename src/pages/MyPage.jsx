@@ -1,3 +1,4 @@
+import LineIcon from '../components/common/LineIcon';
 import React, { useState, useEffect, useRef } from 'react';
 import { useApp } from '../contexts/AppContext';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -261,7 +262,7 @@ function MyPage() {
               {(isEditing ? editData.photo : user.photo) ? (
                 <img src={isEditing ? editData.photo : user.photo} alt={user.name} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
               ) : (
-                <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#E8ECF0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}>👤</div>
+                <div style={{ width: '100%', height: '100%', borderRadius: '50%', background: '#E8ECF0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 36 }}><span style={{ color: '#94A3B8', display: 'flex' }}><LineIcon name="person" size={40} strokeWidth={1.6} /></span></div>
               )}
             </div>
             <div style={{ position: 'absolute', bottom: 2, right: 2, width: 26, height: 26, borderRadius: '50%', background: '#0047AB', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 1px 4px rgba(0,0,0,0.2)' }}>
@@ -622,7 +623,6 @@ function MyPage() {
           const days = ['일', '월', '화', '수', '목', '금', '토'];
           return (
             <div onClick={() => navigate('/booking')} style={{ background: 'linear-gradient(135deg, #0d1b3e 0%, #162d5c 100%)', borderRadius: 20, padding: '24px 20px', marginBottom: 20, cursor: 'pointer', position: 'relative', overflow: 'hidden', boxShadow: '0 8px 24px rgba(13,27,62,0.3)' }}>
-              <div style={{ position: 'absolute', right: -20, bottom: -20, fontSize: 80, opacity: 0.07 }}>⛳</div>
               <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(177,197,255,0.7)', letterSpacing: '0', marginBottom: 8 }}>다가오는 일정</div>
               <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 14, letterSpacing: '-0.01em' }}>{upcoming.title || upcoming.courseName}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

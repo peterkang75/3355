@@ -1,3 +1,4 @@
+import LineIcon from '../components/common/LineIcon';
 import React, { useState, useEffect, memo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useGoBack from '../hooks/useGoBack';
@@ -464,7 +465,7 @@ function MemberDetail() {
                 <img src={editData.photo} alt="프로필" style={{ width: '88px', height: '88px', objectFit: 'cover', borderRadius: '50%', border: photoErr ? '3px solid #FCA5A5' : '3px solid rgba(255,255,255,0.4)' }} />
               ) : (
                 <div style={{ width: '88px', height: '88px', background: 'rgba(255,255,255,0.12)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: photoErr ? '3px solid #FCA5A5' : '3px dashed rgba(255,255,255,0.35)', flexDirection: 'column', gap: '4px' }}>
-                  <span style={{ fontSize: '28px' }}>📷</span>
+                  <LineIcon name="camera" size={28} strokeWidth={1.6} />
                 </div>
               )}
               <div style={{ position: 'absolute', bottom: '2px', right: '2px', width: '26px', height: '26px', background: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 6px rgba(0,0,0,0.25)', fontSize: '13px' }}>
@@ -807,7 +808,7 @@ function MemberDetail() {
                       <button key={role} onClick={() => handleChangeRole(role)}
                         style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', background: isSelected ? '#0047AB' : '#F1F5F9', border: isSelected ? '2px solid #0047AB' : '2px solid #E2E8F0', borderRadius: '20px', cursor: 'pointer', fontSize: '13px', fontWeight: isSelected ? '700' : '500', color: isSelected ? 'white' : '#334155' }}
                       >
-                        {role !== '회원' ? <CrownIcon role={role} size={15} /> : <span style={{ fontSize: '13px' }}>👤</span>}
+                        {role !== '회원' ? <CrownIcon role={role} size={15} /> : null}
                         <span>{role}</span>
                       </button>
                     );
@@ -817,7 +818,6 @@ function MemberDetail() {
                 {hasFeaturePermission('fee_exemption') && (
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0', opacity: isTogglingFeeExempt ? 0.7 : 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <span style={{ fontSize: '18px' }}>💰</span>
                       <div>
                         <div style={{ fontSize: '14px', fontWeight: '600', color: '#0f172a' }}>회비면제</div>
                         <div style={{ fontSize: '12px', color: '#94A3B8' }}>{isTogglingFeeExempt ? '처리중...' : '라운딩 참가 시 참가비 제외'}</div>
@@ -891,23 +891,19 @@ function MemberDetail() {
                 <div>
                   {transactions.map((transaction, index) => {
                     let typeLabel = '';
-                    let bgColor = '#F1F5F9';
-                    let iconText = '';
                     if (transaction.type === 'payment') {
                       const desc = transaction.description || '회비 납부';
                       typeLabel = desc.includes(' - ') ? desc.split(' - ')[0] : (desc.includes(' (') ? desc.split(' (')[0] : desc);
-                      bgColor = '#EFF6FF'; iconText = '💳';
-                    } else if (transaction.type === 'donation') { typeLabel = '도네이션'; bgColor = '#FFF7ED'; iconText = '🎁'; }
-                    else if (transaction.type === 'credit') { typeLabel = transaction.category === '크레딧전환' ? '크레딧전환' : '크레딧처리'; bgColor = '#F0FDF4'; iconText = '✅'; }
-                    else if (transaction.type === 'expense') { typeLabel = transaction.category === '회원환불' ? '환불 (크레딧 반환)' : '환불'; bgColor = '#FEF2F2'; iconText = '↩️'; }
-                    else if (transaction.type === 'charge') { typeLabel = '회비 청구'; bgColor = '#FEF2F2'; iconText = '📋'; }
+                    } else if (transaction.type === 'donation') { typeLabel = '도네이션' }
+                    else if (transaction.type === 'credit') { typeLabel = transaction.category === '크레딧전환' ? '크레딧전환' : '크레딧처리' }
+                    else if (transaction.type === 'expense') { typeLabel = transaction.category === '회원환불' ? '환불 (크레딧 반환)' : '환불' }
+                    else if (transaction.type === 'charge') { typeLabel = '회비 청구' }
                     const isPositive = ['payment', 'donation', 'credit'].includes(transaction.type);
                     const amtColor = isPositive ? '#059669' : '#DC2626';
                     const sign = isPositive ? '+' : '-';
                     const dateStr = transaction.date ? new Date(transaction.date).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' }) : '';
                     return (
                       <div key={transaction.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 0', borderBottom: index < transactions.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
-                        <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: bgColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>{iconText}</div>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontWeight: '600', fontSize: '14px', color: '#0f172a', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{typeLabel}</div>
                           <div style={{ fontSize: '12px', color: '#94A3B8' }}>{dateStr}</div>
@@ -1020,7 +1016,7 @@ function MemberDetail() {
                           )}
                         </div>
                         <div style={{ fontSize: '12px', color: '#94A3B8', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <span>📍</span>
+                          <LineIcon name="pin" size={12} />
                           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{score.courseName || '-'}</span>
                         </div>
                       </div>
@@ -1116,7 +1112,7 @@ function MemberDetail() {
               onClick={() => { setShowAdminSheet(false); handleDelete(); }}
               style={{ display: 'block', width: '100%', padding: '14px 16px', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '10px', textAlign: 'left', fontSize: '15px', fontWeight: '600', cursor: 'pointer', marginBottom: '16px', color: '#DC2626' }}
             >
-              🗑 회원 삭제
+              회원 삭제
             </button>
             <button
               onClick={() => setShowAdminSheet(false)}

@@ -310,13 +310,11 @@ export default function MediaGallery({ booking, user, onClose }) {
           <div style={{ textAlign: 'center', color: '#94A3B8', padding: '60px 0', fontSize: '14px' }}>불러오는 중...</div>
         ) : archivedAt ? (
           <div style={{ textAlign: 'center', padding: '70px 24px', color: '#64748B' }}>
-            <div style={{ fontSize: '40px', marginBottom: '14px' }}>🗄️</div>
             <div style={{ fontSize: '15px', fontWeight: '700', color: '#475569', marginBottom: '4px' }}>이 라운딩의 사진·영상은<br />백업 후 정리되었습니다</div>
             <div style={{ fontSize: '12px', color: '#94A3B8' }}>({fmtDate(archivedAt)} 정리)</div>
           </div>
         ) : items.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '70px 24px', color: '#94A3B8' }}>
-            <div style={{ fontSize: '40px', marginBottom: '12px' }}>📷</div>
             <div style={{ fontSize: '14px' }}>아직 사진·영상이 없습니다</div>
             <div style={{ fontSize: '12px', marginTop: '4px' }}>위 ＋올리기 로 추가하세요</div>
           </div>
@@ -336,7 +334,6 @@ export default function MediaGallery({ booking, user, onClose }) {
               if (m.status === 'failed') {
                 return (
                   <div key={m.id} onClick={() => deleteItem(m)} style={{ ...tile, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', background: '#FEF2F2', cursor: 'pointer' }}>
-                    <div style={{ fontSize: '18px' }}>⚠️</div>
                     <div style={{ fontSize: '11px', color: '#B91C1C', fontWeight: '600' }}>처리 실패<br />(눌러서 삭제)</div>
                   </div>
                 );

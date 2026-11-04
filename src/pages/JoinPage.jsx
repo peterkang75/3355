@@ -205,7 +205,7 @@ function JoinPage() {
               승인이 완료되면 다시 접속하셔서 모든 기능을 자유롭게 이용하실 수 있습니다.
             </p>
             <p style={{ marginBottom: 0, color: '#0047AB', fontWeight: 600 }}>
-              함께 즐거운 라운딩 만들어가요! 🏌️
+              함께 즐거운 라운딩 만들어가요!
             </p>
           </div>
 
@@ -327,7 +327,7 @@ function JoinPage() {
           <div style={sectionStyle}>
             <label style={labelStyle}>성별 *</label>
             <div style={toggleRowStyle}>
-              {[['남', '🔵 블루티'], ['여', '🔴 레이디티']].map(([val, label]) => (
+              {[['남', '블루티'], ['여', '레이디티']].map(([val, label]) => (
                 <button key={val} type="button" onClick={() => setForm(f => ({ ...f, gender: val }))}
                   style={toggleBtn(form.gender === val)}>
                   {label}

@@ -1,3 +1,4 @@
+import LineIcon from '../components/common/LineIcon';
 import React, { useState, useEffect, useRef, memo } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../contexts/AppContext';
@@ -2011,7 +2012,6 @@ function Admin() {
               {/* 저장소 80% 알림 */}
               {storagePct >= 80 && (
                 <div onClick={() => navigate('/media-storage', { state: { returnTo: { path: '/admin' } } })} style={{ margin: '16px 16px 0', background: '#FFF7ED', border: '1px solid #FED7AA', borderRadius: 14, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}>
-                  <span style={{ fontSize: 20, lineHeight: 1 }}>⚠️</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 14, fontWeight: 800, color: '#9A3412' }}>저장소 용량 {storagePct}% 도달</div>
                     <div style={{ fontSize: 13, color: '#C2410C', marginTop: 2 }}>오래된 사진·영상을 백업·정리하세요. 눌러서 저장소 관리 ›</div>
@@ -2338,7 +2338,7 @@ function Admin() {
                       {member.photo ? (
                         <img src={member.photo} alt={member.name} style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', border: '2px solid #F1F5F9' }} />
                       ) : (
-                        <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#E8ECF0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, color: '#94A3B8' }}>👤</div>
+                        <div style={{ width: 52, height: 52, borderRadius: '50%', background: '#E8ECF0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, color: '#94A3B8' }}><LineIcon name="person" size={24} /></div>
                       )}
                       {/* 온라인 인디케이터 */}
                       <div style={{ position: 'absolute', bottom: 1, right: 1, width: 11, height: 11, borderRadius: '50%', background: onlineIndicatorColor, border: '2px solid #fff' }} />
@@ -2625,7 +2625,7 @@ function Admin() {
                                     color: newMember.gender === g ? '#0047AB' : '#64748b',
                                     fontWeight: 700, fontSize: 14, cursor: 'pointer',
                                   }}>
-                                  {g === '남' ? '👨 남' : '👩 여'}
+                                  {g === '남' ? '남' : '여'}
                                 </button>
                               ))}
                             </div>
@@ -3291,7 +3291,7 @@ function Admin() {
                   클럽 입금 처리
                 </h2>
                 <h3 style={{ marginBottom: '16px', fontSize: '18px', fontWeight: '700', color: 'var(--alert-red)' }}>
-                  ⚠ 미수금 회원
+                  미수금 회원
                 </h3>
                 <div>
                   {outstandingBalances.map(ob => (
@@ -3578,7 +3578,7 @@ function Admin() {
                                   title="영수증 보기"
                                 >
                                   {sign}${transaction.amount.toLocaleString()}
-                                  <span style={{ fontSize: '11px' }}>📎</span>
+                                  <LineIcon name="paperclip" size={11} />
                                 </span>
                               ) : (
                                 <span>
@@ -4167,7 +4167,6 @@ function Admin() {
                   textAlign: 'center',
                   opacity: 0.7
                 }}>
-                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>📖</div>
                   <p>조건에 맞는 거래가 없습니다</p>
                 </div>
               ) : (
@@ -4520,7 +4519,7 @@ function Admin() {
                                     title="영수증 보기"
                                   >
                                     {sign}${transaction.amount.toLocaleString()}
-                                    <span style={{ fontSize: '11px' }}>📎</span>
+                                    <LineIcon name="paperclip" size={11} />
                                   </span>
                                 ) : (
                                   <span>
@@ -4863,7 +4862,6 @@ function Admin() {
 
             {filteredCourses.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94A3B8', fontSize: '14px', background: '#FFFFFF', borderRadius: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
-                <div style={{ fontSize: '36px', marginBottom: '10px' }}>⛳</div>
                 {courses.length === 0
                   ? <><div>등록된 골프장이 없습니다</div><div style={{ marginTop: '6px', fontSize: '12px' }}>+ 버튼을 눌러 등록하세요</div></>
                   : <div>"{courseListSearch}"에 해당하는 골프장이 없습니다</div>
@@ -5834,7 +5832,6 @@ function Admin() {
                 </div>
                 {bookings.filter(b => showCompetitionRoundings || !b.title?.startsWith('클럽 컴페티션')).length === 0 ? (
                   <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
-                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏌️</div>
                     <div style={{ color: 'var(--text-dark)', opacity: 0.7 }}>등록된 라운딩이 없습니다</div>
                   </div>
                 ) : (
@@ -6504,7 +6501,6 @@ function Admin() {
                 </div>
                 {allScoresData.length === 0 ? (
                   <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
-                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
                     <div style={{ color: 'var(--text-dark)', opacity: 0.7 }}>등록된 스코어가 없습니다</div>
                   </div>
                 ) : (
@@ -6853,7 +6849,6 @@ function Admin() {
                       
                       {participants.length === 0 && (
                         <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
-                          <div style={{ fontSize: '48px', marginBottom: '16px' }}>👥</div>
                           <div style={{ color: 'var(--text-dark)', opacity: 0.7 }}>참가자가 없습니다</div>
                         </div>
                       )}
@@ -6868,7 +6863,6 @@ function Admin() {
               <div>
                 {roundScores.length === 0 ? (
                   <div className="card" style={{ textAlign: 'center', padding: '40px' }}>
-                    <div style={{ fontSize: '48px', marginBottom: '16px' }}>📊</div>
                     <div style={{ color: 'var(--text-dark)', opacity: 0.7 }}>등록된 스코어가 없습니다</div>
                   </div>
                 ) : (
@@ -8924,7 +8918,7 @@ function Admin() {
                   color: 'var(--primary-green)',
                   marginBottom: '16px'
                 }}>
-                  📊 입력된 스코어 ({memberScores.length}개)
+                  입력된 스코어 ({memberScores.length}개)
                 </h4>
                 <div style={{ display: 'grid', gap: '12px', maxHeight: '300px', overflow: 'auto' }}>
                   {memberScores.sort((a, b) => new Date(b.date) - new Date(a.date)).map((score, index) => (
@@ -8955,7 +8949,7 @@ function Admin() {
                         </div>
                       </div>
                       <div style={{ fontSize: '13px', color: 'var(--text-dark)', opacity: 0.7 }}>
-                        📅 {new Date(score.date).toLocaleDateString('ko-KR')}
+                        {new Date(score.date).toLocaleDateString('ko-KR')}
                       </div>
                     </div>
                   ))}
@@ -10467,7 +10461,7 @@ function Admin() {
                     {editImageUploading ? (
                       <span style={{ color: '#666', fontSize: '13px' }}>업로드 중...</span>
                     ) : (
-                      <span style={{ color: '#666', fontSize: '13px' }}>📷 이미지 추가</span>
+                      <span style={{ color: '#666', fontSize: '13px' }}>이미지 추가</span>
                     )}
                   </label>
                 </div>
@@ -10549,7 +10543,7 @@ function Admin() {
                     {editImageUploading ? (
                       <span style={{ color: '#666', fontSize: '13px' }}>업로드 중...</span>
                     ) : (
-                      <span style={{ color: '#666', fontSize: '13px' }}>📷 이미지 업로드</span>
+                      <span style={{ color: '#666', fontSize: '13px' }}>이미지 업로드</span>
                     )}
                   </label>
                 )

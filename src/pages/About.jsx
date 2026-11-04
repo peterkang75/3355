@@ -113,9 +113,9 @@ function About() {
             3355 골프모임
           </h1>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 12, fontSize: 11, color: '#94A3B8', fontWeight: 600, letterSpacing: '0.05em' }}>
-            <span>VERSION 2.0.0</span>
+            <span>버전 2.0.0</span>
             <span>·</span>
-            <span>BUILD {typeof __BUILD_NUMBER__ !== 'undefined' ? __BUILD_NUMBER__ : '---'}</span>
+            <span>빌드 {typeof __BUILD_NUMBER__ !== 'undefined' ? __BUILD_NUMBER__ : '---'}</span>
           </div>
         </div>
 
@@ -149,8 +149,8 @@ function About() {
 
         {/* ─── CAPABILITIES ─── */}
         <div style={{ padding: '0 20px' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.12em', marginBottom: 8 }}>
-            CAPABILITIES
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', letterSpacing: '0', marginBottom: 8 }}>
+            주요 기능
           </div>
           <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1E293B', marginBottom: 20, letterSpacing: '-0.03em' }}>
             주요기능
@@ -247,7 +247,7 @@ function About() {
               onClick={() => setShowRulesModal(true)}
               style={{ width: '100%', padding: '13px', background: '#fff', border: '1.5px solid #E2E8F0', borderRadius: 14, fontSize: 14, fontWeight: 700, color: '#334155', cursor: 'pointer', boxShadow: '0 2px 6px rgba(0,0,0,0.05)' }}
             >
-              📋 모임 회칙 보기
+              모임 회칙 보기
             </button>
           </div>
         )}
@@ -361,8 +361,8 @@ function About() {
 
         {/* ─── 푸터 ─── */}
         <div style={{ borderTop: '1px solid #E2E8F0', margin: '0 20px', paddingTop: 24, textAlign: 'center' }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.1em', marginBottom: 8 }}>
-            PROJECT IDENTITY
+          <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', letterSpacing: '0', marginBottom: 8 }}>
+            프로젝트 정보
           </div>
           <div style={{ fontSize: 18, fontWeight: 800, color: '#0047AB', marginBottom: 12, letterSpacing: '-0.02em' }}>
             3355 골프모임 V2.0
@@ -395,7 +395,7 @@ function About() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: '#fff', borderRadius: 20, width: '100%', maxWidth: 500, maxHeight: '80vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#1E293B' }}>📋 3355 골프모임 회칙</h3>
+              <h3 style={{ margin: 0, fontSize: 18, fontWeight: 800, color: '#1E293B' }}>3355 골프모임 회칙</h3>
               <button onClick={() => setShowRulesModal(false)}
                 style={{ background: '#F1F5F9', border: 'none', fontSize: 18, cursor: 'pointer', width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
                 ×

@@ -148,7 +148,6 @@ function MemberInfoForm() {
               borderRadius: '50%'
             }} 
           />
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
           <h2 style={{ 
             fontSize: '22px', 
             color: 'var(--primary-green)',

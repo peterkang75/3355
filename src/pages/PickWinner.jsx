@@ -488,10 +488,10 @@ function PickWinner() {
           {/* 안내 카드 */}
           <div style={{ padding: '4px 4px 12px' }}>
             <div style={{ fontSize: 18, fontWeight: 800, color: '#1E293B', marginBottom: 6, letterSpacing: '-0.02em' }}>
-              🏆 이번 라운딩의 주인공은 누구?!
+              이번 라운딩의 주인공은 누구?!
             </div>
             <div style={{ fontSize: 13, color: '#64748B', lineHeight: 1.6 }}>
-              당신의 예측 본능을 발휘해 보세요! 각 그레이드별 우승할 것 같은 선수를 선택하고 투표하세요. 적중하신 분께는 소정의 상품이 지급됩니다! 🎁
+              당신의 예측 본능을 발휘해 보세요! 각 그레이드별 우승할 것 같은 선수를 선택하고 투표하세요. 적중하신 분께는 소정의 상품이 지급됩니다!
             </div>
           </div>
 
@@ -650,7 +650,7 @@ function PickWinner() {
                               <button
                                 onClick={(e) => { e.stopPropagation(); setOpenMenuId(null); navigate(`/games/pick-winner?id=${booking.id}&admin=true`); }}
                                 style={{ display: 'block', width: '100%', padding: '12px 16px', border: 'none', background: 'none', textAlign: 'left', cursor: 'pointer', fontSize: 14, fontWeight: 600 }}
-                              >👥 투표 관리</button>
+                              >투표 관리</button>
                             </div>
                           )}
                         </div>
@@ -908,7 +908,7 @@ function PickWinner() {
                 alignItems: 'center',
                 gap: '8px'
               }}>
-                🎯 예측 순위
+                예측 순위
               </div>
               {gameWinners.map((w, idx) => (
                 <div key={w.voterId} style={{
@@ -927,7 +927,7 @@ function PickWinner() {
                       fontSize: '16px',
                       width: '24px'
                     }}>
-                      {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `${idx + 1}`}
+                      {idx === 0 ? '1' : idx === 1 ? '2' : idx === 2 ? '3' : `${idx + 1}`}
                     </span>
                     <span style={{ fontWeight: '600' }}>{w.name}</span>
                   </div>
@@ -985,7 +985,7 @@ function PickWinner() {
                       color: '#0A5C36',
                       marginBottom: '8px'
                     }}>
-                      🏆 {winner.nickname || winner.name}
+                      {winner.nickname || winner.name}
                     </div>
                     {correctPickers.length > 0 && (
                       <div style={{ fontSize: '13px', color: '#666' }}>

@@ -58,7 +58,6 @@ function KakaoTalkBanner() {
       boxShadow: '0 4px 20px rgba(0,0,0,0.35)',
       animation: 'slideUp 0.3s ease-out',
     }}>
-      <div style={{ fontSize: '22px', flexShrink: 0 }}>🌐</div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: '13px', fontWeight: '600', marginBottom: '2px' }}>
           카카오톡 브라우저 사용 중
