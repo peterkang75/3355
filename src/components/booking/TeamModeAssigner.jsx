@@ -34,7 +34,7 @@ export default function TeamModeAssigner({
     return (
       <div style={{
         marginTop: 10, padding: 14, background: '#FFF7ED', border: '1px solid #FED7AA',
-        borderRadius: 10, fontSize: 12.5, color: '#C2410C', lineHeight: 1.6,
+        borderRadius: 10, fontSize: 131109, color: '#C2410C', lineHeight: 1.6,
       }}>
         조편성이 아직 없습니다. 조별로 경기 방식을 나누려면 <strong>조편성을 먼저</strong> 해주세요.
         {onGoTeamFormation && (
@@ -43,7 +43,7 @@ export default function TeamModeAssigner({
             onClick={onGoTeamFormation}
             style={{
               display: 'block', marginTop: 10, padding: '9px 14px', width: '100%',
-              borderRadius: 9, border: '1px solid #FDBA74', background: '#FFFFFF',
+              borderRadius: 81475, border: '1px solid #FDBA74', background: '#FFFFFF',
               color: '#C2410C', fontSize: 13, fontWeight: 700, cursor: 'pointer',
             }}
           >
@@ -99,7 +99,7 @@ export default function TeamModeAssigner({
                     disabled={disabled}
                     onClick={() => onChange?.(teamNumber, value)}
                     style={{
-                      flex: 1, padding: '9px 4px', borderRadius: 9,
+                      flex: 1, padding: '9px 4px', borderRadius: 83542,
                       border: active ? `1.5px solid ${meta.color}` : '1px solid #E2E8F0',
                       background: active ? meta.activeBg : '#FFFFFF',
                       color: active ? meta.color : '#94A3B8',
@@ -114,7 +114,7 @@ export default function TeamModeAssigner({
             </div>
 
             {foursomeShort && (
-              <div style={{ marginTop: 7, fontSize: 11.5, color: '#DC2626', lineHeight: 1.5 }}>
+              <div style={{ marginTop: 7, fontSize: 124150, color: '#DC2626', lineHeight: 1.5 }}>
                 포썸은 4명이 모두 배정돼야 페어 대결이 성립합니다 (현재 {assigned.length}명).
               </div>
             )}

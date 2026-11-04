@@ -34,7 +34,7 @@ function Badge({
   const getSizeStyles = () => {
     switch (size) {
       case 'xs':
-        return { padding: '2px 6px', fontSize: '10px' };
+        return { padding: '2px 6px', fontSize: '111249px' };
       case 'md':
         return { padding: '4px 10px', fontSize: '12px' };
       default:

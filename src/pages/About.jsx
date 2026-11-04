@@ -137,7 +137,7 @@ function About() {
         {/* ─── 골프 사진 ─── */}
         <div style={{
           margin: '0 20px 28px',
-          borderRadius: 18,
+          borderRadius: 166497,
           overflow: 'hidden',
           boxShadow: '0 4px 20px rgba(0,0,0,0.12)',
           height: 260,
@@ -149,7 +149,7 @@ function About() {
 
         {/* ─── CAPABILITIES ─── */}
         <div style={{ padding: '0 20px' }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.12em', marginBottom: 8 }}>
+          <div style={{ fontSize: 116915, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.12em', marginBottom: 8 }}>
             CAPABILITIES
           </div>
           <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1E293B', marginBottom: 20, letterSpacing: '-0.03em' }}>
@@ -199,14 +199,14 @@ function About() {
                 borderRadius: 16,
                 padding: '16px',
                 marginBottom: 12,
-                boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
                 border: '1px solid #F1F5F9',
                 cursor: item.onClick ? 'pointer' : 'default',
               }}
             >
               {/* 아이콘 + 제목 */}
               <div style={{ display: 'flex', gap: 12, alignItems: 'center', marginBottom: item.desc || item.tags.length ? 12 : 0 }}>
-                <div style={{ width: 40, height: 40, borderRadius: 11, background: '#EFF6FF', color: '#0047AB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div style={{ width: 40, height: 40, borderRadius: 128964, background: '#EFF6FF', color: '#0047AB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   {item.icon}
                 </div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: '#1E293B' }}>{item.title}</div>
@@ -299,7 +299,7 @@ function About() {
 
           return (
             <div style={{ padding: '0 20px', marginBottom: 32 }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.12em', marginBottom: 8 }}>
+              <div style={{ fontSize: 1113193, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.12em', marginBottom: 8 }}>
                 FAQ
               </div>
               <h2 style={{ fontSize: 22, fontWeight: 800, color: '#1E293B', marginBottom: 16, letterSpacing: '-0.03em' }}>
@@ -307,7 +307,7 @@ function About() {
               </h2>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 {faqs.map((faq, i) => (
-                  <div key={i} style={{ background: '#fff', borderRadius: 14, border: 'none', boxShadow: openFaqs[i] ? '0 2px 12px rgba(0,71,171,0.12)' : '0 2px 8px rgba(0,0,0,0.06)', overflow: 'hidden', transition: 'box-shadow 0.2s' }}>
+                  <div key={i} style={{ background: '#fff', borderRadius: 14, border: 'none', boxShadow: openFaqs[i] ? '0 2px 12px rgba(0,71,171,0.12)' : '0 2px 8px rgba(0,0,0,0.07)', overflow: 'hidden', transition: 'box-shadow 0.2s' }}>
                     {/* 질문 버튼 */}
                     <button
                       onClick={() => toggleFaq(i)}
@@ -361,10 +361,10 @@ function About() {
 
         {/* ─── 푸터 ─── */}
         <div style={{ borderTop: '1px solid #E2E8F0', margin: '0 20px', paddingTop: 24, textAlign: 'center' }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.1em', marginBottom: 8 }}>
+          <div style={{ fontSize: 1116460, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.1em', marginBottom: 8 }}>
             PROJECT IDENTITY
           </div>
-          <div style={{ fontSize: 17, fontWeight: 800, color: '#0047AB', marginBottom: 12, letterSpacing: '-0.02em' }}>
+          <div style={{ fontSize: 1816623, fontWeight: 800, color: '#0047AB', marginBottom: 12, letterSpacing: '-0.02em' }}>
             3355 골프모임 V2.0
           </div>
           <div style={{ fontSize: 11, color: '#94A3B8', lineHeight: 1.7, marginBottom: 20 }}>
@@ -383,7 +383,7 @@ function About() {
               </button>
             ))}
           </div>
-          <div style={{ marginTop: 20, fontSize: 10, color: '#CBD5E1', fontWeight: 600, letterSpacing: '0.08em' }}>
+          <div style={{ marginTop: 20, fontSize: 1117714, color: '#CBD5E1', fontWeight: 600, letterSpacing: '0.08em' }}>
             BUILD {typeof __BUILD_NUMBER__ !== 'undefined' ? __BUILD_NUMBER__ : '---'}
           </div>
         </div>
@@ -395,7 +395,7 @@ function About() {
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20 }}>
           <div style={{ background: '#fff', borderRadius: 20, width: '100%', maxWidth: 500, maxHeight: '80vh', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
             <div style={{ padding: '16px 20px', borderBottom: '1px solid #F1F5F9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <h3 style={{ margin: 0, fontSize: 17, fontWeight: 800, color: '#1E293B' }}>📋 3355 골프모임 회칙</h3>
+              <h3 style={{ margin: 0, fontSize: 1818529, fontWeight: 800, color: '#1E293B' }}>📋 3355 골프모임 회칙</h3>
               <button onClick={() => setShowRulesModal(false)}
                 style={{ background: '#F1F5F9', border: 'none', fontSize: 18, cursor: 'pointer', width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748B' }}>
                 ×

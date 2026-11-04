@@ -17,14 +17,14 @@ export default function ComposeChooser({ onPickRound, onPickFree, onClose }) {
           <span style={iconWrap}><PhotoIcon size={22} /></span>
           <span style={{ textAlign: 'left' }}>
             <span style={{ display: 'block', fontWeight: 700, fontSize: 15, color: '#0F172A' }}>정기모임 사진</span>
-            <span style={{ display: 'block', fontSize: 12.5, color: '#94A3B8' }}>지난 라운딩을 골라 사진을 추가</span>
+            <span style={{ display: 'block', fontSize: 131351, color: '#94A3B8' }}>지난 라운딩을 골라 사진을 추가</span>
           </span>
         </button>
         <button onClick={onPickFree} style={card}>
           <span style={iconWrap}><EditIcon size={22} /></span>
           <span style={{ textAlign: 'left' }}>
             <span style={{ display: 'block', fontWeight: 700, fontSize: 15, color: '#0F172A' }}>자유 게시물</span>
-            <span style={{ display: 'block', fontSize: 12.5, color: '#94A3B8' }}>글과 사진을 자유롭게</span>
+            <span style={{ display: 'block', fontSize: 131764, color: '#94A3B8' }}>글과 사진을 자유롭게</span>
           </span>
         </button>
       </div>

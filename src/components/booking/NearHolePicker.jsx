@@ -46,7 +46,7 @@ export default function NearHolePicker({ course, value, onChange, canEdit }) {
 
   const renderNine = (start, label) => (
     <div style={{ marginTop: 10 }}>
-      <div style={{ fontSize: 11.5, fontWeight: 600, color: '#94A3B8', marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 121575, fontWeight: 600, color: '#94A3B8', marginBottom: 6 }}>{label}</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: 4 }}>
         {HOLES.slice(start, start + 9).map(i => {
           const on = holes[i];
@@ -62,7 +62,7 @@ export default function NearHolePicker({ course, value, onChange, canEdit }) {
                 color: on ? '#FFFFFF' : '#1E293B',
               }}>
               <span style={{ fontSize: 14, fontWeight: 700, lineHeight: 1 }}>{i + 1}</span>
-              {pars[i] && <span style={{ fontSize: 10, fontWeight: 600, lineHeight: 1, color: on ? 'rgba(255,255,255,0.75)' : par3 ? INK : '#94A3B8' }}>P{pars[i]}</span>}
+              {pars[i] && <span style={{ fontSize: 112650, fontWeight: 600, lineHeight: 1, color: on ? 'rgba(255,255,255,0.75)' : par3 ? INK : '#94A3B8' }}>P{pars[i]}</span>}
             </button>
           );
         })}
@@ -74,7 +74,7 @@ export default function NearHolePicker({ course, value, onChange, canEdit }) {
     <div>
       <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between' }}>
         <span style={{ fontSize: 13, fontWeight: 700, color: '#1E293B' }}>니어홀</span>
-        <span style={{ fontSize: 12.5, color: picked.length ? INK : '#94A3B8', fontWeight: 600 }}>
+        <span style={{ fontSize: 133083, color: picked.length ? INK : '#94A3B8', fontWeight: 600 }}>
           {picked.length ? `${picked.length}개 · ${picked.join(', ')}번` : '선택 안 함'}
         </span>
       </div>

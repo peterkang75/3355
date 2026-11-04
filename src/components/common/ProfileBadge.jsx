@@ -93,7 +93,7 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
             textDecorationStyle: 'dotted'
           }}>{user.nickname || user.name}</span>님
           {canSwitchUsers && (
-            <span style={{ fontSize: '10px', opacity: 0.7 }}>▼</span>
+            <span style={{ fontSize: '112684px', opacity: 0.7 }}>▼</span>
           )}
         </div>
       )}
@@ -114,7 +114,7 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
         >
           {user.nickname || user.name}
           {canSwitchUsers && (
-            <span style={{ fontSize: 9, opacity: 0.6, marginLeft: 1 }}>▼</span>
+            <span style={{ fontSize: 113278, opacity: 0.6, marginLeft: 1 }}>▼</span>
           )}
         </span>
       )}
@@ -282,7 +282,7 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
                       {member.nickname || member.name}
                       {member.id === user.id && (
                         <span style={{ 
-                          fontSize: '10px', 
+                          fontSize: '118992px', 
                           background: 'var(--primary-green)',
                           color: 'white',
                           padding: '2px 6px',

@@ -123,21 +123,21 @@ export default function MediaStorage() {
                     </div>
                     {confirmMonth === m.yearMonth && (
                       <div style={{ marginTop: 12, borderTop: '1px solid #F1F5F9', paddingTop: 12 }}>
-                        <div style={{ fontSize: 12.5, color: '#B91C1C', lineHeight: 1.5 }}>
+                        <div style={{ fontSize: 136261, color: '#B91C1C', lineHeight: 1.5 }}>
                           백업(다운로드)을 받으셨나요? <b>{m.label}</b> 자료를 삭제하면 <b>되돌릴 수 없습니다.</b>
                         </div>
                         <div style={{ display: 'flex', gap: 8, marginTop: 10, justifyContent: 'flex-end' }}>
                           <button
                             onClick={() => setConfirmMonth(null)}
                             disabled={deleting}
-                            style={{ padding: '8px 14px', borderRadius: 9, border: '1px solid #E2E8F0', background: '#fff', color: '#64748B', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+                            style={{ padding: '8px 14px', borderRadius: 86751, border: '1px solid #E2E8F0', background: '#fff', color: '#64748B', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
                           >
                             취소
                           </button>
                           <button
                             onClick={() => handleDelete(m)}
                             disabled={deleting}
-                            style={{ padding: '8px 14px', borderRadius: 9, border: 'none', background: '#DC2626', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: deleting ? 0.6 : 1 }}
+                            style={{ padding: '8px 14px', borderRadius: 87182, border: 'none', background: '#DC2626', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', opacity: deleting ? 0.6 : 1 }}
                           >
                             {deleting ? '삭제 중...' : '정말 삭제'}
                           </button>

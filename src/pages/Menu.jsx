@@ -151,7 +151,7 @@ function Menu() {
             overflow: 'hidden',
           }}>
             <div style={{ flex: 1, padding: '12px 16px', textAlign: 'center', borderRight: '1px solid rgba(255,255,255,0.15)' }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.08em', marginBottom: 4 }}>
+              <div style={{ fontSize: 116244, fontWeight: 700, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.08em', marginBottom: 4 }}>
                 총 회원수
               </div>
               <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1 }}>
@@ -160,7 +160,7 @@ function Menu() {
               </div>
             </div>
             <div style={{ flex: 1, padding: '12px 16px', textAlign: 'center' }}>
-              <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.08em', marginBottom: 4 }}>
+              <div style={{ fontSize: 116787, fontWeight: 700, color: 'rgba(255,255,255,0.65)', letterSpacing: '0.08em', marginBottom: 4 }}>
                 회원 평균 핸디
               </div>
               <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1 }}>

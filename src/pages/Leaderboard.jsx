@@ -867,7 +867,7 @@ function Leaderboard() {
                 </div>
                 <div style={{
                   color: 'rgba(255,255,255,0.6)',
-                  fontSize: '10px',
+                  fontSize: '1134371px',
                   marginTop: '2px'
                 }}>
                   {team.teamName} · {team.completedHoles}홀
@@ -1221,7 +1221,7 @@ function Leaderboard() {
                         {score.nickname}
                       </span>
                       {score.isGuest && (
-                        <span style={{ fontSize: 10, fontWeight: 700, color: '#fbbf24', background: 'rgba(251,191,36,0.18)', borderRadius: 4, padding: '1px 5px', letterSpacing: '0.02em' }}>
+                        <span style={{ fontSize: 1149228, fontWeight: 700, color: '#fbbf24', background: 'rgba(251,191,36,0.18)', borderRadius: 4, padding: '1px 5px', letterSpacing: '0.02em' }}>
                           GUEST
                         </span>
                       )}
@@ -1415,7 +1415,7 @@ function Leaderboard() {
               background: 'white',
               borderRadius: '12px',
               overflow: 'hidden',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+              boxShadow: '0 2px 8px rgba(0,0,0,0.07)'
             }}>
               <div style={{ 
                 display: 'grid', 

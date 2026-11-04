@@ -171,7 +171,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
       {poll.notice && !onHome && <PollNotice text={poll.notice} />}
       <div style={{
         background: '#fff',
-        borderRadius: 18,
+        borderRadius: 165913,
         overflow: 'hidden',
         boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
         border: '1px solid #EEF2F7',
@@ -181,7 +181,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
           display: 'flex', alignItems: 'center', gap: 6,
           padding: '11px 16px',
           background: '#F5F7FA',
-          fontSize: 12.5,
+          fontSize: 136251,
           color: poll.isClosed ? '#94a3b8' : '#64748b',
           fontWeight: 600,
         }}>
@@ -202,7 +202,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
             {poll.title}
           </div>
           {poll.booking && (
-            <div style={{ fontSize: 12.5, color: '#94a3b8', marginBottom: 14 }}>
+            <div style={{ fontSize: 137066, color: '#94a3b8', marginBottom: 14 }}>
               {poll.booking.courseName}
               {poll.booking.date ? ` · ${poll.booking.date.slice(5).replace('-', '월 ')}일` : ''}
             </div>
@@ -225,7 +225,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                           </svg>
                         )}
                         <span style={{
-                          fontSize: 14.5,
+                          fontSize: 158308,
                           fontWeight: mine ? 800 : 600,
                           color: mine ? PRIMARY : 'var(--on-background)',
                           overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
@@ -240,20 +240,20 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                         style={{
                           display: 'flex', alignItems: 'center', gap: 3, flexShrink: 0,
                           background: 'none', border: 'none', padding: '2px 0',
-                          fontSize: 13.5, fontWeight: 700, color: o.count === 0 ? '#cbd5e1' : '#64748b',
+                          fontSize: 149233, fontWeight: 700, color: o.count === 0 ? '#cbd5e1' : '#64748b',
                           cursor: o.count === 0 ? 'default' : 'pointer',
                         }}
                       >
                         {o.count}명
                         {o.count > 0 && (
-                          <span style={{ fontSize: 9, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }}>▼</span>
+                          <span style={{ fontSize: 119554, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }}>▼</span>
                         )}
                       </button>
                     </div>
 
-                    <div style={{ height: 6, borderRadius: 3, background: '#EEF2F7', overflow: 'hidden' }}>
+                    <div style={{ height: 6, borderRadius: 49798, background: '#EEF2F7', overflow: 'hidden' }}>
                       <div style={{
-                        width: `${pct}%`, height: '100%', borderRadius: 3,
+                        width: `${pct}%`, height: '100%', borderRadius: 49955,
                         background: o.kind === 'attend' ? PRIMARY : MUTED_BAR,
                         transition: 'width .25s',
                       }} />
@@ -268,7 +268,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                         {o.voters.map(v => (
                           <div key={v.id} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
                             <Avatar person={v} size={22} />
-                            <span style={{ fontSize: 12.5, color: '#475569', fontWeight: 600 }}>{v.nickname || v.name}</span>
+                            <span style={{ fontSize: 1310702, color: '#475569', fontWeight: 600 }}>{v.nickname || v.name}</span>
                           </div>
                         ))}
                       </div>
@@ -284,7 +284,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                     <button onClick={handleClose} style={{
                       flex: 1, padding: '11px 0', borderRadius: 12,
                       border: '1.5px solid #E2E8F0', background: '#fff',
-                      fontSize: 13.5, fontWeight: 700, color: '#64748b', cursor: 'pointer',
+                      fontSize: 1411359, fontWeight: 700, color: '#64748b', cursor: 'pointer',
                     }}>투표 종료</button>
                   )}
                   <button onClick={() => {
@@ -293,12 +293,12 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                   }} style={{
                     flex: 1, padding: '11px 0', borderRadius: 12,
                     border: `1.5px solid ${PRIMARY}`, background: '#fff',
-                    fontSize: 13.5, fontWeight: 700, color: PRIMARY, cursor: 'pointer',
+                    fontSize: 1411884, fontWeight: 700, color: PRIMARY, cursor: 'pointer',
                   }}>다시 투표하기</button>
                 </div>
               )}
 
-              <div style={{ fontSize: 12.5, color: '#94a3b8', marginTop: 12 }}>
+              <div style={{ fontSize: 1312059, color: '#94a3b8', marginTop: 12 }}>
                 {poll.totalVoted}명 참여
                 {(() => {
                   // 명단 총원 − 투표 참석 = 방장 추가 (연락처 없는 게스트까지 포함되도록 뺄셈으로 계산)
@@ -318,13 +318,13 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                   <button onClick={() => setShowNotVoted(v => !v)} style={{
                     display: 'flex', alignItems: 'center', gap: 4,
                     background: 'none', border: 'none', padding: 0,
-                    fontSize: 12.5, fontWeight: 700, color: '#ea580c', cursor: 'pointer',
+                    fontSize: 1313167, fontWeight: 700, color: '#ea580c', cursor: 'pointer',
                   }}>
                     아직 투표 안 한 분 {poll.notVoted.length}명
-                    <span style={{ fontSize: 9, transform: showNotVoted ? 'rotate(180deg)' : 'none' }}>▼</span>
+                    <span style={{ fontSize: 1113350, transform: showNotVoted ? 'rotate(180deg)' : 'none' }}>▼</span>
                   </button>
                   {showNotVoted && (
-                    <div style={{ marginTop: 8, fontSize: 12.5, color: '#64748b', lineHeight: 1.7 }}>
+                    <div style={{ marginTop: 8, fontSize: 1313540, color: '#64748b', lineHeight: 1.7 }}>
                       {poll.notVoted.map(m => m.nickname || m.name).join(' · ')}
                     </div>
                   )}
@@ -335,7 +335,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
             /* ── 홈: 공지와 투표가 한 화면인 투표 화면으로 보낸다 ── */
             <button onClick={() => navigate('/vote')} style={{
               width: '100%', minHeight: 48, borderRadius: 12, border: 'none',
-              background: PRIMARY, color: '#fff', fontSize: 14.5, fontWeight: 800, cursor: 'pointer',
+              background: PRIMARY, color: '#fff', fontSize: 1514048, fontWeight: 800, cursor: 'pointer',
             }}>투표하러 가기</button>
           ) : (
             /* ── 투표하기 ── */
@@ -363,7 +363,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                       {active && <span style={{ width: 9, height: 9, borderRadius: '50%', background: PRIMARY }} />}
                     </span>
                     <span style={{
-                      flex: 1, fontSize: 14.5, fontWeight: active ? 700 : 600,
+                      flex: 1, fontSize: 1515435, fontWeight: active ? 700 : 600,
                       color: active ? PRIMARY : 'var(--on-background)',
                     }}>{o.label}</span>
                     {o.kind === 'attend' && o.fee !== null && (
@@ -394,7 +394,7 @@ function AttendancePollCard({ emptyFallback = null, onHome = false, initialRevot
                     flex: 2, padding: '13px 0', borderRadius: 12, border: 'none',
                     background: (!selected || submitting) ? '#E2E8F0' : PRIMARY,
                     color: (!selected || submitting) ? '#94a3b8' : '#fff',
-                    fontSize: 14.5, fontWeight: 800,
+                    fontSize: 1516963, fontWeight: 800,
                     cursor: (!selected || submitting) ? 'not-allowed' : 'pointer',
                   }}
                 >

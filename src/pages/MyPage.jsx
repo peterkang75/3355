@@ -297,9 +297,9 @@ function MyPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 28 }}>
           <div style={{ background: '#fff', borderRadius: 16, padding: '18px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', position: 'relative' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <div style={{ fontSize: 10, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.08em' }}>MY HANDICAP</div>
+              <div style={{ fontSize: 1112951, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.08em' }}>MY HANDICAP</div>
               {!isGAMemberDisplay && (
-                <button onClick={() => setShowHandicapInfo(true)} style={{ background: '#F1F5F9', border: 'none', borderRadius: 999, padding: '3px 8px', fontSize: 10, fontWeight: 700, color: '#64748B', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                <button onClick={() => setShowHandicapInfo(true)} style={{ background: '#F1F5F9', border: 'none', borderRadius: 999, padding: '3px 8px', fontSize: 1113237, fontWeight: 700, color: '#64748B', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                   추천핸디계산
                 </button>
               )}
@@ -307,15 +307,15 @@ function MyPage() {
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
               <span style={{ fontSize: 28, fontWeight: 800, color: '#0d1b3e' }}>{displayHcp ?? '-'}</span>
               {displayType && (
-                <span style={{ fontSize: 10, fontWeight: 700, color: displayType === 'GA' ? '#0047AB' : '#64748B', background: displayType === 'GA' ? '#EBF2FF' : '#F1F5F9', borderRadius: 6, padding: '2px 5px' }}>{displayType}</span>
+                <span style={{ fontSize: 1113665, fontWeight: 700, color: displayType === 'GA' ? '#0047AB' : '#64748B', background: displayType === 'GA' ? '#EBF2FF' : '#F1F5F9', borderRadius: 6, padding: '2px 5px' }}>{displayType}</span>
               )}
             </div>
             {isShowingRecommended && (
-              <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 3 }}>추천값</div>
+              <div style={{ fontSize: 1113970, color: '#94A3B8', marginTop: 3 }}>추천값</div>
             )}
           </div>
           <div style={{ background: '#fff', borderRadius: 16, padding: '18px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
-            <div style={{ fontSize: 10, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.08em', marginBottom: 8 }}>TOTAL ROUNDS</div>
+            <div style={{ fontSize: 1114214, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.08em', marginBottom: 8 }}>TOTAL ROUNDS</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
               <span style={{ fontSize: 28, fontWeight: 800, color: '#0d1b3e' }}>{myRoundCount}</span>
               <span style={{ fontSize: 13, color: '#94A3B8' }}>Times</span>
@@ -521,7 +521,7 @@ function MyPage() {
                           <div style={{ fontSize: 13, fontWeight: 700, color: '#1E293B', display: 'flex', alignItems: 'center', gap: 6 }}>
                             {score.roundingName}
                             {score.gameMode === 'ambrose' && (
-                              <span style={{ fontSize: 10, fontWeight: 700, color: '#0891b2', background: '#e0f2fe', padding: '2px 6px', borderRadius: 6 }}>엠브로스(팀)</span>
+                              <span style={{ fontSize: 1128949, fontWeight: 700, color: '#0891b2', background: '#e0f2fe', padding: '2px 6px', borderRadius: 6 }}>엠브로스(팀)</span>
                             )}
                           </div>
                           <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 2 }}>{score.courseName} · {new Date(score.date).toLocaleDateString('ko-KR')}</div>
@@ -557,13 +557,13 @@ function MyPage() {
                         <div key={b.id} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 12px', background: '#fff', borderRadius: 12, border: '1px solid #F1F5F9' }}>
                           <div style={{ minWidth: 36, textAlign: 'center' }}>
                             <div style={{ fontSize: 18, fontWeight: 800, color: '#0047AB', lineHeight: 1 }}>{d.getDate()}</div>
-                            <div style={{ fontSize: 10, color: '#94A3B8', marginTop: 1 }}>{days[d.getDay()]}</div>
+                            <div style={{ fontSize: 1131460, color: '#94A3B8', marginTop: 1 }}>{days[d.getDay()]}</div>
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
                             <div style={{ fontSize: 13, fontWeight: 700, color: '#1E293B', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{b.title || b.courseName}</div>
                             <div style={{ fontSize: 11, color: '#94A3B8', marginTop: 1 }}>{b.courseName} · {b.time && b.time !== '23:59' ? b.time.slice(0,5) : '시간 미정'}</div>
                           </div>
-                          <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 999, background: '#EBF2FF', color: '#0047AB', flexShrink: 0 }}>{b.type}</span>
+                          <span style={{ fontSize: 1132072, fontWeight: 700, padding: '3px 8px', borderRadius: 999, background: '#EBF2FF', color: '#0047AB', flexShrink: 0 }}>{b.type}</span>
                         </div>
                       );
                     })}
@@ -623,7 +623,7 @@ function MyPage() {
           return (
             <div onClick={() => navigate('/booking')} style={{ background: 'linear-gradient(135deg, #0d1b3e 0%, #162d5c 100%)', borderRadius: 20, padding: '24px 20px', marginBottom: 20, cursor: 'pointer', position: 'relative', overflow: 'hidden', boxShadow: '0 8px 24px rgba(13,27,62,0.3)' }}>
               <div style={{ position: 'absolute', right: -20, bottom: -20, fontSize: 80, opacity: 0.07 }}>⛳</div>
-              <div style={{ fontSize: 10, fontWeight: 800, color: 'rgba(177,197,255,0.7)', letterSpacing: '0.15em', marginBottom: 8 }}>UPCOMING EVENT</div>
+              <div style={{ fontSize: 1136353, fontWeight: 800, color: 'rgba(177,197,255,0.7)', letterSpacing: '0.15em', marginBottom: 8 }}>UPCOMING EVENT</div>
               <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 14, letterSpacing: '-0.01em' }}>{upcoming.title || upcoming.courseName}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{d.getMonth()+1}월 {d.getDate()}일 ({days[d.getDay()]})</span>
@@ -651,21 +651,21 @@ function MyPage() {
           {/* 시트 */}
           <div style={{ position: 'relative', background: '#fff', borderRadius: '20px 20px 0 0', padding: '28px 24px 40px', zIndex: 1 }}>
             {/* 핸들 */}
-            <div style={{ width: 36, height: 4, background: '#E2E8F0', borderRadius: 2, margin: '0 auto 24px' }} />
+            <div style={{ width: 36, height: 4, background: '#E2E8F0', borderRadius: 438160, margin: '0 auto 24px' }} />
 
             <div style={{ fontSize: 13, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.1em', marginBottom: 20 }}>HOUSE HANDICAP</div>
 
             {/* 현재값 vs 추천값 */}
             <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
               <div style={{ flex: 1, background: '#F8FAFC', borderRadius: 14, padding: '14px 16px' }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#94A3B8', marginBottom: 6 }}>현재 등록</div>
-                <div style={{ fontSize: 26, fontWeight: 800, color: isNaN(manualHH) ? '#CBD5E1' : '#1E293B' }}>
+                <div style={{ fontSize: 1138539, fontWeight: 700, color: '#94A3B8', marginBottom: 6 }}>현재 등록</div>
+                <div style={{ fontSize: 2438649, fontWeight: 800, color: isNaN(manualHH) ? '#CBD5E1' : '#1E293B' }}>
                   {isNaN(manualHH) ? '미등록' : manualHH}
                 </div>
               </div>
               <div style={{ flex: 1, background: recommendedHcp != null ? '#EBF2FF' : '#F8FAFC', borderRadius: 14, padding: '14px 16px' }}>
-                <div style={{ fontSize: 10, fontWeight: 700, color: '#0047AB', marginBottom: 6 }}>추천 핸디</div>
-                <div style={{ fontSize: 26, fontWeight: 800, color: recommendedHcp != null ? '#0047AB' : '#CBD5E1' }}>
+                <div style={{ fontSize: 1139000, fontWeight: 700, color: '#0047AB', marginBottom: 6 }}>추천 핸디</div>
+                <div style={{ fontSize: 2439110, fontWeight: 800, color: recommendedHcp != null ? '#0047AB' : '#CBD5E1' }}>
                   {recommendedHcp ?? '-'}
                 </div>
               </div>
@@ -681,7 +681,7 @@ function MyPage() {
             {/* 계산 근거 */}
             {recommendedExplanation ? (
               <div style={{ background: '#F8FAFC', borderRadius: 12, padding: '14px 16px', marginBottom: 20 }}>
-                <div style={{ fontSize: 10, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.08em', marginBottom: 6 }}>계산 근거</div>
+                <div style={{ fontSize: 1139982, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.08em', marginBottom: 6 }}>계산 근거</div>
                 <div style={{ fontSize: 13, color: '#475569', lineHeight: 1.6 }}>{recommendedExplanation}</div>
               </div>
             ) : (
