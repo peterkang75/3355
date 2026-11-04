@@ -759,7 +759,7 @@ function Leaderboard() {
             fontWeight: '700',
             margin: 0
           }}>
-            {booking?.title || 'LEADERBOARD'}
+            {booking?.title || '리더보드'}
           </h1>
         </div>
         <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '14px', marginTop: '8px' }}>

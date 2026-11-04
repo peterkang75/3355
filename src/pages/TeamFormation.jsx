@@ -881,7 +881,7 @@ function TeamFormation() {
             {/* 헤더 */}
             <div style={{ padding: '8px 20px 14px', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div>
-                <div style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.08em', textTransform: 'uppercase' }}>SELECT</div>
+                <div style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0' }}>선택</div>
                 <div style={{ fontSize: '18px', fontWeight: '800', color: '#1E293B', letterSpacing: '-0.02em' }}>
                   참가자 선택 <span style={{ fontSize: '14px', fontWeight: '600', color: PRIMARY }}>({selectedParticipants.length}/4)</span>
                 </div>

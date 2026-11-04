@@ -2021,7 +2021,7 @@ function Admin() {
 
               {/* 히어로 배너 */}
               <div style={{ margin: '16px 16px 20px', background: 'linear-gradient(135deg, #0047AB 0%, #1E56C5 100%)', borderRadius: 20, padding: '22px 22px 24px', boxShadow: '0 8px 24px rgba(0,71,171,0.25)' }}>
-                <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(177,197,255,0.8)', letterSpacing: '0.18em', marginBottom: 12 }}>AZURE STANDARD DASHBOARD</div>
+                <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(177,197,255,0.8)', letterSpacing: '0', marginBottom: 12 }}>관리자 대시보드</div>
                 <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', lineHeight: 1.35, marginBottom: 10, letterSpacing: '-0.02em' }}>
                   반갑습니다, {user.nickname || user.name}님.<br />오늘의 클럽 운영을 시작하세요.
                 </div>
@@ -2156,7 +2156,7 @@ function Admin() {
                     <div style={{ fontSize: 32, fontWeight: 800, color: '#fff', lineHeight: 1 }}>{totalActive.toLocaleString()}</div>
                   </div>
                   <div style={{ background: '#fff', borderRadius: 16, padding: '16px 18px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
-                    <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.12em', marginBottom: 8 }}>ACTIVE TODAY</div>
+                    <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0', marginBottom: 8 }}>오늘 접속</div>
                     <div style={{ fontSize: 32, fontWeight: 800, color: '#0047AB', lineHeight: 1 }}>{filtered}</div>
                   </div>
                 </div>
@@ -2319,7 +2319,7 @@ function Admin() {
 
                 const roleBadge = (() => {
                   if (['관리자', '방장'].includes(member.role)) return { label: 'VIP', bg: '#FEF2F2', color: '#DC2626' };
-                  if (['운영진'].includes(member.role)) return { label: 'STAFF', bg: '#EFF6FF', color: '#2563EB' };
+                  if (['운영진'].includes(member.role)) return { label: '운영진', bg: '#EFF6FF', color: '#2563EB' };
                   if (['클럽운영진'].includes(member.role)) return { label: 'CLUB', bg: '#F0FDF4', color: '#16A34A' };
                   return null;
                 })();
@@ -2367,7 +2367,7 @@ function Admin() {
 
                     {/* 핸디캡 */}
                     <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                      <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.08em', marginBottom: 3 }}>HANDICAP</div>
+                      <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', letterSpacing: '0', marginBottom: 3 }}>핸디캡</div>
                       <div style={{ fontSize: 15, fontWeight: 800, color: '#0047AB' }}>{hcpDisplay}</div>
                     </div>
                   </div>
@@ -4855,7 +4855,7 @@ function Admin() {
 
             {/* ── COURSE DIRECTORY 헤더 ── */}
             <div style={{ marginBottom: 14 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.12em', marginBottom: 4 }}>COURSE DIRECTORY</div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0', marginBottom: 4 }}>골프장 목록</div>
               <div style={{ fontSize: 20, fontWeight: 800, color: '#1E293B' }}>
                 전체 <span style={{ color: PRIMARY }}>{courseListSearch.trim() ? `${filteredCourses.length}` : courses.length}개</span>
               </div>
@@ -4940,7 +4940,7 @@ function Admin() {
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 20px 16px' }}>
                     <div>
                       <div style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', letterSpacing: '0.08em', textTransform: 'uppercase', marginBottom: '4px' }}>
-                        {courseSheetMode === 'add' ? 'NEW COURSE' : 'EDIT COURSE'}
+                        {courseSheetMode === 'add' ? '새 골프장' : '골프장 수정'}
                       </div>
                       <div style={{ fontSize: '20px', fontWeight: '800', color: '#1E293B' }}>
                         {courseSheetMode === 'add' ? '골프장 추가' : (editCourseData?.name || '')}

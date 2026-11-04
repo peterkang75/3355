@@ -746,9 +746,9 @@ function MemberDetail() {
         {/* Stats row */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', background: 'rgba(255,255,255,0.1)', borderRadius: '16px', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.15)' }}>
           {[
-            { label: 'RANKING', value: ranking > 0 ? `#${ranking}` : '-' },
-            { label: 'ROUNDS', value: personalScores.length },
-            { label: 'BEST', value: bestScore ?? '-' },
+            { label: '순위', value: ranking > 0 ? `#${ranking}` : '-' },
+            { label: '라운딩', value: personalScores.length },
+            { label: '최고', value: bestScore ?? '-' },
           ].map((stat, i) => (
             <div key={stat.label} style={{ padding: '14px 8px', textAlign: 'center', borderRight: i < 2 ? '1px solid rgba(255,255,255,0.15)' : 'none' }}>
               <div style={{ fontSize: '11px', fontWeight: '700', color: 'rgba(255,255,255,0.55)', letterSpacing: '0.8px', marginBottom: '6px' }}>{stat.label}</div>
@@ -914,7 +914,7 @@ function MemberDetail() {
                         </div>
                         <div style={{ textAlign: 'right', flexShrink: 0 }}>
                           <div style={{ fontSize: '15px', fontWeight: '700', color: amtColor }}>{sign}${transaction.amount.toLocaleString()}</div>
-                          <div style={{ fontSize: '11px', fontWeight: '700', color: isPositive ? '#059669' : '#DC2626', opacity: 0.6, letterSpacing: '0.5px' }}>{isPositive ? 'COMPLETED' : 'BILLED'}</div>
+                          <div style={{ fontSize: '11px', fontWeight: '700', color: isPositive ? '#059669' : '#DC2626', opacity: 0.6, letterSpacing: '0' }}>{isPositive ? '완료' : '청구'}</div>
                           {isAdmin && transaction.type === 'charge' && (
                             <button onClick={() => handleCancelCharge(transaction)}
                               style={{ marginTop: '6px', fontSize: '11px', fontWeight: '700', color: '#DC2626', background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: '6px', padding: '3px 9px', cursor: 'pointer' }}>

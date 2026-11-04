@@ -297,7 +297,7 @@ function MyPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 28 }}>
           <div style={{ background: '#fff', borderRadius: 16, padding: '18px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', position: 'relative' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.08em' }}>MY HANDICAP</div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0' }}>내 핸디캡</div>
               {!isGAMemberDisplay && (
                 <button onClick={() => setShowHandicapInfo(true)} style={{ background: '#F1F5F9', border: 'none', borderRadius: 999, padding: '3px 8px', fontSize: 11, fontWeight: 700, color: '#64748B', cursor: 'pointer', whiteSpace: 'nowrap' }}>
                   추천핸디계산
@@ -315,16 +315,16 @@ function MyPage() {
             )}
           </div>
           <div style={{ background: '#fff', borderRadius: 16, padding: '18px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
-            <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.08em', marginBottom: 8 }}>TOTAL ROUNDS</div>
+            <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0', marginBottom: 8 }}>총 라운딩</div>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
               <span style={{ fontSize: 28, fontWeight: 800, color: '#0d1b3e' }}>{myRoundCount}</span>
-              <span style={{ fontSize: 13, color: '#94A3B8' }}>Times</span>
+              <span style={{ fontSize: 13, color: '#94A3B8' }}>회</span>
             </div>
           </div>
         </div>
 
         {/* ── ACTIVITY & INFO ── */}
-        <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.1em', marginBottom: 10, paddingLeft: 4 }}>ACTIVITY &amp; INFO</div>
+        <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0', marginBottom: 10, paddingLeft: 4 }}>활동·정보</div>
         <div style={{ background: '#fff', borderRadius: 16, marginBottom: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
           <MenuRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="#0047AB"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/></svg>}
             label="기본 정보" onClick={() => toggleSection('basicInfo')} open={expandedSection === 'basicInfo'} />
@@ -575,7 +575,7 @@ function MyPage() {
         </div>
 
         {/* ── SETTINGS & MEMBERSHIP ── */}
-        <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.1em', marginBottom: 10, paddingLeft: 4 }}>SETTINGS &amp; MEMBERSHIP</div>
+        <div style={{ fontSize: 11, fontWeight: 800, color: '#94A3B8', letterSpacing: '0', marginBottom: 10, paddingLeft: 4 }}>설정·회원</div>
         <div style={{ background: '#fff', borderRadius: 16, marginBottom: 24, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
           <MenuRow icon={<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0047AB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>}
             label="앱 설정" onClick={() => toggleSection('appSettings')} open={expandedSection === 'appSettings'} />
@@ -623,7 +623,7 @@ function MyPage() {
           return (
             <div onClick={() => navigate('/booking')} style={{ background: 'linear-gradient(135deg, #0d1b3e 0%, #162d5c 100%)', borderRadius: 20, padding: '24px 20px', marginBottom: 20, cursor: 'pointer', position: 'relative', overflow: 'hidden', boxShadow: '0 8px 24px rgba(13,27,62,0.3)' }}>
               <div style={{ position: 'absolute', right: -20, bottom: -20, fontSize: 80, opacity: 0.07 }}>⛳</div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(177,197,255,0.7)', letterSpacing: '0.15em', marginBottom: 8 }}>UPCOMING EVENT</div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(177,197,255,0.7)', letterSpacing: '0', marginBottom: 8 }}>다가오는 일정</div>
               <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 14, letterSpacing: '-0.01em' }}>{upcoming.title || upcoming.courseName}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.6)' }}>{d.getMonth()+1}월 {d.getDate()}일 ({days[d.getDay()]})</span>
@@ -653,7 +653,7 @@ function MyPage() {
             {/* 핸들 */}
             <div style={{ width: 36, height: 4, background: '#E2E8F0', borderRadius: 4, margin: '0 auto 24px' }} />
 
-            <div style={{ fontSize: 13, fontWeight: 800, color: '#94A3B8', letterSpacing: '0.1em', marginBottom: 20 }}>HOUSE HANDICAP</div>
+            <div style={{ fontSize: 13, fontWeight: 800, color: '#94A3B8', letterSpacing: '0', marginBottom: 20 }}>하우스 핸디캡</div>
 
             {/* 현재값 vs 추천값 */}
             <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>

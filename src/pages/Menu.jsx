@@ -217,8 +217,8 @@ function Menu() {
 
       {/* ─── 고객 지원 ─── */}
       <div style={{ padding: '16px 16px 0' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', letterSpacing: '0.08em', marginBottom: 8, paddingLeft: 4 }}>
-          CUSTOMER SUPPORT
+        <div style={{ fontSize: 11, fontWeight: 700, color: '#94A3B8', letterSpacing: '0', marginBottom: 8, paddingLeft: 4 }}>
+          고객 지원
         </div>
         <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 2px 8px rgba(0,0,0,0.07)', overflow: 'hidden' }}>
           {/* 자주 묻는 질문 → About 페이지 이동 */}
