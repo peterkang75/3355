@@ -135,7 +135,10 @@ export const getStatusBadge = (booking) => {
   const max = booking.maxMembers || 4;
   const isFull = totalCount >= max;
   const isCompetition = booking.type === '컴페티션';
-  const { isRegistrationClosed } = getBookingStatusFlags(booking);
+  const { isRegistrationClosed, isPastRoundingDate } = getBookingStatusFlags(booking);
+  if (isPastRoundingDate) {
+    return <span style={{ padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: '600', background: '#EFEDE7', color: '#5E6473' }}>종료</span>;
+  }
   const hasExplicitDeadline = !!booking.registrationDeadline;
   const isClosed = isCompetition
     ? isRegistrationClosed

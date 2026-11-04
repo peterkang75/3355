@@ -74,6 +74,16 @@ function RoundingListV2() {
     if (found) { setViewMode('past'); setGalleryBooking(found); }
   }, [bookings]);
 
+  // 지난 라운딩 상세 → 스코어·시상 → 뒤로가기 시 상세 시트 복원
+  useEffect(() => {
+    if (bookings.length === 0) return;
+    const id = sessionStorage.getItem('reopenBookingSheet');
+    if (!id) return;
+    sessionStorage.removeItem('reopenBookingSheet');
+    const found = bookings.find(b => b.id === id);
+    if (found) { setViewMode('past'); setSelectedBooking(found); }
+  }, [bookings]);
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (selectedBooking && sheetRef.current && !sheetRef.current.contains(e.target)) {
@@ -516,11 +526,13 @@ function RoundingListV2() {
               const summary = names.length <= 4 ? names.join(', ') : `${names.slice(0, 4).join(', ')} 외 ${names.length - 4}명`;
               const d = new Date(b.date);
               return (
-                <div key={b.id} style={{ background: '#fff', borderRadius: 12, padding: '14px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
-                  <div style={{ fontWeight: 700, fontSize: 15, color: '#1A1D26' }}>{b.title || '정기라운딩'}</div>
-                  <div style={{ fontSize: 13, color: '#9A9DA6', marginTop: 3 }}>{d.getFullYear()}. {d.getMonth() + 1}. {d.getDate()} · {b.courseName}</div>
-                  <div style={{ fontSize: 14, color: '#4B5060', marginTop: 8 }}>참가 {parts.length}명 · {summary}</div>
-                  <button onClick={() => navigate(`/leaderboard?id=${b.id}`)} style={{ marginTop: 10, padding: '8px 14px', border: '1px solid #E6E2D8', borderRadius: 8, background: '#F7F5F0', color: '#14284B', fontWeight: 600, fontSize: 14, minHeight: 40 }}>스코어·시상 보기</button>
+                <div key={b.id} onClick={() => setSelectedBooking(b)} style={{ background: '#fff', borderRadius: 12, padding: '14px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 15, color: '#1A1D26' }}>{b.title || '정기라운딩'}</div>
+                    <div style={{ fontSize: 13, color: '#9A9DA6', marginTop: 3 }}>{d.getFullYear()}. {d.getMonth() + 1}. {d.getDate()} · {b.courseName}</div>
+                    <div style={{ fontSize: 14, color: '#4B5060', marginTop: 8 }}>참가 {parts.length}명 · {summary}</div>
+                  </div>
+                  <span aria-hidden style={{ color: '#9A9DA6', fontSize: 20, flexShrink: 0 }}>›</span>
                 </div>
               );
             })}
