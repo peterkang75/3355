@@ -378,7 +378,6 @@ function Fees() {
             {/* 납부 안내 문구 — 맨 아래 박스 */}
             {paymentGuideText && (
               <div style={{ background: "#EBF2FF", borderRadius: 20, padding: "18px 20px", display: "flex", alignItems: "flex-start", gap: 14, border: "1px solid rgba(0,71,171,0.12)", marginBottom: 0 }}>
-                <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>ℹ️</span>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 700, color: "#0047AB", marginBottom: 6 }}>납부 안내</div>
                   <div style={{ fontSize: 12, color: "#1e40af", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>{paymentGuideText}</div>

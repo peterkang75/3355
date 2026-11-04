@@ -1312,7 +1312,6 @@ function Play() {
             <span style={{ fontSize: '17px', fontWeight: '700', color: '#1E293B' }}>플레이하기</span>
           </div>
           <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 24px', gap: '16px' }}>
-            <div style={{ fontSize: '56px', marginBottom: 4 }}>⏳</div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '18px', fontWeight: '800', color: '#1E293B', marginBottom: '10px', letterSpacing: '-0.02em' }}>
                 조편성이 아직 안됐습니다

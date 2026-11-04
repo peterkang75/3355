@@ -1106,7 +1106,7 @@ function MemberDetail() {
               onClick={() => { setShowAdminSheet(false); handleToggleActive(); }}
               style={{ display: 'block', width: '100%', padding: '14px 16px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', textAlign: 'left', fontSize: '15px', fontWeight: '600', cursor: 'pointer', marginBottom: '8px', color: '#334155' }}
             >
-              {member.isActive === false ? '✓ 활성화하기' : '⏸ 비활성화하기'}
+              {member.isActive === false ? '활성화하기' : '비활성화하기'}
             </button>
             <button
               onClick={() => { setShowAdminSheet(false); handleDelete(); }}
