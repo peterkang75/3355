@@ -474,7 +474,7 @@ function Viewer({ item, items, index, total, slideDir, canDelete, onPrev, onNext
             <div
               key={m.id}
               onClick={() => onSelect(i)}
-              style={{ width: '50px', height: '50px', flexShrink: 0, borderRadius: '6px', overflow: 'hidden', cursor: 'pointer', position: 'relative', border: i === index ? '2px solid #EF4444' : '2px solid transparent', opacity: i === index ? 1 : 0.5 }}
+              style={{ width: '50px', height: '50px', flexShrink: 0, borderRadius: '6px', overflow: 'hidden', cursor: 'pointer', position: 'relative', border: i === index ? '2px solid #DC2626' : '2px solid transparent', opacity: i === index ? 1 : 0.5 }}
             >
               <img src={m.thumbnailUrl || m.url} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               {m.type === 'video' && (

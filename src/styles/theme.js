@@ -27,7 +27,7 @@ const theme = {
     outlineVariant: '#cbd5e1',
 
     // Semantic
-    error:            '#ba1a1a',
+    error:            '#dc2626',
     errorContainer:   '#ffdad6',
     success:          '#1e6e3e',
     successContainer: '#c8f5d8',
@@ -37,7 +37,7 @@ const theme = {
     // Legacy aliases
     bg_app:  '#f8fafc',
     bg_card: '#ffffff',
-    danger:  '#ba1a1a',
+    danger:  '#dc2626',
   },
 
   gradients: {

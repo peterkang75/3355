@@ -380,7 +380,7 @@ function JoinPage() {
                     </div>
                     <button type="button"
                       onClick={() => { setForm(f => ({ ...f, club: '' })); setClubSearchState('idle'); }}
-                      style={{ background: 'none', border: 'none', color: '#6B7280', fontSize: 16, cursor: 'pointer', padding: '0 4px' }}>×</button>
+                      style={{ background: 'none', border: 'none', color: '#64748B', fontSize: 16, cursor: 'pointer', padding: '0 4px' }}>×</button>
                   </div>
                 )}
 

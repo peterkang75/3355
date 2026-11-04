@@ -50,7 +50,7 @@ export default function SettlementReportModal({ yearMonth, authHeaders, onClose 
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                           <div style={{ minWidth: 0, flex: 1 }}>
                             <div style={{ fontSize: 12, color: '#94a3b8', fontWeight: 500, marginBottom: 2 }}>{parseInt(bm)}월 {parseInt(bd)}일</div>
-                            <div style={{ fontSize: 14, fontWeight: 600, color: '#111827' }}>{b.courseName || b.title}</div>
+                            <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{b.courseName || b.title}</div>
                           </div>
                           <div style={{ flexShrink: 0, marginLeft: 12, textAlign: 'right' }}>
                             <div style={{ fontSize: 12, color: '#64748b' }}>{b.participantCount}명</div>
@@ -127,7 +127,7 @@ function Section({ title, children }) {
   return (
     <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
       <div style={{ padding: '13px 16px', background: '#f8fafc', borderBottom: '1px solid #f1f5f9' }}>
-        <span style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>{title}</span>
+        <span style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{title}</span>
       </div>
       <div style={{ padding: '4px 16px 12px' }}>{children}</div>
     </div>
@@ -137,7 +137,7 @@ function Section({ title, children }) {
 // 요약 행 — 모든 금액 동일 사이즈 (14px)
 function SummaryRow({ label, value, color, sign, negative }) {
   const display = negative ? `-${fmt(value)}` : sign ? `+${fmt(value)}` : (value >= 0 ? `+${fmt(value)}` : `-${fmt(value)}`);
-  const c = color || (value >= 0 ? '#374151' : '#dc2626');
+  const c = color || (value >= 0 ? '#334155' : '#dc2626');
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '7px 0' }}>
       <span style={{ fontSize: 13, color: '#64748b', fontWeight: 400 }}>{label}</span>
@@ -152,7 +152,7 @@ function PLSection({ title, categories, color, sign }) {
     <div style={{ background: '#fff', borderRadius: 16, overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
       {/* 큰 제목 행 */}
       <div style={{ padding: '13px 16px', background: '#f8fafc', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>{title}</span>
+        <span style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{title}</span>
         <span style={{ fontSize: 15, fontWeight: 600, color }}>
           {sign}{fmt(categories.reduce((s, c) => s + c.total, 0))}
         </span>
@@ -161,7 +161,7 @@ function PLSection({ title, categories, color, sign }) {
         <div key={ci} style={{ borderBottom: ci < categories.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
           {/* 중간 제목 행 (카테고리) */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 16px', background: '#fafbfc' }}>
-            <span style={{ fontSize: 15, fontWeight: 600, color: '#111827' }}>{cat.category}</span>
+            <span style={{ fontSize: 15, fontWeight: 600, color: '#0f172a' }}>{cat.category}</span>
             <span style={{ fontSize: 15, fontWeight: 600, color }}>{sign}{fmt(cat.total)}</span>
           </div>
           {/* 세부 항목 */}
@@ -173,7 +173,7 @@ function PLSection({ title, categories, color, sign }) {
                   <div>
                     <span style={{ fontSize: 11, color: '#94a3b8', marginRight: 6 }}>{parseInt(mm)}.{parseInt(dd)}</span>
                     {item.memberName && (
-                      <span style={{ fontSize: 12, fontWeight: 500, color: '#374151' }}>{item.memberName}</span>
+                      <span style={{ fontSize: 12, fontWeight: 500, color: '#334155' }}>{item.memberName}</span>
                     )}
                   </div>
                   {item.memo && item.memo !== cat.category && (

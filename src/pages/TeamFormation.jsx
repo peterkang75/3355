@@ -876,7 +876,7 @@ function TeamFormation() {
           }}>
             {/* 핸들 */}
             <div style={{ textAlign: 'center', padding: '14px 0 4px' }}>
-              <div style={{ width: '40px', height: '4px', background: '#D1D5DB', borderRadius: '2px', margin: '0 auto' }} />
+              <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '2px', margin: '0 auto' }} />
             </div>
             {/* 헤더 */}
             <div style={{ padding: '8px 20px 14px', borderBottom: '1px solid #F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

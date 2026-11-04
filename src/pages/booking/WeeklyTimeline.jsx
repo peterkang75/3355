@@ -61,7 +61,7 @@ function WeekTile({ booking, user, onSelect }) {
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
         padding: isRegular ? '16px 0' : '12px 0', borderRight: '1px solid #F1F5F9',
       }}>
-        <div style={{ fontSize: isRegular ? '28px' : '22px', fontWeight: '800', color: isRegular ? '#C0392B' : isDayOff ? azure.primary : azure.text, lineHeight: 1 }}>
+        <div style={{ fontSize: isRegular ? '28px' : '22px', fontWeight: '800', color: isRegular ? '#B91C1C' : isDayOff ? azure.primary : azure.text, lineHeight: 1 }}>
           {dateNum}
         </div>
         <div style={{ fontSize: isRegular ? '12px' : '11px', fontWeight: '600', color: isRegular ? '#E05A4D' : isDayOff ? azure.primary : azure.muted, marginTop: '2px' }}>
@@ -105,7 +105,7 @@ function WeekTile({ booking, user, onSelect }) {
         <span style={{ fontSize: '11px', fontWeight: '700', color: statusColor, whiteSpace: 'nowrap' }}>
           {statusText}
         </span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D1D5DB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '4px', flexShrink: 0 }}>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ marginLeft: '4px', flexShrink: 0 }}>
           <polyline points="9 18 15 12 9 6"/>
         </svg>
       </div>
@@ -116,10 +116,10 @@ function WeekTile({ booking, user, onSelect }) {
 export default function WeeklyTimeline({ groupedByWeek, user, onSelectBooking }) {
   if (groupedByWeek.length === 0) {
     return (
-      <div style={{ textAlign: 'center', padding: '48px 20px', color: '#9CA3AF', fontSize: '14px', background: '#FFFFFF', borderRadius: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+      <div style={{ textAlign: 'center', padding: '48px 20px', color: '#94A3B8', fontSize: '14px', background: '#FFFFFF', borderRadius: '16px', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
         <div style={{ fontSize: '40px', marginBottom: '12px' }}>⛳</div>
         <div style={{ fontWeight: '500' }}>예정된 라운딩이 없습니다</div>
-        <div style={{ marginTop: '6px', fontSize: '13px', color: '#D1D5DB' }}>+ 버튼을 눌러 라운딩을 만들어보세요</div>
+        <div style={{ marginTop: '6px', fontSize: '13px', color: '#CBD5E1' }}>+ 버튼을 눌러 라운딩을 만들어보세요</div>
       </div>
     );
   }

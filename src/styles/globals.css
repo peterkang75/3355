@@ -70,7 +70,7 @@ input[type="datetime-local"] {
   --outline-variant: #cbd5e1;  /* Slate 300 */
 
   /* --- Semantic --- */
-  --error:          #ba1a1a;
+  --error:          #dc2626;
   --error-container:#ffdad6;
   --success:        #1e6e3e;
   --success-container:#c8f5d8;
@@ -100,11 +100,11 @@ input[type="datetime-local"] {
   --text-light:     #ffffff;
   --border-color:   rgba(192, 201, 195, 0.20);
   --shadow:         rgba(0, 71, 171, 0.06);
-  --alert-red:      #ba1a1a;
+  --alert-red:      #dc2626;
   --success-green:  #1e6e3e;
   --warning-yellow: #7a5200;
   --error-bg:       #ffdad6;
-  --error-text:     #ba1a1a;
+  --error-text:     #dc2626;
   --error-border:   rgba(186, 26, 26, 0.20);
   --success-bg:     #c8f5d8;
   --success-text:   #1e6e3e;

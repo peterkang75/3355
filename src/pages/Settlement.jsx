@@ -391,7 +391,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
               <button key={val} onClick={() => { setMode(val); setSelectedCategory(''); setReceiptImages([]); }}
                 style={{
                   flex: 1, padding: '10px', border: 'none', borderRadius: 9, fontSize: 14, fontWeight: 700, cursor: 'pointer',
-                  background: mode === val ? (val === 'income' ? 'var(--primary)' : '#ef4444') : 'transparent',
+                  background: mode === val ? (val === 'income' ? 'var(--primary)' : '#dc2626') : 'transparent',
                   color: mode === val ? '#fff' : 'var(--text-muted)', transition: 'all 0.15s',
                 }}>{label}</button>
             ))}
@@ -410,7 +410,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                   }}
                   style={{
                     padding: '8px 14px', borderRadius: 20, fontSize: 13, fontWeight: 600, cursor: 'pointer', border: 'none',
-                    background: selectedCategory === cat.name ? (mode === 'income' ? 'var(--primary)' : '#ef4444') : '#f1f5f9',
+                    background: selectedCategory === cat.name ? (mode === 'income' ? 'var(--primary)' : '#dc2626') : '#f1f5f9',
                     color: selectedCategory === cat.name ? '#fff' : 'var(--on-background)',
                   }}>{cat.name}</button>
               ))}
@@ -452,7 +452,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                       <div key={c.chargeId}
                         onClick={() => { setRefundTargetKey(c.chargeId); setRefundSubMode('cash'); setAmount(String(c.refundableAmount)); }}
                         style={{
-                          padding: '10px 12px', borderRadius: 12, border: '1.5px solid ' + (refundTargetKey === c.chargeId ? '#ef4444' : '#e2e8f0'),
+                          padding: '10px 12px', borderRadius: 12, border: '1.5px solid ' + (refundTargetKey === c.chargeId ? '#dc2626' : '#e2e8f0'),
                           background: refundTargetKey === c.chargeId ? '#fef2f2' : '#f8fafc', marginBottom: 8, cursor: 'pointer',
                         }}>
                         <div style={{ fontSize: 14, fontWeight: 700 }}>{c.bookingTitle}</div>
@@ -463,7 +463,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                       <div
                         onClick={() => { setRefundTargetKey('credit'); setRefundSubMode('cash'); setAmount(String(refundCandidates.creditBalance)); }}
                         style={{
-                          padding: '10px 12px', borderRadius: 12, border: '1.5px solid ' + (refundTargetKey === 'credit' ? '#ef4444' : '#e2e8f0'),
+                          padding: '10px 12px', borderRadius: 12, border: '1.5px solid ' + (refundTargetKey === 'credit' ? '#dc2626' : '#e2e8f0'),
                           background: refundTargetKey === 'credit' ? '#fef2f2' : '#f8fafc', cursor: 'pointer',
                         }}>
                         <div style={{ fontSize: 14, fontWeight: 700 }}>보유 크레딧</div>
@@ -485,7 +485,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                           {[['cash', '현금으로 환불'], ['credit', '크레딧으로 전환']].map(([val, label]) => (
                             <button key={val} onClick={() => setRefundSubMode(val)}
                               style={{ flex: 1, padding: 10, borderRadius: 10, border: 'none', fontSize: 13, fontWeight: 700, cursor: 'pointer',
-                                background: refundSubMode === val ? '#ef4444' : '#f1f5f9', color: refundSubMode === val ? '#fff' : 'var(--on-background)' }}>
+                                background: refundSubMode === val ? '#dc2626' : '#f1f5f9', color: refundSubMode === val ? '#fff' : 'var(--on-background)' }}>
                               {label}
                             </button>
                           ))}
@@ -527,7 +527,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                             <div key={i} style={{ position: 'relative', width: 72, height: 72 }}>
                               <img src={img} alt="증빙" style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 10, border: '1.5px solid #e2e8f0' }} />
                               <button onClick={() => setReceiptImages(prev => prev.filter((_, idx) => idx !== i))}
-                                style={{ position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%', border: 'none', background: '#ef4444', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>×</button>
+                                style={{ position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%', border: 'none', background: '#dc2626', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>×</button>
                             </div>
                           ))}
                           {receiptImages.length < 1 && (
@@ -566,7 +566,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
                         <div key={i} style={{ position: 'relative', width: 72, height: 72 }}>
                           <img src={img} alt="영수증" style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 10, border: '1.5px solid #e2e8f0' }} />
                           <button onClick={() => setReceiptImages(prev => prev.filter((_, idx) => idx !== i))}
-                            style={{ position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%', border: 'none', background: '#ef4444', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                            style={{ position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%', border: 'none', background: '#dc2626', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
                         </div>
                       ))}
                       {receiptImages.length < 5 && (
@@ -631,7 +631,7 @@ function QuickInputSheet({ onClose, onSaved, members, yearMonth, authHeaders }) 
         {/* 저장 버튼 — 시트 하단 고정 (flex item, 내비 바 위) */}
         <div style={{ flexShrink: 0, padding: '12px 20px', paddingBottom: 'calc(12px + 60px + env(safe-area-inset-bottom))', background: '#fff', borderTop: '1px solid #f1f5f9' }}>
           <button onClick={handleSave} disabled={saving || (isRefundFlow && !refundTargetKey)}
-            style={{ width: '100%', padding: '16px', borderRadius: 14, border: 'none', fontSize: 16, fontWeight: 800, cursor: (saving || (isRefundFlow && !refundTargetKey)) ? 'not-allowed' : 'pointer', background: (saving || (isRefundFlow && !refundTargetKey)) ? '#94a3b8' : (mode === 'income' ? 'var(--primary)' : '#ef4444'), color: '#fff' }}>
+            style={{ width: '100%', padding: '16px', borderRadius: 14, border: 'none', fontSize: 16, fontWeight: 800, cursor: (saving || (isRefundFlow && !refundTargetKey)) ? 'not-allowed' : 'pointer', background: (saving || (isRefundFlow && !refundTargetKey)) ? '#94a3b8' : (mode === 'income' ? 'var(--primary)' : '#dc2626'), color: '#fff' }}>
             {saving ? '저장 중…' : (isRefundFlow ? (refundSubMode === 'credit' ? '크레딧전환 처리' : '환불 처리') : '저장하기')}
           </button>
         </div>
@@ -803,7 +803,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
 
   const total = txList.reduce((s, t) => s + t.amount, 0);
   const isIncome = side === 'income';
-  const color = isIncome ? '#16a34a' : '#ef4444';
+  const color = isIncome ? '#16a34a' : '#dc2626';
 
   const getImages = (t) => {
     const multi = Array.isArray(t.receiptImages) ? t.receiptImages : [];
@@ -821,7 +821,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
       }}>
         {/* 헤더 */}
         <div style={{ padding: '16px 20px 0', flexShrink: 0 }}>
-          <div style={{ width: 40, height: 4, background: '#D1D5DB', borderRadius: 2, margin: '0 auto 16px' }} />
+          <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 2, margin: '0 auto 16px' }} />
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
             <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--on-background)' }}>{categoryKey}</div>
             <button onClick={onClose} style={{ background: '#f1f5f9', border: 'none', borderRadius: 10, width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 18 }}>×</button>
@@ -884,7 +884,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
                           </button>
                         )}
                         {isOperator && !isClosed && (
-                          <button onClick={() => handleReverse(t)} disabled={deletingId === t.id} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #fecaca', background: deletingId === t.id ? '#f8fafc' : '#fff5f5', color: deletingId === t.id ? '#9ca3af' : '#dc2626', fontSize: 11, fontWeight: 600, cursor: deletingId === t.id ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}>
+                          <button onClick={() => handleReverse(t)} disabled={deletingId === t.id} style={{ padding: '3px 8px', borderRadius: 6, border: '1px solid #fecaca', background: deletingId === t.id ? '#f8fafc' : '#fff5f5', color: deletingId === t.id ? '#94a3b8' : '#dc2626', fontSize: 11, fontWeight: 600, cursor: deletingId === t.id ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap' }}>
                             {deletingId === t.id ? '...' : (isIncome ? '취소' : '삭제')}
                           </button>
                         )}
@@ -906,7 +906,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
         <>
           <div onClick={() => setEditingTx(null)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 1100 }} />
           <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '22px 22px 0 0', zIndex: 1101, padding: '20px 20px 0' }}>
-            <div style={{ width: 40, height: 4, background: '#D1D5DB', borderRadius: 2, margin: '0 auto 16px' }} />
+            <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 2, margin: '0 auto 16px' }} />
             <div style={{ fontSize: 16, fontWeight: 800, marginBottom: 16 }}>내역 수정</div>
 
             {/* 항목 선택 */}
@@ -914,7 +914,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
               <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-muted)', marginBottom: 8 }}>항목</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {categories.map(cat => (
-                  <button key={cat} onClick={() => setEditCategory(cat)} style={{ padding: '7px 14px', borderRadius: 20, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', background: editCategory === cat ? (side === 'income' ? '#0047AB' : '#ef4444') : '#f1f5f9', color: editCategory === cat ? '#fff' : 'var(--on-background)' }}>
+                  <button key={cat} onClick={() => setEditCategory(cat)} style={{ padding: '7px 14px', borderRadius: 20, border: 'none', fontSize: 13, fontWeight: 600, cursor: 'pointer', background: editCategory === cat ? (side === 'income' ? '#0047AB' : '#dc2626') : '#f1f5f9', color: editCategory === cat ? '#fff' : 'var(--on-background)' }}>
                     {cat}
                   </button>
                 ))}
@@ -953,7 +953,7 @@ function CategoryDetailSheet({ categoryKey, side, yearMonth, authHeaders, onClos
             {/* 버튼 */}
             <div style={{ display: 'flex', gap: 8, paddingBottom: 'calc(70px + env(safe-area-inset-bottom))' }}>
               <button onClick={() => setEditingTx(null)} style={{ flex: 1, padding: '14px', borderRadius: 14, border: '1.5px solid #e2e8f0', background: '#f8fafc', fontSize: 15, fontWeight: 700, cursor: 'pointer', color: 'var(--text-muted)' }}>취소</button>
-              <button onClick={handleEditSave} disabled={editSaving} style={{ flex: 2, padding: '14px', borderRadius: 14, border: 'none', background: editSaving ? '#94a3b8' : (side === 'income' ? '#0047AB' : '#ef4444'), color: '#fff', fontSize: 15, fontWeight: 800, cursor: editSaving ? 'not-allowed' : 'pointer' }}>
+              <button onClick={handleEditSave} disabled={editSaving} style={{ flex: 2, padding: '14px', borderRadius: 14, border: 'none', background: editSaving ? '#94a3b8' : (side === 'income' ? '#0047AB' : '#dc2626'), color: '#fff', fontSize: 15, fontWeight: 800, cursor: editSaving ? 'not-allowed' : 'pointer' }}>
                 {editSaving ? '저장 중…' : '저장'}
               </button>
             </div>
@@ -972,7 +972,7 @@ function PaySheet({ member, amount, setAmount, memo, setMemo, date, setDate, yea
       <div onClick={onClose} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 300, backdropFilter: 'blur(2px)' }} />
       <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#fff', borderRadius: '22px 22px 0 0', zIndex: 301, padding: '20px 20px 0' }}>
         <div style={{ textAlign: 'center', marginBottom: 20 }}>
-          <div style={{ width: 40, height: 4, background: '#D1D5DB', borderRadius: 2, margin: '0 auto 16px' }} />
+          <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 2, margin: '0 auto 16px' }} />
           <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--on-background)' }}>납부 처리</div>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 4 }}>
             {member.isGuest && (
@@ -1109,7 +1109,7 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
       }}>
         {/* 헤더 */}
         <div style={{ padding: '16px 20px 0', flexShrink: 0 }}>
-          <div style={{ width: 40, height: 4, background: '#D1D5DB', borderRadius: 2, margin: '0 auto 16px' }} />
+          <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 2, margin: '0 auto 16px' }} />
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
             <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--on-background)' }}>
               {member.isGuest && (
@@ -1228,7 +1228,7 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
                                 padding: '3px 10px', borderRadius: 8,
                                 border: '1px solid #fecaca',
                                 background: deletingId === c.id ? '#f8fafc' : '#fff5f5',
-                                color: deletingId === c.id ? '#9ca3af' : '#dc2626',
+                                color: deletingId === c.id ? '#94a3b8' : '#dc2626',
                                 fontSize: 11, fontWeight: 600,
                                 cursor: deletingId === c.id ? 'not-allowed' : 'pointer',
                                 whiteSpace: 'nowrap',
@@ -1352,7 +1352,7 @@ function SettlementResolveSheet({ item, yearMonth, onClose, onDone }) {
               <span>청구 <b style={{ color: '#1e293b' }}>{formatCurrency(item.chargeTotal)}</b></span>
               {item.alreadyRefunded > 0 && <span>이미 환불 <b style={{ color: '#1e293b' }}>{formatCurrency(item.alreadyRefunded)}</b></span>}
               {item.paidByCredit > 0 && <span>크레딧 결제 <b style={{ color: '#1e293b' }}>{formatCurrency(item.paidByCredit)}</b></span>}
-              <span>현재 잔액 <b style={{ color: item.memberBalance < 0 ? '#ef4444' : '#1e293b' }}>{formatCurrency(item.memberBalance)}</b></span>
+              <span>현재 잔액 <b style={{ color: item.memberBalance < 0 ? '#dc2626' : '#1e293b' }}>{formatCurrency(item.memberBalance)}</b></span>
             </div>
             {item.memberBalance < 0 && (
               <div style={{ fontSize: 11, color: '#ea580c', marginTop: 8, fontWeight: 600 }}>
@@ -1386,7 +1386,7 @@ function SettlementResolveSheet({ item, yearMonth, onClose, onDone }) {
             }}>
               <div style={{ fontSize: 13, color: '#475569' }}>
                 이 처리 후 {item.memberName}님 잔액{' '}
-                <b style={{ color: projectedBalance > 0 ? '#ea580c' : projectedBalance < 0 ? '#ef4444' : '#1e293b' }}>
+                <b style={{ color: projectedBalance > 0 ? '#ea580c' : projectedBalance < 0 ? '#dc2626' : '#1e293b' }}>
                   {projectedBalance > 0 ? '+' : ''}{formatCurrency(projectedBalance)}
                 </b>
                 {projectedBalance === 0 && <span style={{ color: 'var(--text-muted)' }}> — 미납·크레딧 없이 깔끔하게 끝납니다</span>}
@@ -1438,7 +1438,7 @@ function SettlementResolveSheet({ item, yearMonth, onClose, onDone }) {
                     <div style={{ position: 'relative', width: 84, height: 84 }}>
                       <img src={receiptImage} alt="증빙" style={{ width: 84, height: 84, objectFit: 'cover', borderRadius: 10, border: '1.5px solid #e2e8f0' }} />
                       <button onClick={() => setReceiptImage('')}
-                        style={{ position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%', border: 'none', background: '#ef4444', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>×</button>
+                        style={{ position: 'absolute', top: -6, right: -6, width: 20, height: 20, borderRadius: '50%', border: 'none', background: '#dc2626', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>×</button>
                     </div>
                   ) : (
                     <label style={{ display: 'flex', width: 84, height: 84, borderRadius: 10, border: '1.5px dashed #cbd5e1', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'var(--text-muted)', fontSize: 11, fontWeight: 600, background: '#f8fafc' }}>
@@ -1746,7 +1746,7 @@ function Settlement() {
                 <div key={p.id} style={{ padding: '10px 0', borderTop: '1px solid #f1f5f9' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#111827' }}>{memberName}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{memberName}</div>
                       <div style={{ fontSize: 11, color: '#64748b' }}>{bookingName} · ${p.amount.toLocaleString()}</div>
                     </div>
                     <div style={{ fontSize: 13, fontWeight: 800, color: '#dc2626' }}>-${p.amount.toLocaleString()}</div>
@@ -1841,7 +1841,7 @@ function Settlement() {
                   </div>
                   <span style={{ fontSize: 12, color: '#0047AB', fontWeight: 700, letterSpacing: '0.01em' }}>전체 잔액 (Total Balance)</span>
                 </div>
-                <div style={{ fontSize: 34, fontWeight: 900, color: data.netBalance >= 0 ? '#0047AB' : '#ef4444', letterSpacing: '-0.03em' }}>
+                <div style={{ fontSize: 34, fontWeight: 900, color: data.netBalance >= 0 ? '#0047AB' : '#dc2626', letterSpacing: '-0.03em' }}>
                   {data.netBalance >= 0 ? '' : '-'}{formatCurrency(Math.abs(data.netBalance))}
                 </div>
               </div>
@@ -2024,7 +2024,7 @@ function Settlement() {
                       <svg width="18" height="18" viewBox="0 0 24 24" fill="#1e293b"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
                       <span style={{ fontSize: 16, fontWeight: 800, color: '#1e293b' }}>지출 내역</span>
                     </div>
-                    <div style={{ background: '#FEE2E2', color: '#ef4444', borderRadius: 999, padding: '5px 14px', fontSize: 13, fontWeight: 700 }}>
+                    <div style={{ background: '#FEE2E2', color: '#dc2626', borderRadius: 999, padding: '5px 14px', fontSize: 13, fontWeight: 700 }}>
                       - {formatCurrency(data.totalExpense)}
                     </div>
                   </div>
@@ -2037,7 +2037,7 @@ function Settlement() {
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 14, fontWeight: 700, color: '#1e293b' }}>{cat}</div>
                         </div>
-                        <span style={{ fontSize: 15, fontWeight: 800, color: '#ef4444', flexShrink: 0 }}>-{formatCurrency(amt)}</span>
+                        <span style={{ fontSize: 15, fontWeight: 800, color: '#dc2626', flexShrink: 0 }}>-{formatCurrency(amt)}</span>
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                       </div>
                     ))}

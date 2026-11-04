@@ -80,7 +80,7 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
           style={{
             fontSize: '14px',
             fontWeight: '500',
-            color: '#374151',
+            color: '#334155',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
@@ -180,10 +180,10 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
             overflow: 'hidden'
           }}
         >
-          <div style={{ padding: '12px', borderBottom: '1px solid #E5E7EB' }}>
+          <div style={{ padding: '12px', borderBottom: '1px solid #E2E8F0' }}>
             <div style={{ 
               fontSize: '12px', 
-              color: '#6B7280', 
+              color: '#64748B', 
               marginBottom: '8px',
               fontWeight: '600'
             }}>
@@ -198,7 +198,7 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
               style={{
                 width: '100%',
                 padding: '8px 12px',
-                border: '1px solid #E5E7EB',
+                border: '1px solid #E2E8F0',
                 borderRadius: '8px',
                 fontSize: '14px',
                 outline: 'none'
@@ -215,7 +215,7 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
               <div style={{ 
                 padding: '16px', 
                 textAlign: 'center', 
-                color: '#9CA3AF',
+                color: '#94A3B8',
                 fontSize: '14px'
               }}>
                 검색 결과가 없습니다
@@ -237,7 +237,7 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
                   }}
                   onMouseEnter={(e) => {
                     if (member.id !== user.id) {
-                      e.currentTarget.style.background = '#F3F4F6';
+                      e.currentTarget.style.background = '#F1F5F9';
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -295,7 +295,7 @@ function ProfileBadge({ user, showGreeting = false, showInlineName = false, size
                     </div>
                     <div style={{ 
                       fontSize: '11px', 
-                      color: '#9CA3AF',
+                      color: '#94A3B8',
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
                       whiteSpace: 'nowrap'

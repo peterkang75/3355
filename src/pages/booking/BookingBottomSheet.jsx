@@ -176,7 +176,7 @@ export default function BookingBottomSheet({
       >
         {/* 핸들 */}
         <div style={{ textAlign: 'center', padding: '14px 0 8px', flexShrink: 0 }}>
-          <div style={{ width: '40px', height: '4px', background: '#D1D5DB', borderRadius: '2px', margin: '0 auto' }} />
+          <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '2px', margin: '0 auto' }} />
         </div>
 
         {/* 스크롤 영역 */}

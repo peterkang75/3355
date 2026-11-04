@@ -65,7 +65,7 @@ export default function PhotoViewer({ images, startIndex = 0, onClose }) {
         <div ref={stripRef} className="pv-strip" style={{ display: 'flex', gap: 6, overflowX: 'auto', padding: '8px 12px', flexShrink: 0, scrollbarWidth: 'none' }}>
           {images.map((m, i) => (
             <div key={i} onClick={() => go(i)}
-              style={{ width: 50, height: 50, flexShrink: 0, borderRadius: 6, overflow: 'hidden', cursor: 'pointer', border: i === index ? '2px solid #EF4444' : '2px solid transparent', opacity: i === index ? 1 : 0.5 }}>
+              style={{ width: 50, height: 50, flexShrink: 0, borderRadius: 6, overflow: 'hidden', cursor: 'pointer', border: i === index ? '2px solid #DC2626' : '2px solid transparent', opacity: i === index ? 1 : 0.5 }}>
               <img src={m.thumbUrl || m.url} alt="" loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
             </div>
           ))}

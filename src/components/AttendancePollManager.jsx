@@ -10,7 +10,7 @@ const PRIMARY = '#0047AB';
 
 const cardStyle = { background: '#FFFFFF', borderRadius: '16px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '10px' };
 const labelStyle = { fontSize: '13px', fontWeight: '700', color: '#64748B', marginBottom: '10px' };
-const inputStyle = { width: '100%', padding: '11px 13px', borderRadius: '10px', border: '1px solid #E8ECF0', fontSize: '14px', outline: 'none', boxSizing: 'border-box', background: '#FAFBFC', color: '#111827' };
+const inputStyle = { width: '100%', padding: '11px 13px', borderRadius: '10px', border: '1px solid #E8ECF0', fontSize: '14px', outline: 'none', boxSizing: 'border-box', background: '#FAFBFC', color: '#0f172a' };
 
 // 라운딩에 등록된 기본 참가비 (금액을 비워두면 이 금액이 청구된다)
 const defaultFeeOf = (booking) =>
@@ -238,7 +238,7 @@ function AttendancePollManager({ booking, onChanged }) {
         }}>{poll.isClosed ? '종료됨' : '진행 중'}</span>
       </div>
 
-      <div style={{ fontSize: 15, fontWeight: 700, color: '#111827', marginBottom: 10 }}>{poll.title}</div>
+      <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 10 }}>{poll.title}</div>
       {poll.notice && (
         <div style={{ fontSize: 12.5, color: '#475569', background: '#F8FAFC', borderRadius: 10, padding: '9px 11px', marginBottom: 10, whiteSpace: 'pre-wrap', lineHeight: 1.55 }}>{poll.notice}</div>
       )}

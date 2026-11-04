@@ -2208,7 +2208,7 @@ function Admin() {
                         <div style={{
                           width: '60px',
                           height: '60px',
-                          background: '#ddd',
+                          background: '#e2e8f0',
                           borderRadius: '50%',
                           display: 'flex',
                           alignItems: 'center',
@@ -2555,7 +2555,7 @@ function Admin() {
                 }}>
                   {/* 핸들 + 헤더 (고정) */}
                   <div style={{ flexShrink: 0, padding: '12px 20px 0' }}>
-                    <div style={{ width: 40, height: 4, background: '#D1D5DB', borderRadius: 2, margin: '0 auto 14px' }} />
+                    <div style={{ width: 40, height: 4, background: '#CBD5E1', borderRadius: 2, margin: '0 auto 14px' }} />
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
                       <span style={{ fontSize: 17, fontWeight: 800, color: '#1e293b' }}>새 회원 추가</span>
                       <button onClick={() => setShowNewMemberForm(false)}
@@ -2711,7 +2711,7 @@ function Admin() {
                                       <span style={{ fontSize: 14, color: '#059669', fontWeight: 700 }}>{newMember.club}</span>
                                     </div>
                                     <button onClick={() => { setNewMember(prev => ({ ...prev, club: '' })); setClubAiState('idle'); }}
-                                      style={{ background: 'none', border: 'none', color: '#6B7280', fontSize: 16, cursor: 'pointer', padding: '0 4px' }}>×</button>
+                                      style={{ background: 'none', border: 'none', color: '#64748B', fontSize: 16, cursor: 'pointer', padding: '0 4px' }}>×</button>
                                   </div>
                                 )}
                                 {/* 검색 입력 */}
@@ -4591,7 +4591,7 @@ function Admin() {
         {activeTab === 'courses' && (() => {
           const PRIMARY = '#0047AB';
           const cyclePar = (val) => { const v = parseInt(val) || 4; return v >= 5 ? 3 : v + 1; };
-          const parColor = (p) => p === 3 ? '#16A34A' : p === 5 ? '#C0392B' : '#0047AB';
+          const parColor = (p) => p === 3 ? '#16A34A' : p === 5 ? '#B91C1C' : '#0047AB';
 
           const getTeeLabel = (name) => {
             if (!name) return '';
@@ -4702,7 +4702,7 @@ function Admin() {
                 <div style={{ display: 'flex', justifyContent: 'center', gap: '4px', marginTop: '6px', fontSize: '11px', color: '#94A3B8' }}>
                   <span style={{ color: '#16A34A', fontWeight: '700' }}>3</span>
                   <span style={{ color: '#0047AB', fontWeight: '700' }}>4</span>
-                  <span style={{ color: '#C0392B', fontWeight: '700' }}>5</span>
+                  <span style={{ color: '#B91C1C', fontWeight: '700' }}>5</span>
                   <span>탭하여 변경</span>
                   <span style={{ marginLeft: '8px' }}>N = 니어핀</span>
                 </div>
@@ -4892,7 +4892,7 @@ function Admin() {
                       {/* 정보 */}
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                          <span style={{ fontSize: 15, fontWeight: 700, color: '#111827', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{course.name}</span>
+                          <span style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{course.name}</span>
                           {course.isCompetition && (
                             <span style={{ fontSize: '10px', fontWeight: '700', color: '#fff', background: PRIMARY, borderRadius: '4px', padding: '2px 6px', flexShrink: 0 }}>컴페티션</span>
                           )}
@@ -5302,7 +5302,7 @@ function Admin() {
                           padding: '6px',
                           fontSize: '12px',
                           textAlign: 'center',
-                          border: '1px solid #e74c3c',
+                          border: '1px solid #dc2626',
                           borderRadius: '4px',
                           fontWeight: '600'
                         }}
@@ -5462,7 +5462,7 @@ function Admin() {
                             padding: '6px',
                             fontSize: '12px',
                             textAlign: 'center',
-                            border: '1px solid #e74c3c',
+                            border: '1px solid #dc2626',
                             borderRadius: '4px',
                             fontWeight: '600'
                           }}
@@ -5697,7 +5697,7 @@ function Admin() {
                                 <div style={{ fontWeight: '600' }}>
                                   <span style={{ color: 'var(--primary-green)' }}>{malePar}</span>
                                   <span style={{ color: 'var(--text-dark)' }}>/</span>
-                                  <span style={{ color: '#e74c3c' }}>{femalePar}</span>
+                                  <span style={{ color: '#dc2626' }}>{femalePar}</span>
                                 </div>
                               </div>
                             );
@@ -6767,7 +6767,7 @@ function Admin() {
                                       <div style={{ 
                                         fontSize: '13px', 
                                         fontWeight: '600',
-                                        color: diff < 0 ? '#e74c3c' : diff > 0 ? '#3498db' : 'var(--text-dark)'
+                                        color: diff < 0 ? '#dc2626' : diff > 0 ? '#3498db' : 'var(--text-dark)'
                                       }}>
                                         {diffText}
                                       </div>
@@ -6952,7 +6952,7 @@ function Admin() {
                                 <div style={{ 
                                   fontSize: '13px', 
                                   fontWeight: '600',
-                                  color: diff < 0 ? '#e74c3c' : diff > 0 ? '#3498db' : 'var(--text-dark)'
+                                  color: diff < 0 ? '#dc2626' : diff > 0 ? '#3498db' : 'var(--text-dark)'
                                 }}>
                                   {diffText}
                                 </div>
@@ -7276,7 +7276,7 @@ function Admin() {
                             <div key={`diff-${idx}`} style={{ 
                               textAlign: 'center', 
                               padding: '6px 4px',
-                              color: d < 0 ? '#e74c3c' : d > 0 ? '#3498db' : '#999',
+                              color: d < 0 ? '#dc2626' : d > 0 ? '#3498db' : '#999',
                               fontSize: '11px',
                               fontWeight: '500'
                             }}>
@@ -7286,7 +7286,7 @@ function Admin() {
                           <div style={{ 
                             textAlign: 'center', 
                             padding: '6px 4px', 
-                            color: totalDiff < 0 ? '#e74c3c' : totalDiff > 0 ? '#3498db' : '#999',
+                            color: totalDiff < 0 ? '#dc2626' : totalDiff > 0 ? '#3498db' : '#999',
                             fontSize: '11px',
                             fontWeight: '600'
                           }}>
@@ -7344,7 +7344,7 @@ function Admin() {
                           padding: '6px 10px',
                           background: '#f5f5f5',
                           borderRadius: '4px',
-                          border: '1px solid #ddd'
+                          border: '1px solid #e2e8f0'
                         }}>
                           <span style={{ color: '#333', fontSize: '11px', fontWeight: '600' }}>Par</span>
                         </div>
@@ -7448,7 +7448,7 @@ function Admin() {
                         alignItems: 'center', 
                         gap: '8px',
                         padding: '10px 12px',
-                        border: editScoreData?.inputMode === 'total' ? '2px solid var(--primary-green)' : '1px solid #ddd',
+                        border: editScoreData?.inputMode === 'total' ? '2px solid var(--primary-green)' : '1px solid #e2e8f0',
                         borderRadius: '8px',
                         cursor: editScoreHolesOnly ? 'not-allowed' : 'pointer',
                         background: editScoreData?.inputMode === 'total' ? 'var(--bg-green)' : 'white',
@@ -7474,7 +7474,7 @@ function Admin() {
                         alignItems: 'center', 
                         gap: '8px',
                         padding: '10px 12px',
-                        border: editScoreData?.inputMode === 'holes' ? '2px solid var(--primary-green)' : '1px solid #ddd',
+                        border: editScoreData?.inputMode === 'holes' ? '2px solid var(--primary-green)' : '1px solid #e2e8f0',
                         borderRadius: '8px',
                         cursor: 'pointer',
                         background: editScoreData?.inputMode === 'holes' ? 'var(--bg-green)' : 'white'
@@ -7505,7 +7505,7 @@ function Admin() {
                   </div>
                   <div style={{ marginBottom: '16px' }}>
                     <label style={{ display: 'block', marginBottom: '8px', fontWeight: '600', color: editScoreData?.inputMode === 'holes' ? '#999' : 'inherit' }}>
-                      총 타수 <span style={{ color: '#e74c3c' }}>*</span>
+                      총 타수 <span style={{ color: '#dc2626' }}>*</span>
                       {editScoreData?.inputMode === 'holes' && (
                         <span style={{ fontSize: '12px', fontWeight: '400', marginLeft: '8px', color: 'var(--primary-green)' }}>
                           (홀별 합계 자동 계산)
@@ -7521,7 +7521,7 @@ function Admin() {
                       style={{
                         width: '100%',
                         padding: '12px',
-                        border: '1px solid #ddd',
+                        border: '1px solid #e2e8f0',
                         borderRadius: '8px',
                         fontSize: '16px',
                         background: editScoreData?.inputMode === 'holes' ? '#f5f5f5' : 'white',
@@ -7561,7 +7561,7 @@ function Admin() {
                             style={{
                               width: '100%',
                               padding: '8px 4px',
-                              border: '1px solid #ddd',
+                              border: '1px solid #e2e8f0',
                               borderRadius: '4px',
                               fontSize: '14px',
                               textAlign: 'center',
@@ -7581,7 +7581,7 @@ function Admin() {
                       style={{
                         flex: 1,
                         padding: '12px',
-                        border: '1px solid #ddd',
+                        border: '1px solid #e2e8f0',
                         borderRadius: '8px',
                         background: 'white',
                         fontSize: '16px',
@@ -7920,7 +7920,7 @@ function Admin() {
               <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '10px' }}>입금항목 관리</h3>
               {/* 기존 항목 목록 */}
               {incomeCategories.length === 0 ? (
-                <div style={{ padding: '8px 0', color: '#9CA3AF', fontSize: '13px', marginBottom: '10px' }}>등록된 입금항목이 없습니다</div>
+                <div style={{ padding: '8px 0', color: '#94A3B8', fontSize: '13px', marginBottom: '10px' }}>등록된 입금항목이 없습니다</div>
               ) : (
                 <div style={{ marginBottom: '10px' }}>
                   {incomeCategories.map((category, i) => (
@@ -7938,7 +7938,7 @@ function Admin() {
               )}
               {/* 새 항목 추가 */}
               <div style={{ display: 'flex', gap: '8px' }}>
-                <input type="text" value={newIncomeCategoryName} onChange={(e) => setNewIncomeCategoryName(e.target.value)} placeholder="새 입금항목명 입력..." style={{ flex: 1, padding: '10px 12px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '14px' }} />
+                <input type="text" value={newIncomeCategoryName} onChange={(e) => setNewIncomeCategoryName(e.target.value)} placeholder="새 입금항목명 입력..." style={{ flex: 1, padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px' }} />
                 <button onClick={handleAddIncomeCategory} style={{ padding: '10px 16px', background: '#0047AB', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
               </div>
             </div>
@@ -7947,7 +7947,7 @@ function Admin() {
               <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '10px' }}>출금항목 관리</h3>
               {/* 기존 항목 목록 */}
               {expenseCategories.length === 0 ? (
-                <div style={{ padding: '8px 0', color: '#9CA3AF', fontSize: '13px', marginBottom: '10px' }}>등록된 출금항목이 없습니다</div>
+                <div style={{ padding: '8px 0', color: '#94A3B8', fontSize: '13px', marginBottom: '10px' }}>등록된 출금항목이 없습니다</div>
               ) : (
                 <div style={{ marginBottom: '10px' }}>
                   {expenseCategories.map((category, i) => (
@@ -7965,7 +7965,7 @@ function Admin() {
               )}
               {/* 새 항목 추가 */}
               <div style={{ display: 'flex', gap: '8px' }}>
-                <input type="text" value={newExpenseCategoryName} onChange={(e) => setNewExpenseCategoryName(e.target.value)} placeholder="새 출금항목명 입력..." style={{ flex: 1, padding: '10px 12px', border: '1px solid #E5E7EB', borderRadius: '8px', fontSize: '14px' }} />
+                <input type="text" value={newExpenseCategoryName} onChange={(e) => setNewExpenseCategoryName(e.target.value)} placeholder="새 출금항목명 입력..." style={{ flex: 1, padding: '10px 12px', border: '1px solid #E2E8F0', borderRadius: '8px', fontSize: '14px' }} />
                 <button onClick={handleAddExpenseCategory} style={{ padding: '10px 16px', background: '#0047AB', color: 'white', border: 'none', borderRadius: '8px', fontSize: '13px', fontWeight: '600', cursor: 'pointer', whiteSpace: 'nowrap' }}>+ 추가</button>
               </div>
             </div>
@@ -8798,7 +8798,7 @@ function Admin() {
                     width: '100%',
                     padding: '12px',
                     fontSize: '14px',
-                    border: '2px solid #ddd',
+                    border: '2px solid #e2e8f0',
                     borderRadius: '6px',
                     boxSizing: 'border-box'
                   }}
@@ -8823,7 +8823,7 @@ function Admin() {
                     width: '100%',
                     padding: '12px',
                     fontSize: '14px',
-                    border: '2px solid #ddd',
+                    border: '2px solid #e2e8f0',
                     borderRadius: '6px',
                     boxSizing: 'border-box'
                   }}
@@ -8870,7 +8870,7 @@ function Admin() {
                     width: '100%',
                     padding: '12px',
                     fontSize: '14px',
-                    border: '2px solid #ddd',
+                    border: '2px solid #e2e8f0',
                     borderRadius: '6px',
                     boxSizing: 'border-box'
                   }}
@@ -10001,7 +10001,7 @@ function Admin() {
               
               <div style={{ display: 'flex', borderBottom: '1px solid var(--border-color)', paddingBottom: '8px' }}>
                 <span style={{ width: '100px', fontSize: '13px', color: 'var(--text-secondary)', flexShrink: 0 }}>금액</span>
-                <span style={{ fontSize: '13px', fontWeight: '600', color: viewingTransaction.type === 'expense' || viewingTransaction.type === 'charge' ? '#ef4444' : '#22c55e' }}>
+                <span style={{ fontSize: '13px', fontWeight: '600', color: viewingTransaction.type === 'expense' || viewingTransaction.type === 'charge' ? '#dc2626' : '#22c55e' }}>
                   {viewingTransaction.type === 'expense' || viewingTransaction.type === 'charge' ? '-' : '+'}${viewingTransaction.amount}
                 </span>
               </div>

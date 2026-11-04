@@ -114,7 +114,7 @@ export default function FoursomeRanking({
                 <span>{team.memberNames || '미정'}</span>
                 <span style={{ 
                   fontSize: '10px', 
-                  color: team.pairLabel === 'A' ? '#3B82F6' : '#EF4444',
+                  color: team.pairLabel === 'A' ? '#3B82F6' : '#DC2626',
                   fontWeight: '600'
                 }}>
                   {team.teamNumber}조 {team.pairLabel}팀

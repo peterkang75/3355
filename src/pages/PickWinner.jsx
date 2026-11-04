@@ -508,10 +508,10 @@ function PickWinner() {
               const dateStr = dateObj.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' });
               const phaseColor = {
                 voting: { bg: '#D1FAE5', color: '#065F46', label: '투표 중' },
-                voting_disabled: { bg: '#F3F4F6', color: '#6B7280', label: '투표 비활성' },
+                voting_disabled: { bg: '#F1F5F9', color: '#64748B', label: '투표 비활성' },
                 voting_closed: { bg: '#FEF3C7', color: '#92400E', label: '투표 마감' },
                 results: { bg: '#FEF3C7', color: '#92400E', label: '결과 확인' },
-              }[phaseInfo.phase] || { bg: '#F3F4F6', color: '#6B7280', label: '-' };
+              }[phaseInfo.phase] || { bg: '#F1F5F9', color: '#64748B', label: '-' };
 
               const handleToggleVoting = async (e) => {
                 e.stopPropagation();
@@ -823,7 +823,7 @@ function PickWinner() {
                             style={{
                               padding: '8px 12px',
                               borderRadius: '20px',
-                              border: isSelected ? '2px solid var(--primary-green)' : '1px solid #ddd',
+                              border: isSelected ? '2px solid var(--primary-green)' : '1px solid #e2e8f0',
                               background: isSelected ? 'var(--bg-green)' : 'white',
                               color: isSelected ? 'var(--primary-green)' : '#333',
                               fontWeight: isSelected ? '600' : '400',
@@ -851,7 +851,7 @@ function PickWinner() {
                     padding: '16px',
                     background: 'white',
                     color: '#666',
-                    border: '1px solid #ddd',
+                    border: '1px solid #e2e8f0',
                     borderRadius: '8px',
                     fontSize: '16px',
                     fontWeight: '600',
@@ -1109,10 +1109,10 @@ function PickWinner() {
 
           const badgeStyle = {
             A: { bg: '#FEF3C7', color: '#B45309' },
-            B: { bg: '#E5E7EB', color: '#4B5563' },
+            B: { bg: '#E2E8F0', color: '#475569' },
             C: { bg: '#FFE4D6', color: '#C2410C' },
             D: { bg: '#D1FAE5', color: '#047857' }
-          }[grade] || { bg: '#E5E7EB', color: '#4B5563' };
+          }[grade] || { bg: '#E2E8F0', color: '#475569' };
 
           return (
             <div key={grade} style={{
@@ -1221,7 +1221,7 @@ function PickWinner() {
                   padding: '16px',
                   background: 'white',
                   color: '#666',
-                  border: '1px solid #ddd',
+                  border: '1px solid #e2e8f0',
                   borderRadius: '8px',
                   fontSize: '16px',
                   fontWeight: '600',

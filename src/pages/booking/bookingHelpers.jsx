@@ -96,7 +96,7 @@ export const azure = {
 
 export const getTileTypeBadge = (booking) => {
   const type = (booking.type || '').trim();
-  if (type === '정기모임') return { label: '정기라운딩', bg: '#C0392B', color: '#FFFFFF' };
+  if (type === '정기모임') return { label: '정기라운딩', bg: '#B91C1C', color: '#FFFFFF' };
   if (type === '컴페티션') return { label: '컴페티션', bg: azure.primary, color: '#FFFFFF' };
   if (type === '그린피') return { label: '그린피', bg: '#F0FDF4', color: '#166534' };
   if (type === '캐주얼') return { label: '캐주얼', bg: '#D1FAE5', color: '#065F46' };
@@ -112,7 +112,7 @@ export const getTypeBadge = (booking) => {
   else if (type === '컴페티션') { label = '컴페티션'; bg = '#0F766E'; color = '#FFFFFF'; }
   else if (type === '그린피') { label = '그린피'; bg = '#D1FAE5'; color = '#065F46'; }
   else if (type === '캐주얼') { label = '캐주얼'; bg = '#D1FAE5'; color = '#065F46'; }
-  else if (type === '소셜' || type.toLowerCase().includes('social')) { label = '소셜'; bg = '#F3F4F6'; color = '#374151'; }
+  else if (type === '소셜' || type.toLowerCase().includes('social')) { label = '소셜'; bg = '#F1F5F9'; color = '#334155'; }
   if (!label) return null;
   return (
     <span style={{ fontSize: '11px', fontWeight: '700', padding: '4px 10px', borderRadius: '9999px', background: bg, color: color, display: 'inline-block' }}>

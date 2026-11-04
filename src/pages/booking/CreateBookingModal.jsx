@@ -4,14 +4,14 @@ import apiService from '../../services/api';
 import NearHolePicker from '../../components/booking/NearHolePicker';
 
 const labelStyle = {
-  fontSize: '12px', fontWeight: '700', color: '#6B7280',
+  fontSize: '12px', fontWeight: '700', color: '#64748B',
   display: 'block', marginBottom: '8px',
 };
 
 const inputStyle = {
   width: '100%', padding: '13px 14px', borderRadius: '10px',
   border: '1px solid #E8ECF0', fontSize: '15px', outline: 'none',
-  boxSizing: 'border-box', background: '#FAFBFC', color: '#111827',
+  boxSizing: 'border-box', background: '#FAFBFC', color: '#0f172a',
 };
 
 // iOS에서 type="date"/"time" 인풋이 얇아지는 문제 방지
@@ -52,8 +52,8 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
   ];
 
   const sStyle = { background: '#FFFFFF', borderRadius: '14px', border: '1px solid #E8ECF0', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', padding: '16px', marginBottom: '12px' };
-  const lStyle = { fontSize: '12px', fontWeight: '700', color: '#6B7280', display: 'block', marginBottom: '8px', letterSpacing: '0.03em', textTransform: 'uppercase' };
-  const iStyle = { width: '100%', padding: '13px 14px', borderRadius: '10px', border: '1px solid #E8ECF0', fontSize: '15px', outline: 'none', boxSizing: 'border-box', background: '#FAFBFC', color: '#111827' };
+  const lStyle = { fontSize: '12px', fontWeight: '700', color: '#64748B', display: 'block', marginBottom: '8px', letterSpacing: '0.03em', textTransform: 'uppercase' };
+  const iStyle = { width: '100%', padding: '13px 14px', borderRadius: '10px', border: '1px solid #E8ECF0', fontSize: '15px', outline: 'none', boxSizing: 'border-box', background: '#FAFBFC', color: '#0f172a' };
 
   // 기존 골프장 필터
   const filteredCourses = courseQuery.trim()
@@ -213,8 +213,8 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
                 disabled={!courseQuery.trim() || aiState === 'searching'}
                 style={{
                   padding: '0 16px', borderRadius: '10px', border: 'none', flexShrink: 0,
-                  background: (!courseQuery.trim() || aiState === 'searching') ? '#E5E7EB' : '#065F46',
-                  color: (!courseQuery.trim() || aiState === 'searching') ? '#9CA3AF' : '#fff',
+                  background: (!courseQuery.trim() || aiState === 'searching') ? '#E2E8F0' : '#065F46',
+                  color: (!courseQuery.trim() || aiState === 'searching') ? '#94A3B8' : '#fff',
                   fontWeight: '700', fontSize: '13px', cursor: (!courseQuery.trim() || aiState === 'searching') ? 'not-allowed' : 'pointer',
                   whiteSpace: 'nowrap',
                 }}
@@ -259,7 +259,7 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
                 {aiResult.address && (
                   <div style={{ fontSize: '12px', color: '#64748B', marginBottom: '6px' }}>{aiResult.address}</div>
                 )}
-                <div style={{ fontSize: '12px', color: '#6B7280', marginBottom: '12px' }}>
+                <div style={{ fontSize: '12px', color: '#64748B', marginBottom: '12px' }}>
                   파 {aiResult.totalPar ?? (aiResult.holePars?.male || []).reduce((a, b) => a + b, 0)}
                   {aiResult.totalMeters ? ` · ${aiResult.totalMeters.toLocaleString()}m` : ''}
                   {aiResult.country ? ` · ${aiResult.country}` : ''}
@@ -307,7 +307,7 @@ function CasualForm({ casualForm, onChange, courses, members, onAddCourse }) {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
           {timeSlots.map(({ key, label }) => (
             <button key={key} onClick={() => onChange({ ...casualForm, timeSlot: key, time: '' })}
-              style={{ padding: '9px 16px', borderRadius: '10px', border: casualForm.timeSlot === key ? '2px solid #065F46' : '1px solid #E8ECF0', background: casualForm.timeSlot === key ? '#D1FAE5' : 'white', color: casualForm.timeSlot === key ? '#065F46' : '#6B7280', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
+              style={{ padding: '9px 16px', borderRadius: '10px', border: casualForm.timeSlot === key ? '2px solid #065F46' : '1px solid #E8ECF0', background: casualForm.timeSlot === key ? '#D1FAE5' : 'white', color: casualForm.timeSlot === key ? '#065F46' : '#64748B', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
               {label}
             </button>
           ))}
@@ -443,7 +443,7 @@ export default function CreateBookingModal({
         <div onClick={onCloseTypeSelector} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 999, backdropFilter: 'blur(3px)' }} />
         <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#F8FAFC', borderRadius: '24px 24px 0 0', zIndex: 1000, boxShadow: '0 -4px 24px rgba(0,0,0,0.12)', animation: 'slideUp 0.25s ease-out' }}>
           {/* 핸들 */}
-          <div style={{ width: '40px', height: '4px', background: '#D1D5DB', borderRadius: '2px', margin: '14px auto 0' }} />
+          <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '2px', margin: '14px auto 0' }} />
 
           {/* 헤더 */}
           <div style={{ padding: '20px 24px 16px' }}>
@@ -538,7 +538,7 @@ export default function CreateBookingModal({
         <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: '#F8FAFC', borderRadius: '24px 24px 0 0', zIndex: 1100, maxHeight: '90vh', display: 'flex', flexDirection: 'column', animation: 'slideUp 0.25s ease-out', overflow: 'hidden' }}>
           {/* 핸들 */}
           <div style={{ textAlign: 'center', padding: '14px 0 0', flexShrink: 0 }}>
-            <div style={{ width: '40px', height: '4px', background: '#D1D5DB', borderRadius: '2px', margin: '0 auto' }} />
+            <div style={{ width: '40px', height: '4px', background: '#CBD5E1', borderRadius: '2px', margin: '0 auto' }} />
           </div>
 
           {/* 모달 헤더 */}
@@ -622,7 +622,7 @@ export default function CreateBookingModal({
                           { key: 'social', label: '소셜' },
                         ].map(opt => (
                           <button key={opt.key} onClick={() => onChangeNewRounding({ ...newRounding, roundingType: opt.key })}
-                            style={{ flex: 1, padding: '11px 0', border: 'none', background: newRounding.roundingType === opt.key ? '#0047AB' : '#FFFFFF', color: newRounding.roundingType === opt.key ? '#FFFFFF' : '#6B7280', fontWeight: '600', fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                            style={{ flex: 1, padding: '11px 0', border: 'none', background: newRounding.roundingType === opt.key ? '#0047AB' : '#FFFFFF', color: newRounding.roundingType === opt.key ? '#FFFFFF' : '#64748B', fontWeight: '600', fontSize: '13px', cursor: 'pointer', transition: 'all 0.2s' }}>
                             {opt.label}
                           </button>
                         ))}
@@ -642,7 +642,7 @@ export default function CreateBookingModal({
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
                         {Object.entries(timeSlotMap).map(([key, { label }]) => (
                           <button key={key} onClick={() => onChangeNewRounding({ ...newRounding, timeSlot: key, time: '' })}
-                            style={{ padding: '9px 16px', borderRadius: '10px', border: newRounding.timeSlot === key ? '2px solid #0047AB' : '1px solid #E8ECF0', background: newRounding.timeSlot === key ? '#EBF2FF' : 'white', color: newRounding.timeSlot === key ? '#0047AB' : '#6B7280', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
+                            style={{ padding: '9px 16px', borderRadius: '10px', border: newRounding.timeSlot === key ? '2px solid #0047AB' : '1px solid #E8ECF0', background: newRounding.timeSlot === key ? '#EBF2FF' : 'white', color: newRounding.timeSlot === key ? '#0047AB' : '#64748B', fontWeight: '600', fontSize: '13px', cursor: 'pointer' }}>
                             {label}
                           </button>
                         ))}
@@ -664,7 +664,7 @@ export default function CreateBookingModal({
                       <div style={{ display: 'flex', gap: '8px' }}>
                         {[4, 8, 12, 16, 20, 24].map(n => (
                           <button key={n} onClick={() => onChangeNewRounding({ ...newRounding, maxMembers: n })}
-                            style={{ flex: 1, padding: '10px 0', borderRadius: '10px', border: newRounding.maxMembers === n ? '2px solid #0047AB' : '1px solid #E8ECF0', background: newRounding.maxMembers === n ? '#EBF2FF' : 'white', color: newRounding.maxMembers === n ? '#0047AB' : '#6B7280', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>
+                            style={{ flex: 1, padding: '10px 0', borderRadius: '10px', border: newRounding.maxMembers === n ? '2px solid #0047AB' : '1px solid #E8ECF0', background: newRounding.maxMembers === n ? '#EBF2FF' : 'white', color: newRounding.maxMembers === n ? '#0047AB' : '#64748B', fontWeight: '700', fontSize: '14px', cursor: 'pointer' }}>
                             {n}명
                           </button>
                         ))}

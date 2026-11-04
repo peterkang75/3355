@@ -509,7 +509,7 @@ function MyPage() {
           {expandedSection === 'scores' && (
             <div style={{ background: '#F8FAFC', padding: '16px 18px', borderTop: '1px solid #F1F5F9' }}>
               {scores.length === 0 ? (
-                <div style={{ textAlign: 'center', color: '#9CA3AF', fontSize: 14, padding: '20px 0' }}>아직 기록된 스코어가 없습니다.</div>
+                <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: 14, padding: '20px 0' }}>아직 기록된 스코어가 없습니다.</div>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                   {scores.slice(0, 5).map((score, i) => {
@@ -548,7 +548,7 @@ function MyPage() {
             return (
               <div style={{ background: '#F8FAFC', padding: '16px 18px', borderTop: '1px solid #F1F5F9' }}>
                 {myUpcoming.length === 0 ? (
-                  <div style={{ textAlign: 'center', color: '#9CA3AF', fontSize: 14, padding: '16px 0' }}>예정된 라운딩이 없습니다.</div>
+                  <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: 14, padding: '16px 0' }}>예정된 라운딩이 없습니다.</div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {myUpcoming.map(b => {
@@ -581,7 +581,7 @@ function MyPage() {
             label="앱 설정" onClick={() => toggleSection('appSettings')} open={expandedSection === 'appSettings'} />
           {expandedSection === 'appSettings' && (
             <div style={{ background: '#F8FAFC', padding: '16px 18px', borderTop: '1px solid #F1F5F9' }}>
-              <div style={{ textAlign: 'center', color: '#9CA3AF', fontSize: 14, padding: '12px 0' }}>추가 설정 예정</div>
+              <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: 14, padding: '12px 0' }}>추가 설정 예정</div>
             </div>
           )}
 
@@ -589,7 +589,7 @@ function MyPage() {
             label="알림 설정" onClick={() => toggleSection('notifications')} open={expandedSection === 'notifications'} />
           {expandedSection === 'notifications' && (
             <div style={{ background: '#F8FAFC', padding: '16px 18px', borderTop: '1px solid #F1F5F9' }}>
-              <div style={{ textAlign: 'center', color: '#9CA3AF', fontSize: 14, padding: '12px 0' }}>알림 설정 예정</div>
+              <div style={{ textAlign: 'center', color: '#94A3B8', fontSize: 14, padding: '12px 0' }}>알림 설정 예정</div>
             </div>
           )}
 

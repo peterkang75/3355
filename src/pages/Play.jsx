@@ -1572,7 +1572,7 @@ function Play() {
               padding: '8px 0'
             }}>
               <div style={{
-                background: 'linear-gradient(90deg, transparent, #ddd, transparent)',
+                background: 'linear-gradient(90deg, transparent, #e2e8f0, transparent)',
                 height: '1px',
                 flex: 1
               }} />
@@ -1583,12 +1583,12 @@ function Play() {
                 color: '#888',
                 background: 'white',
                 borderRadius: '16px',
-                border: '2px solid #ddd'
+                border: '2px solid #e2e8f0'
               }}>
                 같은 조
               </span>
               <div style={{
-                background: 'linear-gradient(90deg, transparent, #ddd, transparent)',
+                background: 'linear-gradient(90deg, transparent, #e2e8f0, transparent)',
                 height: '1px',
                 flex: 1
               }} />
@@ -1605,7 +1605,7 @@ function Play() {
               <div style={{ 
                 fontSize: '12px', 
                 fontWeight: '700', 
-                color: '#EF4444', 
+                color: '#DC2626', 
                 marginBottom: '8px',
                 textAlign: 'center',
                 display: 'flex',
@@ -1616,7 +1616,7 @@ function Play() {
                 <span>{opponentTeamLabel} (같은 조 · 점수 함께 기록)</span>
                 {opponentTeamHandicap != null && (
                   <span style={{
-                    background: '#EF4444',
+                    background: '#DC2626',
                     color: 'white',
                     padding: '2px 8px',
                     borderRadius: '10px',
@@ -1636,9 +1636,9 @@ function Play() {
               }}>
                 {foursomeData.opponents.map((opponent, idx) => (
                   <React.Fragment key={opponent?.phone || idx}>
-                    {idx > 0 && <span style={{ fontWeight: '600', color: '#EF4444' }}>&</span>}
+                    {idx > 0 && <span style={{ fontWeight: '600', color: '#DC2626' }}>&</span>}
                     <div style={{
-                      background: '#EF4444',
+                      background: '#DC2626',
                       color: 'white',
                       padding: '10px 16px',
                       borderRadius: '8px',
@@ -1949,7 +1949,7 @@ function Play() {
           <div className="card" style={{ marginBottom: '24px' }}>
             {serverMismatches.length > 0 ? (
               <>
-                <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px', textAlign: 'center', color: '#e74c3c' }}>
+                <h3 style={{ fontSize: '16px', fontWeight: '700', marginBottom: '12px', textAlign: 'center', color: '#dc2626' }}>
                   점수가 다른 홀이 있습니다
                 </h3>
                 <p style={{ fontSize: '14px', color: '#666', marginBottom: '16px', textAlign: 'center' }}>
@@ -2055,7 +2055,7 @@ function Play() {
               </div>
               <div style={{ textAlign: 'center' }}>
                 <div style={{ fontSize: '12px', color: '#666' }}>오버/언더</div>
-                <div style={{ fontSize: '28px', fontWeight: '700', color: diffMe > 0 ? '#e74c3c' : diffMe < 0 ? '#27ae60' : '#333' }}>
+                <div style={{ fontSize: '28px', fontWeight: '700', color: diffMe > 0 ? '#dc2626' : diffMe < 0 ? '#27ae60' : '#333' }}>
                   {diffMe > 0 ? `+${diffMe}` : diffMe}
                 </div>
               </div>
@@ -2098,7 +2098,7 @@ function Play() {
             </div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '12px', color: '#666' }}>오버/언더</div>
-              <div style={{ fontSize: '28px', fontWeight: '700', color: diffTeammate > 0 ? '#e74c3c' : diffTeammate < 0 ? '#27ae60' : '#333' }}>
+              <div style={{ fontSize: '28px', fontWeight: '700', color: diffTeammate > 0 ? '#dc2626' : diffTeammate < 0 ? '#27ae60' : '#333' }}>
                 {diffTeammate > 0 ? `+${diffTeammate}` : diffTeammate}
               </div>
             </div>
@@ -2119,7 +2119,7 @@ function Play() {
             </div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: '12px', color: '#666' }}>오버/언더</div>
-              <div style={{ fontSize: '28px', fontWeight: '700', color: diffMe > 0 ? '#e74c3c' : diffMe < 0 ? '#27ae60' : '#333' }}>
+              <div style={{ fontSize: '28px', fontWeight: '700', color: diffMe > 0 ? '#dc2626' : diffMe < 0 ? '#27ae60' : '#333' }}>
                 {diffMe > 0 ? `+${diffMe}` : diffMe}
               </div>
             </div>
@@ -2220,7 +2220,7 @@ function Play() {
     if (diff <= -3) return { text: 'ALBATROSS', color: '#7C3AED' };
     if (diff === -2) return { text: 'EAGLE', color: '#0047AB' };
     if (diff === -1) return { text: 'BIRDIE', color: '#16a34a' };
-    if (diff === 0) return { text: 'PAR', color: '#374151' };
+    if (diff === 0) return { text: 'PAR', color: '#334155' };
     if (diff === 1) return { text: 'BOGEY', color: '#dc2626' };
     if (diff === 2) return { text: 'DBL BOGEY', color: '#991b1b' };
     return { text: 'TRIPLE+', color: '#7f1d1d' };
@@ -2241,7 +2241,7 @@ function Play() {
     }
     const ouDiff = totalScore - totalPar;
     const ouText = ouDiff > 0 ? `+${ouDiff}` : ouDiff === 0 ? 'E' : String(ouDiff);
-    const ouColor = ouDiff > 0 ? '#dc2626' : ouDiff < 0 ? '#0047AB' : '#374151';
+    const ouColor = ouDiff > 0 ? '#dc2626' : ouDiff < 0 ? '#0047AB' : '#334155';
 
     const scoreLabel = getScoreLabel(score, par);
     const isNtp = !isTeammate && courseData?.nearHoles?.[currentHole - 1];
@@ -2359,7 +2359,7 @@ function Play() {
         <div style={{ padding: `${s(35,28)}px ${s(45,36)}px ${s(6,5)}px`, flexShrink: 0 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: s(8,6) }}>
             <div style={{
-              fontSize: s(20,17), fontWeight: 800, color: '#111827',
+              fontSize: s(20,17), fontWeight: 800, color: '#0f172a',
               letterSpacing: '-0.02em', lineHeight: 1.2,
               minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
             }}>
@@ -2434,7 +2434,7 @@ function Play() {
             {/* 스코어 숫자 (Pickup 시 'P' 표시 — 내부 점수는 그대로) */}
             <div style={{
               fontSize: s(56, 46), fontWeight: 800,
-              color: isPicked ? '#475569' : (score > 0 ? '#111827' : '#D1D5DB'),
+              color: isPicked ? '#475569' : (score > 0 ? '#0f172a' : '#CBD5E1'),
               lineHeight: 1, minWidth: s(68, 56), textAlign: 'center',
               letterSpacing: '-0.03em',
             }}>
@@ -2466,14 +2466,14 @@ function Play() {
           }}>
             <div style={{
               fontSize: s(11, 10), fontWeight: 800,
-              color: isPicked ? '#64748B' : (scoreLabel ? scoreLabel.color : '#D1D5DB'),
+              color: isPicked ? '#64748B' : (scoreLabel ? scoreLabel.color : '#CBD5E1'),
               letterSpacing: '0.10em',
             }}>
               {isPicked ? 'PICKUP' : (scoreLabel ? scoreLabel.text : (par ? 'PAR' : '—'))}
             </div>
             {hasSI && holeStblPts != null && (
               <div style={{
-                background: holeStblPts >= 3 ? '#16a34a' : holeStblPts === 2 ? '#6B7280' : holeStblPts === 1 ? '#F19E38' : '#dc2626',
+                background: holeStblPts >= 3 ? '#16a34a' : holeStblPts === 2 ? '#64748B' : holeStblPts === 1 ? '#F19E38' : '#dc2626',
                 color: '#fff',
                 fontSize: s(9, 8), fontWeight: 800,
                 padding: `${s(2,1)}px ${s(6,5)}px`,
@@ -2557,7 +2557,7 @@ function Play() {
             }}>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: s(3, 2) }}>
                 <div style={{ fontSize: s(10, 9), fontWeight: 700, color: '#94A3B8', letterSpacing: '0.10em' }}>TOTAL</div>
-                <div style={{ fontSize: s(20, 17), fontWeight: 800, color: totalScore > 0 ? '#111827' : '#CBD5E1', lineHeight: 1, letterSpacing: '-0.01em' }}>
+                <div style={{ fontSize: s(20, 17), fontWeight: 800, color: totalScore > 0 ? '#0f172a' : '#CBD5E1', lineHeight: 1, letterSpacing: '-0.01em' }}>
                   {totalScore > 0 ? totalScore : '—'}
                 </div>
               </div>
@@ -2811,12 +2811,12 @@ function Play() {
                 const bg = isCurrent
                   ? '#4a9d6a'
                   : isMismatch
-                    ? '#e74c3c'
+                    ? '#dc2626'
                     : 'rgba(255,255,255,0.1)';
                 const borderColor = isCurrent
                   ? '#4a9d6a'
                   : isMismatch
-                    ? '#e74c3c'
+                    ? '#dc2626'
                     : 'rgba(255,255,255,0.2)';
                 return (
                   <button
@@ -2922,7 +2922,7 @@ function Play() {
                 style={{
                   flex: 1,
                   padding: '12px',
-                  background: '#ddd',
+                  background: '#e2e8f0',
                   color: '#000',
                   border: 'none',
                   borderRadius: '6px',
@@ -3087,7 +3087,7 @@ function Play() {
                 }}
                 style={{
                   padding: '14px',
-                  background: '#6b7280',
+                  background: '#64748b',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
@@ -3169,7 +3169,7 @@ function Play() {
                 style={{
                   flex: 1,
                   padding: '14px',
-                  background: '#ddd',
+                  background: '#e2e8f0',
                   color: '#000',
                   border: 'none',
                   borderRadius: '8px',

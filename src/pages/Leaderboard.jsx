@@ -1662,7 +1662,7 @@ function Leaderboard() {
                     {selectedScore.isFoursomeTeam ? (
                       <>
                         <span style={{
-                          background: selectedScore.pairLabel === 'A' ? '#3B82F6' : '#EF4444',
+                          background: selectedScore.pairLabel === 'A' ? '#3B82F6' : '#DC2626',
                           padding: '4px 8px',
                           borderRadius: '4px',
                           fontSize: '12px',
@@ -1773,7 +1773,7 @@ function Leaderboard() {
                     padding: '6px 10px',
                     background: '#f5f5f5',
                     borderRadius: '4px',
-                    border: '1px solid #ddd'
+                    border: '1px solid #e2e8f0'
                   }}>
                     <span style={{ color: '#333', fontSize: '11px', fontWeight: '600' }}>Par</span>
                   </div>

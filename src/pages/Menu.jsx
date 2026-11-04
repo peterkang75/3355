@@ -201,10 +201,10 @@ function Menu() {
               {item.icon}
             </div>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontWeight: 700, fontSize: 15, color: '#111827', marginBottom: 2 }}>
+              <div style={{ fontWeight: 700, fontSize: 15, color: '#0f172a', marginBottom: 2 }}>
                 {item.title}
               </div>
-              <div style={{ fontSize: 12, color: '#9CA3AF', lineHeight: 1.4 }}>
+              <div style={{ fontSize: 12, color: '#94A3B8', lineHeight: 1.4 }}>
                 {item.description}
               </div>
             </div>
@@ -231,7 +231,7 @@ function Menu() {
                 <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17" strokeWidth="2.5"/>
               </svg>
             </div>
-            <span style={{ flex: 1, fontSize: 15, fontWeight: 600, color: '#111827' }}>자주 묻는 질문</span>
+            <span style={{ flex: 1, fontSize: 15, fontWeight: 600, color: '#0f172a' }}>자주 묻는 질문</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
               <polyline points="9 18 15 12 9 6"/>
             </svg>
@@ -242,7 +242,7 @@ function Menu() {
             href="https://open.kakao.com/o/g7EaZjRh"
             target="_blank"
             rel="noopener noreferrer"
-            style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', textDecoration: 'none', color: '#111827', WebkitTapHighlightColor: 'transparent' }}
+            style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 16px', textDecoration: 'none', color: '#0f172a', WebkitTapHighlightColor: 'transparent' }}
           >
             <div style={{ width: 36, height: 36, borderRadius: 10, background: '#F1F5F9', color: '#64748B', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
@@ -265,7 +265,7 @@ function Menu() {
           }}
           style={{
             background: 'none', border: 'none',
-            color: '#EF4444', fontSize: 15, fontWeight: 700,
+            color: '#DC2626', fontSize: 15, fontWeight: 700,
             cursor: 'pointer', padding: '10px 24px',
           }}
         >

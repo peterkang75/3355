@@ -481,29 +481,29 @@ function MemberDetail() {
 
           {/* ── 기본 정보 ── */}
           <div className="card" style={{ marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '13px', fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '16px' }}>기본 정보</h3>
+            <h3 style={{ fontSize: '13px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '16px' }}>기본 정보</h3>
             <EF label="이름" required error={fi('name')}>
-              <input type="text" value={editData.name} onChange={(e) => setEditData({ ...editData, name: e.target.value })} style={{ borderColor: fi('name') ? '#e74c3c' : undefined }} />
+              <input type="text" value={editData.name} onChange={(e) => setEditData({ ...editData, name: e.target.value })} style={{ borderColor: fi('name') ? '#dc2626' : undefined }} />
             </EF>
             <EF label="대화명 (닉네임)" required error={fi('nickname')}>
-              <input type="text" value={editData.nickname || ''} onChange={(e) => setEditData({ ...editData, nickname: e.target.value })} style={{ borderColor: fi('nickname') ? '#e74c3c' : undefined }} />
+              <input type="text" value={editData.nickname || ''} onChange={(e) => setEditData({ ...editData, nickname: e.target.value })} style={{ borderColor: fi('nickname') ? '#dc2626' : undefined }} />
             </EF>
             <EF label="전화번호" required error={!editData.phone?.trim() && !!validationError}>
-              <input type="tel" inputMode="numeric" value={editData.phone} onChange={(e) => { const d = e.target.value.replace(/\D/g, '').slice(0, 10); setEditData({ ...editData, phone: d }); }} style={{ borderColor: !editData.phone?.trim() && !!validationError ? '#e74c3c' : undefined }} />
+              <input type="tel" inputMode="numeric" value={editData.phone} onChange={(e) => { const d = e.target.value.replace(/\D/g, '').slice(0, 10); setEditData({ ...editData, phone: d }); }} style={{ borderColor: !editData.phone?.trim() && !!validationError ? '#dc2626' : undefined }} />
             </EF>
           </div>
 
           {/* ── 클럽 멤버십 ── */}
           <div className="card" style={{ marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '13px', fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '16px' }}>클럽 멤버십</h3>
+            <h3 style={{ fontSize: '13px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '16px' }}>클럽 멤버십</h3>
 
             <div style={{ marginBottom: '16px' }}>
-              <div style={{ fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '10px' }}>
-                클럽 회원이신가요? <span style={{ color: '#e74c3c' }}>*</span>
+              <div style={{ fontSize: '13px', fontWeight: '600', color: '#334155', marginBottom: '10px' }}>
+                클럽 회원이신가요? <span style={{ color: '#dc2626' }}>*</span>
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 {[['yes', '예 (GA 회원)'], ['no', '아니오 (HH)']].map(([val, label]) => (
-                  <label key={val} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', border: editData.isClubMember === val ? '2px solid var(--primary-green)' : '2px solid #E5E7EB', borderRadius: '10px', cursor: 'pointer', background: editData.isClubMember === val ? 'rgba(15,118,110,0.06)' : 'white', fontSize: '13px', fontWeight: editData.isClubMember === val ? '700' : '500', color: editData.isClubMember === val ? 'var(--primary-green)' : '#6B7280' }}>
+                  <label key={val} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', border: editData.isClubMember === val ? '2px solid var(--primary-green)' : '2px solid #E2E8F0', borderRadius: '10px', cursor: 'pointer', background: editData.isClubMember === val ? 'rgba(15,118,110,0.06)' : 'white', fontSize: '13px', fontWeight: editData.isClubMember === val ? '700' : '500', color: editData.isClubMember === val ? 'var(--primary-green)' : '#64748B' }}>
                     <input type="radio" name="isClubMember" value={val} checked={editData.isClubMember === val} onChange={(e) => setEditData({ ...editData, isClubMember: e.target.value })} style={{ display: 'none' }} />
                     {label}
                   </label>
@@ -514,43 +514,43 @@ function MemberDetail() {
             {editData.isClubMember === 'yes' && (
               <>
                 <EF label="소속 클럽" required error={!editData.club?.trim() && !!validationError}>
-                  <div style={{ borderRadius: '8px', border: !editData.club?.trim() && !!validationError ? '1px solid #e74c3c' : undefined }}>
+                  <div style={{ borderRadius: '8px', border: !editData.club?.trim() && !!validationError ? '1px solid #dc2626' : undefined }}>
                     <SearchableDropdown options={courses} value={editData.club || ''} onChange={(value) => setEditData({ ...editData, club: value })} placeholder="클럽 검색..." displayKey="name" valueKey="name" />
                   </div>
                 </EF>
                 <EF label="Golflink 번호" required error={!editData.golflinkNumber?.trim() && !!validationError}>
-                  <input type="text" value={editData.golflinkNumber || ''} onChange={(e) => setEditData({ ...editData, golflinkNumber: e.target.value })} style={{ borderColor: !editData.golflinkNumber?.trim() && !!validationError ? '#e74c3c' : undefined }} />
+                  <input type="text" value={editData.golflinkNumber || ''} onChange={(e) => setEditData({ ...editData, golflinkNumber: e.target.value })} style={{ borderColor: !editData.golflinkNumber?.trim() && !!validationError ? '#dc2626' : undefined }} />
                 </EF>
                 <EF label="GA 등록이름">
                   <input type="text" value={editData.gaRegisteredName || ''} onChange={(e) => setEditData({ ...editData, gaRegisteredName: e.target.value })} placeholder="예: Kim, Chang" />
                 </EF>
                 <EF label="클럽 회원번호" required error={!editData.clubMemberNumber?.trim() && !!validationError}>
-                  <input type="text" value={editData.clubMemberNumber || ''} onChange={(e) => setEditData({ ...editData, clubMemberNumber: e.target.value })} style={{ borderColor: !editData.clubMemberNumber?.trim() && !!validationError ? '#e74c3c' : undefined }} />
+                  <input type="text" value={editData.clubMemberNumber || ''} onChange={(e) => setEditData({ ...editData, clubMemberNumber: e.target.value })} style={{ borderColor: !editData.clubMemberNumber?.trim() && !!validationError ? '#dc2626' : undefined }} />
                 </EF>
                 <EF label="GA 핸디캡" required error={!editData.gaHandy?.toString().trim() && !!validationError}>
-                  <input type="text" inputMode="decimal" placeholder="예: 18.4" value={editData.gaHandy || ''} onChange={(e) => { const v = e.target.value.replace(/[^0-9.]/g, ''); setEditData({ ...editData, gaHandy: v, handicap: v }); }} style={{ borderColor: !editData.gaHandy?.toString().trim() && !!validationError ? '#e74c3c' : undefined }} />
+                  <input type="text" inputMode="decimal" placeholder="예: 18.4" value={editData.gaHandy || ''} onChange={(e) => { const v = e.target.value.replace(/[^0-9.]/g, ''); setEditData({ ...editData, gaHandy: v, handicap: v }); }} style={{ borderColor: !editData.gaHandy?.toString().trim() && !!validationError ? '#dc2626' : undefined }} />
                 </EF>
               </>
             )}
 
             {editData.isClubMember === 'no' && (
               <EF label="House 핸디캡" required error={!editData.handicap?.toString().trim() && !!validationError}>
-                <input type="text" inputMode="decimal" placeholder="예: 18.4" value={editData.handicap || ''} onChange={(e) => { const v = e.target.value.replace(/[^0-9.]/g, ''); setEditData({ ...editData, handicap: v, houseHandy: v }); }} style={{ borderColor: !editData.handicap?.toString().trim() && !!validationError ? '#e74c3c' : undefined }} />
+                <input type="text" inputMode="decimal" placeholder="예: 18.4" value={editData.handicap || ''} onChange={(e) => { const v = e.target.value.replace(/[^0-9.]/g, ''); setEditData({ ...editData, handicap: v, houseHandy: v }); }} style={{ borderColor: !editData.handicap?.toString().trim() && !!validationError ? '#dc2626' : undefined }} />
               </EF>
             )}
           </div>
 
           {/* ── 개인 정보 ── */}
           <div className="card" style={{ marginBottom: '16px' }}>
-            <h3 style={{ fontSize: '13px', fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '16px' }}>개인 정보</h3>
+            <h3 style={{ fontSize: '13px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.6px', marginBottom: '16px' }}>개인 정보</h3>
 
             <div style={{ marginBottom: '14px' }}>
-              <div style={{ fontSize: '13px', fontWeight: '600', color: '#374151', marginBottom: '10px' }}>
-                성별 <span style={{ color: '#e74c3c' }}>*</span>
+              <div style={{ fontSize: '13px', fontWeight: '600', color: '#334155', marginBottom: '10px' }}>
+                성별 <span style={{ color: '#dc2626' }}>*</span>
               </div>
               <div style={{ display: 'flex', gap: '10px' }}>
                 {[['남', '남성'], ['여', '여성']].map(([val, label]) => (
-                  <label key={val} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', border: editData.gender === val ? '2px solid var(--primary-green)' : '2px solid #E5E7EB', borderRadius: '10px', cursor: 'pointer', background: editData.gender === val ? 'rgba(15,118,110,0.06)' : 'white', fontSize: '13px', fontWeight: editData.gender === val ? '700' : '500', color: editData.gender === val ? 'var(--primary-green)' : '#6B7280' }}>
+                  <label key={val} style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', padding: '12px', border: editData.gender === val ? '2px solid var(--primary-green)' : '2px solid #E2E8F0', borderRadius: '10px', cursor: 'pointer', background: editData.gender === val ? 'rgba(15,118,110,0.06)' : 'white', fontSize: '13px', fontWeight: editData.gender === val ? '700' : '500', color: editData.gender === val ? 'var(--primary-green)' : '#64748B' }}>
                     <input type="radio" name="gender" value={val} checked={editData.gender === val} onChange={(e) => setEditData({ ...editData, gender: e.target.value })} style={{ display: 'none' }} />
                     {label}
                   </label>
@@ -559,10 +559,10 @@ function MemberDetail() {
             </div>
 
             <EF label="출생연도" required error={!editData.birthYear?.toString().trim() && !!validationError}>
-              <input type="number" inputMode="numeric" value={editData.birthYear || ''} onChange={(e) => setEditData({ ...editData, birthYear: e.target.value })} style={{ borderColor: !editData.birthYear?.toString().trim() && !!validationError ? '#e74c3c' : undefined }} />
+              <input type="number" inputMode="numeric" value={editData.birthYear || ''} onChange={(e) => setEditData({ ...editData, birthYear: e.target.value })} style={{ borderColor: !editData.birthYear?.toString().trim() && !!validationError ? '#dc2626' : undefined }} />
             </EF>
             <EF label="사는 지역" required error={fi('region')}>
-              <input type="text" value={editData.region || ''} onChange={(e) => setEditData({ ...editData, region: e.target.value })} style={{ borderColor: fi('region') ? '#e74c3c' : undefined }} />
+              <input type="text" value={editData.region || ''} onChange={(e) => setEditData({ ...editData, region: e.target.value })} style={{ borderColor: fi('region') ? '#dc2626' : undefined }} />
             </EF>
           </div>
 
@@ -580,11 +580,11 @@ function MemberDetail() {
         </div>
 
         {/* ── 고정 하단 버튼 ── */}
-        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '12px 16px', paddingBottom: 'max(80px, calc(68px + env(safe-area-inset-bottom)))', background: 'white', borderTop: '1px solid #E5E7EB', display: 'flex', gap: '10px', zIndex: 50, boxShadow: '0 -2px 12px rgba(0,0,0,0.08)' }}>
+        <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, padding: '12px 16px', paddingBottom: 'max(80px, calc(68px + env(safe-area-inset-bottom)))', background: 'white', borderTop: '1px solid #E2E8F0', display: 'flex', gap: '10px', zIndex: 50, boxShadow: '0 -2px 12px rgba(0,0,0,0.08)' }}>
           {!requiresProfileComplete && (
             <button
               onClick={() => { setIsEditing(false); setEditData(member); setValidationError(''); }}
-              style={{ flex: 1, padding: '14px', background: '#F3F4F6', color: '#374151', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}
+              style={{ flex: 1, padding: '14px', background: '#F1F5F9', color: '#334155', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '600', cursor: 'pointer' }}
             >
               취소
             </button>
@@ -592,7 +592,7 @@ function MemberDetail() {
           <button
             onClick={handleSave}
             disabled={isSaving}
-            style={{ flex: 2, padding: '14px', background: isSaving ? '#9CA3AF' : 'var(--primary-green)', color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '700', cursor: isSaving ? 'not-allowed' : 'pointer' }}
+            style={{ flex: 2, padding: '14px', background: isSaving ? '#94A3B8' : 'var(--primary-green)', color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '700', cursor: isSaving ? 'not-allowed' : 'pointer' }}
           >
             {isSaving ? '저장 중...' : '저장하기'}
           </button>
@@ -614,13 +614,13 @@ function MemberDetail() {
       return (
         <div key={label} style={{ marginBottom: '12px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-            <span style={{ color: '#374151', fontWeight: '600', fontSize: '13px' }}>{label}</span>
-            <span style={{ color: '#9CA3AF', fontSize: '12px' }}>PAR {rowPar} / 합계: {rowTotal}</span>
+            <span style={{ color: '#334155', fontWeight: '600', fontSize: '13px' }}>{label}</span>
+            <span style={{ color: '#94A3B8', fontSize: '12px' }}>PAR {rowPar} / 합계: {rowTotal}</span>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(9, 1fr)', gap: '4px' }}>
             {holesInRow.map(holeNum => (
               <div key={holeNum} style={{ textAlign: 'center' }}>
-                <div style={{ color: '#9CA3AF', fontSize: '10px', marginBottom: '2px' }}>{holeNum}</div>
+                <div style={{ color: '#94A3B8', fontSize: '10px', marginBottom: '2px' }}>{holeNum}</div>
                 <input
                   type="number"
                   min="0"
@@ -632,9 +632,9 @@ function MemberDetail() {
                     newHoles[holeNum - 1] = parseInt(e.target.value) || 0;
                     setScoreFormData(prev => ({ ...prev, holes: newHoles }));
                   }}
-                  style={{ width: '100%', padding: '6px 2px', fontSize: '13px', fontWeight: '600', textAlign: 'center', borderRadius: '6px', border: '1px solid #E5E7EB', background: '#F9FAFB', color: '#111827', marginBottom: 0 }}
+                  style={{ width: '100%', padding: '6px 2px', fontSize: '13px', fontWeight: '600', textAlign: 'center', borderRadius: '6px', border: '1px solid #E2E8F0', background: '#F8FAFC', color: '#0f172a', marginBottom: 0 }}
                 />
-                <div style={{ color: '#D1D5DB', fontSize: '9px', marginTop: '2px' }}>P{parArr[holeNum - 1] || 4}</div>
+                <div style={{ color: '#CBD5E1', fontSize: '9px', marginTop: '2px' }}>P{parArr[holeNum - 1] || 4}</div>
               </div>
             ))}
           </div>
@@ -644,7 +644,7 @@ function MemberDetail() {
 
     const totalHolesScore = scoreFormData.holes.reduce((a, b) => a + b, 0);
     return (
-      <div style={{ background: '#F9FAFB', border: '1px solid #E5E7EB', padding: '14px', borderRadius: '10px', marginBottom: '12px' }}>
+      <div style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', padding: '14px', borderRadius: '10px', marginBottom: '12px' }}>
         {renderRow(1, 9, 'OUT')}
         {renderRow(10, 18, 'IN')}
         <div style={{ textAlign: 'center', padding: '10px', background: '#D1FAE5', borderRadius: '8px', marginTop: '10px' }}>
@@ -739,7 +739,7 @@ function MemberDetail() {
             </span>
           )}
           {member.isActive === false && (
-            <span style={{ background: '#4B5563', color: 'white', padding: '5px 14px', borderRadius: '999px', fontSize: '13px', fontWeight: '600' }}>비활성</span>
+            <span style={{ background: '#475569', color: 'white', padding: '5px 14px', borderRadius: '999px', fontSize: '13px', fontWeight: '600' }}>비활성</span>
           )}
         </div>
 
@@ -778,7 +778,7 @@ function MemberDetail() {
                 background: activeTab === key ? 'white' : 'transparent',
                 borderRadius: '9px', border: 'none',
                 fontSize: '13px', fontWeight: activeTab === key ? '700' : '500',
-                color: activeTab === key ? '#0A2158' : '#6B7280',
+                color: activeTab === key ? '#0A2158' : '#64748B',
                 cursor: 'pointer',
                 boxShadow: activeTab === key ? '0 1px 4px rgba(0,0,0,0.12)' : 'none',
                 transition: 'all 0.15s'
@@ -799,13 +799,13 @@ function MemberDetail() {
             {/* 권한관리 + 회비면제 (admin only) */}
             {isAdmin && (
               <div style={{ background: 'white', borderRadius: '16px', padding: '16px', marginBottom: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
-                <div style={{ fontSize: '12px', fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '12px' }}>권한 관리</div>
+                <div style={{ fontSize: '12px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '12px' }}>권한 관리</div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: hasFeaturePermission('fee_exemption') ? '14px' : '0' }}>
                   {[{ role: '회원' }, { role: '클럽운영진' }, { role: '운영진' }, { role: '방장' }, { role: '관리자' }].map(({ role }) => {
                     const isSelected = member.role === role || (!member.role && role === '회원');
                     return (
                       <button key={role} onClick={() => handleChangeRole(role)}
-                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', background: isSelected ? '#0047AB' : '#F1F5F9', border: isSelected ? '2px solid #0047AB' : '2px solid #E2E8F0', borderRadius: '20px', cursor: 'pointer', fontSize: '13px', fontWeight: isSelected ? '700' : '500', color: isSelected ? 'white' : '#374151' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '7px 12px', background: isSelected ? '#0047AB' : '#F1F5F9', border: isSelected ? '2px solid #0047AB' : '2px solid #E2E8F0', borderRadius: '20px', cursor: 'pointer', fontSize: '13px', fontWeight: isSelected ? '700' : '500', color: isSelected ? 'white' : '#334155' }}
                       >
                         {role !== '회원' ? <CrownIcon role={role} size={15} /> : <span style={{ fontSize: '13px' }}>👤</span>}
                         <span>{role}</span>
@@ -815,16 +815,16 @@ function MemberDetail() {
                 </div>
 
                 {hasFeaturePermission('fee_exemption') && (
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: '#F9FAFB', borderRadius: '12px', border: '1px solid #E5E7EB', opacity: isTogglingFeeExempt ? 0.7 : 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0', opacity: isTogglingFeeExempt ? 0.7 : 1 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                       <span style={{ fontSize: '18px' }}>💰</span>
                       <div>
-                        <div style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>회비면제</div>
-                        <div style={{ fontSize: '12px', color: '#9CA3AF' }}>{isTogglingFeeExempt ? '처리중...' : '라운딩 참가 시 참가비 제외'}</div>
+                        <div style={{ fontSize: '14px', fontWeight: '600', color: '#0f172a' }}>회비면제</div>
+                        <div style={{ fontSize: '12px', color: '#94A3B8' }}>{isTogglingFeeExempt ? '처리중...' : '라운딩 참가 시 참가비 제외'}</div>
                       </div>
                     </div>
                     <div onClick={isTogglingFeeExempt ? undefined : handleFeeExemptChange}
-                      style={{ width: '50px', height: '28px', borderRadius: '14px', background: member.isFeeExempt ? '#0047AB' : '#D1D5DB', position: 'relative', cursor: isTogglingFeeExempt ? 'not-allowed' : 'pointer', transition: 'all 0.3s', flexShrink: 0 }}>
+                      style={{ width: '50px', height: '28px', borderRadius: '14px', background: member.isFeeExempt ? '#0047AB' : '#CBD5E1', position: 'relative', cursor: isTogglingFeeExempt ? 'not-allowed' : 'pointer', transition: 'all 0.3s', flexShrink: 0 }}>
                       <div style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'white', position: 'absolute', top: '2px', left: member.isFeeExempt ? '24px' : '2px', transition: 'left 0.3s', boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }} />
                     </div>
                   </div>
@@ -842,7 +842,7 @@ function MemberDetail() {
 
             {/* 기본 정보 */}
             <div style={{ background: 'white', borderRadius: '16px', padding: '16px', marginBottom: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
-              <div style={{ fontSize: '12px', fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '12px' }}>기본 정보</div>
+              <div style={{ fontSize: '12px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.7px', marginBottom: '12px' }}>기본 정보</div>
               {member.phone && <InfoRow label="전화번호" value={String(member.phone).replace(/(\d{4})(\d{3})(\d{3})/, '$1 $2 $3')} />}
               {member.gender && <InfoRow label="성별" value={member.gender} />}
               {member.birthYear && <InfoRow label="출생연도" value={member.birthYear} />}
@@ -869,24 +869,24 @@ function MemberDetail() {
           <>
             {/* Balance 카드 */}
             <div style={{ background: 'white', borderRadius: '16px', padding: '20px', marginBottom: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)', textAlign: 'center' }}>
-              <div style={{ fontSize: '12px', fontWeight: '600', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
+              <div style={{ fontSize: '12px', fontWeight: '600', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '8px' }}>
                 현재 잔액
               </div>
               <div>
                 <span style={{ fontSize: '44px', fontWeight: '800', color: memberBalance < 0 ? '#DC2626' : '#0047AB', lineHeight: 1 }}>
                   {memberBalance < 0 ? '-' : ''}${Math.abs(memberBalance).toLocaleString()}
                 </span>
-                <span style={{ fontSize: '14px', color: '#9CA3AF', marginLeft: '6px', fontWeight: '600' }}>AUD</span>
+                <span style={{ fontSize: '14px', color: '#94A3B8', marginLeft: '6px', fontWeight: '600' }}>AUD</span>
               </div>
             </div>
 
             {/* Transaction list */}
             <div style={{ background: 'white', borderRadius: '16px', padding: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '14px' }}>
-                <span style={{ fontSize: '14px', fontWeight: '700', color: '#111827' }}>최근 거래 내역</span>
+                <span style={{ fontSize: '14px', fontWeight: '700', color: '#0f172a' }}>최근 거래 내역</span>
               </div>
               {transactions.length === 0 ? (
-                <div style={{ padding: '32px 0', textAlign: 'center', color: '#9CA3AF', fontSize: '14px' }}>거래 내역이 없습니다</div>
+                <div style={{ padding: '32px 0', textAlign: 'center', color: '#94A3B8', fontSize: '14px' }}>거래 내역이 없습니다</div>
               ) : (
                 <div>
                   {transactions.map((transaction, index) => {
@@ -906,11 +906,11 @@ function MemberDetail() {
                     const sign = isPositive ? '+' : '-';
                     const dateStr = transaction.date ? new Date(transaction.date).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' }) : '';
                     return (
-                      <div key={transaction.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 0', borderBottom: index < transactions.length - 1 ? '1px solid #F3F4F6' : 'none' }}>
+                      <div key={transaction.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 0', borderBottom: index < transactions.length - 1 ? '1px solid #F1F5F9' : 'none' }}>
                         <div style={{ width: '40px', height: '40px', borderRadius: '12px', background: bgColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', flexShrink: 0 }}>{iconText}</div>
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ fontWeight: '600', fontSize: '14px', color: '#111827', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{typeLabel}</div>
-                          <div style={{ fontSize: '12px', color: '#9CA3AF' }}>{dateStr}</div>
+                          <div style={{ fontWeight: '600', fontSize: '14px', color: '#0f172a', marginBottom: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{typeLabel}</div>
+                          <div style={{ fontSize: '12px', color: '#94A3B8' }}>{dateStr}</div>
                         </div>
                         <div style={{ textAlign: 'right', flexShrink: 0 }}>
                           <div style={{ fontSize: '15px', fontWeight: '700', color: amtColor }}>{sign}${transaction.amount.toLocaleString()}</div>
@@ -942,7 +942,7 @@ function MemberDetail() {
               return (
                 <div style={{ background: 'white', borderRadius: '16px', padding: '16px', marginBottom: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                    <div style={{ fontSize: '11px', fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
+                    <div style={{ fontSize: '11px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.8px' }}>
                       {isGAMember ? 'GA HANDICAP INDEX' : 'HANDICAP INDEX'}
                     </div>
                     {!isGAMember && (
@@ -960,8 +960,8 @@ function MemberDetail() {
                     </div>
                     {!isGAMember && recommendedVal != null && (
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: '600', marginBottom: '2px' }}>추천</div>
-                        <div style={{ fontSize: '24px', fontWeight: '800', color: isDifferent ? '#F59E0B' : '#374151', lineHeight: 1 }}>{recommendedVal}</div>
+                        <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: '600', marginBottom: '2px' }}>추천</div>
+                        <div style={{ fontSize: '24px', fontWeight: '800', color: isDifferent ? '#F59E0B' : '#334155', lineHeight: 1 }}>{recommendedVal}</div>
                       </div>
                     )}
                   </div>
@@ -986,13 +986,13 @@ function MemberDetail() {
 
             {/* 스코어 리스트 */}
             {scores.length === 0 ? (
-              <div style={{ background: 'white', borderRadius: '16px', padding: '40px 20px', textAlign: 'center', color: '#9CA3AF', fontSize: '14px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
+              <div style={{ background: 'white', borderRadius: '16px', padding: '40px 20px', textAlign: 'center', color: '#94A3B8', fontSize: '14px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
                 아직 기록된 스코어가 없습니다.
               </div>
             ) : (
               <div style={{ background: 'white', borderRadius: '16px', padding: '4px 16px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 0' }}>
-                  <span style={{ fontSize: '14px', fontWeight: '700', color: '#111827' }}>최근 라운딩</span>
+                  <span style={{ fontSize: '14px', fontWeight: '700', color: '#0f172a' }}>최근 라운딩</span>
                 </div>
                 {scores.map((score, index) => {
                   const d = score.date ? new Date(score.date) : null;
@@ -1001,7 +1001,7 @@ function MemberDetail() {
                   const coursePar = parArr.reduce((a, b) => a + b, 0);
                   const diff = score.totalScore - coursePar;
                   const diffStr = diff > 0 ? `+${diff}` : diff === 0 ? 'E' : `${diff}`;
-                  const diffColor = diff < 0 ? '#059669' : diff === 0 ? '#0047AB' : '#6B7280';
+                  const diffColor = diff < 0 ? '#059669' : diff === 0 ? '#0047AB' : '#64748B';
                   return (
                     <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px 0', borderTop: '1px solid #F1F5F9' }}>
                       {/* 날짜 */}
@@ -1013,7 +1013,7 @@ function MemberDetail() {
                       )}
                       {/* 라운딩 정보 */}
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: '14px', fontWeight: '700', color: '#111827', marginBottom: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <div style={{ fontSize: '14px', fontWeight: '700', color: '#0f172a', marginBottom: '3px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '6px' }}>
                           <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{score.roundingName}</span>
                           {score.gameMode === 'ambrose' && (
                             <span style={{ flexShrink: 0, fontSize: '10px', fontWeight: '700', color: '#0891b2', background: '#e0f2fe', padding: '2px 6px', borderRadius: '6px' }}>엠브로스(팀)</span>
@@ -1034,8 +1034,8 @@ function MemberDetail() {
                             {openMenuId === score.id && (
                               <>
                                 <div onClick={() => setOpenMenuId(null)} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 99 }} />
-                                <div onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '100%', right: 0, marginTop: '4px', background: 'white', border: '1px solid #E5E7EB', borderRadius: '10px', overflow: 'hidden', zIndex: 100, minWidth: '110px', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}>
-                                  <button onClick={() => { handleEditScore(score); setOpenMenuId(null); }} style={{ width: '100%', padding: '10px 14px', background: 'white', border: 'none', textAlign: 'left', fontSize: '14px', cursor: 'pointer', borderBottom: '1px solid #F3F4F6' }}>▪ 수정</button>
+                                <div onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', top: '100%', right: 0, marginTop: '4px', background: 'white', border: '1px solid #E2E8F0', borderRadius: '10px', overflow: 'hidden', zIndex: 100, minWidth: '110px', boxShadow: '0 4px 16px rgba(0,0,0,0.12)' }}>
+                                  <button onClick={() => { handleEditScore(score); setOpenMenuId(null); }} style={{ width: '100%', padding: '10px 14px', background: 'white', border: 'none', textAlign: 'left', fontSize: '14px', cursor: 'pointer', borderBottom: '1px solid #F1F5F9' }}>▪ 수정</button>
                                   <button onClick={() => { setOpenMenuId(null); handleDeleteScore(score.id); }} style={{ width: '100%', padding: '10px 14px', background: 'white', border: 'none', textAlign: 'left', fontSize: '14px', cursor: 'pointer', color: '#DC2626' }}>× 삭제</button>
                                 </div>
                               </>
@@ -1072,13 +1072,13 @@ function MemberDetail() {
             <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
               <button
                 onClick={() => setScoreFormData(prev => ({ ...prev, inputMode: 'total' }))}
-                style={{ flex: 1, padding: '10px', background: scoreFormData.inputMode === 'total' ? 'var(--primary-green)' : '#F3F4F6', color: scoreFormData.inputMode === 'total' ? 'white' : '#374151', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+                style={{ flex: 1, padding: '10px', background: scoreFormData.inputMode === 'total' ? 'var(--primary-green)' : '#F1F5F9', color: scoreFormData.inputMode === 'total' ? 'white' : '#334155', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
               >
                 총타수 입력
               </button>
               <button
                 onClick={() => setScoreFormData(prev => ({ ...prev, inputMode: 'holes' }))}
-                style={{ flex: 1, padding: '10px', background: scoreFormData.inputMode === 'holes' ? 'var(--primary-green)' : '#F3F4F6', color: scoreFormData.inputMode === 'holes' ? 'white' : '#374151', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
+                style={{ flex: 1, padding: '10px', background: scoreFormData.inputMode === 'holes' ? 'var(--primary-green)' : '#F1F5F9', color: scoreFormData.inputMode === 'holes' ? 'white' : '#334155', border: 'none', borderRadius: '8px', fontSize: '14px', fontWeight: '600', cursor: 'pointer' }}
               >
                 홀별 입력
               </button>
@@ -1102,13 +1102,13 @@ function MemberDetail() {
         <>
           <div onClick={() => setShowAdminSheet(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 300 }} />
           <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'white', borderRadius: '20px 20px 0 0', padding: '12px 20px', paddingBottom: 'max(80px, calc(68px + env(safe-area-inset-bottom)))', zIndex: 301, boxShadow: '0 -4px 24px rgba(0,0,0,0.12)' }}>
-            <div style={{ width: '40px', height: '4px', background: '#E5E7EB', borderRadius: '2px', margin: '0 auto 20px' }} />
-            <div style={{ fontSize: '12px', fontWeight: '700', color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '12px' }}>
+            <div style={{ width: '40px', height: '4px', background: '#E2E8F0', borderRadius: '2px', margin: '0 auto 20px' }} />
+            <div style={{ fontSize: '12px', fontWeight: '700', color: '#94A3B8', textTransform: 'uppercase', letterSpacing: '0.8px', marginBottom: '12px' }}>
               {member.nickname || member.name} 관리
             </div>
             <button
               onClick={() => { setShowAdminSheet(false); handleToggleActive(); }}
-              style={{ display: 'block', width: '100%', padding: '14px 16px', background: '#F9FAFB', border: '1px solid #E5E7EB', borderRadius: '10px', textAlign: 'left', fontSize: '15px', fontWeight: '600', cursor: 'pointer', marginBottom: '8px', color: '#374151' }}
+              style={{ display: 'block', width: '100%', padding: '14px 16px', background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: '10px', textAlign: 'left', fontSize: '15px', fontWeight: '600', cursor: 'pointer', marginBottom: '8px', color: '#334155' }}
             >
               {member.isActive === false ? '✓ 활성화하기' : '⏸ 비활성화하기'}
             </button>
@@ -1120,7 +1120,7 @@ function MemberDetail() {
             </button>
             <button
               onClick={() => setShowAdminSheet(false)}
-              style={{ display: 'block', width: '100%', padding: '14px 16px', background: 'none', border: 'none', textAlign: 'center', fontSize: '15px', fontWeight: '500', cursor: 'pointer', color: '#6B7280' }}
+              style={{ display: 'block', width: '100%', padding: '14px 16px', background: 'none', border: 'none', textAlign: 'center', fontSize: '15px', fontWeight: '500', cursor: 'pointer', color: '#64748B' }}
             >
               취소
             </button>
@@ -1132,31 +1132,31 @@ function MemberDetail() {
         <>
           <div onClick={() => setShowHandicapSheet(false)} style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', zIndex: 300 }} />
           <div style={{ position: 'fixed', bottom: 0, left: 0, right: 0, background: 'white', borderRadius: '20px 20px 0 0', padding: '12px 20px', paddingBottom: 'max(80px, calc(68px + env(safe-area-inset-bottom)))', zIndex: 301, boxShadow: '0 -4px 24px rgba(0,0,0,0.12)' }}>
-            <div style={{ width: '40px', height: '4px', background: '#E5E7EB', borderRadius: '2px', margin: '0 auto 20px' }} />
-            <div style={{ fontSize: '15px', fontWeight: '700', color: '#111827', marginBottom: '4px' }}>추천 핸디캡 계산</div>
-            <div style={{ fontSize: '13px', color: '#6B7280', marginBottom: '20px' }}>{member.nickname || member.name}</div>
+            <div style={{ width: '40px', height: '4px', background: '#E2E8F0', borderRadius: '2px', margin: '0 auto 20px' }} />
+            <div style={{ fontSize: '15px', fontWeight: '700', color: '#0f172a', marginBottom: '4px' }}>추천 핸디캡 계산</div>
+            <div style={{ fontSize: '13px', color: '#64748B', marginBottom: '20px' }}>{member.nickname || member.name}</div>
 
             {/* 현재 vs 추천 비교 */}
             <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
-              <div style={{ flex: 1, padding: '16px', background: '#F9FAFB', borderRadius: '12px', textAlign: 'center' }}>
-                <div style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: '700', marginBottom: '6px', textTransform: 'uppercase' }}>현재 등록</div>
+              <div style={{ flex: 1, padding: '16px', background: '#F8FAFC', borderRadius: '12px', textAlign: 'center' }}>
+                <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: '700', marginBottom: '6px', textTransform: 'uppercase' }}>현재 등록</div>
                 <div style={{ fontSize: '32px', fontWeight: '800', color: 'var(--primary-green)', lineHeight: 1 }}>
                   {effectiveHcp.value ?? '-'}
                 </div>
-                <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px', fontWeight: '600' }}>HH</div>
+                <div style={{ fontSize: '12px', color: '#64748B', marginTop: '4px', fontWeight: '600' }}>HH</div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', color: '#D1D5DB', fontSize: '20px' }}>→</div>
+              <div style={{ display: 'flex', alignItems: 'center', color: '#CBD5E1', fontSize: '20px' }}>→</div>
               <div style={{ flex: 1, padding: '16px', background: handicapData.value !== effectiveHcp.value ? '#FFFBEB' : '#F0FDF4', borderRadius: '12px', textAlign: 'center', border: handicapData.value !== effectiveHcp.value ? '1px solid #FDE68A' : '1px solid #BBF7D0' }}>
-                <div style={{ fontSize: '11px', color: '#9CA3AF', fontWeight: '700', marginBottom: '6px', textTransform: 'uppercase' }}>추천값</div>
+                <div style={{ fontSize: '11px', color: '#94A3B8', fontWeight: '700', marginBottom: '6px', textTransform: 'uppercase' }}>추천값</div>
                 <div style={{ fontSize: '32px', fontWeight: '800', color: handicapData.value !== effectiveHcp.value ? '#D97706' : '#059669', lineHeight: 1 }}>
                   {handicapData.value}
                 </div>
-                <div style={{ fontSize: '12px', color: '#6B7280', marginTop: '4px', fontWeight: '600' }}>HH</div>
+                <div style={{ fontSize: '12px', color: '#64748B', marginTop: '4px', fontWeight: '600' }}>HH</div>
               </div>
             </div>
 
             {/* 계산 근거 */}
-            <div style={{ padding: '12px 14px', background: '#F9FAFB', borderRadius: '10px', marginBottom: '20px', fontSize: '13px', color: '#6B7280', lineHeight: '1.6', fontStyle: 'italic' }}>
+            <div style={{ padding: '12px 14px', background: '#F8FAFC', borderRadius: '10px', marginBottom: '20px', fontSize: '13px', color: '#64748B', lineHeight: '1.6', fontStyle: 'italic' }}>
               {handicapData.explanation}
             </div>
 
@@ -1165,14 +1165,14 @@ function MemberDetail() {
               <button
                 onClick={handleApplyRecommendedHandicap}
                 disabled={applyingHcp}
-                style={{ display: 'block', width: '100%', padding: '14px', background: applyingHcp ? '#9CA3AF' : 'var(--primary-green)', color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '700', cursor: applyingHcp ? 'not-allowed' : 'pointer', marginBottom: '8px' }}
+                style={{ display: 'block', width: '100%', padding: '14px', background: applyingHcp ? '#94A3B8' : 'var(--primary-green)', color: 'white', border: 'none', borderRadius: '10px', fontSize: '15px', fontWeight: '700', cursor: applyingHcp ? 'not-allowed' : 'pointer', marginBottom: '8px' }}
               >
                 {applyingHcp ? '적용 중...' : `추천값(${handicapData.value})으로 교체하기`}
               </button>
             )}
             <button
               onClick={() => setShowHandicapSheet(false)}
-              style={{ display: 'block', width: '100%', padding: '14px', background: 'none', border: 'none', textAlign: 'center', fontSize: '15px', fontWeight: '500', cursor: 'pointer', color: '#6B7280' }}
+              style={{ display: 'block', width: '100%', padding: '14px', background: 'none', border: 'none', textAlign: 'center', fontSize: '15px', fontWeight: '500', cursor: 'pointer', color: '#64748B' }}
             >
               닫기
             </button>
@@ -1185,9 +1185,9 @@ function MemberDetail() {
 
 function InfoRow({ label, value, last }) {
   return (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 0', borderBottom: last ? 'none' : '1px solid #F3F4F6' }}>
-      <span style={{ fontSize: '14px', color: '#9CA3AF' }}>{label}</span>
-      <span style={{ fontSize: '14px', fontWeight: '600', color: '#111827' }}>{value}</span>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '11px 0', borderBottom: last ? 'none' : '1px solid #F1F5F9' }}>
+      <span style={{ fontSize: '14px', color: '#94A3B8' }}>{label}</span>
+      <span style={{ fontSize: '14px', fontWeight: '600', color: '#0f172a' }}>{value}</span>
     </div>
   );
 }
@@ -1195,8 +1195,8 @@ function InfoRow({ label, value, last }) {
 function EF({ label, required, error, children }) {
   return (
     <div style={{ marginBottom: '14px' }}>
-      <div style={{ fontSize: '13px', fontWeight: '600', color: error ? '#DC2626' : '#374151', marginBottom: '6px' }}>
-        {label}{required && <span style={{ color: '#e74c3c', marginLeft: '2px' }}>*</span>}
+      <div style={{ fontSize: '13px', fontWeight: '600', color: error ? '#DC2626' : '#334155', marginBottom: '6px' }}>
+        {label}{required && <span style={{ color: '#dc2626', marginLeft: '2px' }}>*</span>}
       </div>
       {children}
     </div>
