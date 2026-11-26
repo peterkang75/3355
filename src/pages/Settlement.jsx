@@ -1907,8 +1907,10 @@ function Settlement() {
 
               {/* 미수금 목록 */}
               {outstandingMembers.length > 0 && (() => {
-                const regularMembers = outstandingMembers.filter(m => !m.isGuest);
-                const guestMembers = outstandingMembers.filter(m => m.isGuest);
+                // 이름순 (한글 가나다 → 영문 ABC, 대소문자 무시) — 같은 이름은 자연히 붙어서 나온다
+                const byName = (a, b) => (a.memberNickname || a.memberName || '').localeCompare(b.memberNickname || b.memberName || '', 'ko', { sensitivity: 'base' });
+                const regularMembers = outstandingMembers.filter(m => !m.isGuest).sort(byName);
+                const guestMembers = outstandingMembers.filter(m => m.isGuest).sort(byName);
                 const regularTotal = regularMembers.reduce((s, m) => s + Math.abs(m.balance), 0);
                 const guestTotal = guestMembers.reduce((s, m) => s + Math.abs(m.balance), 0);
                 return (
