@@ -1015,6 +1015,7 @@ function PaySheet({ member, amount, setAmount, memo, setMemo, date, setDate, yea
 // ─── 청구 내역 바텀시트 (미수금 회원별 charge 목록) ──────────────────────────
 function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }) {
   const [charges, setCharges] = useState([]);
+  const [balance, setBalance] = useState(0);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
   const [deletingMember, setDeletingMember] = useState(false);
@@ -1025,14 +1026,27 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
   useEffect(() => {
     if (!member) return;
     setLoading(true);
-    fetch(`/api/transactions/member/${member.memberId}`, { headers: authHeaders })
-      .then(r => r.ok ? r.json() : [])
-      .then(data => {
+    Promise.all([
+      fetch(`/api/transactions/member/${member.memberId}`, { headers: authHeaders }).then(r => r.ok ? r.json() : []),
+      fetch(`/api/transactions/balance/${member.memberId}`, { headers: authHeaders }).then(r => r.ok ? r.json() : { balance: 0 }),
+    ])
+      .then(([data, bal]) => {
         setCharges(data.filter(t => t.type === 'charge'));
+        setBalance(bal.balance || 0);
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, [member?.memberId]);
+
+  // 납부는 청구와 연결돼 있지 않으므로, 낸 돈은 오래된 청구부터 갚은 것으로 본다.
+  // = 현재 미수금을 최신 청구부터 거꾸로 배분 (charges는 최신순)
+  const unpaidById = {};
+  let remaining = Math.max(-balance, 0);
+  for (const c of charges) {
+    const unpaid = Math.min(c.amount, remaining);
+    unpaidById[c.id] = unpaid;
+    remaining -= unpaid;
+  }
 
   const handleCancel = async (charge) => {
     const label = charge.booking?.courseName || charge.booking?.title || charge.description || '청구';
@@ -1045,6 +1059,7 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
       });
       if (!r.ok) throw new Error('Failed');
       setCharges(prev => prev.filter(c => c.id !== charge.id));
+      setBalance(b => b + charge.amount);
       onRefresh?.();
     } catch {
       alert('청구 취소에 실패했습니다.');
@@ -1066,6 +1081,7 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
       });
       if (!r.ok) throw new Error('Failed');
       setCharges(prev => prev.map(c => c.id === charge.id ? { ...c, amount: val } : c));
+      setBalance(b => b - (val - charge.amount));
       setEditingId(null);
       onRefresh?.();
     } catch {
@@ -1158,7 +1174,13 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
                     </div>
                     <div style={{ minWidth: 0 }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--on-background)', marginBottom: 2 }}>{label}</div>
-                      <div style={{ fontSize: 11, color: '#ea580c', fontWeight: 600 }}>미납</div>
+                      {unpaidById[c.id] >= c.amount ? (
+                        <div style={{ fontSize: 11, color: '#ea580c', fontWeight: 600 }}>미납</div>
+                      ) : unpaidById[c.id] > 0 ? (
+                        <div style={{ fontSize: 11, color: '#ea580c', fontWeight: 600 }}>일부 미납 {formatCurrency(unpaidById[c.id])}</div>
+                      ) : (
+                        <div style={{ fontSize: 11, color: 'var(--text-muted)', fontWeight: 600 }}>납부</div>
+                      )}
                     </div>
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 5, flexShrink: 0, marginLeft: 12 }}>
@@ -1207,7 +1229,7 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
                       </>
                     ) : (
                       <>
-                        <span style={{ fontSize: 15, fontWeight: 800, color: '#ea580c' }}>-{formatCurrency(c.amount)}</span>
+                        <span style={{ fontSize: 15, fontWeight: 800, color: unpaidById[c.id] > 0 ? '#ea580c' : 'var(--text-muted)' }}>-{formatCurrency(c.amount)}</span>
                         {!isClosed && (
                           <div style={{ display: 'flex', gap: 6 }}>
                             <button
@@ -1221,7 +1243,7 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
                             >
                               수정
                             </button>
-                            <button
+                            {unpaidById[c.id] > 0 && <button
                               onClick={() => handleCancel(c)}
                               disabled={deletingId === c.id}
                               style={{
@@ -1235,7 +1257,7 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
                               }}
                             >
                               {deletingId === c.id ? '처리중...' : '청구취소'}
-                            </button>
+                            </button>}
                           </div>
                         )}
                       </>
