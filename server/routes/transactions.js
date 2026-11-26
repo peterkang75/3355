@@ -173,20 +173,20 @@ router.get("/bookings", requireAuth, requireOperator, async (req, res) => {
 });
 
 // 회원별 미수금 조회
-// - yearMonth 지정: 그 달의 net delta(charges-payments-refunds 등)가 음수인 회원만 반환 (월별 미수금)
+// - yearMonth 지정: 그 달 말일까지의 누적 잔액이 음수인 회원 반환 (지난달에 청구되고 아직 안 낸 돈도 포함)
 // - yearMonth 미지정: 전체 누적 잔액 음수 회원 반환 (호환용)
 router.get("/outstanding", requireAuth, requireOperator, async (req, res) => {
   try {
     const { yearMonth } = req.query; // "YYYY-MM" 형식
 
     if (yearMonth && /^\d{4}-\d{2}$/.test(yearMonth)) {
-      // 해당 월의 트랜잭션만 조회하여 회원별 net delta 계산 + 영수증 첨부 charge 추적
+      // 그 달 말일까지의 트랜잭션으로 회원별 누적 잔액 계산 (날짜는 'YYYY-MM-DD' 문자열이라 '-31'로 말일 포함)
       const monthlyTxs = await prisma.transaction.findMany({
         where: {
-          date: { startsWith: yearMonth },
+          date: { lte: `${yearMonth}-31` },
           memberId: { not: null },
         },
-        select: { id: true, memberId: true, bookingId: true, type: true, amount: true, category: true, receiptImage: true, receiptImages: true },
+        select: { id: true, memberId: true, bookingId: true, type: true, amount: true, category: true, date: true, receiptImage: true, receiptImages: true },
       });
 
       const EXCLUDED_PAYMENT_CATEGORIES = ['크레딧 자동 납부', '크레딧 납부', '크레딧 자동 차감'];
@@ -237,7 +237,8 @@ router.get("/outstanding", requireAuth, requireOperator, async (req, res) => {
       const receiptByMember = {}; // memberId → { images[], chargeIds[] }
       const pendingChargesByMember = {}; // memberId → chargeIds[] (영수증 없는 것 포함, 모든 미납 charge)
       for (const tx of monthlyTxs) {
-        if (tx.type !== 'charge' || !negativeIds.includes(tx.memberId)) continue;
+        // 영수증·미납 청구 추적은 기존대로 그 달 청구만 (지난달 청구는 납부와 연결 안 돼 있어 판별 불가)
+        if (tx.type !== 'charge' || !tx.date?.startsWith(yearMonth) || !negativeIds.includes(tx.memberId)) continue;
         const isPaid = tx.bookingId && paidBookingPairs.has(`${tx.memberId}:${tx.bookingId}`);
         if (isPaid) continue;
 
@@ -271,7 +272,7 @@ router.get("/outstanding", requireAuth, requireOperator, async (req, res) => {
           memberName: m.name,
           memberNickname: m.nickname,
           isGuest: m.isGuest || false,
-          balance: memberDeltas[m.id], // 월 단위 delta (음수)
+          balance: memberDeltas[m.id], // 그 달 말일 기준 누적 잔액 (음수)
           receiptImages: receiptByMember[m.id]?.images || [],
           receiptChargeIds: receiptByMember[m.id]?.chargeIds || [],
           pendingChargeIds: pendingChargesByMember[m.id] || [],
