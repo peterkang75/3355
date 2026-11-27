@@ -2242,11 +2242,14 @@ function Admin() {
                     <div style={{ display: 'flex', gap: '8px' }}>
                       <button
                         onClick={async () => {
-                          if (confirm(`${member.name} 회원을 승인하시겠습니까?`)) {
+                          // 연회비는 자동이 아니라 승인 때 같이 청구 (취소 = 승인 안 함, 비우거나 0 = 청구 없이 승인)
+                          const input = prompt(`${member.name} 회원을 승인합니다.\n함께 청구할 연회비 금액을 입력하세요.\n(비워 두면 청구하지 않고 승인만 합니다)`, '30');
+                          if (input !== null) {
+                            const fee = Number(input.replace(/[^0-9.]/g, '')) || 0;
                             try {
-                              await apiService.approveMember(member.id);
+                              await apiService.approveMember(member.id, fee);
                               await refreshMembers();
-                              alert('승인되었습니다!');
+                              alert(fee > 0 ? `승인되었습니다. 연회비 $${fee}이 청구되었습니다.` : '승인되었습니다!');
                             } catch (error) {
                               console.error('승인 실패:', error);
                               alert('승인에 실패했습니다.');

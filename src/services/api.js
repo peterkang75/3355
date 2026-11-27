@@ -759,10 +759,11 @@ class ApiService {
     return response.json();
   }
 
-  async approveMember(id) {
+  async approveMember(id, annualFee = 0) {
     const response = await fetch(`${API_BASE}/members/${id}/approve`, {
       method: 'PATCH',
-      headers: this.getAuthHeaders(),
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ annualFee }),
     });
     if (!response.ok) throw new Error('Failed to approve member');
     return response.json();

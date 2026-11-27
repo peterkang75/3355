@@ -238,12 +238,25 @@ router.patch("/:id/role", requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
+// body: { annualFee? } — 운영자가 금액을 넣었을 때만 연회비 청구 (승인과 한 번에 처리)
 router.patch("/:id/approve", requireAuth, requireOperator, async (req, res) => {
   try {
-    const member = await prisma.member.update({
-      where: { id: req.params.id },
-      data: { approvalStatus: "approved" },
-    });
+    const fee = Number(req.body?.annualFee) || 0;
+    if (fee < 0) return res.status(400).json({ error: "연회비 금액이 올바르지 않습니다" });
+    const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Australia/Sydney' });
+    const [member] = await prisma.$transaction([
+      prisma.member.update({
+        where: { id: req.params.id },
+        data: { approvalStatus: "approved" },
+      }),
+      ...(fee > 0 ? [prisma.transaction.create({
+        data: { type: 'charge', amount: fee, description: '연회비', date: today, memberId: req.params.id, createdBy: req.member.id },
+      })] : []),
+    ]);
+    if (fee > 0) {
+      await recalculateAndUpdateBalance(req.params.id);
+      req.io.emit("transactions:updated");
+    }
     req.io.emit("members:updated");
     res.json(member);
   } catch (error) {
