@@ -308,7 +308,7 @@ router.post("/:id/convert-to-member", requireAuth, requireOperator, async (req, 
     const g = guest.id, t = target.id;
 
     // 안전장치 1: 같은 라운딩에 회원 청구가 이미 있으면 옮기면 이중 청구가 된다
-    const guestTxs = await prisma.transaction.findMany({ where: { memberId: g }, select: { bookingId: true, date: true } });
+    const guestTxs = await prisma.transaction.findMany({ where: { memberId: g }, select: { id: true, bookingId: true, date: true, description: true, category: true } });
     const bookingIds = [...new Set(guestTxs.map(x => x.bookingId).filter(Boolean))];
     if (bookingIds.length) {
       const dup = await prisma.transaction.findFirst({ where: { memberId: t, type: 'charge', bookingId: { in: bookingIds } } });
@@ -366,7 +366,15 @@ router.post("/:id/convert-to-member", requireAuth, requireOperator, async (req, 
     // shortcut: 스코어 gameMetadata 안에 적힌 게스트 phone은 바꾸지 않는다 — 이미 경기한 게스트를 전환하는 일이 생기면 보강
     await prisma.$transaction([
       ...bookingUpdates,
-      prisma.transaction.updateMany({ where: { memberId: g }, data: { memberId: t } }),
+      // 회원 청구와 같은 모양으로: 설명의 "(게스트)" 빼고, 게스트 전용 분류는 회원 분류로
+      ...guestTxs.map(x => prisma.transaction.update({
+        where: { id: x.id },
+        data: {
+          memberId: t,
+          description: x.description?.replace(/\s*\(게스트\)\s*$/, ''),
+          category: x.category === '게스트 참가비' ? null : x.category === '게스트 참가비납부' ? '회비납부' : x.category,
+        },
+      })),
       prisma.transaction.updateMany({ where: { createdBy: g }, data: { createdBy: t } }),
       prisma.score.updateMany({ where: { userId: g }, data: { userId: t } }),
       prisma.score.updateMany({ where: { markerId: g }, data: { markerId: t } }),
