@@ -4,6 +4,7 @@ import { parseParticipants } from '../../utils';
 import { generateListPdf } from '../../utils/pdfList';
 import { getBookingStatusFlags } from '../booking/bookingHelpers';
 import AttendancePollManager, { toLocalInput } from '../../components/AttendancePollManager';
+import ConvertGuestSheet from '../../components/ConvertGuestSheet';
 import {
   C, Section, Group, Row, InlineInput, Switch, Segmented, Sheet,
   textFieldStyle, primaryButtonStyle, secondaryButtonStyle,
@@ -74,6 +75,8 @@ function AddGuestSheet({ onAdd, onClose, saving }) {
 export default function RecruitTab({ booking, members, perms, save, saving, reload }) {
   const [expanded, setExpanded] = useState(false);
   const [sheet, setSheet] = useState(null); // 'member' | 'guest' | null
+  const [guestMenu, setGuestMenu] = useState(null); // 누른 게스트 이름표
+  const [converting, setConverting] = useState(null);
   const [busy, setBusy] = useState(false);
   const [pollOpen, setPollOpen] = useState(false);
 
@@ -200,7 +203,8 @@ export default function RecruitTab({ booking, members, perms, save, saving, relo
           <>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 16 }}>
               {visible.map((p, i) => (
-                <Chip key={p.phone || i} label={p.nickname || p.name} kind={kindOf(p)} onClick={() => removeChip(p)} />
+                <Chip key={p.phone || i} label={p.nickname || p.name} kind={kindOf(p)}
+                  onClick={() => (p.isGuest && p.id && perms.isOperator ? setGuestMenu(p) : removeChip(p))} />
               ))}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 10, minHeight: 28 }}>
@@ -291,6 +295,18 @@ export default function RecruitTab({ booking, members, perms, save, saving, relo
         <AddMemberSheet booking={booking} members={members} participants={participants} onAdd={addMember} onClose={() => setSheet(null)} />
       )}
       {sheet === 'guest' && <AddGuestSheet onAdd={addGuest} onClose={() => setSheet(null)} saving={busy} />}
+      {guestMenu && (
+        <Sheet title={`${guestMenu.nickname || guestMenu.name} (게스트)`} onClose={() => setGuestMenu(null)}>
+          <Group>
+            <Row label="회원으로 전환" hint="원래 회원이면 회원 기록으로 옮깁니다" onClick={() => { setConverting(guestMenu); setGuestMenu(null); }} />
+            <Row label="명단에서 빼기" danger onClick={() => { const p = guestMenu; setGuestMenu(null); removeChip(p); }} />
+          </Group>
+        </Sheet>
+      )}
+      {converting && (
+        <ConvertGuestSheet guest={{ id: converting.id, name: converting.nickname || converting.name }}
+          onClose={() => setConverting(null)} onDone={reload} />
+      )}
     </>
   );
 }

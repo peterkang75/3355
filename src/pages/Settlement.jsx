@@ -5,6 +5,7 @@ import { formatCurrency, checkIsOperator } from '../utils';
 import apiService from '../services/api';
 import { ProfileBadge } from '../components/common';
 import SettlementReportModal from '../components/SettlementReportModal';
+import ConvertGuestSheet from '../components/ConvertGuestSheet';
 
 // ─── 아이콘 ───────────────────────────────────────────────────────────────────
 const BackIcon = () => (
@@ -1022,6 +1023,7 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
   const [editingId, setEditingId] = useState(null);
   const [editAmount, setEditAmount] = useState('');
   const [savingEdit, setSavingEdit] = useState(false);
+  const [converting, setConverting] = useState(false);
 
   useEffect(() => {
     if (!member) return;
@@ -1134,6 +1136,14 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
               {memberName} 청구 내역
             </div>
             <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              {member.isGuest && !isClosed && (
+                <button
+                  onClick={() => setConverting(true)}
+                  style={{ padding: '5px 10px', borderRadius: 8, border: '1px solid #14284B', background: '#fff', color: '#14284B', fontSize: 11, fontWeight: 700, cursor: 'pointer', whiteSpace: 'nowrap' }}
+                >
+                  회원으로 전환
+                </button>
+              )}
               {member.isGuest && !isClosed && (
                 <button
                   onClick={handleDeleteGuestMember}
@@ -1269,6 +1279,13 @@ function ChargeDetailSheet({ member, authHeaders, onClose, onRefresh, isClosed }
           )}
         </div>
       </div>
+      {converting && (
+        <ConvertGuestSheet
+          guest={{ id: member.memberId, name: memberName }}
+          onClose={() => setConverting(false)}
+          onDone={() => { onRefresh?.(); onClose(); }}
+        />
+      )}
     </>
   );
 }

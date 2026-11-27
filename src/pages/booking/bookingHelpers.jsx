@@ -176,7 +176,7 @@ export const getManagePermissions = (booking, user) => {
   const isClubMemberOnly = canManage && !isOrganizer && !isOperator;
   // 예전 "고급 설정"을 볼 수 있던 기준 그대로
   const canAdvanced = !isClubMemberOnly && (!!user?.isAdmin || booking?.type === '정기모임' || booking?.type === '컴페티션');
-  return { canManage, isClubMemberOnly, canAdvanced };
+  return { canManage, isClubMemberOnly, canAdvanced, isOperator };
 };
 
 // 티오프 시간을 아직 모르는 라운딩 — 클럽 컴페티션은 모집이 끝나야 골프장이 시간을 배정한다.

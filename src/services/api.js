@@ -1047,6 +1047,18 @@ class ApiService {
     return response.json();
   }
 
+  async convertGuestToMember(guestId, memberId, extraCharge) {
+    const response = await fetch(`${API_BASE}/members/${guestId}/convert-to-member`, {
+      method: 'POST',
+      headers: this.getAuthHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ memberId, extraCharge }),
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || '회원 전환에 실패했습니다.');
+    this.invalidateCache('');
+    return data;
+  }
+
   async deleteChargeTransaction(memberId, bookingId) {
     const response = await fetch(`${API_BASE}/transactions/charge/${memberId}/${bookingId}`, {
       method: 'DELETE',
